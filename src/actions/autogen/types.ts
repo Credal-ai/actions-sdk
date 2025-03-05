@@ -6,6 +6,7 @@ export const AuthParamsSchema = z.object({
   authToken: z.string().optional(),
   baseUrl: z.string().optional(),
   apiKey: z.string().optional(),
+  userAgent: z.string().optional(),
 });
 
 export type AuthParamsType = z.infer<typeof AuthParamsSchema>;

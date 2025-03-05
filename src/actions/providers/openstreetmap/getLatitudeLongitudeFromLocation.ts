@@ -8,14 +8,16 @@ import {
 
 const getLatitudeLongitudeFromLocation: openstreetmapGetLatitudeLongitudeFromLocationFunction = async ({
   params,
+  authParams,
 }: {
   params: openstreetmapGetLatitudeLongitudeFromLocationParamsType;
   authParams: AuthParamsType;
 }): Promise<openstreetmapGetLatitudeLongitudeFromLocationOutputType> => {
   const { location } = params;
+  const { userAgent } = authParams;
   const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)}&format=json`;
 
-  const response = await axios.get(url, { headers: { "User-Agent": "Credal/1.0" } });
+  const response = await axios.get(url, { headers: { "User-Agent": userAgent } });
 
   return response.data.map((result: { lat: string; lon: string; display_name: string }) => ({
     latitude: parseFloat(result.lat),
