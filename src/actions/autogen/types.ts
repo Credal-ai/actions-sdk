@@ -300,7 +300,7 @@ export type openstreetmapGetLatitudeLongitudeFromLocationFunction = ActionFuncti
 
 export const nwsGetForecastForLocationParamsSchema = z.object({
   latitude: z.number().describe("The latitude of the location"),
-  longitude: z.number(),
+  longitude: z.number().describe("The longitude of the location"),
   isoDate: z.string().describe("The date to get the forecast for, in ISO datetime format"),
 });
 

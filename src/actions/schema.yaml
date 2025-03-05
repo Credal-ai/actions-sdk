@@ -413,6 +413,7 @@ actions:
             description: The latitude of the location
           longitude:
             type: number
+            description: The longitude of the location
           isoDate:
             type: string
             description: The date to get the forecast for, in ISO datetime format

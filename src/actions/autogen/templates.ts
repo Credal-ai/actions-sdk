@@ -561,6 +561,7 @@ export const nwsGetForecastForLocationDefinition: ActionTemplate = {
       },
       longitude: {
         type: "number",
+        description: "The longitude of the location",
       },
       isoDate: {
         type: "string",
