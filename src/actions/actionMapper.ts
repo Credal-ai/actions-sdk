@@ -23,6 +23,8 @@ import {
   jiraCreateJiraTicketOutputSchema,
   openstreetmapGetLatitudeLongitudeFromLocationParamsSchema,
   openstreetmapGetLatitudeLongitudeFromLocationOutputSchema,
+  workdayRequestTimeOffParamsSchema,
+  workdayRequestTimeOffOutputSchema,
 } from "./autogen/types";
 import updatePage from "./providers/confluence/updatePage";
 import callCopilot from "./providers/credal/callCopilot";
@@ -35,6 +37,7 @@ import getRowByFieldValue from "./providers/snowflake/getRowByFieldValue";
 import createZendeskTicket from "./providers/zendesk/createZendeskTicket";
 import createJiraTicket from "./providers/jira/createJiraTicket";
 import getLatitudeLongitudeFromLocation from "./providers/openstreetmap/getLatitudeLongitudeFromLocation";
+import requestTimeOff from "./providers/workday/requestTimeOff";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -110,6 +113,13 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: createJiraTicket,
       paramsSchema: jiraCreateJiraTicketParamsSchema,
       outputSchema: jiraCreateJiraTicketOutputSchema,
+    },
+  },
+  workday: {
+    requestTimeOff: {
+      fn: requestTimeOff,
+      paramsSchema: workdayRequestTimeOffParamsSchema,
+      outputSchema: workdayRequestTimeOffOutputSchema,
     },
   },
   openstreetmap: {

@@ -7,6 +7,7 @@ import {
   slackListConversationsDefinition,
   slackSendMessageDefinition,
   snowflakeGetRowByFieldValueDefinition,
+  workdayRequestTimeOffDefinition,
   zendeskCreateZendeskTicketDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
@@ -45,5 +46,9 @@ export const ACTION_GROUPS: ActionGroups = {
   SNOWFLAKE_GET_ROW_BY_FIELD_VALUE: {
     description: "Action for getting a row from a Snowflake table by field value",
     actions: [snowflakeGetRowByFieldValueDefinition],
+  },
+  WORKDAY_REQUEST_TIME_OFF: {
+    description: "Action for requesting time off in Workday",
+    actions: [workdayRequestTimeOffDefinition],
   },
 };
