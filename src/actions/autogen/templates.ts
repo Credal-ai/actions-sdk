@@ -548,3 +548,50 @@ export const openstreetmapGetLatitudeLongitudeFromLocationDefinition: ActionTemp
   name: "getLatitudeLongitudeFromLocation",
   provider: "openstreetmap",
 };
+export const nwsGetForecastForLocationDefinition: ActionTemplate = {
+  description: "Get the weather forecast for a location using latitude and longitude",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["latitude", "longitude", "isoDate"],
+    properties: {
+      latitude: {
+        type: "number",
+        description: "The latitude of the location",
+      },
+      longitude: {
+        type: "number",
+      },
+      isoDate: {
+        type: "string",
+        description: "The date to get the forecast for, in ISO datetime format",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: [],
+    properties: {
+      result: {
+        type: "object",
+        required: ["temperature", "temperatureUnit", "forecast"],
+        properties: {
+          temperature: {
+            type: "number",
+            description: "The temperature at the location",
+          },
+          temperatureUnit: {
+            type: "string",
+            description: "The unit of temperature",
+          },
+          forecast: {
+            type: "string",
+            description: "The forecast for the location",
+          },
+        },
+      },
+    },
+  },
+  name: "getForecastForLocation",
+  provider: "nws",
+};

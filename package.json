@@ -42,6 +42,7 @@
     "@slack/web-api": "^7.8.0",
     "@types/snowflake-sdk": "^1.6.24",
     "ajv": "^8.17.1",
+    "date-fns": "^4.1.0",
     "json-schema-to-zod": "^2.5.0",
     "mongodb": "^6.13.1",
     "snowflake-sdk": "^2.0.2",

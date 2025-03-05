@@ -296,3 +296,28 @@ export type openstreetmapGetLatitudeLongitudeFromLocationFunction = ActionFuncti
   AuthParamsType,
   openstreetmapGetLatitudeLongitudeFromLocationOutputType
 >;
+
+export const nwsGetForecastForLocationParamsSchema = z.object({
+  latitude: z.number().describe("The latitude of the location"),
+  longitude: z.number(),
+  isoDate: z.string().describe("The date to get the forecast for, in ISO datetime format"),
+});
+
+export type nwsGetForecastForLocationParamsType = z.infer<typeof nwsGetForecastForLocationParamsSchema>;
+
+export const nwsGetForecastForLocationOutputSchema = z.object({
+  result: z
+    .object({
+      temperature: z.number().describe("The temperature at the location"),
+      temperatureUnit: z.string().describe("The unit of temperature"),
+      forecast: z.string().describe("The forecast for the location"),
+    })
+    .optional(),
+});
+
+export type nwsGetForecastForLocationOutputType = z.infer<typeof nwsGetForecastForLocationOutputSchema>;
+export type nwsGetForecastForLocationFunction = ActionFunction<
+  nwsGetForecastForLocationParamsType,
+  AuthParamsType,
+  nwsGetForecastForLocationOutputType
+>;
