@@ -15,7 +15,7 @@
 Invoking an action:
 
 ```ts
-import { runAction } from "@credal-ai/actions";
+import { runAction } from "@credal/actions";
 
 const result = await runAction(
   "listConversations",
