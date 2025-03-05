@@ -103,7 +103,8 @@ async function addTypesToFile({
   fallback: string;
   name: string;
 }) {
-  const zodSchema = obj ? convert(obj) : fallback;
+  // Tool calling framework currently having trouble filling in records as opposed to objects
+  const zodSchema = obj ? convert(obj).replace(/z\.record\(z\.any\(\)\)/g, "z.object({}).catchall(z.any())") : fallback;
   const zodName = `${name}Schema`;
   file.addVariableStatement({
     declarationKind: VariableDeclarationKind.Const,

@@ -165,7 +165,7 @@ export const googlemapsValidateAddressOutputSchema = z.object({
     .optional(),
   uspsData: z
     .object({
-      standardizedAddress: z.record(z.any()).describe("The standardized USPS address.").optional(),
+      standardizedAddress: z.object({}).catchall(z.any()).describe("The standardized USPS address.").optional(),
       deliveryPointValidation: z.string().describe("The USPS delivery point validation status.").optional(),
       uspsAddressPrecision: z.string().describe("The level of precision for the USPS address.").optional(),
     })
@@ -223,7 +223,7 @@ export type zendeskCreateZendeskTicketFunction = ActionFunction<
 export const mongoInsertMongoDocParamsSchema = z.object({
   databaseName: z.string().describe("Database to connect to"),
   collectionName: z.string().describe("Collection to insert the document into"),
-  document: z.record(z.any()).describe("The document to insert"),
+  document: z.object({}).catchall(z.any()).describe("The document to insert"),
 });
 
 export type mongoInsertMongoDocParamsType = z.infer<typeof mongoInsertMongoDocParamsSchema>;
@@ -255,7 +255,7 @@ export const snowflakeGetRowByFieldValueOutputSchema = z.object({
   row: z
     .object({
       id: z.string().describe("The ID of the row").optional(),
-      rowContents: z.record(z.any()).describe("The contents of the row").optional(),
+      rowContents: z.object({}).catchall(z.any()).describe("The contents of the row").optional(),
     })
     .describe("The row from the Snowflake table"),
 });
@@ -281,6 +281,7 @@ export const openstreetmapGetLatitudeLongitudeFromLocationOutputSchema = z.objec
       z.object({
         latitude: z.number().describe("The latitude of the location"),
         longitude: z.number().describe("The longitude of the location"),
+        display_name: z.string().describe("The display name of the location"),
       }),
     )
     .describe("The results of the query")

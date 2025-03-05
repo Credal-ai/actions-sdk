@@ -526,7 +526,7 @@ export const openstreetmapGetLatitudeLongitudeFromLocationDefinition: ActionTemp
         description: "The results of the query",
         items: {
           type: "object",
-          required: ["latitude", "longitude"],
+          required: ["latitude", "longitude", "display_name"],
           properties: {
             latitude: {
               type: "number",
@@ -535,6 +535,10 @@ export const openstreetmapGetLatitudeLongitudeFromLocationDefinition: ActionTemp
             longitude: {
               type: "number",
               description: "The longitude of the location",
+            },
+            display_name: {
+              type: "string",
+              description: "The display name of the location",
             },
           },
         },
