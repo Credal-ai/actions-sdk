@@ -53,7 +53,7 @@ const requestTimeOff: workdayRequestTimeOffFunction = async ({
         console.log("Time-off request submitted successfully:", response.data);
         return response.data;
     } catch (error) {
-        throw error;
+        return { requestId: "Error" };
     }
 };
 
