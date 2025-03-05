@@ -64,6 +64,27 @@ export const mathAddOutputSchema = z.object({ result: z.number().describe("The s
 export type mathAddOutputType = z.infer<typeof mathAddOutputSchema>;
 export type mathAddFunction = ActionFunction<mathAddParamsType, AuthParamsType, mathAddOutputType>;
 
+export const workdayRequestTimeOffParamsSchema = z.object({
+  workerId: z.string().describe("The worker/employee ID of the person requesting time off"),
+  startDate: z.string().describe("The start date of the time off request"),
+  endDate: z.string().describe("The end date of the time off request"),
+  timeOffType: z.string().describe("The type of time off being requested"),
+  tenantName: z.string().describe("The name of the Workday tenant"),
+});
+
+export type workdayRequestTimeOffParamsType = z.infer<typeof workdayRequestTimeOffParamsSchema>;
+
+export const workdayRequestTimeOffOutputSchema = z.object({
+  requestId: z.string().describe("The ID of the time off request"),
+});
+
+export type workdayRequestTimeOffOutputType = z.infer<typeof workdayRequestTimeOffOutputSchema>;
+export type workdayRequestTimeOffFunction = ActionFunction<
+  workdayRequestTimeOffParamsType,
+  AuthParamsType,
+  workdayRequestTimeOffOutputType
+>;
+
 export const confluenceUpdatePageParamsSchema = z.object({
   pageId: z.string().describe("The page id that should be updated"),
   title: z.string().describe("The title of the page that should be updated"),

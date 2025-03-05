@@ -89,6 +89,48 @@ export const mathAddDefinition: ActionTemplate = {
   name: "add",
   provider: "math",
 };
+export const workdayRequestTimeOffDefinition: ActionTemplate = {
+  description: "Requests time off in Workday for a given user",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["workerId", "startDate", "endDate", "timeOffType", "tenantName"],
+    properties: {
+      workerId: {
+        type: "string",
+        description: "The worker/employee ID of the person requesting time off",
+      },
+      startDate: {
+        type: "string",
+        description: "The start date of the time off request",
+      },
+      endDate: {
+        type: "string",
+        description: "The end date of the time off request",
+      },
+      timeOffType: {
+        type: "string",
+        description: "The type of time off being requested",
+      },
+      tenantName: {
+        type: "string",
+        description: "The name of the Workday tenant",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["requestId"],
+    properties: {
+      requestId: {
+        type: "string",
+        description: "The ID of the time off request",
+      },
+    },
+  },
+  name: "requestTimeOff",
+  provider: "workday",
+};
 export const confluenceUpdatePageDefinition: ActionTemplate = {
   description: "Updates a Confluence page with the new content specified",
   scopes: [],
