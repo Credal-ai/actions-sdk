@@ -1,46 +1,19 @@
+import { AuthParamsType, workdayRequestTimeOffFunction, workdayRequestTimeOffOutputSchema, workdayRequestTimeOffOutputType, workdayRequestTimeOffParamsType } from "../../autogen/types";
+
 const axios = require("axios");
 
-const WORKDAY_BASE_URL = "https://your-workday-url/ccx/service/YOUR_TENANT/Absence_Management/v43.2";
-const TOKEN_URL = "https://your-workday-url/oauth2/YOUR_TENANT/token"; // OAuth token endpoint
+const WORKDAY_BASE_URL = "https://your-workday-url/ccx/service/{{YOUR_TENANT}}/Absence_Management/v43.2";
 
-const CLIENT_ID = "your-client-id";
-const CLIENT_SECRET = "your-client-secret";
-
-/**
- * Fetches an OAuth 2.0 access token from Workday.
- */
-async function getAccessToken() {
-    try {
-        const response = await axios.post(
-            TOKEN_URL,
-            new URLSearchParams({ grant_type: "client_credentials" }),
-            {
-                auth: {
-                    username: CLIENT_ID,
-                    password: CLIENT_SECRET
-                },
-                headers: { "Content-Type": "application/x-www-form-urlencoded" }
-            }
-        );
-        return response.data.access_token;
-    } catch (error) {
-        console.error("Error fetching access token:", error.response?.data || error.message);
-        throw error;
+const requestTimeOff: workdayRequestTimeOffFunction = async ({ params, authParams }: {
+    params: workdayRequestTimeOffParamsType;
+    authParams: AuthParamsType;
+}): Promise<workdayRequestTimeOffOutputType> => {
+    const { workerId, startDate, endDate, timeOffType, tenantName } = params;
+    if (!workerId || !startDate || !endDate || !timeOffType) {
+        throw new Error("Worker ID, start date, end date, and time-off type are required");
     }
-}
-
-/**
- * Submits a time-off request to Workday.
- * @param {Object} params - Time-off details.
- * @param {string} params.workerId - Worker's ID in Workday.
- * @param {string} params.startDate - Start date (YYYY-MM-DD).
- * @param {string} params.endDate - End date (YYYY-MM-DD).
- * @param {string} params.timeOffType - Time-off type (e.g., "SICK_LEAVE").
- */
-async function submitTimeOff({ workerId, startDate, endDate, timeOffType }) {
     try {
-        const token = await getAccessToken(); // Get OAuth token
-
+        const { authToken } = authParams;
         const requestBody = {
             "wd:Enter_Time_Off_Request": {
                 "wd:Worker_Reference": {
@@ -59,11 +32,11 @@ async function submitTimeOff({ workerId, startDate, endDate, timeOffType }) {
         };
 
         const response = await axios.post(
-            `${WORKDAY_BASE_URL}/Enter_Time_Off`,
+            `${WORKDAY_BASE_URL.replace("{{YOUR_TENANT}}", tenantName)}/Enter_Time_Off`,
             requestBody,
             {
                 headers: {
-                    "Authorization": `Bearer ${token}`,
+                    "Authorization": `Bearer ${authToken}`,
                     "Content-Type": "application/json"
                 }
             }
@@ -72,15 +45,6 @@ async function submitTimeOff({ workerId, startDate, endDate, timeOffType }) {
         console.log("Time-off request submitted successfully:", response.data);
         return response.data;
     } catch (error) {
-        console.error("Error submitting time-off request:", error.response?.data || error.message);
         throw error;
     }
 }
-
-// Example Usage:
-submitTimeOff({
-    workerId: "12345",
-    startDate: "2025-03-10",
-    endDate: "2025-03-12",
-    timeOffType: "SICK_LEAVE"
-}).then(console.log).catch(console.error);

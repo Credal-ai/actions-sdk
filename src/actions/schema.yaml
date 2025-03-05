@@ -74,7 +74,7 @@ actions:
       scopes: []
       parameters:
         type: object
-        required: [username, startDate, endDate, timeOffType]
+        required: [workerId, startDate, endDate, timeOffType, tenantName]
         properties:
           workerId:
             type: string
@@ -88,6 +88,9 @@ actions:
           timeOffType:
             type: string
             description: The type of time off being requested
+          tenantName:
+            type: string
+            description: The name of the Workday tenant
       output:
         type: object
         required: [requestId]
