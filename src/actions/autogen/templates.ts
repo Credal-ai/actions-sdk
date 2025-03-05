@@ -504,3 +504,43 @@ export const snowflakeGetRowByFieldValueDefinition: ActionTemplate = {
   name: "getRowByFieldValue",
   provider: "snowflake",
 };
+export const openstreetmapGetLatitudeLongitudeFromLocationDefinition: ActionTemplate = {
+  description: "Get the latitude and longitude of a location",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["location"],
+    properties: {
+      location: {
+        type: "string",
+        description: "The location to get the latitude and longitude of",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: [],
+    properties: {
+      results: {
+        type: "array",
+        description: "The results of the query",
+        items: {
+          type: "object",
+          required: ["latitude", "longitude"],
+          properties: {
+            latitude: {
+              type: "number",
+              description: "The latitude of the location",
+            },
+            longitude: {
+              type: "number",
+              description: "The longitude of the location",
+            },
+          },
+        },
+      },
+    },
+  },
+  name: "getLatitudeLongitudeFromLocation",
+  provider: "openstreetmap",
+};

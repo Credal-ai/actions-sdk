@@ -369,3 +369,34 @@ actions:
               rowContents:
                 type: object
                 description: The contents of the row
+  openstreetmap:
+    getLatitudeLongitudeFromLocation:
+      description: Get the latitude and longitude of a location
+      scopes: []
+      parameters:
+        type: object
+        required: [location]
+        properties:
+          location:
+            type: string
+            description: The location to get the latitude and longitude of
+      output:
+        type: object
+        required: []
+        properties:
+          results:
+            type: array
+            description: The results of the query
+            items:
+              type: object
+              required: [latitude, longitude, display_name]
+              properties:
+                latitude:
+                  type: number
+                  description: The latitude of the location
+                longitude:
+                  type: number
+                  description: The longitude of the location
+                display_name:
+                  type: string
+                  description: The display name of the location

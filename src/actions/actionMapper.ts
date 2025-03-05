@@ -21,6 +21,8 @@ import {
   zendeskCreateZendeskTicketParamsSchema,
   jiraCreateJiraTicketParamsSchema,
   jiraCreateJiraTicketOutputSchema,
+  openstreetmapGetLatitudeLongitudeFromLocationParamsSchema,
+  openstreetmapGetLatitudeLongitudeFromLocationOutputSchema,
 } from "./autogen/types";
 import updatePage from "./providers/confluence/updatePage";
 import callCopilot from "./providers/credal/callCopilot";
@@ -32,6 +34,7 @@ import sendMessage from "./providers/slack/sendMessage";
 import getRowByFieldValue from "./providers/snowflake/getRowByFieldValue";
 import createZendeskTicket from "./providers/zendesk/createZendeskTicket";
 import createJiraTicket from "./providers/jira/createJiraTicket";
+import getLatitudeLongitudeFromLocation from "./providers/openstreetmap/getLatitudeLongitudeFromLocation";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -107,6 +110,13 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: createJiraTicket,
       paramsSchema: jiraCreateJiraTicketParamsSchema,
       outputSchema: jiraCreateJiraTicketOutputSchema,
+    },
+  },
+  openstreetmap: {
+    getLatitudeLongitudeFromLocation: {
+      fn: getLatitudeLongitudeFromLocation,
+      paramsSchema: openstreetmapGetLatitudeLongitudeFromLocationParamsSchema,
+      outputSchema: openstreetmapGetLatitudeLongitudeFromLocationOutputSchema,
     },
   },
 };

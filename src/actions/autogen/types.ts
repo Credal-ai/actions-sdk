@@ -266,3 +266,32 @@ export type snowflakeGetRowByFieldValueFunction = ActionFunction<
   AuthParamsType,
   snowflakeGetRowByFieldValueOutputType
 >;
+
+export const openstreetmapGetLatitudeLongitudeFromLocationParamsSchema = z.object({
+  location: z.string().describe("The location to get the latitude and longitude of"),
+});
+
+export type openstreetmapGetLatitudeLongitudeFromLocationParamsType = z.infer<
+  typeof openstreetmapGetLatitudeLongitudeFromLocationParamsSchema
+>;
+
+export const openstreetmapGetLatitudeLongitudeFromLocationOutputSchema = z.object({
+  results: z
+    .array(
+      z.object({
+        latitude: z.number().describe("The latitude of the location"),
+        longitude: z.number().describe("The longitude of the location"),
+      }),
+    )
+    .describe("The results of the query")
+    .optional(),
+});
+
+export type openstreetmapGetLatitudeLongitudeFromLocationOutputType = z.infer<
+  typeof openstreetmapGetLatitudeLongitudeFromLocationOutputSchema
+>;
+export type openstreetmapGetLatitudeLongitudeFromLocationFunction = ActionFunction<
+  openstreetmapGetLatitudeLongitudeFromLocationParamsType,
+  AuthParamsType,
+  openstreetmapGetLatitudeLongitudeFromLocationOutputType
+>;
