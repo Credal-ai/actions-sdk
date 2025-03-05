@@ -88,12 +88,15 @@ export const jiraCreateJiraTicketParamsSchema = z.object({
   description: z.string().describe("The description for the new ticket"),
   issueType: z.string().describe("The issue type of the new ticket"),
   reporter: z.string().describe("The reporter for the new ticket creation").optional(),
+  assignee: z.string().describe("The assignee for the new ticket creation").optional(),
   username: z.string().describe("The username of the person creating the ticket"),
 });
 
 export type jiraCreateJiraTicketParamsType = z.infer<typeof jiraCreateJiraTicketParamsSchema>;
 
-export const jiraCreateJiraTicketOutputSchema = z.void();
+export const jiraCreateJiraTicketOutputSchema = z.object({
+  ticketUrl: z.string().describe("The url to the created Jira Ticket"),
+});
 
 export type jiraCreateJiraTicketOutputType = z.infer<typeof jiraCreateJiraTicketOutputSchema>;
 export type jiraCreateJiraTicketFunction = ActionFunction<

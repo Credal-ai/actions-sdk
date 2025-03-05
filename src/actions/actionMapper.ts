@@ -19,6 +19,8 @@ import {
   snowflakeGetRowByFieldValueParamsSchema,
   zendeskCreateZendeskTicketOutputSchema,
   zendeskCreateZendeskTicketParamsSchema,
+  jiraCreateJiraTicketParamsSchema,
+  jiraCreateJiraTicketOutputSchema,
 } from "./autogen/types";
 import updatePage from "./providers/confluence/updatePage";
 import callCopilot from "./providers/credal/callCopilot";
@@ -29,6 +31,8 @@ import listConversations from "./providers/slack/listConversations";
 import sendMessage from "./providers/slack/sendMessage";
 import getRowByFieldValue from "./providers/snowflake/getRowByFieldValue";
 import createZendeskTicket from "./providers/zendesk/createZendeskTicket";
+import createJiraTicket from "./providers/jira/createJiraTicket";
+
 interface ActionFunctionComponents {
   // eslint-disable-next-line
   fn: ActionFunction<any, any, any>;
@@ -96,6 +100,13 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: getRowByFieldValue,
       paramsSchema: snowflakeGetRowByFieldValueParamsSchema,
       outputSchema: snowflakeGetRowByFieldValueOutputSchema,
+    },
+  },
+  jira: {
+    createJiraTicket: {
+      fn: createJiraTicket,
+      paramsSchema: jiraCreateJiraTicketParamsSchema,
+      outputSchema: jiraCreateJiraTicketOutputSchema,
     },
   },
 };

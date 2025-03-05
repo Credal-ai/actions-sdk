@@ -144,9 +144,23 @@ export const jiraCreateJiraTicketDefinition: ActionTemplate = {
         type: "string",
         description: "The reporter for the new ticket creation",
       },
+      assignee: {
+        type: "string",
+        description: "The assignee for the new ticket creation",
+      },
       username: {
         type: "string",
         description: "The username of the person creating the ticket",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["ticketUrl"],
+    properties: {
+      ticketUrl: {
+        type: "string",
+        description: "The url to the created Jira Ticket",
       },
     },
   },
