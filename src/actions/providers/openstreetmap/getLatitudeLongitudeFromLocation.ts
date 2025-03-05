@@ -15,7 +15,7 @@ const getLatitudeLongitudeFromLocation: openstreetmapGetLatitudeLongitudeFromLoc
   const { location } = params;
   const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)}&format=json`;
 
-  const response = await axios.get(url, { headers: { 'User-Agent': 'Credal/1.0' } });
+  const response = await axios.get(url, { headers: { "User-Agent": "Credal/1.0" } });
 
   return response.data.map((result: { lat: string; lon: string; display_name: string }) => ({
     latitude: parseFloat(result.lat),
