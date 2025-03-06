@@ -334,6 +334,69 @@ export const googlemapsValidateAddressDefinition: ActionTemplate = {
   name: "validateAddress",
   provider: "googlemaps",
 };
+export const googlemapsNearbysearchDefinition: ActionTemplate = {
+  description: "Search for nearby places using Google Maps",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["latitude", "longitude"],
+    properties: {
+      latitude: {
+        type: "number",
+        description: "The latitude of the location to search nearby",
+      },
+      longitude: {
+        type: "number",
+        description: "The longitude of the location to search nearby",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["results"],
+    properties: {
+      results: {
+        type: "array",
+        description: "The results of the nearby search",
+        items: {
+          type: "object",
+          properties: {
+            name: {
+              type: "string",
+              description: "The name of the place",
+            },
+            address: {
+              type: "string",
+              description: "The address of the place",
+            },
+            rating: {
+              type: "number",
+              description: "The rating of the place",
+            },
+            priceLevel: {
+              type: "string",
+              description: "The price level of the place",
+            },
+            openingHours: {
+              type: "string",
+              description: "The opening hours of the place",
+            },
+            primaryType: {
+              type: "string",
+              description: "The primary type of the place",
+            },
+            editorialSummary: {
+              type: "string",
+              description: "The editorial summary of the place",
+            },
+          },
+        },
+      },
+    },
+  },
+  name: "nearbysearch",
+  provider: "googlemaps",
+};
 export const credalCallCopilotDefinition: ActionTemplate = {
   description: "Call Credal Copilot for response on a given query",
   scopes: [],

@@ -181,6 +181,36 @@ export type googlemapsValidateAddressFunction = ActionFunction<
   googlemapsValidateAddressOutputType
 >;
 
+export const googlemapsNearbysearchParamsSchema = z.object({
+  latitude: z.number().describe("The latitude of the location to search nearby"),
+  longitude: z.number().describe("The longitude of the location to search nearby"),
+});
+
+export type googlemapsNearbysearchParamsType = z.infer<typeof googlemapsNearbysearchParamsSchema>;
+
+export const googlemapsNearbysearchOutputSchema = z.object({
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the place").optional(),
+        address: z.string().describe("The address of the place").optional(),
+        rating: z.number().describe("The rating of the place").optional(),
+        priceLevel: z.string().describe("The price level of the place").optional(),
+        openingHours: z.string().describe("The opening hours of the place").optional(),
+        primaryType: z.string().describe("The primary type of the place").optional(),
+        editorialSummary: z.string().describe("The editorial summary of the place").optional(),
+      }),
+    )
+    .describe("The results of the nearby search"),
+});
+
+export type googlemapsNearbysearchOutputType = z.infer<typeof googlemapsNearbysearchOutputSchema>;
+export type googlemapsNearbysearchFunction = ActionFunction<
+  googlemapsNearbysearchParamsType,
+  AuthParamsType,
+  googlemapsNearbysearchOutputType
+>;
+
 export const credalCallCopilotParamsSchema = z.object({
   agentId: z.string().describe("The ID of the copilot to call"),
   query: z.string().describe("The query to ask Credal Copilot"),

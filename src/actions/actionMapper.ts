@@ -25,6 +25,8 @@ import {
   openstreetmapGetLatitudeLongitudeFromLocationOutputSchema,
   nwsGetForecastForLocationParamsSchema,
   nwsGetForecastForLocationOutputSchema,
+  googlemapsNearbysearchOutputSchema,
+  googlemapsNearbysearchParamsSchema,
 } from "./autogen/types";
 import updatePage from "./providers/confluence/updatePage";
 import callCopilot from "./providers/credal/callCopilot";
@@ -38,6 +40,7 @@ import createZendeskTicket from "./providers/zendesk/createZendeskTicket";
 import createJiraTicket from "./providers/jira/createJiraTicket";
 import getLatitudeLongitudeFromLocation from "./providers/openstreetmap/getLatitudeLongitudeFromLocation";
 import getForecastForLocation from "./providers/nws/getForecastForLocation";
+import nearbysearch from "./providers/googlemaps/nearbysearch";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -78,6 +81,11 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: validateAddress,
       paramsSchema: googlemapsValidateAddressParamsSchema,
       outputSchema: googlemapsValidateAddressOutputSchema,
+    },
+    nearbysearch: {
+      fn: nearbysearch,
+      paramsSchema: googlemapsNearbysearchParamsSchema,
+      outputSchema: googlemapsNearbysearchOutputSchema,
     },
   },
   credal: {
