@@ -8,6 +8,8 @@ import {
   slackSendMessageDefinition,
   snowflakeGetRowByFieldValueDefinition,
   zendeskCreateZendeskTicketDefinition,
+  openstreetmapGetLatitudeLongitudeFromLocationDefinition,
+  nwsGetForecastForLocationDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
@@ -45,5 +47,13 @@ export const ACTION_GROUPS: ActionGroups = {
   SNOWFLAKE_GET_ROW_BY_FIELD_VALUE: {
     description: "Action for getting a row from a Snowflake table by field value",
     actions: [snowflakeGetRowByFieldValueDefinition],
+  },
+  OPENSTREETMAP_GET_LATITUDE_LONGITUDE_FROM_LOCATION: {
+    description: "Action for getting the latitude and longitude of a location",
+    actions: [openstreetmapGetLatitudeLongitudeFromLocationDefinition],
+  },
+  NWS_GET_FORECAST_FOR_LOCATION: {
+    description: "Action for getting the weather forecast for a location",
+    actions: [nwsGetForecastForLocationDefinition],
   },
 };
