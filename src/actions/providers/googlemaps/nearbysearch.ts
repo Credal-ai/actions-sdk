@@ -106,8 +106,6 @@ const nearbysearch: googlemapsNearbysearchFunction = async ({
     },
   );
 
-  console.log(response.data.places.map((place: NearbySearchResult) => place.regularOpeningHours));
-
   return googlemapsNearbysearchOutputSchema.parse({
     results: response.data.places.map((place: NearbySearchResult) => ({
       name: place.displayName.text,
