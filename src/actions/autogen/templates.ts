@@ -690,15 +690,11 @@ export const resendSendEmailDefinition: ActionTemplate = {
   scopes: [],
   parameters: {
     type: "object",
-    required: ["to", "from", "subject", "content"],
+    required: ["to", "subject", "content"],
     properties: {
       to: {
         type: "string",
         description: "The email address to send the email to",
-      },
-      from: {
-        type: "string",
-        description: "The email address to send the email from",
       },
       subject: {
         type: "string",

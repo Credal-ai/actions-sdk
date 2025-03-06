@@ -5,10 +5,13 @@ async function runTest() {
     const result = await runAction(
         "sendEmail",
         "resend",
-        { apiKey: "insert-during-testing", emailFrom: "Example User <example@example.com>" }, // authParams
+        { 
+            apiKey: "insert-during-testing", 
+            emailFrom: "Example User <example@example.com>",
+            emailReplyTo: "insert-during-testing", // "Example User <example@example.com>"
+        }, // authParams
         {
             to: "insert-during-testing",
-            from: "insert-during-testing", // "Example User <example@example.com>"
             subject: "Test Email",
             content: "This is a test email",
         },

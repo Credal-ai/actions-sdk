@@ -43,6 +43,7 @@ z.object({
     apiKey: z.string().optional(),
     userAgent: z.string().optional(),
     emailFrom: z.string().optional(),
+    emailReplyTo: z.string().optional(),
 })
 `;
 
