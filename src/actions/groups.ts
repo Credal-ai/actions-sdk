@@ -11,6 +11,7 @@ import {
   openstreetmapGetLatitudeLongitudeFromLocationDefinition,
   nwsGetForecastForLocationDefinition,
   jiraCreateJiraTicketDefinition,
+  googlemapsNearbysearchDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
@@ -32,6 +33,10 @@ export const ACTION_GROUPS: ActionGroups = {
   MAPS_VALIDATE: {
     description: "Action for validating a Google maps address",
     actions: [googlemapsValidateAddressDefinition],
+  },
+  MAPS_NEARBY_SEARCH: {
+    description: "Action for searching for nearby places",
+    actions: [googlemapsNearbysearchDefinition],
   },
   CREDAL_CALL_COPILOT: {
     description: "Action for calling a Credal Copilot",
