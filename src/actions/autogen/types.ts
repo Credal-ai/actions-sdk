@@ -352,3 +352,16 @@ export type nwsGetForecastForLocationFunction = ActionFunction<
   AuthParamsType,
   nwsGetForecastForLocationOutputType
 >;
+
+export const firecrawlScrapeUrlParamsSchema = z.object({ url: z.string().describe("The URL to scrape") });
+
+export type firecrawlScrapeUrlParamsType = z.infer<typeof firecrawlScrapeUrlParamsSchema>;
+
+export const firecrawlScrapeUrlOutputSchema = z.object({ content: z.string().describe("The content of the URL") });
+
+export type firecrawlScrapeUrlOutputType = z.infer<typeof firecrawlScrapeUrlOutputSchema>;
+export type firecrawlScrapeUrlFunction = ActionFunction<
+  firecrawlScrapeUrlParamsType,
+  AuthParamsType,
+  firecrawlScrapeUrlOutputType
+>;

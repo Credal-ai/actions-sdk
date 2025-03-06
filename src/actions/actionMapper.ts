@@ -27,6 +27,8 @@ import {
   nwsGetForecastForLocationOutputSchema,
   googlemapsNearbysearchOutputSchema,
   googlemapsNearbysearchParamsSchema,
+  firecrawlScrapeUrlOutputSchema,
+  firecrawlScrapeUrlParamsSchema,
 } from "./autogen/types";
 import updatePage from "./providers/confluence/updatePage";
 import callCopilot from "./providers/credal/callCopilot";
@@ -41,6 +43,7 @@ import createJiraTicket from "./providers/jira/createJiraTicket";
 import getLatitudeLongitudeFromLocation from "./providers/openstreetmap/getLatitudeLongitudeFromLocation";
 import getForecastForLocation from "./providers/nws/getForecastForLocation";
 import nearbysearch from "./providers/googlemaps/nearbysearch";
+import scrapeUrl from "./providers/firecrawl/scrapeUrl";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -135,6 +138,13 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: getForecastForLocation,
       paramsSchema: nwsGetForecastForLocationParamsSchema,
       outputSchema: nwsGetForecastForLocationOutputSchema,
+    },
+  },
+  firecrawl: {
+    scrapeUrl: {
+      fn: scrapeUrl,
+      paramsSchema: firecrawlScrapeUrlParamsSchema,
+      outputSchema: firecrawlScrapeUrlOutputSchema,
     },
   },
 };

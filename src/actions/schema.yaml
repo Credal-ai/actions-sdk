@@ -479,3 +479,21 @@ actions:
               forecast:
                 type: string
                 description: The forecast for the location
+  firecrawl:
+    scrapeUrl:
+      description: Scrape a URL and get website content using Firecrawl
+      scopes: []
+      parameters:
+        type: object
+        required: [url]
+        properties:
+          url:
+            type: string
+            description: The URL to scrape
+      output:
+        type: object
+        required: [content]
+        properties:
+          content:
+            type: string
+            description: The content of the URL

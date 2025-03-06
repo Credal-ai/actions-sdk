@@ -659,3 +659,29 @@ export const nwsGetForecastForLocationDefinition: ActionTemplate = {
   name: "getForecastForLocation",
   provider: "nws",
 };
+export const firecrawlScrapeUrlDefinition: ActionTemplate = {
+  description: "Scrape a URL and get website content using Firecrawl",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["url"],
+    properties: {
+      url: {
+        type: "string",
+        description: "The URL to scrape",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["content"],
+    properties: {
+      content: {
+        type: "string",
+        description: "The content of the URL",
+      },
+    },
+  },
+  name: "scrapeUrl",
+  provider: "firecrawl",
+};
