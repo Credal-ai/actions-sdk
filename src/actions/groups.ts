@@ -30,13 +30,9 @@ export const ACTION_GROUPS: ActionGroups = {
     description: "Action for adding two numbers",
     actions: [mathAddDefinition],
   },
-  MAPS_VALIDATE: {
-    description: "Action for validating a Google maps address",
-    actions: [googlemapsValidateAddressDefinition],
-  },
-  MAPS_NEARBY_SEARCH: {
-    description: "Action for searching for nearby places",
-    actions: [googlemapsNearbysearchDefinition],
+  GOOGLE_MAPS: {
+    description: "Action for interacting with Google Maps",
+    actions: [googlemapsValidateAddressDefinition, googlemapsNearbysearchDefinition],
   },
   CREDAL_CALL_COPILOT: {
     description: "Action for calling a Credal Copilot",
