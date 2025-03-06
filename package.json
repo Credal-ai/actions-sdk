@@ -1,6 +1,6 @@
 {
   "name": "@credal/actions",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "AI Actions by Credal AI",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -46,6 +46,7 @@
     "date-fns": "^4.1.0",
     "json-schema-to-zod": "^2.5.0",
     "mongodb": "^6.13.1",
+    "resend": "^4.1.2",
     "snowflake-sdk": "^2.0.2",
     "ts-node": "^10.9.2",
     "zod": "^3.24.1"

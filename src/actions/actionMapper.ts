@@ -29,6 +29,8 @@ import {
   googlemapsNearbysearchParamsSchema,
   firecrawlScrapeUrlOutputSchema,
   firecrawlScrapeUrlParamsSchema,
+  resendSendEmailOutputSchema,
+  resendSendEmailParamsSchema,
 } from "./autogen/types";
 import updatePage from "./providers/confluence/updatePage";
 import callCopilot from "./providers/credal/callCopilot";
@@ -44,6 +46,7 @@ import getLatitudeLongitudeFromLocation from "./providers/openstreetmap/getLatit
 import getForecastForLocation from "./providers/nws/getForecastForLocation";
 import nearbysearch from "./providers/googlemaps/nearbysearch";
 import scrapeUrl from "./providers/firecrawl/scrapeUrl";
+import sendEmail from "./providers/resend/sendEmail";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -145,6 +148,13 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: scrapeUrl,
       paramsSchema: firecrawlScrapeUrlParamsSchema,
       outputSchema: firecrawlScrapeUrlOutputSchema,
+    },
+  },
+  resend: {
+    sendEmail: {
+      fn: sendEmail,
+      paramsSchema: resendSendEmailParamsSchema,
+      outputSchema: resendSendEmailOutputSchema,
     },
   },
 };

@@ -13,6 +13,7 @@ import {
   jiraCreateJiraTicketDefinition,
   googlemapsNearbysearchDefinition,
   firecrawlScrapeUrlDefinition,
+  resendSendEmailDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
@@ -66,5 +67,9 @@ export const ACTION_GROUPS: ActionGroups = {
   FIRECRAWL: {
     description: "Actions for interacting with Firecrawl",
     actions: [firecrawlScrapeUrlDefinition],
+  },
+  RESEND: {
+    description: "Action for sending an email",
+    actions: [resendSendEmailDefinition],
   },
 };

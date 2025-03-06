@@ -7,6 +7,7 @@ export const AuthParamsSchema = z.object({
   baseUrl: z.string().optional(),
   apiKey: z.string().optional(),
   userAgent: z.string().optional(),
+  emailFrom: z.string().optional(),
 });
 
 export type AuthParamsType = z.infer<typeof AuthParamsSchema>;
@@ -364,4 +365,25 @@ export type firecrawlScrapeUrlFunction = ActionFunction<
   firecrawlScrapeUrlParamsType,
   AuthParamsType,
   firecrawlScrapeUrlOutputType
+>;
+
+export const resendSendEmailParamsSchema = z.object({
+  to: z.string().describe("The email address to send the email to"),
+  from: z.string().describe("The email address to send the email from"),
+  subject: z.string().describe("The subject of the email"),
+  content: z.string().describe("The content of the email"),
+});
+
+export type resendSendEmailParamsType = z.infer<typeof resendSendEmailParamsSchema>;
+
+export const resendSendEmailOutputSchema = z.object({
+  success: z.boolean().describe("Whether the email was sent successfully"),
+  error: z.string().describe("The error that occurred if the email was not sent successfully").optional(),
+});
+
+export type resendSendEmailOutputType = z.infer<typeof resendSendEmailOutputSchema>;
+export type resendSendEmailFunction = ActionFunction<
+  resendSendEmailParamsType,
+  AuthParamsType,
+  resendSendEmailOutputType
 >;

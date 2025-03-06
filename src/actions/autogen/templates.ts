@@ -685,3 +685,45 @@ export const firecrawlScrapeUrlDefinition: ActionTemplate = {
   name: "scrapeUrl",
   provider: "firecrawl",
 };
+export const resendSendEmailDefinition: ActionTemplate = {
+  description: "Send an email using Resend",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["to", "from", "subject", "content"],
+    properties: {
+      to: {
+        type: "string",
+        description: "The email address to send the email to",
+      },
+      from: {
+        type: "string",
+        description: "The email address to send the email from",
+      },
+      subject: {
+        type: "string",
+        description: "The subject of the email",
+      },
+      content: {
+        type: "string",
+        description: "The content of the email",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the email was sent successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the email was not sent successfully",
+      },
+    },
+  },
+  name: "sendEmail",
+  provider: "resend",
+};
