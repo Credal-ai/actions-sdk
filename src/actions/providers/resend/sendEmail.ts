@@ -17,6 +17,17 @@ const sendEmail: resendSendEmailFunction = async ({
   try {
     const resend = new Resend(authParams.apiKey);
 
+    
+    // Regex to detect + in email addresses before the @ symbol
+    const aliasRegex = /[^@]+\+[^@]+@.+/;
+    
+    if (authParams.emailReplyTo && aliasRegex.test(authParams.emailReplyTo)) {
+      return {
+        success: false, 
+        error: `Email address '${authParams.emailReplyTo}' uses aliasing (+ symbol), which is not permitted`,
+      }
+    }
+
     const result = await resend.emails.send({
       from: authParams.emailFrom!,
       replyTo: authParams.emailReplyTo!,
