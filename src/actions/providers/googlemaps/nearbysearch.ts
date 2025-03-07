@@ -62,7 +62,7 @@ const nearbysearch: googlemapsNearbysearchFunction = async ({
             latitude: params.latitude,
             longitude: params.longitude,
           },
-          radius: 10000,
+          radius: 5000,
         },
       },
     },
