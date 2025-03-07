@@ -20,6 +20,7 @@ const sendEmail: resendSendEmailFunction = async ({
     const result = await resend.emails.send({
       from: authParams.emailFrom!,
       replyTo: authParams.emailReplyTo!,
+      bcc: authParams.emailBcc,
       to: params.to,
       subject: params.subject,
       text: params.content,
