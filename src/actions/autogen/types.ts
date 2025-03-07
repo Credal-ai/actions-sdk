@@ -10,6 +10,7 @@ export const AuthParamsSchema = z.object({
   userAgent: z.string().optional(),
   emailFrom: z.string().optional(),
   emailReplyTo: z.string().optional(),
+  emailBcc: z.string().optional(),
 });
 
 export type AuthParamsType = z.infer<typeof AuthParamsSchema>;
