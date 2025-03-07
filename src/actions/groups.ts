@@ -11,7 +11,7 @@ import {
   openstreetmapGetLatitudeLongitudeFromLocationDefinition,
   nwsGetForecastForLocationDefinition,
   jiraCreateJiraTicketDefinition,
-  googlemapsNearbysearchDefinition,
+  googlemapsNearbysearchRestaurantsDefinition,
   firecrawlScrapeUrlDefinition,
   resendSendEmailDefinition,
 } from "../actions/autogen/templates";
@@ -34,7 +34,7 @@ export const ACTION_GROUPS: ActionGroups = {
   },
   GOOGLE_MAPS: {
     description: "Action for interacting with Google Maps",
-    actions: [googlemapsValidateAddressDefinition, googlemapsNearbysearchDefinition],
+    actions: [googlemapsValidateAddressDefinition, googlemapsNearbysearchRestaurantsDefinition],
   },
   CREDAL_CALL_COPILOT: {
     description: "Action for calling a Credal Copilot",

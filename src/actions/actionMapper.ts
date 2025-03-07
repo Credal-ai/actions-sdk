@@ -25,8 +25,8 @@ import {
   openstreetmapGetLatitudeLongitudeFromLocationOutputSchema,
   nwsGetForecastForLocationParamsSchema,
   nwsGetForecastForLocationOutputSchema,
-  googlemapsNearbysearchOutputSchema,
-  googlemapsNearbysearchParamsSchema,
+  googlemapsNearbysearchRestaurantsOutputSchema,
+  googlemapsNearbysearchRestaurantsParamsSchema,
   firecrawlScrapeUrlOutputSchema,
   firecrawlScrapeUrlParamsSchema,
   resendSendEmailOutputSchema,
@@ -44,7 +44,7 @@ import createZendeskTicket from "./providers/zendesk/createZendeskTicket";
 import createJiraTicket from "./providers/jira/createJiraTicket";
 import getLatitudeLongitudeFromLocation from "./providers/openstreetmap/getLatitudeLongitudeFromLocation";
 import getForecastForLocation from "./providers/nws/getForecastForLocation";
-import nearbysearch from "./providers/googlemaps/nearbysearch";
+import nearbysearch from "./providers/googlemaps/nearbysearchRestaurants";
 import scrapeUrl from "./providers/firecrawl/scrapeUrl";
 import sendEmail from "./providers/resend/sendEmail";
 
@@ -90,8 +90,8 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
     },
     nearbysearch: {
       fn: nearbysearch,
-      paramsSchema: googlemapsNearbysearchParamsSchema,
-      outputSchema: googlemapsNearbysearchOutputSchema,
+      paramsSchema: googlemapsNearbysearchRestaurantsParamsSchema,
+      outputSchema: googlemapsNearbysearchRestaurantsOutputSchema,
     },
   },
   credal: {

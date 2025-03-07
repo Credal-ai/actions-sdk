@@ -334,7 +334,7 @@ export const googlemapsValidateAddressDefinition: ActionTemplate = {
   name: "validateAddress",
   provider: "googlemaps",
 };
-export const googlemapsNearbysearchDefinition: ActionTemplate = {
+export const googlemapsNearbysearchRestaurantsDefinition: ActionTemplate = {
   description: "Search for nearby places using Google Maps",
   scopes: [],
   parameters: {
@@ -398,7 +398,7 @@ export const googlemapsNearbysearchDefinition: ActionTemplate = {
       },
     },
   },
-  name: "nearbysearch",
+  name: "nearbysearchRestaurants",
   provider: "googlemaps",
 };
 export const credalCallCopilotDefinition: ActionTemplate = {

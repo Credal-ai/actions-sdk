@@ -244,7 +244,7 @@ actions:
               uspsAddressPrecision:
                 type: string
                 description: The level of precision for the USPS address.
-    nearbysearch:
+    nearbysearchRestaurants:
       description: Search for nearby places using Google Maps
       scopes: []
       parameters:

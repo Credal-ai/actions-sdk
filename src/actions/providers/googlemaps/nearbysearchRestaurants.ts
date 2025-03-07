@@ -1,9 +1,9 @@
 import axios from "axios";
 import {
-  googlemapsNearbysearchFunction,
-  googlemapsNearbysearchParamsType,
-  googlemapsNearbysearchOutputType,
-  googlemapsNearbysearchOutputSchema,
+  googlemapsNearbysearchRestaurantsFunction,
+  googlemapsNearbysearchRestaurantsParamsType,
+  googlemapsNearbysearchRestaurantsOutputType,
+  googlemapsNearbysearchRestaurantsOutputSchema,
   AuthParamsType,
 } from "../../autogen/types";
 
@@ -32,13 +32,13 @@ interface NearbySearchResult {
 
 const INCLUDED_TYPES = ["restaurant"];
 
-const nearbysearch: googlemapsNearbysearchFunction = async ({
+const nearbysearchRestaurants: googlemapsNearbysearchRestaurantsFunction = async ({
   params,
   authParams,
 }: {
-  params: googlemapsNearbysearchParamsType;
+  params: googlemapsNearbysearchRestaurantsParamsType;
   authParams: AuthParamsType;
-}): Promise<googlemapsNearbysearchOutputType> => {
+}): Promise<googlemapsNearbysearchRestaurantsOutputType> => {
   const url = `https://places.googleapis.com/v1/places:searchNearby`;
 
   const fieldMask = [
@@ -75,7 +75,7 @@ const nearbysearch: googlemapsNearbysearchFunction = async ({
     },
   );
 
-  return googlemapsNearbysearchOutputSchema.parse({
+  return googlemapsNearbysearchRestaurantsOutputSchema.parse({
     results: response.data.places.map((place: NearbySearchResult) => ({
       name: place.displayName.text,
       address: place.formattedAddress,
@@ -89,4 +89,4 @@ const nearbysearch: googlemapsNearbysearchFunction = async ({
   });
 };
 
-export default nearbysearch;
+export default nearbysearchRestaurants;
