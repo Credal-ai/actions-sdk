@@ -29,9 +29,7 @@ interface NearbySearchResult {
     | undefined;
 }
 
-const INCLUDED_TYPES = [
-  "restaurant",
-];
+const INCLUDED_TYPES = ["restaurant"];
 
 const nearbysearch: googlemapsNearbysearchFunction = async ({
   params,
