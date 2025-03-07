@@ -389,6 +389,10 @@ export const googlemapsNearbysearchDefinition: ActionTemplate = {
               type: "string",
               description: "The editorial summary of the place",
             },
+            websiteUri: {
+              type: "string",
+              description: "The website URI of the place",
+            },
           },
         },
       },

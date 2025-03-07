@@ -201,6 +201,7 @@ export const googlemapsNearbysearchOutputSchema = z.object({
         openingHours: z.string().describe("The opening hours of the place").optional(),
         primaryType: z.string().describe("The primary type of the place").optional(),
         editorialSummary: z.string().describe("The editorial summary of the place").optional(),
+        websiteUri: z.string().describe("The website URI of the place").optional(),
       }),
     )
     .describe("The results of the nearby search"),

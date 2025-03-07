@@ -27,6 +27,7 @@ interface NearbySearchResult {
         weekdayDescriptions: string[];
       }
     | undefined;
+  websiteUri: string;
 }
 
 const INCLUDED_TYPES = ["restaurant"];
@@ -48,6 +49,7 @@ const nearbysearch: googlemapsNearbysearchFunction = async ({
     "places.primaryTypeDisplayName",
     "places.editorialSummary",
     "places.regularOpeningHours",
+    "places.websiteUri",
   ].join(",");
   const response = await axios.post<{ places: NearbySearchResult[] }>(
     url,
@@ -82,6 +84,7 @@ const nearbysearch: googlemapsNearbysearchFunction = async ({
       primaryType: place.primaryTypeDisplayName.text,
       editorialSummary: place.editorialSummary?.text || "",
       openingHours: place.regularOpeningHours?.weekdayDescriptions.join("\n") || "",
+      websiteUri: place.websiteUri,
     })),
   });
 };
