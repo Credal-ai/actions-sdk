@@ -15,6 +15,7 @@ import {
   firecrawlScrapeUrlDefinition,
   resendSendEmailDefinition,
   linkedinCreateShareLinkedinPostUrlDefinition,
+  google_oauthCreateNewGoogleDocDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
@@ -36,6 +37,10 @@ export const ACTION_GROUPS: ActionGroups = {
   GOOGLE_MAPS: {
     description: "Action for interacting with Google Maps",
     actions: [googlemapsValidateAddressDefinition, googlemapsNearbysearchRestaurantsDefinition],
+  },
+  GOOGLE_DRIVE: {
+    description: "Action for interacting with Google Drive",
+    actions: [google_oauthCreateNewGoogleDocDefinition],
   },
   CREDAL_CALL_COPILOT: {
     description: "Action for calling a Credal Copilot",
