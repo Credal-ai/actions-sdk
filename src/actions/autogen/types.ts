@@ -6,6 +6,7 @@ export const AuthParamsSchema = z.object({
   authToken: z.string().optional(),
   baseUrl: z.string().optional(),
   apiKey: z.string().optional(),
+  username: z.string().optional(),
   userAgent: z.string().optional(),
   emailFrom: z.string().optional(),
   emailReplyTo: z.string().optional(),
@@ -92,7 +93,6 @@ export const jiraCreateJiraTicketParamsSchema = z.object({
   issueType: z.string().describe("The issue type of the new ticket"),
   reporter: z.string().describe("The reporter for the new ticket creation").optional(),
   assignee: z.string().describe("The assignee for the new ticket creation").optional(),
-  username: z.string().describe("The username of the person creating the ticket"),
 });
 
 export type jiraCreateJiraTicketParamsType = z.infer<typeof jiraCreateJiraTicketParamsSchema>;

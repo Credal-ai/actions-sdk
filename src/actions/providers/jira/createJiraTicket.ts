@@ -41,19 +41,33 @@ const createJiraTicket: jiraCreateJiraTicketFunction = async ({
   params: jiraCreateJiraTicketParamsType;
   authParams: AuthParamsType;
 }): Promise<jiraCreateJiraTicketOutputType> => {
-  const { authToken, baseUrl } = authParams;
+  const { authToken, baseUrl, username } = authParams;
   const url = `${baseUrl}/rest/api/3/issue`;
 
   // If assignee is an email, look up the account ID
   let reporterId: string | null = null;
-  if (params.reporter && typeof params.reporter === "string" && params.reporter.includes("@") && baseUrl && authToken) {
-    reporterId = await getUserAccountId(params.reporter, baseUrl, authToken, params.username);
+  if (
+    params.reporter &&
+    typeof params.reporter === "string" &&
+    params.reporter.includes("@") &&
+    baseUrl &&
+    authToken &&
+    username
+  ) {
+    reporterId = await getUserAccountId(params.reporter, baseUrl, authToken, username);
   }
 
   // If assignee is an email, look up the account ID
   let assigneeId: string | null = null;
-  if (params.assignee && typeof params.assignee === "string" && params.assignee.includes("@") && baseUrl && authToken) {
-    assigneeId = await getUserAccountId(params.assignee, baseUrl, authToken, params.username);
+  if (
+    params.assignee &&
+    typeof params.assignee === "string" &&
+    params.assignee.includes("@") &&
+    baseUrl &&
+    authToken &&
+    username
+  ) {
+    assigneeId = await getUserAccountId(params.assignee, baseUrl, authToken, username);
   }
 
   const description =
@@ -93,7 +107,7 @@ const createJiraTicket: jiraCreateJiraTicketFunction = async ({
 
   const response = await axios.post(url, payload, {
     headers: {
-      Authorization: `Basic ${Buffer.from(`${params.username}:${authToken}`).toString("base64")}`,
+      Authorization: `Basic ${Buffer.from(`${username}:${authToken}`).toString("base64")}`,
       "Content-Type": "application/json",
     },
   });

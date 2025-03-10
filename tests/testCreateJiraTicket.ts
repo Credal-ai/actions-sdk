@@ -5,7 +5,7 @@ async function runTest() {
 
     const authToken = "insert-during-test"; // Get API Token from: https://id.atlassian.com/manage-profile/security/api-tokens
     const baseUrl = "insert-during-test" // Base URL of your confluence account
-    const username = "insert-during-test"; // Your Email associated with Jira
+    const username = "insert-during-test"; // The email associated with the API token
     const projectKey = "insert-during-test"; // Project Key of your Jira project
     
     const result = await runAction(
@@ -13,7 +13,8 @@ async function runTest() {
         "jira",
         { 
             authToken,
-            baseUrl
+            baseUrl,
+            username,
         },
         {
             projectKey,

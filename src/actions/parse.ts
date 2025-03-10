@@ -41,6 +41,7 @@ z.object({
     authToken: z.string().optional(),
     baseUrl: z.string().optional(),
     apiKey: z.string().optional(),
+    username: z.string().optional(),
     userAgent: z.string().optional(),
     emailFrom: z.string().optional(),
     emailReplyTo: z.string().optional(),

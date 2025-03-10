@@ -95,7 +95,7 @@ actions:
       scopes: []
       parameters:
         type: object
-        required: [projectKey, summary, description, issueType, username]
+        required: [projectKey, summary, description, issueType]
         properties:
           projectKey:
             type: string
@@ -115,9 +115,6 @@ actions:
           assignee:
             type: string
             description: The assignee for the new ticket creation
-          username:
-            type: string
-            description: The username of the person creating the ticket
       output:
         type: object
         required: [ticketUrl]

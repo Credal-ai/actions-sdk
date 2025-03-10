@@ -122,7 +122,7 @@ export const jiraCreateJiraTicketDefinition: ActionTemplate = {
   scopes: [],
   parameters: {
     type: "object",
-    required: ["projectKey", "summary", "description", "issueType", "username"],
+    required: ["projectKey", "summary", "description", "issueType"],
     properties: {
       projectKey: {
         type: "string",
@@ -147,10 +147,6 @@ export const jiraCreateJiraTicketDefinition: ActionTemplate = {
       assignee: {
         type: "string",
         description: "The assignee for the new ticket creation",
-      },
-      username: {
-        type: "string",
-        description: "The username of the person creating the ticket",
       },
     },
   },
