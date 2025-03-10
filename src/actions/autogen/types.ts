@@ -254,6 +254,28 @@ export type zendeskCreateZendeskTicketFunction = ActionFunction<
   zendeskCreateZendeskTicketOutputType
 >;
 
+export const linkedinCreateShareLinkedinPostUrlParamsSchema = z.object({
+  text: z.string().describe("The text for the linkedin post").optional(),
+  url: z.string().describe("The url for the linkedin post").optional(),
+});
+
+export type linkedinCreateShareLinkedinPostUrlParamsType = z.infer<
+  typeof linkedinCreateShareLinkedinPostUrlParamsSchema
+>;
+
+export const linkedinCreateShareLinkedinPostUrlOutputSchema = z.object({
+  linkedinUrl: z.string().describe("The share post linkedin URL"),
+});
+
+export type linkedinCreateShareLinkedinPostUrlOutputType = z.infer<
+  typeof linkedinCreateShareLinkedinPostUrlOutputSchema
+>;
+export type linkedinCreateShareLinkedinPostUrlFunction = ActionFunction<
+  linkedinCreateShareLinkedinPostUrlParamsType,
+  AuthParamsType,
+  linkedinCreateShareLinkedinPostUrlOutputType
+>;
+
 export const mongoInsertMongoDocParamsSchema = z.object({
   databaseName: z.string().describe("Database to connect to"),
   collectionName: z.string().describe("Collection to insert the document into"),

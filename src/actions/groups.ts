@@ -14,6 +14,7 @@ import {
   googlemapsNearbysearchRestaurantsDefinition,
   firecrawlScrapeUrlDefinition,
   resendSendEmailDefinition,
+  linkedinCreateShareLinkedinPostUrlDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
@@ -39,6 +40,10 @@ export const ACTION_GROUPS: ActionGroups = {
   CREDAL_CALL_COPILOT: {
     description: "Action for calling a Credal Copilot",
     actions: [credalCallCopilotDefinition],
+  },
+  LINKEDIN_SHARE_POST: {
+    description: "Action for creating a share post url on linkedin",
+    actions: [linkedinCreateShareLinkedinPostUrlDefinition],
   },
   ZENDESK_CREATE_TICKET: {
     description: "Action for creating a Zendesk ticket",

@@ -477,6 +477,36 @@ export const zendeskCreateZendeskTicketDefinition: ActionTemplate = {
   name: "createZendeskTicket",
   provider: "zendesk",
 };
+export const linkedinCreateShareLinkedinPostUrlDefinition: ActionTemplate = {
+  description: "Create a share linkedin post link",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: [],
+    properties: {
+      text: {
+        type: "string",
+        description: "The text for the linkedin post",
+      },
+      url: {
+        type: "string",
+        description: "The url for the linkedin post",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["linkedinUrl"],
+    properties: {
+      linkedinUrl: {
+        type: "string",
+        description: "The share post linkedin URL",
+      },
+    },
+  },
+  name: "createShareLinkedinPostUrl",
+  provider: "linkedin",
+};
 export const mongoInsertMongoDocDefinition: ActionTemplate = {
   description: "Insert a document into a MongoDB collection",
   scopes: [],

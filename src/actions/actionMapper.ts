@@ -31,6 +31,8 @@ import {
   firecrawlScrapeUrlParamsSchema,
   resendSendEmailOutputSchema,
   resendSendEmailParamsSchema,
+  linkedinCreateShareLinkedinPostUrlParamsSchema,
+  linkedinCreateShareLinkedinPostUrlOutputSchema,
 } from "./autogen/types";
 import updatePage from "./providers/confluence/updatePage";
 import callCopilot from "./providers/credal/callCopilot";
@@ -47,6 +49,7 @@ import getForecastForLocation from "./providers/nws/getForecastForLocation";
 import nearbysearch from "./providers/googlemaps/nearbysearchRestaurants";
 import scrapeUrl from "./providers/firecrawl/scrapeUrl";
 import sendEmail from "./providers/resend/sendEmail";
+import createShareLinkedinPostUrl from "./providers/linkedin/createSharePostLinkedinUrl";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -120,6 +123,13 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: getRowByFieldValue,
       paramsSchema: snowflakeGetRowByFieldValueParamsSchema,
       outputSchema: snowflakeGetRowByFieldValueOutputSchema,
+    },
+  },
+  linkedin: {
+    createShareLinkedinPostUrl: {
+      fn: createShareLinkedinPostUrl,
+      paramsSchema: linkedinCreateShareLinkedinPostUrlParamsSchema,
+      outputSchema: linkedinCreateShareLinkedinPostUrlOutputSchema,
     },
   },
   jira: {

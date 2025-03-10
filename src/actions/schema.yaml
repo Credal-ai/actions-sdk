@@ -348,6 +348,28 @@ actions:
             type: string
             description: The URL of the ticket created
 
+  linkedin:
+    createShareLinkedinPostUrl:
+      description: Create a share linkedin post link
+      scopes: []
+      parameters:
+        type: object
+        required: []
+        properties:
+          text:
+            type: string
+            description: The text for the linkedin post
+          url:
+            type: string
+            description: The url for the linkedin post
+      output:
+        type: object
+        required: [linkedinUrl]
+        properties:
+          linkedinUrl:
+            type: string
+            description: The share post linkedin URL
+
   mongo:
     insertMongoDoc:
       description: Insert a document into a MongoDB collection
