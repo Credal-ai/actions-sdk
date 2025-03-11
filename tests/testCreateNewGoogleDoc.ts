@@ -7,17 +7,17 @@ import assert from "node:assert";
 async function runTest() {
   console.log("Running test for Google OAuth createNewGoogleDoc");
 
-  const accessToken = "insert-access-token"; // Test with token from: https://developers.google.com/oauthplayground/
+  const authToken = "insert-access-token"; // Test with token from: https://developers.google.com/oauthplayground/
 
   const result = await runAction(
     "createNewGoogleDoc",
     "google_oauth",
     {
-      accessToken,
+      authToken,
     },
     {
-      title: "Fahad Doc",
-      description:
+      title: "Credal Test Doc",
+      content:
         "This is a test document created automatically by the actions-sdk test suite.",
     }
   );

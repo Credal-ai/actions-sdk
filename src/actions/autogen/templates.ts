@@ -764,9 +764,9 @@ export const google_oauthCreateNewGoogleDocDefinition: ActionTemplate = {
         type: "string",
         description: "The title of the new Google Doc",
       },
-      description: {
+      content: {
         type: "string",
-        description: "The description/content to add to the new Google Doc",
+        description: "The content to add to the new Google Doc",
       },
     },
   },

@@ -16,12 +16,12 @@ const createNewGoogleDoc: google_oauthCreateNewGoogleDocFunction = async ({
   params: google_oauthCreateNewGoogleDocParamsType;
   authParams: AuthParamsType;
 }): Promise<google_oauthCreateNewGoogleDocOutputType> => {
-  if (!authParams.accessToken) {
-    throw new Error("accessToken is required for Google Docs API");
+  if (!authParams.authToken) {
+    throw new Error("authToken is required for Google Docs API");
   }
 
   try {
-    const { title, description } = params;
+    const { title, content } = params;
     const baseApiUrl = "https://docs.googleapis.com/v1/documents";
 
     // Create the document with the provided title
@@ -30,14 +30,14 @@ const createNewGoogleDoc: google_oauthCreateNewGoogleDocFunction = async ({
       { title },
       {
         headers: {
-          Authorization: `Bearer ${authParams.accessToken}`,
+          Authorization: `Bearer ${authParams.authToken}`,
           "Content-Type": "application/json",
         },
       },
     );
 
     // If description is provided, update the document body with the description
-    if (description) {
+    if (content) {
       const documentId = response.data.documentId;
 
       // Add the description to the document content
@@ -50,14 +50,14 @@ const createNewGoogleDoc: google_oauthCreateNewGoogleDocFunction = async ({
                 location: {
                   index: 1, // Insert at the beginning of the document
                 },
-                text: description,
+                text: content,
               },
             },
           ],
         },
         {
           headers: {
-            Authorization: `Bearer ${authParams.accessToken}`,
+            Authorization: `Bearer ${authParams.authToken}`,
             "Content-Type": "application/json",
           },
         },
