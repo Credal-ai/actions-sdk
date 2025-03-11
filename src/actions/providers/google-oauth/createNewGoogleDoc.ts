@@ -1,21 +1,21 @@
 import axios from "axios";
 import {
   AuthParamsType,
-  google_oauthCreateNewGoogleDocFunction,
-  google_oauthCreateNewGoogleDocOutputType,
-  google_oauthCreateNewGoogleDocParamsType,
+  googleOauthCreateNewGoogleDocFunction,
+  googleOauthCreateNewGoogleDocOutputType,
+  googleOauthCreateNewGoogleDocParamsType,
 } from "../../autogen/types";
 
 /**
  * Creates a new Google Doc document using OAuth authentication
  */
-const createNewGoogleDoc: google_oauthCreateNewGoogleDocFunction = async ({
+const createNewGoogleDoc: googleOauthCreateNewGoogleDocFunction = async ({
   params,
   authParams,
 }: {
-  params: google_oauthCreateNewGoogleDocParamsType;
+  params: googleOauthCreateNewGoogleDocParamsType;
   authParams: AuthParamsType;
-}): Promise<google_oauthCreateNewGoogleDocOutputType> => {
+}): Promise<googleOauthCreateNewGoogleDocOutputType> => {
   if (!authParams.authToken) {
     throw new Error("authToken is required for Google Docs API");
   }

@@ -7,8 +7,8 @@ import {
   credalCallCopilotParamsSchema,
   googlemapsValidateAddressOutputSchema,
   googlemapsValidateAddressParamsSchema,
-  google_oauthCreateNewGoogleDocOutputSchema,
-  google_oauthCreateNewGoogleDocParamsSchema,
+  googleOauthCreateNewGoogleDocParamsSchema,
+  googleOauthCreateNewGoogleDocOutputSchema,
   mathAddOutputSchema,
   mathAddParamsSchema,
   mongoInsertMongoDocOutputSchema,
@@ -170,11 +170,11 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       outputSchema: resendSendEmailOutputSchema,
     },
   },
-  google_oauth: {
+  googleOauth: {
     createNewGoogleDoc: {
       fn: createNewGoogleDoc,
-      paramsSchema: google_oauthCreateNewGoogleDocParamsSchema,
-      outputSchema: google_oauthCreateNewGoogleDocOutputSchema,
+      paramsSchema: googleOauthCreateNewGoogleDocParamsSchema,
+      outputSchema: googleOauthCreateNewGoogleDocOutputSchema,
     },
   },
 };

@@ -546,7 +546,7 @@ actions:
             type: string
             description: The error that occurred if the email was not sent successfully
 
-  google_oauth:
+  googleOauth:
     createNewGoogleDoc:
       description: Create a new Google Docs document using OAuth authentication
       scopes: []

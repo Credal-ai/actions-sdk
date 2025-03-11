@@ -11,7 +11,7 @@ async function runTest() {
 
   const result = await runAction(
     "createNewGoogleDoc",
-    "google_oauth",
+    "googleOauth",
     {
       authToken,
     },

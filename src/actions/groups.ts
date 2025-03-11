@@ -15,7 +15,7 @@ import {
   firecrawlScrapeUrlDefinition,
   resendSendEmailDefinition,
   linkedinCreateShareLinkedinPostUrlDefinition,
-  google_oauthCreateNewGoogleDocDefinition,
+  googleOauthCreateNewGoogleDocDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
@@ -40,7 +40,7 @@ export const ACTION_GROUPS: ActionGroups = {
   },
   GOOGLE_DRIVE: {
     description: "Action for interacting with Google Drive",
-    actions: [google_oauthCreateNewGoogleDocDefinition],
+    actions: [googleOauthCreateNewGoogleDocDefinition],
   },
   CREDAL_CALL_COPILOT: {
     description: "Action for calling a Credal Copilot",
