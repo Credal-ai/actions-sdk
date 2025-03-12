@@ -104,18 +104,34 @@ const createJiraTicket: jiraCreateJiraTicketFunction = async ({
       // ...(params.reporter ? { reporter: { id: params.reporter } } : {}),
     },
   };
-
-  const response = await axios.post(url, payload, {
-    headers: {
-      Authorization: `Basic ${Buffer.from(`${username}:${authToken}`).toString("base64")}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  // At the end of your function, wrap the response
-  return {
-    ticketUrl: `${baseUrl}/browse/${response.data.key}`,
-  };
+  try {
+    const response = await axios.post(url, payload, {
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${username}:${authToken}`).toString("base64")}`,
+        "Content-Type": "application/json",
+      },
+    });
+    // Success case
+    return {
+      ticketUrl: `${baseUrl}/browse/${response.data.key}`,
+    };
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    
+    if (axiosError.response) {
+      // The server responded with a status code outside of 2xx range
+      console.error("Jira API error:", axiosError.response.status, axiosError.response.data);
+      throw new Error(`Failed to create Jira ticket: ${axiosError.response.status} - ${JSON.stringify(axiosError.response.data)}`);
+    } else if (axiosError.request) {
+      // Request was made but no response received
+      console.error("No response from Jira API:", axiosError.request);
+      throw new Error("No response received from Jira API");
+    } else {
+      // Error setting up the request
+      console.error("Error creating Jira ticket:", axiosError.message);
+      throw new Error(`Error creating Jira ticket: ${axiosError.message}`);
+    }
+  }
 };
 
 export default createJiraTicket;
