@@ -298,6 +298,23 @@ export type xCreateShareXPostUrlFunction = ActionFunction<
   xCreateShareXPostUrlOutputType
 >;
 
+export const xScrapePostDataWithNitterParamsSchema = z.object({
+  tweetUrl: z.string().describe("The text for the linkedin post"),
+});
+
+export type xScrapePostDataWithNitterParamsType = z.infer<typeof xScrapePostDataWithNitterParamsSchema>;
+
+export const xScrapePostDataWithNitterOutputSchema = z.object({
+  text: z.string().describe("The text in the tweet URL"),
+});
+
+export type xScrapePostDataWithNitterOutputType = z.infer<typeof xScrapePostDataWithNitterOutputSchema>;
+export type xScrapePostDataWithNitterFunction = ActionFunction<
+  xScrapePostDataWithNitterParamsType,
+  AuthParamsType,
+  xScrapePostDataWithNitterOutputType
+>;
+
 export const mongoInsertMongoDocParamsSchema = z.object({
   databaseName: z.string().describe("Database to connect to"),
   collectionName: z.string().describe("Collection to insert the document into"),

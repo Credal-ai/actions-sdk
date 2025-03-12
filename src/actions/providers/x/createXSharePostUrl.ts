@@ -16,7 +16,7 @@ const createXSharePostUrl: xCreateShareXPostUrlFunction = ({
 
   // Add text parameter (required) with encoding
   if (params.text) {
-    queryParams.append("text", params.text + '\n');
+    queryParams.append("text", params.text + "\n");
   }
 
   // Add url parameter if it exists

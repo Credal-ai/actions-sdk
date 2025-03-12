@@ -17,6 +17,7 @@ import {
   linkedinCreateShareLinkedinPostUrlDefinition,
   googleOauthCreateNewGoogleDocDefinition,
   xCreateShareXPostUrlDefinition,
+  xScrapePostDataWithNitterDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
@@ -85,6 +86,6 @@ export const ACTION_GROUPS: ActionGroups = {
   },
   X: {
     description: "Actions for interacting with X(formerly twitter)",
-    actions: [xCreateShareXPostUrlDefinition],
+    actions: [xCreateShareXPostUrlDefinition, xScrapePostDataWithNitterDefinition],
   },
 };
