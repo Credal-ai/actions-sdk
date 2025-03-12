@@ -948,7 +948,7 @@ export const finnhubSymbolLookupDefinition: ActionTemplate = {
     properties: {
       query: {
         type: "string",
-        description: "The query to look up",
+        description: "The symbol or colloquial name of the company to look up",
       },
     },
   },

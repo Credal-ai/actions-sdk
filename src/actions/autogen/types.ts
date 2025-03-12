@@ -515,7 +515,9 @@ export type googleOauthCreateNewGoogleDocFunction = ActionFunction<
   googleOauthCreateNewGoogleDocOutputType
 >;
 
-export const finnhubSymbolLookupParamsSchema = z.object({ query: z.string().describe("The query to look up") });
+export const finnhubSymbolLookupParamsSchema = z.object({
+  query: z.string().describe("The symbol or colloquial name of the company to look up"),
+});
 
 export type finnhubSymbolLookupParamsType = z.infer<typeof finnhubSymbolLookupParamsSchema>;
 
