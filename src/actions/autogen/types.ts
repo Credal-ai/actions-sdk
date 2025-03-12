@@ -278,9 +278,9 @@ export type linkedinCreateShareLinkedinPostUrlFunction = ActionFunction<
 >;
 
 export const xCreateShareXPostUrlParamsSchema = z.object({
-  text: z.string().describe("The text for the linkedin post"),
-  url: z.string().describe("The url for the linkedin post").optional(),
-  hashtag: z.array(z.string()).describe("List of hashtags to include in the post").optional(),
+  text: z.string().describe("The text for the X(formerly twitter) post"),
+  url: z.string().describe("The url for the X(formerly twitter) post").optional(),
+  hashtag: z.array(z.string()).describe("List of hashtags to include in the X post").optional(),
   via: z.string().describe("The twitter username to associate with the tweet").optional(),
   inReplyTo: z.string().describe("The tweet ID to reply to").optional(),
 });
@@ -299,7 +299,7 @@ export type xCreateShareXPostUrlFunction = ActionFunction<
 >;
 
 export const xScrapePostDataWithNitterParamsSchema = z.object({
-  tweetUrl: z.string().describe("The text for the linkedin post"),
+  tweetUrl: z.string().describe("The url for the X(formerly twitter) post"),
 });
 
 export type xScrapePostDataWithNitterParamsType = z.infer<typeof xScrapePostDataWithNitterParamsSchema>;

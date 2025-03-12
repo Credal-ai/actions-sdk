@@ -512,15 +512,15 @@ export const xCreateShareXPostUrlDefinition: ActionTemplate = {
     properties: {
       text: {
         type: "string",
-        description: "The text for the linkedin post",
+        description: "The text for the X(formerly twitter) post",
       },
       url: {
         type: "string",
-        description: "The url for the linkedin post",
+        description: "The url for the X(formerly twitter) post",
       },
       hashtag: {
         type: "array",
-        description: "List of hashtags to include in the post",
+        description: "List of hashtags to include in the X post",
         items: {
           type: "string",
         },
@@ -557,7 +557,7 @@ export const xScrapePostDataWithNitterDefinition: ActionTemplate = {
     properties: {
       tweetUrl: {
         type: "string",
-        description: "The text for the linkedin post",
+        description: "The url for the X(formerly twitter) post",
       },
     },
   },

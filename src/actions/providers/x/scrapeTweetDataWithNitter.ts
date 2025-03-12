@@ -49,7 +49,7 @@ const scrapeTweetDataWithNitter: xScrapePostDataWithNitterFunction = async ({
       text: tweetContent || "Error scraping with firecrawl",
     };
   } catch (error) {
-    throw new Error(`Error scraping tweet: ${error}`);
+    throw new Error(`Error scraping tweet: ${error instanceof Error ? error.message : error}`);
   }
 };
 
