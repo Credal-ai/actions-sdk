@@ -44,8 +44,6 @@ const getBasicFinancials: finnhubGetBasicFinancialsFunction = async ({
       },
     });
 
-    console.log(result.data.series);
-
     return finnhubGetBasicFinancialsOutputSchema.parse({
       result: {
         annual: transformData(result.data.series.annual),
