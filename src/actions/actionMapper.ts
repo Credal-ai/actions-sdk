@@ -35,6 +35,8 @@ import {
   resendSendEmailParamsSchema,
   linkedinCreateShareLinkedinPostUrlParamsSchema,
   linkedinCreateShareLinkedinPostUrlOutputSchema,
+  xCreateShareXPostUrlParamsSchema,
+  xCreateShareXPostUrlOutputSchema,
 } from "./autogen/types";
 import updatePage from "./providers/confluence/updatePage";
 import callCopilot from "./providers/credal/callCopilot";
@@ -53,6 +55,7 @@ import scrapeUrl from "./providers/firecrawl/scrapeUrl";
 import sendEmail from "./providers/resend/sendEmail";
 import createShareLinkedinPostUrl from "./providers/linkedin/createSharePostLinkedinUrl";
 import createNewGoogleDoc from "./providers/google-oauth/createNewGoogleDoc";
+import createXSharePostUrl from "./providers/x/createXSharePostUrl";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -175,6 +178,13 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: createNewGoogleDoc,
       paramsSchema: googleOauthCreateNewGoogleDocParamsSchema,
       outputSchema: googleOauthCreateNewGoogleDocOutputSchema,
+    },
+  },
+  x: {
+    createShareXPostUrl: {
+      fn: createXSharePostUrl,
+      paramsSchema: xCreateShareXPostUrlParamsSchema,
+      outputSchema: xCreateShareXPostUrlOutputSchema,
     },
   },
 };

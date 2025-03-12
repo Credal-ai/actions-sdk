@@ -503,6 +503,51 @@ export const linkedinCreateShareLinkedinPostUrlDefinition: ActionTemplate = {
   name: "createShareLinkedinPostUrl",
   provider: "linkedin",
 };
+export const xCreateShareXPostUrlDefinition: ActionTemplate = {
+  description: "Create a share X (formerly twitter) post link",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["text"],
+    properties: {
+      text: {
+        type: "string",
+        description: "The text for the linkedin post",
+      },
+      url: {
+        type: "string",
+        description: "The url for the linkedin post",
+      },
+      hashtag: {
+        type: "array",
+        description: "List of hashtags to include in the post",
+        items: {
+          type: "string",
+        },
+      },
+      via: {
+        type: "string",
+        description: "The twitter username to associate with the tweet",
+      },
+      inReplyTo: {
+        type: "string",
+        description: "The tweet ID to reply to",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["xUrl"],
+    properties: {
+      xUrl: {
+        type: "string",
+        description: "The share post X(formerly twitter) URL",
+      },
+    },
+  },
+  name: "createShareXPostUrl",
+  provider: "x",
+};
 export const mongoInsertMongoDocDefinition: ActionTemplate = {
   description: "Insert a document into a MongoDB collection",
   scopes: [],
