@@ -11,8 +11,8 @@ async function runTest() {
     const tweetUrl = "https://twitter.com/elonmusk/status/1899583456050598202";
     
     const result = await runAction(
-        "scrapePostDataWithNitter",
-        "x",
+        "scrapeTweetDataWithNitter",
+        "firecrawl",
         {
             apiKey: process.env.FIRECRAWL_API_KEY
         }, 
@@ -30,8 +30,8 @@ async function runTest() {
     const xUrl = "https://x.com/elonmusk/status/1899583456050598202";
     
     const xResult = await runAction(
-        "scrapePostDataWithNitter",
-        "x",
+        "scrapeTweetDataWithNitter",
+        "firecrawl",
         {
             apiKey: process.env.FIRECRAWL_API_KEY
         }, 

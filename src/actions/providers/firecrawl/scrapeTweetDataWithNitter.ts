@@ -1,18 +1,18 @@
 import FirecrawlApp from "@mendable/firecrawl-js";
 import {
   AuthParamsType,
-  xScrapePostDataWithNitterFunction,
-  xScrapePostDataWithNitterParamsType,
-  xScrapePostDataWithNitterOutputType,
+  firecrawlScrapeTweetDataWithNitterFunction,
+  firecrawlScrapeTweetDataWithNitterParamsType,
+  firecrawlScrapeTweetDataWithNitterOutputType,
 } from "../../autogen/types";
 
-const scrapeTweetDataWithNitter: xScrapePostDataWithNitterFunction = async ({
+const scrapeTweetDataWithNitter: firecrawlScrapeTweetDataWithNitterFunction = async ({
   params,
   authParams,
 }: {
-  params: xScrapePostDataWithNitterParamsType;
+  params: firecrawlScrapeTweetDataWithNitterParamsType;
   authParams: AuthParamsType;
-}): Promise<xScrapePostDataWithNitterOutputType> => {
+}): Promise<firecrawlScrapeTweetDataWithNitterOutputType> => {
   const tweetUrlRegex = /^(?:https?:\/\/)?(?:www\.)?(?:twitter\.com|x\.com)\/([a-zA-Z0-9_]+)\/status\/(\d+)(?:\?.*)?$/;
 
   if (!tweetUrlRegex.test(params.tweetUrl)) {

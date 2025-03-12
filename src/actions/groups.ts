@@ -17,7 +17,7 @@ import {
   linkedinCreateShareLinkedinPostUrlDefinition,
   googleOauthCreateNewGoogleDocDefinition,
   xCreateShareXPostUrlDefinition,
-  xScrapePostDataWithNitterDefinition,
+  firecrawlScrapeTweetDataWithNitterDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
@@ -78,7 +78,7 @@ export const ACTION_GROUPS: ActionGroups = {
   },
   FIRECRAWL: {
     description: "Actions for interacting with Firecrawl",
-    actions: [firecrawlScrapeUrlDefinition],
+    actions: [firecrawlScrapeUrlDefinition, firecrawlScrapeTweetDataWithNitterDefinition],
   },
   RESEND: {
     description: "Action for sending an email",
@@ -86,6 +86,6 @@ export const ACTION_GROUPS: ActionGroups = {
   },
   X: {
     description: "Actions for interacting with X(formerly twitter)",
-    actions: [xCreateShareXPostUrlDefinition, xScrapePostDataWithNitterDefinition],
+    actions: [xCreateShareXPostUrlDefinition],
   },
 };

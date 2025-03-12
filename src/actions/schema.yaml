@@ -400,24 +400,6 @@ actions:
             type: string
             description: The share post X(formerly twitter) URL
 
-    scrapePostDataWithNitter:
-      description: Given A tweet URL scrape the tweet data with nitter+firecrawl
-      scopes: []
-      parameters:
-        type: object
-        required: [tweetUrl]
-        properties:
-          tweetUrl:
-            type: string
-            description: The url for the X(formerly twitter) post
-      output:
-        type: object
-        required: [text]
-        properties:
-          text:
-            type: string
-            description: The text in the tweet URL
-
   mongo:
     insertMongoDoc:
       description: Insert a document into a MongoDB collection
@@ -569,6 +551,24 @@ actions:
           content:
             type: string
             description: The content of the URL
+          
+    scrapeTweetDataWithNitter:
+      description: Given A tweet URL scrape the tweet data with nitter+firecrawl
+      scopes: []
+      parameters:
+        type: object
+        required: [tweetUrl]
+        properties:
+          tweetUrl:
+            type: string
+            description: The url for the X(formerly twitter) post
+      output:
+        type: object
+        required: [text]
+        properties:
+          text:
+            type: string
+            description: The text in the tweet URL
   resend:
     sendEmail:
       description: Send an email using Resend

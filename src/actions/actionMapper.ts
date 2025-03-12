@@ -32,13 +32,13 @@ import {
   firecrawlScrapeUrlOutputSchema,
   firecrawlScrapeUrlParamsSchema,
   resendSendEmailOutputSchema,
+  firecrawlScrapeTweetDataWithNitterParamsSchema,
+  firecrawlScrapeTweetDataWithNitterOutputSchema,
   resendSendEmailParamsSchema,
   linkedinCreateShareLinkedinPostUrlParamsSchema,
   linkedinCreateShareLinkedinPostUrlOutputSchema,
   xCreateShareXPostUrlParamsSchema,
   xCreateShareXPostUrlOutputSchema,
-  xScrapePostDataWithNitterParamsSchema,
-  xScrapePostDataWithNitterOutputSchema,
 } from "./autogen/types";
 import updatePage from "./providers/confluence/updatePage";
 import callCopilot from "./providers/credal/callCopilot";
@@ -58,7 +58,7 @@ import sendEmail from "./providers/resend/sendEmail";
 import createShareLinkedinPostUrl from "./providers/linkedin/createSharePostLinkedinUrl";
 import createNewGoogleDoc from "./providers/google-oauth/createNewGoogleDoc";
 import createXSharePostUrl from "./providers/x/createXSharePostUrl";
-import scrapeTweetDataWithNitter from "./providers/x/scrapeTweetDataWithNitter";
+import scrapeTweetDataWithNitter from "./providers/firecrawl/scrapeTweetDataWithNitter";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -168,6 +168,11 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       paramsSchema: firecrawlScrapeUrlParamsSchema,
       outputSchema: firecrawlScrapeUrlOutputSchema,
     },
+    scrapeTweetDataWithNitter: {
+      fn: scrapeTweetDataWithNitter,
+      paramsSchema: firecrawlScrapeTweetDataWithNitterParamsSchema,
+      outputSchema: firecrawlScrapeTweetDataWithNitterOutputSchema,
+    },
   },
   resend: {
     sendEmail: {
@@ -188,11 +193,6 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: createXSharePostUrl,
       paramsSchema: xCreateShareXPostUrlParamsSchema,
       outputSchema: xCreateShareXPostUrlOutputSchema,
-    },
-    scrapePostDataWithNitter: {
-      fn: scrapeTweetDataWithNitter,
-      paramsSchema: xScrapePostDataWithNitterParamsSchema,
-      outputSchema: xScrapePostDataWithNitterOutputSchema,
     },
   },
 };
