@@ -19,7 +19,9 @@ const callCopilot: credalCallCopilotFunction = async ({
     userEmail: params.userEmail,
   };
 
-  const client = new CredalClient({ apiKey: authParams.apiKey });
+  const baseUrl = authParams.baseUrl ?? "https://app.credal.ai/api";
+
+  const client = new CredalClient({ environment: baseUrl, apiKey: authParams.apiKey });
 
   const response = await client.copilots.sendMessage({
     agentId: requestBody.agentId,
