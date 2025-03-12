@@ -117,11 +117,13 @@ const createJiraTicket: jiraCreateJiraTicketFunction = async ({
     };
   } catch (error) {
     const axiosError = error as AxiosError;
-    
+
     if (axiosError.response) {
       // The server responded with a status code outside of 2xx range
       console.error("Jira API error:", axiosError.response.status, axiosError.response.data);
-      throw new Error(`Failed to create Jira ticket: ${axiosError.response.status} - ${JSON.stringify(axiosError.response.data)}`);
+      throw new Error(
+        `Failed to create Jira ticket: ${axiosError.response.status} - ${JSON.stringify(axiosError.response.data)}`,
+      );
     } else if (axiosError.request) {
       // Request was made but no response received
       console.error("No response from Jira API:", axiosError.request);
