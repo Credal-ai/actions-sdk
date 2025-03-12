@@ -472,3 +472,89 @@ export type googleOauthCreateNewGoogleDocFunction = ActionFunction<
   AuthParamsType,
   googleOauthCreateNewGoogleDocOutputType
 >;
+
+export const finnhubSymbolLookupParamsSchema = z.object({ query: z.string().describe("The query to look up") });
+
+export type finnhubSymbolLookupParamsType = z.infer<typeof finnhubSymbolLookupParamsSchema>;
+
+export const finnhubSymbolLookupOutputSchema = z.object({
+  result: z
+    .array(
+      z
+        .object({
+          symbol: z.string().describe("The symbol of the stock").optional(),
+          description: z.string().describe("The description of the stock").optional(),
+        })
+        .describe("The metadata of the stock"),
+    )
+    .describe("The results of the symbol lookup"),
+});
+
+export type finnhubSymbolLookupOutputType = z.infer<typeof finnhubSymbolLookupOutputSchema>;
+export type finnhubSymbolLookupFunction = ActionFunction<
+  finnhubSymbolLookupParamsType,
+  AuthParamsType,
+  finnhubSymbolLookupOutputType
+>;
+
+export const finnhubGetBasicFinancialsParamsSchema = z.object({
+  symbol: z.string().describe("The symbol/TICKER of the stock"),
+});
+
+export type finnhubGetBasicFinancialsParamsType = z.infer<typeof finnhubGetBasicFinancialsParamsSchema>;
+
+export const finnhubGetBasicFinancialsOutputSchema = z.object({
+  result: z
+    .object({
+      annual: z
+        .array(
+          z
+            .object({
+              metric: z.string().describe("The name of the financial metric").optional(),
+              series: z
+                .array(
+                  z
+                    .object({
+                      period: z.string().describe("The period of the financial metric in YYYY-MM-DD format").optional(),
+                      v: z.number().describe("The value of the financial metric").optional(),
+                    })
+                    .describe("The value of the financial metric"),
+                )
+                .describe("The series of values for the financial metric")
+                .optional(),
+            })
+            .describe("The annual financials of the stock"),
+        )
+        .describe("The annual financials of the stock")
+        .optional(),
+      quarterly: z
+        .array(
+          z
+            .object({
+              metric: z.string().describe("The name of the financial metric").optional(),
+              series: z
+                .array(
+                  z
+                    .object({
+                      period: z.string().describe("The period of the financial metric in YYYY-MM-DD format").optional(),
+                      v: z.number().describe("The value of the financial metric").optional(),
+                    })
+                    .describe("The value of the financial metric"),
+                )
+                .describe("The series of values for the financial metric")
+                .optional(),
+            })
+            .describe("The quarterly financials of the stock"),
+        )
+        .describe("The quarterly financials of the stock")
+        .optional(),
+    })
+    .describe("The basic financials of the stock"),
+});
+
+export type finnhubGetBasicFinancialsOutputType = z.infer<typeof finnhubGetBasicFinancialsOutputSchema>;
+export type finnhubGetBasicFinancialsFunction = ActionFunction<
+  finnhubGetBasicFinancialsParamsType,
+  AuthParamsType,
+  finnhubGetBasicFinancialsOutputType
+>;

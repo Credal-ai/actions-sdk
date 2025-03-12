@@ -18,6 +18,8 @@ import {
   googleOauthCreateNewGoogleDocDefinition,
   xCreateShareXPostUrlDefinition,
   firecrawlScrapeTweetDataWithNitterDefinition,
+  finnhubSymbolLookupDefinition,
+  finnhubGetBasicFinancialsDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
@@ -87,5 +89,9 @@ export const ACTION_GROUPS: ActionGroups = {
   X: {
     description: "Actions for interacting with X(formerly twitter)",
     actions: [xCreateShareXPostUrlDefinition],
+  },
+  FINNHUB: {
+    description: "Action for interacting with Finnhub for stock market data",
+    actions: [finnhubSymbolLookupDefinition, finnhubGetBasicFinancialsDefinition],
   },
 };

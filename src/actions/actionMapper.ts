@@ -39,6 +39,10 @@ import {
   linkedinCreateShareLinkedinPostUrlOutputSchema,
   xCreateShareXPostUrlParamsSchema,
   xCreateShareXPostUrlOutputSchema,
+  finnhubSymbolLookupParamsSchema,
+  finnhubSymbolLookupOutputSchema,
+  finnhubGetBasicFinancialsParamsSchema,
+  finnhubGetBasicFinancialsOutputSchema,
 } from "./autogen/types";
 import updatePage from "./providers/confluence/updatePage";
 import callCopilot from "./providers/credal/callCopilot";
@@ -59,6 +63,8 @@ import createShareLinkedinPostUrl from "./providers/linkedin/createSharePostLink
 import createNewGoogleDoc from "./providers/google-oauth/createNewGoogleDoc";
 import createXSharePostUrl from "./providers/x/createXSharePostUrl";
 import scrapeTweetDataWithNitter from "./providers/firecrawl/scrapeTweetDataWithNitter";
+import symbolLookup from "./providers/finnhub/symbolLookup";
+import getBasicFinancials from "./providers/finnhub/getBasicFinancials";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -193,6 +199,18 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: createXSharePostUrl,
       paramsSchema: xCreateShareXPostUrlParamsSchema,
       outputSchema: xCreateShareXPostUrlOutputSchema,
+    },
+  },
+  finnhub: {
+    symbolLookup: {
+      fn: symbolLookup,
+      paramsSchema: finnhubSymbolLookupParamsSchema,
+      outputSchema: finnhubSymbolLookupOutputSchema,
+    },
+    getBasicFinancials: {
+      fn: getBasicFinancials,
+      paramsSchema: finnhubGetBasicFinancialsParamsSchema,
+      outputSchema: finnhubGetBasicFinancialsOutputSchema,
     },
   },
 };

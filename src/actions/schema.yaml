@@ -621,3 +621,95 @@ actions:
           documentUrl:
             type: string
             description: The URL to access the created Google Doc
+  finnhub:
+    symbolLookup:
+      description: Look up a stock symbol by name
+      scopes: []
+      parameters:
+        type: object
+        required: [query]
+        properties:
+          query:
+            type: string
+            description: The query to look up
+      output:
+        type: object
+        required: [result]
+        properties:
+          result:
+            type: array
+            description: The results of the symbol lookup
+            items:
+              type: object
+              description: The metadata of the stock
+              properties:
+                symbol:
+                  type: string
+                  description: The symbol of the stock
+                description:
+                  type: string
+                  description: The description of the stock
+    getBasicFinancials:
+      description: Get company basic financials such as margin, P/E ratio, 52-week high/low etc.
+      scopes: []
+      parameters:
+        type: object
+        required: [symbol]
+        properties:
+          symbol:
+            type: string
+            description: The symbol/TICKER of the stock
+      output:
+        type: object
+        required: [result]
+        properties:
+          result:
+            type: object
+            description: The basic financials of the stock
+            properties:
+              annual:
+                type: array
+                description: The annual financials of the stock
+                items:
+                  type: object
+                  description: The annual financials of the stock
+                  properties:
+                    metric:
+                      type: string
+                      description: The name of the financial metric
+                    series:
+                      type: array
+                      description: The series of values for the financial metric
+                      items:
+                        type: object
+                        description: The value of the financial metric
+                        properties:
+                          period:
+                            type: string
+                            description: The period of the financial metric in YYYY-MM-DD format
+                          v:
+                            type: number
+                            description: The value of the financial metric
+              quarterly:
+                type: array
+                description: The quarterly financials of the stock
+                items:
+                  type: object
+                  description: The quarterly financials of the stock
+                  properties:
+                    metric:
+                      type: string
+                      description: The name of the financial metric
+                    series:
+                      type: array
+                      description: The series of values for the financial metric
+                      items:
+                        type: object
+                        description: The value of the financial metric
+                        properties:
+                          period:
+                            type: string
+                            description: The period of the financial metric in YYYY-MM-DD format
+                          v:
+                            type: number
+                            description: The value of the financial metric
