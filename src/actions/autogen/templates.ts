@@ -426,6 +426,82 @@ export const credalCallCopilotDefinition: ActionTemplate = {
         type: "string",
         description: "The response from the Credal Copilot",
       },
+      referencedSources: {
+        type: "array",
+        description: "The sources referenced in the response",
+        items: {
+          type: "object",
+          description: "The source referenced in the response",
+          required: ["id", "externalResourceId", "name"],
+          properties: {
+            id: {
+              type: "string",
+              description: "The id of the source",
+            },
+            externalResourceId: {
+              type: "object",
+              required: ["externalResourceId", "resourceType"],
+              description: "The external resource id of the source",
+              properties: {
+                externalResourceId: {
+                  type: "string",
+                  description: "The external resource id of the source",
+                },
+                resourceType: {
+                  type: "string",
+                  description: "The type of the resource",
+                },
+              },
+            },
+            name: {
+              type: "string",
+              description: "The name of the source",
+            },
+            url: {
+              type: "string",
+              description: "The url of the source",
+            },
+          },
+        },
+      },
+      sourcesInDataContext: {
+        type: "array",
+        description: "The sources in the data context of the response",
+        items: {
+          type: "object",
+          description: "The source in the data context of the response",
+          required: ["id", "externalResourceId", "name"],
+          properties: {
+            id: {
+              type: "string",
+              description: "The id of the source",
+            },
+            externalResourceId: {
+              type: "object",
+              description: "The external resource id of the source",
+              required: ["externalResourceId", "resourceType"],
+              properties: {
+                externalResourceId: {
+                  type: "string",
+                  description: "The external resource id of the source",
+                },
+                resourceType: {
+                  type: "string",
+                  description: "The type of the resource",
+                },
+              },
+            },
+            name: {
+              type: "string",
+              description: "The name of the source",
+            },
+            url: {
+              type: "string",
+              description: "The url of the source",
+            },
+          },
+        },
+      },
     },
   },
   name: "callCopilot",

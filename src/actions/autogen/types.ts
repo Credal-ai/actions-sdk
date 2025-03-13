@@ -225,6 +225,42 @@ export type credalCallCopilotParamsType = z.infer<typeof credalCallCopilotParams
 
 export const credalCallCopilotOutputSchema = z.object({
   response: z.string().describe("The response from the Credal Copilot"),
+  referencedSources: z
+    .array(
+      z
+        .object({
+          id: z.string().describe("The id of the source"),
+          externalResourceId: z
+            .object({
+              externalResourceId: z.string().describe("The external resource id of the source"),
+              resourceType: z.string().describe("The type of the resource"),
+            })
+            .describe("The external resource id of the source"),
+          name: z.string().describe("The name of the source"),
+          url: z.string().describe("The url of the source").optional(),
+        })
+        .describe("The source referenced in the response"),
+    )
+    .describe("The sources referenced in the response")
+    .optional(),
+  sourcesInDataContext: z
+    .array(
+      z
+        .object({
+          id: z.string().describe("The id of the source"),
+          externalResourceId: z
+            .object({
+              externalResourceId: z.string().describe("The external resource id of the source"),
+              resourceType: z.string().describe("The type of the resource"),
+            })
+            .describe("The external resource id of the source"),
+          name: z.string().describe("The name of the source"),
+          url: z.string().describe("The url of the source").optional(),
+        })
+        .describe("The source in the data context of the response"),
+    )
+    .describe("The sources in the data context of the response")
+    .optional(),
 });
 
 export type credalCallCopilotOutputType = z.infer<typeof credalCallCopilotOutputSchema>;
