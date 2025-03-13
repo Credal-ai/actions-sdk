@@ -112,7 +112,7 @@ const createJiraTicket: jiraCreateJiraTicketFunction = async ({
       "Content-Type": "application/json",
     },
   });
-  
+
   return {
     ticketUrl: `${baseUrl}/browse/${response.data.key}`,
   };

@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   AuthParamsType,
   nwsGetForecastForLocationFunction,
@@ -6,6 +5,7 @@ import {
   nwsGetForecastForLocationParamsType,
 } from "../../autogen/types";
 import { isBetweenDatetime, isValidIsoDatestring } from "../../../utils/datetime";
+import { axiosClient } from "../../util/axiosClient";
 interface Period {
   startTime: string;
   endTime: string;
@@ -31,10 +31,10 @@ const getForecastForLocation: nwsGetForecastForLocationFunction = async ({
 
   const url = `https://api.weather.gov/points/${latitude},${longitude}`;
 
-  const pointsResponse = await axios.get(url, { headers: { "User-Agent": userAgent } });
+  const pointsResponse = await axiosClient.get(url, { headers: { "User-Agent": userAgent } });
 
   const forecastUrl = pointsResponse.data.properties.forecast;
-  const forecastResponse = await axios.get(forecastUrl, {
+  const forecastResponse = await axiosClient.get(forecastUrl, {
     headers: { "User-Agent": userAgent },
   });
   const forecastData = forecastResponse.data;

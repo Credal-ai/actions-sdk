@@ -4,7 +4,7 @@ import {
   googlemapsValidateAddressOutputType,
   AuthParamsType,
 } from "../../autogen/types";
-import axios from "axios";
+import { axiosClient } from "../../util/axiosClient";
 
 const validateAddress: googlemapsValidateAddressFunction = async ({
   params,
@@ -21,7 +21,7 @@ const validateAddress: googlemapsValidateAddressFunction = async ({
     },
   };
 
-  const response = await axios.post<googlemapsValidateAddressOutputType>(url, requestBody, {
+  const response = await axiosClient.post<googlemapsValidateAddressOutputType>(url, requestBody, {
     headers: {
       "Content-Type": "application/json",
     },

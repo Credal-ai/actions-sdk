@@ -1,21 +1,20 @@
-import axios, { AxiosInstance } from "axios";
+import { AxiosRequestConfig } from "axios";
 import {
   confluenceUpdatePageFunction,
   confluenceUpdatePageParamsType,
   confluenceUpdatePageOutputType,
   AuthParamsType,
 } from "../../../actions/autogen/types";
+import { axiosClient } from "../../util/axiosClient";
 
-function getConfluenceApi(baseUrl: string, username: string, apiToken: string): AxiosInstance {
-  const api: AxiosInstance = axios.create({
+function getConfluenceRequestConfig(baseUrl: string, username: string, apiToken: string): AxiosRequestConfig {
+  return {
     baseURL: baseUrl,
     headers: {
       Accept: "application/json",
-      // Tokens are associated with a specific user.
       Authorization: `Basic ${Buffer.from(`${username}:${apiToken}`).toString("base64")}`,
     },
-  });
-  return api;
+  };
 }
 
 const confluenceUpdatePage: confluenceUpdatePageFunction = async ({
@@ -28,13 +27,13 @@ const confluenceUpdatePage: confluenceUpdatePageFunction = async ({
   const { pageId, username, content, title } = params;
   const { baseUrl, authToken } = authParams;
 
-  const api = getConfluenceApi(baseUrl!, username, authToken!);
+  const config = getConfluenceRequestConfig(baseUrl!, username, authToken!);
 
   // Get current version number
-  const response = await api.get(`/api/v2/pages/${pageId}`);
+  const response = await axiosClient.get(`/api/v2/pages/${pageId}`, config);
   const currVersion = response.data.version.number;
 
-  await api.put(`/api/v2/pages/${pageId}`, {
+  const payload = {
     id: pageId,
     status: "current",
     title,
@@ -45,7 +44,9 @@ const confluenceUpdatePage: confluenceUpdatePageFunction = async ({
     version: {
       number: currVersion + 1,
     },
-  });
+  };
+
+  await axiosClient.put(`/api/v2/pages/${pageId}`, payload, config);
 };
 
 export default confluenceUpdatePage;

@@ -1,10 +1,10 @@
-import axios from "axios";
 import {
   AuthParamsType,
   openstreetmapGetLatitudeLongitudeFromLocationFunction,
   openstreetmapGetLatitudeLongitudeFromLocationOutputType,
   openstreetmapGetLatitudeLongitudeFromLocationParamsType,
 } from "../../autogen/types";
+import { axiosClient } from "../../util/axiosClient";
 
 const getLatitudeLongitudeFromLocation: openstreetmapGetLatitudeLongitudeFromLocationFunction = async ({
   params,
@@ -17,7 +17,7 @@ const getLatitudeLongitudeFromLocation: openstreetmapGetLatitudeLongitudeFromLoc
   const { userAgent } = authParams;
   const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)}&format=json`;
 
-  const response = await axios.get(url, { headers: { "User-Agent": userAgent } });
+  const response = await axiosClient.get(url, { headers: { "User-Agent": userAgent } });
 
   return response.data.map((result: { lat: string; lon: string; display_name: string }) => ({
     latitude: parseFloat(result.lat),

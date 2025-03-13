@@ -5,7 +5,7 @@ import {
   finnhubSymbolLookupOutputSchema,
   AuthParamsType,
 } from "../../autogen/types";
-import axios from "axios";
+import { axiosClient } from "../../util/axiosClient";
 
 const symbolLookup: finnhubSymbolLookupFunction = async ({
   params,
@@ -16,7 +16,7 @@ const symbolLookup: finnhubSymbolLookupFunction = async ({
 }): Promise<finnhubSymbolLookupOutputType> => {
   try {
     const apiKey = authParams.apiKey;
-    const result = await axios.get(`https://finnhub.io/api/v1/search?q=${params.query}`, {
+    const result = await axiosClient.get(`https://finnhub.io/api/v1/search?q=${params.query}`, {
       headers: {
         "X-Finnhub-Token": apiKey,
       },

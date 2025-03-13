@@ -5,7 +5,7 @@ import {
   finnhubGetBasicFinancialsOutputSchema,
   AuthParamsType,
 } from "../../autogen/types";
-import axios from "axios";
+import { axiosClient } from "../../util/axiosClient";
 
 interface FinancialMetricData {
   period: string;
@@ -38,7 +38,7 @@ const getBasicFinancials: finnhubGetBasicFinancialsFunction = async ({
 }): Promise<finnhubGetBasicFinancialsOutputType> => {
   try {
     const apiKey = authParams.apiKey;
-    const result = await axios.get(`https://finnhub.io/api/v1/stock/metric?symbol=${params.symbol}`, {
+    const result = await axiosClient.get(`https://finnhub.io/api/v1/stock/metric?symbol=${params.symbol}`, {
       headers: {
         "X-Finnhub-Token": apiKey,
       },

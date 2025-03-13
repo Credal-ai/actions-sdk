@@ -4,7 +4,7 @@ import {
   zendeskCreateZendeskTicketOutputType,
   zendeskCreateZendeskTicketParamsType,
 } from "../../autogen/types";
-import axios from "axios";
+import { axiosClient } from "../../util/axiosClient";
 
 const createZendeskTicket: zendeskCreateZendeskTicketFunction = async ({
   params,
@@ -30,7 +30,7 @@ const createZendeskTicket: zendeskCreateZendeskTicketFunction = async ({
   }
 
   try {
-    const response = await axios.post<zendeskCreateZendeskTicketOutputType>(url, payload, {
+    const response = await axiosClient.post<zendeskCreateZendeskTicketOutputType>(url, payload, {
       auth: {
         username: `${requesterEmail}/token`,
         password: apiKey,

@@ -15,18 +15,16 @@ export class ApiError extends Error {
 
 /** Create a configured axios instance with interceptors */
 function createAxiosClient(): AxiosInstance {
-
-
   const instance = axios.create();
 
   instance.interceptors.request.use(
-    (config) => {
+    config => {
       return config;
     },
-    (error) => {
+    error => {
       console.error("Request setup error:", error.message);
       return Promise.reject(error);
-    }
+    },
   );
 
   instance.interceptors.response.use(
@@ -40,21 +38,19 @@ function createAxiosClient(): AxiosInstance {
           new ApiError(
             `Request failed with status ${error.response.status}`,
             error.response.status,
-            error.response.data
-          )
+            error.response.data,
+          ),
         );
       } else if (error.request) {
         console.error(`No response received:`, error.config?.url);
         return Promise.reject(
-          new ApiError(`No response received from server for ${error.config?.url || 'unknown endpoint'}`)
+          new ApiError(`No response received from server for ${error.config?.url || "unknown endpoint"}`),
         );
       } else {
         console.error(`Request setup error:`, error.message);
-        return Promise.reject(
-          new ApiError(`Error making request: ${error.message}`)
-        );
+        return Promise.reject(new ApiError(`Error making request: ${error.message}`));
       }
-    }
+    },
   );
   return instance;
 }

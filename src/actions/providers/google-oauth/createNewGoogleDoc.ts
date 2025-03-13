@@ -1,10 +1,10 @@
-import axios from "axios";
 import {
   AuthParamsType,
   googleOauthCreateNewGoogleDocFunction,
   googleOauthCreateNewGoogleDocOutputType,
   googleOauthCreateNewGoogleDocParamsType,
 } from "../../autogen/types";
+import { axiosClient } from "../../util/axiosClient";
 
 /**
  * Creates a new Google Doc document using OAuth authentication
@@ -19,15 +19,40 @@ const createNewGoogleDoc: googleOauthCreateNewGoogleDocFunction = async ({
   if (!authParams.authToken) {
     throw new Error("authToken is required for Google Docs API");
   }
+  const { title, content } = params;
+  const baseApiUrl = "https://docs.googleapis.com/v1/documents";
 
-  try {
-    const { title, content } = params;
-    const baseApiUrl = "https://docs.googleapis.com/v1/documents";
+  // Create the document with the provided title
+  const response = await axiosClient.post(
+    baseApiUrl,
+    { title },
+    {
+      headers: {
+        Authorization: `Bearer ${authParams.authToken}`,
+        "Content-Type": "application/json",
+      },
+    },
+  );
 
-    // Create the document with the provided title
-    const response = await axios.post(
-      baseApiUrl,
-      { title },
+  // If content is provided, update the document body with the content
+  if (content) {
+    const documentId = response.data.documentId;
+
+    // Add the description to the document content
+    await axiosClient.post(
+      `${baseApiUrl}/${documentId}:batchUpdate`,
+      {
+        requests: [
+          {
+            insertText: {
+              location: {
+                index: 1, // Insert at the beginning of the document
+              },
+              text: content,
+            },
+          },
+        ],
+      },
       {
         headers: {
           Authorization: `Bearer ${authParams.authToken}`,
@@ -35,47 +60,14 @@ const createNewGoogleDoc: googleOauthCreateNewGoogleDocFunction = async ({
         },
       },
     );
-
-    // If description is provided, update the document body with the description
-    if (content) {
-      const documentId = response.data.documentId;
-
-      // Add the description to the document content
-      await axios.post(
-        `${baseApiUrl}/${documentId}:batchUpdate`,
-        {
-          requests: [
-            {
-              insertText: {
-                location: {
-                  index: 1, // Insert at the beginning of the document
-                },
-                text: content,
-              },
-            },
-          ],
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${authParams.authToken}`,
-            "Content-Type": "application/json",
-          },
-        },
-      );
-    }
-
-    return {
-      documentId: response.data.documentId,
-      documentUrl: response.data.documentId
-        ? `https://docs.google.com/document/d/${response.data.documentId}/edit`
-        : undefined,
-    };
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      throw new Error(`Google Docs API error: ${error.response?.data?.error?.message || error.message}`);
-    }
-    throw error;
   }
+
+  return {
+    documentId: response.data.documentId,
+    documentUrl: response.data.documentId
+      ? `https://docs.google.com/document/d/${response.data.documentId}/edit`
+      : undefined,
+  };
 };
 
 export default createNewGoogleDoc;

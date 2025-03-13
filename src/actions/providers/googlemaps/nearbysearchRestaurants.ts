@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   googlemapsNearbysearchRestaurantsFunction,
   googlemapsNearbysearchRestaurantsParamsType,
@@ -6,6 +5,7 @@ import {
   googlemapsNearbysearchRestaurantsOutputSchema,
   AuthParamsType,
 } from "../../autogen/types";
+import { axiosClient } from "../../util/axiosClient";
 
 interface NearbySearchResult {
   displayName: {
@@ -51,7 +51,7 @@ const nearbysearchRestaurants: googlemapsNearbysearchRestaurantsFunction = async
     "places.regularOpeningHours",
     "places.websiteUri",
   ].join(",");
-  const response = await axios.post<{ places: NearbySearchResult[] }>(
+  const response = await axiosClient.post<{ places: NearbySearchResult[] }>(
     url,
     {
       maxResultCount: 20,
