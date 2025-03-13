@@ -1,10 +1,11 @@
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import {
   AuthParamsType,
   jiraCreateJiraTicketFunction,
   jiraCreateJiraTicketOutputType,
   jiraCreateJiraTicketParamsType,
 } from "../../autogen/types";
+import { axiosClient } from "../../util/axiosClient";
 
 async function getUserAccountId(
   email: string,
@@ -13,7 +14,7 @@ async function getUserAccountId(
   username: string,
 ): Promise<string | null> {
   try {
-    const response = await axios.get<Array<{ accountId: string; displayName: string; emailAddress: string }>>(
+    const response = await axiosClient.get<Array<{ accountId: string; displayName: string; emailAddress: string }>>(
       `${baseUrl}/rest/api/3/user/search?query=${encodeURIComponent(email)}`,
       {
         headers: {
@@ -28,6 +29,7 @@ async function getUserAccountId(
     }
     return null;
   } catch (error) {
+    // Try to complete request without assignee/reporter.
     const axiosError = error as AxiosError;
     console.error("Error finding user:", axiosError.message);
     return null;
@@ -101,18 +103,16 @@ const createJiraTicket: jiraCreateJiraTicketFunction = async ({
       },
       ...(reporterId ? { reporter: { id: reporterId } } : {}),
       ...(assigneeId ? { assignee: { id: assigneeId } } : {}),
-      // ...(params.reporter ? { reporter: { id: params.reporter } } : {}),
     },
   };
 
-  const response = await axios.post(url, payload, {
+  const response = await axiosClient.post(url, payload, {
     headers: {
       Authorization: `Basic ${Buffer.from(`${username}:${authToken}`).toString("base64")}`,
       "Content-Type": "application/json",
     },
   });
-
-  // At the end of your function, wrap the response
+  
   return {
     ticketUrl: `${baseUrl}/browse/${response.data.key}`,
   };

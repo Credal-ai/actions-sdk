@@ -7,7 +7,7 @@ async function runTest() {
     const baseUrl = "insert-during-test" // Base URL of your confluence account
     const username = "insert-during-test"; // The email associated with the API token
     const projectKey = "insert-during-test"; // Project Key of your Jira project
-    
+
     const result = await runAction(
         "createJiraTicket",
         "jira",
