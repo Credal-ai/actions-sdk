@@ -148,6 +148,10 @@ export const jiraCreateJiraTicketDefinition: ActionTemplate = {
         type: "string",
         description: "The assignee for the new ticket creation",
       },
+      customFieldsJson: {
+        type: "string",
+        description: "A JSON String of custom fields to be set on the create ticket request",
+      },
     },
   },
   output: {

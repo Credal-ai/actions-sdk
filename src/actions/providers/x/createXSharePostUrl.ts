@@ -26,7 +26,11 @@ const createXSharePostUrl: xCreateShareXPostUrlFunction = ({
 
   // Add hashtags parameter if it exists
   if (params.hashtag && params.hashtag.length > 0) {
-    queryParams.append("hashtags", params.hashtag.join(","));
+    const cleanedHashtags = params.hashtag.map(tag => tag.replace(/^#+/, "").trim()).filter(tag => tag.length > 0);
+
+    if (cleanedHashtags.length > 0) {
+      queryParams.append("hashtags", cleanedHashtags.join(","));
+    }
   }
 
   // Add via parameter if it exists

@@ -20,11 +20,12 @@ async function runTest() {
         },
         {
             projectKey,
-            summary: `CR - Test Ticket ${new Date().toISOString()}`,
-            description: `CR - Test Ticket ${new Date().toISOString()}`,
+            summary: `Credal - Test Ticket ${new Date().toISOString()}`,
+            description: `Credal - Test Ticket ${new Date().toISOString()}`,
             issueType: "Task", // Adjust based on available issue types in your Jira
             reporter: "", // Optional - (defaults to the authenticated user related to the oauth token)
             assignee: "", // Optional
+            customFieldsJson: JSON.stringify({ customfield_10100: 'High' }), // Example of custom fields setting
         }
     );
     

@@ -9,7 +9,7 @@ async function runTest() {
     This should properly encode spaces and special characters!
     `;
     const url = "https://app.credal.ai/";
-    const hashtag = ["AI", "DevTools", "Productivity"];
+    const hashtag = ["#AI", "#DevTools", "Productivity"];
     const via = "credalai";
     const inReplyTo = "1899674121098957217";
     
