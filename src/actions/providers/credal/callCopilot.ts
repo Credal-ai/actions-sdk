@@ -36,7 +36,8 @@ const callCopilot: credalCallCopilotFunction = async ({
         : "Error getting response",
     referencedSources:
       response.sendChatResult.type === "ai_response_result" ? response.sendChatResult.referencedSources : [],
-    sourcesInDataContext: response.sendChatResult.type === "ai_response_result" ? response.sendChatResult.sourcesInDataContext : [],
+    sourcesInDataContext:
+      response.sendChatResult.type === "ai_response_result" ? response.sendChatResult.sourcesInDataContext : [],
   };
 };
 
