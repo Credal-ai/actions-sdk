@@ -86,7 +86,7 @@ const createJiraTicket: jiraCreateJiraTicketFunction = async ({
       },
       ...(reporterId ? { reporter: { id: reporterId } } : {}),
       ...(assigneeId ? { assignee: { id: assigneeId } } : {}),
-      ...(params.customFieldsJson ? JSON.parse(params.customFieldsJson) : {}),
+      ...(params.customFields ? params.customFields : {}),
     },
   };
 

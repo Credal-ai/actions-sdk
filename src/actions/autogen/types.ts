@@ -95,9 +95,10 @@ export const jiraCreateJiraTicketParamsSchema = z.object({
   issueType: z.string().describe("The issue type of the new ticket"),
   reporter: z.string().describe("The reporter for the new ticket creation").optional(),
   assignee: z.string().describe("The assignee for the new ticket creation").optional(),
-  customFieldsJson: z
-    .string()
-    .describe("A JSON String of custom fields to be set on the create ticket request")
+  customFields: z
+    .object({})
+    .catchall(z.any())
+    .describe("Custom fields to be set on the create ticket request")
     .optional(),
 });
 
