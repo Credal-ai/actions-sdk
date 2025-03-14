@@ -3,27 +3,28 @@ import { runAction } from "../src/app";
 
 async function runTest() {
 
-    const authToken = "insert-during-test"; // Get API Token from: https://id.atlassian.com/manage-profile/security/api-tokens
-    const baseUrl = "insert-during-test" // Base URL of your confluence account
-    const username = "insert-during-test"; // The email associated with the API token
-    const projectKey = "insert-during-test"; // Project Key of your Jira project
+    // For OAuth Credentials with Jira: https://developer.atlassian.com/cloud/jira/platform/oauth-2-3lo-apps/
+    const authToken =  "insert-your-auth-token-here"
+    const cloudId = "insert-your-cloud-id-here"
+    const baseUrl = "insert-your-base-url-here"
+    const projectKey = "insert-your-project-key-here";
+
 
     const result = await runAction(
         "createJiraTicket",
         "jira",
         { 
-            authToken,
+            authToken,        
+            cloudId,
             baseUrl,
-            username,
         },
         {
             projectKey,
             summary: `CR - Test Ticket ${new Date().toISOString()}`,
             description: `CR - Test Ticket ${new Date().toISOString()}`,
             issueType: "Task", // Adjust based on available issue types in your Jira
-            reporter: "", // Optional - (defaults to the authenticated user related to the auth token)
+            reporter: "", // Optional - (defaults to the authenticated user related to the oauth token)
             assignee: "", // Optional
-            username,
         }
     );
     
@@ -32,7 +33,6 @@ async function runTest() {
     // Validate response
     assert(result, "Response should not be null");
     assert(result.ticketUrl, "Response should contain a url to the created ticket");
-    
     console.log(`Successfully created Jira ticket: ${result.ticketUrl}`);
 }
 

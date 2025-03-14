@@ -7,19 +7,14 @@ import {
 } from "../../autogen/types";
 import { axiosClient } from "../../util/axiosClient";
 
-async function getUserAccountId(
-  email: string,
-  baseUrl: string,
-  authToken: string,
-  username: string,
-): Promise<string | null> {
+async function getUserAccountId(email: string, apiUrl: string, authToken: string): Promise<string | null> {
   try {
     const response = await axiosClient.get<Array<{ accountId: string; displayName: string; emailAddress: string }>>(
-      `${baseUrl}/rest/api/3/user/search?query=${encodeURIComponent(email)}`,
+      `${apiUrl}/user/search?query=${encodeURIComponent(email)}`,
       {
         headers: {
-          Authorization: `Basic ${Buffer.from(`${username}:${authToken}`).toString("base64")}`,
-          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+          Accept: "application/json",
         },
       },
     );
@@ -43,53 +38,41 @@ const createJiraTicket: jiraCreateJiraTicketFunction = async ({
   params: jiraCreateJiraTicketParamsType;
   authParams: AuthParamsType;
 }): Promise<jiraCreateJiraTicketOutputType> => {
-  const { authToken, baseUrl, username } = authParams;
-  const url = `${baseUrl}/rest/api/3/issue`;
+  const { authToken, cloudId, baseUrl } = authParams;
+
+  const apiUrl = `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3/`;
+
+  if (!cloudId) {
+    throw new Error("Cloud ID is required to create a Jira ticket");
+  }
 
   // If assignee is an email, look up the account ID
   let reporterId: string | null = null;
-  if (
-    params.reporter &&
-    typeof params.reporter === "string" &&
-    params.reporter.includes("@") &&
-    baseUrl &&
-    authToken &&
-    username
-  ) {
-    reporterId = await getUserAccountId(params.reporter, baseUrl, authToken, username);
+  if (params.reporter && typeof params.reporter === "string" && params.reporter.includes("@") && authToken) {
+    reporterId = await getUserAccountId(params.reporter, apiUrl, authToken);
   }
 
   // If assignee is an email, look up the account ID
   let assigneeId: string | null = null;
-  if (
-    params.assignee &&
-    typeof params.assignee === "string" &&
-    params.assignee.includes("@") &&
-    baseUrl &&
-    authToken &&
-    username
-  ) {
-    assigneeId = await getUserAccountId(params.assignee, baseUrl, authToken, username);
+  if (params.assignee && typeof params.assignee === "string" && params.assignee.includes("@") && authToken) {
+    assigneeId = await getUserAccountId(params.assignee, apiUrl, authToken);
   }
 
-  const description =
-    typeof params.description === "string"
-      ? {
-          type: "doc",
-          version: 1,
-          content: [
-            {
-              type: "paragraph",
-              content: [
-                {
-                  type: "text",
-                  text: params.description,
-                },
-              ],
-            },
-          ],
-        }
-      : params.description;
+  const description = {
+    type: "doc",
+    version: 1,
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: params.description,
+          },
+        ],
+      },
+    ],
+  };
 
   const payload = {
     fields: {
@@ -106,10 +89,10 @@ const createJiraTicket: jiraCreateJiraTicketFunction = async ({
     },
   };
 
-  const response = await axiosClient.post(url, payload, {
+  const response = await axiosClient.post(`${apiUrl}/issue`, payload, {
     headers: {
-      Authorization: `Basic ${Buffer.from(`${username}:${authToken}`).toString("base64")}`,
-      "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
+      Accept: "application/json",
     },
   });
 

@@ -11,6 +11,7 @@ export const AuthParamsSchema = z.object({
   emailFrom: z.string().optional(),
   emailReplyTo: z.string().optional(),
   emailBcc: z.string().optional(),
+  cloudId: z.string().optional(),
 });
 
 export type AuthParamsType = z.infer<typeof AuthParamsSchema>;
