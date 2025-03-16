@@ -20,6 +20,7 @@ import {
   firecrawlScrapeTweetDataWithNitterDefinition,
   finnhubSymbolLookupDefinition,
   finnhubGetBasicFinancialsDefinition,
+  driveOauthCreateNewGoogleDriveSheetDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
@@ -44,7 +45,7 @@ export const ACTION_GROUPS: ActionGroups = {
   },
   GOOGLE_DRIVE: {
     description: "Action for interacting with Google Drive",
-    actions: [googleOauthCreateNewGoogleDocDefinition],
+    actions: [googleOauthCreateNewGoogleDocDefinition, driveOauthCreateNewGoogleDriveSheetDefinition],
   },
   CREDAL_CALL_COPILOT: {
     description: "Action for calling a Credal Copilot",

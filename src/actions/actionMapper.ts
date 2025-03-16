@@ -43,6 +43,7 @@ import {
   finnhubSymbolLookupOutputSchema,
   finnhubGetBasicFinancialsParamsSchema,
   finnhubGetBasicFinancialsOutputSchema,
+  driveOauthCreateNewGoogleDriveSheetParamsSchema,
 } from "./autogen/types";
 import updatePage from "./providers/confluence/updatePage";
 import callCopilot from "./providers/credal/callCopilot";
@@ -65,6 +66,8 @@ import createXSharePostUrl from "./providers/x/createXSharePostUrl";
 import scrapeTweetDataWithNitter from "./providers/firecrawl/scrapeTweetDataWithNitter";
 import symbolLookup from "./providers/finnhub/symbolLookup";
 import getBasicFinancials from "./providers/finnhub/getBasicFinancials";
+import createNewGoogleDriveDoc from "./providers/drive-oauth/createNewGoogleDriveDoc";
+import createNewGoogleDriveSheet from "./providers/drive-oauth/createNewGoogleDriveSheet";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -192,6 +195,18 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: createNewGoogleDoc,
       paramsSchema: googleOauthCreateNewGoogleDocParamsSchema,
       outputSchema: googleOauthCreateNewGoogleDocOutputSchema,
+    },
+  },
+  driveOauth: {
+    createNewGoogleDriveDoc: {
+      fn: createNewGoogleDriveDoc,
+      paramsSchema: googleOauthCreateNewGoogleDocParamsSchema,
+      outputSchema: googleOauthCreateNewGoogleDocOutputSchema,
+    },
+    createNewGoogleDriveSheet: {
+      fn: createNewGoogleDriveSheet,
+      paramsSchema: driveOauthCreateNewGoogleDriveSheetParamsSchema,
+      outputSchema: driveOauthCreateNewGoogleDriveSheetParamsSchema,
     },
   },
   x: {
