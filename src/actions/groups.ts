@@ -1,5 +1,5 @@
 import {
-  confluenceAddToPageDefinition,
+  confluenceOverwritePageDefinition,
   credalCallCopilotDefinition,
   googlemapsValidateAddressDefinition,
   mathAddDefinition,
@@ -30,9 +30,9 @@ export const ACTION_GROUPS: ActionGroups = {
     description: "Actions for interacting with Slack",
     actions: [slackListConversationsDefinition, slackSendMessageDefinition],
   },
-  CONFLUENCE_UPDATE_PAGE: {
-    description: "Action for updating Confluence",
-    actions: [confluenceAddToPageDefinition],
+  CONFLUENCE: {
+    description: "Action for interacting with Confluence",
+    actions: [confluenceOverwritePageDefinition],
   },
   MATH_ADD: {
     description: "Action for adding two numbers",

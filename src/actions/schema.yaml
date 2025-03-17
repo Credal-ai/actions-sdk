@@ -69,7 +69,7 @@ actions:
             description: The sum of the two numbers
 
   confluence:
-    addToPage:
+    overwritePage:
       description: Updates a Confluence page with the new content specified
       scopes: []
       parameters:
@@ -85,6 +85,32 @@ actions:
           content:
             type: string
             description: The new content for the page
+    fetchPageContent:
+      description: Fetches content from a Confluence page
+      scopes: []
+      parameters:
+        type: object
+        required: [pageId]
+        properties:
+          pageId:
+            type: string
+            description: The ID of the page to fetch content from
+      output:
+        type: object
+        required: [pageId, title, content, pageUrl]
+        properties:
+          pageId:
+            type: string
+            description: The ID of the page
+          title:
+            type: string
+            description: The title of the page
+          content:
+            type: string
+            description: The content of the page in storage format (HTML)
+          pageUrl:
+            type: string
+            description: The URL to access the page
   jira:
     createJiraTicket:
       description: Create a jira ticket with new content specified

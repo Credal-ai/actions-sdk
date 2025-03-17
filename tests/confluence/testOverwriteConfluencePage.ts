@@ -1,10 +1,10 @@
-import { runAction } from "../src/app";
+import { runAction } from "../../src/app";
 
 /**
  * Test for updating a Confluence page
  */
 async function runTest() {
-  console.log("Running test for Confluence addToPage");
+  console.log("Running test for Confluence overwritePage");
 
 
  // Generate from https://id.atlassian.com/manage-profile/security/api-tokens
@@ -25,7 +25,7 @@ async function runTest() {
   };
 
   try {
-    await runAction("addToPage", "confluence", authParams, pageParams);
+    await runAction("overwritePage", "confluence", authParams, pageParams);
     console.log("Confluence page updated successfully!: " + pageParams.title);
     return true;
   } catch (error) {

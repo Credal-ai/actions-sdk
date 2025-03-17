@@ -1,8 +1,8 @@
 import { AxiosRequestConfig } from "axios";
 import {
-  confluenceAddToPageFunction,
-  confluenceAddToPageParamsType,
-  confluenceAddToPageOutputType,
+  confluenceOverwritePageFunction,
+  confluenceOverwritePageParamsType,
+  confluenceOverwritePageOutputType,
   AuthParamsType,
 } from "../../autogen/types";
 import { axiosClient } from "../../util/axiosClient";
@@ -17,13 +17,13 @@ function getConfluenceRequestConfig(baseUrl: string, username: string, apiToken:
   };
 }
 
-const confluenceAddToPage: confluenceAddToPageFunction = async ({
+const confluenceOverwritePage: confluenceOverwritePageFunction = async ({
   params,
   authParams,
 }: {
-  params: confluenceAddToPageParamsType;
+  params: confluenceOverwritePageParamsType;
   authParams: AuthParamsType;
-}): Promise<confluenceAddToPageOutputType> => {
+}): Promise<confluenceOverwritePageOutputType> => {
   const { pageId, content, title } = params;
   const { baseUrl, authToken, username } = authParams;
 
@@ -35,8 +35,6 @@ const confluenceAddToPage: confluenceAddToPageFunction = async ({
   // Get current page content and version number
   const response = await axiosClient.get(`/api/v2/pages/${pageId}?body-format=storage`, config);
   const currVersion = response.data.version.number;
-  const currentContent = response.data.body?.storage?.value || "";
-  const combinedContent = currentContent + content;
 
   const payload = {
     id: pageId,
@@ -44,7 +42,7 @@ const confluenceAddToPage: confluenceAddToPageFunction = async ({
     title,
     body: {
       representation: "storage",
-      value: combinedContent,
+      value: content,
     },
     version: {
       number: currVersion + 1,
@@ -54,4 +52,4 @@ const confluenceAddToPage: confluenceAddToPageFunction = async ({
   await axiosClient.put(`/api/v2/pages/${pageId}`, payload, config);
 };
 
-export default confluenceAddToPage;
+export default confluenceOverwritePage;

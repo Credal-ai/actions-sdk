@@ -1,8 +1,8 @@
 import { z } from "zod";
 import {
   type ActionFunction,
-  confluenceAddToPageParamsSchema,
-  confluenceAddToPageOutputSchema,
+  confluenceOverwritePageParamsSchema,
+  confluenceOverwritePageOutputSchema,
   credalCallCopilotOutputSchema,
   credalCallCopilotParamsSchema,
   googlemapsValidateAddressOutputSchema,
@@ -64,7 +64,7 @@ import createXSharePostUrl from "./providers/x/createXSharePostUrl";
 import scrapeTweetDataWithNitter from "./providers/firecrawl/scrapeTweetDataWithNitter";
 import symbolLookup from "./providers/finnhub/symbolLookup";
 import getBasicFinancials from "./providers/finnhub/getBasicFinancials";
-import confluenceAddToPage from "./providers/confluence/addToPage";
+import confluenceOverwritePage from "./providers/confluence/overwritePage";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -94,10 +94,10 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
     },
   },
   confluence: {
-    addToPage: {
-      fn: confluenceAddToPage,
-      paramsSchema: confluenceAddToPageParamsSchema,
-      outputSchema: confluenceAddToPageOutputSchema,
+    overwritePage: {
+      fn: confluenceOverwritePage,
+      paramsSchema: confluenceOverwritePageParamsSchema,
+      outputSchema: confluenceOverwritePageOutputSchema,
     },
   },
   googlemaps: {
