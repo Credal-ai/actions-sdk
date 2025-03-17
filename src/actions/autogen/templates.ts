@@ -98,7 +98,7 @@ export const confluenceAddToPageDefinition: ActionTemplate = {
     properties: {
       pageId: {
         type: "string",
-        description: "The page id that should be updated",
+        description: "The page id for the page to add content to",
       },
       title: {
         type: "string",

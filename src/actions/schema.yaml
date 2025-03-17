@@ -78,7 +78,7 @@ actions:
         properties:
           pageId:
             type: string
-            description: The page id that should be updated
+            description: The page id for the page to add content to
           title:
             type: string
             description: The title of the page that should be updated

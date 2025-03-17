@@ -71,7 +71,7 @@ export type mathAddOutputType = z.infer<typeof mathAddOutputSchema>;
 export type mathAddFunction = ActionFunction<mathAddParamsType, AuthParamsType, mathAddOutputType>;
 
 export const confluenceAddToPageParamsSchema = z.object({
-  pageId: z.string().describe("The page id that should be updated"),
+  pageId: z.string().describe("The page id for the page to add content to"),
   title: z.string().describe("The title of the page that should be updated"),
   content: z.string().describe("The new content for the page"),
 });

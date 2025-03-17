@@ -36,8 +36,6 @@ const confluenceAddToPage: confluenceAddToPageFunction = async ({
   const response = await axiosClient.get(`/api/v2/pages/${pageId}?body-format=storage`, config);
   const currVersion = response.data.version.number;
   const currentContent = response.data.body?.storage?.value || "";
-
-  // Combine new content with existing content (new content on top)
   const combinedContent = currentContent + content;
 
   const payload = {
