@@ -939,6 +939,75 @@ export const googleOauthCreateNewGoogleDocDefinition: ActionTemplate = {
   name: "createNewGoogleDoc",
   provider: "googleOauth",
 };
+export const driveOauthCreateNewGoogleDriveDocDefinition: ActionTemplate = {
+  description: "Creates a new Google Doc using OAuth authentication",
+  scopes: ["https://www.googleapis.com/auth/drive.file"],
+  parameters: {
+    type: "object",
+    required: ["title"],
+    properties: {
+      title: {
+        type: "string",
+        description: "The title of the new Google Doc",
+      },
+      content: {
+        type: "string",
+        description: "Optional content to add to the new Google Doc",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["fileId", "fileUrl"],
+    properties: {
+      fileId: {
+        type: "string",
+        description: "The ID of the created Google Doc",
+      },
+      fileUrl: {
+        type: "string",
+        description: "The URL to access the created Google Doc",
+      },
+    },
+  },
+  name: "createNewGoogleDriveDoc",
+  provider: "driveOauth",
+};
+export const driveOauthCreateNewGoogleDriveSheetDefinition: ActionTemplate = {
+  description: "Creates a new Google Sheet using OAuth authentication",
+  scopes: ["https://www.googleapis.com/auth/drive.file"],
+  parameters: {
+    type: "object",
+    required: ["title"],
+    properties: {
+      title: {
+        type: "string",
+        description: "The title of the new Google Sheet",
+      },
+      content: {
+        type: "string",
+        description:
+          "Optional content to add to the new Google Sheet (rows separated by newlines, columns by commas or tabs)",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["fileId", "fileUrl"],
+    properties: {
+      fileId: {
+        type: "string",
+        description: "The ID of the created Google Sheet",
+      },
+      fileUrl: {
+        type: "string",
+        description: "The URL to access the created Google Sheet",
+      },
+    },
+  },
+  name: "createNewGoogleDriveSheet",
+  provider: "driveOauth",
+};
 export const finnhubSymbolLookupDefinition: ActionTemplate = {
   description: "Look up a stock symbol by name",
   scopes: [],

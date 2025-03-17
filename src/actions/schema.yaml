@@ -126,8 +126,6 @@ actions:
           ticketUrl:
             type: string
             description: The url to the created Jira Ticket
-
-
   googlemaps:
     validateAddress:
       description: Validate a Google Maps address
@@ -373,7 +371,6 @@ actions:
                 url:
                   type: string
                   description: The url of the source
-        
 
   zendesk:
     createZendeskTicket:
@@ -612,7 +609,7 @@ actions:
           content:
             type: string
             description: The content of the URL
-          
+
     scrapeTweetDataWithNitter:
       description: Given A tweet URL scrape the tweet data with nitter+firecrawl
       scopes: []
@@ -682,6 +679,58 @@ actions:
           documentUrl:
             type: string
             description: The URL to access the created Google Doc
+  
+  driveOauth:
+    createNewGoogleDriveDoc:
+      description: Creates a new Google Doc using OAuth authentication
+      scopes:
+        - https://www.googleapis.com/auth/drive.file
+      parameters:
+        type: object
+        required: [title]
+        properties:
+          title:
+            type: string
+            description: The title of the new Google Doc
+          content:
+            type: string
+            description: Optional content to add to the new Google Doc
+      output:
+        type: object
+        required: [fileId, fileUrl]
+        properties:
+          fileId:
+            type: string
+            description: The ID of the created Google Doc
+          fileUrl:
+            type: string
+            description: The URL to access the created Google Doc
+    
+    createNewGoogleDriveSheet:
+      description: Creates a new Google Sheet using OAuth authentication
+      scopes:
+        - https://www.googleapis.com/auth/drive.file
+      parameters:
+        type: object
+        required: [title]
+        properties:
+          title:
+            type: string
+            description: The title of the new Google Sheet
+          content:
+            type: string
+            description: Optional content to add to the new Google Sheet (rows separated by newlines, columns by commas or tabs)
+      output:
+        type: object
+        required: [fileId, fileUrl]
+        properties:
+          fileId:
+            type: string
+            description: The ID of the created Google Sheet
+          fileUrl:
+            type: string
+            description: The URL to access the created Google Sheet
+
   finnhub:
     symbolLookup:
       description: Look up a stock symbol by name

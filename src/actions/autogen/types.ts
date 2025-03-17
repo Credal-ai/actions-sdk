@@ -515,6 +515,51 @@ export type googleOauthCreateNewGoogleDocFunction = ActionFunction<
   googleOauthCreateNewGoogleDocOutputType
 >;
 
+export const driveOauthCreateNewGoogleDriveDocParamsSchema = z.object({
+  title: z.string().describe("The title of the new Google Doc"),
+  content: z.string().describe("Optional content to add to the new Google Doc").optional(),
+});
+
+export type driveOauthCreateNewGoogleDriveDocParamsType = z.infer<typeof driveOauthCreateNewGoogleDriveDocParamsSchema>;
+
+export const driveOauthCreateNewGoogleDriveDocOutputSchema = z.object({
+  fileId: z.string().describe("The ID of the created Google Doc"),
+  fileUrl: z.string().describe("The URL to access the created Google Doc"),
+});
+
+export type driveOauthCreateNewGoogleDriveDocOutputType = z.infer<typeof driveOauthCreateNewGoogleDriveDocOutputSchema>;
+export type driveOauthCreateNewGoogleDriveDocFunction = ActionFunction<
+  driveOauthCreateNewGoogleDriveDocParamsType,
+  AuthParamsType,
+  driveOauthCreateNewGoogleDriveDocOutputType
+>;
+
+export const driveOauthCreateNewGoogleDriveSheetParamsSchema = z.object({
+  title: z.string().describe("The title of the new Google Sheet"),
+  content: z
+    .string()
+    .describe("Optional content to add to the new Google Sheet (rows separated by newlines, columns by commas or tabs)")
+    .optional(),
+});
+
+export type driveOauthCreateNewGoogleDriveSheetParamsType = z.infer<
+  typeof driveOauthCreateNewGoogleDriveSheetParamsSchema
+>;
+
+export const driveOauthCreateNewGoogleDriveSheetOutputSchema = z.object({
+  fileId: z.string().describe("The ID of the created Google Sheet"),
+  fileUrl: z.string().describe("The URL to access the created Google Sheet"),
+});
+
+export type driveOauthCreateNewGoogleDriveSheetOutputType = z.infer<
+  typeof driveOauthCreateNewGoogleDriveSheetOutputSchema
+>;
+export type driveOauthCreateNewGoogleDriveSheetFunction = ActionFunction<
+  driveOauthCreateNewGoogleDriveSheetParamsType,
+  AuthParamsType,
+  driveOauthCreateNewGoogleDriveSheetOutputType
+>;
+
 export const finnhubSymbolLookupParamsSchema = z.object({ query: z.string().describe("The query to look up") });
 
 export type finnhubSymbolLookupParamsType = z.infer<typeof finnhubSymbolLookupParamsSchema>;
