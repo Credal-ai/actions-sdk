@@ -43,6 +43,8 @@ import {
   finnhubSymbolLookupOutputSchema,
   finnhubGetBasicFinancialsParamsSchema,
   finnhubGetBasicFinancialsOutputSchema,
+  confluenceFetchPageContentParamsSchema,
+  confluenceFetchPageContentOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -65,6 +67,7 @@ import scrapeTweetDataWithNitter from "./providers/firecrawl/scrapeTweetDataWith
 import symbolLookup from "./providers/finnhub/symbolLookup";
 import getBasicFinancials from "./providers/finnhub/getBasicFinancials";
 import confluenceOverwritePage from "./providers/confluence/overwritePage";
+import confluenceFetchPageContent from "./providers/confluence/fetchPageContent";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -98,6 +101,11 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: confluenceOverwritePage,
       paramsSchema: confluenceOverwritePageParamsSchema,
       outputSchema: confluenceOverwritePageOutputSchema,
+    },
+    fetchPageContent: {
+      fn: confluenceFetchPageContent,
+      paramsSchema: confluenceFetchPageContentParamsSchema,
+      outputSchema: confluenceFetchPageContentOutputSchema,
     },
   },
   googlemaps: {

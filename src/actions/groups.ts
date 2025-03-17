@@ -20,6 +20,7 @@ import {
   firecrawlScrapeTweetDataWithNitterDefinition,
   finnhubSymbolLookupDefinition,
   finnhubGetBasicFinancialsDefinition,
+  confluenceFetchPageContentDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
@@ -32,7 +33,7 @@ export const ACTION_GROUPS: ActionGroups = {
   },
   CONFLUENCE: {
     description: "Action for interacting with Confluence",
-    actions: [confluenceOverwritePageDefinition],
+    actions: [confluenceOverwritePageDefinition, confluenceFetchPageContentDefinition],
   },
   MATH_ADD: {
     description: "Action for adding two numbers",

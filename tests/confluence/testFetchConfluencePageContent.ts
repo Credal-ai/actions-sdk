@@ -4,16 +4,17 @@ import { runAction } from "../../src/app";
 async function runTest() {
   console.log("Running test for Confluence fetchPageContent");
 
-  // Set authentication parameters
-  const authParams = {
-    baseUrl: "https://your-domain.atlassian.net", // Replace with your Confluence URL
-    username: "your-email@example.com",           // Replace with your Confluence username/email
-    authToken: "your-api-token"                   // Generate from https://id.atlassian.com/manage-profile/security/api-tokens
-  };
+ // Generate from https://id.atlassian.com/manage-profile/security/api-tokens
+ const authParams = {
+  baseUrl: "insert-your-baseurl-here", // https://<your-domain>.atlassian.net/wiki
+  username: "insert-your-username-here", // Email associated with api token
+  authToken: "insert-your-token-here", 
+};
+
 
   // Page ID to fetch
   const pageParams = {
-    pageId: "123456" // Replace with an actual page ID from your Confluence
+    pageId: "insert-confluence-page-id" // Replace with an actual page ID from your Confluence
   };
 
   try {
@@ -26,14 +27,12 @@ async function runTest() {
     
     console.log("Confluence page content fetched successfully!");
     console.log("Page title:", result.title);
-    console.log("Page URL:", result.pageUrl);
     console.log("Content", `${result.content.substring(0, 100)}..`);
     
     // Validate the result
     assert(result.pageId === pageParams.pageId, "Result should contain matching page ID");
     assert(result.title, "Result should contain a page title");
     assert(result.content, "Result should contain page content");
-    assert(result.pageUrl, "Result should contain a page URL");
     
     return result;
   } catch (error) {

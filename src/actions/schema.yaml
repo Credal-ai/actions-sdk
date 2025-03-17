@@ -97,7 +97,7 @@ actions:
             description: The ID of the page to fetch content from
       output:
         type: object
-        required: [pageId, title, content, pageUrl]
+        required: [pageId, title, content]
         properties:
           pageId:
             type: string
@@ -108,9 +108,6 @@ actions:
           content:
             type: string
             description: The content of the page in storage format (HTML)
-          pageUrl:
-            type: string
-            description: The URL to access the page
   jira:
     createJiraTicket:
       description: Create a jira ticket with new content specified
