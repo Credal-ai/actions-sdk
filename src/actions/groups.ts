@@ -1,5 +1,5 @@
 import {
-  confluenceUpdatePageDefinition,
+  confluenceAddToPageDefinition,
   credalCallCopilotDefinition,
   googlemapsValidateAddressDefinition,
   mathAddDefinition,
@@ -32,7 +32,7 @@ export const ACTION_GROUPS: ActionGroups = {
   },
   CONFLUENCE_UPDATE_PAGE: {
     description: "Action for updating Confluence",
-    actions: [confluenceUpdatePageDefinition],
+    actions: [confluenceAddToPageDefinition],
   },
   MATH_ADD: {
     description: "Action for adding two numbers",

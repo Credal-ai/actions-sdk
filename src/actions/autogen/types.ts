@@ -70,22 +70,21 @@ export const mathAddOutputSchema = z.object({ result: z.number().describe("The s
 export type mathAddOutputType = z.infer<typeof mathAddOutputSchema>;
 export type mathAddFunction = ActionFunction<mathAddParamsType, AuthParamsType, mathAddOutputType>;
 
-export const confluenceUpdatePageParamsSchema = z.object({
+export const confluenceAddToPageParamsSchema = z.object({
   pageId: z.string().describe("The page id that should be updated"),
   title: z.string().describe("The title of the page that should be updated"),
-  username: z.string().describe("The username of the person updating the page"),
   content: z.string().describe("The new content for the page"),
 });
 
-export type confluenceUpdatePageParamsType = z.infer<typeof confluenceUpdatePageParamsSchema>;
+export type confluenceAddToPageParamsType = z.infer<typeof confluenceAddToPageParamsSchema>;
 
-export const confluenceUpdatePageOutputSchema = z.void();
+export const confluenceAddToPageOutputSchema = z.void();
 
-export type confluenceUpdatePageOutputType = z.infer<typeof confluenceUpdatePageOutputSchema>;
-export type confluenceUpdatePageFunction = ActionFunction<
-  confluenceUpdatePageParamsType,
+export type confluenceAddToPageOutputType = z.infer<typeof confluenceAddToPageOutputSchema>;
+export type confluenceAddToPageFunction = ActionFunction<
+  confluenceAddToPageParamsType,
   AuthParamsType,
-  confluenceUpdatePageOutputType
+  confluenceAddToPageOutputType
 >;
 
 export const jiraCreateJiraTicketParamsSchema = z.object({

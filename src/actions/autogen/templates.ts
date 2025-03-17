@@ -89,12 +89,12 @@ export const mathAddDefinition: ActionTemplate = {
   name: "add",
   provider: "math",
 };
-export const confluenceUpdatePageDefinition: ActionTemplate = {
+export const confluenceAddToPageDefinition: ActionTemplate = {
   description: "Updates a Confluence page with the new content specified",
   scopes: [],
   parameters: {
     type: "object",
-    required: ["pageId", "title", "username", "content"],
+    required: ["pageId", "title", "content"],
     properties: {
       pageId: {
         type: "string",
@@ -104,17 +104,13 @@ export const confluenceUpdatePageDefinition: ActionTemplate = {
         type: "string",
         description: "The title of the page that should be updated",
       },
-      username: {
-        type: "string",
-        description: "The username of the person updating the page",
-      },
       content: {
         type: "string",
         description: "The new content for the page",
       },
     },
   },
-  name: "updatePage",
+  name: "addToPage",
   provider: "confluence",
 };
 export const jiraCreateJiraTicketDefinition: ActionTemplate = {

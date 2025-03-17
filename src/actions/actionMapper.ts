@@ -1,8 +1,8 @@
 import { z } from "zod";
 import {
   type ActionFunction,
-  confluenceUpdatePageOutputSchema,
-  confluenceUpdatePageParamsSchema,
+  confluenceAddToPageParamsSchema,
+  confluenceAddToPageOutputSchema,
   credalCallCopilotOutputSchema,
   credalCallCopilotParamsSchema,
   googlemapsValidateAddressOutputSchema,
@@ -44,7 +44,6 @@ import {
   finnhubGetBasicFinancialsParamsSchema,
   finnhubGetBasicFinancialsOutputSchema,
 } from "./autogen/types";
-import updatePage from "./providers/confluence/updatePage";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
 import add from "./providers/math/add";
@@ -65,6 +64,7 @@ import createXSharePostUrl from "./providers/x/createXSharePostUrl";
 import scrapeTweetDataWithNitter from "./providers/firecrawl/scrapeTweetDataWithNitter";
 import symbolLookup from "./providers/finnhub/symbolLookup";
 import getBasicFinancials from "./providers/finnhub/getBasicFinancials";
+import confluenceAddToPage from "./providers/confluence/addToPage";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -94,10 +94,10 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
     },
   },
   confluence: {
-    updatePage: {
-      fn: updatePage,
-      paramsSchema: confluenceUpdatePageParamsSchema,
-      outputSchema: confluenceUpdatePageOutputSchema,
+    addToPage: {
+      fn: confluenceAddToPage,
+      paramsSchema: confluenceAddToPageParamsSchema,
+      outputSchema: confluenceAddToPageOutputSchema,
     },
   },
   googlemaps: {
