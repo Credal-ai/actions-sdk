@@ -74,6 +74,12 @@ const createJiraTicket: jiraCreateJiraTicketFunction = async ({
     ],
   };
 
+  const customFieldsObj = params.customFields
+    ? typeof params.customFields === "string"
+      ? JSON.parse(params.customFields)
+      : params.customFields
+    : undefined;
+
   const payload = {
     fields: {
       project: {
@@ -86,7 +92,7 @@ const createJiraTicket: jiraCreateJiraTicketFunction = async ({
       },
       ...(reporterId ? { reporter: { id: reporterId } } : {}),
       ...(assigneeId ? { assignee: { id: assigneeId } } : {}),
-      ...(params.customFields ? params.customFields : {}),
+      ...(customFieldsObj ? customFieldsObj : {}),
     },
   };
 
