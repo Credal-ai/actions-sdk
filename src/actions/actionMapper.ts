@@ -44,6 +44,9 @@ import {
   finnhubGetBasicFinancialsParamsSchema,
   finnhubGetBasicFinancialsOutputSchema,
   driveOauthCreateNewGoogleDriveSheetParamsSchema,
+  driveOauthCreateNewGoogleDriveDocParamsSchema,
+  driveOauthCreateNewGoogleDriveDocOutputSchema,
+  driveOauthCreateNewGoogleDriveSheetOutputSchema,
 } from "./autogen/types";
 import updatePage from "./providers/confluence/updatePage";
 import callCopilot from "./providers/credal/callCopilot";
@@ -200,13 +203,13 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
   driveOauth: {
     createNewGoogleDriveDoc: {
       fn: createNewGoogleDriveDoc,
-      paramsSchema: googleOauthCreateNewGoogleDocParamsSchema,
-      outputSchema: googleOauthCreateNewGoogleDocOutputSchema,
+      paramsSchema: driveOauthCreateNewGoogleDriveDocParamsSchema,
+      outputSchema: driveOauthCreateNewGoogleDriveDocOutputSchema,
     },
     createNewGoogleDriveSheet: {
       fn: createNewGoogleDriveSheet,
       paramsSchema: driveOauthCreateNewGoogleDriveSheetParamsSchema,
-      outputSchema: driveOauthCreateNewGoogleDriveSheetParamsSchema,
+      outputSchema: driveOauthCreateNewGoogleDriveSheetOutputSchema,
     },
   },
   x: {
