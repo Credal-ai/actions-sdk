@@ -15,6 +15,7 @@ import {
   firecrawlScrapeUrlDefinition,
   resendSendEmailDefinition,
   linkedinCreateShareLinkedinPostUrlDefinition,
+  workdayRequestTimeOffDefinition,
   googleOauthCreateNewGoogleDocDefinition,
   xCreateShareXPostUrlDefinition,
   firecrawlScrapeTweetDataWithNitterDefinition,
@@ -67,6 +68,10 @@ export const ACTION_GROUPS: ActionGroups = {
   SNOWFLAKE_ACTIONS: {
     description: "Action for getting content from a Snowflake table",
     actions: [snowflakeGetRowByFieldValueDefinition, snowflakeRunSnowflakeQueryDefinition],
+  },
+  WORKDAY_REQUEST_TIME_OFF: {
+    description: "Action for requesting time off in Workday",
+    actions: [workdayRequestTimeOffDefinition],
   },
   JIRA_CREATE_TICKET: {
     description: "Action for creating a Jira ticket",
