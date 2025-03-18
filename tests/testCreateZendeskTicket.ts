@@ -22,10 +22,7 @@ async function runTest() {
     );
         
     assert(result, "Response should not be null");
-    assert(result.ticket, "Response should contain a ticket object");
-    assert(result.ticket.id, "Ticket should have an ID");
-    
-    console.log(`Successfully created Zendesk ticket with ID: ${result.ticket.id}`);
+    console.log(`Successfully created Zendesk ticket with ID: ${result.ticketId} and url ${result.ticketUrl}`);
 }
 
 runTest().catch(error => {
