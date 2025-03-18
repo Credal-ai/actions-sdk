@@ -537,6 +537,29 @@ export const credalCallCopilotDefinition: ActionTemplate = {
           },
         },
       },
+      webSearchResults: {
+        type: "array",
+        description: "The web search results in the response",
+        items: {
+          type: "object",
+          description: "The web search result in the response",
+          required: ["title", "url"],
+          properties: {
+            title: {
+              type: "string",
+              description: "The title of the web search result",
+            },
+            url: {
+              type: "string",
+              description: "The url of the web search result",
+            },
+            contents: {
+              type: "string",
+              description: "The contents of the web search result",
+            },
+          },
+        },
+      },
     },
   },
   name: "callCopilot",

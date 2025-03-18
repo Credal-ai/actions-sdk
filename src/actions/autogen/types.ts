@@ -285,6 +285,18 @@ export const credalCallCopilotOutputSchema = z.object({
     )
     .describe("The sources in the data context of the response")
     .optional(),
+  webSearchResults: z
+    .array(
+      z
+        .object({
+          title: z.string().describe("The title of the web search result"),
+          url: z.string().describe("The url of the web search result"),
+          contents: z.string().describe("The contents of the web search result").optional(),
+        })
+        .describe("The web search result in the response"),
+    )
+    .describe("The web search results in the response")
+    .optional(),
 });
 
 export type credalCallCopilotOutputType = z.infer<typeof credalCallCopilotOutputSchema>;

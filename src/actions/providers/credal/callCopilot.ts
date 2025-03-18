@@ -38,6 +38,8 @@ const callCopilot: credalCallCopilotFunction = async ({
       response.sendChatResult.type === "ai_response_result" ? response.sendChatResult.referencedSources : [],
     sourcesInDataContext:
       response.sendChatResult.type === "ai_response_result" ? response.sendChatResult.sourcesInDataContext : [],
+    webSearchResults:
+      response.sendChatResult.type === "ai_response_result" ? response.sendChatResult.webSearchResults : [],
   };
 };
 
