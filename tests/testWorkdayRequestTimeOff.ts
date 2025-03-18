@@ -5,10 +5,9 @@ async function runTest() {
     const result = await runAction(
         "requestTimeOff",
         "workday",
-        { authToken: "insert-during-testing" }, // authParams
+        { clientId: "insert-during-testing", clientSecret: "insert-during-testing", subdomain: "insert-during-testing" }, // authParams
         {
-            tenantName: "credal",
-            workerId: "123456",
+            userEmail: "ria@credal.ai",
             startDate: "2022-01-01",
             endDate: "2022-01-02",
             timeOffType: "PTO",
