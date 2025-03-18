@@ -29,14 +29,14 @@ const enableUserByEmail: lookerEnableUserByEmailFunction = async ({
 
   // Step 1: If no auth token is provided, authenticate using client_id and client_secret
   if (!accessToken && clientId && clientSecret) {
+    console.log("Authenticating with Looker API:", baseUrl);
     try {
-      const loginResponse = await axiosClient.post(
-        `${baseUrl}/login`,
-        {
-          client_id: clientId,
-          client_secret: clientSecret,
-        }
-      );
+      // Use client_id and client_secret as URL query parameters
+      const loginUrl = `${baseUrl}/api/4.0/login?client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}`;
+      console.log("Login URL:", loginUrl);
+      
+      const loginResponse = await axiosClient.post(loginUrl, {});
+      console.log("Login response:", loginResponse.data);
 
       accessToken = loginResponse.data.access_token;
       
@@ -59,10 +59,11 @@ const enableUserByEmail: lookerEnableUserByEmailFunction = async ({
 
   try {
     // Step 2: Search for the user by email
-    const searchResponse = await axiosClient.get(
-      `${baseUrl}/api/4.0/users/search?email=${encodeURIComponent(userEmail)}`,
-      { headers }
-    );
+    const searchUrl = `${baseUrl}/api/4.0/users/search?email=${encodeURIComponent(userEmail)}`;
+    console.log("Searching for user:", searchUrl);
+    
+    const searchResponse = await axiosClient.get(searchUrl, { headers });
+    console.log("Search response:", searchResponse.data);
 
     const users = searchResponse.data;
     
@@ -92,13 +93,18 @@ const enableUserByEmail: lookerEnableUserByEmailFunction = async ({
     }
 
     // Step 4: Enable the user (no confirmation check, automatically enable)
+    const updateUrl = `${baseUrl}/api/4.0/users/${user.id}`;
+    console.log("Enabling user:", updateUrl);
+    
     const updateResponse = await axiosClient.patch(
-      `${baseUrl}/api/4.0/users/${user.id}`,
+      updateUrl,
       {
         is_disabled: false
       },
       { headers }
     );
+    
+    console.log("Update response:", updateResponse.data);
 
     const updatedUser = updateResponse.data;
 
@@ -116,6 +122,7 @@ const enableUserByEmail: lookerEnableUserByEmailFunction = async ({
     };
   } catch (error) {
     console.error("Error in Looker enableUserByEmail action:", error);
+    
     return {
       success: false,
       message: error instanceof Error ? error.message : "Unknown error occurred",
