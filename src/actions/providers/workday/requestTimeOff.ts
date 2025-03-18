@@ -4,8 +4,7 @@ import {
   workdayRequestTimeOffOutputType,
   workdayRequestTimeOffParamsType,
 } from "../../autogen/types";
-
-const axios = require("axios");
+import axios from "axios";
 
 const requestTimeOff: workdayRequestTimeOffFunction = async ({
   params,
