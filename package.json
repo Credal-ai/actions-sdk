@@ -38,6 +38,7 @@
     "typescript-eslint": "^8.18.0"
   },
   "dependencies": {
+    "@aws-sdk/s3-request-presigner": "^3.758.0",
     "@credal/sdk": "^0.0.21",
     "@mendable/firecrawl-js": "^1.19.0",
     "@slack/web-api": "^7.8.0",
@@ -49,6 +50,7 @@
     "resend": "^4.1.2",
     "snowflake-sdk": "^2.0.2",
     "ts-node": "^10.9.2",
+    "uuid": "^11.1.0",
     "zod": "^3.24.1"
   }
 }

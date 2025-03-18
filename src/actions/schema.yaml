@@ -550,7 +550,7 @@ actions:
       scopes: []
       parameters:
         type: object
-        required: [databaseName, warehouse, query, user, accountName, s3BucketName, s3ObjectKey]
+        required: [databaseName, warehouse, query, user, accountName, s3BucketName, s3Region]
         properties:
           databaseName:
             type: string
@@ -570,12 +570,9 @@ actions:
           s3BucketName:
             type: string
             description: The name of the S3 bucket to write results to
-          s3ObjectKey:
-            type: string
-            description: The key/path where the results will be stored in the S3 bucket
           s3Region:
             type: string
-            description: The AWS region where the S3 bucket is located (defaults to us-east-1)
+            description: The AWS region where the S3 bucket is located
           outputFormat:
             type: string
             description: Format for the output file (json or csv, defaults to json)

@@ -4,22 +4,24 @@ import { runAction } from "../src/app";
 async function runTest() {
     // Set up test parameters
     const params = {
-        databaseName: "insert-your-database-name",
-        warehouse: "insert-your-warehouse-name",
-        query: "insert-your-snowflake-sql-query",
-        user: "insert-your-snowflake-user",
-        accountName: "insert-your-snowflake-account-name",
-        s3BucketName: "insert-your-s3-bucket-name",
-        s3ObjectKey: "insert-your-s3-object-key",
-        // Optional parameters
-        s3Region: "us-east-1",
+        // Snowflake database connection params:
+        databaseName: "insert-database-name",
+        warehouse: "insert-compute-warehouse",
+        user: "insert-user-name",
+        accountName: "insert-account-name",
+        // Query param:
+        query: "insert-query-here",
+        // S3 bucket params:
+        s3BucketName: "insert-s3-bucket-name",
+        s3Region: "insert-s3-region",
+        // Optional parameters:
         outputFormat: "json" // or "csv"
     };
-    
+
     const authParams = {
-        apiKey: "YOUR_SNOWFLAKE_PRIVATE_KEY", // Private key in PEM format
-        awsAccessKeyId: "YOUR_AWS_ACCESS_KEY_ID",
-        awsSecretAccessKey: "YOUR_AWS_SECRET_ACCESS_KEY"
+        apiKey: "insert-snowflake-private-key", // Private key in PEM format
+        awsAccessKeyId: "insert-aws-access-key-id",
+        awsSecretAccessKey: "insert-aws-secret-access-key"
     };
     
     try {
