@@ -2,21 +2,23 @@ import { z } from "zod";
 
 export type ActionFunction<P, A, O> = (input: {params: P, authParams: A}) => Promise<O>;
 
-export const AuthParamsSchema = z.object({
-  authToken: z.string().optional(),
-  baseUrl: z.string().optional(),
-  apiKey: z.string().optional(),
-  username: z.string().optional(),
-  userAgent: z.string().optional(),
-  emailFrom: z.string().optional(),
-  emailReplyTo: z.string().optional(),
-  emailBcc: z.string().optional(),
-  cloudId: z.string().optional(),
-  subdomain: z.string().optional(),
-  password: z.string().optional(),
-  awsAccessKeyId: z.string().optional(),
-  awsSecretAccessKey: z.string().optional(),
-});
+export const AuthParamsSchema = 
+    z.object({
+        authToken: z.string().optional(),
+        baseUrl: z.string().optional(),
+        apiKey: z.string().optional(),
+        username: z.string().optional(),
+        userAgent: z.string().optional(),
+        emailFrom: z.string().optional(),
+        emailReplyTo: z.string().optional(),
+        emailBcc: z.string().optional(),
+        cloudId: z.string().optional(),
+        subdomain: z.string().optional(),
+        password: z.string().optional(),
+        awsAccessKeyId: z.string().optional(),
+        awsSecretAccessKey: z.string().optional(),
+    })
+;
 
 export type AuthParamsType = z.infer<typeof AuthParamsSchema>;
 
@@ -105,66 +107,12 @@ export const credalCallCopilotParamsSchema = z.object({ "agentId": z.string().de
 
 export type credalCallCopilotParamsType = z.infer<typeof credalCallCopilotParamsSchema>;
 
-export const credalCallCopilotOutputSchema = z.object({
-  response: z.string().describe("The response from the Credal Copilot"),
-  referencedSources: z
-    .array(
-      z
-        .object({
-          id: z.string().describe("The id of the source"),
-          externalResourceId: z
-            .object({
-              externalResourceId: z.string().describe("The external resource id of the source"),
-              resourceType: z.string().describe("The type of the resource"),
-            })
-            .describe("The external resource id of the source"),
-          name: z.string().describe("The name of the source"),
-          url: z.string().describe("The url of the source").optional(),
-        })
-        .describe("The source referenced in the response"),
-    )
-    .describe("The sources referenced in the response")
-    .optional(),
-  sourcesInDataContext: z
-    .array(
-      z
-        .object({
-          id: z.string().describe("The id of the source"),
-          externalResourceId: z
-            .object({
-              externalResourceId: z.string().describe("The external resource id of the source"),
-              resourceType: z.string().describe("The type of the resource"),
-            })
-            .describe("The external resource id of the source"),
-          name: z.string().describe("The name of the source"),
-          url: z.string().describe("The url of the source").optional(),
-        })
-        .describe("The source in the data context of the response"),
-    )
-    .describe("The sources in the data context of the response")
-    .optional(),
-  webSearchResults: z
-    .array(
-      z
-        .object({
-          title: z.string().describe("The title of the web search result"),
-          url: z.string().describe("The url of the web search result"),
-          contents: z.string().describe("The contents of the web search result").optional(),
-        })
-        .describe("The web search result in the response"),
-    )
-    .describe("The web search results in the response")
-    .optional(),
-});
+export const credalCallCopilotOutputSchema = z.object({ "response": z.string().describe("The response from the Credal Copilot"), "referencedSources": z.array(z.object({ "id": z.string().describe("The id of the source"), "externalResourceId": z.object({ "externalResourceId": z.string().describe("The external resource id of the source"), "resourceType": z.string().describe("The type of the resource") }).describe("The external resource id of the source"), "name": z.string().describe("The name of the source"), "url": z.string().describe("The url of the source").optional() }).describe("The source referenced in the response")).describe("The sources referenced in the response").optional(), "sourcesInDataContext": z.array(z.object({ "id": z.string().describe("The id of the source"), "externalResourceId": z.object({ "externalResourceId": z.string().describe("The external resource id of the source"), "resourceType": z.string().describe("The type of the resource") }).describe("The external resource id of the source"), "name": z.string().describe("The name of the source"), "url": z.string().describe("The url of the source").optional() }).describe("The source in the data context of the response")).describe("The sources in the data context of the response").optional(), "webSearchResults": z.array(z.object({ "title": z.string().describe("The title of the web search result"), "url": z.string().describe("The url of the web search result"), "contents": z.string().describe("The contents of the web search result").optional() }).describe("The web search result in the response")).describe("The web search results in the response").optional() });
 
 export type credalCallCopilotOutputType = z.infer<typeof credalCallCopilotOutputSchema>;
 export type credalCallCopilotFunction = ActionFunction<credalCallCopilotParamsType, AuthParamsType, credalCallCopilotOutputType>;
 
-export const zendeskCreateZendeskTicketParamsSchema = z.object({
-  subject: z.string().describe("The subject of the ticket"),
-  body: z.string().describe("The body of the ticket").optional(),
-  subdomain: z.string().describe("The subdomain of the Zendesk account"),
-});
+export const zendeskCreateZendeskTicketParamsSchema = z.object({ "subject": z.string().describe("The subject of the ticket"), "body": z.string().describe("The body of the ticket").optional(), "subdomain": z.string().describe("The subdomain of the Zendesk account") });
 
 export type zendeskCreateZendeskTicketParamsType = z.infer<typeof zendeskCreateZendeskTicketParamsSchema>;
 
@@ -209,32 +157,16 @@ export const snowflakeGetRowByFieldValueOutputSchema = z.object({ "row": z.objec
 export type snowflakeGetRowByFieldValueOutputType = z.infer<typeof snowflakeGetRowByFieldValueOutputSchema>;
 export type snowflakeGetRowByFieldValueFunction = ActionFunction<snowflakeGetRowByFieldValueParamsType, AuthParamsType, snowflakeGetRowByFieldValueOutputType>;
 
-export const snowflakeRunSnowflakeQueryParamsSchema = z.object({
-  databaseName: z.string().describe("The name of the database to query"),
-  warehouse: z.string().describe("The warehouse to use for executing the query"),
-  query: z.string().describe("The SQL query to execute"),
-  user: z.string().describe("The username to authenticate with"),
-  accountName: z.string().describe("The name of the Snowflake account"),
-  outputFormat: z.enum(["json", "csv"]).describe("The format of the output").optional(),
-});
+export const snowflakeRunSnowflakeQueryParamsSchema = z.object({ "databaseName": z.string().describe("The name of the database to query"), "warehouse": z.string().describe("The warehouse to use for executing the query"), "query": z.string().describe("The SQL query to execute"), "user": z.string().describe("The username to authenticate with"), "accountName": z.string().describe("The name of the Snowflake account"), "outputFormat": z.enum(["json","csv"]).describe("The format of the output").optional() });
 
 export type snowflakeRunSnowflakeQueryParamsType = z.infer<typeof snowflakeRunSnowflakeQueryParamsSchema>;
 
-export const snowflakeRunSnowflakeQueryOutputSchema = z.object({
-  content: z.string().describe("The content of the query result (json)"),
-  rowCount: z.number().describe("The number of rows returned by the query"),
-});
+export const snowflakeRunSnowflakeQueryOutputSchema = z.object({ "content": z.string().describe("The content of the query result (json)"), "rowCount": z.number().describe("The number of rows returned by the query") });
 
 export type snowflakeRunSnowflakeQueryOutputType = z.infer<typeof snowflakeRunSnowflakeQueryOutputSchema>;
-export type snowflakeRunSnowflakeQueryFunction = ActionFunction<
-  snowflakeRunSnowflakeQueryParamsType,
-  AuthParamsType,
-  snowflakeRunSnowflakeQueryOutputType
->;
+export type snowflakeRunSnowflakeQueryFunction = ActionFunction<snowflakeRunSnowflakeQueryParamsType, AuthParamsType, snowflakeRunSnowflakeQueryOutputType>;
 
-export const openstreetmapGetLatitudeLongitudeFromLocationParamsSchema = z.object({
-  location: z.string().describe("The location to get the latitude and longitude of"),
-});
+export const openstreetmapGetLatitudeLongitudeFromLocationParamsSchema = z.object({ "location": z.string().describe("The location to get the latitude and longitude of") });
 
 export type openstreetmapGetLatitudeLongitudeFromLocationParamsType = z.infer<typeof openstreetmapGetLatitudeLongitudeFromLocationParamsSchema>;
 

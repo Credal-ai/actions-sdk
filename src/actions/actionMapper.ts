@@ -75,7 +75,6 @@ import confluenceFetchPageContent from "./providers/confluence/fetchPageContent"
 import runSnowflakeQuery from "./providers/snowflake/runSnowflakeQuery";
 import requestTimeOff from "./providers/workday/requestTimeOff";
 
-
 interface ActionFunctionComponents {
   // eslint-disable-next-line
   fn: ActionFunction<any, any, any>;
