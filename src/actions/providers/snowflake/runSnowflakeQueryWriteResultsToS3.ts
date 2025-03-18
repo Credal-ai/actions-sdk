@@ -11,7 +11,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { v4 as uuidv4 } from "uuid";
 
 // Only log errors.
-snowflake.configure({ logLevel: 'ERROR' });
+snowflake.configure({ logLevel: "ERROR" });
 
 const runSnowflakeQueryWriteResultsToS3: snowflakeRunSnowflakeQueryWriteResultsToS3Function = async ({
   params,
@@ -47,7 +47,7 @@ const runSnowflakeQueryWriteResultsToS3: snowflakeRunSnowflakeQueryWriteResultsT
     });
     return privateKeyCorrectFormat.toString();
   };
-  const executeQueryAndFormatData = async (): Promise<{ formattedData: string, resultsLength: number}> => {
+  const executeQueryAndFormatData = async (): Promise<{ formattedData: string; resultsLength: number }> => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const queryResults = await new Promise<any[]>((resolve, reject) => {
       connection.execute({
@@ -68,23 +68,23 @@ const runSnowflakeQueryWriteResultsToS3: snowflakeRunSnowflakeQueryWriteResultsT
         formattedData = "";
       } else {
         const headers = Object.keys(queryResults[0]).join(",");
-        const rows = queryResults.map(row => 
-          Object.values(row).map(value => 
-            typeof value === 'object' && value !== null ? JSON.stringify(value) : value
-          ).join(",")
+        const rows = queryResults.map(row =>
+          Object.values(row)
+            .map(value => (typeof value === "object" && value !== null ? JSON.stringify(value) : value))
+            .join(","),
         );
         formattedData = [headers, ...rows].join("\n");
-        }
+      }
     } else {
       // Default to JSON
       formattedData = JSON.stringify(queryResults, null, 2);
     }
-    return { formattedData, resultsLength: queryResults.length};
-  }
+    return { formattedData, resultsLength: queryResults.length };
+  };
   const uploadToS3AndGetURL = async (formattedData: string): Promise<string> => {
     // Create S3 client
     const s3Client = new S3Client({
-      region: s3Region || "us-east-1",
+      region: s3Region,
       credentials: {
         accessKeyId: awsAccessKeyId,
         secretAccessKey: awsSecretAccessKey,
@@ -113,11 +113,10 @@ const runSnowflakeQueryWriteResultsToS3: snowflakeRunSnowflakeQueryWriteResultsT
 
     const presignedUrl = await getSignedUrl(s3Client, getObjectCommand, { expiresIn: 3600 });
     return presignedUrl;
-  };  
-  
+  };
+
   // Process the private key
   const privateKeyCorrectFormatString = getPrivateKeyCorrectFormat(privateKey);
-
 
   // Set up a connection using snowflake-sdk
   const connection = snowflake.createConnection({
@@ -147,7 +146,9 @@ const runSnowflakeQueryWriteResultsToS3: snowflakeRunSnowflakeQueryWriteResultsT
 
     // Return fields to match schema definition
     connection.destroy(err => {
-      if (err) { console.log("Failed to disconnect from Snowflake:", err); }
+      if (err) {
+        console.log("Failed to disconnect from Snowflake:", err);
+      }
     });
     return {
       bucketUrl: presignedUrl,

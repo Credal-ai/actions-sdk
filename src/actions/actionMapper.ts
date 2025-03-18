@@ -45,6 +45,8 @@ import {
   finnhubGetBasicFinancialsOutputSchema,
   confluenceFetchPageContentParamsSchema,
   confluenceFetchPageContentOutputSchema,
+  snowflakeRunSnowflakeQueryWriteResultsToS3ParamsSchema,
+  snowflakeRunSnowflakeQueryWriteResultsToS3OutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -150,9 +152,9 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
     },
     runSnowflakeQueryWriteResultsToS3: {
       fn: runSnowflakeQueryWriteResultsToS3,
-      paramsSchema: snowflakeGetRowByFieldValueParamsSchema,
-      outputSchema: snowflakeGetRowByFieldValueOutputSchema,
-    }
+      paramsSchema: snowflakeRunSnowflakeQueryWriteResultsToS3ParamsSchema,
+      outputSchema: snowflakeRunSnowflakeQueryWriteResultsToS3OutputSchema,
+    },
   },
   linkedin: {
     createShareLinkedinPostUrl: {
