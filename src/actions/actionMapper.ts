@@ -47,6 +47,8 @@ import {
   confluenceFetchPageContentOutputSchema,
   snowflakeRunSnowflakeQueryParamsSchema,
   snowflakeRunSnowflakeQueryOutputSchema,
+  lookerEnableUserByEmailParamsSchema,
+  lookerEnableUserByEmailOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -71,6 +73,7 @@ import getBasicFinancials from "./providers/finnhub/getBasicFinancials";
 import confluenceOverwritePage from "./providers/confluence/overwritePage";
 import confluenceFetchPageContent from "./providers/confluence/fetchPageContent";
 import runSnowflakeQuery from "./providers/snowflake/runSnowflakeQuery";
+import enableUserByEmail from "./providers/looker/enableUserByEmail";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -227,6 +230,13 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: getBasicFinancials,
       paramsSchema: finnhubGetBasicFinancialsParamsSchema,
       outputSchema: finnhubGetBasicFinancialsOutputSchema,
+    },
+  },
+  looker: {
+    enableUserByEmail: {
+      fn: enableUserByEmail,
+      paramsSchema: lookerEnableUserByEmailParamsSchema,
+      outputSchema: lookerEnableUserByEmailOutputSchema,
     },
   },
 };

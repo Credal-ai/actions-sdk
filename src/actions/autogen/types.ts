@@ -660,3 +660,36 @@ export type finnhubGetBasicFinancialsFunction = ActionFunction<
   AuthParamsType,
   finnhubGetBasicFinancialsOutputType
 >;
+
+// Looker enableUserByEmail types
+export const lookerEnableUserByEmailParamsSchema = z.object({
+  userEmail: z.string().describe("The email address of the user to search for"),
+  clientId: z.string().describe("The client ID for Looker API authentication").optional(),
+  clientSecret: z.string().describe("The client secret for Looker API authentication").optional(),
+});
+
+export type lookerEnableUserByEmailParamsType = z.infer<typeof lookerEnableUserByEmailParamsSchema>;
+
+export const lookerEnableUserByEmailOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  message: z.string().describe("Status message about the operation"),
+  userId: z.string().describe("The ID of the user that was found").optional(),
+  userDetails: z
+    .object({
+      id: z.string().describe("The ID of the user"),
+      firstName: z.string().describe("The first name of the user"),
+      lastName: z.string().describe("The last name of the user"),
+      email: z.string().describe("The email of the user"),
+      isDisabled: z.boolean().describe("Whether the user is disabled"),
+    })
+    .describe("Details about the user")
+    .optional(),
+});
+
+export type lookerEnableUserByEmailOutputType = z.infer<typeof lookerEnableUserByEmailOutputSchema>;
+
+export type lookerEnableUserByEmailFunction = ActionFunction<
+  lookerEnableUserByEmailParamsType,
+  AuthParamsType,
+  lookerEnableUserByEmailOutputType
+>;
