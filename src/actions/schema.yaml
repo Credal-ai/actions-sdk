@@ -545,6 +545,54 @@ actions:
               rowContents:
                 type: object
                 description: The contents of the row
+    runSnowflakeQueryWriteResultsToS3:
+      description: Execute a Snowflake query and write results to an S3 bucket
+      scopes: []
+      parameters:
+        type: object
+        required: [databaseName, warehouse, query, user, accountName, s3BucketName, s3ObjectKey]
+        properties:
+          databaseName:
+            type: string
+            description: The name of the database to query
+          warehouse:
+            type: string
+            description: The warehouse to use for executing the query
+          query:
+            type: string
+            description: The SQL query to execute
+          user:
+            type: string
+            description: The username to authenticate with
+          accountName:
+            type: string
+            description: The name of the Snowflake account
+          s3BucketName:
+            type: string
+            description: The name of the S3 bucket to write results to
+          s3ObjectKey:
+            type: string
+            description: The key/path where the results will be stored in the S3 bucket
+          s3Region:
+            type: string
+            description: The AWS region where the S3 bucket is located (defaults to us-east-1)
+          outputFormat:
+            type: string
+            description: Format for the output file (json or csv, defaults to json)
+            enum: [json, csv]
+      output:
+        type: object
+        required: [bucketUrl, message, rowCount]
+        properties:
+          bucketUrl: 
+            type: string
+            description: The URL of the S3 bucket where the results are stored
+          message:
+            type: string
+            description: A message describing the result or error
+          rowCount:
+            type: number
+            description: The number of rows returned by the query
   openstreetmap:
     getLatitudeLongitudeFromLocation:
       description: Get the latitude and longitude of a location

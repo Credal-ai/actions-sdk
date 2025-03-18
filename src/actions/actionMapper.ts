@@ -68,6 +68,7 @@ import symbolLookup from "./providers/finnhub/symbolLookup";
 import getBasicFinancials from "./providers/finnhub/getBasicFinancials";
 import confluenceOverwritePage from "./providers/confluence/overwritePage";
 import confluenceFetchPageContent from "./providers/confluence/fetchPageContent";
+import runSnowflakeQueryWriteResultsToS3 from "./providers/snowflake/runSnowflakeQueryWriteResultsToS3";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -147,6 +148,11 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       paramsSchema: snowflakeGetRowByFieldValueParamsSchema,
       outputSchema: snowflakeGetRowByFieldValueOutputSchema,
     },
+    runSnowflakeQueryWriteResultsToS3: {
+      fn: runSnowflakeQueryWriteResultsToS3,
+      paramsSchema: snowflakeGetRowByFieldValueParamsSchema,
+      outputSchema: snowflakeGetRowByFieldValueOutputSchema,
+    }
   },
   linkedin: {
     createShareLinkedinPostUrl: {

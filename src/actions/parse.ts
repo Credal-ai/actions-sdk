@@ -47,6 +47,8 @@ z.object({
     emailReplyTo: z.string().optional(),
     emailBcc: z.string().optional(),
     cloudId: z.string().optional(),
+    awsAccessKeyId: z.string().optional(),
+    awsSecretAccessKey: z.string().optional(),
 })
 `;
 

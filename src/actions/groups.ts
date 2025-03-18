@@ -21,6 +21,7 @@ import {
   finnhubSymbolLookupDefinition,
   finnhubGetBasicFinancialsDefinition,
   confluenceFetchPageContentDefinition,
+  snowflakeRunSnowflakeQueryWriteResultsToS3Definition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
@@ -63,9 +64,9 @@ export const ACTION_GROUPS: ActionGroups = {
     description: "Action for inserting a document into a MongoDB collection",
     actions: [mongoInsertMongoDocDefinition],
   },
-  SNOWFLAKE_GET_ROW_BY_FIELD_VALUE: {
-    description: "Action for getting a row from a Snowflake table by field value",
-    actions: [snowflakeGetRowByFieldValueDefinition],
+  SNOWFLAKE_ACTIONS: {
+    description: "Action for getting content from a Snowflake table",
+    actions: [snowflakeGetRowByFieldValueDefinition, snowflakeRunSnowflakeQueryWriteResultsToS3Definition],
   },
   JIRA_CREATE_TICKET: {
     description: "Action for creating a Jira ticket",
