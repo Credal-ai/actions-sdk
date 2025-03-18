@@ -13,36 +13,34 @@ const enableUserByEmail: lookerEnableUserByEmailFunction = async ({
   params: lookerEnableUserByEmailParamsType;
   authParams: AuthParamsType;
 }): Promise<lookerEnableUserByEmailOutputType> => {
-  const { userEmail, clientId, clientSecret } = params;
-  const { baseUrl } = authParams;
+  const { userEmail } = params;
+  const { baseUrl, clientId, clientSecret, authToken } = authParams;
 
   if (!baseUrl) {
     throw new Error("Base URL is required for Looker API");
   }
 
   // Check for authentication params
-  const authClientId = clientId || authParams.clientId;
-  const authClientSecret = clientSecret || authParams.clientSecret;
-  let authToken = authParams.authToken;
+  let accessToken = authToken;
 
-  if (!authToken && (!authClientId || !authClientSecret)) {
+  if (!accessToken && (!clientId || !clientSecret)) {
     throw new Error("Either authToken or both clientId and clientSecret are required for Looker API");
   }
 
   // Step 1: If no auth token is provided, authenticate using client_id and client_secret
-  if (!authToken) {
+  if (!accessToken && clientId && clientSecret) {
     try {
       const loginResponse = await axiosClient.post(
         `${baseUrl}/login`,
         {
-          client_id: authClientId,
-          client_secret: authClientSecret,
+          client_id: clientId,
+          client_secret: clientSecret,
         }
       );
 
-      authToken = loginResponse.data.access_token;
+      accessToken = loginResponse.data.access_token;
       
-      if (!authToken) {
+      if (!accessToken) {
         throw new Error("Failed to obtain authentication token from Looker API");
       }
     } catch (error) {
@@ -55,7 +53,7 @@ const enableUserByEmail: lookerEnableUserByEmailFunction = async ({
   }
 
   const headers = {
-    Authorization: `Bearer ${authToken}`,
+    Authorization: `Bearer ${accessToken}`,
     "Content-Type": "application/json",
   };
 

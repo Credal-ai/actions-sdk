@@ -10,11 +10,11 @@ async function runTest() {
     "looker",
     {
       baseUrl: "https://your-looker-instance.cloud.looker.com",
-    },
-    {
-      userEmail: "user@example.com",
       clientId: "your-client-id", 
       clientSecret: "your-client-secret"
+    },
+    {
+      userEmail: "user@example.com"
     }
   );
 

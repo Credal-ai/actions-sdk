@@ -1182,14 +1182,6 @@ export const lookerEnableUserByEmailDefinition: ActionTemplate = {
         type: "string",
         description: "The email address of the user to search for",
       },
-      clientId: {
-        type: "string",
-        description: "The client ID for Looker API authentication",
-      },
-      clientSecret: {
-        type: "string",
-        description: "The client secret for Looker API authentication",
-      },
     },
   },
   output: {

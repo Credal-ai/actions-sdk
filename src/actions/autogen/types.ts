@@ -664,8 +664,6 @@ export type finnhubGetBasicFinancialsFunction = ActionFunction<
 // Looker enableUserByEmail types
 export const lookerEnableUserByEmailParamsSchema = z.object({
   userEmail: z.string().describe("The email address of the user to search for"),
-  clientId: z.string().describe("The client ID for Looker API authentication").optional(),
-  clientSecret: z.string().describe("The client secret for Looker API authentication").optional(),
 });
 
 export type lookerEnableUserByEmailParamsType = z.infer<typeof lookerEnableUserByEmailParamsSchema>;
