@@ -13,8 +13,8 @@ const createZendeskTicket: zendeskCreateZendeskTicketFunction = async ({
   params: zendeskCreateZendeskTicketParamsType;
   authParams: AuthParamsType;
 }): Promise<zendeskCreateZendeskTicketOutputType> => {
-  const { apiKey } = authParams;
-  const { subdomain, subject, body, requesterEmail } = params;
+  const { apiKey, username } = authParams;
+  const { subdomain, subject, body } = params;
   const url = `https://${subdomain}.zendesk.com/api/v2/tickets.json`;
   const payload = {
     ticket: {
@@ -29,21 +29,16 @@ const createZendeskTicket: zendeskCreateZendeskTicketFunction = async ({
     throw new Error("API key is required");
   }
 
-  try {
-    const response = await axiosClient.post<zendeskCreateZendeskTicketOutputType>(url, payload, {
-      auth: {
-        username: `${requesterEmail}/token`,
-        password: apiKey,
-      },
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error creating ticket", error);
-    return { ticketId: "Error" };
-  }
+  const response = await axiosClient.post<zendeskCreateZendeskTicketOutputType>(url, payload, {
+    auth: {
+      username: `${username}/token`,
+      password: apiKey,
+    },
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
 };
 
 export default createZendeskTicket;

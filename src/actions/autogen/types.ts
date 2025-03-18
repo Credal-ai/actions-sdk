@@ -297,7 +297,6 @@ export type credalCallCopilotFunction = ActionFunction<
 export const zendeskCreateZendeskTicketParamsSchema = z.object({
   subject: z.string().describe("The subject of the ticket"),
   body: z.string().describe("The body of the ticket").optional(),
-  requesterEmail: z.string().describe("The email of the requester"),
   subdomain: z.string().describe("The subdomain of the Zendesk account"),
 });
 

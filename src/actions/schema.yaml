@@ -400,7 +400,7 @@ actions:
       scopes: []
       parameters:
         type: object
-        required: [subject, requesterEmail, subdomain]
+        required: [subject, subdomain]
         properties:
           subject:
             type: string
@@ -408,9 +408,6 @@ actions:
           body:
             type: string
             description: The body of the ticket
-          requesterEmail:
-            type: string
-            description: The email of the requester
           subdomain:
             type: string
             description: The subdomain of the Zendesk account

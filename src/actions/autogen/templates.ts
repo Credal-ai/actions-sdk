@@ -547,7 +547,7 @@ export const zendeskCreateZendeskTicketDefinition: ActionTemplate = {
   scopes: [],
   parameters: {
     type: "object",
-    required: ["subject", "requesterEmail", "subdomain"],
+    required: ["subject", "subdomain"],
     properties: {
       subject: {
         type: "string",
@@ -556,10 +556,6 @@ export const zendeskCreateZendeskTicketDefinition: ActionTemplate = {
       body: {
         type: "string",
         description: "The body of the ticket",
-      },
-      requesterEmail: {
-        type: "string",
-        description: "The email of the requester",
       },
       subdomain: {
         type: "string",
