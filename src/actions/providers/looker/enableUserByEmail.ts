@@ -33,10 +33,8 @@ const enableUserByEmail: lookerEnableUserByEmailFunction = async ({
     try {
       // Use client_id and client_secret as URL query parameters
       const loginUrl = `${baseUrl}/api/4.0/login?client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}`;
-      console.log("Login URL:", loginUrl);
       
       const loginResponse = await axiosClient.post(loginUrl, {});
-      console.log("Login response:", loginResponse.data);
 
       accessToken = loginResponse.data.access_token;
       
