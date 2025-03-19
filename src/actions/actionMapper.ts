@@ -47,6 +47,8 @@ import {
   confluenceFetchPageContentOutputSchema,
   snowflakeRunSnowflakeQueryParamsSchema,
   snowflakeRunSnowflakeQueryOutputSchema,
+  workdayRequestTimeOffParamsSchema,
+  workdayRequestTimeOffOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -71,6 +73,7 @@ import getBasicFinancials from "./providers/finnhub/getBasicFinancials";
 import confluenceOverwritePage from "./providers/confluence/overwritePage";
 import confluenceFetchPageContent from "./providers/confluence/fetchPageContent";
 import runSnowflakeQuery from "./providers/snowflake/runSnowflakeQuery";
+import requestTimeOff from "./providers/workday/requestTimeOff";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -227,6 +230,13 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: getBasicFinancials,
       paramsSchema: finnhubGetBasicFinancialsParamsSchema,
       outputSchema: finnhubGetBasicFinancialsOutputSchema,
+    },
+  },
+  workday: {
+    requestTimeOff: {
+      fn: requestTimeOff,
+      paramsSchema: workdayRequestTimeOffParamsSchema,
+      outputSchema: workdayRequestTimeOffOutputSchema,
     },
   },
 };

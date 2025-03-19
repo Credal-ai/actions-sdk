@@ -311,6 +311,34 @@ actions:
                 websiteUri:
                   type: string
                   description: The website URI of the place
+  
+  workday:
+    requestTimeOff:
+      description: Requests time off in Workday for a given user
+      scopes: []
+      parameters:
+        type: object
+        required: [userEmail, startDate, endDate, timeOffType]
+        properties:
+          userEmail:
+            type: string
+            description: The email of the employee requesting time off
+          startDate:
+            type: string
+            description: The start date of the time off request
+          endDate:
+            type: string
+            description: The end date of the time off request
+          timeOffType:
+            type: string
+            description: The type of time off being requested
+      output:
+        type: object
+        required: [requestId]
+        properties:
+          requestId:
+            type: string
+            description: The ID of the time off request
 
   credal:
     callCopilot:
