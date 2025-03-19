@@ -47,6 +47,9 @@ z.object({
     emailReplyTo: z.string().optional(),
     emailBcc: z.string().optional(),
     cloudId: z.string().optional(),
+    subdomain: z.string().optional(),
+    clientId: z.string().optional(),
+    clientSecret: z.string().optional(),
 })
 `;
 
