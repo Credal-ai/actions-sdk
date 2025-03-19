@@ -51,6 +51,8 @@ z.object({
     password: z.string().optional(),
     awsAccessKeyId: z.string().optional(),
     awsSecretAccessKey: z.string().optional(),
+    clientId: z.string().optional(),
+    clientSecret: z.string().optional(),
 })
 `;
 

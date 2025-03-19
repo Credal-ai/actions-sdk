@@ -16,6 +16,8 @@ export const AuthParamsSchema = z.object({
   password: z.string().optional(),
   awsAccessKeyId: z.string().optional(),
   awsSecretAccessKey: z.string().optional(),
+  clientId: z.string().optional(),
+  clientSecret: z.string().optional(),
 });
 
 export type AuthParamsType = z.infer<typeof AuthParamsSchema>;
