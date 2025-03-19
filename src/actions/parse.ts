@@ -49,6 +49,8 @@ z.object({
     cloudId: z.string().optional(),
     subdomain: z.string().optional(),
     password: z.string().optional(),
+    awsAccessKeyId: z.string().optional(),
+    awsSecretAccessKey: z.string().optional(),
 })
 `;
 

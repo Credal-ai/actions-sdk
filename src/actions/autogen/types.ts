@@ -14,6 +14,8 @@ export const AuthParamsSchema = z.object({
   cloudId: z.string().optional(),
   subdomain: z.string().optional(),
   password: z.string().optional(),
+  awsAccessKeyId: z.string().optional(),
+  awsSecretAccessKey: z.string().optional(),
 });
 
 export type AuthParamsType = z.infer<typeof AuthParamsSchema>;
@@ -416,6 +418,29 @@ export type snowflakeGetRowByFieldValueFunction = ActionFunction<
   snowflakeGetRowByFieldValueParamsType,
   AuthParamsType,
   snowflakeGetRowByFieldValueOutputType
+>;
+
+export const snowflakeRunSnowflakeQueryParamsSchema = z.object({
+  databaseName: z.string().describe("The name of the database to query"),
+  warehouse: z.string().describe("The warehouse to use for executing the query"),
+  query: z.string().describe("The SQL query to execute"),
+  user: z.string().describe("The username to authenticate with"),
+  accountName: z.string().describe("The name of the Snowflake account"),
+  outputFormat: z.enum(["json", "csv"]).describe("The format of the output").optional(),
+});
+
+export type snowflakeRunSnowflakeQueryParamsType = z.infer<typeof snowflakeRunSnowflakeQueryParamsSchema>;
+
+export const snowflakeRunSnowflakeQueryOutputSchema = z.object({
+  content: z.string().describe("The content of the query result (json)"),
+  rowCount: z.number().describe("The number of rows returned by the query"),
+});
+
+export type snowflakeRunSnowflakeQueryOutputType = z.infer<typeof snowflakeRunSnowflakeQueryOutputSchema>;
+export type snowflakeRunSnowflakeQueryFunction = ActionFunction<
+  snowflakeRunSnowflakeQueryParamsType,
+  AuthParamsType,
+  snowflakeRunSnowflakeQueryOutputType
 >;
 
 export const openstreetmapGetLatitudeLongitudeFromLocationParamsSchema = z.object({

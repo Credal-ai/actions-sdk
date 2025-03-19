@@ -772,6 +772,57 @@ export const snowflakeGetRowByFieldValueDefinition: ActionTemplate = {
   name: "getRowByFieldValue",
   provider: "snowflake",
 };
+export const snowflakeRunSnowflakeQueryDefinition: ActionTemplate = {
+  description: "Execute a Snowflake query and return output.",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["databaseName", "warehouse", "query", "user", "accountName"],
+    properties: {
+      databaseName: {
+        type: "string",
+        description: "The name of the database to query",
+      },
+      warehouse: {
+        type: "string",
+        description: "The warehouse to use for executing the query",
+      },
+      query: {
+        type: "string",
+        description: "The SQL query to execute",
+      },
+      user: {
+        type: "string",
+        description: "The username to authenticate with",
+      },
+      accountName: {
+        type: "string",
+        description: "The name of the Snowflake account",
+      },
+      outputFormat: {
+        type: "string",
+        description: "The format of the output",
+        enum: ["json", "csv"],
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["content", "rowCount"],
+    properties: {
+      content: {
+        type: "string",
+        description: "The content of the query result (json)",
+      },
+      rowCount: {
+        type: "number",
+        description: "The number of rows returned by the query",
+      },
+    },
+  },
+  name: "runSnowflakeQuery",
+  provider: "snowflake",
+};
 export const openstreetmapGetLatitudeLongitudeFromLocationDefinition: ActionTemplate = {
   description: "Get the latitude and longitude of a location",
   scopes: [],

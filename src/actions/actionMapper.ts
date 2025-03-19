@@ -45,6 +45,8 @@ import {
   finnhubGetBasicFinancialsOutputSchema,
   confluenceFetchPageContentParamsSchema,
   confluenceFetchPageContentOutputSchema,
+  snowflakeRunSnowflakeQueryParamsSchema,
+  snowflakeRunSnowflakeQueryOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -68,6 +70,7 @@ import symbolLookup from "./providers/finnhub/symbolLookup";
 import getBasicFinancials from "./providers/finnhub/getBasicFinancials";
 import confluenceOverwritePage from "./providers/confluence/overwritePage";
 import confluenceFetchPageContent from "./providers/confluence/fetchPageContent";
+import runSnowflakeQuery from "./providers/snowflake/runSnowflakeQuery";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -146,6 +149,11 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: getRowByFieldValue,
       paramsSchema: snowflakeGetRowByFieldValueParamsSchema,
       outputSchema: snowflakeGetRowByFieldValueOutputSchema,
+    },
+    runSnowflakeQuery: {
+      fn: runSnowflakeQuery,
+      paramsSchema: snowflakeRunSnowflakeQueryParamsSchema,
+      outputSchema: snowflakeRunSnowflakeQueryOutputSchema,
     },
   },
   linkedin: {
