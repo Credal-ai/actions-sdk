@@ -772,12 +772,12 @@ export const snowflakeGetRowByFieldValueDefinition: ActionTemplate = {
   name: "getRowByFieldValue",
   provider: "snowflake",
 };
-export const snowflakeRunSnowflakeQueryWriteResultsToS3Definition: ActionTemplate = {
-  description: "Execute a Snowflake query and write results to an S3 bucket",
+export const snowflakeRunSnowflakeQueryDefinition: ActionTemplate = {
+  description: "Execute a Snowflake query and return output.",
   scopes: [],
   parameters: {
     type: "object",
-    required: ["databaseName", "warehouse", "query", "user", "accountName", "s3BucketName", "s3Region"],
+    required: ["databaseName", "warehouse", "query", "user", "accountName"],
     properties: {
       databaseName: {
         type: "string",
@@ -799,32 +799,20 @@ export const snowflakeRunSnowflakeQueryWriteResultsToS3Definition: ActionTemplat
         type: "string",
         description: "The name of the Snowflake account",
       },
-      s3BucketName: {
-        type: "string",
-        description: "The name of the S3 bucket to write results to",
-      },
-      s3Region: {
-        type: "string",
-        description: "The AWS region where the S3 bucket is located",
-      },
       outputFormat: {
         type: "string",
-        description: "Format for the output file (json or csv, defaults to json)",
+        description: "The format of the output",
         enum: ["json", "csv"],
       },
     },
   },
   output: {
     type: "object",
-    required: ["bucketUrl", "message", "rowCount"],
+    required: ["content", "rowCount"],
     properties: {
-      bucketUrl: {
+      content: {
         type: "string",
-        description: "The URL of the S3 bucket where the results are stored",
-      },
-      message: {
-        type: "string",
-        description: "A message describing the result or error",
+        description: "The content of the query result (json)",
       },
       rowCount: {
         type: "number",
@@ -832,7 +820,7 @@ export const snowflakeRunSnowflakeQueryWriteResultsToS3Definition: ActionTemplat
       },
     },
   },
-  name: "runSnowflakeQueryWriteResultsToS3",
+  name: "runSnowflakeQuery",
   provider: "snowflake",
 };
 export const openstreetmapGetLatitudeLongitudeFromLocationDefinition: ActionTemplate = {

@@ -45,8 +45,8 @@ import {
   finnhubGetBasicFinancialsOutputSchema,
   confluenceFetchPageContentParamsSchema,
   confluenceFetchPageContentOutputSchema,
-  snowflakeRunSnowflakeQueryWriteResultsToS3ParamsSchema,
-  snowflakeRunSnowflakeQueryWriteResultsToS3OutputSchema,
+  snowflakeRunSnowflakeQueryParamsSchema,
+  snowflakeRunSnowflakeQueryOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -70,7 +70,7 @@ import symbolLookup from "./providers/finnhub/symbolLookup";
 import getBasicFinancials from "./providers/finnhub/getBasicFinancials";
 import confluenceOverwritePage from "./providers/confluence/overwritePage";
 import confluenceFetchPageContent from "./providers/confluence/fetchPageContent";
-import runSnowflakeQueryWriteResultsToS3 from "./providers/snowflake/runSnowflakeQueryWriteResultsToS3";
+import runSnowflakeQuery from "./providers/snowflake/runSnowflakeQuery";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -150,10 +150,10 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       paramsSchema: snowflakeGetRowByFieldValueParamsSchema,
       outputSchema: snowflakeGetRowByFieldValueOutputSchema,
     },
-    runSnowflakeQueryWriteResultsToS3: {
-      fn: runSnowflakeQueryWriteResultsToS3,
-      paramsSchema: snowflakeRunSnowflakeQueryWriteResultsToS3ParamsSchema,
-      outputSchema: snowflakeRunSnowflakeQueryWriteResultsToS3OutputSchema,
+    runSnowflakeQuery: {
+      fn: runSnowflakeQuery,
+      paramsSchema: snowflakeRunSnowflakeQueryParamsSchema,
+      outputSchema: snowflakeRunSnowflakeQueryOutputSchema,
     },
   },
   linkedin: {

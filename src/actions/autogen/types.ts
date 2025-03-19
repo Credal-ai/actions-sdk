@@ -418,37 +418,27 @@ export type snowflakeGetRowByFieldValueFunction = ActionFunction<
   snowflakeGetRowByFieldValueOutputType
 >;
 
-export const snowflakeRunSnowflakeQueryWriteResultsToS3ParamsSchema = z.object({
+export const snowflakeRunSnowflakeQueryParamsSchema = z.object({
   databaseName: z.string().describe("The name of the database to query"),
   warehouse: z.string().describe("The warehouse to use for executing the query"),
   query: z.string().describe("The SQL query to execute"),
   user: z.string().describe("The username to authenticate with"),
   accountName: z.string().describe("The name of the Snowflake account"),
-  s3BucketName: z.string().describe("The name of the S3 bucket to write results to"),
-  s3Region: z.string().describe("The AWS region where the S3 bucket is located"),
-  outputFormat: z
-    .enum(["json", "csv"])
-    .describe("Format for the output file (json or csv, defaults to json)")
-    .optional(),
+  outputFormat: z.enum(["json", "csv"]).describe("The format of the output").optional(),
 });
 
-export type snowflakeRunSnowflakeQueryWriteResultsToS3ParamsType = z.infer<
-  typeof snowflakeRunSnowflakeQueryWriteResultsToS3ParamsSchema
->;
+export type snowflakeRunSnowflakeQueryParamsType = z.infer<typeof snowflakeRunSnowflakeQueryParamsSchema>;
 
-export const snowflakeRunSnowflakeQueryWriteResultsToS3OutputSchema = z.object({
-  bucketUrl: z.string().describe("The URL of the S3 bucket where the results are stored"),
-  message: z.string().describe("A message describing the result or error"),
+export const snowflakeRunSnowflakeQueryOutputSchema = z.object({
+  content: z.string().describe("The content of the query result (json)"),
   rowCount: z.number().describe("The number of rows returned by the query"),
 });
 
-export type snowflakeRunSnowflakeQueryWriteResultsToS3OutputType = z.infer<
-  typeof snowflakeRunSnowflakeQueryWriteResultsToS3OutputSchema
->;
-export type snowflakeRunSnowflakeQueryWriteResultsToS3Function = ActionFunction<
-  snowflakeRunSnowflakeQueryWriteResultsToS3ParamsType,
+export type snowflakeRunSnowflakeQueryOutputType = z.infer<typeof snowflakeRunSnowflakeQueryOutputSchema>;
+export type snowflakeRunSnowflakeQueryFunction = ActionFunction<
+  snowflakeRunSnowflakeQueryParamsType,
   AuthParamsType,
-  snowflakeRunSnowflakeQueryWriteResultsToS3OutputType
+  snowflakeRunSnowflakeQueryOutputType
 >;
 
 export const openstreetmapGetLatitudeLongitudeFromLocationParamsSchema = z.object({
