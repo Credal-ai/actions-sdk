@@ -5,8 +5,7 @@ import {
   snowflakeRunSnowflakeQueryOutputType,
   snowflakeRunSnowflakeQueryParamsType,
 } from "../../autogen/types";
-import crypto from "crypto";
-// Only log errors.
+
 snowflake.configure({ logLevel: "ERROR" });
 
 const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
@@ -18,28 +17,14 @@ const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
 }): Promise<snowflakeRunSnowflakeQueryOutputType> => {
   const { databaseName, warehouse, query, user, accountName, outputFormat = "json" } = params;
 
-  const { apiKey: privateKey } = authParams;
+  const { authToken } = authParams;
 
-  if (!privateKey) {
-    throw new Error("Snowflake private key is required");
+  if (!authToken) {
+    throw new Error("Snowflake authToken key is required");
   }
   if (!accountName || !user || !databaseName || !warehouse || !query) {
     throw new Error("Missing required parameters for Snowflake query");
   }
-
-  const getPrivateKeyCorrectFormat = (privateKey: string): string => {
-    const buffer: Buffer = Buffer.from(privateKey);
-    const privateKeyObject = crypto.createPrivateKey({
-      key: buffer,
-      format: "pem",
-      passphrase: "password",
-    });
-    const privateKeyCorrectFormat = privateKeyObject.export({
-      format: "pem",
-      type: "pkcs8",
-    });
-    return privateKeyCorrectFormat.toString();
-  };
   const executeQueryAndFormatData = async (): Promise<{ formattedData: string; resultsLength: number }> => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const queryResults = await new Promise<any[]>((resolve, reject) => {
@@ -75,16 +60,13 @@ const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
     return { formattedData, resultsLength: queryResults.length };
   };
 
-  // Process the private key
-  const privateKeyCorrectFormatString = getPrivateKeyCorrectFormat(privateKey);
-
   // Set up a connection using snowflake-sdk
   const connection = snowflake.createConnection({
     account: accountName,
     username: user,
-    privateKey: privateKeyCorrectFormatString,
-    authenticator: "SNOWFLAKE_JWT",
-    role: "ACCOUNTADMIN",
+    authenticator: "OAUTH",
+    token: authToken,
+    role: "CREDAL_READ",
     warehouse: warehouse,
     database: databaseName,
   });
