@@ -28,8 +28,8 @@ const getRowByFieldValue: snowflakeGetRowByFieldValueFunction = async ({
     username: user,
     authenticator: "OAUTH",
     token: authToken,
-    role: "CREDAL_READ", // If you have specific role requirements
-    warehouse: warehouse, // Similarly for warehouse
+    role: "CREDAL_READ",
+    warehouse: warehouse,
     database: databaseName,
     schema: "PUBLIC",
   });
@@ -46,7 +46,7 @@ const getRowByFieldValue: snowflakeGetRowByFieldValueFunction = async ({
       });
     });
 
-    const query = `SELECT * FROM ${databaseName}.PUBLIC.${tableName} WHERE ${fieldName} = '${fieldValue}'`;
+    const query = `SELECT * FROM ${databaseName}.PUBLIC.${tableName} WHERE ${fieldName} = ?`;
     const binds = [fieldValue];
 
     return await new Promise<snowflakeGetRowByFieldValueOutputType>((resolve, reject) => {
