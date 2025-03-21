@@ -33,11 +33,11 @@ const enableUserByEmail: lookerEnableUserByEmailFunction = async ({
     try {
       // Use client_id and client_secret as URL query parameters
       const loginUrl = `${baseUrl}/api/4.0/login?client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}`;
-      
+
       const loginResponse = await axiosClient.post(loginUrl, {});
 
       accessToken = loginResponse.data.access_token;
-      
+
       if (!accessToken) {
         throw new Error("Failed to obtain authentication token from Looker API");
       }
@@ -59,12 +59,12 @@ const enableUserByEmail: lookerEnableUserByEmailFunction = async ({
     // Step 2: Search for the user by email
     const searchUrl = `${baseUrl}/api/4.0/users/search?email=${encodeURIComponent(userEmail)}`;
     console.log("Searching for user:", searchUrl);
-    
+
     const searchResponse = await axiosClient.get(searchUrl, { headers });
     console.log("Search response:", searchResponse.data);
 
     const users = searchResponse.data;
-    
+
     if (!users || users.length === 0) {
       return {
         success: false,
@@ -73,7 +73,7 @@ const enableUserByEmail: lookerEnableUserByEmailFunction = async ({
     }
 
     const user = users[0]; // Take the first matching user
-    
+
     // Step 3: Check if user is disabled
     if (!user.is_disabled) {
       return {
@@ -93,15 +93,15 @@ const enableUserByEmail: lookerEnableUserByEmailFunction = async ({
     // Step 4: Enable the user (no confirmation check, automatically enable)
     const updateUrl = `${baseUrl}/api/4.0/users/${user.id}`;
     console.log("Enabling user:", updateUrl);
-    
+
     const updateResponse = await axiosClient.patch(
       updateUrl,
       {
-        is_disabled: false
+        is_disabled: false,
       },
-      { headers }
+      { headers },
     );
-    
+
     console.log("Update response:", updateResponse.data);
 
     const updatedUser = updateResponse.data;
@@ -120,7 +120,7 @@ const enableUserByEmail: lookerEnableUserByEmailFunction = async ({
     };
   } catch (error) {
     console.error("Error in Looker enableUserByEmail action:", error);
-    
+
     return {
       success: false,
       message: error instanceof Error ? error.message : "Unknown error occurred",
@@ -128,4 +128,4 @@ const enableUserByEmail: lookerEnableUserByEmailFunction = async ({
   }
 };
 
-export default enableUserByEmail; 
+export default enableUserByEmail;
