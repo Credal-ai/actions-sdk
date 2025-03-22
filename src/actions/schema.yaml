@@ -843,3 +843,46 @@ actions:
                           v:
                             type: number
                             description: The value of the financial metric
+    looker:
+      enableUserByEmail:
+        description: Search for a Looker user by email and enable them if disabled
+        scopes: []
+        parameters:
+          type: object
+          required: [userEmail]
+          properties:
+            userEmail:
+              type: string
+              description: The email address of the user to search for
+        output:
+          type: object
+          required: [success, message]
+          properties:
+            success:
+              type: boolean
+              description: Whether the operation was successful
+            message:
+              type: string
+              description: Status message about the operation
+            userId:
+              type: string
+              description: The ID of the user that was found
+            userDetails:
+              type: object
+              description: Details about the user
+              properties:
+                id:
+                  type: string
+                  description: The ID of the user
+                firstName:
+                  type: string
+                  description: The first name of the user
+                lastName:
+                  type: string
+                  description: The last name of the user
+                email:
+                  type: string
+                  description: The email of the user
+                isDisabled:
+                  type: boolean
+                  description: Whether the user is disabled
