@@ -1202,6 +1202,7 @@ export const lookerEnableUserByEmailDefinition: ActionTemplate = {
       },
       userDetails: {
         type: "object",
+        required: ["id", "firstName", "lastName", "email", "isDisabled"],
         description: "Details about the user",
         properties: {
           id: {
