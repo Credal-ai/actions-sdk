@@ -8,6 +8,7 @@ import { axiosClient } from "../../util/axiosClient";
 
 /**
  *  Update a Google Spreadsheet using OAuth authentication
+ *  https://developers.google.com/workspace/sheets/api/reference/rest/v4/spreadsheets/batchUpdate
  */
 const updateSpreadsheet: googleOauthUpdateSpreadsheetFunction = async ({
   params,
