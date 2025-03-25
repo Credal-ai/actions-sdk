@@ -73,7 +73,7 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
     },
   });
 
-  if (response.status !== 200) {
+  if (response.status < 200 || response.status >= 300) {
     return {
       success: false,
       error: response.data.error,
