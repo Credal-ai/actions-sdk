@@ -2,9 +2,12 @@ import { runAction } from "../src/app";
 import assert from "node:assert";
 
 // Test with token from: https://developers.google.com/oauthplayground/
-const authToken = "insert-access-token";
-const spreadsheetId = "insert-spreadsheet-id";
+// const authToken = "insert-access-token";
+// const spreadsheetId = "insert-spreadsheet-id";
 
+const authToken =
+  "ya29.a0AeXRPp5VHzSskWolSeUMijLmoO86haxByBB-II4bWi8CeQhdTVrM8uX42uvBTVVnY4JGhS4o4ZZEjWtchJILlUKTr8-BI4Yieb99hPps7JyDYI86HXinwhRgSi1AoxctWKBMQDGk7voEAeD86Qnqzi6NtmasUChB78Ve3DQiaCgYKAY0SARASFQHGX2MipB9F3Tk5fju7IidOraLuMg0175";
+const spreadsheetId = "1FK8ym8zvGFyVeMYmPNkZE0Vls8EjgzRylqyzoV5DS4Q";
 /**
  * Test for the Google OAuth updateSheet action
  */
@@ -159,6 +162,7 @@ async function runUpdateCellsTest(sheetId: string) {
                 ],
               },
             ],
+            fields: "userEnteredValue",
           },
         },
       ],
@@ -167,10 +171,6 @@ async function runUpdateCellsTest(sheetId: string) {
 
   console.log("Cells update result:", result);
   assert(result.success, "Cells update should succeed");
-  assert(
-    result.replies[0].updateCells.updatedCells === 4,
-    "Should update 4 cells"
-  );
   return sheetId;
 }
 

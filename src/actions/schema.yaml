@@ -999,69 +999,6 @@ actions:
                             index:
                               type: integer
                               description: The index of the new sheet
-                - type: object
-                  description: Reply to deleting a sheet
-                  properties:
-                    deleteSheet:
-                      type: object
-                      description: Empty object indicating success
-                - type: object
-                  description: Reply to updating cells
-                  properties:
-                    updateCells:
-                      type: object
-                      properties:
-                        updatedRange:
-                          type: string
-                          description: The range that was updated
-                        updatedRows:
-                          type: integer
-                          description: The number of rows updated
-                        updatedColumns:
-                          type: integer
-                          description: The number of columns updated
-                        updatedCells:
-                          type: integer
-                          description: The number of cells updated
-                - type: object
-                  description: Reply to updating sheet properties
-                  properties:
-                    updateSheetProperties:
-                      type: object
-                      properties:
-                        properties:
-                          type: object
-                          properties:
-                            sheetId:
-                              type: integer
-                              description: The ID of the updated sheet
-                            title:
-                              type: string
-                              description: The new title of the sheet
-                            index:
-                              type: integer
-                              description: The new index of the sheet
-                - type: object
-                  description: Reply to updating spreadsheet properties
-                  properties:
-                    updateSpreadsheetProperties:
-                      type: object
-                      properties:
-                        properties:
-                          type: object
-                          properties:
-                            title:
-                              type: string
-                              description: The new title of the spreadsheet
-                            locale:
-                              type: string
-                              description: The new locale of the spreadsheet
-                            timeZone:
-                              type: string
-                              description: The new time zone of the spreadsheet
-                            autoRecalc:
-                              type: string
-                              description: The new auto-recalculation setting
           error:
             type: string
             description: The error that occurred if the spreadsheet was not updated successfully
