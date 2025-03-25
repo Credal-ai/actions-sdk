@@ -18,7 +18,7 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
   authParams: AuthParamsType;
 }): Promise<googleOauthScheduleCalendarMeetingOutputType> => {
   if (!authParams.authToken) {
-    throw new Error("authToken is required for Google Docs API");
+    throw new Error("authToken is required for Google Calendar API");
   }
   const { calendarId, name, start, end, description, attendees, useGoogleMeet } = params;
   // https://developers.google.com/calendar/api/v3/reference/events/insert
