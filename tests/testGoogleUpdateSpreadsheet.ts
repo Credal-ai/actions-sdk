@@ -6,7 +6,7 @@ const authToken = "insert-access-token";
 const spreadsheetId = "insert-spreadsheet-id";
 
 /**
- * Test for the Google OAuth updateSheet action
+ * Test for the Google OAuth updateSpreadsheet action
  */
 async function runTest() {
   console.log("Running test for Google OAuth updateSpreadsheet action");
