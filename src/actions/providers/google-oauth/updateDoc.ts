@@ -46,7 +46,7 @@ export const updateDoc: googleOauthUpdateDocFunction = async ({
       if (response.status < 200 || response.status >= 300) {
         return {
           success: false,
-          error: response.statusText,
+          error: `${response.statusText}: ${JSON.stringify(response.data)}`,
         };
       }
 
