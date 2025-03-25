@@ -1,3 +1,4 @@
+import { googleOauthCreateSpreadsheetParamsType } from "../src/actions/autogen/types";
 import { runAction } from "../src/app";
 import assert from "node:assert";
 
@@ -40,7 +41,7 @@ async function runTest() {
         timeZone: "America/New_York",
         autoRecalc: "ON_CHANGE",
       },
-    }
+    } as googleOauthCreateSpreadsheetParamsType
   );
 
   console.log("Result:", result);

@@ -28,7 +28,7 @@ export const createSpreadsheet: googleOauthCreateSpreadsheetFunction = async ({
       title,
       ...properties,
     },
-    sheets,
+    sheets: sheets.map(sheet => ({ properties: sheet })),
   };
 
   try {
@@ -52,10 +52,10 @@ export const createSpreadsheet: googleOauthCreateSpreadsheetFunction = async ({
       success: true,
       spreadsheetId,
       spreadsheetUrl,
-      sheets: createdSheets.map((sheet: { sheetId: number; title: string; index: number }) => ({
-        sheetId: sheet.sheetId,
-        title: sheet.title,
-        index: sheet.index,
+      sheets: createdSheets.map((sheet: { properties: { sheetId: number; title: string; index: number } }) => ({
+        sheetId: sheet.properties.sheetId,
+        title: sheet.properties.title,
+        index: sheet.properties.index,
       })),
     };
   } catch (error) {
