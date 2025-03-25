@@ -49,6 +49,8 @@ import {
   snowflakeRunSnowflakeQueryOutputSchema,
   lookerEnableUserByEmailParamsSchema,
   lookerEnableUserByEmailOutputSchema,
+  googleOauthCreateSpreadsheetParamsSchema,
+  googleOauthCreateSpreadsheetOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -74,6 +76,7 @@ import confluenceOverwritePage from "./providers/confluence/overwritePage";
 import confluenceFetchPageContent from "./providers/confluence/fetchPageContent";
 import runSnowflakeQuery from "./providers/snowflake/runSnowflakeQuery";
 import enableUserByEmail from "./providers/looker/enableUserByEmail";
+import { createSpreadsheet } from "./providers/google-oauth/createSpreadsheet";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -211,6 +214,11 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: createNewGoogleDoc,
       paramsSchema: googleOauthCreateNewGoogleDocParamsSchema,
       outputSchema: googleOauthCreateNewGoogleDocOutputSchema,
+    },
+    createSpreadsheet: {
+      fn: createSpreadsheet,
+      paramsSchema: googleOauthCreateSpreadsheetParamsSchema,
+      outputSchema: googleOauthCreateSpreadsheetOutputSchema,
     },
   },
   x: {
