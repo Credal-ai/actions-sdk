@@ -17,7 +17,7 @@ export const createSpreadsheet: googleOauthCreateSpreadsheetFunction = async ({
   authParams: AuthParamsType;
 }): Promise<googleOauthCreateSpreadsheetOutputType> => {
   if (!authParams.authToken) {
-    throw new Error("authToken is required for Google Docs API");
+    throw new Error("authToken is required for Google Sheets API");
   }
 
   const { title, sheets = [], properties = {} } = params;
