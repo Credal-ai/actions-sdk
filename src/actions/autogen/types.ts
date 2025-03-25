@@ -434,6 +434,7 @@ export const snowflakeRunSnowflakeQueryParamsSchema = z.object({
 export type snowflakeRunSnowflakeQueryParamsType = z.infer<typeof snowflakeRunSnowflakeQueryParamsSchema>;
 
 export const snowflakeRunSnowflakeQueryOutputSchema = z.object({
+  format: z.enum(["json", "csv"]).describe("The format of the output"),
   content: z.string().describe("The content of the query result (json)"),
   rowCount: z.number().describe("The number of rows returned by the query"),
 });

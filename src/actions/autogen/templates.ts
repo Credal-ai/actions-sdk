@@ -808,8 +808,13 @@ export const snowflakeRunSnowflakeQueryDefinition: ActionTemplate = {
   },
   output: {
     type: "object",
-    required: ["content", "rowCount"],
+    required: ["format", "content", "rowCount"],
     properties: {
+      format: {
+        type: "string",
+        description: "The format of the output",
+        enum: ["json", "csv"],
+      },
       content: {
         type: "string",
         description: "The content of the query result (json)",
