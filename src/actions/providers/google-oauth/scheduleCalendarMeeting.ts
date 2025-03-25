@@ -1,3 +1,4 @@
+import { v4 } from "uuid";
 import {
   AuthParamsType,
   googleOauthScheduleCalendarMeetingFunction,
@@ -19,9 +20,9 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
   if (!authParams.authToken) {
     throw new Error("authToken is required for Google Docs API");
   }
-  const { calendarId, name, start, end, description, attendees } = params;
+  const { calendarId, name, start, end, description, attendees, useGoogleMeet } = params;
   // https://developers.google.com/calendar/api/v3/reference/events/insert
-  const createEventApiUrl = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`;
+  let createEventApiUrl = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`;
 
   const data: {
     summary: string;
@@ -33,6 +34,11 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
     };
     description?: string;
     attendees?: { email: string }[];
+    conferenceData?: {
+      createRequest: {
+        requestId: string;
+      };
+    };
   } = {
     summary: name,
     start: {
@@ -49,6 +55,15 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
 
   if (attendees) {
     data.attendees = attendees.map(attendee => ({ email: attendee }));
+  }
+
+  if (useGoogleMeet) {
+    createEventApiUrl += "?conferenceDataVersion=1";
+    data.conferenceData = {
+      createRequest: {
+        requestId: v4(),
+      },
+    };
   }
 
   const response = await axiosClient.post(createEventApiUrl, data, {

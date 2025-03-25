@@ -583,6 +583,7 @@ export const googleOauthScheduleCalendarMeetingParamsSchema = z.object({
     .array(z.string().describe("The email of the attendee"))
     .describe("The attendees of the meeting")
     .optional(),
+  useGoogleMeet: z.boolean().describe("Whether to use Google Meet for the meeting").optional(),
 });
 
 export type googleOauthScheduleCalendarMeetingParamsType = z.infer<

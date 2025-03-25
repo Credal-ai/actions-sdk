@@ -6,11 +6,10 @@ import { runAction } from "../src/app";
 import assert from "node:assert";
 
 /**
- * Test for the Google OAuth createNewGoogleDoc action
+ * Test for the Google OAuth scheduleCalendarMeeting action
  */
 async function runTest() {
-  console.log("Running test for Google OAuth createNewGoogleDoc");
-
+  console.log("Running test for Google OAuth scheduleCalendarMeeting");
   // Test with token from: https://developers.google.com/oauthplayground/
   const authToken = "insert-access-token";
   const calendarId = "insert-calendar-id";
@@ -29,6 +28,7 @@ async function runTest() {
       description:
         "This is a test meeting created automatically by the actions-sdk test suite.",
       attendees: ["test@test.com", "test2@test.com"],
+      useGoogleMeet: true,
     } as googleOauthScheduleCalendarMeetingParamsType
   );
 

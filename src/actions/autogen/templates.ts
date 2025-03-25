@@ -1074,6 +1074,10 @@ export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
           description: "The email of the attendee",
         },
       },
+      useGoogleMeet: {
+        type: "boolean",
+        description: "Whether to use Google Meet for the meeting",
+      },
     },
   },
   output: {
