@@ -1039,6 +1039,68 @@ export const googleOauthCreateNewGoogleDocDefinition: ActionTemplate = {
   name: "createNewGoogleDoc",
   provider: "googleOauth",
 };
+export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
+  description: "Schedule a meeting on google calendar using OAuth authentication",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["calendarId", "name", "start", "end"],
+    properties: {
+      calendarId: {
+        type: "string",
+        description: "The ID of the calendar to schedule the meeting on",
+      },
+      name: {
+        type: "string",
+        description: "The name of the meeting",
+      },
+      start: {
+        type: "string",
+        description: "The start time of the meeting",
+      },
+      end: {
+        type: "string",
+        description: "The end time of the meeting",
+      },
+      description: {
+        type: "string",
+        description: "The description of the meeting",
+      },
+      attendees: {
+        type: "array",
+        description: "The attendees of the meeting",
+        items: {
+          type: "string",
+          description: "The email of the attendee",
+        },
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the meeting was scheduled successfully",
+      },
+      eventId: {
+        type: "string",
+        description: "The ID of the event that was scheduled",
+      },
+      eventUrl: {
+        type: "string",
+        description: "The URL to access the scheduled event",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the meeting was not scheduled successfully",
+      },
+    },
+  },
+  name: "scheduleCalendarMeeting",
+  provider: "googleOauth",
+};
 export const finnhubSymbolLookupDefinition: ActionTemplate = {
   description: "Look up a stock symbol by name",
   scopes: [],

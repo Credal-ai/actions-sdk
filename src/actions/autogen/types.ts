@@ -573,6 +573,38 @@ export type googleOauthCreateNewGoogleDocFunction = ActionFunction<
   googleOauthCreateNewGoogleDocOutputType
 >;
 
+export const googleOauthScheduleCalendarMeetingParamsSchema = z.object({
+  calendarId: z.string().describe("The ID of the calendar to schedule the meeting on"),
+  name: z.string().describe("The name of the meeting"),
+  start: z.string().describe("The start time of the meeting"),
+  end: z.string().describe("The end time of the meeting"),
+  description: z.string().describe("The description of the meeting").optional(),
+  attendees: z
+    .array(z.string().describe("The email of the attendee"))
+    .describe("The attendees of the meeting")
+    .optional(),
+});
+
+export type googleOauthScheduleCalendarMeetingParamsType = z.infer<
+  typeof googleOauthScheduleCalendarMeetingParamsSchema
+>;
+
+export const googleOauthScheduleCalendarMeetingOutputSchema = z.object({
+  success: z.boolean().describe("Whether the meeting was scheduled successfully"),
+  eventId: z.string().describe("The ID of the event that was scheduled").optional(),
+  eventUrl: z.string().describe("The URL to access the scheduled event").optional(),
+  error: z.string().describe("The error that occurred if the meeting was not scheduled successfully").optional(),
+});
+
+export type googleOauthScheduleCalendarMeetingOutputType = z.infer<
+  typeof googleOauthScheduleCalendarMeetingOutputSchema
+>;
+export type googleOauthScheduleCalendarMeetingFunction = ActionFunction<
+  googleOauthScheduleCalendarMeetingParamsType,
+  AuthParamsType,
+  googleOauthScheduleCalendarMeetingOutputType
+>;
+
 export const finnhubSymbolLookupParamsSchema = z.object({
   query: z.string().describe("The symbol or colloquial name of the company to look up"),
 });
