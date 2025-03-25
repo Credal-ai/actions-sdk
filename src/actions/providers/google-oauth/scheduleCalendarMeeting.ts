@@ -32,7 +32,7 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
       dateTime: string;
     };
     description?: string;
-    attendees?: string[];
+    attendees?: { email: string }[];
   } = {
     summary: name,
     start: {
@@ -48,7 +48,7 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
   }
 
   if (attendees) {
-    data.attendees = attendees;
+    data.attendees = attendees.map(attendee => ({ email: attendee }));
   }
 
   const response = await axiosClient.post(createEventApiUrl, data, {

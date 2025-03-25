@@ -11,10 +11,12 @@ import assert from "node:assert";
 async function runTest() {
   console.log("Running test for Google OAuth createNewGoogleDoc");
 
-  const authToken = "insert-access-token"; // Test with token from: https://developers.google.com/oauthplayground/
+  // Test with token from: https://developers.google.com/oauthplayground/
+  const authToken = "insert-access-token";
   const calendarId = "insert-calendar-id";
+
   const result: googleOauthScheduleCalendarMeetingOutputType = await runAction(
-    "googleCalendarScheduleMeeting",
+    "scheduleCalendarMeeting",
     "googleOauth",
     {
       authToken,
