@@ -1039,6 +1039,486 @@ export const googleOauthCreateNewGoogleDocDefinition: ActionTemplate = {
   name: "createNewGoogleDoc",
   provider: "googleOauth",
 };
+export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
+  description: "Update a Google Spreadsheet with new content specified",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["spreadsheetId", "requests"],
+    properties: {
+      spreadsheetId: {
+        type: "string",
+        description: "The ID of the Google Spreadsheet to update",
+      },
+      requests: {
+        type: "array",
+        description: "The requests to update the spreadsheet with",
+        items: {
+          type: "object",
+          oneOf: [
+            {
+              type: "object",
+              description: "Add or update a sheet",
+              properties: {
+                addSheet: {
+                  type: "object",
+                  properties: {
+                    properties: {
+                      type: "object",
+                      properties: {
+                        title: {
+                          type: "string",
+                          description: "The title of the new sheet",
+                        },
+                        gridProperties: {
+                          type: "object",
+                          properties: {
+                            rowCount: {
+                              type: "integer",
+                              description: "The number of rows in the sheet",
+                            },
+                            columnCount: {
+                              type: "integer",
+                              description: "The number of columns in the sheet",
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              description: "Delete a sheet",
+              properties: {
+                deleteSheet: {
+                  type: "object",
+                  properties: {
+                    sheetId: {
+                      type: "integer",
+                      description: "The ID of the sheet to delete",
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              description: "Update cells in a range",
+              properties: {
+                updateCells: {
+                  type: "object",
+                  properties: {
+                    range: {
+                      type: "object",
+                      properties: {
+                        sheetId: {
+                          type: "integer",
+                          description: "The ID of the sheet",
+                        },
+                        startRowIndex: {
+                          type: "integer",
+                          description: "The start row (0-based, inclusive)",
+                        },
+                        endRowIndex: {
+                          type: "integer",
+                          description: "The end row (0-based, exclusive)",
+                        },
+                        startColumnIndex: {
+                          type: "integer",
+                          description: "The start column (0-based, inclusive)",
+                        },
+                        endColumnIndex: {
+                          type: "integer",
+                          description: "The end column (0-based, exclusive)",
+                        },
+                      },
+                    },
+                    rows: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          values: {
+                            type: "array",
+                            items: {
+                              type: "object",
+                              properties: {
+                                userEnteredValue: {
+                                  type: "object",
+                                  properties: {
+                                    stringValue: {
+                                      type: "string",
+                                    },
+                                    numberValue: {
+                                      type: "number",
+                                    },
+                                    boolValue: {
+                                      type: "boolean",
+                                    },
+                                    formulaValue: {
+                                      type: "string",
+                                    },
+                                  },
+                                },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              description: "Update sheet properties",
+              properties: {
+                updateSheetProperties: {
+                  type: "object",
+                  properties: {
+                    properties: {
+                      type: "object",
+                      properties: {
+                        sheetId: {
+                          type: "integer",
+                          description: "The ID of the sheet to update",
+                        },
+                        title: {
+                          type: "string",
+                          description: "The new title of the sheet",
+                        },
+                        gridProperties: {
+                          type: "object",
+                          properties: {
+                            rowCount: {
+                              type: "integer",
+                              description: "The new number of rows",
+                            },
+                            columnCount: {
+                              type: "integer",
+                              description: "The new number of columns",
+                            },
+                            frozenRowCount: {
+                              type: "integer",
+                              description: "The number of frozen rows",
+                            },
+                            frozenColumnCount: {
+                              type: "integer",
+                              description: "The number of frozen columns",
+                            },
+                          },
+                        },
+                      },
+                    },
+                    fields: {
+                      type: "string",
+                      description: "The fields to update (comma-separated list using JSON field paths)",
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              description: "Update spreadsheet properties",
+              properties: {
+                updateSpreadsheetProperties: {
+                  type: "object",
+                  properties: {
+                    properties: {
+                      type: "object",
+                      properties: {
+                        title: {
+                          type: "string",
+                          description: "The title of the spreadsheet",
+                        },
+                        locale: {
+                          type: "string",
+                          description: "The locale of the spreadsheet (e.g., en_US)",
+                        },
+                        timeZone: {
+                          type: "string",
+                          description: "The time zone of the spreadsheet (e.g., America/New_York)",
+                        },
+                        autoRecalc: {
+                          type: "string",
+                          enum: ["ON_CHANGE", "MINUTE", "HOUR"],
+                          description: "When to recalculate the spreadsheet",
+                        },
+                        defaultFormat: {
+                          type: "object",
+                          properties: {
+                            backgroundColor: {
+                              type: "object",
+                              properties: {
+                                red: {
+                                  type: "number",
+                                  description: "The red component [0.0, 1.0]",
+                                },
+                                green: {
+                                  type: "number",
+                                  description: "The green component [0.0, 1.0]",
+                                },
+                                blue: {
+                                  type: "number",
+                                  description: "The blue component [0.0, 1.0]",
+                                },
+                                alpha: {
+                                  type: "number",
+                                  description: "The alpha component [0.0, 1.0]",
+                                },
+                              },
+                            },
+                            numberFormat: {
+                              type: "object",
+                              properties: {
+                                type: {
+                                  type: "string",
+                                  enum: [
+                                    "TEXT",
+                                    "NUMBER",
+                                    "PERCENT",
+                                    "CURRENCY",
+                                    "DATE",
+                                    "TIME",
+                                    "DATE_TIME",
+                                    "SCIENTIFIC",
+                                  ],
+                                  description: "The type of the number format",
+                                },
+                                pattern: {
+                                  type: "string",
+                                  description: "Pattern string used for formatting",
+                                },
+                              },
+                            },
+                            textFormat: {
+                              type: "object",
+                              properties: {
+                                foregroundColor: {
+                                  type: "object",
+                                  properties: {
+                                    red: {
+                                      type: "number",
+                                      description: "The red component [0.0, 1.0]",
+                                    },
+                                    green: {
+                                      type: "number",
+                                      description: "The green component [0.0, 1.0]",
+                                    },
+                                    blue: {
+                                      type: "number",
+                                      description: "The blue component [0.0, 1.0]",
+                                    },
+                                    alpha: {
+                                      type: "number",
+                                      description: "The alpha component [0.0, 1.0]",
+                                    },
+                                  },
+                                },
+                                fontFamily: {
+                                  type: "string",
+                                  description: "The font family",
+                                },
+                                fontSize: {
+                                  type: "integer",
+                                  description: "The size of the font in points",
+                                },
+                                bold: {
+                                  type: "boolean",
+                                  description: "Whether the text is bold",
+                                },
+                                italic: {
+                                  type: "boolean",
+                                  description: "Whether the text is italic",
+                                },
+                                strikethrough: {
+                                  type: "boolean",
+                                  description: "Whether the text has a strikethrough",
+                                },
+                                underline: {
+                                  type: "boolean",
+                                  description: "Whether the text is underlined",
+                                },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                    fields: {
+                      type: "string",
+                      description: "The fields to update (comma-separated list using JSON field paths)",
+                    },
+                  },
+                },
+              },
+            },
+          ],
+        },
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the spreadsheet was updated successfully",
+      },
+      spreadsheetUrl: {
+        type: "string",
+        description: "The URL of the updated spreadsheet",
+      },
+      replies: {
+        type: "array",
+        description: "The replies to the requests",
+        items: {
+          type: "object",
+          description: "The reply to a request",
+          oneOf: [
+            {
+              type: "object",
+              description: "Reply to adding a sheet",
+              properties: {
+                addSheet: {
+                  type: "object",
+                  properties: {
+                    properties: {
+                      type: "object",
+                      properties: {
+                        sheetId: {
+                          type: "integer",
+                          description: "The ID of the newly created sheet",
+                        },
+                        title: {
+                          type: "string",
+                          description: "The title of the new sheet",
+                        },
+                        index: {
+                          type: "integer",
+                          description: "The index of the new sheet",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              description: "Reply to deleting a sheet",
+              properties: {
+                deleteSheet: {
+                  type: "object",
+                  description: "Empty object indicating success",
+                },
+              },
+            },
+            {
+              type: "object",
+              description: "Reply to updating cells",
+              properties: {
+                updateCells: {
+                  type: "object",
+                  properties: {
+                    updatedRange: {
+                      type: "string",
+                      description: "The range that was updated",
+                    },
+                    updatedRows: {
+                      type: "integer",
+                      description: "The number of rows updated",
+                    },
+                    updatedColumns: {
+                      type: "integer",
+                      description: "The number of columns updated",
+                    },
+                    updatedCells: {
+                      type: "integer",
+                      description: "The number of cells updated",
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              description: "Reply to updating sheet properties",
+              properties: {
+                updateSheetProperties: {
+                  type: "object",
+                  properties: {
+                    properties: {
+                      type: "object",
+                      properties: {
+                        sheetId: {
+                          type: "integer",
+                          description: "The ID of the updated sheet",
+                        },
+                        title: {
+                          type: "string",
+                          description: "The new title of the sheet",
+                        },
+                        index: {
+                          type: "integer",
+                          description: "The new index of the sheet",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              description: "Reply to updating spreadsheet properties",
+              properties: {
+                updateSpreadsheetProperties: {
+                  type: "object",
+                  properties: {
+                    properties: {
+                      type: "object",
+                      properties: {
+                        title: {
+                          type: "string",
+                          description: "The new title of the spreadsheet",
+                        },
+                        locale: {
+                          type: "string",
+                          description: "The new locale of the spreadsheet",
+                        },
+                        timeZone: {
+                          type: "string",
+                          description: "The new time zone of the spreadsheet",
+                        },
+                        autoRecalc: {
+                          type: "string",
+                          description: "The new auto-recalculation setting",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          ],
+        },
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the spreadsheet was not updated successfully",
+      },
+    },
+  },
+  name: "updateSpreadsheet",
+  provider: "googleOauth",
+};
 export const finnhubSymbolLookupDefinition: ActionTemplate = {
   description: "Look up a stock symbol by name",
   scopes: [],

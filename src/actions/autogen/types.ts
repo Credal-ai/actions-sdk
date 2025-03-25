@@ -573,6 +573,310 @@ export type googleOauthCreateNewGoogleDocFunction = ActionFunction<
   googleOauthCreateNewGoogleDocOutputType
 >;
 
+export const googleOauthUpdateSpreadsheetParamsSchema = z.object({
+  spreadsheetId: z.string().describe("The ID of the Google Spreadsheet to update"),
+  requests: z
+    .array(
+      z
+        .object({})
+        .catchall(z.any())
+        .and(
+          z.any().superRefine((x, ctx) => {
+            const schemas = [
+              z
+                .object({
+                  addSheet: z
+                    .object({
+                      properties: z
+                        .object({
+                          title: z.string().describe("The title of the new sheet").optional(),
+                          gridProperties: z
+                            .object({
+                              rowCount: z.number().int().describe("The number of rows in the sheet").optional(),
+                              columnCount: z.number().int().describe("The number of columns in the sheet").optional(),
+                            })
+                            .optional(),
+                        })
+                        .optional(),
+                    })
+                    .optional(),
+                })
+                .describe("Add or update a sheet"),
+              z
+                .object({
+                  deleteSheet: z
+                    .object({ sheetId: z.number().int().describe("The ID of the sheet to delete").optional() })
+                    .optional(),
+                })
+                .describe("Delete a sheet"),
+              z
+                .object({
+                  updateCells: z
+                    .object({
+                      range: z
+                        .object({
+                          sheetId: z.number().int().describe("The ID of the sheet").optional(),
+                          startRowIndex: z.number().int().describe("The start row (0-based, inclusive)").optional(),
+                          endRowIndex: z.number().int().describe("The end row (0-based, exclusive)").optional(),
+                          startColumnIndex: z
+                            .number()
+                            .int()
+                            .describe("The start column (0-based, inclusive)")
+                            .optional(),
+                          endColumnIndex: z.number().int().describe("The end column (0-based, exclusive)").optional(),
+                        })
+                        .optional(),
+                      rows: z
+                        .array(
+                          z.object({
+                            values: z
+                              .array(
+                                z.object({
+                                  userEnteredValue: z
+                                    .object({
+                                      stringValue: z.string().optional(),
+                                      numberValue: z.number().optional(),
+                                      boolValue: z.boolean().optional(),
+                                      formulaValue: z.string().optional(),
+                                    })
+                                    .optional(),
+                                }),
+                              )
+                              .optional(),
+                          }),
+                        )
+                        .optional(),
+                    })
+                    .optional(),
+                })
+                .describe("Update cells in a range"),
+              z
+                .object({
+                  updateSheetProperties: z
+                    .object({
+                      properties: z
+                        .object({
+                          sheetId: z.number().int().describe("The ID of the sheet to update").optional(),
+                          title: z.string().describe("The new title of the sheet").optional(),
+                          gridProperties: z
+                            .object({
+                              rowCount: z.number().int().describe("The new number of rows").optional(),
+                              columnCount: z.number().int().describe("The new number of columns").optional(),
+                              frozenRowCount: z.number().int().describe("The number of frozen rows").optional(),
+                              frozenColumnCount: z.number().int().describe("The number of frozen columns").optional(),
+                            })
+                            .optional(),
+                        })
+                        .optional(),
+                      fields: z
+                        .string()
+                        .describe("The fields to update (comma-separated list using JSON field paths)")
+                        .optional(),
+                    })
+                    .optional(),
+                })
+                .describe("Update sheet properties"),
+              z
+                .object({
+                  updateSpreadsheetProperties: z
+                    .object({
+                      properties: z
+                        .object({
+                          title: z.string().describe("The title of the spreadsheet").optional(),
+                          locale: z.string().describe("The locale of the spreadsheet (e.g., en_US)").optional(),
+                          timeZone: z
+                            .string()
+                            .describe("The time zone of the spreadsheet (e.g., America/New_York)")
+                            .optional(),
+                          autoRecalc: z
+                            .enum(["ON_CHANGE", "MINUTE", "HOUR"])
+                            .describe("When to recalculate the spreadsheet")
+                            .optional(),
+                          defaultFormat: z
+                            .object({
+                              backgroundColor: z
+                                .object({
+                                  red: z.number().describe("The red component [0.0, 1.0]").optional(),
+                                  green: z.number().describe("The green component [0.0, 1.0]").optional(),
+                                  blue: z.number().describe("The blue component [0.0, 1.0]").optional(),
+                                  alpha: z.number().describe("The alpha component [0.0, 1.0]").optional(),
+                                })
+                                .optional(),
+                              numberFormat: z
+                                .object({
+                                  type: z
+                                    .enum([
+                                      "TEXT",
+                                      "NUMBER",
+                                      "PERCENT",
+                                      "CURRENCY",
+                                      "DATE",
+                                      "TIME",
+                                      "DATE_TIME",
+                                      "SCIENTIFIC",
+                                    ])
+                                    .describe("The type of the number format")
+                                    .optional(),
+                                  pattern: z.string().describe("Pattern string used for formatting").optional(),
+                                })
+                                .optional(),
+                              textFormat: z
+                                .object({
+                                  foregroundColor: z
+                                    .object({
+                                      red: z.number().describe("The red component [0.0, 1.0]").optional(),
+                                      green: z.number().describe("The green component [0.0, 1.0]").optional(),
+                                      blue: z.number().describe("The blue component [0.0, 1.0]").optional(),
+                                      alpha: z.number().describe("The alpha component [0.0, 1.0]").optional(),
+                                    })
+                                    .optional(),
+                                  fontFamily: z.string().describe("The font family").optional(),
+                                  fontSize: z.number().int().describe("The size of the font in points").optional(),
+                                  bold: z.boolean().describe("Whether the text is bold").optional(),
+                                  italic: z.boolean().describe("Whether the text is italic").optional(),
+                                  strikethrough: z
+                                    .boolean()
+                                    .describe("Whether the text has a strikethrough")
+                                    .optional(),
+                                  underline: z.boolean().describe("Whether the text is underlined").optional(),
+                                })
+                                .optional(),
+                            })
+                            .optional(),
+                        })
+                        .optional(),
+                      fields: z
+                        .string()
+                        .describe("The fields to update (comma-separated list using JSON field paths)")
+                        .optional(),
+                    })
+                    .optional(),
+                })
+                .describe("Update spreadsheet properties"),
+            ];
+            const errors = schemas.reduce<z.ZodError[]>(
+              (errors, schema) => (result => (result.error ? [...errors, result.error] : errors))(schema.safeParse(x)),
+              [],
+            );
+            if (schemas.length - errors.length !== 1) {
+              ctx.addIssue({
+                path: ctx.path,
+                code: "invalid_union",
+                unionErrors: errors,
+                message: "Invalid input: Should pass single schema",
+              });
+            }
+          }),
+        ),
+    )
+    .describe("The requests to update the spreadsheet with"),
+});
+
+export type googleOauthUpdateSpreadsheetParamsType = z.infer<typeof googleOauthUpdateSpreadsheetParamsSchema>;
+
+export const googleOauthUpdateSpreadsheetOutputSchema = z.object({
+  success: z.boolean().describe("Whether the spreadsheet was updated successfully"),
+  spreadsheetUrl: z.string().describe("The URL of the updated spreadsheet").optional(),
+  replies: z
+    .array(
+      z
+        .object({})
+        .catchall(z.any())
+        .and(
+          z.any().superRefine((x, ctx) => {
+            const schemas = [
+              z
+                .object({
+                  addSheet: z
+                    .object({
+                      properties: z
+                        .object({
+                          sheetId: z.number().int().describe("The ID of the newly created sheet").optional(),
+                          title: z.string().describe("The title of the new sheet").optional(),
+                          index: z.number().int().describe("The index of the new sheet").optional(),
+                        })
+                        .optional(),
+                    })
+                    .optional(),
+                })
+                .describe("Reply to adding a sheet"),
+              z
+                .object({
+                  deleteSheet: z.object({}).catchall(z.any()).describe("Empty object indicating success").optional(),
+                })
+                .describe("Reply to deleting a sheet"),
+              z
+                .object({
+                  updateCells: z
+                    .object({
+                      updatedRange: z.string().describe("The range that was updated").optional(),
+                      updatedRows: z.number().int().describe("The number of rows updated").optional(),
+                      updatedColumns: z.number().int().describe("The number of columns updated").optional(),
+                      updatedCells: z.number().int().describe("The number of cells updated").optional(),
+                    })
+                    .optional(),
+                })
+                .describe("Reply to updating cells"),
+              z
+                .object({
+                  updateSheetProperties: z
+                    .object({
+                      properties: z
+                        .object({
+                          sheetId: z.number().int().describe("The ID of the updated sheet").optional(),
+                          title: z.string().describe("The new title of the sheet").optional(),
+                          index: z.number().int().describe("The new index of the sheet").optional(),
+                        })
+                        .optional(),
+                    })
+                    .optional(),
+                })
+                .describe("Reply to updating sheet properties"),
+              z
+                .object({
+                  updateSpreadsheetProperties: z
+                    .object({
+                      properties: z
+                        .object({
+                          title: z.string().describe("The new title of the spreadsheet").optional(),
+                          locale: z.string().describe("The new locale of the spreadsheet").optional(),
+                          timeZone: z.string().describe("The new time zone of the spreadsheet").optional(),
+                          autoRecalc: z.string().describe("The new auto-recalculation setting").optional(),
+                        })
+                        .optional(),
+                    })
+                    .optional(),
+                })
+                .describe("Reply to updating spreadsheet properties"),
+            ];
+            const errors = schemas.reduce<z.ZodError[]>(
+              (errors, schema) => (result => (result.error ? [...errors, result.error] : errors))(schema.safeParse(x)),
+              [],
+            );
+            if (schemas.length - errors.length !== 1) {
+              ctx.addIssue({
+                path: ctx.path,
+                code: "invalid_union",
+                unionErrors: errors,
+                message: "Invalid input: Should pass single schema",
+              });
+            }
+          }),
+        )
+        .describe("The reply to a request"),
+    )
+    .describe("The replies to the requests")
+    .optional(),
+  error: z.string().describe("The error that occurred if the spreadsheet was not updated successfully").optional(),
+});
+
+export type googleOauthUpdateSpreadsheetOutputType = z.infer<typeof googleOauthUpdateSpreadsheetOutputSchema>;
+export type googleOauthUpdateSpreadsheetFunction = ActionFunction<
+  googleOauthUpdateSpreadsheetParamsType,
+  AuthParamsType,
+  googleOauthUpdateSpreadsheetOutputType
+>;
+
 export const finnhubSymbolLookupParamsSchema = z.object({
   query: z.string().describe("The symbol or colloquial name of the company to look up"),
 });
