@@ -66,25 +66,33 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
     };
   }
 
-  const response = await axiosClient.post(createEventApiUrl, data, {
-    headers: {
-      Authorization: `Bearer ${authParams.authToken}`,
-      "Content-Type": "application/json",
-    },
-  });
+  try {
+    const response = await axiosClient.post(createEventApiUrl, data, {
+      headers: {
+        Authorization: `Bearer ${authParams.authToken}`,
+        "Content-Type": "application/json",
+      },
+    });
 
-  if (response.status < 200 || response.status >= 300) {
+    if (response.status < 200 || response.status >= 300) {
+      return {
+        success: false,
+        error: response.data.error,
+      };
+    }
+
+    return {
+      success: true,
+      eventId: response.data.id,
+      eventUrl: response.data.htmlLink,
+    };
+  } catch (error) {
+    console.error("Error scheduling calendar meeting", error);
     return {
       success: false,
-      error: response.data.error,
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
-
-  return {
-    success: true,
-    eventId: response.data.id,
-    eventUrl: response.data.htmlLink,
-  };
 };
 
 export default scheduleCalendarMeeting;
