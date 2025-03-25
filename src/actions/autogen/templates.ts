@@ -1039,6 +1039,1118 @@ export const googleOauthCreateNewGoogleDocDefinition: ActionTemplate = {
   name: "createNewGoogleDoc",
   provider: "googleOauth",
 };
+export const googleOauthUpdateDocDefinition: ActionTemplate = {
+  description: "Update an existing Google Docs document using OAuth authentication with batch requests",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["documentId"],
+    properties: {
+      documentId: {
+        type: "string",
+        description: "The ID of the Google Doc to update",
+      },
+      requests: {
+        type: "array",
+        description:
+          "Array of requests to apply to the document. See https://developers.google.com/workspace/docs/api/reference/rest/v1/documents/request#Request",
+        items: {
+          type: "object",
+          description: "A single update request that must contain exactly one of the following operations",
+          oneOf: [
+            {
+              type: "object",
+              required: ["replaceAllText"],
+              properties: {
+                replaceAllText: {
+                  type: "object",
+                  description: "Replaces all instances of text matching a criteria",
+                  required: ["replaceText", "containsText"],
+                  properties: {
+                    replaceText: {
+                      type: "string",
+                      description: "The text that will replace the matched text",
+                    },
+                    containsText: {
+                      type: "object",
+                      description: "The text to search for",
+                      required: ["text"],
+                      properties: {
+                        text: {
+                          type: "string",
+                          description: "The text to search for in the document",
+                        },
+                        matchCase: {
+                          type: "boolean",
+                          description: "Whether the search should be case sensitive",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              required: ["insertText"],
+              properties: {
+                insertText: {
+                  type: "object",
+                  description: "Inserts text at a specific location",
+                  required: ["text", "location"],
+                  properties: {
+                    text: {
+                      type: "string",
+                      description: "The text to insert",
+                    },
+                    location: {
+                      type: "object",
+                      description: "The location where the text will be inserted",
+                      required: ["index"],
+                      properties: {
+                        index: {
+                          type: "integer",
+                          description: "The zero-based index in the document where to insert the text",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              required: ["updateTextStyle"],
+              properties: {
+                updateTextStyle: {
+                  type: "object",
+                  description: "Updates the styling of text",
+                  required: ["textStyle", "fields"],
+                  properties: {
+                    textStyle: {
+                      type: "object",
+                      description: "The styles to set on the text",
+                      properties: {
+                        backgroundColor: {
+                          type: "object",
+                          description: "The background color of the text",
+                        },
+                        baselineOffset: {
+                          type: "string",
+                          description: "The text's vertical offset from its normal position",
+                          enum: ["BASELINE_OFFSET_UNSPECIFIED", "NONE", "SUPERSCRIPT", "SUBSCRIPT"],
+                        },
+                        bold: {
+                          type: "boolean",
+                          description: "Whether the text is bold",
+                        },
+                        fontSize: {
+                          type: "object",
+                          description: "The size of the text's font",
+                          properties: {
+                            magnitude: {
+                              type: "number",
+                              description: "The font size in points",
+                            },
+                            unit: {
+                              type: "string",
+                              description: "The units for the font size",
+                            },
+                          },
+                        },
+                        foregroundColor: {
+                          type: "object",
+                          description: "The foreground color of the text",
+                        },
+                        italic: {
+                          type: "boolean",
+                          description: "Whether the text is italicized",
+                        },
+                        link: {
+                          type: "object",
+                          description: "The hyperlink destination of the text",
+                          properties: {
+                            url: {
+                              type: "string",
+                              description: "The URL of the link",
+                            },
+                          },
+                        },
+                        strikethrough: {
+                          type: "boolean",
+                          description: "Whether the text is struck through",
+                        },
+                        underline: {
+                          type: "boolean",
+                          description: "Whether the text is underlined",
+                        },
+                        weightedFontFamily: {
+                          type: "object",
+                          description: "The font family and weight of the text",
+                          properties: {
+                            fontFamily: {
+                              type: "string",
+                              description: "The font family of the text",
+                            },
+                            weight: {
+                              type: "integer",
+                              description: "The weight of the font",
+                            },
+                          },
+                        },
+                      },
+                    },
+                    fields: {
+                      type: "string",
+                      description: "The fields that should be updated",
+                    },
+                    range: {
+                      type: "object",
+                      description: "The range of text to style",
+                      required: ["startIndex", "endIndex"],
+                      properties: {
+                        startIndex: {
+                          type: "integer",
+                          description: "The zero-based starting index of the range",
+                        },
+                        endIndex: {
+                          type: "integer",
+                          description: "The zero-based ending index of the range (exclusive)",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              required: ["deleteContentRange"],
+              properties: {
+                deleteContentRange: {
+                  type: "object",
+                  description: "Deletes content between two structural locations",
+                  required: ["range"],
+                  properties: {
+                    range: {
+                      type: "object",
+                      description: "The range of content to delete",
+                      required: ["startIndex", "endIndex"],
+                      properties: {
+                        startIndex: {
+                          type: "integer",
+                          description: "The zero-based starting index of the range",
+                        },
+                        endIndex: {
+                          type: "integer",
+                          description: "The zero-based ending index of the range (exclusive)",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              required: ["insertTableRow"],
+              properties: {
+                insertTableRow: {
+                  type: "object",
+                  description: "Inserts a new table row",
+                  required: ["tableCellLocation", "insertBelow"],
+                  properties: {
+                    tableCellLocation: {
+                      type: "object",
+                      description: "The location where the table row will be inserted",
+                      required: ["tableStartLocation"],
+                      properties: {
+                        tableStartLocation: {
+                          type: "object",
+                          description: "The location where the table starts",
+                          required: ["index"],
+                          properties: {
+                            index: {
+                              type: "integer",
+                              description: "The zero-based index in the document",
+                            },
+                          },
+                        },
+                        rowIndex: {
+                          type: "integer",
+                          description: "The zero-based row index",
+                        },
+                        columnIndex: {
+                          type: "integer",
+                          description: "The zero-based column index",
+                        },
+                      },
+                    },
+                    insertBelow: {
+                      type: "boolean",
+                      description: "Whether to insert the row below the reference row",
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              required: ["insertTableColumn"],
+              properties: {
+                insertTableColumn: {
+                  type: "object",
+                  description: "Inserts a new table column",
+                  required: ["tableCellLocation", "insertRight"],
+                  properties: {
+                    tableCellLocation: {
+                      type: "object",
+                      description: "The location where the table column will be inserted",
+                      required: ["tableStartLocation"],
+                      properties: {
+                        tableStartLocation: {
+                          type: "object",
+                          description: "The location where the table starts",
+                          required: ["index"],
+                          properties: {
+                            index: {
+                              type: "integer",
+                              description: "The zero-based index in the document",
+                            },
+                          },
+                        },
+                        rowIndex: {
+                          type: "integer",
+                          description: "The zero-based row index",
+                        },
+                        columnIndex: {
+                          type: "integer",
+                          description: "The zero-based column index",
+                        },
+                      },
+                    },
+                    insertRight: {
+                      type: "boolean",
+                      description: "Whether to insert the column to the right of the reference column",
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              required: ["deleteTableRow"],
+              properties: {
+                deleteTableRow: {
+                  type: "object",
+                  description: "Deletes a table row",
+                  required: ["tableCellLocation"],
+                  properties: {
+                    tableCellLocation: {
+                      type: "object",
+                      description: "The location of the row to delete",
+                      required: ["tableStartLocation"],
+                      properties: {
+                        tableStartLocation: {
+                          type: "object",
+                          description: "The location where the table starts",
+                          required: ["index"],
+                          properties: {
+                            index: {
+                              type: "integer",
+                              description: "The zero-based index in the document",
+                            },
+                          },
+                        },
+                        rowIndex: {
+                          type: "integer",
+                          description: "The zero-based row index",
+                        },
+                        columnIndex: {
+                          type: "integer",
+                          description: "The zero-based column index",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              required: ["deleteTableColumn"],
+              properties: {
+                deleteTableColumn: {
+                  type: "object",
+                  description: "Deletes a table column",
+                  required: ["tableCellLocation"],
+                  properties: {
+                    tableCellLocation: {
+                      type: "object",
+                      description: "The location of the column to delete",
+                      required: ["tableStartLocation"],
+                      properties: {
+                        tableStartLocation: {
+                          type: "object",
+                          description: "The location where the table starts",
+                          required: ["index"],
+                          properties: {
+                            index: {
+                              type: "integer",
+                              description: "The zero-based index in the document",
+                            },
+                          },
+                        },
+                        rowIndex: {
+                          type: "integer",
+                          description: "The zero-based row index",
+                        },
+                        columnIndex: {
+                          type: "integer",
+                          description: "The zero-based column index",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              required: ["updateParagraphStyle"],
+              properties: {
+                updateParagraphStyle: {
+                  type: "object",
+                  description: "Updates the style of paragraphs",
+                  required: ["range", "paragraphStyle", "fields"],
+                  properties: {
+                    range: {
+                      type: "object",
+                      description: "The range of paragraphs to update",
+                      required: ["startIndex", "endIndex"],
+                      properties: {
+                        startIndex: {
+                          type: "integer",
+                          description: "The zero-based starting index of the range",
+                        },
+                        endIndex: {
+                          type: "integer",
+                          description: "The zero-based ending index of the range (exclusive)",
+                        },
+                      },
+                    },
+                    paragraphStyle: {
+                      type: "object",
+                      description: "The styles to set on the paragraphs",
+                      properties: {
+                        alignment: {
+                          type: "string",
+                          description: "The text alignment",
+                          enum: ["ALIGNMENT_UNSPECIFIED", "START", "CENTER", "END", "JUSTIFIED"],
+                        },
+                        direction: {
+                          type: "string",
+                          description: "The text direction",
+                          enum: ["CONTENT_DIRECTION_UNSPECIFIED", "LEFT_TO_RIGHT", "RIGHT_TO_LEFT"],
+                        },
+                        indentStart: {
+                          type: "object",
+                          description: "The amount of indentation for the paragraph",
+                          properties: {
+                            magnitude: {
+                              type: "number",
+                              description: "The magnitude of indentation",
+                            },
+                            unit: {
+                              type: "string",
+                              description: "The units of indentation",
+                            },
+                          },
+                        },
+                        indentEnd: {
+                          type: "object",
+                          description: "The amount of indentation from the end",
+                        },
+                        indentFirstLine: {
+                          type: "object",
+                          description: "The amount of indentation for the first line",
+                        },
+                        keepLinesTogether: {
+                          type: "boolean",
+                          description: "Whether to keep all lines on the same page",
+                        },
+                        keepWithNext: {
+                          type: "boolean",
+                          description: "Whether to keep with the next paragraph",
+                        },
+                        lineSpacing: {
+                          type: "number",
+                          description: "The amount of space between lines",
+                        },
+                        spaceAbove: {
+                          type: "object",
+                          description: "The amount of space above the paragraph",
+                        },
+                        spaceBelow: {
+                          type: "object",
+                          description: "The amount of space below the paragraph",
+                        },
+                        spacingMode: {
+                          type: "string",
+                          description: "The spacing mode",
+                          enum: ["SPACING_MODE_UNSPECIFIED", "NEVER_COLLAPSE", "COLLAPSE_LISTS"],
+                        },
+                        tabStops: {
+                          type: "array",
+                          description: "The tab stops for the paragraph",
+                          items: {
+                            type: "object",
+                            properties: {
+                              offset: {
+                                type: "object",
+                                description: "The offset of the tab stop",
+                              },
+                              alignment: {
+                                type: "string",
+                                description: "The alignment of the tab stop",
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                    fields: {
+                      type: "string",
+                      description: "The fields that should be updated",
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              required: ["createParagraphBullets"],
+              properties: {
+                createParagraphBullets: {
+                  type: "object",
+                  description: "Creates bullets for paragraphs",
+                  required: ["range", "bulletPreset"],
+                  properties: {
+                    range: {
+                      type: "object",
+                      description: "The range of paragraphs to bullet",
+                      required: ["startIndex", "endIndex"],
+                      properties: {
+                        startIndex: {
+                          type: "integer",
+                          description: "The zero-based starting index of the range",
+                        },
+                        endIndex: {
+                          type: "integer",
+                          description: "The zero-based ending index of the range (exclusive)",
+                        },
+                      },
+                    },
+                    bulletPreset: {
+                      type: "string",
+                      description: "The preset type of bullet to use",
+                      enum: [
+                        "BULLET_UNSPECIFIED",
+                        "BULLET_DISC_CIRCLE_SQUARE",
+                        "BULLET_DIAMONDX_ARROW3D_SQUARE",
+                        "BULLET_CHECKBOX",
+                        "BULLET_ARROW_DIAMOND_DISC",
+                        "BULLET_STAR_CIRCLE_SQUARE",
+                        "BULLET_ARROW3D_CIRCLE_SQUARE",
+                        "BULLET_LEFTTRIANGLE_DIAMOND_DISC",
+                        "BULLET_DIAMONDX_HOLLOWDIAMOND_SQUARE",
+                        "BULLET_DIAMOND_CIRCLE_SQUARE",
+                        "NUMBERED_DECIMAL_NESTED",
+                        "NUMBERED_DECIMAL_PARENTHESIS_NESTED",
+                        "NUMBERED_DECIMAL_PERIOD_NESTED",
+                        "NUMBERED_UPPERALPHA_PARENTHESIS_NESTED",
+                        "NUMBERED_UPPERROMAN_PARENTHESIS_NESTED",
+                        "NUMBERED_LOWERALPHA_PARENTHESIS_NESTED",
+                        "NUMBERED_LOWERROMAN_PARENTHESIS_NESTED",
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              required: ["deleteParagraphBullets"],
+              properties: {
+                deleteParagraphBullets: {
+                  type: "object",
+                  description: "Deletes bullets from paragraphs",
+                  required: ["range"],
+                  properties: {
+                    range: {
+                      type: "object",
+                      description: "The range of paragraphs to remove bullets from",
+                      required: ["startIndex", "endIndex"],
+                      properties: {
+                        startIndex: {
+                          type: "integer",
+                          description: "The zero-based starting index of the range",
+                        },
+                        endIndex: {
+                          type: "integer",
+                          description: "The zero-based ending index of the range (exclusive)",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              required: ["insertPageBreak"],
+              properties: {
+                insertPageBreak: {
+                  type: "object",
+                  description: "Inserts a page break",
+                  required: ["location"],
+                  properties: {
+                    location: {
+                      type: "object",
+                      description: "The location at which to insert the page break",
+                      required: ["index"],
+                      properties: {
+                        index: {
+                          type: "integer",
+                          description: "The zero-based index in the document",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              required: ["updateDocumentStyle"],
+              properties: {
+                updateDocumentStyle: {
+                  type: "object",
+                  description: "Updates the style of the document",
+                  required: ["documentStyle", "fields"],
+                  properties: {
+                    documentStyle: {
+                      type: "object",
+                      description: "The styles to set on the document",
+                      properties: {
+                        background: {
+                          type: "object",
+                          description: "The background of the document",
+                        },
+                        defaultHeaderId: {
+                          type: "string",
+                          description: "The ID of the default header",
+                        },
+                        defaultFooterId: {
+                          type: "string",
+                          description: "The ID of the default footer",
+                        },
+                        evenPageHeaderId: {
+                          type: "string",
+                          description: "The ID of the header used on even pages",
+                        },
+                        evenPageFooterId: {
+                          type: "string",
+                          description: "The ID of the footer used on even pages",
+                        },
+                        firstPageHeaderId: {
+                          type: "string",
+                          description: "The ID of the header used on the first page",
+                        },
+                        firstPageFooterId: {
+                          type: "string",
+                          description: "The ID of the footer used on the first page",
+                        },
+                        marginTop: {
+                          type: "object",
+                          description: "The top page margin",
+                        },
+                        marginBottom: {
+                          type: "object",
+                          description: "The bottom page margin",
+                        },
+                        marginRight: {
+                          type: "object",
+                          description: "The right page margin",
+                        },
+                        marginLeft: {
+                          type: "object",
+                          description: "The left page margin",
+                        },
+                        pageNumberStart: {
+                          type: "integer",
+                          description: "The page number from which to start counting",
+                        },
+                        pageSize: {
+                          type: "object",
+                          description: "The size of the pages in the document",
+                          properties: {
+                            width: {
+                              type: "object",
+                              description: "The width of the page",
+                            },
+                            height: {
+                              type: "object",
+                              description: "The height of the page",
+                            },
+                          },
+                        },
+                        useCustomHeaderFooterMargins: {
+                          type: "boolean",
+                          description: "Whether to use custom margins for headers and footers",
+                        },
+                      },
+                    },
+                    fields: {
+                      type: "string",
+                      description: "The fields that should be updated",
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              required: ["createHeader"],
+              properties: {
+                createHeader: {
+                  type: "object",
+                  description: "Creates a header",
+                  required: ["type"],
+                  properties: {
+                    type: {
+                      type: "string",
+                      description: "The type of header to create",
+                      enum: ["HEADER_TYPE_UNSPECIFIED", "DEFAULT", "FIRST_PAGE", "EVEN_PAGE"],
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              required: ["createFooter"],
+              properties: {
+                createFooter: {
+                  type: "object",
+                  description: "Creates a footer",
+                  required: ["type"],
+                  properties: {
+                    type: {
+                      type: "string",
+                      description: "The type of footer to create",
+                      enum: ["FOOTER_TYPE_UNSPECIFIED", "DEFAULT", "FIRST_PAGE", "EVEN_PAGE"],
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              required: ["updateTableCellStyle"],
+              properties: {
+                updateTableCellStyle: {
+                  type: "object",
+                  description: "Updates the style of table cells",
+                  required: ["tableCellStyle", "fields", "tableRange"],
+                  properties: {
+                    tableCellStyle: {
+                      type: "object",
+                      description: "The style to apply to the cells",
+                      properties: {
+                        backgroundColor: {
+                          type: "object",
+                          description: "The background color of the cells",
+                        },
+                        borderBottom: {
+                          type: "object",
+                          description: "The bottom border of the cells",
+                        },
+                        borderLeft: {
+                          type: "object",
+                          description: "The left border of the cells",
+                        },
+                        borderRight: {
+                          type: "object",
+                          description: "The right border of the cells",
+                        },
+                        borderTop: {
+                          type: "object",
+                          description: "The top border of the cells",
+                        },
+                        columnSpan: {
+                          type: "integer",
+                          description: "The number of columns that the cell spans",
+                        },
+                        contentAlignment: {
+                          type: "string",
+                          description: "The alignment of the content within the cells",
+                        },
+                        paddingBottom: {
+                          type: "object",
+                          description: "The bottom padding of the cells",
+                        },
+                        paddingLeft: {
+                          type: "object",
+                          description: "The left padding of the cells",
+                        },
+                        paddingRight: {
+                          type: "object",
+                          description: "The right padding of the cells",
+                        },
+                        paddingTop: {
+                          type: "object",
+                          description: "The top padding of the cells",
+                        },
+                        rowSpan: {
+                          type: "integer",
+                          description: "The number of rows that the cell spans",
+                        },
+                      },
+                    },
+                    fields: {
+                      type: "string",
+                      description: "The fields that should be updated",
+                    },
+                    tableRange: {
+                      type: "object",
+                      description: "The table range to apply the style to",
+                      required: ["tableCellLocation", "rowSpan", "columnSpan"],
+                      properties: {
+                        tableCellLocation: {
+                          type: "object",
+                          description: "The location of the table cell",
+                          required: ["tableStartLocation"],
+                          properties: {
+                            tableStartLocation: {
+                              type: "object",
+                              description: "The location where the table starts",
+                              required: ["index"],
+                              properties: {
+                                index: {
+                                  type: "integer",
+                                  description: "The zero-based index in the document",
+                                },
+                              },
+                            },
+                            rowIndex: {
+                              type: "integer",
+                              description: "The zero-based row index",
+                            },
+                            columnIndex: {
+                              type: "integer",
+                              description: "The zero-based column index",
+                            },
+                          },
+                        },
+                        rowSpan: {
+                          type: "integer",
+                          description: "The number of rows that the range should span",
+                        },
+                        columnSpan: {
+                          type: "integer",
+                          description: "The number of columns that the range should span",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              required: ["mergeTableCells"],
+              properties: {
+                mergeTableCells: {
+                  type: "object",
+                  description: "Merges table cells together",
+                  required: ["tableRange"],
+                  properties: {
+                    tableRange: {
+                      type: "object",
+                      description: "The table range to merge",
+                      required: ["tableCellLocation", "rowSpan", "columnSpan"],
+                      properties: {
+                        tableCellLocation: {
+                          type: "object",
+                          description: "The location of the table cell",
+                          required: ["tableStartLocation"],
+                          properties: {
+                            tableStartLocation: {
+                              type: "object",
+                              description: "The location where the table starts",
+                              required: ["index"],
+                              properties: {
+                                index: {
+                                  type: "integer",
+                                  description: "The zero-based index in the document",
+                                },
+                              },
+                            },
+                            rowIndex: {
+                              type: "integer",
+                              description: "The zero-based row index",
+                            },
+                            columnIndex: {
+                              type: "integer",
+                              description: "The zero-based column index",
+                            },
+                          },
+                        },
+                        rowSpan: {
+                          type: "integer",
+                          description: "The number of rows that the range should span",
+                        },
+                        columnSpan: {
+                          type: "integer",
+                          description: "The number of columns that the range should span",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              required: ["unmergeTableCells"],
+              properties: {
+                unmergeTableCells: {
+                  type: "object",
+                  description: "Unmerges merged table cells",
+                  required: ["tableRange"],
+                  properties: {
+                    tableRange: {
+                      type: "object",
+                      description: "The table range to unmerge",
+                      required: ["tableCellLocation", "rowSpan", "columnSpan"],
+                      properties: {
+                        tableCellLocation: {
+                          type: "object",
+                          description: "The location of the table cell",
+                          required: ["tableStartLocation"],
+                          properties: {
+                            tableStartLocation: {
+                              type: "object",
+                              description: "The location where the table starts",
+                              required: ["index"],
+                              properties: {
+                                index: {
+                                  type: "integer",
+                                  description: "The zero-based index in the document",
+                                },
+                              },
+                            },
+                            rowIndex: {
+                              type: "integer",
+                              description: "The zero-based row index",
+                            },
+                            columnIndex: {
+                              type: "integer",
+                              description: "The zero-based column index",
+                            },
+                          },
+                        },
+                        rowSpan: {
+                          type: "integer",
+                          description: "The number of rows that the range should span",
+                        },
+                        columnSpan: {
+                          type: "integer",
+                          description: "The number of columns that the range should span",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              required: ["createNamedRange"],
+              properties: {
+                createNamedRange: {
+                  type: "object",
+                  description: "Creates a named range",
+                  required: ["name", "range"],
+                  properties: {
+                    name: {
+                      type: "string",
+                      description: "The name of the range",
+                    },
+                    range: {
+                      type: "object",
+                      description: "The range to name",
+                      required: ["startIndex", "endIndex"],
+                      properties: {
+                        startIndex: {
+                          type: "integer",
+                          description: "The zero-based starting index of the range",
+                        },
+                        endIndex: {
+                          type: "integer",
+                          description: "The zero-based ending index of the range (exclusive)",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              required: ["deleteNamedRange"],
+              properties: {
+                deleteNamedRange: {
+                  type: "object",
+                  description: "Deletes a named range",
+                  required: ["name"],
+                  properties: {
+                    name: {
+                      type: "string",
+                      description: "The name of the range to delete",
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              required: ["replaceNamedRangeContent"],
+              properties: {
+                replaceNamedRangeContent: {
+                  type: "object",
+                  description: "Replaces the content of a named range",
+                  required: ["name", "text"],
+                  properties: {
+                    name: {
+                      type: "string",
+                      description: "The name of the range to replace",
+                    },
+                    text: {
+                      type: "string",
+                      description: "The text to replace with",
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              required: ["insertInlineImage"],
+              properties: {
+                insertInlineImage: {
+                  type: "object",
+                  description: "Inserts an inline image at a specific location",
+                  required: ["location", "uri", "objectSize"],
+                  properties: {
+                    location: {
+                      type: "object",
+                      description: "The location at which to insert the image",
+                      required: ["index"],
+                      properties: {
+                        index: {
+                          type: "integer",
+                          description: "The zero-based index in the document",
+                        },
+                      },
+                    },
+                    uri: {
+                      type: "string",
+                      description: "The image URI",
+                    },
+                    objectSize: {
+                      type: "object",
+                      description: "The size that the object should appear as in the document",
+                      properties: {
+                        width: {
+                          type: "object",
+                          description: "The width of the image",
+                        },
+                        height: {
+                          type: "object",
+                          description: "The height of the image",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              required: ["deleteHeader"],
+              properties: {
+                deleteHeader: {
+                  type: "object",
+                  description: "Deletes a header",
+                  required: ["headerId"],
+                  properties: {
+                    headerId: {
+                      type: "string",
+                      description: "The ID of the header to delete",
+                    },
+                  },
+                },
+              },
+            },
+            {
+              type: "object",
+              required: ["deleteFooter"],
+              properties: {
+                deleteFooter: {
+                  type: "object",
+                  description: "Deletes a footer",
+                  required: ["footerId"],
+                  properties: {
+                    footerId: {
+                      type: "string",
+                      description: "The ID of the footer to delete",
+                    },
+                  },
+                },
+              },
+            },
+          ],
+        },
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the document was updated successfully",
+      },
+      documentId: {
+        type: "string",
+        description: "The ID of the updated Google Doc",
+      },
+      documentUrl: {
+        type: "string",
+        description: "The URL to access the updated Google Doc",
+      },
+      error: {
+        type: "string",
+        description: "The error message if the update failed",
+      },
+    },
+  },
+  name: "updateDoc",
+  provider: "googleOauth",
+};
 export const finnhubSymbolLookupDefinition: ActionTemplate = {
   description: "Look up a stock symbol by name",
   scopes: [],

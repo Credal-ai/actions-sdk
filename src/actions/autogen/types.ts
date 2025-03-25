@@ -573,6 +573,563 @@ export type googleOauthCreateNewGoogleDocFunction = ActionFunction<
   googleOauthCreateNewGoogleDocOutputType
 >;
 
+export const googleOauthUpdateDocParamsSchema = z.object({
+  documentId: z.string().describe("The ID of the Google Doc to update"),
+  requests: z
+    .array(
+      z
+        .object({})
+        .catchall(z.any())
+        .and(
+          z.any().superRefine((x, ctx) => {
+            const schemas = [
+              z.object({
+                replaceAllText: z
+                  .object({
+                    replaceText: z.string().describe("The text that will replace the matched text"),
+                    containsText: z
+                      .object({
+                        text: z.string().describe("The text to search for in the document"),
+                        matchCase: z.boolean().describe("Whether the search should be case sensitive").optional(),
+                      })
+                      .describe("The text to search for"),
+                  })
+                  .describe("Replaces all instances of text matching a criteria"),
+              }),
+              z.object({
+                insertText: z
+                  .object({
+                    text: z.string().describe("The text to insert"),
+                    location: z
+                      .object({
+                        index: z
+                          .number()
+                          .int()
+                          .describe("The zero-based index in the document where to insert the text"),
+                      })
+                      .describe("The location where the text will be inserted"),
+                  })
+                  .describe("Inserts text at a specific location"),
+              }),
+              z.object({
+                updateTextStyle: z
+                  .object({
+                    textStyle: z
+                      .object({
+                        backgroundColor: z
+                          .object({})
+                          .catchall(z.any())
+                          .describe("The background color of the text")
+                          .optional(),
+                        baselineOffset: z
+                          .enum(["BASELINE_OFFSET_UNSPECIFIED", "NONE", "SUPERSCRIPT", "SUBSCRIPT"])
+                          .describe("The text's vertical offset from its normal position")
+                          .optional(),
+                        bold: z.boolean().describe("Whether the text is bold").optional(),
+                        fontSize: z
+                          .object({
+                            magnitude: z.number().describe("The font size in points").optional(),
+                            unit: z.string().describe("The units for the font size").optional(),
+                          })
+                          .describe("The size of the text's font")
+                          .optional(),
+                        foregroundColor: z
+                          .object({})
+                          .catchall(z.any())
+                          .describe("The foreground color of the text")
+                          .optional(),
+                        italic: z.boolean().describe("Whether the text is italicized").optional(),
+                        link: z
+                          .object({ url: z.string().describe("The URL of the link").optional() })
+                          .describe("The hyperlink destination of the text")
+                          .optional(),
+                        strikethrough: z.boolean().describe("Whether the text is struck through").optional(),
+                        underline: z.boolean().describe("Whether the text is underlined").optional(),
+                        weightedFontFamily: z
+                          .object({
+                            fontFamily: z.string().describe("The font family of the text").optional(),
+                            weight: z.number().int().describe("The weight of the font").optional(),
+                          })
+                          .describe("The font family and weight of the text")
+                          .optional(),
+                      })
+                      .describe("The styles to set on the text"),
+                    fields: z.string().describe("The fields that should be updated"),
+                    range: z
+                      .object({
+                        startIndex: z.number().int().describe("The zero-based starting index of the range"),
+                        endIndex: z.number().int().describe("The zero-based ending index of the range (exclusive)"),
+                      })
+                      .describe("The range of text to style")
+                      .optional(),
+                  })
+                  .describe("Updates the styling of text"),
+              }),
+              z.object({
+                deleteContentRange: z
+                  .object({
+                    range: z
+                      .object({
+                        startIndex: z.number().int().describe("The zero-based starting index of the range"),
+                        endIndex: z.number().int().describe("The zero-based ending index of the range (exclusive)"),
+                      })
+                      .describe("The range of content to delete"),
+                  })
+                  .describe("Deletes content between two structural locations"),
+              }),
+              z.object({
+                insertTableRow: z
+                  .object({
+                    tableCellLocation: z
+                      .object({
+                        tableStartLocation: z
+                          .object({ index: z.number().int().describe("The zero-based index in the document") })
+                          .describe("The location where the table starts"),
+                        rowIndex: z.number().int().describe("The zero-based row index").optional(),
+                        columnIndex: z.number().int().describe("The zero-based column index").optional(),
+                      })
+                      .describe("The location where the table row will be inserted"),
+                    insertBelow: z.boolean().describe("Whether to insert the row below the reference row"),
+                  })
+                  .describe("Inserts a new table row"),
+              }),
+              z.object({
+                insertTableColumn: z
+                  .object({
+                    tableCellLocation: z
+                      .object({
+                        tableStartLocation: z
+                          .object({ index: z.number().int().describe("The zero-based index in the document") })
+                          .describe("The location where the table starts"),
+                        rowIndex: z.number().int().describe("The zero-based row index").optional(),
+                        columnIndex: z.number().int().describe("The zero-based column index").optional(),
+                      })
+                      .describe("The location where the table column will be inserted"),
+                    insertRight: z
+                      .boolean()
+                      .describe("Whether to insert the column to the right of the reference column"),
+                  })
+                  .describe("Inserts a new table column"),
+              }),
+              z.object({
+                deleteTableRow: z
+                  .object({
+                    tableCellLocation: z
+                      .object({
+                        tableStartLocation: z
+                          .object({ index: z.number().int().describe("The zero-based index in the document") })
+                          .describe("The location where the table starts"),
+                        rowIndex: z.number().int().describe("The zero-based row index").optional(),
+                        columnIndex: z.number().int().describe("The zero-based column index").optional(),
+                      })
+                      .describe("The location of the row to delete"),
+                  })
+                  .describe("Deletes a table row"),
+              }),
+              z.object({
+                deleteTableColumn: z
+                  .object({
+                    tableCellLocation: z
+                      .object({
+                        tableStartLocation: z
+                          .object({ index: z.number().int().describe("The zero-based index in the document") })
+                          .describe("The location where the table starts"),
+                        rowIndex: z.number().int().describe("The zero-based row index").optional(),
+                        columnIndex: z.number().int().describe("The zero-based column index").optional(),
+                      })
+                      .describe("The location of the column to delete"),
+                  })
+                  .describe("Deletes a table column"),
+              }),
+              z.object({
+                updateParagraphStyle: z
+                  .object({
+                    range: z
+                      .object({
+                        startIndex: z.number().int().describe("The zero-based starting index of the range"),
+                        endIndex: z.number().int().describe("The zero-based ending index of the range (exclusive)"),
+                      })
+                      .describe("The range of paragraphs to update"),
+                    paragraphStyle: z
+                      .object({
+                        alignment: z
+                          .enum(["ALIGNMENT_UNSPECIFIED", "START", "CENTER", "END", "JUSTIFIED"])
+                          .describe("The text alignment")
+                          .optional(),
+                        direction: z
+                          .enum(["CONTENT_DIRECTION_UNSPECIFIED", "LEFT_TO_RIGHT", "RIGHT_TO_LEFT"])
+                          .describe("The text direction")
+                          .optional(),
+                        indentStart: z
+                          .object({
+                            magnitude: z.number().describe("The magnitude of indentation").optional(),
+                            unit: z.string().describe("The units of indentation").optional(),
+                          })
+                          .describe("The amount of indentation for the paragraph")
+                          .optional(),
+                        indentEnd: z
+                          .object({})
+                          .catchall(z.any())
+                          .describe("The amount of indentation from the end")
+                          .optional(),
+                        indentFirstLine: z
+                          .object({})
+                          .catchall(z.any())
+                          .describe("The amount of indentation for the first line")
+                          .optional(),
+                        keepLinesTogether: z
+                          .boolean()
+                          .describe("Whether to keep all lines on the same page")
+                          .optional(),
+                        keepWithNext: z.boolean().describe("Whether to keep with the next paragraph").optional(),
+                        lineSpacing: z.number().describe("The amount of space between lines").optional(),
+                        spaceAbove: z
+                          .object({})
+                          .catchall(z.any())
+                          .describe("The amount of space above the paragraph")
+                          .optional(),
+                        spaceBelow: z
+                          .object({})
+                          .catchall(z.any())
+                          .describe("The amount of space below the paragraph")
+                          .optional(),
+                        spacingMode: z
+                          .enum(["SPACING_MODE_UNSPECIFIED", "NEVER_COLLAPSE", "COLLAPSE_LISTS"])
+                          .describe("The spacing mode")
+                          .optional(),
+                        tabStops: z
+                          .array(
+                            z.object({
+                              offset: z.object({}).catchall(z.any()).describe("The offset of the tab stop").optional(),
+                              alignment: z.string().describe("The alignment of the tab stop").optional(),
+                            }),
+                          )
+                          .describe("The tab stops for the paragraph")
+                          .optional(),
+                      })
+                      .describe("The styles to set on the paragraphs"),
+                    fields: z.string().describe("The fields that should be updated"),
+                  })
+                  .describe("Updates the style of paragraphs"),
+              }),
+              z.object({
+                createParagraphBullets: z
+                  .object({
+                    range: z
+                      .object({
+                        startIndex: z.number().int().describe("The zero-based starting index of the range"),
+                        endIndex: z.number().int().describe("The zero-based ending index of the range (exclusive)"),
+                      })
+                      .describe("The range of paragraphs to bullet"),
+                    bulletPreset: z
+                      .enum([
+                        "BULLET_UNSPECIFIED",
+                        "BULLET_DISC_CIRCLE_SQUARE",
+                        "BULLET_DIAMONDX_ARROW3D_SQUARE",
+                        "BULLET_CHECKBOX",
+                        "BULLET_ARROW_DIAMOND_DISC",
+                        "BULLET_STAR_CIRCLE_SQUARE",
+                        "BULLET_ARROW3D_CIRCLE_SQUARE",
+                        "BULLET_LEFTTRIANGLE_DIAMOND_DISC",
+                        "BULLET_DIAMONDX_HOLLOWDIAMOND_SQUARE",
+                        "BULLET_DIAMOND_CIRCLE_SQUARE",
+                        "NUMBERED_DECIMAL_NESTED",
+                        "NUMBERED_DECIMAL_PARENTHESIS_NESTED",
+                        "NUMBERED_DECIMAL_PERIOD_NESTED",
+                        "NUMBERED_UPPERALPHA_PARENTHESIS_NESTED",
+                        "NUMBERED_UPPERROMAN_PARENTHESIS_NESTED",
+                        "NUMBERED_LOWERALPHA_PARENTHESIS_NESTED",
+                        "NUMBERED_LOWERROMAN_PARENTHESIS_NESTED",
+                      ])
+                      .describe("The preset type of bullet to use"),
+                  })
+                  .describe("Creates bullets for paragraphs"),
+              }),
+              z.object({
+                deleteParagraphBullets: z
+                  .object({
+                    range: z
+                      .object({
+                        startIndex: z.number().int().describe("The zero-based starting index of the range"),
+                        endIndex: z.number().int().describe("The zero-based ending index of the range (exclusive)"),
+                      })
+                      .describe("The range of paragraphs to remove bullets from"),
+                  })
+                  .describe("Deletes bullets from paragraphs"),
+              }),
+              z.object({
+                insertPageBreak: z
+                  .object({
+                    location: z
+                      .object({ index: z.number().int().describe("The zero-based index in the document") })
+                      .describe("The location at which to insert the page break"),
+                  })
+                  .describe("Inserts a page break"),
+              }),
+              z.object({
+                updateDocumentStyle: z
+                  .object({
+                    documentStyle: z
+                      .object({
+                        background: z
+                          .object({})
+                          .catchall(z.any())
+                          .describe("The background of the document")
+                          .optional(),
+                        defaultHeaderId: z.string().describe("The ID of the default header").optional(),
+                        defaultFooterId: z.string().describe("The ID of the default footer").optional(),
+                        evenPageHeaderId: z.string().describe("The ID of the header used on even pages").optional(),
+                        evenPageFooterId: z.string().describe("The ID of the footer used on even pages").optional(),
+                        firstPageHeaderId: z
+                          .string()
+                          .describe("The ID of the header used on the first page")
+                          .optional(),
+                        firstPageFooterId: z
+                          .string()
+                          .describe("The ID of the footer used on the first page")
+                          .optional(),
+                        marginTop: z.object({}).catchall(z.any()).describe("The top page margin").optional(),
+                        marginBottom: z.object({}).catchall(z.any()).describe("The bottom page margin").optional(),
+                        marginRight: z.object({}).catchall(z.any()).describe("The right page margin").optional(),
+                        marginLeft: z.object({}).catchall(z.any()).describe("The left page margin").optional(),
+                        pageNumberStart: z
+                          .number()
+                          .int()
+                          .describe("The page number from which to start counting")
+                          .optional(),
+                        pageSize: z
+                          .object({
+                            width: z.object({}).catchall(z.any()).describe("The width of the page").optional(),
+                            height: z.object({}).catchall(z.any()).describe("The height of the page").optional(),
+                          })
+                          .describe("The size of the pages in the document")
+                          .optional(),
+                        useCustomHeaderFooterMargins: z
+                          .boolean()
+                          .describe("Whether to use custom margins for headers and footers")
+                          .optional(),
+                      })
+                      .describe("The styles to set on the document"),
+                    fields: z.string().describe("The fields that should be updated"),
+                  })
+                  .describe("Updates the style of the document"),
+              }),
+              z.object({
+                createHeader: z
+                  .object({
+                    type: z
+                      .enum(["HEADER_TYPE_UNSPECIFIED", "DEFAULT", "FIRST_PAGE", "EVEN_PAGE"])
+                      .describe("The type of header to create"),
+                  })
+                  .describe("Creates a header"),
+              }),
+              z.object({
+                createFooter: z
+                  .object({
+                    type: z
+                      .enum(["FOOTER_TYPE_UNSPECIFIED", "DEFAULT", "FIRST_PAGE", "EVEN_PAGE"])
+                      .describe("The type of footer to create"),
+                  })
+                  .describe("Creates a footer"),
+              }),
+              z.object({
+                updateTableCellStyle: z
+                  .object({
+                    tableCellStyle: z
+                      .object({
+                        backgroundColor: z
+                          .object({})
+                          .catchall(z.any())
+                          .describe("The background color of the cells")
+                          .optional(),
+                        borderBottom: z
+                          .object({})
+                          .catchall(z.any())
+                          .describe("The bottom border of the cells")
+                          .optional(),
+                        borderLeft: z.object({}).catchall(z.any()).describe("The left border of the cells").optional(),
+                        borderRight: z
+                          .object({})
+                          .catchall(z.any())
+                          .describe("The right border of the cells")
+                          .optional(),
+                        borderTop: z.object({}).catchall(z.any()).describe("The top border of the cells").optional(),
+                        columnSpan: z.number().int().describe("The number of columns that the cell spans").optional(),
+                        contentAlignment: z
+                          .string()
+                          .describe("The alignment of the content within the cells")
+                          .optional(),
+                        paddingBottom: z
+                          .object({})
+                          .catchall(z.any())
+                          .describe("The bottom padding of the cells")
+                          .optional(),
+                        paddingLeft: z
+                          .object({})
+                          .catchall(z.any())
+                          .describe("The left padding of the cells")
+                          .optional(),
+                        paddingRight: z
+                          .object({})
+                          .catchall(z.any())
+                          .describe("The right padding of the cells")
+                          .optional(),
+                        paddingTop: z.object({}).catchall(z.any()).describe("The top padding of the cells").optional(),
+                        rowSpan: z.number().int().describe("The number of rows that the cell spans").optional(),
+                      })
+                      .describe("The style to apply to the cells"),
+                    fields: z.string().describe("The fields that should be updated"),
+                    tableRange: z
+                      .object({
+                        tableCellLocation: z
+                          .object({
+                            tableStartLocation: z
+                              .object({ index: z.number().int().describe("The zero-based index in the document") })
+                              .describe("The location where the table starts"),
+                            rowIndex: z.number().int().describe("The zero-based row index").optional(),
+                            columnIndex: z.number().int().describe("The zero-based column index").optional(),
+                          })
+                          .describe("The location of the table cell"),
+                        rowSpan: z.number().int().describe("The number of rows that the range should span"),
+                        columnSpan: z.number().int().describe("The number of columns that the range should span"),
+                      })
+                      .describe("The table range to apply the style to"),
+                  })
+                  .describe("Updates the style of table cells"),
+              }),
+              z.object({
+                mergeTableCells: z
+                  .object({
+                    tableRange: z
+                      .object({
+                        tableCellLocation: z
+                          .object({
+                            tableStartLocation: z
+                              .object({ index: z.number().int().describe("The zero-based index in the document") })
+                              .describe("The location where the table starts"),
+                            rowIndex: z.number().int().describe("The zero-based row index").optional(),
+                            columnIndex: z.number().int().describe("The zero-based column index").optional(),
+                          })
+                          .describe("The location of the table cell"),
+                        rowSpan: z.number().int().describe("The number of rows that the range should span"),
+                        columnSpan: z.number().int().describe("The number of columns that the range should span"),
+                      })
+                      .describe("The table range to merge"),
+                  })
+                  .describe("Merges table cells together"),
+              }),
+              z.object({
+                unmergeTableCells: z
+                  .object({
+                    tableRange: z
+                      .object({
+                        tableCellLocation: z
+                          .object({
+                            tableStartLocation: z
+                              .object({ index: z.number().int().describe("The zero-based index in the document") })
+                              .describe("The location where the table starts"),
+                            rowIndex: z.number().int().describe("The zero-based row index").optional(),
+                            columnIndex: z.number().int().describe("The zero-based column index").optional(),
+                          })
+                          .describe("The location of the table cell"),
+                        rowSpan: z.number().int().describe("The number of rows that the range should span"),
+                        columnSpan: z.number().int().describe("The number of columns that the range should span"),
+                      })
+                      .describe("The table range to unmerge"),
+                  })
+                  .describe("Unmerges merged table cells"),
+              }),
+              z.object({
+                createNamedRange: z
+                  .object({
+                    name: z.string().describe("The name of the range"),
+                    range: z
+                      .object({
+                        startIndex: z.number().int().describe("The zero-based starting index of the range"),
+                        endIndex: z.number().int().describe("The zero-based ending index of the range (exclusive)"),
+                      })
+                      .describe("The range to name"),
+                  })
+                  .describe("Creates a named range"),
+              }),
+              z.object({
+                deleteNamedRange: z
+                  .object({ name: z.string().describe("The name of the range to delete") })
+                  .describe("Deletes a named range"),
+              }),
+              z.object({
+                replaceNamedRangeContent: z
+                  .object({
+                    name: z.string().describe("The name of the range to replace"),
+                    text: z.string().describe("The text to replace with"),
+                  })
+                  .describe("Replaces the content of a named range"),
+              }),
+              z.object({
+                insertInlineImage: z
+                  .object({
+                    location: z
+                      .object({ index: z.number().int().describe("The zero-based index in the document") })
+                      .describe("The location at which to insert the image"),
+                    uri: z.string().describe("The image URI"),
+                    objectSize: z
+                      .object({
+                        width: z.object({}).catchall(z.any()).describe("The width of the image").optional(),
+                        height: z.object({}).catchall(z.any()).describe("The height of the image").optional(),
+                      })
+                      .describe("The size that the object should appear as in the document"),
+                  })
+                  .describe("Inserts an inline image at a specific location"),
+              }),
+              z.object({
+                deleteHeader: z
+                  .object({ headerId: z.string().describe("The ID of the header to delete") })
+                  .describe("Deletes a header"),
+              }),
+              z.object({
+                deleteFooter: z
+                  .object({ footerId: z.string().describe("The ID of the footer to delete") })
+                  .describe("Deletes a footer"),
+              }),
+            ];
+            const errors = schemas.reduce<z.ZodError[]>(
+              (errors, schema) => (result => (result.error ? [...errors, result.error] : errors))(schema.safeParse(x)),
+              [],
+            );
+            if (schemas.length - errors.length !== 1) {
+              ctx.addIssue({
+                path: ctx.path,
+                code: "invalid_union",
+                unionErrors: errors,
+                message: "Invalid input: Should pass single schema",
+              });
+            }
+          }),
+        )
+        .describe("A single update request that must contain exactly one of the following operations"),
+    )
+    .describe(
+      "Array of requests to apply to the document. See https://developers.google.com/workspace/docs/api/reference/rest/v1/documents/request#Request",
+    )
+    .optional(),
+});
+
+export type googleOauthUpdateDocParamsType = z.infer<typeof googleOauthUpdateDocParamsSchema>;
+
+export const googleOauthUpdateDocOutputSchema = z.object({
+  success: z.boolean().describe("Whether the document was updated successfully"),
+  documentId: z.string().describe("The ID of the updated Google Doc").optional(),
+  documentUrl: z.string().describe("The URL to access the updated Google Doc").optional(),
+  error: z.string().describe("The error message if the update failed").optional(),
+});
+
+export type googleOauthUpdateDocOutputType = z.infer<typeof googleOauthUpdateDocOutputSchema>;
+export type googleOauthUpdateDocFunction = ActionFunction<
+  googleOauthUpdateDocParamsType,
+  AuthParamsType,
+  googleOauthUpdateDocOutputType
+>;
+
 export const finnhubSymbolLookupParamsSchema = z.object({
   query: z.string().describe("The symbol or colloquial name of the company to look up"),
 });
