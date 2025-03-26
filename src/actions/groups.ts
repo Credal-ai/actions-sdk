@@ -30,6 +30,8 @@ import {
   salesforceCreateCaseDefinition,
   salesforceGenerateSalesReportDefinition,
   salesforceGetRecordDefinition,
+  microsoftMessageTeamsChatDefinition,
+  microsoftMessageTeamsChannelDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
@@ -120,5 +122,9 @@ export const ACTION_GROUPS: ActionGroups = {
       salesforceGenerateSalesReportDefinition,
       salesforceGetRecordDefinition,
     ],
+  },
+  MICROSOFT: {
+    description: "Actions for interacting with Microsoft 365",
+    actions: [microsoftMessageTeamsChatDefinition, microsoftMessageTeamsChannelDefinition],
   },
 };

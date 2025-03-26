@@ -1,6 +1,6 @@
 {
   "name": "@credal/actions",
-  "version": "0.1.32",
+  "version": "0.1.33",
   "description": "AI Actions by Credal AI",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -41,6 +41,7 @@
   "dependencies": {
     "@credal/sdk": "^0.0.21",
     "@mendable/firecrawl-js": "^1.19.0",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
     "@slack/web-api": "^7.8.0",
     "@types/snowflake-sdk": "^1.6.24",
     "ajv": "^8.17.1",

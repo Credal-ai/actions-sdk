@@ -1722,7 +1722,7 @@ export const ashbyCreateCandidateDefinition: ActionTemplate = {
       },
       alternateEmailAddresses: {
         type: "array",
-        description: "Array of alternate email addresses to add to the candidate's profile.",
+        description: "Array of alternate email address to add to the candidate's profile.",
         items: {
           type: "string",
         },
@@ -2041,4 +2041,84 @@ export const salesforceGetRecordDefinition: ActionTemplate = {
   },
   name: "getRecord",
   provider: "salesforce",
+};
+export const microsoftMessageTeamsChatDefinition: ActionTemplate = {
+  description: "Sends a message to a Microsoft Teams chat",
+  scopes: ["chat:write"],
+  parameters: {
+    type: "object",
+    required: ["chatId", "message"],
+    properties: {
+      chatId: {
+        type: "string",
+        description: "The chat ID of the Microsoft Teams chat",
+      },
+      message: {
+        type: "string",
+        description: "The text to be messaged to the chat",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the message was sent successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the message was not sent successfully",
+      },
+      messageId: {
+        type: "string",
+        description: "The ID of the message that was sent",
+      },
+    },
+  },
+  name: "messageTeamsChat",
+  provider: "microsoft",
+};
+export const microsoftMessageTeamsChannelDefinition: ActionTemplate = {
+  description: "Sends a message to a Microsoft Teams channel",
+  scopes: ["chat:write"],
+  parameters: {
+    type: "object",
+    required: ["teamId", "channelId", "message"],
+    properties: {
+      teamId: {
+        type: "string",
+        description: "The team ID of the Microsoft Teams channel",
+      },
+      channelId: {
+        type: "string",
+        description: "The channel ID of the Microsoft Teams channel",
+      },
+      message: {
+        type: "string",
+        description: "The text to be messaged to the channel",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the message was sent successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the message was not sent successfully",
+      },
+      messageId: {
+        type: "string",
+        description: "The ID of the message that was sent",
+      },
+    },
+  },
+  name: "messageTeamsChannel",
+  provider: "microsoft",
 };

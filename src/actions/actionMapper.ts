@@ -87,6 +87,10 @@ import {
   ashbyCreateCandidateOutputSchema,
   ashbyUpdateCandidateParamsSchema,
   ashbyUpdateCandidateOutputSchema,
+  microsoftMessageTeamsChatParamsSchema,
+  microsoftMessageTeamsChatOutputSchema,
+  microsoftMessageTeamsChannelParamsSchema,
+  microsoftMessageTeamsChannelOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -132,6 +136,8 @@ import searchCandidates from "./providers/ashby/searchCandidates";
 import createCandidate from "./providers/ashby/createCandidate";
 import updateCandidate from "./providers/ashby/updateCandidate";
 import addCandidateToProject from "./providers/ashby/addCandidateToProject";
+import sendMessageToTeamsChat from "./providers/microsoft/messageTeamsChat";
+import sendMessageToTeamsChannel from "./providers/microsoft/messageTeamsChannel";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -399,6 +405,18 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: getRecord,
       paramsSchema: salesforceGetRecordParamsSchema,
       outputSchema: salesforceGetRecordOutputSchema,
+    },
+  },
+  microsoft: {
+    messageTeamsChat: {
+      fn: sendMessageToTeamsChat,
+      paramsSchema: microsoftMessageTeamsChatParamsSchema,
+      outputSchema: microsoftMessageTeamsChatOutputSchema,
+    },
+    messageTeamsChannel: {
+      fn: sendMessageToTeamsChannel,
+      paramsSchema: microsoftMessageTeamsChannelParamsSchema,
+      outputSchema: microsoftMessageTeamsChannelOutputSchema,
     },
   },
 };
