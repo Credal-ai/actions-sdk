@@ -18,6 +18,7 @@ export const AuthParamsSchema = z.object({
   awsSecretAccessKey: z.string().optional(),
   clientId: z.string().optional(),
   clientSecret: z.string().optional(),
+  tenantId: z.string().optional(),
 });
 
 export type AuthParamsType = z.infer<typeof AuthParamsSchema>;
@@ -906,4 +907,24 @@ export type ashbyGetCandidateInfoFunction = ActionFunction<
   ashbyGetCandidateInfoParamsType,
   AuthParamsType,
   ashbyGetCandidateInfoOutputType
+>;
+
+export const microsoftMessageTeamsChatParamsSchema = z.object({
+  chatId: z.string().describe("The chat ID of the Microsoft Teams chat"),
+  message: z.string().describe("The text to be messaged to the chat"),
+});
+
+export type microsoftMessageTeamsChatParamsType = z.infer<typeof microsoftMessageTeamsChatParamsSchema>;
+
+export const microsoftMessageTeamsChatOutputSchema = z.object({
+  success: z.boolean().describe("Whether the message was sent successfully"),
+  error: z.string().describe("The error that occurred if the message was not sent successfully").optional(),
+  messageId: z.string().describe("The ID of the message that was sent").optional(),
+});
+
+export type microsoftMessageTeamsChatOutputType = z.infer<typeof microsoftMessageTeamsChatOutputSchema>;
+export type microsoftMessageTeamsChatFunction = ActionFunction<
+  microsoftMessageTeamsChatParamsType,
+  AuthParamsType,
+  microsoftMessageTeamsChatOutputType
 >;

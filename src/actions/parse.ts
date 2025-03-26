@@ -53,6 +53,7 @@ z.object({
     awsSecretAccessKey: z.string().optional(),
     clientId: z.string().optional(),
     clientSecret: z.string().optional(),
+    tenantId: z.string().optional(),
 })
 `;
 

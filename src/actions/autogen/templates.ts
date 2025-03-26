@@ -1579,7 +1579,7 @@ export const ashbyGetCandidateInfoDefinition: ActionTemplate = {
     properties: {
       candidateId: {
         type: "string",
-        description: "The ID of the candidate whose information is to be retrieved",
+        description: "The ID of the candidate to create a note for",
       },
     },
   },
@@ -1596,4 +1596,42 @@ export const ashbyGetCandidateInfoDefinition: ActionTemplate = {
   },
   name: "getCandidateInfo",
   provider: "ashby",
+};
+export const microsoftMessageTeamsChatDefinition: ActionTemplate = {
+  description: "Sends a message to a Microsoft Teams chat",
+  scopes: ["chat:write"],
+  parameters: {
+    type: "object",
+    required: ["chatId", "message"],
+    properties: {
+      chatId: {
+        type: "string",
+        description: "The chat ID of the Microsoft Teams chat",
+      },
+      message: {
+        type: "string",
+        description: "The text to be messaged to the chat",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the message was sent successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the message was not sent successfully",
+      },
+      messageId: {
+        type: "string",
+        description: "The ID of the message that was sent",
+      },
+    },
+  },
+  name: "messageTeamsChat",
+  provider: "microsoft",
 };

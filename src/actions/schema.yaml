@@ -144,8 +144,8 @@ actions:
             description: The content of the page in storage format (HTML)
   jira:
     commentJiraTicket:
-      description: Comments on a Jira ticket with specified content 
-      scopes: 
+      description: Comments on a Jira ticket with specified content
+      scopes:
         - write:comment:jira
       parameters:
         type: object
@@ -1139,3 +1139,31 @@ actions:
             type: object
             description: The candidate's information
             required: []
+  microsoft:
+    messageTeamsChat:
+      description: Sends a message to a Microsoft Teams chat
+      scopes:
+        - chat:write
+      parameters:
+        type: object
+        required: [chatId, message]
+        properties:
+          chatId:
+            type: string
+            description: The chat ID of the Microsoft Teams chat
+          message:
+            type: string
+            description: The text to be messaged to the chat
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the message was sent successfully
+          error:
+            type: string
+            description: The error that occurred if the message was not sent successfully
+          messageId:
+            type: string
+            description: The ID of the message that was sent
