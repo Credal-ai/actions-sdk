@@ -928,3 +928,24 @@ export type microsoftMessageTeamsChatFunction = ActionFunction<
   AuthParamsType,
   microsoftMessageTeamsChatOutputType
 >;
+
+export const microsoftMessageTeamsChannelParamsSchema = z.object({
+  teamId: z.string().describe("The team ID of the Microsoft Teams channel"),
+  channelId: z.string().describe("The channel ID of the Microsoft Teams channel"),
+  message: z.string().describe("The text to be messaged to the channel"),
+});
+
+export type microsoftMessageTeamsChannelParamsType = z.infer<typeof microsoftMessageTeamsChannelParamsSchema>;
+
+export const microsoftMessageTeamsChannelOutputSchema = z.object({
+  success: z.boolean().describe("Whether the message was sent successfully"),
+  error: z.string().describe("The error that occurred if the message was not sent successfully").optional(),
+  messageId: z.string().describe("The ID of the message that was sent").optional(),
+});
+
+export type microsoftMessageTeamsChannelOutputType = z.infer<typeof microsoftMessageTeamsChannelOutputSchema>;
+export type microsoftMessageTeamsChannelFunction = ActionFunction<
+  microsoftMessageTeamsChannelParamsType,
+  AuthParamsType,
+  microsoftMessageTeamsChannelOutputType
+>;

@@ -1635,3 +1635,45 @@ export const microsoftMessageTeamsChatDefinition: ActionTemplate = {
   name: "messageTeamsChat",
   provider: "microsoft",
 };
+export const microsoftMessageTeamsChannelDefinition: ActionTemplate = {
+  description: "Sends a message to a Microsoft Teams channel",
+  scopes: ["chat:write"],
+  parameters: {
+    type: "object",
+    required: ["teamId", "channelId", "message"],
+    properties: {
+      teamId: {
+        type: "string",
+        description: "The team ID of the Microsoft Teams channel",
+      },
+      channelId: {
+        type: "string",
+        description: "The channel ID of the Microsoft Teams channel",
+      },
+      message: {
+        type: "string",
+        description: "The text to be messaged to the channel",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the message was sent successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the message was not sent successfully",
+      },
+      messageId: {
+        type: "string",
+        description: "The ID of the message that was sent",
+      },
+    },
+  },
+  name: "messageTeamsChannel",
+  provider: "microsoft",
+};

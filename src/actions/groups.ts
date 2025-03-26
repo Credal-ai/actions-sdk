@@ -27,6 +27,7 @@ import {
   lookerEnableUserByEmailDefinition,
   googleOauthScheduleCalendarMeetingDefinition,
   microsoftMessageTeamsChatDefinition,
+  microsoftMessageTeamsChannelDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
@@ -111,6 +112,6 @@ export const ACTION_GROUPS: ActionGroups = {
   },
   MICROSOFT: {
     description: "Actions for interacting with Microsoft 365",
-    actions: [microsoftMessageTeamsChatDefinition],
+    actions: [microsoftMessageTeamsChatDefinition, microsoftMessageTeamsChannelDefinition],
   },
 };
