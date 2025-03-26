@@ -1130,7 +1130,7 @@ actions:
         properties:
           candidateId:
             type: string
-            description: The ID of the candidate to create a note for
+            description: The ID of the candidate to get information for
       output:
         type: object
         required: [candidate]
