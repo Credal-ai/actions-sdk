@@ -892,7 +892,7 @@ export type ashbyCreateNoteFunction = ActionFunction<
 >;
 
 export const ashbyGetCandidateInfoParamsSchema = z.object({
-  candidateId: z.string().describe("The ID of the candidate to create a note for"),
+  candidateId: z.string().describe("The ID of the candidate whose information is to be retrieved"),
 });
 
 export type ashbyGetCandidateInfoParamsType = z.infer<typeof ashbyGetCandidateInfoParamsSchema>;
@@ -906,4 +906,152 @@ export type ashbyGetCandidateInfoFunction = ActionFunction<
   ashbyGetCandidateInfoParamsType,
   AuthParamsType,
   ashbyGetCandidateInfoOutputType
+>;
+
+export const ashbyAddCandidateToProjectParamsSchema = z.object({
+  candidateId: z.string().describe("The ID of the candidate to add to the project"),
+  projectId: z.string().describe("The ID of the project to add the candidate to"),
+});
+
+export type ashbyAddCandidateToProjectParamsType = z.infer<typeof ashbyAddCandidateToProjectParamsSchema>;
+
+export const ashbyAddCandidateToProjectOutputSchema = z.void();
+
+export type ashbyAddCandidateToProjectOutputType = z.infer<typeof ashbyAddCandidateToProjectOutputSchema>;
+export type ashbyAddCandidateToProjectFunction = ActionFunction<
+  ashbyAddCandidateToProjectParamsType,
+  AuthParamsType,
+  ashbyAddCandidateToProjectOutputType
+>;
+
+export const ashbyListCandidatesParamsSchema = z.object({});
+
+export type ashbyListCandidatesParamsType = z.infer<typeof ashbyListCandidatesParamsSchema>;
+
+export const ashbyListCandidatesOutputSchema = z.object({
+  candidates: z.array(z.any()).describe("A list of candidates"),
+});
+
+export type ashbyListCandidatesOutputType = z.infer<typeof ashbyListCandidatesOutputSchema>;
+export type ashbyListCandidatesFunction = ActionFunction<
+  ashbyListCandidatesParamsType,
+  AuthParamsType,
+  ashbyListCandidatesOutputType
+>;
+
+export const ashbySearchCandidatesParamsSchema = z.object({
+  email: z.string().describe("The email address of the candidate to search for").optional(),
+  name: z.string().describe("The name of the candidate to search for").optional(),
+});
+
+export type ashbySearchCandidatesParamsType = z.infer<typeof ashbySearchCandidatesParamsSchema>;
+
+export const ashbySearchCandidatesOutputSchema = z.object({
+  candidates: z.array(z.any()).describe("A list of candidates"),
+});
+
+export type ashbySearchCandidatesOutputType = z.infer<typeof ashbySearchCandidatesOutputSchema>;
+export type ashbySearchCandidatesFunction = ActionFunction<
+  ashbySearchCandidatesParamsType,
+  AuthParamsType,
+  ashbySearchCandidatesOutputType
+>;
+
+export const ashbyListCandidateNotesParamsSchema = z.object({
+  candidateId: z.string().describe("The ID of the candidate"),
+});
+
+export type ashbyListCandidateNotesParamsType = z.infer<typeof ashbyListCandidateNotesParamsSchema>;
+
+export const ashbyListCandidateNotesOutputSchema = z.object({ notes: z.array(z.any()).describe("A list of notes") });
+
+export type ashbyListCandidateNotesOutputType = z.infer<typeof ashbyListCandidateNotesOutputSchema>;
+export type ashbyListCandidateNotesFunction = ActionFunction<
+  ashbyListCandidateNotesParamsType,
+  AuthParamsType,
+  ashbyListCandidateNotesOutputType
+>;
+
+export const ashbyCreateCandidateParamsSchema = z.object({
+  name: z.string().describe("The first and last name of the candidate to be created."),
+  email: z.string().describe("Primary, personal email of the candidate to be created.").optional(),
+  phoneNumber: z.string().describe("Primary, personal phone number of the candidate to be created.").optional(),
+  linkedInUrl: z.string().describe("Url to the candidate's LinkedIn profile. Must be a valid Url.").optional(),
+  githubUrl: z.string().describe("Url to the candidate's Github profile. Must be a valid Url.").optional(),
+  website: z.string().describe("Url of the candidate's website. Must be a valid Url.").optional(),
+  alternateEmailAddresses: z
+    .array(z.string())
+    .describe("Array of alternate email address to add to the candidate's profile.")
+    .optional(),
+  sourceId: z.string().describe("The source to set on the candidate being created.").optional(),
+  creditedToUserId: z.string().describe("The id of the user the candidate will be credited to.").optional(),
+  location: z
+    .object({
+      city: z.string().describe("The city of the candidate.").optional(),
+      region: z.string().describe("The region of the candidate.").optional(),
+      country: z.string().describe("The country of the candidate.").optional(),
+    })
+    .describe("The location of the candidate.")
+    .optional(),
+});
+
+export type ashbyCreateCandidateParamsType = z.infer<typeof ashbyCreateCandidateParamsSchema>;
+
+export const ashbyCreateCandidateOutputSchema = z.void();
+
+export type ashbyCreateCandidateOutputType = z.infer<typeof ashbyCreateCandidateOutputSchema>;
+export type ashbyCreateCandidateFunction = ActionFunction<
+  ashbyCreateCandidateParamsType,
+  AuthParamsType,
+  ashbyCreateCandidateOutputType
+>;
+
+export const ashbyUpdateCandidateParamsSchema = z.object({
+  candidateId: z.string().describe("The ID of the candidate to update"),
+  name: z.string().describe("The first and last name of the candidate to update.").optional(),
+  email: z.string().describe("Primary, personal email of the candidate to update.").optional(),
+  phoneNumber: z.string().describe("Primary, personal phone number of the candidate to update.").optional(),
+  linkedInUrl: z.string().describe("Url to the candidate's LinkedIn profile. Must be a valid Url.").optional(),
+  githubUrl: z.string().describe("Url to the candidate's Github profile. Must be a valid Url.").optional(),
+  websiteUrl: z.string().describe("Url of the candidate's website. Must be a valid Url.").optional(),
+  alternateEmail: z.string().describe("An alternate email address to add to the candidate's profile.").optional(),
+  socialLinks: z
+    .array(
+      z.object({
+        type: z.string().describe("The type of social link").optional(),
+        url: z.string().describe("The URL of the social link").optional(),
+      }),
+    )
+    .describe(
+      "An array of social links to set on the candidate. This value replaces existing socialLinks that have been set on the candidate.",
+    )
+    .optional(),
+  sourceId: z.string().describe("The id of source for this candidate.").optional(),
+  creditedToUserId: z.string().describe("The id of the user the candidate will be credited to.").optional(),
+  location: z
+    .object({
+      city: z.string().describe("The city of the candidate").optional(),
+      region: z.string().describe("The region of the candidate").optional(),
+      country: z.string().describe("The country of the candidate").optional(),
+    })
+    .describe("The location of the candidate.")
+    .optional(),
+  createdAt: z.string().describe("An ISO date string to set the candidate's createdAt timestamp.").optional(),
+  sendNotifications: z
+    .boolean()
+    .describe(
+      "Whether or not users who are subscribed to the candidate should be notified that candidate was updated. Default is true.",
+    )
+    .optional(),
+});
+
+export type ashbyUpdateCandidateParamsType = z.infer<typeof ashbyUpdateCandidateParamsSchema>;
+
+export const ashbyUpdateCandidateOutputSchema = z.void();
+
+export type ashbyUpdateCandidateOutputType = z.infer<typeof ashbyUpdateCandidateOutputSchema>;
+export type ashbyUpdateCandidateFunction = ActionFunction<
+  ashbyUpdateCandidateParamsType,
+  AuthParamsType,
+  ashbyUpdateCandidateOutputType
 >;

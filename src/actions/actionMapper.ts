@@ -69,6 +69,16 @@ import {
   ashbyCreateNoteOutputSchema,
   ashbyGetCandidateInfoParamsSchema,
   ashbyGetCandidateInfoOutputSchema,
+  ashbyListCandidatesParamsSchema,
+  ashbyListCandidatesOutputSchema,
+  ashbyListCandidateNotesParamsSchema,
+  ashbyListCandidateNotesOutputSchema,
+  ashbySearchCandidatesParamsSchema,
+  ashbySearchCandidatesOutputSchema,
+  ashbyCreateCandidateParamsSchema,
+  ashbyCreateCandidateOutputSchema,
+  ashbyUpdateCandidateParamsSchema,
+  ashbyUpdateCandidateOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -104,6 +114,12 @@ import enableUserByEmail from "./providers/looker/enableUserByEmail";
 import scheduleCalendarMeeting from "./providers/google-oauth/scheduleCalendarMeeting";
 import createNote from "./providers/ashby/createNote";
 import getCandidateInfo from "./providers/ashby/getCandidateInfo";
+import listCandidates from "./providers/ashby/listCandidates";
+import listCandidateNotes from "./providers/ashby/listCandidateNotes";
+import searchCandidates from "./providers/ashby/searchCandidates";
+import createCandidate from "./providers/ashby/createCandidate";
+import updateCandidate from "./providers/ashby/updateCandidate";
+import addCandidateToProject from "./providers/ashby/addCandidateToProject";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -319,6 +335,36 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: getCandidateInfo,
       paramsSchema: ashbyGetCandidateInfoParamsSchema,
       outputSchema: ashbyGetCandidateInfoOutputSchema,
+    },
+    listCandidates: {
+      fn: listCandidates,
+      paramsSchema: ashbyListCandidatesParamsSchema,
+      outputSchema: ashbyListCandidatesOutputSchema,
+    },
+    listCandidateNotes: {
+      fn: listCandidateNotes,
+      paramsSchema: ashbyListCandidateNotesParamsSchema,
+      outputSchema: ashbyListCandidateNotesOutputSchema,
+    },
+    searchCandidates: {
+      fn: searchCandidates,
+      paramsSchema: ashbySearchCandidatesParamsSchema,
+      outputSchema: ashbySearchCandidatesOutputSchema,
+    },
+    createCandidate: {
+      fn: createCandidate,
+      paramsSchema: ashbyCreateCandidateParamsSchema,
+      outputSchema: ashbyCreateCandidateOutputSchema,
+    },
+    updateCandidate: {
+      fn: updateCandidate,
+      paramsSchema: ashbyUpdateCandidateParamsSchema,
+      outputSchema: ashbyUpdateCandidateOutputSchema,
+    },
+    addCandidateToProject: {
+      fn: addCandidateToProject,
+      paramsSchema: ashbyUpdateCandidateParamsSchema,
+      outputSchema: ashbyUpdateCandidateOutputSchema,
     },
   },
 };

@@ -1,19 +1,19 @@
 import {
-  ashbyGetCandidateInfoFunction,
-  ashbyGetCandidateInfoOutputType,
-  ashbyGetCandidateInfoParamsType,
+  ashbyAddCandidateToProjectFunction,
+  ashbyAddCandidateToProjectOutputType,
+  ashbyAddCandidateToProjectParamsType,
   AuthParamsType,
 } from "../../autogen/types";
 
 import { axiosClient } from "../../util/axiosClient";
-const getCandidateInfo: ashbyGetCandidateInfoFunction = async ({
+const addCandidateToProject: ashbyAddCandidateToProjectFunction = async ({
   params,
   authParams,
 }: {
-  params: ashbyGetCandidateInfoParamsType;
+  params: ashbyAddCandidateToProjectParamsType;
   authParams: AuthParamsType;
-}): Promise<ashbyGetCandidateInfoOutputType> => {
-  const { candidateId } = params;
+}): Promise<ashbyAddCandidateToProjectOutputType> => {
+  const { candidateId, projectId } = params;
   const { authToken } = authParams;
 
   if (!authToken) {
@@ -21,9 +21,10 @@ const getCandidateInfo: ashbyGetCandidateInfoFunction = async ({
   }
 
   const response = await axiosClient.post(
-    `https://api.ashbyhq.com/candidate.info`,
+    `https://api.ashbyhq.com/candidate.addProject`,
     {
-      id: candidateId,
+      candidateId,
+      projectId,
     },
     {
       auth: {
@@ -35,10 +36,6 @@ const getCandidateInfo: ashbyGetCandidateInfoFunction = async ({
   if (!response.data.success) {
     throw new Error(response.data.errors.join("; "));
   }
-
-  return {
-    candidate: response.data,
-  };
 };
 
-export default getCandidateInfo;
+export default addCandidateToProject;

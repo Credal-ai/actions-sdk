@@ -20,7 +20,7 @@ const createNote: ashbyCreateNoteFunction = async ({
     throw new Error("Auth token is required");
   }
 
-  await axiosClient.post(
+  const response = await axiosClient.post(
     `https://api.ashbyhq.com/candidate.createNote`,
     {
       candidateId,
@@ -33,6 +33,9 @@ const createNote: ashbyCreateNoteFunction = async ({
       },
     },
   );
+  if (!response.data.success) {
+    throw new Error(response.data.errors.join("; "));
+  }
 };
 
 export default createNote;
