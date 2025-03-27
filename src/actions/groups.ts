@@ -28,6 +28,7 @@ import {
   googleOauthUpdateDocDefinition,
   googleOauthScheduleCalendarMeetingDefinition,
   googleOauthCreateSpreadsheetDefinition,
+  googleOauthUpdateSpreadsheetDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
@@ -56,6 +57,7 @@ export const ACTION_GROUPS: ActionGroups = {
       googleOauthCreateNewGoogleDocDefinition,
       googleOauthUpdateDocDefinition,
       googleOauthCreateSpreadsheetDefinition,
+      googleOauthUpdateSpreadsheetDefinition,
     ],
   },
   GOOGLE_CALENDAR: {

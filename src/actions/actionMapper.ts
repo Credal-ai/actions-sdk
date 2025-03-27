@@ -73,6 +73,8 @@ import {
   ashbyCreateNoteOutputSchema,
   ashbyGetCandidateInfoParamsSchema,
   ashbyGetCandidateInfoOutputSchema,
+  googleOauthUpdateSpreadsheetParamsSchema,
+  googleOauthUpdateSpreadsheetOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -110,6 +112,7 @@ import scheduleCalendarMeeting from "./providers/google-oauth/scheduleCalendarMe
 import createNote from "./providers/ashby/createNote";
 import getCandidateInfo from "./providers/ashby/getCandidateInfo";
 import createSpreadsheet from "./providers/google-oauth/createSpreadsheet";
+import updateSpreadsheet from "./providers/google-oauth/updateSpreadsheet";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -297,6 +300,11 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: createSpreadsheet,
       paramsSchema: googleOauthCreateSpreadsheetParamsSchema,
       outputSchema: googleOauthCreateSpreadsheetOutputSchema,
+    },
+    updateSpreadsheet: {
+      fn: updateSpreadsheet,
+      paramsSchema: googleOauthUpdateSpreadsheetParamsSchema,
+      outputSchema: googleOauthUpdateSpreadsheetOutputSchema,
     },
   },
   x: {
