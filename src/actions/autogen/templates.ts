@@ -59,6 +59,55 @@ export const slackListConversationsDefinition: ActionTemplate = {
   name: "listConversations",
   provider: "slack",
 };
+export const slackGetChannelMessagesDefinition: ActionTemplate = {
+  description: "Gets messages from a Slack channel",
+  scopes: ["channels:history"],
+  parameters: {
+    type: "object",
+    required: ["channelName", "oldest"],
+    properties: {
+      channelName: {
+        type: "string",
+        description: "Name of the channel to summarize",
+      },
+      oldest: {
+        type: "string",
+        description: "Only messages after this Unix timestamp will be included in results",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["messages"],
+    properties: {
+      messages: {
+        type: "array",
+        description: "The messages in the channel",
+        items: {
+          type: "object",
+          description: "A message in the channel",
+          required: ["user", "text", "ts"],
+          properties: {
+            user: {
+              type: "string",
+              description: "The user who sent the message",
+            },
+            text: {
+              type: "string",
+              description: "The text of the message",
+            },
+            ts: {
+              type: "string",
+              description: "The timestamp of the message",
+            },
+          },
+        },
+      },
+    },
+  },
+  name: "getChannelMessages",
+  provider: "slack",
+};
 export const mathAddDefinition: ActionTemplate = {
   description: "Adds two numbers together",
   scopes: [],
@@ -146,6 +195,90 @@ export const confluenceFetchPageContentDefinition: ActionTemplate = {
   },
   name: "fetchPageContent",
   provider: "confluence",
+};
+export const jiraCommentJiraTicketDefinition: ActionTemplate = {
+  description: "Comments on a Jira ticket with specified content",
+  scopes: ["write:comment:jira"],
+  parameters: {
+    type: "object",
+    required: ["projectKey", "issueId", "comment"],
+    properties: {
+      projectKey: {
+        type: "string",
+        description: "The key for the project you want to add it to",
+      },
+      issueId: {
+        type: "string",
+        description: "The issue ID associated with the ticket to be commented on",
+      },
+      comment: {
+        type: "string",
+        description: "The text to be commented on the ticket",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the comment was sent successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the comment was not sent successfully",
+      },
+      commentUrl: {
+        type: "string",
+        description: "The url to the created Jira comment",
+      },
+    },
+  },
+  name: "commentJiraTicket",
+  provider: "jira",
+};
+export const jiraAssignJiraTicketDefinition: ActionTemplate = {
+  description: "Assigns/Re-assignes a Jira ticket to a specified user",
+  scopes: ["write:jira-work", "read:jira-user"],
+  parameters: {
+    type: "object",
+    required: ["projectKey", "issueId", "assignee"],
+    properties: {
+      projectKey: {
+        type: "string",
+        description: "The key for the project you want to add it to",
+      },
+      assignee: {
+        type: "string",
+        description: "The assignee for the ticket, userID or email",
+      },
+      issueId: {
+        type: "string",
+        description: "The issue ID associated with the ticket to be assigned/re-assigned",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the ticket was successfully assigned/reassigned",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the ticket was not successfully assigned/reassigned",
+      },
+      ticketUrl: {
+        type: "string",
+        description: "The url to the newly assigned/reassigned Jira ticket",
+      },
+    },
+  },
+  name: "assignJiraTicket",
+  provider: "jira",
 };
 export const jiraCreateJiraTicketDefinition: ActionTemplate = {
   description: "Create a jira ticket with new content specified",
@@ -603,6 +736,120 @@ export const zendeskCreateZendeskTicketDefinition: ActionTemplate = {
   name: "createZendeskTicket",
   provider: "zendesk",
 };
+export const zendeskGetTicketDetailsDefinition: ActionTemplate = {
+  description: "Get details of a ticket in Zendesk",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["ticketId", "subdomain"],
+    properties: {
+      ticketId: {
+        type: "string",
+        description: "The ID of the ticket",
+      },
+      subdomain: {
+        type: "string",
+        description: "The subdomain of the Zendesk account",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["ticket"],
+    properties: {
+      ticket: {
+        type: "object",
+        description: "The details of the ticket",
+      },
+    },
+  },
+  name: "getTicketDetails",
+  provider: "zendesk",
+};
+export const zendeskUpdateTicketStatusDefinition: ActionTemplate = {
+  description: "Update the status of a ticket in Zendesk",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["ticketId", "subdomain", "status"],
+    properties: {
+      ticketId: {
+        type: "string",
+        description: "The ID of the ticket to update",
+      },
+      subdomain: {
+        type: "string",
+        description: "The subdomain of the Zendesk account",
+      },
+      status: {
+        type: "string",
+        description:
+          'The state of the ticket. If your account has activated custom ticket statuses, this is the ticket\'s status category. Allowed values are "new", "open", "pending", "hold", "solved", or "closed".',
+      },
+    },
+  },
+  name: "updateTicketStatus",
+  provider: "zendesk",
+};
+export const zendeskAddCommentToTicketDefinition: ActionTemplate = {
+  description: "Add a comment to a ticket in Zendesk",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["ticketId", "subdomain", "comment"],
+    properties: {
+      ticketId: {
+        type: "string",
+        description: "The ID of the ticket to update",
+      },
+      subdomain: {
+        type: "string",
+        description: "The subdomain of the Zendesk account",
+      },
+      comment: {
+        type: "object",
+        description: "The comment to add to the ticket",
+        required: ["body"],
+        properties: {
+          body: {
+            type: "string",
+            description: "The body of the comment",
+          },
+          public: {
+            type: "boolean",
+            description: "Whether the comment should be public",
+          },
+        },
+      },
+    },
+  },
+  name: "addCommentToTicket",
+  provider: "zendesk",
+};
+export const zendeskAssignTicketDefinition: ActionTemplate = {
+  description: "Assign a ticket in Zendesk to a specific user",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["ticketId", "subdomain", "assigneeEmail"],
+    properties: {
+      ticketId: {
+        type: "string",
+        description: "The ID of the ticket to update",
+      },
+      subdomain: {
+        type: "string",
+        description: "The subdomain of the Zendesk account",
+      },
+      assigneeEmail: {
+        type: "string",
+        description: "The email address of the agent to assign the ticket to",
+      },
+    },
+  },
+  name: "assignTicket",
+  provider: "zendesk",
+};
 export const linkedinCreateShareLinkedinPostUrlDefinition: ActionTemplate = {
   description: "Create a share linkedin post link",
   scopes: [],
@@ -808,8 +1055,13 @@ export const snowflakeRunSnowflakeQueryDefinition: ActionTemplate = {
   },
   output: {
     type: "object",
-    required: ["content", "rowCount"],
+    required: ["format", "content", "rowCount"],
     properties: {
+      format: {
+        type: "string",
+        description: "The format of the output",
+        enum: ["json", "csv"],
+      },
       content: {
         type: "string",
         description: "The content of the query result (json)",
@@ -2151,6 +2403,72 @@ export const googleOauthUpdateDocDefinition: ActionTemplate = {
   name: "updateDoc",
   provider: "googleOauth",
 };
+export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
+  description: "Schedule a meeting on google calendar using OAuth authentication",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["calendarId", "name", "start", "end"],
+    properties: {
+      calendarId: {
+        type: "string",
+        description: "The ID of the calendar to schedule the meeting on",
+      },
+      name: {
+        type: "string",
+        description: "The name of the meeting",
+      },
+      start: {
+        type: "string",
+        description: "The start time of the meeting",
+      },
+      end: {
+        type: "string",
+        description: "The end time of the meeting",
+      },
+      description: {
+        type: "string",
+        description: "The description of the meeting",
+      },
+      attendees: {
+        type: "array",
+        description: "The attendees of the meeting",
+        items: {
+          type: "string",
+          description: "The email of the attendee",
+        },
+      },
+      useGoogleMeet: {
+        type: "boolean",
+        description: "Whether to use Google Meet for the meeting",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the meeting was scheduled successfully",
+      },
+      eventId: {
+        type: "string",
+        description: "The ID of the event that was scheduled",
+      },
+      eventUrl: {
+        type: "string",
+        description: "The URL to access the scheduled event",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the meeting was not scheduled successfully",
+      },
+    },
+  },
+  name: "scheduleCalendarMeeting",
+  provider: "googleOauth",
+};
 export const finnhubSymbolLookupDefinition: ActionTemplate = {
   description: "Look up a stock symbol by name",
   scopes: [],
@@ -2343,4 +2661,51 @@ export const lookerEnableUserByEmailDefinition: ActionTemplate = {
   },
   name: "enableUserByEmail",
   provider: "looker",
+};
+export const ashbyCreateNoteDefinition: ActionTemplate = {
+  description: "Creates a note on a candidate",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["candidateId", "note"],
+    properties: {
+      candidateId: {
+        type: "string",
+        description: "The ID of the candidate to create a note for",
+      },
+      note: {
+        type: "string",
+        description: "The note content",
+      },
+    },
+  },
+  name: "createNote",
+  provider: "ashby",
+};
+export const ashbyGetCandidateInfoDefinition: ActionTemplate = {
+  description: "Gets a candidate's information",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["candidateId"],
+    properties: {
+      candidateId: {
+        type: "string",
+        description: "The ID of the candidate to create a note for",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["candidate"],
+    properties: {
+      candidate: {
+        type: "object",
+        description: "The candidate's information",
+        required: [],
+      },
+    },
+  },
+  name: "getCandidateInfo",
+  provider: "ashby",
 };

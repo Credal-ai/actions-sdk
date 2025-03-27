@@ -1,14 +1,10 @@
 import assert from "node:assert";
-import { runAction } from "../src/app";
+import { runAction } from "../../src/app";
+import { jiraConfig } from "./utils";
 
 async function runTest() {
 
-    // For OAuth Credentials with Jira: https://developer.atlassian.com/cloud/jira/platform/oauth-2-3lo-apps/
-    const authToken =  "insert-your-auth-token-here"
-    const cloudId = "insert-your-cloud-id-here"
-    const baseUrl = "insert-your-base-url-here"
-    const projectKey = "insert-your-project-key-here";
-
+    const { authToken, cloudId, baseUrl, projectKey } = jiraConfig;
 
     const result = await runAction(
         "createJiraTicket",

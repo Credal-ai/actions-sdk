@@ -10,7 +10,7 @@ import {
  * Updates an existing Google Docs document using OAuth authentication with batch requests
  * https://developers.google.com/workspace/docs/api/reference/rest/v1/documents/batchUpdate
  */
-export const updateDoc: googleOauthUpdateDocFunction = async ({
+const updateDoc: googleOauthUpdateDocFunction = async ({
   params,
   authParams,
 }: {
@@ -72,3 +72,5 @@ export const updateDoc: googleOauthUpdateDocFunction = async ({
     };
   }
 };
+
+export default updateDoc;

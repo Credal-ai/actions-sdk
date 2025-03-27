@@ -94,6 +94,7 @@ const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
     return {
       rowCount: resultsLength,
       content: formattedData,
+      format: outputFormat,
     };
   } catch (error: unknown) {
     connection.destroy(err => {

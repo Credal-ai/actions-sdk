@@ -1,4 +1,3 @@
-import { AxiosError } from "axios";
 import {
   AuthParamsType,
   jiraCreateJiraTicketFunction,
@@ -6,30 +5,7 @@ import {
   jiraCreateJiraTicketParamsType,
 } from "../../autogen/types";
 import { axiosClient } from "../../util/axiosClient";
-
-async function getUserAccountId(email: string, apiUrl: string, authToken: string): Promise<string | null> {
-  try {
-    const response = await axiosClient.get<Array<{ accountId: string; displayName: string; emailAddress: string }>>(
-      `${apiUrl}/user/search?query=${encodeURIComponent(email)}`,
-      {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          Accept: "application/json",
-        },
-      },
-    );
-
-    if (response.data && response.data.length > 0) {
-      return response.data[0].accountId;
-    }
-    return null;
-  } catch (error) {
-    // Try to complete request without assignee/reporter.
-    const axiosError = error as AxiosError;
-    console.error("Error finding user:", axiosError.message);
-    return null;
-  }
-}
+import { getUserAccountIdFromEmail } from "./utils";
 
 const createJiraTicket: jiraCreateJiraTicketFunction = async ({
   params,
@@ -49,13 +25,13 @@ const createJiraTicket: jiraCreateJiraTicketFunction = async ({
   // If assignee is an email, look up the account ID
   let reporterId: string | null = null;
   if (params.reporter && typeof params.reporter === "string" && params.reporter.includes("@") && authToken) {
-    reporterId = await getUserAccountId(params.reporter, apiUrl, authToken);
+    reporterId = await getUserAccountIdFromEmail(params.reporter, apiUrl, authToken);
   }
 
   // If assignee is an email, look up the account ID
   let assigneeId: string | null = null;
   if (params.assignee && typeof params.assignee === "string" && params.assignee.includes("@") && authToken) {
-    assigneeId = await getUserAccountId(params.assignee, apiUrl, authToken);
+    assigneeId = await getUserAccountIdFromEmail(params.assignee, apiUrl, authToken);
   }
 
   const description = {

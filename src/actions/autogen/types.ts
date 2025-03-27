@@ -64,6 +64,34 @@ export type slackListConversationsFunction = ActionFunction<
   slackListConversationsOutputType
 >;
 
+export const slackGetChannelMessagesParamsSchema = z.object({
+  channelName: z.string().describe("Name of the channel to summarize"),
+  oldest: z.string().describe("Only messages after this Unix timestamp will be included in results"),
+});
+
+export type slackGetChannelMessagesParamsType = z.infer<typeof slackGetChannelMessagesParamsSchema>;
+
+export const slackGetChannelMessagesOutputSchema = z.object({
+  messages: z
+    .array(
+      z
+        .object({
+          user: z.string().describe("The user who sent the message"),
+          text: z.string().describe("The text of the message"),
+          ts: z.string().describe("The timestamp of the message"),
+        })
+        .describe("A message in the channel"),
+    )
+    .describe("The messages in the channel"),
+});
+
+export type slackGetChannelMessagesOutputType = z.infer<typeof slackGetChannelMessagesOutputSchema>;
+export type slackGetChannelMessagesFunction = ActionFunction<
+  slackGetChannelMessagesParamsType,
+  AuthParamsType,
+  slackGetChannelMessagesOutputType
+>;
+
 export const mathAddParamsSchema = z.object({
   a: z.number().describe("The first number to add"),
   b: z.number().describe("The second number to add"),
@@ -110,6 +138,51 @@ export type confluenceFetchPageContentFunction = ActionFunction<
   confluenceFetchPageContentParamsType,
   AuthParamsType,
   confluenceFetchPageContentOutputType
+>;
+
+export const jiraCommentJiraTicketParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project you want to add it to"),
+  issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
+  comment: z.string().describe("The text to be commented on the ticket"),
+});
+
+export type jiraCommentJiraTicketParamsType = z.infer<typeof jiraCommentJiraTicketParamsSchema>;
+
+export const jiraCommentJiraTicketOutputSchema = z.object({
+  success: z.boolean().describe("Whether the comment was sent successfully"),
+  error: z.string().describe("The error that occurred if the comment was not sent successfully").optional(),
+  commentUrl: z.string().describe("The url to the created Jira comment").optional(),
+});
+
+export type jiraCommentJiraTicketOutputType = z.infer<typeof jiraCommentJiraTicketOutputSchema>;
+export type jiraCommentJiraTicketFunction = ActionFunction<
+  jiraCommentJiraTicketParamsType,
+  AuthParamsType,
+  jiraCommentJiraTicketOutputType
+>;
+
+export const jiraAssignJiraTicketParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project you want to add it to"),
+  assignee: z.string().describe("The assignee for the ticket, userID or email"),
+  issueId: z.string().describe("The issue ID associated with the ticket to be assigned/re-assigned"),
+});
+
+export type jiraAssignJiraTicketParamsType = z.infer<typeof jiraAssignJiraTicketParamsSchema>;
+
+export const jiraAssignJiraTicketOutputSchema = z.object({
+  success: z.boolean().describe("Whether the ticket was successfully assigned/reassigned"),
+  error: z
+    .string()
+    .describe("The error that occurred if the ticket was not successfully assigned/reassigned")
+    .optional(),
+  ticketUrl: z.string().describe("The url to the newly assigned/reassigned Jira ticket").optional(),
+});
+
+export type jiraAssignJiraTicketOutputType = z.infer<typeof jiraAssignJiraTicketOutputSchema>;
+export type jiraAssignJiraTicketFunction = ActionFunction<
+  jiraAssignJiraTicketParamsType,
+  AuthParamsType,
+  jiraAssignJiraTicketOutputType
 >;
 
 export const jiraCreateJiraTicketParamsSchema = z.object({
@@ -332,6 +405,84 @@ export type zendeskCreateZendeskTicketFunction = ActionFunction<
   zendeskCreateZendeskTicketOutputType
 >;
 
+export const zendeskGetTicketDetailsParamsSchema = z.object({
+  ticketId: z.string().describe("The ID of the ticket"),
+  subdomain: z.string().describe("The subdomain of the Zendesk account"),
+});
+
+export type zendeskGetTicketDetailsParamsType = z.infer<typeof zendeskGetTicketDetailsParamsSchema>;
+
+export const zendeskGetTicketDetailsOutputSchema = z.object({
+  ticket: z.object({}).catchall(z.any()).describe("The details of the ticket"),
+});
+
+export type zendeskGetTicketDetailsOutputType = z.infer<typeof zendeskGetTicketDetailsOutputSchema>;
+export type zendeskGetTicketDetailsFunction = ActionFunction<
+  zendeskGetTicketDetailsParamsType,
+  AuthParamsType,
+  zendeskGetTicketDetailsOutputType
+>;
+
+export const zendeskUpdateTicketStatusParamsSchema = z.object({
+  ticketId: z.string().describe("The ID of the ticket to update"),
+  subdomain: z.string().describe("The subdomain of the Zendesk account"),
+  status: z
+    .string()
+    .describe(
+      'The state of the ticket. If your account has activated custom ticket statuses, this is the ticket\'s status category. Allowed values are "new", "open", "pending", "hold", "solved", or "closed".',
+    ),
+});
+
+export type zendeskUpdateTicketStatusParamsType = z.infer<typeof zendeskUpdateTicketStatusParamsSchema>;
+
+export const zendeskUpdateTicketStatusOutputSchema = z.void();
+
+export type zendeskUpdateTicketStatusOutputType = z.infer<typeof zendeskUpdateTicketStatusOutputSchema>;
+export type zendeskUpdateTicketStatusFunction = ActionFunction<
+  zendeskUpdateTicketStatusParamsType,
+  AuthParamsType,
+  zendeskUpdateTicketStatusOutputType
+>;
+
+export const zendeskAddCommentToTicketParamsSchema = z.object({
+  ticketId: z.string().describe("The ID of the ticket to update"),
+  subdomain: z.string().describe("The subdomain of the Zendesk account"),
+  comment: z
+    .object({
+      body: z.string().describe("The body of the comment"),
+      public: z.boolean().describe("Whether the comment should be public").optional(),
+    })
+    .describe("The comment to add to the ticket"),
+});
+
+export type zendeskAddCommentToTicketParamsType = z.infer<typeof zendeskAddCommentToTicketParamsSchema>;
+
+export const zendeskAddCommentToTicketOutputSchema = z.void();
+
+export type zendeskAddCommentToTicketOutputType = z.infer<typeof zendeskAddCommentToTicketOutputSchema>;
+export type zendeskAddCommentToTicketFunction = ActionFunction<
+  zendeskAddCommentToTicketParamsType,
+  AuthParamsType,
+  zendeskAddCommentToTicketOutputType
+>;
+
+export const zendeskAssignTicketParamsSchema = z.object({
+  ticketId: z.string().describe("The ID of the ticket to update"),
+  subdomain: z.string().describe("The subdomain of the Zendesk account"),
+  assigneeEmail: z.string().describe("The email address of the agent to assign the ticket to"),
+});
+
+export type zendeskAssignTicketParamsType = z.infer<typeof zendeskAssignTicketParamsSchema>;
+
+export const zendeskAssignTicketOutputSchema = z.void();
+
+export type zendeskAssignTicketOutputType = z.infer<typeof zendeskAssignTicketOutputSchema>;
+export type zendeskAssignTicketFunction = ActionFunction<
+  zendeskAssignTicketParamsType,
+  AuthParamsType,
+  zendeskAssignTicketOutputType
+>;
+
 export const linkedinCreateShareLinkedinPostUrlParamsSchema = z.object({
   text: z.string().describe("The text for the linkedin post").optional(),
   url: z.string().describe("The url for the linkedin post").optional(),
@@ -434,6 +585,7 @@ export const snowflakeRunSnowflakeQueryParamsSchema = z.object({
 export type snowflakeRunSnowflakeQueryParamsType = z.infer<typeof snowflakeRunSnowflakeQueryParamsSchema>;
 
 export const snowflakeRunSnowflakeQueryOutputSchema = z.object({
+  format: z.enum(["json", "csv"]).describe("The format of the output"),
   content: z.string().describe("The content of the query result (json)"),
   rowCount: z.number().describe("The number of rows returned by the query"),
 });
@@ -1130,6 +1282,39 @@ export type googleOauthUpdateDocFunction = ActionFunction<
   googleOauthUpdateDocOutputType
 >;
 
+export const googleOauthScheduleCalendarMeetingParamsSchema = z.object({
+  calendarId: z.string().describe("The ID of the calendar to schedule the meeting on"),
+  name: z.string().describe("The name of the meeting"),
+  start: z.string().describe("The start time of the meeting"),
+  end: z.string().describe("The end time of the meeting"),
+  description: z.string().describe("The description of the meeting").optional(),
+  attendees: z
+    .array(z.string().describe("The email of the attendee"))
+    .describe("The attendees of the meeting")
+    .optional(),
+  useGoogleMeet: z.boolean().describe("Whether to use Google Meet for the meeting").optional(),
+});
+
+export type googleOauthScheduleCalendarMeetingParamsType = z.infer<
+  typeof googleOauthScheduleCalendarMeetingParamsSchema
+>;
+
+export const googleOauthScheduleCalendarMeetingOutputSchema = z.object({
+  success: z.boolean().describe("Whether the meeting was scheduled successfully"),
+  eventId: z.string().describe("The ID of the event that was scheduled").optional(),
+  eventUrl: z.string().describe("The URL to access the scheduled event").optional(),
+  error: z.string().describe("The error that occurred if the meeting was not scheduled successfully").optional(),
+});
+
+export type googleOauthScheduleCalendarMeetingOutputType = z.infer<
+  typeof googleOauthScheduleCalendarMeetingOutputSchema
+>;
+export type googleOauthScheduleCalendarMeetingFunction = ActionFunction<
+  googleOauthScheduleCalendarMeetingParamsType,
+  AuthParamsType,
+  googleOauthScheduleCalendarMeetingOutputType
+>;
+
 export const finnhubSymbolLookupParamsSchema = z.object({
   query: z.string().describe("The symbol or colloquial name of the company to look up"),
 });
@@ -1245,4 +1430,37 @@ export type lookerEnableUserByEmailFunction = ActionFunction<
   lookerEnableUserByEmailParamsType,
   AuthParamsType,
   lookerEnableUserByEmailOutputType
+>;
+
+export const ashbyCreateNoteParamsSchema = z.object({
+  candidateId: z.string().describe("The ID of the candidate to create a note for"),
+  note: z.string().describe("The note content"),
+});
+
+export type ashbyCreateNoteParamsType = z.infer<typeof ashbyCreateNoteParamsSchema>;
+
+export const ashbyCreateNoteOutputSchema = z.void();
+
+export type ashbyCreateNoteOutputType = z.infer<typeof ashbyCreateNoteOutputSchema>;
+export type ashbyCreateNoteFunction = ActionFunction<
+  ashbyCreateNoteParamsType,
+  AuthParamsType,
+  ashbyCreateNoteOutputType
+>;
+
+export const ashbyGetCandidateInfoParamsSchema = z.object({
+  candidateId: z.string().describe("The ID of the candidate to create a note for"),
+});
+
+export type ashbyGetCandidateInfoParamsType = z.infer<typeof ashbyGetCandidateInfoParamsSchema>;
+
+export const ashbyGetCandidateInfoOutputSchema = z.object({
+  candidate: z.object({}).catchall(z.any()).describe("The candidate's information"),
+});
+
+export type ashbyGetCandidateInfoOutputType = z.infer<typeof ashbyGetCandidateInfoOutputSchema>;
+export type ashbyGetCandidateInfoFunction = ActionFunction<
+  ashbyGetCandidateInfoParamsType,
+  AuthParamsType,
+  ashbyGetCandidateInfoOutputType
 >;
