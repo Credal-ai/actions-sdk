@@ -140,27 +140,6 @@ export type confluenceFetchPageContentFunction = ActionFunction<
   confluenceFetchPageContentOutputType
 >;
 
-export const jiraCommentJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
-  issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
-  comment: z.string().describe("The text to be commented on the ticket"),
-});
-
-export type jiraCommentJiraTicketParamsType = z.infer<typeof jiraCommentJiraTicketParamsSchema>;
-
-export const jiraCommentJiraTicketOutputSchema = z.object({
-  success: z.boolean().describe("Whether the comment was sent successfully"),
-  error: z.string().describe("The error that occurred if the comment was not sent successfully").optional(),
-  commentUrl: z.string().describe("The url to the created Jira comment").optional(),
-});
-
-export type jiraCommentJiraTicketOutputType = z.infer<typeof jiraCommentJiraTicketOutputSchema>;
-export type jiraCommentJiraTicketFunction = ActionFunction<
-  jiraCommentJiraTicketParamsType,
-  AuthParamsType,
-  jiraCommentJiraTicketOutputType
->;
-
 export const jiraAssignJiraTicketParamsSchema = z.object({
   projectKey: z.string().describe("The key for the project you want to add it to"),
   assignee: z.string().describe("The assignee for the ticket, userID or email"),
@@ -183,6 +162,27 @@ export type jiraAssignJiraTicketFunction = ActionFunction<
   jiraAssignJiraTicketParamsType,
   AuthParamsType,
   jiraAssignJiraTicketOutputType
+>;
+
+export const jiraCommentJiraTicketParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project"),
+  issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
+  comment: z.string().describe("The text to be commented on the ticket"),
+});
+
+export type jiraCommentJiraTicketParamsType = z.infer<typeof jiraCommentJiraTicketParamsSchema>;
+
+export const jiraCommentJiraTicketOutputSchema = z.object({
+  success: z.boolean().describe("Whether the comment was sent successfully"),
+  error: z.string().describe("The error that occurred if the comment was not sent successfully").optional(),
+  commentUrl: z.string().describe("The url to the created Jira comment").optional(),
+});
+
+export type jiraCommentJiraTicketOutputType = z.infer<typeof jiraCommentJiraTicketOutputSchema>;
+export type jiraCommentJiraTicketFunction = ActionFunction<
+  jiraCommentJiraTicketParamsType,
+  AuthParamsType,
+  jiraCommentJiraTicketOutputType
 >;
 
 export const jiraCreateJiraTicketParamsSchema = z.object({
@@ -210,6 +210,93 @@ export type jiraCreateJiraTicketFunction = ActionFunction<
   jiraCreateJiraTicketParamsType,
   AuthParamsType,
   jiraCreateJiraTicketOutputType
+>;
+
+export const jiraGetJiraTicketDetailsParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project"),
+  issueId: z.string().describe("The ID of the ticket"),
+});
+
+export type jiraGetJiraTicketDetailsParamsType = z.infer<typeof jiraGetJiraTicketDetailsParamsSchema>;
+
+export const jiraGetJiraTicketDetailsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the status was updated successfully"),
+  error: z.string().describe("The error that occurred if the retrieval was unsuccessful").optional(),
+  data: z.object({}).catchall(z.any()).describe("The data of the Jira ticket").optional(),
+});
+
+export type jiraGetJiraTicketDetailsOutputType = z.infer<typeof jiraGetJiraTicketDetailsOutputSchema>;
+export type jiraGetJiraTicketDetailsFunction = ActionFunction<
+  jiraGetJiraTicketDetailsParamsType,
+  AuthParamsType,
+  jiraGetJiraTicketDetailsOutputType
+>;
+
+export const jiraGetJiraTicketHistoryParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project"),
+  issueId: z.string().describe("The ID of the ticket"),
+});
+
+export type jiraGetJiraTicketHistoryParamsType = z.infer<typeof jiraGetJiraTicketHistoryParamsSchema>;
+
+export const jiraGetJiraTicketHistoryOutputSchema = z.object({
+  success: z.boolean().describe("Whether the status was updated successfully"),
+  error: z.string().describe("The error that occurred if the retrieval was unsuccessful").optional(),
+  history: z.array(z.any()).describe("The history data of the Jira ticket").optional(),
+});
+
+export type jiraGetJiraTicketHistoryOutputType = z.infer<typeof jiraGetJiraTicketHistoryOutputSchema>;
+export type jiraGetJiraTicketHistoryFunction = ActionFunction<
+  jiraGetJiraTicketHistoryParamsType,
+  AuthParamsType,
+  jiraGetJiraTicketHistoryOutputType
+>;
+
+export const jiraUpdateJiraTicketDetailsParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project you want to add it to"),
+  issueId: z.string().describe("The issue ID associated with the ticket to be updated"),
+  summary: z.string().describe("The updated summary").optional(),
+  description: z.string().describe("The updated description").optional(),
+  issueType: z.string().describe("The updated issue type").optional(),
+  customFields: z
+    .object({})
+    .catchall(z.any())
+    .describe("Custom fields to be set on the update ticket request")
+    .optional(),
+});
+
+export type jiraUpdateJiraTicketDetailsParamsType = z.infer<typeof jiraUpdateJiraTicketDetailsParamsSchema>;
+
+export const jiraUpdateJiraTicketDetailsOutputSchema = z.object({
+  ticketUrl: z.string().describe("The url to the Jira ticket"),
+});
+
+export type jiraUpdateJiraTicketDetailsOutputType = z.infer<typeof jiraUpdateJiraTicketDetailsOutputSchema>;
+export type jiraUpdateJiraTicketDetailsFunction = ActionFunction<
+  jiraUpdateJiraTicketDetailsParamsType,
+  AuthParamsType,
+  jiraUpdateJiraTicketDetailsOutputType
+>;
+
+export const jiraUpdateJiraTicketStatusParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project you want to add it to"),
+  issueId: z.string().describe("The issue ID associated with the ticket"),
+  status: z.string().describe('The status the ticket should be changed to (eg "In Progress", "Closed")'),
+});
+
+export type jiraUpdateJiraTicketStatusParamsType = z.infer<typeof jiraUpdateJiraTicketStatusParamsSchema>;
+
+export const jiraUpdateJiraTicketStatusOutputSchema = z.object({
+  success: z.boolean().describe("Whether the status was updated successfully"),
+  error: z.string().describe("The error that occurred if the status was not updated successfully").optional(),
+  ticketUrl: z.string().describe("The url to the Jira ticket").optional(),
+});
+
+export type jiraUpdateJiraTicketStatusOutputType = z.infer<typeof jiraUpdateJiraTicketStatusOutputSchema>;
+export type jiraUpdateJiraTicketStatusFunction = ActionFunction<
+  jiraUpdateJiraTicketStatusParamsType,
+  AuthParamsType,
+  jiraUpdateJiraTicketStatusOutputType
 >;
 
 export const googlemapsValidateAddressParamsSchema = z.object({

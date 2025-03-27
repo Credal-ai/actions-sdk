@@ -25,18 +25,26 @@ import {
   zendeskCreateZendeskTicketParamsSchema,
   zendeskGetTicketDetailsOutputSchema,
   zendeskGetTicketDetailsParamsSchema,
-  jiraAssignJiraTicketParamsSchema,
-  jiraAssignJiraTicketOutputSchema,
   zendeskUpdateTicketStatusOutputSchema,
   zendeskUpdateTicketStatusParamsSchema,
   zendeskAddCommentToTicketOutputSchema,
   zendeskAddCommentToTicketParamsSchema,
   zendeskAssignTicketOutputSchema,
   zendeskAssignTicketParamsSchema,
+  jiraAssignJiraTicketParamsSchema,
+  jiraAssignJiraTicketOutputSchema,
   jiraCommentJiraTicketParamsSchema,
   jiraCommentJiraTicketOutputSchema,
   jiraCreateJiraTicketParamsSchema,
   jiraCreateJiraTicketOutputSchema,
+  jiraGetJiraTicketDetailsParamsSchema,
+  jiraGetJiraTicketDetailsOutputSchema,
+  jiraGetJiraTicketHistoryParamsSchema,
+  jiraGetJiraTicketHistoryOutputSchema,
+  jiraUpdateJiraTicketDetailsParamsSchema,
+  jiraUpdateJiraTicketDetailsOutputSchema,
+  jiraUpdateJiraTicketStatusParamsSchema,
+  jiraUpdateJiraTicketStatusOutputSchema,
   openstreetmapGetLatitudeLongitudeFromLocationParamsSchema,
   openstreetmapGetLatitudeLongitudeFromLocationOutputSchema,
   nwsGetForecastForLocationParamsSchema,
@@ -80,12 +88,16 @@ import getChannelMessages from "./providers/slack/getChannelMessages";
 import getRowByFieldValue from "./providers/snowflake/getRowByFieldValue";
 import createZendeskTicket from "./providers/zendesk/createZendeskTicket";
 import getZendeskTicketDetails from "./providers/zendesk/getTicketDetails";
-import assignJiraTicket from "./providers/jira/assignJiraTicket";
 import updateTicketStatus from "./providers/zendesk/updateTicketStatus";
 import addCommentToTicket from "./providers/zendesk/addCommentToTicket";
 import assignTicket from "./providers/zendesk/assignTicket";
+import assignJiraTicket from "./providers/jira/assignJiraTicket";
 import commentJiraTicket from "./providers/jira/commentJiraTicket";
 import createJiraTicket from "./providers/jira/createJiraTicket";
+import getJiraTicketDetails from "./providers/jira/getJiraTicketDetails";
+import getJiraTicketHistory from "./providers/jira/getJiraTicketHistory";
+import updateJiraTicketDetails from "./providers/jira/updateJiraTicketDetails";
+import updateJiraTicketStatus from "./providers/jira/updateJiraTicketStatus";
 import getLatitudeLongitudeFromLocation from "./providers/openstreetmap/getLatitudeLongitudeFromLocation";
 import getForecastForLocation from "./providers/nws/getForecastForLocation";
 import nearbysearch from "./providers/googlemaps/nearbysearchRestaurants";
@@ -236,6 +248,26 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: createJiraTicket,
       paramsSchema: jiraCreateJiraTicketParamsSchema,
       outputSchema: jiraCreateJiraTicketOutputSchema,
+    },
+    getJiraTicketDetails: {
+      fn: getJiraTicketDetails,
+      paramsSchema: jiraGetJiraTicketDetailsParamsSchema,
+      outputSchema: jiraGetJiraTicketDetailsOutputSchema,
+    },
+    getJiraTicketHistory: {
+      fn: getJiraTicketHistory,
+      paramsSchema: jiraGetJiraTicketHistoryParamsSchema,
+      outputSchema: jiraGetJiraTicketHistoryOutputSchema,
+    },
+    updateJiraTicketDetails: {
+      fn: updateJiraTicketDetails,
+      paramsSchema: jiraUpdateJiraTicketDetailsParamsSchema,
+      outputSchema: jiraUpdateJiraTicketDetailsOutputSchema,
+    },
+    updateJiraTicketStatus: {
+      fn: updateJiraTicketStatus,
+      paramsSchema: jiraUpdateJiraTicketStatusParamsSchema,
+      outputSchema: jiraUpdateJiraTicketStatusOutputSchema,
     },
   },
   openstreetmap: {

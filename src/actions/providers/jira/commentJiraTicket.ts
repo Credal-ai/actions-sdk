@@ -1,4 +1,3 @@
-import { AxiosError } from "axios";
 import {
   AuthParamsType,
   jiraCommentJiraTicketFunction,
@@ -7,7 +6,7 @@ import {
 } from "../../autogen/types";
 import { axiosClient } from "../../util/axiosClient";
 
-const CommentJiraTicket: jiraCommentJiraTicketFunction = async ({
+const commentJiraTicket: jiraCommentJiraTicketFunction = async ({
   params,
   authParams,
 }: {
@@ -63,4 +62,4 @@ const CommentJiraTicket: jiraCommentJiraTicketFunction = async ({
   }
 };
 
-export default CommentJiraTicket;
+export default commentJiraTicket;

@@ -196,48 +196,6 @@ export const confluenceFetchPageContentDefinition: ActionTemplate = {
   name: "fetchPageContent",
   provider: "confluence",
 };
-export const jiraCommentJiraTicketDefinition: ActionTemplate = {
-  description: "Comments on a Jira ticket with specified content",
-  scopes: ["write:comment:jira"],
-  parameters: {
-    type: "object",
-    required: ["projectKey", "issueId", "comment"],
-    properties: {
-      projectKey: {
-        type: "string",
-        description: "The key for the project you want to add it to",
-      },
-      issueId: {
-        type: "string",
-        description: "The issue ID associated with the ticket to be commented on",
-      },
-      comment: {
-        type: "string",
-        description: "The text to be commented on the ticket",
-      },
-    },
-  },
-  output: {
-    type: "object",
-    required: ["success"],
-    properties: {
-      success: {
-        type: "boolean",
-        description: "Whether the comment was sent successfully",
-      },
-      error: {
-        type: "string",
-        description: "The error that occurred if the comment was not sent successfully",
-      },
-      commentUrl: {
-        type: "string",
-        description: "The url to the created Jira comment",
-      },
-    },
-  },
-  name: "commentJiraTicket",
-  provider: "jira",
-};
 export const jiraAssignJiraTicketDefinition: ActionTemplate = {
   description: "Assigns/Re-assignes a Jira ticket to a specified user",
   scopes: ["write:jira-work", "read:jira-user"],
@@ -278,6 +236,48 @@ export const jiraAssignJiraTicketDefinition: ActionTemplate = {
     },
   },
   name: "assignJiraTicket",
+  provider: "jira",
+};
+export const jiraCommentJiraTicketDefinition: ActionTemplate = {
+  description: "Comments on a Jira ticket with specified content",
+  scopes: ["write:comment:jira"],
+  parameters: {
+    type: "object",
+    required: ["projectKey", "issueId", "comment"],
+    properties: {
+      projectKey: {
+        type: "string",
+        description: "The key for the project",
+      },
+      issueId: {
+        type: "string",
+        description: "The issue ID associated with the ticket to be commented on",
+      },
+      comment: {
+        type: "string",
+        description: "The text to be commented on the ticket",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the comment was sent successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the comment was not sent successfully",
+      },
+      commentUrl: {
+        type: "string",
+        description: "The url to the created Jira comment",
+      },
+    },
+  },
+  name: "commentJiraTicket",
   provider: "jira",
 };
 export const jiraCreateJiraTicketDefinition: ActionTemplate = {
@@ -329,6 +329,171 @@ export const jiraCreateJiraTicketDefinition: ActionTemplate = {
     },
   },
   name: "createJiraTicket",
+  provider: "jira",
+};
+export const jiraGetJiraTicketDetailsDefinition: ActionTemplate = {
+  description: "Get details of a ticket in Jira",
+  scopes: ["read:jira-work"],
+  parameters: {
+    type: "object",
+    required: ["projectKey", "issueId"],
+    properties: {
+      projectKey: {
+        type: "string",
+        description: "The key for the project",
+      },
+      issueId: {
+        type: "string",
+        description: "The ID of the ticket",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the status was updated successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the retrieval was unsuccessful",
+      },
+      data: {
+        type: "object",
+        description: "The data of the Jira ticket",
+      },
+    },
+  },
+  name: "getJiraTicketDetails",
+  provider: "jira",
+};
+export const jiraGetJiraTicketHistoryDefinition: ActionTemplate = {
+  description: "Get ticket history of a ticket in Jira",
+  scopes: ["read:jira-work"],
+  parameters: {
+    type: "object",
+    required: ["projectKey", "issueId"],
+    properties: {
+      projectKey: {
+        type: "string",
+        description: "The key for the project",
+      },
+      issueId: {
+        type: "string",
+        description: "The ID of the ticket",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the status was updated successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the retrieval was unsuccessful",
+      },
+      history: {
+        type: "array",
+        description: "The history data of the Jira ticket",
+      },
+    },
+  },
+  name: "getJiraTicketHistory",
+  provider: "jira",
+};
+export const jiraUpdateJiraTicketDetailsDefinition: ActionTemplate = {
+  description: "Update a Jira ticket with new content specified",
+  scopes: ["write:jira-work"],
+  parameters: {
+    type: "object",
+    required: ["projectKey", "issueId"],
+    properties: {
+      projectKey: {
+        type: "string",
+        description: "The key for the project you want to add it to",
+      },
+      issueId: {
+        type: "string",
+        description: "The issue ID associated with the ticket to be updated",
+      },
+      summary: {
+        type: "string",
+        description: "The updated summary",
+      },
+      description: {
+        type: "string",
+        description: "The updated description",
+      },
+      issueType: {
+        type: "string",
+        description: "The updated issue type",
+      },
+      customFields: {
+        type: "object",
+        description: "Custom fields to be set on the update ticket request",
+        additionalProperties: true,
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["ticketUrl"],
+    properties: {
+      ticketUrl: {
+        type: "string",
+        description: "The url to the Jira ticket",
+      },
+    },
+  },
+  name: "updateJiraTicketDetails",
+  provider: "jira",
+};
+export const jiraUpdateJiraTicketStatusDefinition: ActionTemplate = {
+  description: "Updates the status of Jira ticket with specified status",
+  scopes: ["read:jira-work", "write:jira-work"],
+  parameters: {
+    type: "object",
+    required: ["projectKey", "issueId", "status"],
+    properties: {
+      projectKey: {
+        type: "string",
+        description: "The key for the project you want to add it to",
+      },
+      issueId: {
+        type: "string",
+        description: "The issue ID associated with the ticket",
+      },
+      status: {
+        type: "string",
+        description: 'The status the ticket should be changed to (eg "In Progress", "Closed")',
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the status was updated successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the status was not updated successfully",
+      },
+      ticketUrl: {
+        type: "string",
+        description: "The url to the Jira ticket",
+      },
+    },
+  },
+  name: "updateJiraTicketStatus",
   provider: "jira",
 };
 export const googlemapsValidateAddressDefinition: ActionTemplate = {
@@ -1579,7 +1744,7 @@ export const ashbyGetCandidateInfoDefinition: ActionTemplate = {
     properties: {
       candidateId: {
         type: "string",
-        description: "The ID of the candidate whose information is to be retrieved",
+        description: "The ID of the candidate to create a note for",
       },
     },
   },
