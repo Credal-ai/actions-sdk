@@ -25,7 +25,10 @@ import {
   confluenceFetchPageContentDefinition,
   snowflakeRunSnowflakeQueryDefinition,
   lookerEnableUserByEmailDefinition,
+  googleOauthUpdateDocDefinition,
   googleOauthScheduleCalendarMeetingDefinition,
+  googleOauthCreateSpreadsheetDefinition,
+  googleOauthUpdateSpreadsheetDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
@@ -50,7 +53,12 @@ export const ACTION_GROUPS: ActionGroups = {
   },
   GOOGLE_DRIVE: {
     description: "Action for interacting with Google Drive",
-    actions: [googleOauthCreateNewGoogleDocDefinition],
+    actions: [
+      googleOauthCreateNewGoogleDocDefinition,
+      googleOauthUpdateDocDefinition,
+      googleOauthCreateSpreadsheetDefinition,
+      googleOauthUpdateSpreadsheetDefinition,
+    ],
   },
   GOOGLE_CALENDAR: {
     description: "Actions for interacting with Google Calendar",
