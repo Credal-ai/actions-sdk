@@ -1315,6 +1315,60 @@ export type googleOauthScheduleCalendarMeetingFunction = ActionFunction<
   googleOauthScheduleCalendarMeetingOutputType
 >;
 
+export const googleOauthCreateSpreadsheetParamsSchema = z.object({
+  title: z.string().describe("The title of the new spreadsheet"),
+  sheets: z
+    .array(
+      z.object({
+        title: z.string().describe("The title of the sheet").optional(),
+        gridProperties: z
+          .object({
+            rowCount: z.number().int().describe("The number of rows in the sheet").optional(),
+            columnCount: z.number().int().describe("The number of columns in the sheet").optional(),
+            frozenRowCount: z.number().int().describe("The number of frozen rows").optional(),
+            frozenColumnCount: z.number().int().describe("The number of frozen columns").optional(),
+          })
+          .optional(),
+      }),
+    )
+    .describe("The initial sheets to create in the spreadsheet")
+    .optional(),
+  properties: z
+    .object({
+      locale: z.string().describe("The locale of the spreadsheet (e.g., en_US)").optional(),
+      timeZone: z.string().describe("The time zone of the spreadsheet (e.g., America/New_York)").optional(),
+      autoRecalc: z.enum(["ON_CHANGE", "MINUTE", "HOUR"]).describe("When to recalculate the spreadsheet").optional(),
+    })
+    .describe("Properties for the spreadsheet")
+    .optional(),
+});
+
+export type googleOauthCreateSpreadsheetParamsType = z.infer<typeof googleOauthCreateSpreadsheetParamsSchema>;
+
+export const googleOauthCreateSpreadsheetOutputSchema = z.object({
+  success: z.boolean().describe("Whether the spreadsheet was created successfully"),
+  spreadsheetId: z.string().describe("The ID of the created spreadsheet").optional(),
+  spreadsheetUrl: z.string().describe("The URL to access the created spreadsheet").optional(),
+  sheets: z
+    .array(
+      z.object({
+        sheetId: z.number().int().describe("The ID of the sheet").optional(),
+        title: z.string().describe("The title of the sheet").optional(),
+        index: z.number().int().describe("The index of the sheet").optional(),
+      }),
+    )
+    .describe("Information about the created sheets")
+    .optional(),
+  error: z.string().describe("The error that occurred if the spreadsheet was not created successfully").optional(),
+});
+
+export type googleOauthCreateSpreadsheetOutputType = z.infer<typeof googleOauthCreateSpreadsheetOutputSchema>;
+export type googleOauthCreateSpreadsheetFunction = ActionFunction<
+  googleOauthCreateSpreadsheetParamsType,
+  AuthParamsType,
+  googleOauthCreateSpreadsheetOutputType
+>;
+
 export const finnhubSymbolLookupParamsSchema = z.object({
   query: z.string().describe("The symbol or colloquial name of the company to look up"),
 });

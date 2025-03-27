@@ -27,6 +27,7 @@ import {
   lookerEnableUserByEmailDefinition,
   googleOauthUpdateDocDefinition,
   googleOauthScheduleCalendarMeetingDefinition,
+  googleOauthCreateSpreadsheetDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
@@ -51,7 +52,11 @@ export const ACTION_GROUPS: ActionGroups = {
   },
   GOOGLE_DRIVE: {
     description: "Action for interacting with Google Drive",
-    actions: [googleOauthCreateNewGoogleDocDefinition, googleOauthUpdateDocDefinition],
+    actions: [
+      googleOauthCreateNewGoogleDocDefinition,
+      googleOauthUpdateDocDefinition,
+      googleOauthCreateSpreadsheetDefinition,
+    ],
   },
   GOOGLE_CALENDAR: {
     description: "Actions for interacting with Google Calendar",

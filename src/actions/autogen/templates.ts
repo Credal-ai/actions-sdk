@@ -2469,6 +2469,118 @@ export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
   name: "scheduleCalendarMeeting",
   provider: "googleOauth",
 };
+export const googleOauthCreateSpreadsheetDefinition: ActionTemplate = {
+  description: "Create a new Google Spreadsheet using OAuth authentication",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["title"],
+    properties: {
+      title: {
+        type: "string",
+        description: "The title of the new spreadsheet",
+      },
+      sheets: {
+        type: "array",
+        description: "The initial sheets to create in the spreadsheet",
+        items: {
+          type: "object",
+          properties: {
+            title: {
+              type: "string",
+              description: "The title of the sheet",
+            },
+            gridProperties: {
+              type: "object",
+              properties: {
+                rowCount: {
+                  type: "integer",
+                  description: "The number of rows in the sheet",
+                },
+                columnCount: {
+                  type: "integer",
+                  description: "The number of columns in the sheet",
+                },
+                frozenRowCount: {
+                  type: "integer",
+                  description: "The number of frozen rows",
+                },
+                frozenColumnCount: {
+                  type: "integer",
+                  description: "The number of frozen columns",
+                },
+              },
+            },
+          },
+        },
+      },
+      properties: {
+        type: "object",
+        description: "Properties for the spreadsheet",
+        properties: {
+          locale: {
+            type: "string",
+            description: "The locale of the spreadsheet (e.g., en_US)",
+          },
+          timeZone: {
+            type: "string",
+            description: "The time zone of the spreadsheet (e.g., America/New_York)",
+          },
+          autoRecalc: {
+            type: "string",
+            enum: ["ON_CHANGE", "MINUTE", "HOUR"],
+            description: "When to recalculate the spreadsheet",
+          },
+        },
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the spreadsheet was created successfully",
+      },
+      spreadsheetId: {
+        type: "string",
+        description: "The ID of the created spreadsheet",
+      },
+      spreadsheetUrl: {
+        type: "string",
+        description: "The URL to access the created spreadsheet",
+      },
+      sheets: {
+        type: "array",
+        description: "Information about the created sheets",
+        items: {
+          type: "object",
+          properties: {
+            sheetId: {
+              type: "integer",
+              description: "The ID of the sheet",
+            },
+            title: {
+              type: "string",
+              description: "The title of the sheet",
+            },
+            index: {
+              type: "integer",
+              description: "The index of the sheet",
+            },
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the spreadsheet was not created successfully",
+      },
+    },
+  },
+  name: "createSpreadsheet",
+  provider: "googleOauth",
+};
 export const finnhubSymbolLookupDefinition: ActionTemplate = {
   description: "Look up a stock symbol by name",
   scopes: [],

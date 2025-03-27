@@ -65,6 +65,8 @@ import {
   lookerEnableUserByEmailOutputSchema,
   googleOauthUpdateDocParamsSchema,
   googleOauthUpdateDocOutputSchema,
+  googleOauthCreateSpreadsheetParamsSchema,
+  googleOauthCreateSpreadsheetOutputSchema,
   googleOauthScheduleCalendarMeetingParamsSchema,
   googleOauthScheduleCalendarMeetingOutputSchema,
   ashbyCreateNoteParamsSchema,
@@ -107,6 +109,7 @@ import updateDoc from "./providers/google-oauth/updateDoc";
 import scheduleCalendarMeeting from "./providers/google-oauth/scheduleCalendarMeeting";
 import createNote from "./providers/ashby/createNote";
 import getCandidateInfo from "./providers/ashby/getCandidateInfo";
+import createSpreadsheet from "./providers/google-oauth/createSpreadsheet";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -289,6 +292,11 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: scheduleCalendarMeeting,
       paramsSchema: googleOauthScheduleCalendarMeetingParamsSchema,
       outputSchema: googleOauthScheduleCalendarMeetingOutputSchema,
+    },
+    createSpreadsheet: {
+      fn: createSpreadsheet,
+      paramsSchema: googleOauthCreateSpreadsheetParamsSchema,
+      outputSchema: googleOauthCreateSpreadsheetOutputSchema,
     },
   },
   x: {
