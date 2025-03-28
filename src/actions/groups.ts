@@ -39,6 +39,7 @@ import {
   asanaCommentTaskDefinition,
   asanaCreateTaskDefinition,
   asanaUpdateTaskDefinition,
+  githubCreateOrUpdateFileDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
@@ -145,5 +146,9 @@ export const ACTION_GROUPS: ActionGroups = {
   MICROSOFT: {
     description: "Actions for interacting with Microsoft 365",
     actions: [microsoftMessageTeamsChatDefinition, microsoftMessageTeamsChannelDefinition],
+  },
+  GITHUB: {
+    description: "Actions for interacting with GitHub",
+    actions: [githubCreateOrUpdateFileDefinition],
   },
 };
