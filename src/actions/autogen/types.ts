@@ -22,6 +22,83 @@ export const AuthParamsSchema = z.object({
 
 export type AuthParamsType = z.infer<typeof AuthParamsSchema>;
 
+export const asanaCommentTaskParamsSchema = z.object({
+  taskId: z.string().describe("Task gid the comment should be added to"),
+  commentText: z.string().describe("The comment text to be added"),
+  isPinned: z.boolean().describe("Whether the comment should be pinned").optional(),
+});
+
+export type asanaCommentTaskParamsType = z.infer<typeof asanaCommentTaskParamsSchema>;
+
+export const asanaCommentTaskOutputSchema = z.object({
+  error: z.string().describe("Error if comment was unsuccessful").optional(),
+  success: z.boolean().describe("Whether comment was successfully made"),
+  commentUrl: z.string().describe("The url to the created comment").optional(),
+});
+
+export type asanaCommentTaskOutputType = z.infer<typeof asanaCommentTaskOutputSchema>;
+export type asanaCommentTaskFunction = ActionFunction<
+  asanaCommentTaskParamsType,
+  AuthParamsType,
+  asanaCommentTaskOutputType
+>;
+
+export const asanaCreateTaskParamsSchema = z.object({
+  projectId: z.string().describe("Project gid the task belongs to"),
+  name: z.string().describe("The name of the new task"),
+  approvalStatus: z.string().describe("Status of task (pending, approved, ...)").optional(),
+  description: z.string().describe("The description for the new task").optional(),
+  dueAt: z.string().describe("ISO 8601 date string in UTC for due date of task").optional(),
+  assignee: z.string().describe("The assignee gid or email for the new task").optional(),
+  taskTemplate: z.string().describe("The template to use, takes id or name").optional(),
+  customFields: z
+    .object({})
+    .catchall(z.any())
+    .describe("Custom fields to be set on the create task request")
+    .optional(),
+});
+
+export type asanaCreateTaskParamsType = z.infer<typeof asanaCreateTaskParamsSchema>;
+
+export const asanaCreateTaskOutputSchema = z.object({
+  error: z.string().describe("Error if task creation was unsuccessful").optional(),
+  success: z.boolean().describe("Whether task creation was successful"),
+  taskUrl: z.string().describe("The url to the created Asana task").optional(),
+});
+
+export type asanaCreateTaskOutputType = z.infer<typeof asanaCreateTaskOutputSchema>;
+export type asanaCreateTaskFunction = ActionFunction<
+  asanaCreateTaskParamsType,
+  AuthParamsType,
+  asanaCreateTaskOutputType
+>;
+
+export const asanaUpdateTaskParamsSchema = z.object({
+  taskId: z.string().describe("Task gid of the task to update"),
+  name: z.string().describe("The name of the task").optional(),
+  approvalStatus: z.string().describe("Status of task (pending, approved, ...)").optional(),
+  description: z.string().describe("The updated description").optional(),
+  dueAt: z.string().describe("ISO 8601 date string in UTC for due date of task").optional(),
+  assignee: z.string().describe("The assignee gid or email for the task").optional(),
+  completed: z.boolean().describe("Whether the task should be marked as completed").optional(),
+  customFields: z.object({}).catchall(z.any()).describe("Custom fields to be updated").optional(),
+});
+
+export type asanaUpdateTaskParamsType = z.infer<typeof asanaUpdateTaskParamsSchema>;
+
+export const asanaUpdateTaskOutputSchema = z.object({
+  error: z.string().describe("Error if task update was unsuccessful").optional(),
+  success: z.boolean().describe("Whether task update was successful"),
+  taskUrl: z.string().describe("The url to the updated Asana task").optional(),
+});
+
+export type asanaUpdateTaskOutputType = z.infer<typeof asanaUpdateTaskOutputSchema>;
+export type asanaUpdateTaskFunction = ActionFunction<
+  asanaUpdateTaskParamsType,
+  AuthParamsType,
+  asanaUpdateTaskOutputType
+>;
+
 export const slackSendMessageParamsSchema = z.object({
   channelName: z.string().describe("The name of the Slack channel to send the message to (e.g. general, alerts)"),
   message: z.string().describe("The message content to send to Slack. Can include markdown formatting."),

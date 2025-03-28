@@ -1,5 +1,173 @@
 import { ActionTemplate } from "../../actions/parse";
 
+export const asanaCommentTaskDefinition: ActionTemplate = {
+  description: "Comments on an Asana task with specified content",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["taskId", "commentText"],
+    properties: {
+      taskId: {
+        type: "string",
+        description: "Task gid the comment should be added to",
+      },
+      commentText: {
+        type: "string",
+        description: "The comment text to be added",
+      },
+      isPinned: {
+        type: "boolean",
+        description: "Whether the comment should be pinned",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      error: {
+        type: "string",
+        description: "Error if comment was unsuccessful",
+      },
+      success: {
+        type: "boolean",
+        description: "Whether comment was successfully made",
+      },
+      commentUrl: {
+        type: "string",
+        description: "The url to the created comment",
+      },
+    },
+  },
+  name: "commentTask",
+  provider: "asana",
+};
+export const asanaCreateTaskDefinition: ActionTemplate = {
+  description: "Create an Asana task with specified content using optional template",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["name", "projectId"],
+    properties: {
+      projectId: {
+        type: "string",
+        description: "Project gid the task belongs to",
+      },
+      name: {
+        type: "string",
+        description: "The name of the new task",
+      },
+      approvalStatus: {
+        type: "string",
+        description: "Status of task (pending, approved, ...)",
+      },
+      description: {
+        type: "string",
+        description: "The description for the new task",
+      },
+      dueAt: {
+        type: "string",
+        description: "ISO 8601 date string in UTC for due date of task",
+      },
+      assignee: {
+        type: "string",
+        description: "The assignee gid or email for the new task",
+      },
+      taskTemplate: {
+        type: "string",
+        description: "The template to use, takes id or name",
+      },
+      customFields: {
+        type: "object",
+        description: "Custom fields to be set on the create task request",
+        additionalProperties: true,
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      error: {
+        type: "string",
+        description: "Error if task creation was unsuccessful",
+      },
+      success: {
+        type: "boolean",
+        description: "Whether task creation was successful",
+      },
+      taskUrl: {
+        type: "string",
+        description: "The url to the created Asana task",
+      },
+    },
+  },
+  name: "createTask",
+  provider: "asana",
+};
+export const asanaUpdateTaskDefinition: ActionTemplate = {
+  description: "Updates a Asana task with specified content",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["taskId"],
+    properties: {
+      taskId: {
+        type: "string",
+        description: "Task gid of the task to update",
+      },
+      name: {
+        type: "string",
+        description: "The name of the task",
+      },
+      approvalStatus: {
+        type: "string",
+        description: "Status of task (pending, approved, ...)",
+      },
+      description: {
+        type: "string",
+        description: "The updated description",
+      },
+      dueAt: {
+        type: "string",
+        description: "ISO 8601 date string in UTC for due date of task",
+      },
+      assignee: {
+        type: "string",
+        description: "The assignee gid or email for the task",
+      },
+      completed: {
+        type: "boolean",
+        description: "Whether the task should be marked as completed",
+      },
+      customFields: {
+        type: "object",
+        description: "Custom fields to be updated",
+        additionalProperties: true,
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      error: {
+        type: "string",
+        description: "Error if task update was unsuccessful",
+      },
+      success: {
+        type: "boolean",
+        description: "Whether task update was successful",
+      },
+      taskUrl: {
+        type: "string",
+        description: "The url to the updated Asana task",
+      },
+    },
+  },
+  name: "updateTask",
+  provider: "asana",
+};
 export const slackSendMessageDefinition: ActionTemplate = {
   description: "Sends a message to a Slack channel",
   scopes: ["chat:write"],
@@ -1579,7 +1747,7 @@ export const ashbyGetCandidateInfoDefinition: ActionTemplate = {
     properties: {
       candidateId: {
         type: "string",
-        description: "The ID of the candidate whose information is to be retrieved",
+        description: "The ID of the candidate to create a note for",
       },
     },
   },
