@@ -107,6 +107,8 @@ import {
   asanaUpdateTaskOutputSchema,
   githubCreateOrUpdateFileParamsSchema,
   githubCreateOrUpdateFileOutputSchema,
+  githubCreateBranchParamsSchema,
+  githubCreateBranchOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -162,6 +164,7 @@ import addCandidateToProject from "./providers/ashby/addCandidateToProject";
 import sendMessageToTeamsChat from "./providers/microsoft/messageTeamsChat";
 import sendMessageToTeamsChannel from "./providers/microsoft/messageTeamsChannel";
 import createOrUpdateFile from "./providers/github/createOrUpdateFile";
+import createBranch from "./providers/github/createBranch";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -485,6 +488,11 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: createOrUpdateFile,
       paramsSchema: githubCreateOrUpdateFileParamsSchema,
       outputSchema: githubCreateOrUpdateFileOutputSchema,
+    },
+    createBranch: {
+      fn: createBranch,
+      paramsSchema: githubCreateBranchParamsSchema,
+      outputSchema: githubCreateBranchOutputSchema,
     },
   },
 };
