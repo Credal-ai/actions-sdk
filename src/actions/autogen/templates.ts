@@ -1579,7 +1579,7 @@ export const ashbyGetCandidateInfoDefinition: ActionTemplate = {
     properties: {
       candidateId: {
         type: "string",
-        description: "The ID of the candidate whose information is to be retrieved",
+        description: "The ID of the candidate to create a note for",
       },
     },
   },
@@ -1596,4 +1596,109 @@ export const ashbyGetCandidateInfoDefinition: ActionTemplate = {
   },
   name: "getCandidateInfo",
   provider: "ashby",
+};
+export const githubCreateOrUpdateFileDefinition: ActionTemplate = {
+  description: "Create or update a file in a GitHub repository",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["repositoryOwner", "repositoryName", "filePath", "branch", "fileContent", "commitMessage"],
+    properties: {
+      repositoryOwner: {
+        type: "string",
+        description: "The owner of the repository",
+      },
+      repositoryName: {
+        type: "string",
+        description: "The name of the repository",
+      },
+      filePath: {
+        type: "string",
+        description: "The path of the file to create or update",
+      },
+      branch: {
+        type: "string",
+        description: "The branch where the file will be created or updated",
+      },
+      fileContent: {
+        type: "string",
+        description: "The content of the file",
+      },
+      commitMessage: {
+        type: "string",
+        description: "The commit message for the operation",
+      },
+      noOverwrite: {
+        type: "boolean",
+        description: "Whether to prevent overwriting existing files",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the operation was successful",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the operation was not successful",
+      },
+      newCommitSha: {
+        type: "string",
+        description: "The SHA of the new commit created",
+      },
+      operation: {
+        type: "string",
+        description: "Indicates whether the file was created or updated",
+        enum: ["created", "updated"],
+      },
+    },
+  },
+  name: "createOrUpdateFile",
+  provider: "github",
+};
+export const githubCreateBranchDefinition: ActionTemplate = {
+  description: "Create a new branch in a GitHub repository",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["repositoryOwner", "repositoryName", "branchName", "baseRefOrHash"],
+    properties: {
+      repositoryOwner: {
+        type: "string",
+        description: "The owner of the repository",
+      },
+      repositoryName: {
+        type: "string",
+        description: "The name of the repository",
+      },
+      branchName: {
+        type: "string",
+        description: "The name of the new branch to create",
+      },
+      baseRefOrHash: {
+        type: "string",
+        description: "The ref or hash of the base commit to create the new branch from",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the branch was created successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the branch was not created successfully",
+      },
+    },
+  },
+  name: "createBranch",
+  provider: "github",
 };

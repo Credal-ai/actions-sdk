@@ -907,3 +907,50 @@ export type ashbyGetCandidateInfoFunction = ActionFunction<
   AuthParamsType,
   ashbyGetCandidateInfoOutputType
 >;
+
+export const githubCreateOrUpdateFileParamsSchema = z.object({
+  repositoryOwner: z.string().describe("The owner of the repository"),
+  repositoryName: z.string().describe("The name of the repository"),
+  filePath: z.string().describe("The path of the file to create or update"),
+  branch: z.string().describe("The branch where the file will be created or updated"),
+  fileContent: z.string().describe("The content of the file"),
+  commitMessage: z.string().describe("The commit message for the operation"),
+  noOverwrite: z.boolean().describe("Whether to prevent overwriting existing files").optional(),
+});
+
+export type githubCreateOrUpdateFileParamsType = z.infer<typeof githubCreateOrUpdateFileParamsSchema>;
+
+export const githubCreateOrUpdateFileOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("The error that occurred if the operation was not successful").optional(),
+  newCommitSha: z.string().describe("The SHA of the new commit created").optional(),
+  operation: z.enum(["created", "updated"]).describe("Indicates whether the file was created or updated").optional(),
+});
+
+export type githubCreateOrUpdateFileOutputType = z.infer<typeof githubCreateOrUpdateFileOutputSchema>;
+export type githubCreateOrUpdateFileFunction = ActionFunction<
+  githubCreateOrUpdateFileParamsType,
+  AuthParamsType,
+  githubCreateOrUpdateFileOutputType
+>;
+
+export const githubCreateBranchParamsSchema = z.object({
+  repositoryOwner: z.string().describe("The owner of the repository"),
+  repositoryName: z.string().describe("The name of the repository"),
+  branchName: z.string().describe("The name of the new branch to create"),
+  baseRefOrHash: z.string().describe("The ref or hash of the base commit to create the new branch from"),
+});
+
+export type githubCreateBranchParamsType = z.infer<typeof githubCreateBranchParamsSchema>;
+
+export const githubCreateBranchOutputSchema = z.object({
+  success: z.boolean().describe("Whether the branch was created successfully"),
+  error: z.string().describe("The error that occurred if the branch was not created successfully").optional(),
+});
+
+export type githubCreateBranchOutputType = z.infer<typeof githubCreateBranchOutputSchema>;
+export type githubCreateBranchFunction = ActionFunction<
+  githubCreateBranchParamsType,
+  AuthParamsType,
+  githubCreateBranchOutputType
+>;

@@ -1,6 +1,5 @@
 {
   "name": "@credal/actions",
-  "version": "0.1.31",
   "version": "0.1.32",
   "description": "AI Actions by Credal AI",
   "main": "dist/index.js",
@@ -41,10 +40,12 @@
   "dependencies": {
     "@credal/sdk": "^0.0.21",
     "@mendable/firecrawl-js": "^1.19.0",
+    "@octokit/rest": "^21.1.1",
     "@slack/web-api": "^7.8.0",
     "@types/snowflake-sdk": "^1.6.24",
     "ajv": "^8.17.1",
     "date-fns": "^4.1.0",
+    "dotenv": "^16.4.7",
     "json-schema-to-zod": "^2.5.0",
     "mongodb": "^6.13.1",
     "resend": "^4.1.2",
