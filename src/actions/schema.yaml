@@ -144,8 +144,8 @@ actions:
             description: The content of the page in storage format (HTML)
   jira:
     commentJiraTicket:
-      description: Comments on a Jira ticket with specified content 
-      scopes: 
+      description: Comments on a Jira ticket with specified content
+      scopes:
         - write:comment:jira
       parameters:
         type: object
@@ -1139,3 +1139,32 @@ actions:
             type: object
             description: The candidate's information
             required: []
+  salesforce:
+    updateRecord:
+      description: Update a record in Salesforce
+      scopes: []
+      parameters:
+        type: object
+        required: [objectType, recordId, fieldsToUpdate]
+        properties:
+          objectType:
+            type: string
+            description: The Salesforce object type to update (e.g., Lead, Account, Contact)
+          recordId:
+            type: string
+            description: The ID of the record to update
+          fieldsToUpdate:
+            type: object
+            description: The fields to update on the record
+            additionalProperties:
+              type: string
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the record was successfully updated
+          error:
+            type: string
+            description: The error that occurred if the record was not successfully updated

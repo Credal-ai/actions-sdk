@@ -26,6 +26,7 @@ import {
   snowflakeRunSnowflakeQueryDefinition,
   lookerEnableUserByEmailDefinition,
   googleOauthScheduleCalendarMeetingDefinition,
+  salesforceUpdateRecordDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
@@ -107,5 +108,9 @@ export const ACTION_GROUPS: ActionGroups = {
   LOOKER: {
     description: "Actions for interacting with Looker",
     actions: [lookerEnableUserByEmailDefinition],
+  },
+  SALESFORCE: {
+    description: "Actions for interacting with Salesforce",
+    actions: [salesforceUpdateRecordDefinition],
   },
 };

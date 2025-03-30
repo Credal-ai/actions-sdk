@@ -907,3 +907,23 @@ export type ashbyGetCandidateInfoFunction = ActionFunction<
   AuthParamsType,
   ashbyGetCandidateInfoOutputType
 >;
+
+export const salesforceUpdateRecordParamsSchema = z.object({
+  objectType: z.string().describe("The Salesforce object type to update (e.g., Lead, Account, Contact)"),
+  recordId: z.string().describe("The ID of the record to update"),
+  fieldsToUpdate: z.record(z.string()).describe("The fields to update on the record"),
+});
+
+export type salesforceUpdateRecordParamsType = z.infer<typeof salesforceUpdateRecordParamsSchema>;
+
+export const salesforceUpdateRecordOutputSchema = z.object({
+  success: z.boolean().describe("Whether the record was successfully updated"),
+  error: z.string().describe("The error that occurred if the record was not successfully updated").optional(),
+});
+
+export type salesforceUpdateRecordOutputType = z.infer<typeof salesforceUpdateRecordOutputSchema>;
+export type salesforceUpdateRecordFunction = ActionFunction<
+  salesforceUpdateRecordParamsType,
+  AuthParamsType,
+  salesforceUpdateRecordOutputType
+>;

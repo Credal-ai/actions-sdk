@@ -1579,7 +1579,7 @@ export const ashbyGetCandidateInfoDefinition: ActionTemplate = {
     properties: {
       candidateId: {
         type: "string",
-        description: "The ID of the candidate whose information is to be retrieved",
+        description: "The ID of the candidate to create a note for",
       },
     },
   },
@@ -1596,4 +1596,45 @@ export const ashbyGetCandidateInfoDefinition: ActionTemplate = {
   },
   name: "getCandidateInfo",
   provider: "ashby",
+};
+export const salesforceUpdateRecordDefinition: ActionTemplate = {
+  description: "Update a record in Salesforce",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["objectType", "recordId", "fieldsToUpdate"],
+    properties: {
+      objectType: {
+        type: "string",
+        description: "The Salesforce object type to update (e.g., Lead, Account, Contact)",
+      },
+      recordId: {
+        type: "string",
+        description: "The ID of the record to update",
+      },
+      fieldsToUpdate: {
+        type: "object",
+        description: "The fields to update on the record",
+        additionalProperties: {
+          type: "string",
+        },
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the record was successfully updated",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the record was not successfully updated",
+      },
+    },
+  },
+  name: "updateRecord",
+  provider: "salesforce",
 };

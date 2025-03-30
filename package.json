@@ -1,6 +1,5 @@
 {
   "name": "@credal/actions",
-  "version": "0.1.31",
   "version": "0.1.32",
   "description": "AI Actions by Credal AI",
   "main": "dist/index.js",
@@ -25,6 +24,7 @@
   "devDependencies": {
     "@eslint/js": "^9.16.0",
     "@types/js-yaml": "^4.0.9",
+    "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.10.1",
     "@typescript-eslint/eslint-plugin": "^8.18.0",
     "@typescript-eslint/parser": "^8.18.0",
@@ -45,7 +45,9 @@
     "@types/snowflake-sdk": "^1.6.24",
     "ajv": "^8.17.1",
     "date-fns": "^4.1.0",
+    "dotenv": "^16.4.7",
     "json-schema-to-zod": "^2.5.0",
+    "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.13.1",
     "resend": "^4.1.2",
     "snowflake-sdk": "^2.0.2",
