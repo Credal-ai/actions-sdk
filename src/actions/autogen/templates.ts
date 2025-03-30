@@ -1638,3 +1638,56 @@ export const salesforceUpdateRecordDefinition: ActionTemplate = {
   name: "updateRecord",
   provider: "salesforce",
 };
+export const salesforceCreateCaseDefinition: ActionTemplate = {
+  description: "Create a case or support ticket in Salesforce",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["subject", "description", "priority", "origin"],
+    properties: {
+      subject: {
+        type: "string",
+        description: "The subject of the case",
+      },
+      description: {
+        type: "string",
+        description: "The detailed description of the case",
+      },
+      priority: {
+        type: "string",
+        description: "The priority of the case (e.g., High, Medium, Low)",
+      },
+      origin: {
+        type: "string",
+        description: "The origin of the case (e.g., Phone, Email, Web)",
+      },
+      customFields: {
+        type: "object",
+        description: "Additional custom fields to set on the case",
+        additionalProperties: {
+          type: "string",
+        },
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the case was successfully created",
+      },
+      caseId: {
+        type: "string",
+        description: "The ID of the created case",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the case was not successfully created",
+      },
+    },
+  },
+  name: "createCase",
+  provider: "salesforce",
+};

@@ -927,3 +927,26 @@ export type salesforceUpdateRecordFunction = ActionFunction<
   AuthParamsType,
   salesforceUpdateRecordOutputType
 >;
+
+export const salesforceCreateCaseParamsSchema = z.object({
+  subject: z.string().describe("The subject of the case"),
+  description: z.string().describe("The detailed description of the case"),
+  priority: z.string().describe("The priority of the case (e.g., High, Medium, Low)"),
+  origin: z.string().describe("The origin of the case (e.g., Phone, Email, Web)"),
+  customFields: z.record(z.string()).describe("Additional custom fields to set on the case").optional(),
+});
+
+export type salesforceCreateCaseParamsType = z.infer<typeof salesforceCreateCaseParamsSchema>;
+
+export const salesforceCreateCaseOutputSchema = z.object({
+  success: z.boolean().describe("Whether the case was successfully created"),
+  caseId: z.string().describe("The ID of the created case").optional(),
+  error: z.string().describe("The error that occurred if the case was not successfully created").optional(),
+});
+
+export type salesforceCreateCaseOutputType = z.infer<typeof salesforceCreateCaseOutputSchema>;
+export type salesforceCreateCaseFunction = ActionFunction<
+  salesforceCreateCaseParamsType,
+  AuthParamsType,
+  salesforceCreateCaseOutputType
+>;

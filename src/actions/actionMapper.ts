@@ -71,6 +71,8 @@ import {
   ashbyGetCandidateInfoOutputSchema,
   salesforceUpdateRecordParamsSchema,
   salesforceUpdateRecordOutputSchema,
+  salesforceCreateCaseParamsSchema,
+  salesforceCreateCaseOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -107,6 +109,7 @@ import scheduleCalendarMeeting from "./providers/google-oauth/scheduleCalendarMe
 import createNote from "./providers/ashby/createNote";
 import getCandidateInfo from "./providers/ashby/getCandidateInfo";
 import updateRecord from "./providers/salesforce/updateRecord";
+import createCase from "./providers/salesforce/createCase";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -329,6 +332,11 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: updateRecord,
       paramsSchema: salesforceUpdateRecordParamsSchema,
       outputSchema: salesforceUpdateRecordOutputSchema,
+    },
+    createCase: {
+      fn: createCase,
+      paramsSchema: salesforceCreateCaseParamsSchema,
+      outputSchema: salesforceCreateCaseOutputSchema,
     },
   },
 };
