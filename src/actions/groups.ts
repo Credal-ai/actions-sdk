@@ -41,6 +41,7 @@ import {
   asanaUpdateTaskDefinition,
   githubCreateOrUpdateFileDefinition,
   githubCreateBranchDefinition,
+  githubCreatePullRequestDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
@@ -150,6 +151,6 @@ export const ACTION_GROUPS: ActionGroups = {
   },
   GITHUB: {
     description: "Actions for interacting with GitHub",
-    actions: [githubCreateOrUpdateFileDefinition, githubCreateBranchDefinition],
+    actions: [githubCreateOrUpdateFileDefinition, githubCreateBranchDefinition, githubCreatePullRequestDefinition],
   },
 };
