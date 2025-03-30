@@ -29,6 +29,7 @@ import {
   salesforceUpdateRecordDefinition,
   salesforceCreateCaseDefinition,
   salesforceGenerateSalesReportDefinition,
+  salesforceGetRecordDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
@@ -117,6 +118,7 @@ export const ACTION_GROUPS: ActionGroups = {
       salesforceUpdateRecordDefinition,
       salesforceCreateCaseDefinition,
       salesforceGenerateSalesReportDefinition,
+      salesforceGetRecordDefinition,
     ],
   },
 };

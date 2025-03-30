@@ -977,3 +977,23 @@ export type salesforceGenerateSalesReportFunction = ActionFunction<
   AuthParamsType,
   salesforceGenerateSalesReportOutputType
 >;
+
+export const salesforceGetRecordParamsSchema = z.object({
+  objectType: z.string().describe("The Salesforce object type to retrieve (e.g., Lead, Account, Contact)"),
+  recordId: z.string().describe("The ID of the record to retrieve"),
+});
+
+export type salesforceGetRecordParamsType = z.infer<typeof salesforceGetRecordParamsSchema>;
+
+export const salesforceGetRecordOutputSchema = z.object({
+  success: z.boolean().describe("Whether the record was successfully retrieved"),
+  record: z.record(z.string()).describe("The retrieved record data").optional(),
+  error: z.string().describe("The error that occurred if the record was not successfully retrieved").optional(),
+});
+
+export type salesforceGetRecordOutputType = z.infer<typeof salesforceGetRecordOutputSchema>;
+export type salesforceGetRecordFunction = ActionFunction<
+  salesforceGetRecordParamsType,
+  AuthParamsType,
+  salesforceGetRecordOutputType
+>;

@@ -1743,3 +1743,44 @@ export const salesforceGenerateSalesReportDefinition: ActionTemplate = {
   name: "generateSalesReport",
   provider: "salesforce",
 };
+export const salesforceGetRecordDefinition: ActionTemplate = {
+  description: "Retrieve a record from Salesforce",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["objectType", "recordId"],
+    properties: {
+      objectType: {
+        type: "string",
+        description: "The Salesforce object type to retrieve (e.g., Lead, Account, Contact)",
+      },
+      recordId: {
+        type: "string",
+        description: "The ID of the record to retrieve",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the record was successfully retrieved",
+      },
+      record: {
+        type: "object",
+        description: "The retrieved record data",
+        additionalProperties: {
+          type: "string",
+        },
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the record was not successfully retrieved",
+      },
+    },
+  },
+  name: "getRecord",
+  provider: "salesforce",
+};
