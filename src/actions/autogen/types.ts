@@ -950,3 +950,30 @@ export type salesforceCreateCaseFunction = ActionFunction<
   AuthParamsType,
   salesforceCreateCaseOutputType
 >;
+
+export const salesforceGenerateSalesReportParamsSchema = z.object({
+  startDate: z.string().describe("The start date for the sales report in ISO 8601 format (e.g., 2025-01-01)."),
+  endDate: z.string().describe("The end date for the sales report in ISO 8601 format (e.g., 2025-01-31)."),
+  filters: z
+    .record(z.string())
+    .describe("Additional filters for the sales report (e.g., by region, product).")
+    .optional(),
+});
+
+export type salesforceGenerateSalesReportParamsType = z.infer<typeof salesforceGenerateSalesReportParamsSchema>;
+
+export const salesforceGenerateSalesReportOutputSchema = z.object({
+  success: z.boolean().describe("Whether the sales report was successfully generated."),
+  reportData: z
+    .array(z.record(z.string()).describe("A row in the sales report."))
+    .describe("The data of the sales report.")
+    .optional(),
+  error: z.string().describe("The error that occurred if the sales report was not successfully generated.").optional(),
+});
+
+export type salesforceGenerateSalesReportOutputType = z.infer<typeof salesforceGenerateSalesReportOutputSchema>;
+export type salesforceGenerateSalesReportFunction = ActionFunction<
+  salesforceGenerateSalesReportParamsType,
+  AuthParamsType,
+  salesforceGenerateSalesReportOutputType
+>;

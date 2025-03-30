@@ -73,6 +73,8 @@ import {
   salesforceUpdateRecordOutputSchema,
   salesforceCreateCaseParamsSchema,
   salesforceCreateCaseOutputSchema,
+  salesforceGenerateSalesReportParamsSchema,
+  salesforceGenerateSalesReportOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -110,6 +112,7 @@ import createNote from "./providers/ashby/createNote";
 import getCandidateInfo from "./providers/ashby/getCandidateInfo";
 import updateRecord from "./providers/salesforce/updateRecord";
 import createCase from "./providers/salesforce/createCase";
+import generateSalesReport from "./providers/salesforce/generateSalesReport";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -337,6 +340,11 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: createCase,
       paramsSchema: salesforceCreateCaseParamsSchema,
       outputSchema: salesforceCreateCaseOutputSchema,
+    },
+    generateSalesReport: {
+      fn: generateSalesReport,
+      paramsSchema: salesforceGenerateSalesReportParamsSchema,
+      outputSchema: salesforceGenerateSalesReportOutputSchema,
     },
   },
 };

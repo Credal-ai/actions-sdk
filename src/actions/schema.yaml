@@ -1205,3 +1205,39 @@ actions:
           error:
             type: string
             description: The error that occurred if the case was not successfully created
+    generateSalesReport:
+      description: Generate a sales report from Salesforce
+      scopes: []
+      parameters:
+        type: object
+        required: [startDate, endDate]
+        properties:
+          startDate:
+            type: string
+            description: The start date for the sales report in ISO 8601 format (e.g., 2025-01-01).
+          endDate:
+            type: string
+            description: The end date for the sales report in ISO 8601 format (e.g., 2025-01-31).
+          filters:
+            type: object
+            description: Additional filters for the sales report (e.g., by region, product).
+            additionalProperties:
+              type: string
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the sales report was successfully generated.
+          reportData:
+            type: array
+            description: The data of the sales report.
+            items:
+              type: object
+              description: A row in the sales report.
+              additionalProperties:
+                type: string
+          error:
+            type: string
+            description: The error that occurred if the sales report was not successfully generated.

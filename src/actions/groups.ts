@@ -28,6 +28,7 @@ import {
   googleOauthScheduleCalendarMeetingDefinition,
   salesforceUpdateRecordDefinition,
   salesforceCreateCaseDefinition,
+  salesforceGenerateSalesReportDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
@@ -112,6 +113,10 @@ export const ACTION_GROUPS: ActionGroups = {
   },
   SALESFORCE: {
     description: "Actions for interacting with Salesforce",
-    actions: [salesforceUpdateRecordDefinition, salesforceCreateCaseDefinition],
+    actions: [
+      salesforceUpdateRecordDefinition,
+      salesforceCreateCaseDefinition,
+      salesforceGenerateSalesReportDefinition,
+    ],
   },
 };
