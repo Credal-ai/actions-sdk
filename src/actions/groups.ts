@@ -32,6 +32,9 @@ import {
   salesforceGetRecordDefinition,
   microsoftMessageTeamsChatDefinition,
   microsoftMessageTeamsChannelDefinition,
+  microsoftUpdateSpreadsheetDefinition,
+  microsoftUpdateDocumentDefinition,
+  microsoftCreateDocumentDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
@@ -125,6 +128,12 @@ export const ACTION_GROUPS: ActionGroups = {
   },
   MICROSOFT: {
     description: "Actions for interacting with Microsoft 365",
-    actions: [microsoftMessageTeamsChatDefinition, microsoftMessageTeamsChannelDefinition],
+    actions: [
+      microsoftMessageTeamsChatDefinition,
+      microsoftMessageTeamsChannelDefinition,
+      microsoftUpdateSpreadsheetDefinition,
+      microsoftUpdateDocumentDefinition,
+      microsoftCreateDocumentDefinition,
+    ],
   },
 };

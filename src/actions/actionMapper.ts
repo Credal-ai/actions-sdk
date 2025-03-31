@@ -91,6 +91,10 @@ import {
   microsoftMessageTeamsChatOutputSchema,
   microsoftMessageTeamsChannelParamsSchema,
   microsoftMessageTeamsChannelOutputSchema,
+  microsoftUpdateSpreadsheetParamsSchema,
+  microsoftUpdateSpreadsheetOutputSchema,
+  microsoftUpdateDocumentParamsSchema,
+  microsoftUpdateDocumentOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -138,6 +142,9 @@ import updateCandidate from "./providers/ashby/updateCandidate";
 import addCandidateToProject from "./providers/ashby/addCandidateToProject";
 import sendMessageToTeamsChat from "./providers/microsoft/messageTeamsChat";
 import sendMessageToTeamsChannel from "./providers/microsoft/messageTeamsChannel";
+import updateSpreadsheet from "./providers/microsoft/updateSpreadsheet";
+import updateDocument from "./providers/microsoft/updateDocument";
+import createDocument from "./providers/microsoft/createDocument";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -417,6 +424,21 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: sendMessageToTeamsChannel,
       paramsSchema: microsoftMessageTeamsChannelParamsSchema,
       outputSchema: microsoftMessageTeamsChannelOutputSchema,
+    },
+    updateSpreadsheet: {
+      fn: updateSpreadsheet,
+      paramsSchema: microsoftUpdateSpreadsheetParamsSchema,
+      outputSchema: microsoftUpdateSpreadsheetOutputSchema,
+    },
+    updateDocument: {
+      fn: updateDocument,
+      paramsSchema: microsoftUpdateDocumentParamsSchema,
+      outputSchema: microsoftUpdateDocumentOutputSchema,
+    },
+    createDocument: {
+      fn: createDocument,
+      paramsSchema: microsoftUpdateDocumentParamsSchema,
+      outputSchema: microsoftUpdateDocumentOutputSchema,
     },
   },
 };

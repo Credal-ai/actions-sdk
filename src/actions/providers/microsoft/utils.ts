@@ -2,7 +2,7 @@ import { Client } from "@microsoft/microsoft-graph-client";
 import { axiosClient } from "../../util/axiosClient";
 import { AuthParamsType } from "../../autogen/types";
 
-export async function getGraphClientForMessageSend(authParams: AuthParamsType): Promise<Client> {
+export async function getGraphClient(authParams: AuthParamsType, scope: string): Promise<Client> {
   if (
     !authParams.clientId ||
     !authParams.clientSecret ||
@@ -18,7 +18,7 @@ export async function getGraphClientForMessageSend(authParams: AuthParamsType): 
   const params = new URLSearchParams({
     client_id: authParams.clientId!,
     client_secret: authParams.clientSecret!,
-    scope: "offline_access ChannelMessage.Send ChatMessage.Send",
+    scope: `offline_access ${scope}`,
     grant_type: "refresh_token",
     refresh_token: authParams.refreshToken!,
     redirect_uri: authParams.redirectUri!,
@@ -34,14 +34,4 @@ export async function getGraphClientForMessageSend(authParams: AuthParamsType): 
       done(null, accessToken);
     },
   });
-}
-
-export async function sendMessage(api_url: string, message: string, authParams: AuthParamsType): Promise<string> {
-  const client = await getGraphClientForMessageSend(authParams);
-  const response = await client.api(api_url).post({
-    body: {
-      content: message,
-    },
-  });
-  return response.id;
 }

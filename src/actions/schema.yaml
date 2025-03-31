@@ -1447,10 +1447,109 @@ actions:
             type: string
             description: The error that occurred if the record was not successfully retrieved
   microsoft:
+    createDocument:
+      description: Creates a new Office365 document
+      scopes: [Files.ReadWrite, Sites.Manage.All]
+      parameters:
+        type: object
+        required: [name, content]
+        properties:
+          siteId:
+            type: string
+            description: The ID of the site where the document will be created
+          name:
+            type: string
+            description: The name of the new document (include extension like .docx or .xlsx)
+          content:
+            type: string
+            description: The content to add to the new document
+          folderId:
+            type: string
+            description: The ID of the folder to create the document in (optional)
+      output:
+        type: object
+        required: [success]
+        properties:
+          documentId:
+            type: string
+            description: The ID of the created document
+          documentUrl:
+            type: string
+            description: The URL to access the created document
+          success:
+            type: boolean
+            description: Whether the document was created successfully
+          error:
+            type: string
+            description: The error that occurred if the document was not created successfully
+    updateDocument:
+      description: Updates a Office365 document
+      scopes: [Files.ReadWrite, Sites.Manage.All]
+      parameters:
+        type: object
+        required: [documentId, content]
+        properties:
+          siteId:
+            type: string
+            description: The ID of the site where the document is located
+          documentId:
+            type: string
+            description: The ID of the document
+          content:
+            type: string
+            description: The new content to update in the document
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the document was updated successfully
+          error:
+            type: string
+            description: The error that occurred if the update was not successful
+          documentUrl:
+            type: string
+            description: The URL to access the updated document
+    updateSpreadsheet:
+      description: Updates a Microsoft Excel spreadsheet
+      scopes: [Files.ReadWrite, Sites.Manage.All]
+      parameters:
+        type: object
+        required: [spreadsheetId, range, values]
+        properties:
+          spreadsheetId:
+            type: string
+            description: The ID of the spreadsheet to update
+          range:
+            type: string
+            description: The range of cells to update (e.g., "Sheet1!A1:B2")
+          values:
+            type: array
+            description: The values to update in the specified range
+            items:
+              type: array
+              items:
+                type: string
+          siteId:
+            type: string
+            description: The ID of the site where the spreadsheet is located
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the spreadsheet was updated successfully
+          error:
+            type: string
+            description: The error that occurred if the update was not successful
+          spreadsheetUrl:
+            type: string
+            description: The URL to access the updated spreadsheet
     messageTeamsChat:
       description: Sends a message to a Microsoft Teams chat
-      scopes:
-        - chat:write
+      scopes: [ChatMessage.Send]
       parameters:
         type: object
         required: [chatId, message]
@@ -1476,8 +1575,7 @@ actions:
             description: The ID of the message that was sent
     messageTeamsChannel:
       description: Sends a message to a Microsoft Teams channel
-      scopes:
-        - chat:write
+      scopes: [ChannelMessage.Send]
       parameters:
         type: object
         required: [teamId, channelId, message]
@@ -1503,4 +1601,4 @@ actions:
             description: The error that occurred if the message was not sent successfully
           messageId:
             type: string
-            description: The ID of the message that was sent    
+            description: The ID of the message that was sent
