@@ -35,6 +35,7 @@ import {
   salesforceGetRecordDefinition,
   microsoftMessageTeamsChatDefinition,
   microsoftMessageTeamsChannelDefinition,
+  googleOauthCreatePresentationDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
@@ -64,6 +65,7 @@ export const ACTION_GROUPS: ActionGroups = {
       googleOauthUpdateDocDefinition,
       googleOauthCreateSpreadsheetDefinition,
       googleOauthUpdateSpreadsheetDefinition,
+      googleOauthCreatePresentationDefinition,
     ],
   },
   GOOGLE_CALENDAR: {

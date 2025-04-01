@@ -1612,6 +1612,44 @@ export type googleOauthUpdateSpreadsheetFunction = ActionFunction<
   googleOauthUpdateSpreadsheetOutputType
 >;
 
+export const googleOauthCreatePresentationParamsSchema = z.object({
+  title: z.string().describe("The title of the presentation"),
+  pageSize: z
+    .object({
+      width: z
+        .object({
+          unit: z.enum(["EMU", "PT"]).describe("The unit of the width").optional(),
+          magnitude: z.number().describe("The width of the presentation").optional(),
+        })
+        .describe("The width object of the presentation")
+        .optional(),
+      height: z
+        .object({
+          unit: z.enum(["EMU", "PT"]).describe("The unit of the height").optional(),
+          magnitude: z.number().describe("The height of the presentation").optional(),
+        })
+        .describe("The height object of the presentation")
+        .optional(),
+    })
+    .optional(),
+});
+
+export type googleOauthCreatePresentationParamsType = z.infer<typeof googleOauthCreatePresentationParamsSchema>;
+
+export const googleOauthCreatePresentationOutputSchema = z.object({
+  success: z.boolean().describe("Whether the presentation was created successfully"),
+  error: z.string().describe("The error that occurred if the presentation was not created successfully").optional(),
+  presentationId: z.string().describe("The ID of the created presentation").optional(),
+  presentationUrl: z.string().describe("The URL of the created presentation").optional(),
+});
+
+export type googleOauthCreatePresentationOutputType = z.infer<typeof googleOauthCreatePresentationOutputSchema>;
+export type googleOauthCreatePresentationFunction = ActionFunction<
+  googleOauthCreatePresentationParamsType,
+  AuthParamsType,
+  googleOauthCreatePresentationOutputType
+>;
+
 export const finnhubSymbolLookupParamsSchema = z.object({
   query: z.string().describe("The symbol or colloquial name of the company to look up"),
 });

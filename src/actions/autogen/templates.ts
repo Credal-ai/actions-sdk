@@ -2964,6 +2964,79 @@ export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
   name: "updateSpreadsheet",
   provider: "googleOauth",
 };
+export const googleOauthCreatePresentationDefinition: ActionTemplate = {
+  description: "Create a Google Presentation",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["title"],
+    properties: {
+      title: {
+        type: "string",
+        description: "The title of the presentation",
+      },
+      pageSize: {
+        type: "object",
+        properties: {
+          width: {
+            type: "object",
+            description: "The width object of the presentation",
+            properties: {
+              unit: {
+                type: "string",
+                enum: ["EMU", "PT"],
+                description: "The unit of the width",
+              },
+              magnitude: {
+                type: "number",
+                description: "The width of the presentation",
+              },
+            },
+          },
+          height: {
+            type: "object",
+            description: "The height object of the presentation",
+            properties: {
+              unit: {
+                type: "string",
+                enum: ["EMU", "PT"],
+                description: "The unit of the height",
+              },
+              magnitude: {
+                type: "number",
+                description: "The height of the presentation",
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the presentation was created successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the presentation was not created successfully",
+      },
+      presentationId: {
+        type: "string",
+        description: "The ID of the created presentation",
+      },
+      presentationUrl: {
+        type: "string",
+        description: "The URL of the created presentation",
+      },
+    },
+  },
+  name: "createPresentation",
+  provider: "googleOauth",
+};
 export const finnhubSymbolLookupDefinition: ActionTemplate = {
   description: "Look up a stock symbol by name",
   scopes: [],
@@ -3186,7 +3259,7 @@ export const ashbyGetCandidateInfoDefinition: ActionTemplate = {
     properties: {
       candidateId: {
         type: "string",
-        description: "The ID of the candidate to create a note for",
+        description: "The ID of the candidate whose information is to be retrieved",
       },
     },
   },

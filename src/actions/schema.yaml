@@ -2065,6 +2065,57 @@ actions:
           error:
             type: string
             description: The error that occurred if the spreadsheet was not updated successfully
+    createPresentation:
+      description: Create a Google Presentation
+      scopes: []
+      parameters:
+        type: object
+        required: [title]
+        properties:
+          title:
+            type: string
+            description: The title of the presentation
+          pageSize:
+            type: object
+            properties:
+              width:
+                type: object
+                description: The width object of the presentation
+                properties:
+                  unit:
+                    type: string
+                    enum: ["EMU", "PT"] # EMU is defined as 1/360000 of a centimeter, PT is 1/72 of an inch
+                    description: The unit of the width
+                  magnitude:
+                    type: number
+                    description: The width of the presentation
+              height:
+                type: object
+                description: The height object of the presentation
+                properties:
+                  unit:
+                    type: string
+                    enum: ["EMU", "PT"] # EMU is defined as 1/360000 of a centimeter, PT is 1/72 of an inch
+                    description: The unit of the height
+                  magnitude:
+                    type: number
+                    description: The height of the presentation
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the presentation was created successfully
+          error:
+            type: string
+            description: The error that occurred if the presentation was not created successfully
+          presentationId:
+            type: string
+            description: The ID of the created presentation
+          presentationUrl:
+            type: string
+            description: The URL of the created presentation
   finnhub:
     symbolLookup:
       description: Look up a stock symbol by name

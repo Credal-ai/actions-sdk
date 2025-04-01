@@ -97,6 +97,8 @@ import {
   microsoftMessageTeamsChatOutputSchema,
   microsoftMessageTeamsChannelParamsSchema,
   microsoftMessageTeamsChannelOutputSchema,
+  googleOauthCreatePresentationParamsSchema,
+  googleOauthCreatePresentationOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -147,6 +149,7 @@ import updateCandidate from "./providers/ashby/updateCandidate";
 import addCandidateToProject from "./providers/ashby/addCandidateToProject";
 import sendMessageToTeamsChat from "./providers/microsoft/messageTeamsChat";
 import sendMessageToTeamsChannel from "./providers/microsoft/messageTeamsChannel";
+import createPresentation from "./providers/google-oauth/createPresentation";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -339,6 +342,11 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: updateSpreadsheet,
       paramsSchema: googleOauthUpdateSpreadsheetParamsSchema,
       outputSchema: googleOauthUpdateSpreadsheetOutputSchema,
+    },
+    createPresentation: {
+      fn: createPresentation,
+      paramsSchema: googleOauthCreatePresentationParamsSchema,
+      outputSchema: googleOauthCreatePresentationOutputSchema,
     },
   },
   x: {
