@@ -71,6 +71,10 @@ import {
   googleOauthUpdateSpreadsheetOutputSchema,
   googleOauthScheduleCalendarMeetingParamsSchema,
   googleOauthScheduleCalendarMeetingOutputSchema,
+  googleOauthCreatePresentationParamsSchema,
+  googleOauthCreatePresentationOutputSchema,
+  googleOauthUpdatePresentationParamsSchema,
+  googleOauthUpdatePresentationOutputSchema,
   ashbyCreateNoteParamsSchema,
   ashbyCreateNoteOutputSchema,
   ashbyGetCandidateInfoParamsSchema,
@@ -97,8 +101,6 @@ import {
   microsoftMessageTeamsChatOutputSchema,
   microsoftMessageTeamsChannelParamsSchema,
   microsoftMessageTeamsChannelOutputSchema,
-  googleOauthCreatePresentationParamsSchema,
-  googleOauthCreatePresentationOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -150,6 +152,7 @@ import addCandidateToProject from "./providers/ashby/addCandidateToProject";
 import sendMessageToTeamsChat from "./providers/microsoft/messageTeamsChat";
 import sendMessageToTeamsChannel from "./providers/microsoft/messageTeamsChannel";
 import createPresentation from "./providers/google-oauth/createPresentation";
+import updatePresentation from "./providers/google-oauth/updatePresentation";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -347,6 +350,11 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: createPresentation,
       paramsSchema: googleOauthCreatePresentationParamsSchema,
       outputSchema: googleOauthCreatePresentationOutputSchema,
+    },
+    updatePresentation: {
+      fn: updatePresentation,
+      paramsSchema: googleOauthUpdatePresentationParamsSchema,
+      outputSchema: googleOauthUpdatePresentationOutputSchema,
     },
   },
   x: {

@@ -2116,6 +2116,887 @@ actions:
           presentationUrl:
             type: string
             description: The URL of the created presentation
+    updatePresentation:
+      description: Update a Google Presentation
+      scopes: []
+      parameters:
+        type: object
+        required: [presentationId, requests]
+        properties:
+          presentationId:
+            type: string
+            description: The ID of the presentation to update
+          requests:
+            type: array
+            description: The requests to update the presentation with
+            items:
+              type: object
+              oneOf:
+                - type: object
+                  required: [createSlide]
+                  properties:
+                    createSlide:
+                      type: object
+                      description: Creates a new slide in the presentation
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID for the created slide
+                        insertionIndex:
+                          type: integer
+                          description: The 0-based index where the new slide should be inserted
+                        slideLayoutReference:
+                          type: object
+                          description: Layout reference of the slide to be created
+                          properties:
+                            predefinedLayout:
+                              type: string
+                              description: Predefined layout of the slide
+                - type: object
+                  required: [createShape]
+                  properties:
+                    createShape:
+                      type: object
+                      description: Creates a new shape in the presentation
+                      required: [objectId, shapeType]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID for the created shape
+                        shapeType:
+                          type: string
+                          description: The type of shape to create
+                        elementProperties:
+                          type: object
+                          description: The element's size and position
+                - type: object
+                  required: [createTable]
+                  properties:
+                    createTable:
+                      type: object
+                      description: Creates a new table in the presentation
+                      required: [rows, columns]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID for the created table
+                        rows:
+                          type: integer
+                          description: Number of rows in the table
+                        columns:
+                          type: integer
+                          description: Number of columns in the table
+                        elementProperties:
+                          type: object
+                          description: The element's size and position
+                - type: object
+                  required: [insertText]
+                  properties:
+                    insertText:
+                      type: object
+                      description: Inserts text into a shape or table cell
+                      required: [objectId, text]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID of the shape or table cell
+                        text:
+                          type: string
+                          description: The text to be inserted
+                        insertionIndex:
+                          type: integer
+                          description: The index where the text will be inserted
+                - type: object
+                  required: [insertTableRows]
+                  properties:
+                    insertTableRows:
+                      type: object
+                      description: Inserts rows into a table
+                      required: [tableObjectId, insertBelow]
+                      properties:
+                        tableObjectId:
+                          type: string
+                          description: The table to insert rows into
+                        insertBelow:
+                          type: boolean
+                          description: Whether to insert the rows below the reference cell
+                        number:
+                          type: integer
+                          description: The number of rows to insert
+                        cellLocation:
+                          type: object
+                          description: The location where rows will be inserted
+                - type: object
+                  required: [insertTableColumns]
+                  properties:
+                    insertTableColumns:
+                      type: object
+                      description: Inserts columns into a table
+                      required: [tableObjectId, insertRight]
+                      properties:
+                        tableObjectId:
+                          type: string
+                          description: The table to insert columns into
+                        insertRight:
+                          type: boolean
+                          description: Whether to insert the columns to the right of the reference cell
+                        number:
+                          type: integer
+                          description: The number of columns to insert
+                        cellLocation:
+                          type: object
+                          description: The location where columns will be inserted
+                - type: object
+                  required: [deleteTableRow]
+                  properties:
+                    deleteTableRow:
+                      type: object
+                      description: Deletes a row from a table
+                      required: [tableObjectId, cellLocation]
+                      properties:
+                        tableObjectId:
+                          type: string
+                          description: The table to delete a row from
+                        cellLocation:
+                          type: object
+                          description: The location of the row to delete
+                - type: object
+                  required: [deleteTableColumn]
+                  properties:
+                    deleteTableColumn:
+                      type: object
+                      description: Deletes a column from a table
+                      required: [tableObjectId, cellLocation]
+                      properties:
+                        tableObjectId:
+                          type: string
+                          description: The table to delete a column from
+                        cellLocation:
+                          type: object
+                          description: The location of the column to delete
+                - type: object
+                  required: [replaceAllText]
+                  properties:
+                    replaceAllText:
+                      type: object
+                      description: Replaces all instances of text matching a criteria
+                      required: [replaceText, containsText]
+                      properties:
+                        replaceText:
+                          type: string
+                          description: The text that will replace the matched text
+                        containsText:
+                          type: object
+                          description: The text to search for
+                          required: [text]
+                          properties:
+                            text:
+                              type: string
+                              description: The text to search for in the presentation
+                            matchCase:
+                              type: boolean
+                              description: Whether the search should be case sensitive
+                - type: object
+                  required: [deleteObject]
+                  properties:
+                    deleteObject:
+                      type: object
+                      description: Deletes an object from the presentation
+                      required: [objectId]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID of the element to delete
+                - type: object
+                  required: [updatePageElementTransform]
+                  properties:
+                    updatePageElementTransform:
+                      type: object
+                      description: Updates the transform of a page element
+                      required: [objectId, transform]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID of the element to update
+                        transform:
+                          type: object
+                          description: The transform to apply
+                          properties:
+                            scaleX:
+                              type: number
+                              description: The horizontal scale factor
+                            scaleY:
+                              type: number
+                              description: The vertical scale factor
+                            translateX:
+                              type: number
+                              description: The horizontal translation
+                            translateY:
+                              type: number
+                              description: The vertical translation
+                            unit:
+                              type: string
+                              description: The unit for translate values
+                - type: object
+                  required: [updateSlidesPosition]
+                  properties:
+                    updateSlidesPosition:
+                      type: object
+                      description: Updates the position of slides in the presentation
+                      required: [slideObjectIds]
+                      properties:
+                        slideObjectIds:
+                          type: array
+                          description: The IDs of the slides to reorder
+                          items:
+                            type: string
+                        insertionIndex:
+                          type: integer
+                          description: The 0-based index where the slides should be moved to
+                - type: object
+                  required: [deleteText]
+                  properties:
+                    deleteText:
+                      type: object
+                      description: Deletes text from a shape or table cell
+                      required: [objectId]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID of the shape or table cell
+                        textRange:
+                          type: object
+                          description: The range of text to delete
+                          properties:
+                            startIndex:
+                              type: integer
+                              description: The starting index of the range (0-based)
+                            endIndex:
+                              type: integer
+                              description: The ending index of the range (0-based)
+                - type: object
+                  required: [createImage]
+                  properties:
+                    createImage:
+                      type: object
+                      description: Creates an image in the presentation
+                      required: [url]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID for the created image
+                        url:
+                          type: string
+                          description: The URL of the image to insert
+                        elementProperties:
+                          type: object
+                          description: The element's size and position
+                - type: object
+                  required: [createVideo]
+                  properties:
+                    createVideo:
+                      type: object
+                      description: Creates a video in the presentation
+                      required: [url]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID for the created video
+                        url:
+                          type: string
+                          description: The URL of the video to insert
+                        elementProperties:
+                          type: object
+                          description: The element's size and position
+                - type: object
+                  required: [createSheetsChart]
+                  properties:
+                    createSheetsChart:
+                      type: object
+                      description: Creates a linked chart from Google Sheets
+                      required: [spreadsheetId, chartId]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID for the created chart
+                        spreadsheetId:
+                          type: string
+                          description: The ID of the Google Sheets spreadsheet containing the chart
+                        chartId:
+                          type: integer
+                          description: The ID of the specific chart in the spreadsheet
+                        elementProperties:
+                          type: object
+                          description: The element's size and position
+                - type: object
+                  required: [createLine]
+                  properties:
+                    createLine:
+                      type: object
+                      description: Creates a line in the presentation
+                      required: [lineCategory]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID for the created line
+                        lineCategory:
+                          type: string
+                          description: The category of line to create
+                        elementProperties:
+                          type: object
+                          description: The element's size and position
+                - type: object
+                  required: [refreshSheetsChart]
+                  properties:
+                    refreshSheetsChart:
+                      type: object
+                      description: Refreshes an existing linked sheets chart
+                      required: [objectId]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID of the chart to refresh
+                - type: object
+                  required: [updateShapeProperties]
+                  properties:
+                    updateShapeProperties:
+                      type: object
+                      description: Updates the properties of a shape
+                      required: [objectId, shapeProperties]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID of the shape
+                        shapeProperties:
+                          type: object
+                          description: The properties to update
+                - type: object
+                  required: [updateImageProperties]
+                  properties:
+                    updateImageProperties:
+                      type: object
+                      description: Updates the properties of an image
+                      required: [objectId, imageProperties]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID of the image
+                        imageProperties:
+                          type: object
+                          description: The properties to update
+                - type: object
+                  required: [updateVideoProperties]
+                  properties:
+                    updateVideoProperties:
+                      type: object
+                      description: Updates the properties of a video
+                      required: [objectId, videoProperties]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID of the video
+                        videoProperties:
+                          type: object
+                          description: The properties to update
+                - type: object
+                  required: [updatePageProperties]
+                  properties:
+                    updatePageProperties:
+                      type: object
+                      description: Updates the properties of a page
+                      required: [objectId, pageProperties]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID of the page
+                        pageProperties:
+                          type: object
+                          description: The properties to update
+                - type: object
+                  required: [updateTableCellProperties]
+                  properties:
+                    updateTableCellProperties:
+                      type: object
+                      description: Updates the properties of table cells
+                      required: [objectId, tableCellProperties]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID of the table cell
+                        tableCellProperties:
+                          type: object
+                          description: The properties to update for the table cell
+                        fields:
+                           type: string
+                           description: Comma-separated list of fields to update (e.g., 'contentAlignment,backgroundColor')
+                        tableRange:
+                           type: object
+                           description: The range of cells to update the properties for
+                - type: object
+                  required: [updateLineProperties]
+                  properties:
+                    updateLineProperties:
+                      type: object
+                      description: Updates the properties of a line
+                      required: [objectId, lineProperties]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID of the line
+                        lineProperties:
+                          type: object
+                          description: The properties to update for the line
+                        fields:
+                           type: string
+                           description: Comma-separated list of fields to update (e.g., 'lineFill,weight')
+                - type: object
+                  required: [createParagraphBullets]
+                  properties:
+                    createParagraphBullets:
+                      type: object
+                      description: Creates bullets for paragraphs
+                      required: [objectId, bulletPreset]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID of the shape or table cell containing the paragraph
+                        bulletPreset:
+                          type: string
+                          description: The preset type of bullet to use (e.g., BULLET_DISC_CIRCLE_SQUARE)
+                        textRange:
+                          type: object
+                          description: The range of text to apply bullets to (defaults to all text if unspecified)
+                - type: object
+                  required: [replaceAllShapesWithImage]
+                  properties:
+                    replaceAllShapesWithImage:
+                      type: object
+                      description: Replaces all shapes matching criteria with an image
+                      required: [imageUrl, containsText]
+                      properties:
+                        imageUrl:
+                          type: string
+                          description: The URL of the image to replace shapes with
+                        containsText:
+                          type: object
+                          description: Criteria for shapes to replace (must contain specified text)
+                          required: [text]
+                          properties:
+                            text:
+                              type: string
+                              description: The text the shape must contain to be replaced
+                            matchCase:
+                              type: boolean
+                              description: Whether the text match is case-sensitive
+                        replaceMethod:
+                           type: string
+                           enum: [CENTER_INSIDE, CENTER_CROP]
+                           description: The image replace method (Defaults to CENTER_INSIDE)
+                        pageObjectIds:
+                           type: array
+                           items:
+                             type: string
+                           description: Optional list of page object IDs to scope the replacement to
+                - type: object
+                  required: [duplicateObject]
+                  properties:
+                    duplicateObject:
+                      type: object
+                      description: Duplicates a slide object (shape, image, table, etc.)
+                      required: [objectId]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID of the object to duplicate
+                        objectIds:
+                          type: object
+                          description: Optional map for assigning specific object IDs to the duplicated elements (key is original ID, value is new ID)
+                          additionalProperties:
+                             type: string
+                - type: object
+                  required: [updateTextStyle]
+                  properties:
+                    updateTextStyle:
+                      type: object
+                      description: Updates the style of a range of text
+                      required: [objectId, style, fields]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID of the shape or table cell containing the text
+                        style:
+                          type: object
+                          description: The text style properties to apply (e.g., bold, fontSize)
+                        fields:
+                          type: string
+                          description: Comma-separated list of style fields to update using FieldMask syntax (e.g., 'bold,italic,fontSize')
+                        textRange:
+                          type: object
+                          description: The range of text to style (defaults to all text if unspecified)
+                          properties:
+                            type:
+                              type: string
+                              enum: [ALL, FROM_START_INDEX, FIXED_RANGE]
+                              description: The type of range
+                            startIndex:
+                              type: integer
+                              description: The start index for FROM_START_INDEX or FIXED_RANGE
+                            endIndex:
+                              type: integer
+                              description: The end index for FIXED_RANGE
+                - type: object
+                  required: [replaceAllShapesWithSheetsChart]
+                  properties:
+                    replaceAllShapesWithSheetsChart:
+                      type: object
+                      description: Replaces all shapes matching criteria with a Google Sheets chart
+                      required: [spreadsheetId, chartId, containsText]
+                      properties:
+                        spreadsheetId:
+                          type: string
+                          description: The ID of the Google Sheets spreadsheet containing the chart
+                        chartId:
+                          type: integer
+                          description: The ID of the chart within the spreadsheet
+                        containsText:
+                          type: object
+                          description: Criteria for shapes to replace (must contain specified text)
+                          required: [text]
+                          properties:
+                            text:
+                              type: string
+                              description: The text the shape must contain to be replaced
+                            matchCase:
+                              type: boolean
+                              description: Whether the text match is case-sensitive
+                        linkingMode:
+                          type: string
+                          enum: [LINKED, NOT_LINKED_IMAGE]
+                          description: The linking mode of the chart (Defaults to LINKED)
+                        pageObjectIds:
+                           type: array
+                           items:
+                             type: string
+                           description: Optional list of page object IDs to scope the replacement to
+                - type: object
+                  required: [deleteParagraphBullets]
+                  properties:
+                    deleteParagraphBullets:
+                      type: object
+                      description: Deletes bullets from a range of paragraphs
+                      required: [objectId]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID of the shape or table cell containing the paragraph
+                        textRange:
+                          type: object
+                          description: The range of text to delete bullets from (defaults to all text if unspecified)
+                          properties:
+                            type:
+                              type: string
+                              enum: [ALL, FROM_START_INDEX, FIXED_RANGE]
+                              description: The type of range
+                            startIndex:
+                              type: integer
+                              description: The start index for FROM_START_INDEX or FIXED_RANGE
+                            endIndex:
+                              type: integer
+                              description: The end index for FIXED_RANGE
+                - type: object
+                  required: [updateParagraphStyle]
+                  properties:
+                    updateParagraphStyle:
+                      type: object
+                      description: Updates the style of paragraphs
+                      required: [objectId, style, fields]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID of the shape or table cell containing the paragraph
+                        style:
+                          type: object
+                          description: The paragraph style properties to apply (e.g., alignment, lineSpacing)
+                        fields:
+                          type: string
+                          description: Comma-separated list of style fields to update using FieldMask syntax (e.g., 'alignment,direction,lineSpacing')
+                        textRange:
+                          type: object
+                          description: The range of text to apply the style to (defaults to all paragraphs if unspecified)
+                          properties:
+                            type:
+                              type: string
+                              enum: [ALL, FROM_START_INDEX, FIXED_RANGE]
+                              description: The type of range
+                            startIndex:
+                              type: integer
+                              description: The start index for FROM_START_INDEX or FIXED_RANGE
+                            endIndex:
+                              type: integer
+                              description: The end index for FIXED_RANGE
+                - type: object
+                  required: [updateTableBorderProperties]
+                  properties:
+                    updateTableBorderProperties:
+                      type: object
+                      description: Updates the properties of a table border
+                      required: [objectId, tableBorderProperties]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID of the table
+                        tableBorderProperties:
+                          type: object
+                          description: The border properties to update (e.g., dashStyle, weight, color)
+                        fields:
+                           type: string
+                           description: Comma-separated list of fields to update (e.g., 'dashStyle,weight')
+                        borderPosition:
+                           type: string
+                           enum: [ALL, BOTTOM, TOP, LEFT, RIGHT, INNER_HORIZONTAL, INNER_VERTICAL]
+                           description: The position of the border segments to update (defaults to ALL if unspecified)
+                        tableRange:
+                           type: object
+                           description: The range of cells whose border should be updated (defaults to the entire table if unspecified)
+                           properties:
+                             location:
+                               type: object
+                               description: The starting cell location
+                             rowSpan:
+                               type: integer
+                               description: The number of rows in the range
+                             columnSpan:
+                               type: integer
+                               description: The number of columns in the range
+                - type: object
+                  required: [updateTableColumnProperties]
+                  properties:
+                    updateTableColumnProperties:
+                      type: object
+                      description: Updates the properties of table columns
+                      required: [objectId, columnIndices, tableColumnProperties, fields]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID of the table
+                        columnIndices:
+                           type: array
+                           items:
+                             type: integer
+                           description: The 0-based indices of the columns to update
+                        tableColumnProperties:
+                          type: object
+                          description: The properties to update (e.g., columnWidth)
+                        fields:
+                           type: string
+                           description: Comma-separated list of fields to update using FieldMask syntax (e.g., 'columnWidth')
+                - type: object
+                  required: [updateTableRowProperties]
+                  properties:
+                    updateTableRowProperties:
+                      type: object
+                      description: Updates the properties of table rows
+                      required: [objectId, rowIndices, tableRowProperties, fields]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID of the table
+                        rowIndices:
+                           type: array
+                           items:
+                              type: integer
+                           description: The 0-based indices of the rows to update
+                        tableRowProperties:
+                          type: object
+                          description: The properties to update (e.g., minRowHeight)
+                        fields:
+                           type: string
+                           description: Comma-separated list of fields to update using FieldMask syntax (e.g., 'minRowHeight')
+                - type: object
+                  required: [mergeTableCells]
+                  properties:
+                    mergeTableCells:
+                      type: object
+                      description: Merges cells in a table
+                      required: [objectId, tableRange]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID of the table
+                        tableRange:
+                          type: object
+                          description: The range of cells to merge
+                          properties:
+                            location:
+                              type: object
+                              description: The starting cell location
+                            rowSpan:
+                              type: integer
+                              description: The number of rows in the range
+                            columnSpan:
+                              type: integer
+                              description: The number of columns in the range
+                - type: object
+                  required: [unmergeTableCells]
+                  properties:
+                    unmergeTableCells:
+                      type: object
+                      description: Unmerges cells in a table
+                      required: [objectId, tableRange]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID of the table
+                        tableRange:
+                          type: object
+                          description: The range of cells to unmerge
+                          properties:
+                            location:
+                              type: object
+                              description: The starting cell location
+                            rowSpan:
+                              type: integer
+                              description: The number of rows in the range
+                            columnSpan:
+                              type: integer
+                              description: The number of columns in the range
+                - type: object
+                  required: [groupObjects]
+                  properties:
+                    groupObjects:
+                      type: object
+                      description: Groups multiple page elements together
+                      required: [childrenObjectIds, groupObjectId]
+                      properties:
+                        childrenObjectIds:
+                          type: array
+                          items:
+                            type: string
+                          description: The object IDs of the elements to group
+                        groupObjectId:
+                          type: string
+                          description: The object ID to assign to the created group
+                - type: object
+                  required: [ungroupObjects]
+                  properties:
+                    ungroupObjects:
+                      type: object
+                      description: Ungroups page elements
+                      required: [objectIds]
+                      properties:
+                        objectIds:
+                          type: array
+                          items:
+                            type: string
+                          description: The object IDs of the groups to ungroup
+                - type: object
+                  required: [updatePageElementAltText]
+                  properties:
+                    updatePageElementAltText:
+                      type: object
+                      description: Updates the alt text for a page element
+                      required: [objectId, title, description]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID of the page element
+                        title:
+                          type: string
+                          description: The title for the alt text
+                        description:
+                          type: string
+                          description: The description for the alt text
+                - type: object
+                  required: [replaceImage]
+                  properties:
+                    replaceImage:
+                      type: object
+                      description: Replaces an existing image with a new one
+                      required: [imageObjectId, url]
+                      properties:
+                        imageObjectId:
+                          type: string
+                          description: The object ID of the image to replace
+                        url:
+                          type: string
+                          description: The URL of the new image
+                        replaceMethod:
+                          type: string
+                          enum: [CENTER_INSIDE, CENTER_CROP]
+                          description: The image replace method (Defaults to CENTER_INSIDE)
+                - type: object
+                  required: [updateSlideProperties]
+                  properties:
+                    updateSlideProperties:
+                      type: object
+                      description: Updates the properties of a slide
+                      required: [objectId, slideProperties, fields]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID of the slide
+                        slideProperties:
+                          type: object
+                          description: The properties to update (e.g., master reference, layout reference)
+                        fields:
+                          type: string
+                          description: Comma-separated list of fields to update using FieldMask syntax (e.g., 'slideBackgroundFill')
+                - type: object
+                  required: [updatePageElementsZOrder]
+                  properties:
+                    updatePageElementsZOrder:
+                      type: object
+                      description: Updates the Z-order of page elements
+                      required: [pageObjectIds, operation]
+                      properties:
+                        pageObjectIds:
+                          type: array
+                          items:
+                            type: string
+                          description: The object IDs of the page elements to reorder
+                        operation:
+                          type: string
+                          enum: [BRING_TO_FRONT, BRING_FORWARD, SEND_BACKWARD, SEND_TO_BACK]
+                          description: The Z-order operation to apply
+                - type: object
+                  required: [updateLineCategory]
+                  properties:
+                    updateLineCategory:
+                       type: object
+                       description: Updates the category of a line
+                       required: [objectId, lineCategory]
+                       properties:
+                         objectId:
+                           type: string
+                           description: The object ID of the line
+                         lineCategory:
+                           type: string
+                           enum: [STRAIGHT, BENT, CURVED]
+                           description: The new line category
+                - type: object
+                  required: [rerouteLine]
+                  properties:
+                    rerouteLine:
+                      type: object
+                      description: Reroutes a line connection
+                      required: [objectId]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID of the line to reroute
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the presentation was created successfully
+          error:
+            type: string
+            description: The error that occurred if the presentation was not created successfully
+          presentationUrl:
+            type: string
+            description: The URL of the created presentation
   finnhub:
     symbolLookup:
       description: Look up a stock symbol by name

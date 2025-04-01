@@ -29,13 +29,14 @@ import {
   googleOauthScheduleCalendarMeetingDefinition,
   googleOauthCreateSpreadsheetDefinition,
   googleOauthUpdateSpreadsheetDefinition,
+  googleOauthCreatePresentationDefinition,
+  googleOauthUpdatePresentationDefinition,
   salesforceUpdateRecordDefinition,
   salesforceCreateCaseDefinition,
   salesforceGenerateSalesReportDefinition,
   salesforceGetRecordDefinition,
   microsoftMessageTeamsChatDefinition,
   microsoftMessageTeamsChannelDefinition,
-  googleOauthCreatePresentationDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
@@ -66,6 +67,7 @@ export const ACTION_GROUPS: ActionGroups = {
       googleOauthCreateSpreadsheetDefinition,
       googleOauthUpdateSpreadsheetDefinition,
       googleOauthCreatePresentationDefinition,
+      googleOauthUpdatePresentationDefinition,
     ],
   },
   GOOGLE_CALENDAR: {

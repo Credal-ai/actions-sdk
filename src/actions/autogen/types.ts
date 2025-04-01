@@ -1650,6 +1650,649 @@ export type googleOauthCreatePresentationFunction = ActionFunction<
   googleOauthCreatePresentationOutputType
 >;
 
+export const googleOauthUpdatePresentationParamsSchema = z.object({
+  presentationId: z.string().describe("The ID of the presentation to update"),
+  requests: z
+    .array(
+      z
+        .object({})
+        .catchall(z.any())
+        .and(
+          z.any().superRefine((x, ctx) => {
+            const schemas = [
+              z.object({
+                createSlide: z
+                  .object({
+                    objectId: z.string().describe("The object ID for the created slide").optional(),
+                    insertionIndex: z
+                      .number()
+                      .int()
+                      .describe("The 0-based index where the new slide should be inserted")
+                      .optional(),
+                    slideLayoutReference: z
+                      .object({ predefinedLayout: z.string().describe("Predefined layout of the slide").optional() })
+                      .describe("Layout reference of the slide to be created")
+                      .optional(),
+                  })
+                  .describe("Creates a new slide in the presentation"),
+              }),
+              z.object({
+                createShape: z
+                  .object({
+                    objectId: z.string().describe("The object ID for the created shape"),
+                    shapeType: z.string().describe("The type of shape to create"),
+                    elementProperties: z
+                      .object({})
+                      .catchall(z.any())
+                      .describe("The element's size and position")
+                      .optional(),
+                  })
+                  .describe("Creates a new shape in the presentation"),
+              }),
+              z.object({
+                createTable: z
+                  .object({
+                    objectId: z.string().describe("The object ID for the created table").optional(),
+                    rows: z.number().int().describe("Number of rows in the table"),
+                    columns: z.number().int().describe("Number of columns in the table"),
+                    elementProperties: z
+                      .object({})
+                      .catchall(z.any())
+                      .describe("The element's size and position")
+                      .optional(),
+                  })
+                  .describe("Creates a new table in the presentation"),
+              }),
+              z.object({
+                insertText: z
+                  .object({
+                    objectId: z.string().describe("The object ID of the shape or table cell"),
+                    text: z.string().describe("The text to be inserted"),
+                    insertionIndex: z.number().int().describe("The index where the text will be inserted").optional(),
+                  })
+                  .describe("Inserts text into a shape or table cell"),
+              }),
+              z.object({
+                insertTableRows: z
+                  .object({
+                    tableObjectId: z.string().describe("The table to insert rows into"),
+                    insertBelow: z.boolean().describe("Whether to insert the rows below the reference cell"),
+                    number: z.number().int().describe("The number of rows to insert").optional(),
+                    cellLocation: z
+                      .object({})
+                      .catchall(z.any())
+                      .describe("The location where rows will be inserted")
+                      .optional(),
+                  })
+                  .describe("Inserts rows into a table"),
+              }),
+              z.object({
+                insertTableColumns: z
+                  .object({
+                    tableObjectId: z.string().describe("The table to insert columns into"),
+                    insertRight: z
+                      .boolean()
+                      .describe("Whether to insert the columns to the right of the reference cell"),
+                    number: z.number().int().describe("The number of columns to insert").optional(),
+                    cellLocation: z
+                      .object({})
+                      .catchall(z.any())
+                      .describe("The location where columns will be inserted")
+                      .optional(),
+                  })
+                  .describe("Inserts columns into a table"),
+              }),
+              z.object({
+                deleteTableRow: z
+                  .object({
+                    tableObjectId: z.string().describe("The table to delete a row from"),
+                    cellLocation: z.object({}).catchall(z.any()).describe("The location of the row to delete"),
+                  })
+                  .describe("Deletes a row from a table"),
+              }),
+              z.object({
+                deleteTableColumn: z
+                  .object({
+                    tableObjectId: z.string().describe("The table to delete a column from"),
+                    cellLocation: z.object({}).catchall(z.any()).describe("The location of the column to delete"),
+                  })
+                  .describe("Deletes a column from a table"),
+              }),
+              z.object({
+                replaceAllText: z
+                  .object({
+                    replaceText: z.string().describe("The text that will replace the matched text"),
+                    containsText: z
+                      .object({
+                        text: z.string().describe("The text to search for in the presentation"),
+                        matchCase: z.boolean().describe("Whether the search should be case sensitive").optional(),
+                      })
+                      .describe("The text to search for"),
+                  })
+                  .describe("Replaces all instances of text matching a criteria"),
+              }),
+              z.object({
+                deleteObject: z
+                  .object({ objectId: z.string().describe("The object ID of the element to delete") })
+                  .describe("Deletes an object from the presentation"),
+              }),
+              z.object({
+                updatePageElementTransform: z
+                  .object({
+                    objectId: z.string().describe("The object ID of the element to update"),
+                    transform: z
+                      .object({
+                        scaleX: z.number().describe("The horizontal scale factor").optional(),
+                        scaleY: z.number().describe("The vertical scale factor").optional(),
+                        translateX: z.number().describe("The horizontal translation").optional(),
+                        translateY: z.number().describe("The vertical translation").optional(),
+                        unit: z.string().describe("The unit for translate values").optional(),
+                      })
+                      .describe("The transform to apply"),
+                  })
+                  .describe("Updates the transform of a page element"),
+              }),
+              z.object({
+                updateSlidesPosition: z
+                  .object({
+                    slideObjectIds: z.array(z.string()).describe("The IDs of the slides to reorder"),
+                    insertionIndex: z
+                      .number()
+                      .int()
+                      .describe("The 0-based index where the slides should be moved to")
+                      .optional(),
+                  })
+                  .describe("Updates the position of slides in the presentation"),
+              }),
+              z.object({
+                deleteText: z
+                  .object({
+                    objectId: z.string().describe("The object ID of the shape or table cell"),
+                    textRange: z
+                      .object({
+                        startIndex: z.number().int().describe("The starting index of the range (0-based)").optional(),
+                        endIndex: z.number().int().describe("The ending index of the range (0-based)").optional(),
+                      })
+                      .describe("The range of text to delete")
+                      .optional(),
+                  })
+                  .describe("Deletes text from a shape or table cell"),
+              }),
+              z.object({
+                createImage: z
+                  .object({
+                    objectId: z.string().describe("The object ID for the created image").optional(),
+                    url: z.string().describe("The URL of the image to insert"),
+                    elementProperties: z
+                      .object({})
+                      .catchall(z.any())
+                      .describe("The element's size and position")
+                      .optional(),
+                  })
+                  .describe("Creates an image in the presentation"),
+              }),
+              z.object({
+                createVideo: z
+                  .object({
+                    objectId: z.string().describe("The object ID for the created video").optional(),
+                    url: z.string().describe("The URL of the video to insert"),
+                    elementProperties: z
+                      .object({})
+                      .catchall(z.any())
+                      .describe("The element's size and position")
+                      .optional(),
+                  })
+                  .describe("Creates a video in the presentation"),
+              }),
+              z.object({
+                createSheetsChart: z
+                  .object({
+                    objectId: z.string().describe("The object ID for the created chart").optional(),
+                    spreadsheetId: z.string().describe("The ID of the Google Sheets spreadsheet containing the chart"),
+                    chartId: z.number().int().describe("The ID of the specific chart in the spreadsheet"),
+                    elementProperties: z
+                      .object({})
+                      .catchall(z.any())
+                      .describe("The element's size and position")
+                      .optional(),
+                  })
+                  .describe("Creates a linked chart from Google Sheets"),
+              }),
+              z.object({
+                createLine: z
+                  .object({
+                    objectId: z.string().describe("The object ID for the created line").optional(),
+                    lineCategory: z.string().describe("The category of line to create"),
+                    elementProperties: z
+                      .object({})
+                      .catchall(z.any())
+                      .describe("The element's size and position")
+                      .optional(),
+                  })
+                  .describe("Creates a line in the presentation"),
+              }),
+              z.object({
+                refreshSheetsChart: z
+                  .object({ objectId: z.string().describe("The object ID of the chart to refresh") })
+                  .describe("Refreshes an existing linked sheets chart"),
+              }),
+              z.object({
+                updateShapeProperties: z
+                  .object({
+                    objectId: z.string().describe("The object ID of the shape"),
+                    shapeProperties: z.object({}).catchall(z.any()).describe("The properties to update"),
+                  })
+                  .describe("Updates the properties of a shape"),
+              }),
+              z.object({
+                updateImageProperties: z
+                  .object({
+                    objectId: z.string().describe("The object ID of the image"),
+                    imageProperties: z.object({}).catchall(z.any()).describe("The properties to update"),
+                  })
+                  .describe("Updates the properties of an image"),
+              }),
+              z.object({
+                updateVideoProperties: z
+                  .object({
+                    objectId: z.string().describe("The object ID of the video"),
+                    videoProperties: z.object({}).catchall(z.any()).describe("The properties to update"),
+                  })
+                  .describe("Updates the properties of a video"),
+              }),
+              z.object({
+                updatePageProperties: z
+                  .object({
+                    objectId: z.string().describe("The object ID of the page"),
+                    pageProperties: z.object({}).catchall(z.any()).describe("The properties to update"),
+                  })
+                  .describe("Updates the properties of a page"),
+              }),
+              z.object({
+                updateTableCellProperties: z
+                  .object({
+                    objectId: z.string().describe("The object ID of the table cell"),
+                    tableCellProperties: z
+                      .object({})
+                      .catchall(z.any())
+                      .describe("The properties to update for the table cell"),
+                    fields: z
+                      .string()
+                      .describe("Comma-separated list of fields to update (e.g., 'contentAlignment,backgroundColor')")
+                      .optional(),
+                    tableRange: z
+                      .object({})
+                      .catchall(z.any())
+                      .describe("The range of cells to update the properties for")
+                      .optional(),
+                  })
+                  .describe("Updates the properties of table cells"),
+              }),
+              z.object({
+                updateLineProperties: z
+                  .object({
+                    objectId: z.string().describe("The object ID of the line"),
+                    lineProperties: z.object({}).catchall(z.any()).describe("The properties to update for the line"),
+                    fields: z
+                      .string()
+                      .describe("Comma-separated list of fields to update (e.g., 'lineFill,weight')")
+                      .optional(),
+                  })
+                  .describe("Updates the properties of a line"),
+              }),
+              z.object({
+                createParagraphBullets: z
+                  .object({
+                    objectId: z.string().describe("The object ID of the shape or table cell containing the paragraph"),
+                    bulletPreset: z
+                      .string()
+                      .describe("The preset type of bullet to use (e.g., BULLET_DISC_CIRCLE_SQUARE)"),
+                    textRange: z
+                      .object({})
+                      .catchall(z.any())
+                      .describe("The range of text to apply bullets to (defaults to all text if unspecified)")
+                      .optional(),
+                  })
+                  .describe("Creates bullets for paragraphs"),
+              }),
+              z.object({
+                replaceAllShapesWithImage: z
+                  .object({
+                    imageUrl: z.string().describe("The URL of the image to replace shapes with"),
+                    containsText: z
+                      .object({
+                        text: z.string().describe("The text the shape must contain to be replaced"),
+                        matchCase: z.boolean().describe("Whether the text match is case-sensitive").optional(),
+                      })
+                      .describe("Criteria for shapes to replace (must contain specified text)"),
+                    replaceMethod: z
+                      .enum(["CENTER_INSIDE", "CENTER_CROP"])
+                      .describe("The image replace method (Defaults to CENTER_INSIDE)")
+                      .optional(),
+                    pageObjectIds: z
+                      .array(z.string())
+                      .describe("Optional list of page object IDs to scope the replacement to")
+                      .optional(),
+                  })
+                  .describe("Replaces all shapes matching criteria with an image"),
+              }),
+              z.object({
+                duplicateObject: z
+                  .object({
+                    objectId: z.string().describe("The object ID of the object to duplicate"),
+                    objectIds: z
+                      .record(z.string())
+                      .describe(
+                        "Optional map for assigning specific object IDs to the duplicated elements (key is original ID, value is new ID)",
+                      )
+                      .optional(),
+                  })
+                  .describe("Duplicates a slide object (shape, image, table, etc.)"),
+              }),
+              z.object({
+                updateTextStyle: z
+                  .object({
+                    objectId: z.string().describe("The object ID of the shape or table cell containing the text"),
+                    style: z
+                      .object({})
+                      .catchall(z.any())
+                      .describe("The text style properties to apply (e.g., bold, fontSize)"),
+                    fields: z
+                      .string()
+                      .describe(
+                        "Comma-separated list of style fields to update using FieldMask syntax (e.g., 'bold,italic,fontSize')",
+                      ),
+                    textRange: z
+                      .object({
+                        type: z
+                          .enum(["ALL", "FROM_START_INDEX", "FIXED_RANGE"])
+                          .describe("The type of range")
+                          .optional(),
+                        startIndex: z
+                          .number()
+                          .int()
+                          .describe("The start index for FROM_START_INDEX or FIXED_RANGE")
+                          .optional(),
+                        endIndex: z.number().int().describe("The end index for FIXED_RANGE").optional(),
+                      })
+                      .describe("The range of text to style (defaults to all text if unspecified)")
+                      .optional(),
+                  })
+                  .describe("Updates the style of a range of text"),
+              }),
+              z.object({
+                replaceAllShapesWithSheetsChart: z
+                  .object({
+                    spreadsheetId: z.string().describe("The ID of the Google Sheets spreadsheet containing the chart"),
+                    chartId: z.number().int().describe("The ID of the chart within the spreadsheet"),
+                    containsText: z
+                      .object({
+                        text: z.string().describe("The text the shape must contain to be replaced"),
+                        matchCase: z.boolean().describe("Whether the text match is case-sensitive").optional(),
+                      })
+                      .describe("Criteria for shapes to replace (must contain specified text)"),
+                    linkingMode: z
+                      .enum(["LINKED", "NOT_LINKED_IMAGE"])
+                      .describe("The linking mode of the chart (Defaults to LINKED)")
+                      .optional(),
+                    pageObjectIds: z
+                      .array(z.string())
+                      .describe("Optional list of page object IDs to scope the replacement to")
+                      .optional(),
+                  })
+                  .describe("Replaces all shapes matching criteria with a Google Sheets chart"),
+              }),
+              z.object({
+                deleteParagraphBullets: z
+                  .object({
+                    objectId: z.string().describe("The object ID of the shape or table cell containing the paragraph"),
+                    textRange: z
+                      .object({
+                        type: z
+                          .enum(["ALL", "FROM_START_INDEX", "FIXED_RANGE"])
+                          .describe("The type of range")
+                          .optional(),
+                        startIndex: z
+                          .number()
+                          .int()
+                          .describe("The start index for FROM_START_INDEX or FIXED_RANGE")
+                          .optional(),
+                        endIndex: z.number().int().describe("The end index for FIXED_RANGE").optional(),
+                      })
+                      .describe("The range of text to delete bullets from (defaults to all text if unspecified)")
+                      .optional(),
+                  })
+                  .describe("Deletes bullets from a range of paragraphs"),
+              }),
+              z.object({
+                updateParagraphStyle: z
+                  .object({
+                    objectId: z.string().describe("The object ID of the shape or table cell containing the paragraph"),
+                    style: z
+                      .object({})
+                      .catchall(z.any())
+                      .describe("The paragraph style properties to apply (e.g., alignment, lineSpacing)"),
+                    fields: z
+                      .string()
+                      .describe(
+                        "Comma-separated list of style fields to update using FieldMask syntax (e.g., 'alignment,direction,lineSpacing')",
+                      ),
+                    textRange: z
+                      .object({
+                        type: z
+                          .enum(["ALL", "FROM_START_INDEX", "FIXED_RANGE"])
+                          .describe("The type of range")
+                          .optional(),
+                        startIndex: z
+                          .number()
+                          .int()
+                          .describe("The start index for FROM_START_INDEX or FIXED_RANGE")
+                          .optional(),
+                        endIndex: z.number().int().describe("The end index for FIXED_RANGE").optional(),
+                      })
+                      .describe("The range of text to apply the style to (defaults to all paragraphs if unspecified)")
+                      .optional(),
+                  })
+                  .describe("Updates the style of paragraphs"),
+              }),
+              z.object({
+                updateTableBorderProperties: z
+                  .object({
+                    objectId: z.string().describe("The object ID of the table"),
+                    tableBorderProperties: z
+                      .object({})
+                      .catchall(z.any())
+                      .describe("The border properties to update (e.g., dashStyle, weight, color)"),
+                    fields: z
+                      .string()
+                      .describe("Comma-separated list of fields to update (e.g., 'dashStyle,weight')")
+                      .optional(),
+                    borderPosition: z
+                      .enum(["ALL", "BOTTOM", "TOP", "LEFT", "RIGHT", "INNER_HORIZONTAL", "INNER_VERTICAL"])
+                      .describe("The position of the border segments to update (defaults to ALL if unspecified)")
+                      .optional(),
+                    tableRange: z
+                      .object({
+                        location: z.object({}).catchall(z.any()).describe("The starting cell location").optional(),
+                        rowSpan: z.number().int().describe("The number of rows in the range").optional(),
+                        columnSpan: z.number().int().describe("The number of columns in the range").optional(),
+                      })
+                      .describe(
+                        "The range of cells whose border should be updated (defaults to the entire table if unspecified)",
+                      )
+                      .optional(),
+                  })
+                  .describe("Updates the properties of a table border"),
+              }),
+              z.object({
+                updateTableColumnProperties: z
+                  .object({
+                    objectId: z.string().describe("The object ID of the table"),
+                    columnIndices: z.array(z.number().int()).describe("The 0-based indices of the columns to update"),
+                    tableColumnProperties: z
+                      .object({})
+                      .catchall(z.any())
+                      .describe("The properties to update (e.g., columnWidth)"),
+                    fields: z
+                      .string()
+                      .describe(
+                        "Comma-separated list of fields to update using FieldMask syntax (e.g., 'columnWidth')",
+                      ),
+                  })
+                  .describe("Updates the properties of table columns"),
+              }),
+              z.object({
+                updateTableRowProperties: z
+                  .object({
+                    objectId: z.string().describe("The object ID of the table"),
+                    rowIndices: z.array(z.number().int()).describe("The 0-based indices of the rows to update"),
+                    tableRowProperties: z
+                      .object({})
+                      .catchall(z.any())
+                      .describe("The properties to update (e.g., minRowHeight)"),
+                    fields: z
+                      .string()
+                      .describe(
+                        "Comma-separated list of fields to update using FieldMask syntax (e.g., 'minRowHeight')",
+                      ),
+                  })
+                  .describe("Updates the properties of table rows"),
+              }),
+              z.object({
+                mergeTableCells: z
+                  .object({
+                    objectId: z.string().describe("The object ID of the table"),
+                    tableRange: z
+                      .object({
+                        location: z.object({}).catchall(z.any()).describe("The starting cell location").optional(),
+                        rowSpan: z.number().int().describe("The number of rows in the range").optional(),
+                        columnSpan: z.number().int().describe("The number of columns in the range").optional(),
+                      })
+                      .describe("The range of cells to merge"),
+                  })
+                  .describe("Merges cells in a table"),
+              }),
+              z.object({
+                unmergeTableCells: z
+                  .object({
+                    objectId: z.string().describe("The object ID of the table"),
+                    tableRange: z
+                      .object({
+                        location: z.object({}).catchall(z.any()).describe("The starting cell location").optional(),
+                        rowSpan: z.number().int().describe("The number of rows in the range").optional(),
+                        columnSpan: z.number().int().describe("The number of columns in the range").optional(),
+                      })
+                      .describe("The range of cells to unmerge"),
+                  })
+                  .describe("Unmerges cells in a table"),
+              }),
+              z.object({
+                groupObjects: z
+                  .object({
+                    childrenObjectIds: z.array(z.string()).describe("The object IDs of the elements to group"),
+                    groupObjectId: z.string().describe("The object ID to assign to the created group"),
+                  })
+                  .describe("Groups multiple page elements together"),
+              }),
+              z.object({
+                ungroupObjects: z
+                  .object({ objectIds: z.array(z.string()).describe("The object IDs of the groups to ungroup") })
+                  .describe("Ungroups page elements"),
+              }),
+              z.object({
+                updatePageElementAltText: z
+                  .object({
+                    objectId: z.string().describe("The object ID of the page element"),
+                    title: z.string().describe("The title for the alt text"),
+                    description: z.string().describe("The description for the alt text"),
+                  })
+                  .describe("Updates the alt text for a page element"),
+              }),
+              z.object({
+                replaceImage: z
+                  .object({
+                    imageObjectId: z.string().describe("The object ID of the image to replace"),
+                    url: z.string().describe("The URL of the new image"),
+                    replaceMethod: z
+                      .enum(["CENTER_INSIDE", "CENTER_CROP"])
+                      .describe("The image replace method (Defaults to CENTER_INSIDE)")
+                      .optional(),
+                  })
+                  .describe("Replaces an existing image with a new one"),
+              }),
+              z.object({
+                updateSlideProperties: z
+                  .object({
+                    objectId: z.string().describe("The object ID of the slide"),
+                    slideProperties: z
+                      .object({})
+                      .catchall(z.any())
+                      .describe("The properties to update (e.g., master reference, layout reference)"),
+                    fields: z
+                      .string()
+                      .describe(
+                        "Comma-separated list of fields to update using FieldMask syntax (e.g., 'slideBackgroundFill')",
+                      ),
+                  })
+                  .describe("Updates the properties of a slide"),
+              }),
+              z.object({
+                updatePageElementsZOrder: z
+                  .object({
+                    pageObjectIds: z.array(z.string()).describe("The object IDs of the page elements to reorder"),
+                    operation: z
+                      .enum(["BRING_TO_FRONT", "BRING_FORWARD", "SEND_BACKWARD", "SEND_TO_BACK"])
+                      .describe("The Z-order operation to apply"),
+                  })
+                  .describe("Updates the Z-order of page elements"),
+              }),
+              z.object({
+                updateLineCategory: z
+                  .object({
+                    objectId: z.string().describe("The object ID of the line"),
+                    lineCategory: z.enum(["STRAIGHT", "BENT", "CURVED"]).describe("The new line category"),
+                  })
+                  .describe("Updates the category of a line"),
+              }),
+              z.object({
+                rerouteLine: z
+                  .object({ objectId: z.string().describe("The object ID of the line to reroute") })
+                  .describe("Reroutes a line connection"),
+              }),
+            ];
+            const errors = schemas.reduce<z.ZodError[]>(
+              (errors, schema) => (result => (result.error ? [...errors, result.error] : errors))(schema.safeParse(x)),
+              [],
+            );
+            if (schemas.length - errors.length !== 1) {
+              ctx.addIssue({
+                path: ctx.path,
+                code: "invalid_union",
+                unionErrors: errors,
+                message: "Invalid input: Should pass single schema",
+              });
+            }
+          }),
+        ),
+    )
+    .describe("The requests to update the presentation with"),
+});
+
+export type googleOauthUpdatePresentationParamsType = z.infer<typeof googleOauthUpdatePresentationParamsSchema>;
+
+export const googleOauthUpdatePresentationOutputSchema = z.object({
+  success: z.boolean().describe("Whether the presentation was created successfully"),
+  error: z.string().describe("The error that occurred if the presentation was not created successfully").optional(),
+  presentationUrl: z.string().describe("The URL of the created presentation").optional(),
+});
+
+export type googleOauthUpdatePresentationOutputType = z.infer<typeof googleOauthUpdatePresentationOutputSchema>;
+export type googleOauthUpdatePresentationFunction = ActionFunction<
+  googleOauthUpdatePresentationParamsType,
+  AuthParamsType,
+  googleOauthUpdatePresentationOutputType
+>;
+
 export const finnhubSymbolLookupParamsSchema = z.object({
   query: z.string().describe("The symbol or colloquial name of the company to look up"),
 });
