@@ -67,14 +67,36 @@ import {
   googleOauthUpdateDocOutputSchema,
   googleOauthCreateSpreadsheetParamsSchema,
   googleOauthCreateSpreadsheetOutputSchema,
+  googleOauthUpdateSpreadsheetParamsSchema,
+  googleOauthUpdateSpreadsheetOutputSchema,
   googleOauthScheduleCalendarMeetingParamsSchema,
   googleOauthScheduleCalendarMeetingOutputSchema,
   ashbyCreateNoteParamsSchema,
   ashbyCreateNoteOutputSchema,
   ashbyGetCandidateInfoParamsSchema,
   ashbyGetCandidateInfoOutputSchema,
-  googleOauthUpdateSpreadsheetParamsSchema,
-  googleOauthUpdateSpreadsheetOutputSchema,
+  salesforceUpdateRecordParamsSchema,
+  salesforceUpdateRecordOutputSchema,
+  salesforceCreateCaseParamsSchema,
+  salesforceCreateCaseOutputSchema,
+  salesforceGenerateSalesReportParamsSchema,
+  salesforceGenerateSalesReportOutputSchema,
+  salesforceGetRecordParamsSchema,
+  salesforceGetRecordOutputSchema,
+  ashbyListCandidatesParamsSchema,
+  ashbyListCandidatesOutputSchema,
+  ashbyListCandidateNotesParamsSchema,
+  ashbyListCandidateNotesOutputSchema,
+  ashbySearchCandidatesParamsSchema,
+  ashbySearchCandidatesOutputSchema,
+  ashbyCreateCandidateParamsSchema,
+  ashbyCreateCandidateOutputSchema,
+  ashbyUpdateCandidateParamsSchema,
+  ashbyUpdateCandidateOutputSchema,
+  microsoftMessageTeamsChatParamsSchema,
+  microsoftMessageTeamsChatOutputSchema,
+  microsoftMessageTeamsChannelParamsSchema,
+  microsoftMessageTeamsChannelOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -109,10 +131,22 @@ import runSnowflakeQuery from "./providers/snowflake/runSnowflakeQuery";
 import enableUserByEmail from "./providers/looker/enableUserByEmail";
 import updateDoc from "./providers/google-oauth/updateDoc";
 import scheduleCalendarMeeting from "./providers/google-oauth/scheduleCalendarMeeting";
-import createNote from "./providers/ashby/createNote";
-import getCandidateInfo from "./providers/ashby/getCandidateInfo";
 import createSpreadsheet from "./providers/google-oauth/createSpreadsheet";
 import updateSpreadsheet from "./providers/google-oauth/updateSpreadsheet";
+import createNote from "./providers/ashby/createNote";
+import getCandidateInfo from "./providers/ashby/getCandidateInfo";
+import updateRecord from "./providers/salesforce/updateRecord";
+import createCase from "./providers/salesforce/createCase";
+import generateSalesReport from "./providers/salesforce/generateSalesReport";
+import getRecord from "./providers/salesforce/getRecord";
+import listCandidates from "./providers/ashby/listCandidates";
+import listCandidateNotes from "./providers/ashby/listCandidateNotes";
+import searchCandidates from "./providers/ashby/searchCandidates";
+import createCandidate from "./providers/ashby/createCandidate";
+import updateCandidate from "./providers/ashby/updateCandidate";
+import addCandidateToProject from "./providers/ashby/addCandidateToProject";
+import sendMessageToTeamsChat from "./providers/microsoft/messageTeamsChat";
+import sendMessageToTeamsChannel from "./providers/microsoft/messageTeamsChannel";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -343,6 +377,70 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: getCandidateInfo,
       paramsSchema: ashbyGetCandidateInfoParamsSchema,
       outputSchema: ashbyGetCandidateInfoOutputSchema,
+    },
+    listCandidates: {
+      fn: listCandidates,
+      paramsSchema: ashbyListCandidatesParamsSchema,
+      outputSchema: ashbyListCandidatesOutputSchema,
+    },
+    listCandidateNotes: {
+      fn: listCandidateNotes,
+      paramsSchema: ashbyListCandidateNotesParamsSchema,
+      outputSchema: ashbyListCandidateNotesOutputSchema,
+    },
+    searchCandidates: {
+      fn: searchCandidates,
+      paramsSchema: ashbySearchCandidatesParamsSchema,
+      outputSchema: ashbySearchCandidatesOutputSchema,
+    },
+    createCandidate: {
+      fn: createCandidate,
+      paramsSchema: ashbyCreateCandidateParamsSchema,
+      outputSchema: ashbyCreateCandidateOutputSchema,
+    },
+    updateCandidate: {
+      fn: updateCandidate,
+      paramsSchema: ashbyUpdateCandidateParamsSchema,
+      outputSchema: ashbyUpdateCandidateOutputSchema,
+    },
+    addCandidateToProject: {
+      fn: addCandidateToProject,
+      paramsSchema: ashbyUpdateCandidateParamsSchema,
+      outputSchema: ashbyUpdateCandidateOutputSchema,
+    },
+  },
+  salesforce: {
+    updateRecord: {
+      fn: updateRecord,
+      paramsSchema: salesforceUpdateRecordParamsSchema,
+      outputSchema: salesforceUpdateRecordOutputSchema,
+    },
+    createCase: {
+      fn: createCase,
+      paramsSchema: salesforceCreateCaseParamsSchema,
+      outputSchema: salesforceCreateCaseOutputSchema,
+    },
+    generateSalesReport: {
+      fn: generateSalesReport,
+      paramsSchema: salesforceGenerateSalesReportParamsSchema,
+      outputSchema: salesforceGenerateSalesReportOutputSchema,
+    },
+    getRecord: {
+      fn: getRecord,
+      paramsSchema: salesforceGetRecordParamsSchema,
+      outputSchema: salesforceGetRecordOutputSchema,
+    },
+  },
+  microsoft: {
+    messageTeamsChat: {
+      fn: sendMessageToTeamsChat,
+      paramsSchema: microsoftMessageTeamsChatParamsSchema,
+      outputSchema: microsoftMessageTeamsChatOutputSchema,
+    },
+    messageTeamsChannel: {
+      fn: sendMessageToTeamsChannel,
+      paramsSchema: microsoftMessageTeamsChannelParamsSchema,
+      outputSchema: microsoftMessageTeamsChannelOutputSchema,
     },
   },
 };

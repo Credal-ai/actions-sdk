@@ -18,6 +18,9 @@ export const AuthParamsSchema = z.object({
   awsSecretAccessKey: z.string().optional(),
   clientId: z.string().optional(),
   clientSecret: z.string().optional(),
+  tenantId: z.string().optional(),
+  refreshToken: z.string().optional(),
+  redirectUri: z.string().optional(),
 });
 
 export type AuthParamsType = z.infer<typeof AuthParamsSchema>;
@@ -1743,7 +1746,7 @@ export type ashbyCreateNoteFunction = ActionFunction<
 >;
 
 export const ashbyGetCandidateInfoParamsSchema = z.object({
-  candidateId: z.string().describe("The ID of the candidate to create a note for"),
+  candidateId: z.string().describe("The ID of the candidate whose information is to be retrieved"),
 });
 
 export type ashbyGetCandidateInfoParamsType = z.infer<typeof ashbyGetCandidateInfoParamsSchema>;
@@ -1757,4 +1760,283 @@ export type ashbyGetCandidateInfoFunction = ActionFunction<
   ashbyGetCandidateInfoParamsType,
   AuthParamsType,
   ashbyGetCandidateInfoOutputType
+>;
+
+export const ashbyAddCandidateToProjectParamsSchema = z.object({
+  candidateId: z.string().describe("The ID of the candidate to add to the project"),
+  projectId: z.string().describe("The ID of the project to add the candidate to"),
+});
+
+export type ashbyAddCandidateToProjectParamsType = z.infer<typeof ashbyAddCandidateToProjectParamsSchema>;
+
+export const ashbyAddCandidateToProjectOutputSchema = z.void();
+
+export type ashbyAddCandidateToProjectOutputType = z.infer<typeof ashbyAddCandidateToProjectOutputSchema>;
+export type ashbyAddCandidateToProjectFunction = ActionFunction<
+  ashbyAddCandidateToProjectParamsType,
+  AuthParamsType,
+  ashbyAddCandidateToProjectOutputType
+>;
+
+export const ashbyListCandidatesParamsSchema = z.object({});
+
+export type ashbyListCandidatesParamsType = z.infer<typeof ashbyListCandidatesParamsSchema>;
+
+export const ashbyListCandidatesOutputSchema = z.object({
+  candidates: z.array(z.any()).describe("A list of candidates"),
+});
+
+export type ashbyListCandidatesOutputType = z.infer<typeof ashbyListCandidatesOutputSchema>;
+export type ashbyListCandidatesFunction = ActionFunction<
+  ashbyListCandidatesParamsType,
+  AuthParamsType,
+  ashbyListCandidatesOutputType
+>;
+
+export const ashbySearchCandidatesParamsSchema = z.object({
+  email: z.string().describe("The email address of the candidate to search for").optional(),
+  name: z.string().describe("The name of the candidate to search for").optional(),
+});
+
+export type ashbySearchCandidatesParamsType = z.infer<typeof ashbySearchCandidatesParamsSchema>;
+
+export const ashbySearchCandidatesOutputSchema = z.object({
+  candidates: z.array(z.any()).describe("A list of candidates"),
+});
+
+export type ashbySearchCandidatesOutputType = z.infer<typeof ashbySearchCandidatesOutputSchema>;
+export type ashbySearchCandidatesFunction = ActionFunction<
+  ashbySearchCandidatesParamsType,
+  AuthParamsType,
+  ashbySearchCandidatesOutputType
+>;
+
+export const ashbyListCandidateNotesParamsSchema = z.object({
+  candidateId: z.string().describe("The ID of the candidate"),
+});
+
+export type ashbyListCandidateNotesParamsType = z.infer<typeof ashbyListCandidateNotesParamsSchema>;
+
+export const ashbyListCandidateNotesOutputSchema = z.object({ notes: z.array(z.any()).describe("A list of notes") });
+
+export type ashbyListCandidateNotesOutputType = z.infer<typeof ashbyListCandidateNotesOutputSchema>;
+export type ashbyListCandidateNotesFunction = ActionFunction<
+  ashbyListCandidateNotesParamsType,
+  AuthParamsType,
+  ashbyListCandidateNotesOutputType
+>;
+
+export const ashbyCreateCandidateParamsSchema = z.object({
+  name: z.string().describe("The first and last name of the candidate to be created."),
+  email: z.string().describe("Primary, personal email of the candidate to be created.").optional(),
+  phoneNumber: z.string().describe("Primary, personal phone number of the candidate to be created.").optional(),
+  linkedInUrl: z.string().describe("Url to the candidate's LinkedIn profile. Must be a valid Url.").optional(),
+  githubUrl: z.string().describe("Url to the candidate's Github profile. Must be a valid Url.").optional(),
+  website: z.string().describe("Url of the candidate's website. Must be a valid Url.").optional(),
+  alternateEmailAddresses: z
+    .array(z.string())
+    .describe("Array of alternate email address to add to the candidate's profile.")
+    .optional(),
+  sourceId: z.string().describe("The source to set on the candidate being created.").optional(),
+  creditedToUserId: z.string().describe("The id of the user the candidate will be credited to.").optional(),
+  location: z
+    .object({
+      city: z.string().describe("The city of the candidate.").optional(),
+      region: z.string().describe("The region of the candidate.").optional(),
+      country: z.string().describe("The country of the candidate.").optional(),
+    })
+    .describe("The location of the candidate.")
+    .optional(),
+});
+
+export type ashbyCreateCandidateParamsType = z.infer<typeof ashbyCreateCandidateParamsSchema>;
+
+export const ashbyCreateCandidateOutputSchema = z.void();
+
+export type ashbyCreateCandidateOutputType = z.infer<typeof ashbyCreateCandidateOutputSchema>;
+export type ashbyCreateCandidateFunction = ActionFunction<
+  ashbyCreateCandidateParamsType,
+  AuthParamsType,
+  ashbyCreateCandidateOutputType
+>;
+
+export const ashbyUpdateCandidateParamsSchema = z.object({
+  candidateId: z.string().describe("The ID of the candidate to update"),
+  name: z.string().describe("The first and last name of the candidate to update.").optional(),
+  email: z.string().describe("Primary, personal email of the candidate to update.").optional(),
+  phoneNumber: z.string().describe("Primary, personal phone number of the candidate to update.").optional(),
+  linkedInUrl: z.string().describe("Url to the candidate's LinkedIn profile. Must be a valid Url.").optional(),
+  githubUrl: z.string().describe("Url to the candidate's Github profile. Must be a valid Url.").optional(),
+  websiteUrl: z.string().describe("Url of the candidate's website. Must be a valid Url.").optional(),
+  alternateEmail: z.string().describe("An alternate email address to add to the candidate's profile.").optional(),
+  socialLinks: z
+    .array(
+      z.object({
+        type: z.string().describe("The type of social link").optional(),
+        url: z.string().describe("The URL of the social link").optional(),
+      }),
+    )
+    .describe(
+      "An array of social links to set on the candidate. This value replaces existing socialLinks that have been set on the candidate.",
+    )
+    .optional(),
+  sourceId: z.string().describe("The id of source for this candidate.").optional(),
+  creditedToUserId: z.string().describe("The id of the user the candidate will be credited to.").optional(),
+  location: z
+    .object({
+      city: z.string().describe("The city of the candidate").optional(),
+      region: z.string().describe("The region of the candidate").optional(),
+      country: z.string().describe("The country of the candidate").optional(),
+    })
+    .describe("The location of the candidate.")
+    .optional(),
+  createdAt: z.string().describe("An ISO date string to set the candidate's createdAt timestamp.").optional(),
+  sendNotifications: z
+    .boolean()
+    .describe(
+      "Whether or not users who are subscribed to the candidate should be notified that candidate was updated. Default is true.",
+    )
+    .optional(),
+});
+
+export type ashbyUpdateCandidateParamsType = z.infer<typeof ashbyUpdateCandidateParamsSchema>;
+
+export const ashbyUpdateCandidateOutputSchema = z.void();
+
+export type ashbyUpdateCandidateOutputType = z.infer<typeof ashbyUpdateCandidateOutputSchema>;
+export type ashbyUpdateCandidateFunction = ActionFunction<
+  ashbyUpdateCandidateParamsType,
+  AuthParamsType,
+  ashbyUpdateCandidateOutputType
+>;
+
+export const salesforceUpdateRecordParamsSchema = z.object({
+  objectType: z.string().describe("The Salesforce object type to update (e.g., Lead, Account, Contact)"),
+  recordId: z.string().describe("The ID of the record to update"),
+  fieldsToUpdate: z.record(z.string()).describe("The fields to update on the record"),
+});
+
+export type salesforceUpdateRecordParamsType = z.infer<typeof salesforceUpdateRecordParamsSchema>;
+
+export const salesforceUpdateRecordOutputSchema = z.object({
+  success: z.boolean().describe("Whether the record was successfully updated"),
+  error: z.string().describe("The error that occurred if the record was not successfully updated").optional(),
+});
+
+export type salesforceUpdateRecordOutputType = z.infer<typeof salesforceUpdateRecordOutputSchema>;
+export type salesforceUpdateRecordFunction = ActionFunction<
+  salesforceUpdateRecordParamsType,
+  AuthParamsType,
+  salesforceUpdateRecordOutputType
+>;
+
+export const salesforceCreateCaseParamsSchema = z.object({
+  subject: z.string().describe("The subject of the case"),
+  description: z.string().describe("The detailed description of the case"),
+  priority: z.string().describe("The priority of the case (e.g., High, Medium, Low)"),
+  origin: z.string().describe("The origin of the case (e.g., Phone, Email, Web)"),
+  customFields: z.record(z.string()).describe("Additional custom fields to set on the case").optional(),
+});
+
+export type salesforceCreateCaseParamsType = z.infer<typeof salesforceCreateCaseParamsSchema>;
+
+export const salesforceCreateCaseOutputSchema = z.object({
+  success: z.boolean().describe("Whether the case was successfully created"),
+  caseId: z.string().describe("The ID of the created case").optional(),
+  error: z.string().describe("The error that occurred if the case was not successfully created").optional(),
+});
+
+export type salesforceCreateCaseOutputType = z.infer<typeof salesforceCreateCaseOutputSchema>;
+export type salesforceCreateCaseFunction = ActionFunction<
+  salesforceCreateCaseParamsType,
+  AuthParamsType,
+  salesforceCreateCaseOutputType
+>;
+
+export const salesforceGenerateSalesReportParamsSchema = z.object({
+  startDate: z.string().describe("The start date for the sales report in ISO 8601 format (e.g., 2025-01-01)."),
+  endDate: z.string().describe("The end date for the sales report in ISO 8601 format (e.g., 2025-01-31)."),
+  filters: z
+    .record(z.string())
+    .describe("Additional filters for the sales report (e.g., by region, product).")
+    .optional(),
+});
+
+export type salesforceGenerateSalesReportParamsType = z.infer<typeof salesforceGenerateSalesReportParamsSchema>;
+
+export const salesforceGenerateSalesReportOutputSchema = z.object({
+  success: z.boolean().describe("Whether the sales report was successfully generated."),
+  reportData: z
+    .array(z.record(z.string()).describe("A row in the sales report."))
+    .describe("The data of the sales report.")
+    .optional(),
+  error: z.string().describe("The error that occurred if the sales report was not successfully generated.").optional(),
+});
+
+export type salesforceGenerateSalesReportOutputType = z.infer<typeof salesforceGenerateSalesReportOutputSchema>;
+export type salesforceGenerateSalesReportFunction = ActionFunction<
+  salesforceGenerateSalesReportParamsType,
+  AuthParamsType,
+  salesforceGenerateSalesReportOutputType
+>;
+
+export const salesforceGetRecordParamsSchema = z.object({
+  objectType: z.string().describe("The Salesforce object type to retrieve (e.g., Lead, Account, Contact)"),
+  recordId: z.string().describe("The ID of the record to retrieve"),
+});
+
+export type salesforceGetRecordParamsType = z.infer<typeof salesforceGetRecordParamsSchema>;
+
+export const salesforceGetRecordOutputSchema = z.object({
+  success: z.boolean().describe("Whether the record was successfully retrieved"),
+  record: z.record(z.string()).describe("The retrieved record data").optional(),
+  error: z.string().describe("The error that occurred if the record was not successfully retrieved").optional(),
+});
+
+export type salesforceGetRecordOutputType = z.infer<typeof salesforceGetRecordOutputSchema>;
+export type salesforceGetRecordFunction = ActionFunction<
+  salesforceGetRecordParamsType,
+  AuthParamsType,
+  salesforceGetRecordOutputType
+>;
+
+export const microsoftMessageTeamsChatParamsSchema = z.object({
+  chatId: z.string().describe("The chat ID of the Microsoft Teams chat"),
+  message: z.string().describe("The text to be messaged to the chat"),
+});
+
+export type microsoftMessageTeamsChatParamsType = z.infer<typeof microsoftMessageTeamsChatParamsSchema>;
+
+export const microsoftMessageTeamsChatOutputSchema = z.object({
+  success: z.boolean().describe("Whether the message was sent successfully"),
+  error: z.string().describe("The error that occurred if the message was not sent successfully").optional(),
+  messageId: z.string().describe("The ID of the message that was sent").optional(),
+});
+
+export type microsoftMessageTeamsChatOutputType = z.infer<typeof microsoftMessageTeamsChatOutputSchema>;
+export type microsoftMessageTeamsChatFunction = ActionFunction<
+  microsoftMessageTeamsChatParamsType,
+  AuthParamsType,
+  microsoftMessageTeamsChatOutputType
+>;
+
+export const microsoftMessageTeamsChannelParamsSchema = z.object({
+  teamId: z.string().describe("The team ID of the Microsoft Teams channel"),
+  channelId: z.string().describe("The channel ID of the Microsoft Teams channel"),
+  message: z.string().describe("The text to be messaged to the channel"),
+});
+
+export type microsoftMessageTeamsChannelParamsType = z.infer<typeof microsoftMessageTeamsChannelParamsSchema>;
+
+export const microsoftMessageTeamsChannelOutputSchema = z.object({
+  success: z.boolean().describe("Whether the message was sent successfully"),
+  error: z.string().describe("The error that occurred if the message was not sent successfully").optional(),
+  messageId: z.string().describe("The ID of the message that was sent").optional(),
+});
+
+export type microsoftMessageTeamsChannelOutputType = z.infer<typeof microsoftMessageTeamsChannelOutputSchema>;
+export type microsoftMessageTeamsChannelFunction = ActionFunction<
+  microsoftMessageTeamsChannelParamsType,
+  AuthParamsType,
+  microsoftMessageTeamsChannelOutputType
 >;

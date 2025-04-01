@@ -1,19 +1,19 @@
 import {
-  ashbyGetCandidateInfoFunction,
-  ashbyGetCandidateInfoOutputType,
-  ashbyGetCandidateInfoParamsType,
+  ashbySearchCandidatesFunction,
+  ashbySearchCandidatesOutputType,
+  ashbySearchCandidatesParamsType,
   AuthParamsType,
 } from "../../autogen/types";
 
 import { axiosClient } from "../../util/axiosClient";
-const getCandidateInfo: ashbyGetCandidateInfoFunction = async ({
+const searchCandidates: ashbySearchCandidatesFunction = async ({
   params,
   authParams,
 }: {
-  params: ashbyGetCandidateInfoParamsType;
+  params: ashbySearchCandidatesParamsType;
   authParams: AuthParamsType;
-}): Promise<ashbyGetCandidateInfoOutputType> => {
-  const { candidateId } = params;
+}): Promise<ashbySearchCandidatesOutputType> => {
+  const { email, name } = params;
   const { authToken } = authParams;
 
   if (!authToken) {
@@ -21,9 +21,10 @@ const getCandidateInfo: ashbyGetCandidateInfoFunction = async ({
   }
 
   const response = await axiosClient.post(
-    `https://api.ashbyhq.com/candidate.info`,
+    `https://api.ashbyhq.com/candidate.search`,
     {
-      id: candidateId,
+      email,
+      name,
     },
     {
       auth: {
@@ -37,8 +38,8 @@ const getCandidateInfo: ashbyGetCandidateInfoFunction = async ({
   }
 
   return {
-    candidate: response.data,
+    candidates: response.data.results,
   };
 };
 
-export default getCandidateInfo;
+export default searchCandidates;

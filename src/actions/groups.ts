@@ -29,6 +29,12 @@ import {
   googleOauthScheduleCalendarMeetingDefinition,
   googleOauthCreateSpreadsheetDefinition,
   googleOauthUpdateSpreadsheetDefinition,
+  salesforceUpdateRecordDefinition,
+  salesforceCreateCaseDefinition,
+  salesforceGenerateSalesReportDefinition,
+  salesforceGetRecordDefinition,
+  microsoftMessageTeamsChatDefinition,
+  microsoftMessageTeamsChannelDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
@@ -115,5 +121,18 @@ export const ACTION_GROUPS: ActionGroups = {
   LOOKER: {
     description: "Actions for interacting with Looker",
     actions: [lookerEnableUserByEmailDefinition],
+  },
+  SALESFORCE: {
+    description: "Actions for interacting with Salesforce",
+    actions: [
+      salesforceUpdateRecordDefinition,
+      salesforceCreateCaseDefinition,
+      salesforceGenerateSalesReportDefinition,
+      salesforceGetRecordDefinition,
+    ],
+  },
+  MICROSOFT: {
+    description: "Actions for interacting with Microsoft 365",
+    actions: [microsoftMessageTeamsChatDefinition, microsoftMessageTeamsChannelDefinition],
   },
 };

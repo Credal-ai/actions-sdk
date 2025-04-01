@@ -3204,3 +3204,528 @@ export const ashbyGetCandidateInfoDefinition: ActionTemplate = {
   name: "getCandidateInfo",
   provider: "ashby",
 };
+export const ashbyAddCandidateToProjectDefinition: ActionTemplate = {
+  description: "Adds a candidate to a project",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["candidateId", "projectId"],
+    properties: {
+      candidateId: {
+        type: "string",
+        description: "The ID of the candidate to add to the project",
+      },
+      projectId: {
+        type: "string",
+        description: "The ID of the project to add the candidate to",
+      },
+    },
+  },
+  name: "addCandidateToProject",
+  provider: "ashby",
+};
+export const ashbyListCandidatesDefinition: ActionTemplate = {
+  description: "Lists all candidates",
+  scopes: [],
+  output: {
+    type: "object",
+    required: ["candidates"],
+    properties: {
+      candidates: {
+        type: "array",
+        description: "A list of candidates",
+      },
+    },
+  },
+  name: "listCandidates",
+  provider: "ashby",
+};
+export const ashbySearchCandidatesDefinition: ActionTemplate = {
+  description: "Search for candidates by email and/or name.",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: [],
+    properties: {
+      email: {
+        type: "string",
+        description: "The email address of the candidate to search for",
+      },
+      name: {
+        type: "string",
+        description: "The name of the candidate to search for",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["candidates"],
+    properties: {
+      candidates: {
+        type: "array",
+        description: "A list of candidates",
+      },
+    },
+  },
+  name: "searchCandidates",
+  provider: "ashby",
+};
+export const ashbyListCandidateNotesDefinition: ActionTemplate = {
+  description: "Lists all notes on a candidate",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["candidateId"],
+    properties: {
+      candidateId: {
+        type: "string",
+        description: "The ID of the candidate",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["notes"],
+    properties: {
+      notes: {
+        type: "array",
+        description: "A list of notes",
+      },
+    },
+  },
+  name: "listCandidateNotes",
+  provider: "ashby",
+};
+export const ashbyCreateCandidateDefinition: ActionTemplate = {
+  description: "Creates a candidate",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["name"],
+    properties: {
+      name: {
+        type: "string",
+        description: "The first and last name of the candidate to be created.",
+      },
+      email: {
+        type: "string",
+        description: "Primary, personal email of the candidate to be created.",
+      },
+      phoneNumber: {
+        type: "string",
+        description: "Primary, personal phone number of the candidate to be created.",
+      },
+      linkedInUrl: {
+        type: "string",
+        description: "Url to the candidate's LinkedIn profile. Must be a valid Url.",
+      },
+      githubUrl: {
+        type: "string",
+        description: "Url to the candidate's Github profile. Must be a valid Url.",
+      },
+      website: {
+        type: "string",
+        description: "Url of the candidate's website. Must be a valid Url.",
+      },
+      alternateEmailAddresses: {
+        type: "array",
+        description: "Array of alternate email address to add to the candidate's profile.",
+        items: {
+          type: "string",
+        },
+      },
+      sourceId: {
+        type: "string",
+        description: "The source to set on the candidate being created.",
+      },
+      creditedToUserId: {
+        type: "string",
+        description: "The id of the user the candidate will be credited to.",
+      },
+      location: {
+        type: "object",
+        description: "The location of the candidate.",
+        properties: {
+          city: {
+            type: "string",
+            description: "The city of the candidate.",
+          },
+          region: {
+            type: "string",
+            description: "The region of the candidate.",
+          },
+          country: {
+            type: "string",
+            description: "The country of the candidate.",
+          },
+        },
+      },
+    },
+  },
+  name: "createCandidate",
+  provider: "ashby",
+};
+export const ashbyUpdateCandidateDefinition: ActionTemplate = {
+  description: "Updates a candidate",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["candidateId"],
+    properties: {
+      candidateId: {
+        type: "string",
+        description: "The ID of the candidate to update",
+      },
+      name: {
+        type: "string",
+        description: "The first and last name of the candidate to update.",
+      },
+      email: {
+        type: "string",
+        description: "Primary, personal email of the candidate to update.",
+      },
+      phoneNumber: {
+        type: "string",
+        description: "Primary, personal phone number of the candidate to update.",
+      },
+      linkedInUrl: {
+        type: "string",
+        description: "Url to the candidate's LinkedIn profile. Must be a valid Url.",
+      },
+      githubUrl: {
+        type: "string",
+        description: "Url to the candidate's Github profile. Must be a valid Url.",
+      },
+      websiteUrl: {
+        type: "string",
+        description: "Url of the candidate's website. Must be a valid Url.",
+      },
+      alternateEmail: {
+        type: "string",
+        description: "An alternate email address to add to the candidate's profile.",
+      },
+      socialLinks: {
+        type: "array",
+        description:
+          "An array of social links to set on the candidate. This value replaces existing socialLinks that have been set on the candidate.",
+        items: {
+          type: "object",
+          properties: {
+            type: {
+              type: "string",
+              description: "The type of social link",
+            },
+            url: {
+              type: "string",
+              description: "The URL of the social link",
+            },
+          },
+        },
+      },
+      sourceId: {
+        type: "string",
+        description: "The id of source for this candidate.",
+      },
+      creditedToUserId: {
+        type: "string",
+        description: "The id of the user the candidate will be credited to.",
+      },
+      location: {
+        type: "object",
+        description: "The location of the candidate.",
+        properties: {
+          city: {
+            type: "string",
+            description: "The city of the candidate",
+          },
+          region: {
+            type: "string",
+            description: "The region of the candidate",
+          },
+          country: {
+            type: "string",
+            description: "The country of the candidate",
+          },
+        },
+      },
+      createdAt: {
+        type: "string",
+        description: "An ISO date string to set the candidate's createdAt timestamp.",
+      },
+      sendNotifications: {
+        type: "boolean",
+        description:
+          "Whether or not users who are subscribed to the candidate should be notified that candidate was updated. Default is true.",
+      },
+    },
+  },
+  name: "updateCandidate",
+  provider: "ashby",
+};
+export const salesforceUpdateRecordDefinition: ActionTemplate = {
+  description: "Update a record in Salesforce",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["objectType", "recordId", "fieldsToUpdate"],
+    properties: {
+      objectType: {
+        type: "string",
+        description: "The Salesforce object type to update (e.g., Lead, Account, Contact)",
+      },
+      recordId: {
+        type: "string",
+        description: "The ID of the record to update",
+      },
+      fieldsToUpdate: {
+        type: "object",
+        description: "The fields to update on the record",
+        additionalProperties: {
+          type: "string",
+        },
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the record was successfully updated",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the record was not successfully updated",
+      },
+    },
+  },
+  name: "updateRecord",
+  provider: "salesforce",
+};
+export const salesforceCreateCaseDefinition: ActionTemplate = {
+  description: "Create a case or support ticket in Salesforce",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["subject", "description", "priority", "origin"],
+    properties: {
+      subject: {
+        type: "string",
+        description: "The subject of the case",
+      },
+      description: {
+        type: "string",
+        description: "The detailed description of the case",
+      },
+      priority: {
+        type: "string",
+        description: "The priority of the case (e.g., High, Medium, Low)",
+      },
+      origin: {
+        type: "string",
+        description: "The origin of the case (e.g., Phone, Email, Web)",
+      },
+      customFields: {
+        type: "object",
+        description: "Additional custom fields to set on the case",
+        additionalProperties: {
+          type: "string",
+        },
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the case was successfully created",
+      },
+      caseId: {
+        type: "string",
+        description: "The ID of the created case",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the case was not successfully created",
+      },
+    },
+  },
+  name: "createCase",
+  provider: "salesforce",
+};
+export const salesforceGenerateSalesReportDefinition: ActionTemplate = {
+  description: "Generate a sales report from Salesforce",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["startDate", "endDate"],
+    properties: {
+      startDate: {
+        type: "string",
+        description: "The start date for the sales report in ISO 8601 format (e.g., 2025-01-01).",
+      },
+      endDate: {
+        type: "string",
+        description: "The end date for the sales report in ISO 8601 format (e.g., 2025-01-31).",
+      },
+      filters: {
+        type: "object",
+        description: "Additional filters for the sales report (e.g., by region, product).",
+        additionalProperties: {
+          type: "string",
+        },
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the sales report was successfully generated.",
+      },
+      reportData: {
+        type: "array",
+        description: "The data of the sales report.",
+        items: {
+          type: "object",
+          description: "A row in the sales report.",
+          additionalProperties: {
+            type: "string",
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the sales report was not successfully generated.",
+      },
+    },
+  },
+  name: "generateSalesReport",
+  provider: "salesforce",
+};
+export const salesforceGetRecordDefinition: ActionTemplate = {
+  description: "Retrieve a record from Salesforce",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["objectType", "recordId"],
+    properties: {
+      objectType: {
+        type: "string",
+        description: "The Salesforce object type to retrieve (e.g., Lead, Account, Contact)",
+      },
+      recordId: {
+        type: "string",
+        description: "The ID of the record to retrieve",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the record was successfully retrieved",
+      },
+      record: {
+        type: "object",
+        description: "The retrieved record data",
+        additionalProperties: {
+          type: "string",
+        },
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the record was not successfully retrieved",
+      },
+    },
+  },
+  name: "getRecord",
+  provider: "salesforce",
+};
+export const microsoftMessageTeamsChatDefinition: ActionTemplate = {
+  description: "Sends a message to a Microsoft Teams chat",
+  scopes: ["chat:write"],
+  parameters: {
+    type: "object",
+    required: ["chatId", "message"],
+    properties: {
+      chatId: {
+        type: "string",
+        description: "The chat ID of the Microsoft Teams chat",
+      },
+      message: {
+        type: "string",
+        description: "The text to be messaged to the chat",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the message was sent successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the message was not sent successfully",
+      },
+      messageId: {
+        type: "string",
+        description: "The ID of the message that was sent",
+      },
+    },
+  },
+  name: "messageTeamsChat",
+  provider: "microsoft",
+};
+export const microsoftMessageTeamsChannelDefinition: ActionTemplate = {
+  description: "Sends a message to a Microsoft Teams channel",
+  scopes: ["chat:write"],
+  parameters: {
+    type: "object",
+    required: ["teamId", "channelId", "message"],
+    properties: {
+      teamId: {
+        type: "string",
+        description: "The team ID of the Microsoft Teams channel",
+      },
+      channelId: {
+        type: "string",
+        description: "The channel ID of the Microsoft Teams channel",
+      },
+      message: {
+        type: "string",
+        description: "The text to be messaged to the channel",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the message was sent successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the message was not sent successfully",
+      },
+      messageId: {
+        type: "string",
+        description: "The ID of the message that was sent",
+      },
+    },
+  },
+  name: "messageTeamsChannel",
+  provider: "microsoft",
+};
