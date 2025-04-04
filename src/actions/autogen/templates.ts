@@ -2375,6 +2375,52 @@ export const salesforceGetRecordDefinition: ActionTemplate = {
   name: "getRecord",
   provider: "salesforce",
 };
+export const salesforceGetSalesforceRecordByNameDefinition: ActionTemplate = {
+  description: "Retrieve a record from Salesforce",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["objectType", "recordName"],
+    properties: {
+      objectType: {
+        type: "string",
+        description: "The Salesforce object type to retrieve (e.g., Lead, Account, Contact)",
+        enum: ["Lead", "Account", "Contact", "Opportunity", "Campaign", "CampaignMember", "User", "Task"],
+      },
+      recordName: {
+        type: "string",
+        description: "The name of the record to retrieve",
+      },
+      limit: {
+        type: "number",
+        description: "The maximum number of records to retrieve",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the record was successfully retrieved",
+      },
+      record: {
+        type: "object",
+        description: "The retrieved record data",
+        additionalProperties: {
+          type: "string",
+        },
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the record was not successfully retrieved",
+      },
+    },
+  },
+  name: "getSalesforceRecordByName",
+  provider: "salesforce",
+};
 export const microsoftMessageTeamsChatDefinition: ActionTemplate = {
   description: "Sends a message to a Microsoft Teams chat",
   scopes: ["chat:write"],

@@ -99,6 +99,7 @@ import {
   microsoftMessageTeamsChatOutputSchema,
   microsoftMessageTeamsChannelParamsSchema,
   microsoftMessageTeamsChannelOutputSchema,
+<<<<<<< HEAD
   asanaCommentTaskParamsSchema,
   asanaCommentTaskOutputSchema,
   asanaCreateTaskParamsSchema,
@@ -111,6 +112,10 @@ import {
   githubCreateBranchOutputSchema,
   githubCreatePullRequestParamsSchema,
   githubCreatePullRequestOutputSchema,
+=======
+  salesforceGetSalesforceRecordByNameParamsSchema,
+  salesforceGetSalesforceRecordByNameOutputSchema,
+>>>>>>> 3b39423 (get salesforce object by name)
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -165,9 +170,13 @@ import updateCandidate from "./providers/ashby/updateCandidate";
 import addCandidateToProject from "./providers/ashby/addCandidateToProject";
 import sendMessageToTeamsChat from "./providers/microsoft/messageTeamsChat";
 import sendMessageToTeamsChannel from "./providers/microsoft/messageTeamsChannel";
+<<<<<<< HEAD
 import createOrUpdateFile from "./providers/github/createOrUpdateFile";
 import createBranch from "./providers/github/createBranch";
 import createPullRequest from "./providers/github/createPullRequest";
+=======
+import getSalesforceRecordByName from "./providers/salesforce/getSalesforceRecordByName";
+>>>>>>> 3b39423 (get salesforce object by name)
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -472,6 +481,11 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: getRecord,
       paramsSchema: salesforceGetRecordParamsSchema,
       outputSchema: salesforceGetRecordOutputSchema,
+    },
+    getSalesforceRecordByName: {
+      fn: getSalesforceRecordByName,
+      paramsSchema: salesforceGetSalesforceRecordByNameParamsSchema,
+      outputSchema: salesforceGetSalesforceRecordByNameOutputSchema,
     },
   },
   microsoft: {
