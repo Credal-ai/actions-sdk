@@ -1129,6 +1129,33 @@ export type salesforceGenerateSalesReportFunction = ActionFunction<
   salesforceGenerateSalesReportOutputType
 >;
 
+export const salesforceGetSalesforceRecordsByQueryParamsSchema = z.object({
+  query: z.string().describe("The SOQL query to execute"),
+  objectType: z.string().describe("The Salesforce object type to retrieve (e.g., Lead, Account, Contact)").optional(),
+});
+
+export type salesforceGetSalesforceRecordsByQueryParamsType = z.infer<
+  typeof salesforceGetSalesforceRecordsByQueryParamsSchema
+>;
+
+export const salesforceGetSalesforceRecordsByQueryOutputSchema = z.object({
+  success: z.boolean().describe("Whether the records were successfully retrieved"),
+  records: z
+    .array(z.record(z.string()).describe("A record from Salesforce"))
+    .describe("The retrieved records")
+    .optional(),
+  error: z.string().describe("The error that occurred if the records were not successfully retrieved").optional(),
+});
+
+export type salesforceGetSalesforceRecordsByQueryOutputType = z.infer<
+  typeof salesforceGetSalesforceRecordsByQueryOutputSchema
+>;
+export type salesforceGetSalesforceRecordsByQueryFunction = ActionFunction<
+  salesforceGetSalesforceRecordsByQueryParamsType,
+  AuthParamsType,
+  salesforceGetSalesforceRecordsByQueryOutputType
+>;
+
 export const salesforceGetRecordParamsSchema = z.object({
   objectType: z.string().describe("The Salesforce object type to retrieve (e.g., Lead, Account, Contact)"),
   recordId: z.string().describe("The ID of the record to retrieve"),

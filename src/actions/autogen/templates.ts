@@ -2001,6 +2001,51 @@ export const salesforceGenerateSalesReportDefinition: ActionTemplate = {
   name: "generateSalesReport",
   provider: "salesforce",
 };
+export const salesforceGetSalesforceRecordsByQueryDefinition: ActionTemplate = {
+  description: "Retrieve Salesforce records by SOQL query",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["query"],
+    properties: {
+      query: {
+        type: "string",
+        description: "The SOQL query to execute",
+      },
+      objectType: {
+        type: "string",
+        description: "The Salesforce object type to retrieve (e.g., Lead, Account, Contact)",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the records were successfully retrieved",
+      },
+      records: {
+        type: "array",
+        description: "The retrieved records",
+        items: {
+          type: "object",
+          description: "A record from Salesforce",
+          additionalProperties: {
+            type: "string",
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the records were not successfully retrieved",
+      },
+    },
+  },
+  name: "getSalesforceRecordsByQuery",
+  provider: "salesforce",
+};
 export const salesforceGetRecordDefinition: ActionTemplate = {
   description: "Retrieve a record from Salesforce",
   scopes: [],
