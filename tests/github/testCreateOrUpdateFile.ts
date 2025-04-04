@@ -1,7 +1,8 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app";
+import dotenv from "dotenv";
 
-require("dotenv").config();
+dotenv.config();
 
 async function runTest() {
 
