@@ -1131,6 +1131,7 @@ export type salesforceGenerateSalesReportFunction = ActionFunction<
 
 export const salesforceGetSalesforceRecordsByQueryParamsSchema = z.object({
   query: z.string().describe("The SOQL query to execute"),
+  limit: z.number().describe("The maximum number of records to retrieve").optional(),
 });
 
 export type salesforceGetSalesforceRecordsByQueryParamsType = z.infer<

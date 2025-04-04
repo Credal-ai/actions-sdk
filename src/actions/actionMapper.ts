@@ -91,6 +91,8 @@ import {
   microsoftMessageTeamsChatOutputSchema,
   microsoftMessageTeamsChannelParamsSchema,
   microsoftMessageTeamsChannelOutputSchema,
+  salesforceGetSalesforceRecordsByQueryParamsSchema,
+  salesforceGetSalesforceRecordsByQueryOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -110,6 +112,7 @@ import commentJiraTicket from "./providers/jira/commentJiraTicket";
 import createJiraTicket from "./providers/jira/createJiraTicket";
 import getLatitudeLongitudeFromLocation from "./providers/openstreetmap/getLatitudeLongitudeFromLocation";
 import getForecastForLocation from "./providers/nws/getForecastForLocation";
+import getSalesforceRecordByQuery from "./providers/salesforce/getSalesforceRecordByQuery";
 import nearbysearch from "./providers/googlemaps/nearbysearchRestaurants";
 import scrapeUrl from "./providers/firecrawl/scrapeUrl";
 import sendEmail from "./providers/resend/sendEmail";
@@ -405,6 +408,11 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: getRecord,
       paramsSchema: salesforceGetRecordParamsSchema,
       outputSchema: salesforceGetRecordOutputSchema,
+    },
+    getSalesforceRecordByQuery: {
+      fn: getSalesforceRecordByQuery,
+      paramsSchema: salesforceGetSalesforceRecordsByQueryParamsSchema,
+      outputSchema: salesforceGetSalesforceRecordsByQueryOutputSchema,
     },
   },
   microsoft: {

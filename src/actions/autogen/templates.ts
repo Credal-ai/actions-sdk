@@ -2012,6 +2012,10 @@ export const salesforceGetSalesforceRecordsByQueryDefinition: ActionTemplate = {
         type: "string",
         description: "The SOQL query to execute",
       },
+      limit: {
+        type: "number",
+        description: "The maximum number of records to retrieve",
+      },
     },
   },
   output: {
