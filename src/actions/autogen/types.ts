@@ -1313,6 +1313,33 @@ export type salesforceGetRecordFunction = ActionFunction<
   salesforceGetRecordOutputType
 >;
 
+export const salesforceGetSalesforceRecordByNameParamsSchema = z.object({
+  objectType: z
+    .enum(["Lead", "Account", "Contact", "Opportunity", "Campaign", "CampaignMember", "User", "Task"])
+    .describe("The Salesforce object type to retrieve (e.g., Lead, Account, Contact)"),
+  recordName: z.string().describe("The name of the record to retrieve"),
+  limit: z.number().describe("The maximum number of records to retrieve").optional(),
+});
+
+export type salesforceGetSalesforceRecordByNameParamsType = z.infer<
+  typeof salesforceGetSalesforceRecordByNameParamsSchema
+>;
+
+export const salesforceGetSalesforceRecordByNameOutputSchema = z.object({
+  success: z.boolean().describe("Whether the record was successfully retrieved"),
+  record: z.record(z.string()).describe("The retrieved record data").optional(),
+  error: z.string().describe("The error that occurred if the record was not successfully retrieved").optional(),
+});
+
+export type salesforceGetSalesforceRecordByNameOutputType = z.infer<
+  typeof salesforceGetSalesforceRecordByNameOutputSchema
+>;
+export type salesforceGetSalesforceRecordByNameFunction = ActionFunction<
+  salesforceGetSalesforceRecordByNameParamsType,
+  AuthParamsType,
+  salesforceGetSalesforceRecordByNameOutputType
+>;
+
 export const microsoftMessageTeamsChatParamsSchema = z.object({
   chatId: z.string().describe("The chat ID of the Microsoft Teams chat"),
   message: z.string().describe("The text to be messaged to the chat"),
