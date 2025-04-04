@@ -25,6 +25,83 @@ export const AuthParamsSchema = z.object({
 
 export type AuthParamsType = z.infer<typeof AuthParamsSchema>;
 
+export const asanaCommentTaskParamsSchema = z.object({
+  taskId: z.string().describe("Task gid the comment should be added to"),
+  commentText: z.string().describe("The comment text to be added"),
+  isPinned: z.boolean().describe("Whether the comment should be pinned").optional(),
+});
+
+export type asanaCommentTaskParamsType = z.infer<typeof asanaCommentTaskParamsSchema>;
+
+export const asanaCommentTaskOutputSchema = z.object({
+  error: z.string().describe("Error if comment was unsuccessful").optional(),
+  success: z.boolean().describe("Whether comment was successfully made"),
+  commentUrl: z.string().describe("The url to the created comment").optional(),
+});
+
+export type asanaCommentTaskOutputType = z.infer<typeof asanaCommentTaskOutputSchema>;
+export type asanaCommentTaskFunction = ActionFunction<
+  asanaCommentTaskParamsType,
+  AuthParamsType,
+  asanaCommentTaskOutputType
+>;
+
+export const asanaCreateTaskParamsSchema = z.object({
+  projectId: z.string().describe("Project gid the task belongs to"),
+  name: z.string().describe("The name of the new task"),
+  approvalStatus: z.string().describe("Status of task (pending, approved, ...)").optional(),
+  description: z.string().describe("The description for the new task").optional(),
+  dueAt: z.string().describe("ISO 8601 date string in UTC for due date of task").optional(),
+  assignee: z.string().describe("The assignee gid or email for the new task").optional(),
+  taskTemplate: z.string().describe("The template to use, takes id or name").optional(),
+  customFields: z
+    .object({})
+    .catchall(z.any())
+    .describe("Custom fields to be set on the create task request")
+    .optional(),
+});
+
+export type asanaCreateTaskParamsType = z.infer<typeof asanaCreateTaskParamsSchema>;
+
+export const asanaCreateTaskOutputSchema = z.object({
+  error: z.string().describe("Error if task creation was unsuccessful").optional(),
+  success: z.boolean().describe("Whether task creation was successful"),
+  taskUrl: z.string().describe("The url to the created Asana task").optional(),
+});
+
+export type asanaCreateTaskOutputType = z.infer<typeof asanaCreateTaskOutputSchema>;
+export type asanaCreateTaskFunction = ActionFunction<
+  asanaCreateTaskParamsType,
+  AuthParamsType,
+  asanaCreateTaskOutputType
+>;
+
+export const asanaUpdateTaskParamsSchema = z.object({
+  taskId: z.string().describe("Task gid of the task to update"),
+  name: z.string().describe("The name of the task").optional(),
+  approvalStatus: z.string().describe("Status of task (pending, approved, ...)").optional(),
+  description: z.string().describe("The updated description").optional(),
+  dueAt: z.string().describe("ISO 8601 date string in UTC for due date of task").optional(),
+  assignee: z.string().describe("The assignee gid or email for the task").optional(),
+  completed: z.boolean().describe("Whether the task should be marked as completed").optional(),
+  customFields: z.object({}).catchall(z.any()).describe("Custom fields to be updated").optional(),
+});
+
+export type asanaUpdateTaskParamsType = z.infer<typeof asanaUpdateTaskParamsSchema>;
+
+export const asanaUpdateTaskOutputSchema = z.object({
+  error: z.string().describe("Error if task update was unsuccessful").optional(),
+  success: z.boolean().describe("Whether task update was successful"),
+  taskUrl: z.string().describe("The url to the updated Asana task").optional(),
+});
+
+export type asanaUpdateTaskOutputType = z.infer<typeof asanaUpdateTaskOutputSchema>;
+export type asanaUpdateTaskFunction = ActionFunction<
+  asanaUpdateTaskParamsType,
+  AuthParamsType,
+  asanaUpdateTaskOutputType
+>;
+
 export const slackSendMessageParamsSchema = z.object({
   channelName: z.string().describe("The name of the Slack channel to send the message to (e.g. general, alerts)"),
   message: z.string().describe("The message content to send to Slack. Can include markdown formatting."),
@@ -143,27 +220,6 @@ export type confluenceFetchPageContentFunction = ActionFunction<
   confluenceFetchPageContentOutputType
 >;
 
-export const jiraCommentJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
-  issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
-  comment: z.string().describe("The text to be commented on the ticket"),
-});
-
-export type jiraCommentJiraTicketParamsType = z.infer<typeof jiraCommentJiraTicketParamsSchema>;
-
-export const jiraCommentJiraTicketOutputSchema = z.object({
-  success: z.boolean().describe("Whether the comment was sent successfully"),
-  error: z.string().describe("The error that occurred if the comment was not sent successfully").optional(),
-  commentUrl: z.string().describe("The url to the created Jira comment").optional(),
-});
-
-export type jiraCommentJiraTicketOutputType = z.infer<typeof jiraCommentJiraTicketOutputSchema>;
-export type jiraCommentJiraTicketFunction = ActionFunction<
-  jiraCommentJiraTicketParamsType,
-  AuthParamsType,
-  jiraCommentJiraTicketOutputType
->;
-
 export const jiraAssignJiraTicketParamsSchema = z.object({
   projectKey: z.string().describe("The key for the project you want to add it to"),
   assignee: z.string().describe("The assignee for the ticket, userID or email"),
@@ -186,6 +242,27 @@ export type jiraAssignJiraTicketFunction = ActionFunction<
   jiraAssignJiraTicketParamsType,
   AuthParamsType,
   jiraAssignJiraTicketOutputType
+>;
+
+export const jiraCommentJiraTicketParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project"),
+  issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
+  comment: z.string().describe("The text to be commented on the ticket"),
+});
+
+export type jiraCommentJiraTicketParamsType = z.infer<typeof jiraCommentJiraTicketParamsSchema>;
+
+export const jiraCommentJiraTicketOutputSchema = z.object({
+  success: z.boolean().describe("Whether the comment was sent successfully"),
+  error: z.string().describe("The error that occurred if the comment was not sent successfully").optional(),
+  commentUrl: z.string().describe("The url to the created Jira comment").optional(),
+});
+
+export type jiraCommentJiraTicketOutputType = z.infer<typeof jiraCommentJiraTicketOutputSchema>;
+export type jiraCommentJiraTicketFunction = ActionFunction<
+  jiraCommentJiraTicketParamsType,
+  AuthParamsType,
+  jiraCommentJiraTicketOutputType
 >;
 
 export const jiraCreateJiraTicketParamsSchema = z.object({
@@ -213,6 +290,93 @@ export type jiraCreateJiraTicketFunction = ActionFunction<
   jiraCreateJiraTicketParamsType,
   AuthParamsType,
   jiraCreateJiraTicketOutputType
+>;
+
+export const jiraGetJiraTicketDetailsParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project"),
+  issueId: z.string().describe("The ID of the ticket"),
+});
+
+export type jiraGetJiraTicketDetailsParamsType = z.infer<typeof jiraGetJiraTicketDetailsParamsSchema>;
+
+export const jiraGetJiraTicketDetailsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the status was updated successfully"),
+  error: z.string().describe("The error that occurred if the retrieval was unsuccessful").optional(),
+  data: z.object({}).catchall(z.any()).describe("The data of the Jira ticket").optional(),
+});
+
+export type jiraGetJiraTicketDetailsOutputType = z.infer<typeof jiraGetJiraTicketDetailsOutputSchema>;
+export type jiraGetJiraTicketDetailsFunction = ActionFunction<
+  jiraGetJiraTicketDetailsParamsType,
+  AuthParamsType,
+  jiraGetJiraTicketDetailsOutputType
+>;
+
+export const jiraGetJiraTicketHistoryParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project"),
+  issueId: z.string().describe("The ID of the ticket"),
+});
+
+export type jiraGetJiraTicketHistoryParamsType = z.infer<typeof jiraGetJiraTicketHistoryParamsSchema>;
+
+export const jiraGetJiraTicketHistoryOutputSchema = z.object({
+  success: z.boolean().describe("Whether the status was updated successfully"),
+  error: z.string().describe("The error that occurred if the retrieval was unsuccessful").optional(),
+  history: z.array(z.any()).describe("The history data of the Jira ticket").optional(),
+});
+
+export type jiraGetJiraTicketHistoryOutputType = z.infer<typeof jiraGetJiraTicketHistoryOutputSchema>;
+export type jiraGetJiraTicketHistoryFunction = ActionFunction<
+  jiraGetJiraTicketHistoryParamsType,
+  AuthParamsType,
+  jiraGetJiraTicketHistoryOutputType
+>;
+
+export const jiraUpdateJiraTicketDetailsParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project you want to add it to"),
+  issueId: z.string().describe("The issue ID associated with the ticket to be updated"),
+  summary: z.string().describe("The updated summary").optional(),
+  description: z.string().describe("The updated description").optional(),
+  issueType: z.string().describe("The updated issue type").optional(),
+  customFields: z
+    .object({})
+    .catchall(z.any())
+    .describe("Custom fields to be set on the update ticket request")
+    .optional(),
+});
+
+export type jiraUpdateJiraTicketDetailsParamsType = z.infer<typeof jiraUpdateJiraTicketDetailsParamsSchema>;
+
+export const jiraUpdateJiraTicketDetailsOutputSchema = z.object({
+  ticketUrl: z.string().describe("The url to the Jira ticket"),
+});
+
+export type jiraUpdateJiraTicketDetailsOutputType = z.infer<typeof jiraUpdateJiraTicketDetailsOutputSchema>;
+export type jiraUpdateJiraTicketDetailsFunction = ActionFunction<
+  jiraUpdateJiraTicketDetailsParamsType,
+  AuthParamsType,
+  jiraUpdateJiraTicketDetailsOutputType
+>;
+
+export const jiraUpdateJiraTicketStatusParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project you want to add it to"),
+  issueId: z.string().describe("The issue ID associated with the ticket"),
+  status: z.string().describe('The status the ticket should be changed to (eg "In Progress", "Closed")'),
+});
+
+export type jiraUpdateJiraTicketStatusParamsType = z.infer<typeof jiraUpdateJiraTicketStatusParamsSchema>;
+
+export const jiraUpdateJiraTicketStatusOutputSchema = z.object({
+  success: z.boolean().describe("Whether the status was updated successfully"),
+  error: z.string().describe("The error that occurred if the status was not updated successfully").optional(),
+  ticketUrl: z.string().describe("The url to the Jira ticket").optional(),
+});
+
+export type jiraUpdateJiraTicketStatusOutputType = z.infer<typeof jiraUpdateJiraTicketStatusOutputSchema>;
+export type jiraUpdateJiraTicketStatusFunction = ActionFunction<
+  jiraUpdateJiraTicketStatusParamsType,
+  AuthParamsType,
+  jiraUpdateJiraTicketStatusOutputType
 >;
 
 export const googlemapsValidateAddressParamsSchema = z.object({
@@ -2661,6 +2825,33 @@ export type salesforceGenerateSalesReportFunction = ActionFunction<
   salesforceGenerateSalesReportOutputType
 >;
 
+export const salesforceGetSalesforceRecordsByQueryParamsSchema = z.object({
+  query: z.string().describe("The SOQL query to execute"),
+  limit: z.number().describe("The maximum number of records to retrieve").optional(),
+});
+
+export type salesforceGetSalesforceRecordsByQueryParamsType = z.infer<
+  typeof salesforceGetSalesforceRecordsByQueryParamsSchema
+>;
+
+export const salesforceGetSalesforceRecordsByQueryOutputSchema = z.object({
+  success: z.boolean().describe("Whether the records were successfully retrieved"),
+  records: z
+    .array(z.record(z.string()).describe("A record from Salesforce"))
+    .describe("The retrieved records")
+    .optional(),
+  error: z.string().describe("The error that occurred if the records were not successfully retrieved").optional(),
+});
+
+export type salesforceGetSalesforceRecordsByQueryOutputType = z.infer<
+  typeof salesforceGetSalesforceRecordsByQueryOutputSchema
+>;
+export type salesforceGetSalesforceRecordsByQueryFunction = ActionFunction<
+  salesforceGetSalesforceRecordsByQueryParamsType,
+  AuthParamsType,
+  salesforceGetSalesforceRecordsByQueryOutputType
+>;
+
 export const salesforceGetRecordParamsSchema = z.object({
   objectType: z.string().describe("The Salesforce object type to retrieve (e.g., Lead, Account, Contact)"),
   recordId: z.string().describe("The ID of the record to retrieve"),
@@ -2720,4 +2911,80 @@ export type microsoftMessageTeamsChannelFunction = ActionFunction<
   microsoftMessageTeamsChannelParamsType,
   AuthParamsType,
   microsoftMessageTeamsChannelOutputType
+>;
+
+export const githubCreateOrUpdateFileParamsSchema = z.object({
+  repositoryOwner: z.string().describe("The owner of the repository"),
+  repositoryName: z.string().describe("The name of the repository"),
+  filePath: z.string().describe("The path of the file to create or update"),
+  branch: z.string().describe("The branch where the file will be created or updated"),
+  fileContent: z.string().describe("The content of the file"),
+  commitMessage: z.string().describe("The commit message for the operation"),
+  noOverwrite: z.boolean().describe("Whether to prevent overwriting existing files").optional(),
+});
+
+export type githubCreateOrUpdateFileParamsType = z.infer<typeof githubCreateOrUpdateFileParamsSchema>;
+
+export const githubCreateOrUpdateFileOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("The error that occurred if the operation was not successful").optional(),
+  newCommitSha: z.string().describe("The SHA of the new commit created").optional(),
+  operation: z.enum(["created", "updated"]).describe("Indicates whether the file was created or updated").optional(),
+});
+
+export type githubCreateOrUpdateFileOutputType = z.infer<typeof githubCreateOrUpdateFileOutputSchema>;
+export type githubCreateOrUpdateFileFunction = ActionFunction<
+  githubCreateOrUpdateFileParamsType,
+  AuthParamsType,
+  githubCreateOrUpdateFileOutputType
+>;
+
+export const githubCreateBranchParamsSchema = z.object({
+  repositoryOwner: z.string().describe("The owner of the repository"),
+  repositoryName: z.string().describe("The name of the repository"),
+  branchName: z.string().describe("The name of the new branch to create"),
+  baseRefOrHash: z.string().describe("The ref or hash of the base commit to create the new branch from"),
+});
+
+export type githubCreateBranchParamsType = z.infer<typeof githubCreateBranchParamsSchema>;
+
+export const githubCreateBranchOutputSchema = z.object({
+  success: z.boolean().describe("Whether the branch was created successfully"),
+  error: z.string().describe("The error that occurred if the branch was not created successfully").optional(),
+});
+
+export type githubCreateBranchOutputType = z.infer<typeof githubCreateBranchOutputSchema>;
+export type githubCreateBranchFunction = ActionFunction<
+  githubCreateBranchParamsType,
+  AuthParamsType,
+  githubCreateBranchOutputType
+>;
+
+export const githubCreatePullRequestParamsSchema = z.object({
+  repositoryOwner: z.string().describe("The owner of the repository"),
+  repositoryName: z.string().describe("The name of the repository"),
+  head: z
+    .string()
+    .describe(
+      "The branch containing the changes to be merged (prefix with owner: if different from the repository owner)",
+    ),
+  base: z.string().describe("The branch to merge the changes into"),
+  title: z.string().describe("The title of the pull request"),
+  description: z.string().describe("The description of the pull request").optional(),
+});
+
+export type githubCreatePullRequestParamsType = z.infer<typeof githubCreatePullRequestParamsSchema>;
+
+export const githubCreatePullRequestOutputSchema = z.object({
+  success: z.boolean().describe("Whether the pull request was created successfully"),
+  error: z.string().describe("The error that occurred if the pull request was not created successfully").optional(),
+  pullRequestUrl: z.string().describe("The URL of the created pull request").optional(),
+  pullRequestNumber: z.number().describe("The number of the created pull request").optional(),
+});
+
+export type githubCreatePullRequestOutputType = z.infer<typeof githubCreatePullRequestOutputSchema>;
+export type githubCreatePullRequestFunction = ActionFunction<
+  githubCreatePullRequestParamsType,
+  AuthParamsType,
+  githubCreatePullRequestOutputType
 >;
