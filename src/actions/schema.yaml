@@ -1428,9 +1428,6 @@ actions:
           query:
             type: string
             description: The SOQL query to execute
-          objectType:
-            type: string
-            description: The Salesforce object type to retrieve (e.g., Lead, Account, Contact)
       output:
         type: object
         required: [success]

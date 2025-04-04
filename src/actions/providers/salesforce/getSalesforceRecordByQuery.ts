@@ -14,7 +14,7 @@ const getRecord: salesforceGetSalesforceRecordsByQueryFunction = async ({
     authParams: AuthParamsType;
 }): Promise<salesforceGetSalesforceRecordsByQueryOutputType> => {
     const { authToken, baseUrl } = authParams;
-    const { objectType, query } = params;
+    const { query } = params;
 
     if (!authToken || !baseUrl) {
         return {
@@ -23,7 +23,7 @@ const getRecord: salesforceGetSalesforceRecordsByQueryFunction = async ({
         };
     }
 
-    const url = `${baseUrl}/services/data/v56.0/sobjects/${objectType}/${recordId}`;
+    const url = `${baseUrl}/services/data/v56.0/query/?q=${query}`;
 
     try {
         const response = await axiosClient.get(url, {
@@ -34,7 +34,7 @@ const getRecord: salesforceGetSalesforceRecordsByQueryFunction = async ({
 
         return {
             success: true,
-            record: response.data,
+            records: response.data,
         };
     } catch (error) {
         console.error("Error retrieving Salesforce record:", error);
