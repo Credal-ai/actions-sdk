@@ -25,18 +25,26 @@ import {
   zendeskCreateZendeskTicketParamsSchema,
   zendeskGetTicketDetailsOutputSchema,
   zendeskGetTicketDetailsParamsSchema,
-  jiraAssignJiraTicketParamsSchema,
-  jiraAssignJiraTicketOutputSchema,
   zendeskUpdateTicketStatusOutputSchema,
   zendeskUpdateTicketStatusParamsSchema,
   zendeskAddCommentToTicketOutputSchema,
   zendeskAddCommentToTicketParamsSchema,
   zendeskAssignTicketOutputSchema,
   zendeskAssignTicketParamsSchema,
+  jiraAssignJiraTicketParamsSchema,
+  jiraAssignJiraTicketOutputSchema,
   jiraCommentJiraTicketParamsSchema,
   jiraCommentJiraTicketOutputSchema,
   jiraCreateJiraTicketParamsSchema,
   jiraCreateJiraTicketOutputSchema,
+  jiraGetJiraTicketDetailsParamsSchema,
+  jiraGetJiraTicketDetailsOutputSchema,
+  jiraGetJiraTicketHistoryParamsSchema,
+  jiraGetJiraTicketHistoryOutputSchema,
+  jiraUpdateJiraTicketDetailsParamsSchema,
+  jiraUpdateJiraTicketDetailsOutputSchema,
+  jiraUpdateJiraTicketStatusParamsSchema,
+  jiraUpdateJiraTicketStatusOutputSchema,
   openstreetmapGetLatitudeLongitudeFromLocationParamsSchema,
   openstreetmapGetLatitudeLongitudeFromLocationOutputSchema,
   nwsGetForecastForLocationParamsSchema,
@@ -93,6 +101,18 @@ import {
   microsoftMessageTeamsChannelOutputSchema,
   salesforceGetSalesforceRecordsByQueryParamsSchema,
   salesforceGetSalesforceRecordsByQueryOutputSchema,
+  asanaCommentTaskParamsSchema,
+  asanaCommentTaskOutputSchema,
+  asanaCreateTaskParamsSchema,
+  asanaCreateTaskOutputSchema,
+  asanaUpdateTaskParamsSchema,
+  asanaUpdateTaskOutputSchema,
+  githubCreateOrUpdateFileParamsSchema,
+  githubCreateOrUpdateFileOutputSchema,
+  githubCreateBranchParamsSchema,
+  githubCreateBranchOutputSchema,
+  githubCreatePullRequestParamsSchema,
+  githubCreatePullRequestOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -104,18 +124,25 @@ import getChannelMessages from "./providers/slack/getChannelMessages";
 import getRowByFieldValue from "./providers/snowflake/getRowByFieldValue";
 import createZendeskTicket from "./providers/zendesk/createZendeskTicket";
 import getZendeskTicketDetails from "./providers/zendesk/getTicketDetails";
-import assignJiraTicket from "./providers/jira/assignJiraTicket";
 import updateTicketStatus from "./providers/zendesk/updateTicketStatus";
 import addCommentToTicket from "./providers/zendesk/addCommentToTicket";
 import assignTicket from "./providers/zendesk/assignTicket";
+import assignJiraTicket from "./providers/jira/assignJiraTicket";
 import commentJiraTicket from "./providers/jira/commentJiraTicket";
 import createJiraTicket from "./providers/jira/createJiraTicket";
+import getJiraTicketDetails from "./providers/jira/getJiraTicketDetails";
+import getJiraTicketHistory from "./providers/jira/getJiraTicketHistory";
+import updateJiraTicketDetails from "./providers/jira/updateJiraTicketDetails";
+import updateJiraTicketStatus from "./providers/jira/updateJiraTicketStatus";
 import getLatitudeLongitudeFromLocation from "./providers/openstreetmap/getLatitudeLongitudeFromLocation";
 import getForecastForLocation from "./providers/nws/getForecastForLocation";
 import getSalesforceRecordByQuery from "./providers/salesforce/getSalesforceRecordByQuery";
 import nearbysearch from "./providers/googlemaps/nearbysearchRestaurants";
 import scrapeUrl from "./providers/firecrawl/scrapeUrl";
 import sendEmail from "./providers/resend/sendEmail";
+import commentAsanaTask from "./providers/asana/commentAsanaTask";
+import createAsanaTask from "./providers/asana/createAsanaTask";
+import updateAsanaTask from "./providers/asana/updateAsanaTask";
 import createShareLinkedinPostUrl from "./providers/linkedin/createSharePostLinkedinUrl";
 import createNewGoogleDoc from "./providers/google-oauth/createNewGoogleDoc";
 import createXSharePostUrl from "./providers/x/createXSharePostUrl";
@@ -141,6 +168,9 @@ import updateCandidate from "./providers/ashby/updateCandidate";
 import addCandidateToProject from "./providers/ashby/addCandidateToProject";
 import sendMessageToTeamsChat from "./providers/microsoft/messageTeamsChat";
 import sendMessageToTeamsChannel from "./providers/microsoft/messageTeamsChannel";
+import createOrUpdateFile from "./providers/github/createOrUpdateFile";
+import createBranch from "./providers/github/createBranch";
+import createPullRequest from "./providers/github/createPullRequest";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -150,6 +180,23 @@ interface ActionFunctionComponents {
 }
 
 export const ActionMapper: Record<string, Record<string, ActionFunctionComponents>> = {
+  asana: {
+    commentTask: {
+      fn: commentAsanaTask,
+      paramsSchema: asanaCommentTaskParamsSchema,
+      outputSchema: asanaCommentTaskOutputSchema,
+    },
+    createTask: {
+      fn: createAsanaTask,
+      paramsSchema: asanaCreateTaskParamsSchema,
+      outputSchema: asanaCreateTaskOutputSchema,
+    },
+    updateTask: {
+      fn: updateAsanaTask,
+      paramsSchema: asanaUpdateTaskParamsSchema,
+      outputSchema: asanaUpdateTaskOutputSchema,
+    },
+  },
   math: {
     add: {
       fn: add,
@@ -273,6 +320,26 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: createJiraTicket,
       paramsSchema: jiraCreateJiraTicketParamsSchema,
       outputSchema: jiraCreateJiraTicketOutputSchema,
+    },
+    getJiraTicketDetails: {
+      fn: getJiraTicketDetails,
+      paramsSchema: jiraGetJiraTicketDetailsParamsSchema,
+      outputSchema: jiraGetJiraTicketDetailsOutputSchema,
+    },
+    getJiraTicketHistory: {
+      fn: getJiraTicketHistory,
+      paramsSchema: jiraGetJiraTicketHistoryParamsSchema,
+      outputSchema: jiraGetJiraTicketHistoryOutputSchema,
+    },
+    updateJiraTicketDetails: {
+      fn: updateJiraTicketDetails,
+      paramsSchema: jiraUpdateJiraTicketDetailsParamsSchema,
+      outputSchema: jiraUpdateJiraTicketDetailsOutputSchema,
+    },
+    updateJiraTicketStatus: {
+      fn: updateJiraTicketStatus,
+      paramsSchema: jiraUpdateJiraTicketStatusParamsSchema,
+      outputSchema: jiraUpdateJiraTicketStatusOutputSchema,
     },
   },
   openstreetmap: {
@@ -425,6 +492,23 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: sendMessageToTeamsChannel,
       paramsSchema: microsoftMessageTeamsChannelParamsSchema,
       outputSchema: microsoftMessageTeamsChannelOutputSchema,
+    },
+  },
+  github: {
+    createOrUpdateFile: {
+      fn: createOrUpdateFile,
+      paramsSchema: githubCreateOrUpdateFileParamsSchema,
+      outputSchema: githubCreateOrUpdateFileOutputSchema,
+    },
+    createBranch: {
+      fn: createBranch,
+      paramsSchema: githubCreateBranchParamsSchema,
+      outputSchema: githubCreateBranchOutputSchema,
+    },
+    createPullRequest: {
+      fn: createPullRequest,
+      paramsSchema: githubCreatePullRequestParamsSchema,
+      outputSchema: githubCreatePullRequestOutputSchema,
     },
   },
 };

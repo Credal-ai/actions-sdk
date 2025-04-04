@@ -13,6 +13,10 @@ import {
   jiraAssignJiraTicketDefinition,
   jiraCommentJiraTicketDefinition,
   jiraCreateJiraTicketDefinition,
+  jiraGetJiraTicketDetailsDefinition,
+  jiraGetJiraTicketHistoryDefinition,
+  jiraUpdateJiraTicketDetailsDefinition,
+  jiraUpdateJiraTicketStatusDefinition,
   googlemapsNearbysearchRestaurantsDefinition,
   firecrawlScrapeUrlDefinition,
   resendSendEmailDefinition,
@@ -32,12 +36,22 @@ import {
   salesforceGetRecordDefinition,
   microsoftMessageTeamsChatDefinition,
   microsoftMessageTeamsChannelDefinition,
+  asanaCommentTaskDefinition,
+  asanaCreateTaskDefinition,
+  asanaUpdateTaskDefinition,
+  githubCreateOrUpdateFileDefinition,
+  githubCreateBranchDefinition,
+  githubCreatePullRequestDefinition,
 } from "../actions/autogen/templates";
 import { ActionTemplate } from "../actions/parse";
 
 export type ActionGroups = Record<string, { description: string; actions: ActionTemplate[] }>;
 
 export const ACTION_GROUPS: ActionGroups = {
+  ASANA: {
+    description: "Actions for interacting with Asana",
+    actions: [asanaCommentTaskDefinition, asanaCreateTaskDefinition, asanaUpdateTaskDefinition],
+  },
   SLACK_LIST_CONVERSATIONS: {
     description: "Actions for interacting with Slack",
     actions: [slackListConversationsDefinition, slackSendMessageDefinition],
@@ -83,8 +97,16 @@ export const ACTION_GROUPS: ActionGroups = {
     actions: [snowflakeGetRowByFieldValueDefinition, snowflakeRunSnowflakeQueryDefinition],
   },
   JIRA_ACTIONS: {
-    description: "Action for interating with Jira tickets",
-    actions: [jiraCreateJiraTicketDefinition, jiraAssignJiraTicketDefinition, jiraCommentJiraTicketDefinition],
+    description: "Action for interacting with Jira tickets",
+    actions: [
+      jiraAssignJiraTicketDefinition,
+      jiraCreateJiraTicketDefinition,
+      jiraCommentJiraTicketDefinition,
+      jiraGetJiraTicketDetailsDefinition,
+      jiraGetJiraTicketHistoryDefinition,
+      jiraUpdateJiraTicketDetailsDefinition,
+      jiraUpdateJiraTicketStatusDefinition,
+    ],
   },
   OPENSTREETMAP_GET_LATITUDE_LONGITUDE_FROM_LOCATION: {
     description: "Action for getting the latitude and longitude of a location",
@@ -126,5 +148,9 @@ export const ACTION_GROUPS: ActionGroups = {
   MICROSOFT: {
     description: "Actions for interacting with Microsoft 365",
     actions: [microsoftMessageTeamsChatDefinition, microsoftMessageTeamsChannelDefinition],
+  },
+  GITHUB: {
+    description: "Actions for interacting with GitHub",
+    actions: [githubCreateOrUpdateFileDefinition, githubCreateBranchDefinition, githubCreatePullRequestDefinition],
   },
 };

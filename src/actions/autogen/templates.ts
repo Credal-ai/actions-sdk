@@ -1,5 +1,173 @@
 import { ActionTemplate } from "../../actions/parse";
 
+export const asanaCommentTaskDefinition: ActionTemplate = {
+  description: "Comments on an Asana task with specified content",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["taskId", "commentText"],
+    properties: {
+      taskId: {
+        type: "string",
+        description: "Task gid the comment should be added to",
+      },
+      commentText: {
+        type: "string",
+        description: "The comment text to be added",
+      },
+      isPinned: {
+        type: "boolean",
+        description: "Whether the comment should be pinned",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      error: {
+        type: "string",
+        description: "Error if comment was unsuccessful",
+      },
+      success: {
+        type: "boolean",
+        description: "Whether comment was successfully made",
+      },
+      commentUrl: {
+        type: "string",
+        description: "The url to the created comment",
+      },
+    },
+  },
+  name: "commentTask",
+  provider: "asana",
+};
+export const asanaCreateTaskDefinition: ActionTemplate = {
+  description: "Create an Asana task with specified content using optional template",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["name", "projectId"],
+    properties: {
+      projectId: {
+        type: "string",
+        description: "Project gid the task belongs to",
+      },
+      name: {
+        type: "string",
+        description: "The name of the new task",
+      },
+      approvalStatus: {
+        type: "string",
+        description: "Status of task (pending, approved, ...)",
+      },
+      description: {
+        type: "string",
+        description: "The description for the new task",
+      },
+      dueAt: {
+        type: "string",
+        description: "ISO 8601 date string in UTC for due date of task",
+      },
+      assignee: {
+        type: "string",
+        description: "The assignee gid or email for the new task",
+      },
+      taskTemplate: {
+        type: "string",
+        description: "The template to use, takes id or name",
+      },
+      customFields: {
+        type: "object",
+        description: "Custom fields to be set on the create task request",
+        additionalProperties: true,
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      error: {
+        type: "string",
+        description: "Error if task creation was unsuccessful",
+      },
+      success: {
+        type: "boolean",
+        description: "Whether task creation was successful",
+      },
+      taskUrl: {
+        type: "string",
+        description: "The url to the created Asana task",
+      },
+    },
+  },
+  name: "createTask",
+  provider: "asana",
+};
+export const asanaUpdateTaskDefinition: ActionTemplate = {
+  description: "Updates a Asana task with specified content",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["taskId"],
+    properties: {
+      taskId: {
+        type: "string",
+        description: "Task gid of the task to update",
+      },
+      name: {
+        type: "string",
+        description: "The name of the task",
+      },
+      approvalStatus: {
+        type: "string",
+        description: "Status of task (pending, approved, ...)",
+      },
+      description: {
+        type: "string",
+        description: "The updated description",
+      },
+      dueAt: {
+        type: "string",
+        description: "ISO 8601 date string in UTC for due date of task",
+      },
+      assignee: {
+        type: "string",
+        description: "The assignee gid or email for the task",
+      },
+      completed: {
+        type: "boolean",
+        description: "Whether the task should be marked as completed",
+      },
+      customFields: {
+        type: "object",
+        description: "Custom fields to be updated",
+        additionalProperties: true,
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      error: {
+        type: "string",
+        description: "Error if task update was unsuccessful",
+      },
+      success: {
+        type: "boolean",
+        description: "Whether task update was successful",
+      },
+      taskUrl: {
+        type: "string",
+        description: "The url to the updated Asana task",
+      },
+    },
+  },
+  name: "updateTask",
+  provider: "asana",
+};
 export const slackSendMessageDefinition: ActionTemplate = {
   description: "Sends a message to a Slack channel",
   scopes: ["chat:write"],
@@ -196,48 +364,6 @@ export const confluenceFetchPageContentDefinition: ActionTemplate = {
   name: "fetchPageContent",
   provider: "confluence",
 };
-export const jiraCommentJiraTicketDefinition: ActionTemplate = {
-  description: "Comments on a Jira ticket with specified content",
-  scopes: ["write:comment:jira"],
-  parameters: {
-    type: "object",
-    required: ["projectKey", "issueId", "comment"],
-    properties: {
-      projectKey: {
-        type: "string",
-        description: "The key for the project you want to add it to",
-      },
-      issueId: {
-        type: "string",
-        description: "The issue ID associated with the ticket to be commented on",
-      },
-      comment: {
-        type: "string",
-        description: "The text to be commented on the ticket",
-      },
-    },
-  },
-  output: {
-    type: "object",
-    required: ["success"],
-    properties: {
-      success: {
-        type: "boolean",
-        description: "Whether the comment was sent successfully",
-      },
-      error: {
-        type: "string",
-        description: "The error that occurred if the comment was not sent successfully",
-      },
-      commentUrl: {
-        type: "string",
-        description: "The url to the created Jira comment",
-      },
-    },
-  },
-  name: "commentJiraTicket",
-  provider: "jira",
-};
 export const jiraAssignJiraTicketDefinition: ActionTemplate = {
   description: "Assigns/Re-assignes a Jira ticket to a specified user",
   scopes: ["write:jira-work", "read:jira-user"],
@@ -278,6 +404,48 @@ export const jiraAssignJiraTicketDefinition: ActionTemplate = {
     },
   },
   name: "assignJiraTicket",
+  provider: "jira",
+};
+export const jiraCommentJiraTicketDefinition: ActionTemplate = {
+  description: "Comments on a Jira ticket with specified content",
+  scopes: ["write:comment:jira"],
+  parameters: {
+    type: "object",
+    required: ["projectKey", "issueId", "comment"],
+    properties: {
+      projectKey: {
+        type: "string",
+        description: "The key for the project",
+      },
+      issueId: {
+        type: "string",
+        description: "The issue ID associated with the ticket to be commented on",
+      },
+      comment: {
+        type: "string",
+        description: "The text to be commented on the ticket",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the comment was sent successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the comment was not sent successfully",
+      },
+      commentUrl: {
+        type: "string",
+        description: "The url to the created Jira comment",
+      },
+    },
+  },
+  name: "commentJiraTicket",
   provider: "jira",
 };
 export const jiraCreateJiraTicketDefinition: ActionTemplate = {
@@ -329,6 +497,171 @@ export const jiraCreateJiraTicketDefinition: ActionTemplate = {
     },
   },
   name: "createJiraTicket",
+  provider: "jira",
+};
+export const jiraGetJiraTicketDetailsDefinition: ActionTemplate = {
+  description: "Get details of a ticket in Jira",
+  scopes: ["read:jira-work"],
+  parameters: {
+    type: "object",
+    required: ["projectKey", "issueId"],
+    properties: {
+      projectKey: {
+        type: "string",
+        description: "The key for the project",
+      },
+      issueId: {
+        type: "string",
+        description: "The ID of the ticket",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the status was updated successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the retrieval was unsuccessful",
+      },
+      data: {
+        type: "object",
+        description: "The data of the Jira ticket",
+      },
+    },
+  },
+  name: "getJiraTicketDetails",
+  provider: "jira",
+};
+export const jiraGetJiraTicketHistoryDefinition: ActionTemplate = {
+  description: "Get ticket history of a ticket in Jira",
+  scopes: ["read:jira-work"],
+  parameters: {
+    type: "object",
+    required: ["projectKey", "issueId"],
+    properties: {
+      projectKey: {
+        type: "string",
+        description: "The key for the project",
+      },
+      issueId: {
+        type: "string",
+        description: "The ID of the ticket",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the status was updated successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the retrieval was unsuccessful",
+      },
+      history: {
+        type: "array",
+        description: "The history data of the Jira ticket",
+      },
+    },
+  },
+  name: "getJiraTicketHistory",
+  provider: "jira",
+};
+export const jiraUpdateJiraTicketDetailsDefinition: ActionTemplate = {
+  description: "Update a Jira ticket with new content specified",
+  scopes: ["write:jira-work"],
+  parameters: {
+    type: "object",
+    required: ["projectKey", "issueId"],
+    properties: {
+      projectKey: {
+        type: "string",
+        description: "The key for the project you want to add it to",
+      },
+      issueId: {
+        type: "string",
+        description: "The issue ID associated with the ticket to be updated",
+      },
+      summary: {
+        type: "string",
+        description: "The updated summary",
+      },
+      description: {
+        type: "string",
+        description: "The updated description",
+      },
+      issueType: {
+        type: "string",
+        description: "The updated issue type",
+      },
+      customFields: {
+        type: "object",
+        description: "Custom fields to be set on the update ticket request",
+        additionalProperties: true,
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["ticketUrl"],
+    properties: {
+      ticketUrl: {
+        type: "string",
+        description: "The url to the Jira ticket",
+      },
+    },
+  },
+  name: "updateJiraTicketDetails",
+  provider: "jira",
+};
+export const jiraUpdateJiraTicketStatusDefinition: ActionTemplate = {
+  description: "Updates the status of Jira ticket with specified status",
+  scopes: ["read:jira-work", "write:jira-work"],
+  parameters: {
+    type: "object",
+    required: ["projectKey", "issueId", "status"],
+    properties: {
+      projectKey: {
+        type: "string",
+        description: "The key for the project you want to add it to",
+      },
+      issueId: {
+        type: "string",
+        description: "The issue ID associated with the ticket",
+      },
+      status: {
+        type: "string",
+        description: 'The status the ticket should be changed to (eg "In Progress", "Closed")',
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the status was updated successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the status was not updated successfully",
+      },
+      ticketUrl: {
+        type: "string",
+        description: "The url to the Jira ticket",
+      },
+    },
+  },
+  name: "updateJiraTicketStatus",
   provider: "jira",
 };
 export const googlemapsValidateAddressDefinition: ActionTemplate = {
@@ -2166,4 +2499,168 @@ export const microsoftMessageTeamsChannelDefinition: ActionTemplate = {
   },
   name: "messageTeamsChannel",
   provider: "microsoft",
+};
+export const githubCreateOrUpdateFileDefinition: ActionTemplate = {
+  description: "Create or update a file in a GitHub repository",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["repositoryOwner", "repositoryName", "filePath", "branch", "fileContent", "commitMessage"],
+    properties: {
+      repositoryOwner: {
+        type: "string",
+        description: "The owner of the repository",
+      },
+      repositoryName: {
+        type: "string",
+        description: "The name of the repository",
+      },
+      filePath: {
+        type: "string",
+        description: "The path of the file to create or update",
+      },
+      branch: {
+        type: "string",
+        description: "The branch where the file will be created or updated",
+      },
+      fileContent: {
+        type: "string",
+        description: "The content of the file",
+      },
+      commitMessage: {
+        type: "string",
+        description: "The commit message for the operation",
+      },
+      noOverwrite: {
+        type: "boolean",
+        description: "Whether to prevent overwriting existing files",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the operation was successful",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the operation was not successful",
+      },
+      newCommitSha: {
+        type: "string",
+        description: "The SHA of the new commit created",
+      },
+      operation: {
+        type: "string",
+        description: "Indicates whether the file was created or updated",
+        enum: ["created", "updated"],
+      },
+    },
+  },
+  name: "createOrUpdateFile",
+  provider: "github",
+};
+export const githubCreateBranchDefinition: ActionTemplate = {
+  description: "Create a new branch in a GitHub repository",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["repositoryOwner", "repositoryName", "branchName", "baseRefOrHash"],
+    properties: {
+      repositoryOwner: {
+        type: "string",
+        description: "The owner of the repository",
+      },
+      repositoryName: {
+        type: "string",
+        description: "The name of the repository",
+      },
+      branchName: {
+        type: "string",
+        description: "The name of the new branch to create",
+      },
+      baseRefOrHash: {
+        type: "string",
+        description: "The ref or hash of the base commit to create the new branch from",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the branch was created successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the branch was not created successfully",
+      },
+    },
+  },
+  name: "createBranch",
+  provider: "github",
+};
+export const githubCreatePullRequestDefinition: ActionTemplate = {
+  description: "Create a pull request in a GitHub repository",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["repositoryOwner", "repositoryName", "head", "base", "title"],
+    properties: {
+      repositoryOwner: {
+        type: "string",
+        description: "The owner of the repository",
+      },
+      repositoryName: {
+        type: "string",
+        description: "The name of the repository",
+      },
+      head: {
+        type: "string",
+        description:
+          "The branch containing the changes to be merged (prefix with owner: if different from the repository owner)",
+      },
+      base: {
+        type: "string",
+        description: "The branch to merge the changes into",
+      },
+      title: {
+        type: "string",
+        description: "The title of the pull request",
+      },
+      description: {
+        type: "string",
+        description: "The description of the pull request",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the pull request was created successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the pull request was not created successfully",
+      },
+      pullRequestUrl: {
+        type: "string",
+        description: "The URL of the created pull request",
+      },
+      pullRequestNumber: {
+        type: "number",
+        description: "The number of the created pull request",
+      },
+    },
+  },
+  name: "createPullRequest",
+  provider: "github",
 };

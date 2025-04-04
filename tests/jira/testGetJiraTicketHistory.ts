@@ -1,33 +1,34 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app";
-import { jiraConfig } from './utils'; 
+import { jiraConfig } from "./utils";
 
 async function runTest() {
-  const { authToken, cloudId, baseUrl, projectKey, issueId } = jiraConfig;
+  const { authToken, cloudId, baseUrl, issueId } = jiraConfig;
+
   const result = await runAction(
-    "commentJiraTicket",
+    "getJiraTicketHistory",
     "jira",
-    { 
+    {
       authToken,
       cloudId,
       baseUrl,
     },
     {
-      projectKey,
-      comment: `Test comment made on ${new Date().toISOString()}`,
-      issueId: issueId,
+      issueId,
     }
   );
-  
+
   console.log(JSON.stringify(result, null, 2));
-  
+
   // Validate response
   assert(result, "Response should not be null");
-  assert(result.commentUrl, "Response should contain a url to the created comment");
-  console.log(`Successfully created Jira comment: ${result.commentUrl}`);
+  assert(result.success, "Response should indicate success");
+  assert(Array.isArray(result.history), "Ticket history should be an array");
+
+  console.log(`Successfully retrieved Jira ticket history for: ${issueId}`);
 }
 
-runTest().catch(error => {
+runTest().catch((error) => {
   console.error("Test failed:", error);
   if (error.response) {
     console.error("API response:", error.response.data);
