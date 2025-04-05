@@ -1,3 +1,4 @@
+import { microsoftMessageTeamsChatDefinition } from "../../autogen/templates";
 import {
   AuthParamsType,
   microsoftMessageTeamsChatFunction,
@@ -5,7 +6,7 @@ import {
   microsoftMessageTeamsChatParamsType,
 } from "../../autogen/types";
 
-import { sendMessage } from "./utils";
+import { getGraphClient } from "./utils";
 
 const sendMessageToTeamsChat: microsoftMessageTeamsChatFunction = async ({
   params,
@@ -30,17 +31,31 @@ const sendMessageToTeamsChat: microsoftMessageTeamsChatFunction = async ({
     };
   }
 
+  let client = undefined;
   try {
-    const messageId = await sendMessage(`/chats/${chatId}/messages`, message, authParams);
+    client = await getGraphClient(authParams, microsoftMessageTeamsChatDefinition.scopes.join(" "));
+  } catch (error) {
+    return {
+      success: false,
+      error: "Error while authorizing: " + (error instanceof Error ? error.message : "Unknown error"),
+    };
+  }
+
+  try {
+    const response = await client.api(`/chats/${chatId}/messages`).post({
+      body: {
+        content: message,
+      },
+    });
     return {
       success: true,
-      messageId: messageId,
+      messageId: response.id,
     };
   } catch (error) {
     console.error(error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: "Error sending message: " + (error instanceof Error ? error.message : "Unknown error"),
     };
   }
 };

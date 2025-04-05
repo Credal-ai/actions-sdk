@@ -123,6 +123,12 @@ import {
   githubCreateBranchOutputSchema,
   githubCreatePullRequestParamsSchema,
   githubCreatePullRequestOutputSchema,
+  microsoftUpdateSpreadsheetParamsSchema,
+  microsoftUpdateSpreadsheetOutputSchema,
+  microsoftUpdateDocumentParamsSchema,
+  microsoftUpdateDocumentOutputSchema,
+  microsoftGetDocumentParamsSchema,
+  microsoftGetDocumentOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -186,6 +192,10 @@ import sendMessageToTeamsChannel from "./providers/microsoft/messageTeamsChannel
 import createOrUpdateFile from "./providers/github/createOrUpdateFile";
 import createBranch from "./providers/github/createBranch";
 import createPullRequest from "./providers/github/createPullRequest";
+import microsoftUpdateSpreadsheet from "./providers/microsoft/updateSpreadsheet";
+import updateDocument from "./providers/microsoft/updateDocument";
+import createDocument from "./providers/microsoft/createDocument";
+import getDocument from "./providers/microsoft/getDocument";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -532,6 +542,26 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: sendMessageToTeamsChannel,
       paramsSchema: microsoftMessageTeamsChannelParamsSchema,
       outputSchema: microsoftMessageTeamsChannelOutputSchema,
+    },
+    updateSpreadsheet: {
+      fn: microsoftUpdateSpreadsheet,
+      paramsSchema: microsoftUpdateSpreadsheetParamsSchema,
+      outputSchema: microsoftUpdateSpreadsheetOutputSchema,
+    },
+    updateDocument: {
+      fn: updateDocument,
+      paramsSchema: microsoftUpdateDocumentParamsSchema,
+      outputSchema: microsoftUpdateDocumentOutputSchema,
+    },
+    createDocument: {
+      fn: createDocument,
+      paramsSchema: microsoftUpdateDocumentParamsSchema,
+      outputSchema: microsoftUpdateDocumentOutputSchema,
+    },
+    getDocument: {
+      fn: getDocument,
+      paramsSchema: microsoftGetDocumentParamsSchema,
+      outputSchema: microsoftGetDocumentOutputSchema,
     },
   },
   github: {

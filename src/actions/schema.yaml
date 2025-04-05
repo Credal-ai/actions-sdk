@@ -1,18 +1,18 @@
 actions:
-  asana: 
+  asana:
     commentTask:
       description: Comments on an Asana task with specified content
       scopes: []
       parameters:
         type: object
-        required: [taskId, commentText] 
+        required: [taskId, commentText]
         properties:
           taskId:
             type: string
             description: Task gid the comment should be added to
           commentText:
             type: string
-            description: The comment text to be added 
+            description: The comment text to be added
           isPinned:
             type: boolean
             description: Whether the comment should be pinned
@@ -34,7 +34,7 @@ actions:
       scopes: []
       parameters:
         type: object
-        required: [name, projectId] 
+        required: [name, projectId]
         properties:
           projectId:
             type: string
@@ -53,7 +53,7 @@ actions:
             description: ISO 8601 date string in UTC for due date of task
           assignee:
             type: string
-            description: The assignee gid or email for the new task 
+            description: The assignee gid or email for the new task
           taskTemplate:
             type: string
             description: The template to use, takes id or name
@@ -79,7 +79,7 @@ actions:
       scopes: []
       parameters:
         type: object
-        required: [taskId] 
+        required: [taskId]
         properties:
           taskId:
             type: string
@@ -98,7 +98,7 @@ actions:
             description: ISO 8601 date string in UTC for due date of task
           assignee:
             type: string
-            description: The assignee gid or email for the task 
+            description: The assignee gid or email for the task
           completed:
             type: boolean
             description: Whether the task should be marked as completed
@@ -295,8 +295,8 @@ actions:
             type: string
             description: The url to the newly assigned/reassigned Jira ticket
     commentJiraTicket:
-      description: Comments on a Jira ticket with specified content 
-      scopes: 
+      description: Comments on a Jira ticket with specified content
+      scopes:
         - write:comment:jira
       parameters:
         type: object
@@ -362,7 +362,7 @@ actions:
             description: The url to the created Jira Ticket
     getJiraTicketDetails:
       description: Get details of a ticket in Jira
-      scopes: 
+      scopes:
         - read:jira-work
       parameters:
         type: object
@@ -389,7 +389,7 @@ actions:
             description: The data of the Jira ticket
     getJiraTicketHistory:
       description: Get ticket history of a ticket in Jira
-      scopes: 
+      scopes:
         - read:jira-work
       parameters:
         type: object
@@ -397,7 +397,7 @@ actions:
         properties:
           projectKey:
             type: string
-            description: The key for the project 
+            description: The key for the project
           issueId:
             type: string
             description: The ID of the ticket
@@ -416,7 +416,7 @@ actions:
             description: The history data of the Jira ticket
     updateJiraTicketDetails:
       description: Update a Jira ticket with new content specified
-      scopes: 
+      scopes:
         - write:jira-work
       parameters:
         type: object
@@ -430,13 +430,13 @@ actions:
             description: The issue ID associated with the ticket to be updated
           summary:
             type: string
-            description: The updated summary 
+            description: The updated summary
           description:
             type: string
-            description: The updated description 
+            description: The updated description
           issueType:
             type: string
-            description: The updated issue type 
+            description: The updated issue type
           customFields:
             type: object
             description: Custom fields to be set on the update ticket request
@@ -449,8 +449,8 @@ actions:
             type: string
             description: The url to the Jira ticket
     updateJiraTicketStatus:
-      description: Updates the status of Jira ticket with specified status 
-      scopes: 
+      description: Updates the status of Jira ticket with specified status
+      scopes:
         - read:jira-work
         - write:jira-work
       parameters:
@@ -462,7 +462,7 @@ actions:
             description: The key for the project you want to add it to
           issueId:
             type: string
-            description: The issue ID associated with the ticket 
+            description: The issue ID associated with the ticket
           status:
             type: string
             description: The status the ticket should be changed to (eg "In Progress", "Closed")
@@ -3743,10 +3743,112 @@ actions:
             type: string
             description: The error that occurred if the record was not successfully retrieved
   microsoft:
+    createDocument:
+      description: Creates a new Office365 document
+      scopes: [Files.ReadWrite, Sites.Manage.All, Sites.ReadWrite.All]
+      parameters:
+        type: object
+        required: [name, content]
+        properties:
+          siteId:
+            type: string
+            description: The ID of the site where the document will be created
+          name:
+            type: string
+            description: The name of the new document (include extension like .docx or .xlsx)
+          content:
+            type: string
+            description: The content to add to the new document
+          folderId:
+            type: string
+            description: The ID of the folder to create the document in (optional)
+      output:
+        type: object
+        required: [success]
+        properties:
+          documentId:
+            type: string
+            description: The ID of the created document
+          documentUrl:
+            type: string
+            description: The URL to access the created document
+          fileName:
+            type: string
+            description: The name of the created document (could be sanitized version of the name)
+          success:
+            type: boolean
+            description: Whether the document was created successfully
+          error:
+            type: string
+            description: The error that occurred if the document was not created successfully
+    updateDocument:
+      description: Updates a Office365 document
+      scopes: [Files.ReadWrite, Sites.ReadWrite.All]
+      parameters:
+        type: object
+        required: [documentId, content]
+        properties:
+          siteId:
+            type: string
+            description: The ID of the site where the document is located
+          documentId:
+            type: string
+            description: The ID of the document
+          content:
+            type: string
+            description: The new content to update in the document
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the document was updated successfully
+          error:
+            type: string
+            description: The error that occurred if the update was not successful
+          documentUrl:
+            type: string
+            description: The URL to access the updated document
+    updateSpreadsheet:
+      description: Updates a Microsoft Excel spreadsheet
+      scopes: [Files.ReadWrite, Sites.ReadWrite.All]
+      parameters:
+        type: object
+        required: [spreadsheetId, range, values]
+        properties:
+          spreadsheetId:
+            type: string
+            description: The ID of the spreadsheet to update
+          range:
+            type: string
+            description: The range of cells to update (e.g., "Sheet1!A1:B2")
+          values:
+            type: array
+            description: The values to update in the specified range
+            items:
+              type: array
+              items:
+                type: string
+          siteId:
+            type: string
+            description: The ID of the site where the spreadsheet is located
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the spreadsheet was updated successfully
+          error:
+            type: string
+            description: The error that occurred if the update was not successful
+          updatedRange:
+            type: string
+            description: The range that was updated in the spreadsheet
     messageTeamsChat:
       description: Sends a message to a Microsoft Teams chat
-      scopes:
-        - chat:write
+      scopes: [ChatMessage.Send]
       parameters:
         type: object
         required: [chatId, message]
@@ -3772,8 +3874,7 @@ actions:
             description: The ID of the message that was sent
     messageTeamsChannel:
       description: Sends a message to a Microsoft Teams channel
-      scopes:
-        - chat:write
+      scopes: [ChannelMessage.Send]
       parameters:
         type: object
         required: [teamId, channelId, message]
@@ -3799,7 +3900,33 @@ actions:
             description: The error that occurred if the message was not sent successfully
           messageId:
             type: string
-            description: The ID of the message that was sent    
+            description: The ID of the message that was sent
+    getDocument:
+      description: Retrieves the content of a Microsoft Office document
+      scopes: [Files.ReadWrite, Sites.ReadWrite.All]
+      parameters:
+        type: object
+        required: [documentId]
+        properties:
+          siteId:
+            type: string
+            description: The ID of the site where the document is located (optional for OneDrive)
+          documentId:
+            type: string
+            description: The ID of the document to retrieve
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the document was successfully retrieved
+          content:
+            type: string
+            description: The content of the document
+          error:
+            type: string
+            description: The error that occurred if the document was not successfully retrieved
   github:
     createOrUpdateFile:
       description: Create or update a file in a GitHub repository
@@ -3890,7 +4017,7 @@ actions:
             description: The name of the repository
           head:
             type: string
-            description: 'The branch containing the changes to be merged (prefix with owner: if different from the repository owner)'
+            description: "The branch containing the changes to be merged (prefix with owner: if different from the repository owner)"
           base:
             type: string
             description: The branch to merge the changes into

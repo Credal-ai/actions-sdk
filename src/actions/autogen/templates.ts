@@ -5398,9 +5398,157 @@ export const salesforceGetRecordDefinition: ActionTemplate = {
   name: "getRecord",
   provider: "salesforce",
 };
+export const microsoftCreateDocumentDefinition: ActionTemplate = {
+  description: "Creates a new Office365 document",
+  scopes: ["Files.ReadWrite", "Sites.Manage.All", "Sites.ReadWrite.All"],
+  parameters: {
+    type: "object",
+    required: ["name", "content"],
+    properties: {
+      siteId: {
+        type: "string",
+        description: "The ID of the site where the document will be created",
+      },
+      name: {
+        type: "string",
+        description: "The name of the new document (include extension like .docx or .xlsx)",
+      },
+      content: {
+        type: "string",
+        description: "The content to add to the new document",
+      },
+      folderId: {
+        type: "string",
+        description: "The ID of the folder to create the document in (optional)",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      documentId: {
+        type: "string",
+        description: "The ID of the created document",
+      },
+      documentUrl: {
+        type: "string",
+        description: "The URL to access the created document",
+      },
+      fileName: {
+        type: "string",
+        description: "The name of the created document (could be sanitized version of the name)",
+      },
+      success: {
+        type: "boolean",
+        description: "Whether the document was created successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the document was not created successfully",
+      },
+    },
+  },
+  name: "createDocument",
+  provider: "microsoft",
+};
+export const microsoftUpdateDocumentDefinition: ActionTemplate = {
+  description: "Updates a Office365 document",
+  scopes: ["Files.ReadWrite", "Sites.ReadWrite.All"],
+  parameters: {
+    type: "object",
+    required: ["documentId", "content"],
+    properties: {
+      siteId: {
+        type: "string",
+        description: "The ID of the site where the document is located",
+      },
+      documentId: {
+        type: "string",
+        description: "The ID of the document",
+      },
+      content: {
+        type: "string",
+        description: "The new content to update in the document",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the document was updated successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the update was not successful",
+      },
+      documentUrl: {
+        type: "string",
+        description: "The URL to access the updated document",
+      },
+    },
+  },
+  name: "updateDocument",
+  provider: "microsoft",
+};
+export const microsoftUpdateSpreadsheetDefinition: ActionTemplate = {
+  description: "Updates a Microsoft Excel spreadsheet",
+  scopes: ["Files.ReadWrite", "Sites.ReadWrite.All"],
+  parameters: {
+    type: "object",
+    required: ["spreadsheetId", "range", "values"],
+    properties: {
+      spreadsheetId: {
+        type: "string",
+        description: "The ID of the spreadsheet to update",
+      },
+      range: {
+        type: "string",
+        description: 'The range of cells to update (e.g., "Sheet1!A1:B2")',
+      },
+      values: {
+        type: "array",
+        description: "The values to update in the specified range",
+        items: {
+          type: "array",
+          items: {
+            type: "string",
+          },
+        },
+      },
+      siteId: {
+        type: "string",
+        description: "The ID of the site where the spreadsheet is located",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the spreadsheet was updated successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the update was not successful",
+      },
+      updatedRange: {
+        type: "string",
+        description: "The range that was updated in the spreadsheet",
+      },
+    },
+  },
+  name: "updateSpreadsheet",
+  provider: "microsoft",
+};
 export const microsoftMessageTeamsChatDefinition: ActionTemplate = {
   description: "Sends a message to a Microsoft Teams chat",
-  scopes: ["chat:write"],
+  scopes: ["ChatMessage.Send"],
   parameters: {
     type: "object",
     required: ["chatId", "message"],
@@ -5438,7 +5586,7 @@ export const microsoftMessageTeamsChatDefinition: ActionTemplate = {
 };
 export const microsoftMessageTeamsChannelDefinition: ActionTemplate = {
   description: "Sends a message to a Microsoft Teams channel",
-  scopes: ["chat:write"],
+  scopes: ["ChannelMessage.Send"],
   parameters: {
     type: "object",
     required: ["teamId", "channelId", "message"],
@@ -5476,6 +5624,44 @@ export const microsoftMessageTeamsChannelDefinition: ActionTemplate = {
     },
   },
   name: "messageTeamsChannel",
+  provider: "microsoft",
+};
+export const microsoftGetDocumentDefinition: ActionTemplate = {
+  description: "Retrieves the content of a Microsoft Office document",
+  scopes: ["Files.ReadWrite", "Sites.ReadWrite.All"],
+  parameters: {
+    type: "object",
+    required: ["documentId"],
+    properties: {
+      siteId: {
+        type: "string",
+        description: "The ID of the site where the document is located (optional for OneDrive)",
+      },
+      documentId: {
+        type: "string",
+        description: "The ID of the document to retrieve",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the document was successfully retrieved",
+      },
+      content: {
+        type: "string",
+        description: "The content of the document",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the document was not successfully retrieved",
+      },
+    },
+  },
+  name: "getDocument",
   provider: "microsoft",
 };
 export const githubCreateOrUpdateFileDefinition: ActionTemplate = {

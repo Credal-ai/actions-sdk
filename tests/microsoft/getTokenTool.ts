@@ -33,7 +33,7 @@ if (parsedUrl.hostname !== 'localhost' && parsedUrl.hostname !== '127.0.0.1') {
 }
 const AUTH_PORT = parsedUrl.port ? parseInt(parsedUrl.port, 10) : 80; // Default to port 80 if not specified
 
-const scope = "offline_access ChatMessage.Send ChannelMessage.Send";  // offline_access ensures refresh token is returned
+const scope = "offline_access ChatMessage.Send ChannelMessage.Send Files.ReadWrite Sites.ReadWrite.All";  // offline_access ensures refresh token is returned
 
 // Function to generate the Microsoft OAuth2 authorization URL
 function generateAuthUrl(): string {

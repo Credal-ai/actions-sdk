@@ -2872,6 +2872,73 @@ export type salesforceGetRecordFunction = ActionFunction<
   salesforceGetRecordOutputType
 >;
 
+export const microsoftCreateDocumentParamsSchema = z.object({
+  siteId: z.string().describe("The ID of the site where the document will be created").optional(),
+  name: z.string().describe("The name of the new document (include extension like .docx or .xlsx)"),
+  content: z.string().describe("The content to add to the new document"),
+  folderId: z.string().describe("The ID of the folder to create the document in (optional)").optional(),
+});
+
+export type microsoftCreateDocumentParamsType = z.infer<typeof microsoftCreateDocumentParamsSchema>;
+
+export const microsoftCreateDocumentOutputSchema = z.object({
+  documentId: z.string().describe("The ID of the created document").optional(),
+  documentUrl: z.string().describe("The URL to access the created document").optional(),
+  fileName: z.string().describe("The name of the created document (could be sanitized version of the name)").optional(),
+  success: z.boolean().describe("Whether the document was created successfully"),
+  error: z.string().describe("The error that occurred if the document was not created successfully").optional(),
+});
+
+export type microsoftCreateDocumentOutputType = z.infer<typeof microsoftCreateDocumentOutputSchema>;
+export type microsoftCreateDocumentFunction = ActionFunction<
+  microsoftCreateDocumentParamsType,
+  AuthParamsType,
+  microsoftCreateDocumentOutputType
+>;
+
+export const microsoftUpdateDocumentParamsSchema = z.object({
+  siteId: z.string().describe("The ID of the site where the document is located").optional(),
+  documentId: z.string().describe("The ID of the document"),
+  content: z.string().describe("The new content to update in the document"),
+});
+
+export type microsoftUpdateDocumentParamsType = z.infer<typeof microsoftUpdateDocumentParamsSchema>;
+
+export const microsoftUpdateDocumentOutputSchema = z.object({
+  success: z.boolean().describe("Whether the document was updated successfully"),
+  error: z.string().describe("The error that occurred if the update was not successful").optional(),
+  documentUrl: z.string().describe("The URL to access the updated document").optional(),
+});
+
+export type microsoftUpdateDocumentOutputType = z.infer<typeof microsoftUpdateDocumentOutputSchema>;
+export type microsoftUpdateDocumentFunction = ActionFunction<
+  microsoftUpdateDocumentParamsType,
+  AuthParamsType,
+  microsoftUpdateDocumentOutputType
+>;
+
+export const microsoftUpdateSpreadsheetParamsSchema = z.object({
+  spreadsheetId: z.string().describe("The ID of the spreadsheet to update"),
+  range: z.string().describe('The range of cells to update (e.g., "Sheet1!A1:B2")'),
+  values: z.array(z.array(z.string())).describe("The values to update in the specified range"),
+  siteId: z.string().describe("The ID of the site where the spreadsheet is located").optional(),
+});
+
+export type microsoftUpdateSpreadsheetParamsType = z.infer<typeof microsoftUpdateSpreadsheetParamsSchema>;
+
+export const microsoftUpdateSpreadsheetOutputSchema = z.object({
+  success: z.boolean().describe("Whether the spreadsheet was updated successfully"),
+  error: z.string().describe("The error that occurred if the update was not successful").optional(),
+  updatedRange: z.string().describe("The range that was updated in the spreadsheet").optional(),
+});
+
+export type microsoftUpdateSpreadsheetOutputType = z.infer<typeof microsoftUpdateSpreadsheetOutputSchema>;
+export type microsoftUpdateSpreadsheetFunction = ActionFunction<
+  microsoftUpdateSpreadsheetParamsType,
+  AuthParamsType,
+  microsoftUpdateSpreadsheetOutputType
+>;
+
 export const microsoftMessageTeamsChatParamsSchema = z.object({
   chatId: z.string().describe("The chat ID of the Microsoft Teams chat"),
   message: z.string().describe("The text to be messaged to the chat"),
@@ -2911,6 +2978,26 @@ export type microsoftMessageTeamsChannelFunction = ActionFunction<
   microsoftMessageTeamsChannelParamsType,
   AuthParamsType,
   microsoftMessageTeamsChannelOutputType
+>;
+
+export const microsoftGetDocumentParamsSchema = z.object({
+  siteId: z.string().describe("The ID of the site where the document is located (optional for OneDrive)").optional(),
+  documentId: z.string().describe("The ID of the document to retrieve"),
+});
+
+export type microsoftGetDocumentParamsType = z.infer<typeof microsoftGetDocumentParamsSchema>;
+
+export const microsoftGetDocumentOutputSchema = z.object({
+  success: z.boolean().describe("Whether the document was successfully retrieved"),
+  content: z.string().describe("The content of the document").optional(),
+  error: z.string().describe("The error that occurred if the document was not successfully retrieved").optional(),
+});
+
+export type microsoftGetDocumentOutputType = z.infer<typeof microsoftGetDocumentOutputSchema>;
+export type microsoftGetDocumentFunction = ActionFunction<
+  microsoftGetDocumentParamsType,
+  AuthParamsType,
+  microsoftGetDocumentOutputType
 >;
 
 export const githubCreateOrUpdateFileParamsSchema = z.object({
