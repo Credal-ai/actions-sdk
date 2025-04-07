@@ -4,8 +4,7 @@ import {
   githubCreateOrUpdateFileOutputType,
   githubCreateOrUpdateFileParamsType,
 } from "../../autogen/types";
-import { Octokit } from "@octokit/rest";
-import { RequestError } from "@octokit/request-error";
+import { Octokit, RequestError } from "octokit";
 import { z } from "zod";
 
 /**
