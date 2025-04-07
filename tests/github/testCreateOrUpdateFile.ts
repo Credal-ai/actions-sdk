@@ -7,7 +7,7 @@ dotenv.config();
 async function runTest() {
 
     const authToken = process.env.GITHUB_ACCESS_TOKEN;
-    const branch = "action-group";  // branch has to exist in the repo
+    const branch = "test";  // branch has to exist in the repo
 
     const fileName = `test-file-${Date.now()}-${Math.random().toString(36).slice(-5)}.txt`;
 
@@ -19,7 +19,7 @@ async function runTest() {
             authToken: authToken,
         },
         {
-            repositoryOwner: "liv-s",
+            repositoryOwner: "vintitres",
             repositoryName: "actions-sdk",
             filePath: `testing/${fileName}`,
             branch,
@@ -47,7 +47,7 @@ async function runTest() {
             authToken: authToken,
         },
         {
-            repositoryOwner: "liv-s",
+            repositoryOwner: "vintitres",
             repositoryName: "actions-sdk",
             filePath: `testing/${fileName}`,
             branch,
