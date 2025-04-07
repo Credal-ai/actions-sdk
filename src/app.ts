@@ -1,8 +1,8 @@
-import { ActionTemplate } from "./actions/parse";
+import type { ActionTemplate } from "./actions/parse";
 import { ACTION_GROUPS } from "./actions/groups";
 import * as templates from "./actions/autogen/templates";
 import { invokeAction } from "./actions/invoke";
-import { AuthParamsType } from "./actions/autogen/types";
+import type { AuthParamsType } from "./actions/autogen/types";
 
 export async function runAction(
   name: string,

@@ -1,5 +1,5 @@
 import { microsoftMessageTeamsChannelDefinition } from "../../autogen/templates";
-import {
+import type {
   AuthParamsType,
   microsoftMessageTeamsChannelFunction,
   microsoftMessageTeamsChannelOutputType,

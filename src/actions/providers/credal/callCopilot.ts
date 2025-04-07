@@ -1,5 +1,5 @@
 import { CredalClient } from "@credal/sdk";
-import {
+import type {
   AuthParamsType,
   credalCallCopilotFunction,
   credalCallCopilotOutputType,

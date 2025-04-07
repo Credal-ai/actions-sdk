@@ -1,5 +1,5 @@
 import { microsoftMessageTeamsChatDefinition } from "../../autogen/templates";
-import {
+import type {
   AuthParamsType,
   microsoftMessageTeamsChatFunction,
   microsoftMessageTeamsChatOutputType,

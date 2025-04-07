@@ -1,5 +1,6 @@
-import axios, { AxiosError } from "axios";
-import {
+import type { AxiosError } from "axios";
+import axios from "axios";
+import type {
   AuthParamsType,
   jiraAssignJiraTicketFunction,
   jiraAssignJiraTicketOutputType,

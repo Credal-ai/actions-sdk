@@ -1,5 +1,5 @@
 import axios from "axios";
-import {
+import type {
   AuthParamsType,
   googleOauthUpdateDocFunction,
   googleOauthUpdateDocParamsType,

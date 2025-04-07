@@ -53,7 +53,7 @@ import {
   microsoftCreateDocumentDefinition,
   microsoftGetDocumentDefinition,
 } from "../actions/autogen/templates";
-import { ActionTemplate } from "../actions/parse";
+import type { ActionTemplate } from "../actions/parse";
 
 export type ActionGroups = Record<string, { description: string; actions: ActionTemplate[] }>;
 

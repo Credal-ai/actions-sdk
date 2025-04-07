@@ -1,5 +1,5 @@
 import { microsoftUpdateDocumentDefinition } from "../../autogen/templates";
-import {
+import type {
   AuthParamsType,
   microsoftUpdateDocumentFunction,
   microsoftUpdateDocumentOutputType,

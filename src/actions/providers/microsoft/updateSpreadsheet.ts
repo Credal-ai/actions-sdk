@@ -1,5 +1,5 @@
 import { microsoftUpdateSpreadsheetDefinition } from "../../autogen/templates";
-import {
+import type {
   AuthParamsType,
   microsoftUpdateSpreadsheetFunction,
   microsoftUpdateSpreadsheetOutputType,

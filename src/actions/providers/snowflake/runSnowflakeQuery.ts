@@ -1,5 +1,5 @@
 import snowflake from "snowflake-sdk";
-import {
+import type {
   AuthParamsType,
   snowflakeRunSnowflakeQueryFunction,
   snowflakeRunSnowflakeQueryOutputType,

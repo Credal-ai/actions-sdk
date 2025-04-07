@@ -1,11 +1,12 @@
 import { WebClient } from "@slack/web-api";
-import {
-  slackListConversationsFunction,
-  slackListConversationsParamsType,
-  slackListConversationsOutputType,
+import type {
   AuthParamsType,
+  slackListConversationsFunction,
+  slackListConversationsOutputType,
+  slackListConversationsParamsType,
 } from "../../autogen/types";
-import { ChannelWithId, getSlackChannels } from "./helpers";
+import type { ChannelWithId } from "./helpers";
+import { getSlackChannels } from "./helpers";
 
 type ChannelWithIdTopicNamePurpose = ChannelWithId & { topic: string; name: string; purpose: string };
 

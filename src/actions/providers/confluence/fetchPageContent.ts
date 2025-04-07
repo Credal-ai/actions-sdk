@@ -1,5 +1,5 @@
-import { AxiosRequestConfig } from "axios";
-import {
+import type { AxiosRequestConfig } from "axios";
+import type {
   confluenceFetchPageContentFunction,
   confluenceFetchPageContentParamsType,
   confluenceFetchPageContentOutputType,

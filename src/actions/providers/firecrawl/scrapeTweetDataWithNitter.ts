@@ -1,5 +1,5 @@
 import FirecrawlApp from "@mendable/firecrawl-js";
-import {
+import type {
   AuthParamsType,
   firecrawlScrapeTweetDataWithNitterFunction,
   firecrawlScrapeTweetDataWithNitterParamsType,

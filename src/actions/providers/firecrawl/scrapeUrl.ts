@@ -1,10 +1,11 @@
 import FirecrawlApp from "@mendable/firecrawl-js";
-import {
+import type {
   firecrawlScrapeUrlFunction,
   firecrawlScrapeUrlParamsType,
   firecrawlScrapeUrlOutputType,
-  firecrawlScrapeUrlOutputSchema,
-  AuthParamsType,
+  AuthParamsType} from "../../autogen/types";
+import {
+  firecrawlScrapeUrlOutputSchema
 } from "../../autogen/types";
 
 const scrapeUrl: firecrawlScrapeUrlFunction = async ({

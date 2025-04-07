@@ -1,5 +1,5 @@
 import { MongoClient } from "mongodb";
-import {
+import type {
   AuthParamsType,
   mongoInsertMongoDocFunction,
   mongoInsertMongoDocOutputType,

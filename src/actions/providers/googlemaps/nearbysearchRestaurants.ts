@@ -1,9 +1,10 @@
-import {
+import type {
   googlemapsNearbysearchRestaurantsFunction,
   googlemapsNearbysearchRestaurantsParamsType,
   googlemapsNearbysearchRestaurantsOutputType,
-  googlemapsNearbysearchRestaurantsOutputSchema,
-  AuthParamsType,
+  AuthParamsType} from "../../autogen/types";
+import {
+  googlemapsNearbysearchRestaurantsOutputSchema
 } from "../../autogen/types";
 import { axiosClient } from "../../util/axiosClient";
 

@@ -1,4 +1,4 @@
-import {
+import type {
   ashbySearchCandidatesFunction,
   ashbySearchCandidatesOutputType,
   ashbySearchCandidatesParamsType,

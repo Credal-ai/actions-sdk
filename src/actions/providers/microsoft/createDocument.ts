@@ -1,5 +1,5 @@
 import { microsoftCreateDocumentDefinition } from "../../autogen/templates";
-import {
+import type {
   AuthParamsType,
   microsoftCreateDocumentFunction,
   microsoftCreateDocumentOutputType,

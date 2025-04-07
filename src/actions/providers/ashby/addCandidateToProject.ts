@@ -1,4 +1,4 @@
-import {
+import type {
   ashbyAddCandidateToProjectFunction,
   ashbyAddCandidateToProjectOutputType,
   ashbyAddCandidateToProjectParamsType,

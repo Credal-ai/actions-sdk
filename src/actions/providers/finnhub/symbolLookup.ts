@@ -1,9 +1,10 @@
-import {
+import type {
   finnhubSymbolLookupFunction,
   finnhubSymbolLookupParamsType,
   finnhubSymbolLookupOutputType,
-  finnhubSymbolLookupOutputSchema,
-  AuthParamsType,
+  AuthParamsType} from "../../autogen/types";
+import {
+  finnhubSymbolLookupOutputSchema
 } from "../../autogen/types";
 import { axiosClient } from "../../util/axiosClient";
 

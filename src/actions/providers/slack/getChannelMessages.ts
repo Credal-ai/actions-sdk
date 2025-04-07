@@ -1,9 +1,9 @@
 import { WebClient } from "@slack/web-api";
-import {
+import type {
+  AuthParamsType,
   slackGetChannelMessagesFunction,
   slackGetChannelMessagesOutputType,
   slackGetChannelMessagesParamsType,
-  AuthParamsType,
 } from "../../autogen/types";
 import { getSlackChannels } from "./helpers";
 
