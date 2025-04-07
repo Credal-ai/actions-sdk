@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import axios from 'axios';
 
-require('dotenv').config();
+// require('dotenv').config();
 
 // JWT authentication for Salesforce to get token.
 // For setup see https://help.salesforce.com/s/articleView?id=xcloud.remoteaccess_oauth_jwt_flow.htm&type=5)
