@@ -1,8 +1,9 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app";
 import { authenticateWithJWT } from "./utils";
+import dotenv from "dotenv";
 
-// ("dotenv").config();
+dotenv.config();
 
 async function runTest() {
   const authToken = await authenticateWithJWT();
