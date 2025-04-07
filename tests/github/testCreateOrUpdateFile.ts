@@ -1,4 +1,3 @@
-/**
 import assert from "node:assert";
 import { runAction } from "../../src/app";
 import dotenv from "dotenv";
@@ -76,4 +75,3 @@ runTest().catch(error => {
     }
     process.exit(1);
 });
-*/

@@ -1,13 +1,14 @@
-/**
 import {
   AuthParamsType,
   githubCreateOrUpdateFileFunction,
   githubCreateOrUpdateFileOutputType,
   githubCreateOrUpdateFileParamsType,
 } from "../../autogen/types";
-import { Octokit, RequestError } from "octokit";
 import { z } from "zod";
 
+/**
+ * Creates or updates a file in a GitHub repository
+ */
 const createOrUpdateFile: githubCreateOrUpdateFileFunction = async ({
   params,
   authParams,
@@ -18,6 +19,8 @@ const createOrUpdateFile: githubCreateOrUpdateFileFunction = async ({
   if (!authParams.authToken) {
     return { success: false, error: "authToken is required for GitHub API" };
   }
+
+  const { Octokit, RequestError} = await import("octokit");
 
   const { repositoryOwner, repositoryName, filePath, branch, fileContent, commitMessage } = params;
 
@@ -75,4 +78,3 @@ const createOrUpdateFile: githubCreateOrUpdateFileFunction = async ({
 };
 
 export default createOrUpdateFile;
-*/
