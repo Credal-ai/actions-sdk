@@ -1,10 +1,6 @@
 {
   "name": "@credal/actions",
-<<<<<<< HEAD
-  "version": "0.1.35",
-=======
   "version": "0.1.36",
->>>>>>> c473586 (add salesforce action to group)
   "description": "AI Actions by Credal AI",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
