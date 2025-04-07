@@ -1,3 +1,4 @@
+/**
 import assert from "node:assert";
 import { runAction } from "../../src/app";
 import dotenv from "dotenv";
@@ -32,3 +33,4 @@ runTest().catch((error) => {
   console.error("Test failed:", error);
   process.exit(1);
 });
+*/

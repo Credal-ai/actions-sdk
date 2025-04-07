@@ -1,3 +1,4 @@
+/**
 import {
   AuthParamsType,
   githubCreateOrUpdateFileFunction,
@@ -7,9 +8,6 @@ import {
 import { Octokit, RequestError } from "octokit";
 import { z } from "zod";
 
-/**
- * Creates or updates a file in a GitHub repository
- */
 const createOrUpdateFile: githubCreateOrUpdateFileFunction = async ({
   params,
   authParams,
@@ -77,3 +75,4 @@ const createOrUpdateFile: githubCreateOrUpdateFileFunction = async ({
 };
 
 export default createOrUpdateFile;
+*/

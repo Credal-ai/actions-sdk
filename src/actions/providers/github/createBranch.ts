@@ -1,3 +1,4 @@
+/**
 import {
   AuthParamsType,
   githubCreateBranchFunction,
@@ -6,9 +7,6 @@ import {
 } from "../../autogen/types";
 import { Octokit, RequestError } from "octokit";
 
-/**
- * Creates a new branch in a GitHub repository
- */
 const createBranch: githubCreateBranchFunction = async ({
   params,
   authParams,
@@ -71,3 +69,4 @@ const createBranch: githubCreateBranchFunction = async ({
 };
 
 export default createBranch;
+*/

@@ -1,3 +1,4 @@
+/**
 import {
   AuthParamsType,
   githubCreatePullRequestFunction,
@@ -6,9 +7,6 @@ import {
 } from "../../autogen/types";
 import { Octokit, RequestError } from "octokit";
 
-/**
- * Creates a pull request in a GitHub repository
- */
 const createPullRequest: githubCreatePullRequestFunction = async ({
   params,
   authParams,
@@ -51,3 +49,4 @@ const createPullRequest: githubCreatePullRequestFunction = async ({
 };
 
 export default createPullRequest;
+*/
