@@ -39,6 +39,7 @@ import {
   salesforceCreateCaseDefinition,
   salesforceGenerateSalesReportDefinition,
   salesforceGetRecordDefinition,
+  salesforceGetSalesforceRecordsByQueryDefinition,
   microsoftMessageTeamsChatDefinition,
   microsoftMessageTeamsChannelDefinition,
   asanaCommentTaskDefinition,
@@ -159,6 +160,7 @@ export const ACTION_GROUPS: ActionGroups = {
       salesforceCreateCaseDefinition,
       salesforceGenerateSalesReportDefinition,
       salesforceGetRecordDefinition,
+      salesforceGetSalesforceRecordsByQueryDefinition,
     ],
   },
   MICROSOFT: {

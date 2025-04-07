@@ -1,6 +1,10 @@
 {
   "name": "@credal/actions",
+<<<<<<< HEAD
   "version": "0.1.35",
+=======
+  "version": "0.1.36",
+>>>>>>> c473586 (add salesforce action to group)
   "description": "AI Actions by Credal AI",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -35,7 +39,7 @@
     "ts-morph": "^24.0.0",
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.7.2",
+    "typescript": "^5.7.3",
     "typescript-eslint": "^8.18.0"
   },
   "dependencies": {
