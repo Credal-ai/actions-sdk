@@ -6,7 +6,7 @@ import {
 } from "../../autogen/types";
 import { axiosClient } from "../../util/axiosClient";
 
-const getSalesforceRecordByQuery: salesforceGetSalesforceRecordsByQueryFunction = async ({
+const getSalesforceRecordsByQuery: salesforceGetSalesforceRecordsByQueryFunction = async ({
   params,
   authParams,
 }: {
@@ -46,4 +46,4 @@ const getSalesforceRecordByQuery: salesforceGetSalesforceRecordsByQueryFunction 
   }
 };
 
-export default getSalesforceRecordByQuery;
+export default getSalesforceRecordsByQuery;
