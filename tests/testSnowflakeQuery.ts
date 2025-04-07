@@ -16,7 +16,7 @@ async function runTest() {
 
   const authParams = {
     authToken: "insert-oauth-access-token",
-  }; 
+  };
 
   try {
     // Run the action
@@ -24,14 +24,17 @@ async function runTest() {
       "runSnowflakeQuery",
       "snowflake",
       authParams,
-      params
+      params,
     );
 
     // Validate the response
     assert(result, "Response should not be null");
     assert(result.rowCount >= 0, "Response should contain a row count");
     assert(result.content, "Response should contain a result content");
-    assert((result.format == "csv" || result.format == "json"), "Response should contain a result format");
+    assert(
+      result.format == "csv" || result.format == "json",
+      "Response should contain a result format",
+    );
     console.log("Test passed! with content: " + result.content);
   } catch (error) {
     console.error("Test failed:", error);

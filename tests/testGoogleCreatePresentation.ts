@@ -29,7 +29,7 @@ async function runTest() {
           unit: "PT",
         },
       },
-    } as googleOauthCreatePresentationParamsType
+    } as googleOauthCreatePresentationParamsType,
   );
 
   console.log("Result:", result);
@@ -40,7 +40,7 @@ async function runTest() {
   assert(result.presentationUrl, "Result should contain a presentationUrl");
   assert(
     result.presentationUrl.includes(result.presentationId),
-    "Presentation URL should contain the presentation ID"
+    "Presentation URL should contain the presentation ID",
   );
 
   console.log("Link to Google Presentation:", result.presentationUrl);

@@ -28,7 +28,7 @@ async function testInsertText() {
           },
         },
       ],
-    }
+    },
   );
 
   console.log("Insert Result:", result);
@@ -36,7 +36,7 @@ async function testInsertText() {
   assert(result.documentUrl, "Result should contain a documentUrl");
   assert(
     result.documentUrl.includes(documentId),
-    "Document URL should contain the document ID"
+    "Document URL should contain the document ID",
   );
   return result;
 }
@@ -65,7 +65,7 @@ async function testReplaceText() {
           },
         },
       ],
-    }
+    },
   );
 
   console.log("Replace Result:", result);
@@ -96,7 +96,7 @@ async function testDeleteContent() {
           },
         },
       ],
-    }
+    },
   );
 
   console.log("Delete Result:", result);
@@ -143,7 +143,7 @@ async function testMultipleOperations() {
           },
         },
       ],
-    }
+    },
   );
 
   console.log("Multiple Operations Result:", result);

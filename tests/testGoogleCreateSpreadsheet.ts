@@ -41,7 +41,7 @@ async function runTest() {
         timeZone: "America/New_York",
         autoRecalc: "ON_CHANGE",
       },
-    } as googleOauthCreateSpreadsheetParamsType
+    } as googleOauthCreateSpreadsheetParamsType,
   );
 
   console.log("Result:", result);
@@ -52,11 +52,11 @@ async function runTest() {
   assert(result.sheets.length === 2, "Should have created 2 sheets");
   assert(
     result.sheets[0].title === "Data",
-    "First sheet should be named 'Data'"
+    "First sheet should be named 'Data'",
   );
   assert(
     result.sheets[1].title === "Summary",
-    "Second sheet should be named 'Summary'"
+    "Second sheet should be named 'Summary'",
   );
 
   console.log("Link to Google Spreadsheet: ", result.spreadsheetUrl);

@@ -12,7 +12,7 @@ async function runTest() {
     {
       ticketId: "62",
       subdomain: "credalai",
-    }
+    },
   );
   console.log(result);
   assert(result.id !== "");

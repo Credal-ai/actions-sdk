@@ -12,7 +12,9 @@ async function runTest() {
 
   if (!baseUrl || !clientId || !clientSecret || !userEmail) {
     console.error("Missing required environment variables for Looker test:");
-    console.error("Required: LOOKER_BASE_URL, LOOKER_CLIENT_ID, LOOKER_CLIENT_SECRET, LOOKER_TEST_USER_EMAIL");
+    console.error(
+      "Required: LOOKER_BASE_URL, LOOKER_CLIENT_ID, LOOKER_CLIENT_SECRET, LOOKER_TEST_USER_EMAIL",
+    );
     process.exit(1);
   }
 
@@ -23,17 +25,19 @@ async function runTest() {
     {
       baseUrl,
       clientId,
-      clientSecret
+      clientSecret,
     },
     {
-      userEmail
-    }
+      userEmail,
+    },
   );
 
   console.log("Result:", result);
-  
+
   if (result.success) {
-    console.log(`User ${result.userDetails?.email} status: ${result.userDetails?.isDisabled ? "disabled" : "enabled"}`);
+    console.log(
+      `User ${result.userDetails?.email} status: ${result.userDetails?.isDisabled ? "disabled" : "enabled"}`,
+    );
     assert(!result.userDetails?.isDisabled, "User should be enabled");
   }
 }

@@ -2,7 +2,7 @@ import Ajv from "ajv";
 import fs from "fs/promises";
 import yaml from "js-yaml";
 import convert from "json-schema-to-zod";
-import type { SourceFile} from "ts-morph";
+import type { SourceFile } from "ts-morph";
 import { Project, VariableDeclarationKind } from "ts-morph";
 import { z } from "zod";
 import { snakeToPascal } from "../utils/string";

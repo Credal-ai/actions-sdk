@@ -1,6 +1,7 @@
 ![Credal Logo](assets/credal-logo.svg)
 
 ## Credal.ai's Open Source Actions Framework
+
 Easily add custom actions for your Credal Copilots. Read more about Credal's Agent platform [here](https://www.credal.ai/products/ai-agent-platform).
 
 ## Adding or updating actions
@@ -24,7 +25,7 @@ const result = await runAction(
   "listConversations",
   "slack",
   { authToken: "xoxb-..." },
-  {}
+  {},
 );
 ```
 

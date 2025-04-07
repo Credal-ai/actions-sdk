@@ -14,8 +14,8 @@ async function runTest() {
       comment: {
         body: "This is a test private comment",
         public: true,
-      }
-    }
+      },
+    },
   );
 }
 

@@ -6,12 +6,12 @@ async function runTest() {
     "commentTask",
     "asana",
     // Replace with actual valid test fields
-    {authToken:"auth-token-here"} ,
+    { authToken: "auth-token-here" },
     {
       taskId: "task-id-here",
       commentText: `Test Comment created on ${new Date().toISOString()}`,
       isPinned: true,
-    }
+    },
   );
 
   assert(result, "Response should not be null");

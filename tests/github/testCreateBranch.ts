@@ -18,7 +18,7 @@ async function runTest() {
       repositoryName: "actions-sdk",
       branchName: `test-branch-${Date.now()}`,
       baseRefOrHash: "heads/main",
-    }
+    },
   );
 
   console.log(JSON.stringify(result, null, 2));

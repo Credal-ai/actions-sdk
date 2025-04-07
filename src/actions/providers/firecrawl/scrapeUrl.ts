@@ -3,10 +3,9 @@ import type {
   firecrawlScrapeUrlFunction,
   firecrawlScrapeUrlParamsType,
   firecrawlScrapeUrlOutputType,
-  AuthParamsType} from "../../autogen/types";
-import {
-  firecrawlScrapeUrlOutputSchema
+  AuthParamsType,
 } from "../../autogen/types";
+import { firecrawlScrapeUrlOutputSchema } from "../../autogen/types";
 
 const scrapeUrl: firecrawlScrapeUrlFunction = async ({
   params,

@@ -56,7 +56,7 @@ async function runTest() {
       folderId: process.env.MICROSOFT_FOLDER_ID!,
       name: `TestDocument-${Date.now()}.docx`,
       content: initialContent, // Pass the generated `.docx` content
-    }
+    },
   );
 
   console.log("Create Result:", createResult);
@@ -83,7 +83,7 @@ async function runTest() {
       siteId: process.env.MICROSOFT_SITE_ID!,
       documentId,
       content: updatedContent, // Pass the updated `.docx` content
-    }
+    },
   );
 
   console.log("Update Result:", updateResult);
@@ -103,7 +103,7 @@ async function runTest() {
     {
       siteId: process.env.MICROSOFT_SITE_ID!,
       documentId,
-    }
+    },
   );
 
   console.log("Fetch Result:", fetchResult);

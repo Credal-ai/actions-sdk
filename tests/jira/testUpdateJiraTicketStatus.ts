@@ -13,7 +13,7 @@ async function runTest() {
       projectKey,
       issueId,
       status: "In Progress", // Adjust to a valid status for your workflow
-    }
+    },
   );
 
   console.log(JSON.stringify(result, null, 2));

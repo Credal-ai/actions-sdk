@@ -32,7 +32,7 @@ async function runTest() {
           },
         },
       ],
-    }
+    },
   );
 
   console.log("Result:", result);
@@ -76,7 +76,7 @@ async function runUpdateSheetPropertiesTest(sheetId: string) {
           },
         },
       ],
-    }
+    },
   );
 
   console.log("Sheet properties update result:", result);
@@ -108,7 +108,7 @@ async function runUpdateSpreadsheetPropertiesTest() {
           },
         },
       ],
-    }
+    },
   );
 
   console.log("Spreadsheet properties update result:", result);
@@ -163,7 +163,7 @@ async function runUpdateCellsTest(sheetId: string) {
           },
         },
       ],
-    }
+    },
   );
 
   console.log("Cells update result:", result);
@@ -189,7 +189,7 @@ async function runDeleteSheetTest(sheetId: string) {
           },
         },
       ],
-    }
+    },
   );
 
   console.log("Sheet deletion result:", result);

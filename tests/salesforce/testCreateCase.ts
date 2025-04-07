@@ -9,23 +9,23 @@ async function runTest() {
   const authToken = await authenticateWithJWT();
   const baseUrl = "https://power-speed-8849.my.salesforce.com/"; // Must be a valid Salesforce instance URL
 
-const result = await runAction(
+  const result = await runAction(
     "createCase",
     "salesforce",
     {
-        authToken,
-        baseUrl,
+      authToken,
+      baseUrl,
     },
     {
-        subject: `Test Case Subject - ${new Date().toISOString()}`,
-        description: "This is a test case created via the Salesforce API.",
-        priority: "High",
-        origin: "Web",
-        customFields: {
-            Reason: "Test Reason",
-        },
-    }
-);
+      subject: `Test Case Subject - ${new Date().toISOString()}`,
+      description: "This is a test case created via the Salesforce API.",
+      priority: "High",
+      origin: "Web",
+      customFields: {
+        Reason: "Test Reason",
+      },
+    },
+  );
 
   console.log(JSON.stringify(result, null, 2));
 

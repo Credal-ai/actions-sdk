@@ -7,7 +7,7 @@ dotenv.config();
 
 async function runTest() {
   const authToken = await authenticateWithJWT();
-  const baseUrl = 'https://power-speed-8849.my.salesforce.com/';  // Must be a valid Salesforce instance URL
+  const baseUrl = "https://power-speed-8849.my.salesforce.com/"; // Must be a valid Salesforce instance URL
 
   const result = await runAction(
     "generateSalesReport",
@@ -22,7 +22,7 @@ async function runTest() {
       filters: {
         StageName: "Closed Won",
       },
-    }
+    },
   );
 
   console.log(JSON.stringify(result, null, 2));

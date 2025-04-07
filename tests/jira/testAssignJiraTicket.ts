@@ -16,7 +16,7 @@ async function runTest() {
     {
       issueId: issueId,
       assignee: assignee,
-    }
+    },
   );
 
   assert(result, "Response should not be null");

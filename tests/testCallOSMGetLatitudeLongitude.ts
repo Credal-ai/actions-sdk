@@ -6,7 +6,7 @@ async function runTest() {
     "getLatitudeLongitudeFromLocation",
     "openstreetmap",
     { userAgent: "insert-test-user-agent" }, // format is "ExampleApp/1.0"
-    { location: "Lower East Side" }
+    { location: "Lower East Side" },
   );
   console.log(result);
   assert(result.length > 0, "Result should not be empty");

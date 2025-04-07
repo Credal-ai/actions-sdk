@@ -58,7 +58,7 @@ async function runTest() {
           },
         },
       ],
-    } as googleOauthUpdatePresentationParamsType
+    } as googleOauthUpdatePresentationParamsType,
   );
 
   console.log("Result:", result);
@@ -68,7 +68,7 @@ async function runTest() {
   assert(result.presentationUrl, "Result should contain a presentationUrl");
   assert(
     result.presentationUrl.includes(presentationId),
-    "Presentation URL should contain the presentation ID"
+    "Presentation URL should contain the presentation ID",
   );
 
   console.log("Link to updated Google Presentation:", result.presentationUrl);

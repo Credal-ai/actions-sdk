@@ -20,7 +20,7 @@ async function runTest() {
       name: `TestDocument-${new Date()}.docx`,
       content: "",
       folderId: process.env.MICROSOFT_FOLDER_ID!,
-    }
+    },
   );
   console.log(result);
   assert(result.success, "Document was not created successfully");

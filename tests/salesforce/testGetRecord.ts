@@ -7,7 +7,7 @@ dotenv.config();
 
 async function runTest() {
   const authToken = await authenticateWithJWT();
-  const baseUrl = 'https://power-speed-8849.my.salesforce.com/';  // Must be a valid Salesforce instance URL
+  const baseUrl = "https://power-speed-8849.my.salesforce.com/"; // Must be a valid Salesforce instance URL
 
   const result = await runAction(
     "getRecord",
@@ -19,7 +19,7 @@ async function runTest() {
     {
       objectType: "Lead", // Replace with the object type you want to retrieve
       recordId: "00Qfn0000004na7EAA", // Replace with a valid record ID
-    }
+    },
   );
 
   console.log(JSON.stringify(result, null, 2));

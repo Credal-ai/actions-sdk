@@ -6,7 +6,7 @@ async function runTest() {
     "createTask",
     "asana",
     // Replace with actual valid test fields
-    {authToken:"auth-token-here"} ,
+    { authToken: "auth-token-here" },
     {
       name: `Test Task created on ${new Date().toISOString()}`,
       workspaceId: "workpace-id-here",
@@ -15,11 +15,11 @@ async function runTest() {
       assignee: "test@vulcancollective.io",
       dueAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // Due in 7 days
       approvalStatus: "pending",
-      taskTemplate:"test-template-name",
+      taskTemplate: "test-template-name",
       custom_fields: {
-        "1234567890123456": "Custom Value" 
+        "1234567890123456": "Custom Value",
       },
-    }
+    },
   );
 
   assert(result, "Response should not be null");

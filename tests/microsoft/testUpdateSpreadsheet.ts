@@ -21,7 +21,7 @@ async function runTest() {
       folderId: process.env.MICROSOFT_FOLDER_ID!,
       name: `TestSpreadsheet-${Date.now()}.xlsx`,
       content: "",
-    }
+    },
   );
 
   console.log("Create Result:", createResult);
@@ -50,7 +50,7 @@ async function runTest() {
         ["John Doe", "30"],
         ["Date", new Date().toISOString()],
       ],
-    }
+    },
   );
 
   console.log("Update Result:", updateResult);

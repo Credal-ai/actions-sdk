@@ -1532,7 +1532,26 @@ actions:
                         bulletPreset:
                           type: string
                           description: The preset type of bullet to use
-                          enum: [BULLET_UNSPECIFIED, BULLET_DISC_CIRCLE_SQUARE, BULLET_DIAMONDX_ARROW3D_SQUARE, BULLET_CHECKBOX, BULLET_ARROW_DIAMOND_DISC, BULLET_STAR_CIRCLE_SQUARE, BULLET_ARROW3D_CIRCLE_SQUARE, BULLET_LEFTTRIANGLE_DIAMOND_DISC, BULLET_DIAMONDX_HOLLOWDIAMOND_SQUARE, BULLET_DIAMOND_CIRCLE_SQUARE, NUMBERED_DECIMAL_NESTED, NUMBERED_DECIMAL_PARENTHESIS_NESTED, NUMBERED_DECIMAL_PERIOD_NESTED, NUMBERED_UPPERALPHA_PARENTHESIS_NESTED, NUMBERED_UPPERROMAN_PARENTHESIS_NESTED, NUMBERED_LOWERALPHA_PARENTHESIS_NESTED, NUMBERED_LOWERROMAN_PARENTHESIS_NESTED]
+                          enum:
+                            [
+                              BULLET_UNSPECIFIED,
+                              BULLET_DISC_CIRCLE_SQUARE,
+                              BULLET_DIAMONDX_ARROW3D_SQUARE,
+                              BULLET_CHECKBOX,
+                              BULLET_ARROW_DIAMOND_DISC,
+                              BULLET_STAR_CIRCLE_SQUARE,
+                              BULLET_ARROW3D_CIRCLE_SQUARE,
+                              BULLET_LEFTTRIANGLE_DIAMOND_DISC,
+                              BULLET_DIAMONDX_HOLLOWDIAMOND_SQUARE,
+                              BULLET_DIAMOND_CIRCLE_SQUARE,
+                              NUMBERED_DECIMAL_NESTED,
+                              NUMBERED_DECIMAL_PARENTHESIS_NESTED,
+                              NUMBERED_DECIMAL_PERIOD_NESTED,
+                              NUMBERED_UPPERALPHA_PARENTHESIS_NESTED,
+                              NUMBERED_UPPERROMAN_PARENTHESIS_NESTED,
+                              NUMBERED_LOWERALPHA_PARENTHESIS_NESTED,
+                              NUMBERED_LOWERROMAN_PARENTHESIS_NESTED,
+                            ]
                 - type: object
                   required: [deleteParagraphBullets]
                   properties:
@@ -2060,7 +2079,7 @@ actions:
         type: object
         required: [spreadsheetId, requests]
         properties:
-          spreadsheetId:  
+          spreadsheetId:
             type: string
             description: The ID of the Google Spreadsheet to update
           requests:
@@ -2222,7 +2241,17 @@ actions:
                                   properties:
                                     type:
                                       type: string
-                                      enum: ["TEXT", "NUMBER", "PERCENT", "CURRENCY", "DATE", "TIME", "DATE_TIME", "SCIENTIFIC"]
+                                      enum:
+                                        [
+                                          "TEXT",
+                                          "NUMBER",
+                                          "PERCENT",
+                                          "CURRENCY",
+                                          "DATE",
+                                          "TIME",
+                                          "DATE_TIME",
+                                          "SCIENTIFIC",
+                                        ]
                                       description: The type of the number format
                                     pattern:
                                       type: string
@@ -2766,11 +2795,11 @@ actions:
                           type: object
                           description: The properties to update for the table cell
                         fields:
-                           type: string
-                           description: Comma-separated list of fields to update (e.g., 'contentAlignment,backgroundColor')
+                          type: string
+                          description: Comma-separated list of fields to update (e.g., 'contentAlignment,backgroundColor')
                         tableRange:
-                           type: object
-                           description: The range of cells to update the properties for
+                          type: object
+                          description: The range of cells to update the properties for
                 - type: object
                   required: [updateLineProperties]
                   properties:
@@ -2786,8 +2815,8 @@ actions:
                           type: object
                           description: The properties to update for the line
                         fields:
-                           type: string
-                           description: Comma-separated list of fields to update (e.g., 'lineFill,weight')
+                          type: string
+                          description: Comma-separated list of fields to update (e.g., 'lineFill,weight')
                 - type: object
                   required: [createParagraphBullets]
                   properties:
@@ -2828,14 +2857,14 @@ actions:
                               type: boolean
                               description: Whether the text match is case-sensitive
                         replaceMethod:
-                           type: string
-                           enum: [CENTER_INSIDE, CENTER_CROP]
-                           description: The image replace method (Defaults to CENTER_INSIDE)
+                          type: string
+                          enum: [CENTER_INSIDE, CENTER_CROP]
+                          description: The image replace method (Defaults to CENTER_INSIDE)
                         pageObjectIds:
-                           type: array
-                           items:
-                             type: string
-                           description: Optional list of page object IDs to scope the replacement to
+                          type: array
+                          items:
+                            type: string
+                          description: Optional list of page object IDs to scope the replacement to
                 - type: object
                   required: [duplicateObject]
                   properties:
@@ -2851,7 +2880,7 @@ actions:
                           type: object
                           description: Optional map for assigning specific object IDs to the duplicated elements (key is original ID, value is new ID)
                           additionalProperties:
-                             type: string
+                            type: string
                 - type: object
                   required: [updateTextStyle]
                   properties:
@@ -2913,10 +2942,10 @@ actions:
                           enum: [LINKED, NOT_LINKED_IMAGE]
                           description: The linking mode of the chart (Defaults to LINKED)
                         pageObjectIds:
-                           type: array
-                           items:
-                             type: string
-                           description: Optional list of page object IDs to scope the replacement to
+                          type: array
+                          items:
+                            type: string
+                          description: Optional list of page object IDs to scope the replacement to
                 - type: object
                   required: [deleteParagraphBullets]
                   properties:
@@ -2988,25 +3017,25 @@ actions:
                           type: object
                           description: The border properties to update (e.g., dashStyle, weight, color)
                         fields:
-                           type: string
-                           description: Comma-separated list of fields to update (e.g., 'dashStyle,weight')
+                          type: string
+                          description: Comma-separated list of fields to update (e.g., 'dashStyle,weight')
                         borderPosition:
-                           type: string
-                           enum: [ALL, BOTTOM, TOP, LEFT, RIGHT, INNER_HORIZONTAL, INNER_VERTICAL]
-                           description: The position of the border segments to update (defaults to ALL if unspecified)
+                          type: string
+                          enum: [ALL, BOTTOM, TOP, LEFT, RIGHT, INNER_HORIZONTAL, INNER_VERTICAL]
+                          description: The position of the border segments to update (defaults to ALL if unspecified)
                         tableRange:
-                           type: object
-                           description: The range of cells whose border should be updated (defaults to the entire table if unspecified)
-                           properties:
-                             location:
-                               type: object
-                               description: The starting cell location
-                             rowSpan:
-                               type: integer
-                               description: The number of rows in the range
-                             columnSpan:
-                               type: integer
-                               description: The number of columns in the range
+                          type: object
+                          description: The range of cells whose border should be updated (defaults to the entire table if unspecified)
+                          properties:
+                            location:
+                              type: object
+                              description: The starting cell location
+                            rowSpan:
+                              type: integer
+                              description: The number of rows in the range
+                            columnSpan:
+                              type: integer
+                              description: The number of columns in the range
                 - type: object
                   required: [updateTableColumnProperties]
                   properties:
@@ -3019,16 +3048,16 @@ actions:
                           type: string
                           description: The object ID of the table
                         columnIndices:
-                           type: array
-                           items:
-                             type: integer
-                           description: The 0-based indices of the columns to update
+                          type: array
+                          items:
+                            type: integer
+                          description: The 0-based indices of the columns to update
                         tableColumnProperties:
                           type: object
                           description: The properties to update (e.g., columnWidth)
                         fields:
-                           type: string
-                           description: Comma-separated list of fields to update using FieldMask syntax (e.g., 'columnWidth')
+                          type: string
+                          description: Comma-separated list of fields to update using FieldMask syntax (e.g., 'columnWidth')
                 - type: object
                   required: [updateTableRowProperties]
                   properties:
@@ -3041,16 +3070,16 @@ actions:
                           type: string
                           description: The object ID of the table
                         rowIndices:
-                           type: array
-                           items:
-                              type: integer
-                           description: The 0-based indices of the rows to update
+                          type: array
+                          items:
+                            type: integer
+                          description: The 0-based indices of the rows to update
                         tableRowProperties:
                           type: object
                           description: The properties to update (e.g., minRowHeight)
                         fields:
-                           type: string
-                           description: Comma-separated list of fields to update using FieldMask syntax (e.g., 'minRowHeight')
+                          type: string
+                          description: Comma-separated list of fields to update using FieldMask syntax (e.g., 'minRowHeight')
                 - type: object
                   required: [mergeTableCells]
                   properties:
@@ -3201,17 +3230,17 @@ actions:
                   required: [updateLineCategory]
                   properties:
                     updateLineCategory:
-                       type: object
-                       description: Updates the category of a line
-                       required: [objectId, lineCategory]
-                       properties:
-                         objectId:
-                           type: string
-                           description: The object ID of the line
-                         lineCategory:
-                           type: string
-                           enum: [STRAIGHT, BENT, CURVED]
-                           description: The new line category
+                      type: object
+                      description: Updates the category of a line
+                      required: [objectId, lineCategory]
+                      properties:
+                        objectId:
+                          type: string
+                          description: The object ID of the line
+                        lineCategory:
+                          type: string
+                          enum: [STRAIGHT, BENT, CURVED]
+                          description: The new line category
                 - type: object
                   required: [rerouteLine]
                   properties:

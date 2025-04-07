@@ -15,7 +15,7 @@ async function runTest() {
     },
     {
       issueId,
-    }
+    },
   );
 
   console.log(JSON.stringify(result, null, 2));
@@ -27,7 +27,9 @@ async function runTest() {
   assert(result.data.key, "Ticket data should include a key");
   assert(result.data.fields, "Ticket data should include fields");
 
-  console.log(`Successfully retrieved Jira ticket details for: ${result.data.key}`);
+  console.log(
+    `Successfully retrieved Jira ticket details for: ${result.data.key}`,
+  );
 }
 
 runTest().catch((error) => {

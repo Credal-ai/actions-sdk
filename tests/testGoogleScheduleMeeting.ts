@@ -29,7 +29,7 @@ async function runTest() {
         "This is a test meeting created automatically by the actions-sdk test suite.",
       attendees: ["test@test.com", "test2@test.com"],
       useGoogleMeet: true,
-    } as googleOauthScheduleCalendarMeetingParamsType
+    } as googleOauthScheduleCalendarMeetingParamsType,
   );
 
   console.log("Result:", result);

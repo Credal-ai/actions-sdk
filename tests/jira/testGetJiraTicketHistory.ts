@@ -15,7 +15,7 @@ async function runTest() {
     },
     {
       issueId,
-    }
+    },
   );
 
   console.log(JSON.stringify(result, null, 2));

@@ -19,7 +19,7 @@ async function runTest() {
       title: "Credal Test Doc",
       content:
         "This is a test document created automatically by the actions-sdk test suite.",
-    }
+    },
   );
 
   console.log("Result:", result);
@@ -27,7 +27,10 @@ async function runTest() {
   // Validate the result
   assert(result.documentId, "Result should contain a documentId");
   assert(result.documentUrl, "Result should contain a documentUrl");
-  assert(result.documentUrl.includes(result.documentId),"Document URL should contain the document ID");
+  assert(
+    result.documentUrl.includes(result.documentId),
+    "Document URL should contain the document ID",
+  );
 
   console.log("Linke to Google Doc: ", result.documentUrl);
 

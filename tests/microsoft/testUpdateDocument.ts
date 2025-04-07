@@ -21,7 +21,7 @@ async function runTest() {
       folderId: process.env.MICROSOFT_FOLDER_ID!,
       name: `TestDocument-${Date.now()}.txt`,
       content: "This is the initial content of the document.",
-    }
+    },
   );
 
   console.log("Create Result:", createResult);
@@ -46,7 +46,7 @@ async function runTest() {
       siteId: process.env.MICROSOFT_SITE_ID!,
       documentId,
       content: updatedContent,
-    }
+    },
   );
 
   console.log("Update Result:", updateResult);
@@ -66,14 +66,14 @@ async function runTest() {
     {
       siteId: process.env.MICROSOFT_SITE_ID!,
       documentId,
-    }
+    },
   );
 
   console.log("Fetch Result:", fetchResult);
   assert(fetchResult.success, "Document was not fetched successfully");
   assert(
     fetchResult.content === updatedContent,
-    "Document content was not updated correctly"
+    "Document content was not updated correctly",
   );
 
   console.log("Document content verified successfully.");

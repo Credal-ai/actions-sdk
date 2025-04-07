@@ -6,7 +6,7 @@ async function runTest() {
     "updateTask",
     "asana",
     // Replace with actual valid test fields
-    {authToken:"auth-token-here"} ,
+    { authToken: "auth-token-here" },
     {
       name: `Updated: Test Task updated on ${new Date().toISOString()}`,
       taskId: "task-id-here",
@@ -16,9 +16,9 @@ async function runTest() {
       approvalStatus: "pending",
       completed: true,
       custom_fields: {
-        "1234567890123456": "Custom Value" 
+        "1234567890123456": "Custom Value",
       },
-    }
+    },
   );
 
   assert(result, "Response should not be null");
