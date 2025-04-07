@@ -28,7 +28,7 @@ const createOrUpdateFile: githubCreateOrUpdateFileFunction = async ({
   let fileSha = undefined;
   let operationPreformed = undefined;
   try {
-    const { data: fileData } = await octokit.repos.getContent({
+    const { data: fileData } = await octokit.rest.repos.getContent({
       owner: repositoryOwner,
       repo: repositoryName,
       path: filePath,
@@ -52,7 +52,7 @@ const createOrUpdateFile: githubCreateOrUpdateFileFunction = async ({
     }
   }
   try {
-    const { data: commitData } = await octokit.repos.createOrUpdateFileContents({
+    const { data: commitData } = await octokit.rest.repos.createOrUpdateFileContents({
       owner: repositoryOwner,
       repo: repositoryName,
       path: filePath,

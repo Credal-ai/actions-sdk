@@ -26,7 +26,7 @@ const createPullRequest: githubCreatePullRequestFunction = async ({
 
   try {
     // Create the pull request
-    const { data: pullRequestData } = await octokit.pulls.create({
+    const { data: pullRequestData } = await octokit.rest.pulls.create({
       owner: repositoryOwner,
       repo: repositoryName,
       head,

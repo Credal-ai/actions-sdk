@@ -26,7 +26,7 @@ const createBranch: githubCreateBranchFunction = async ({
 
   try {
     // Get the reference or commit SHA for the base branch or tag
-    const { data: baseRefData } = await octokit.git
+    const { data: baseRefData } = await octokit.rest.git
       .getRef({
         owner: repositoryOwner,
         repo: repositoryName,
@@ -38,7 +38,7 @@ const createBranch: githubCreateBranchFunction = async ({
           return { data: { object: { sha: baseRefOrHash } } };
         } else if (error.status === 404 && /^[a-f0-9]{7,39}$/i.test(baseRefOrHash)) {
           // If baseRef is a short commit SHA, try to resolve it to a full SHA
-          const { data: commits } = await octokit.repos.listCommits({
+          const { data: commits } = await octokit.rest.repos.listCommits({
             owner: repositoryOwner,
             repo: repositoryName,
             sha: baseRefOrHash,
@@ -52,7 +52,7 @@ const createBranch: githubCreateBranchFunction = async ({
       });
 
     // Create a new branch from the base reference
-    await octokit.git.createRef({
+    await octokit.rest.git.createRef({
       owner: repositoryOwner,
       repo: repositoryName,
       ref: `refs/heads/${branchName}`,
