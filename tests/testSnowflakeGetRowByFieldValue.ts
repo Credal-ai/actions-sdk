@@ -4,7 +4,9 @@ async function runTest() {
   const result = await runAction(
     "getRowByFieldValue",
     "snowflake",
-    { authToken: "insert-oauth-access-token" },
+    { authToken: "insert-oauth-access-token",
+      apiKey: "insert-private-key", // Optional if not using OAuth
+     },
     {
       databaseName: "insert-database-name",
       accountName: "insert-account-name",

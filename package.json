@@ -1,10 +1,11 @@
 {
   "name": "@credal/actions",
-  "version": "0.1.40",
+  "version": "0.1.41",
   "description": "AI Actions by Credal AI",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "test": "npx ts-node -r tsconfig-paths/register --project tsconfig.json ",
     "build": "tsc",
     "dev": "ts-node-dev -r tsconfig-paths/register src/app.ts",
     "generate:types": "ts-node -r tsconfig-paths/register src/actions/parse.ts",

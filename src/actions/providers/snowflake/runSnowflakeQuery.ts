@@ -5,6 +5,7 @@ import type {
   snowflakeRunSnowflakeQueryOutputType,
   snowflakeRunSnowflakeQueryParamsType,
 } from "../../autogen/types";
+import { getSnowflakeConnection } from "./auth/getSnowflakeConnection";
 
 snowflake.configure({ logLevel: "ERROR" });
 
@@ -17,11 +18,6 @@ const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
 }): Promise<snowflakeRunSnowflakeQueryOutputType> => {
   const { databaseName, warehouse, query, user, accountName, outputFormat = "json" } = params;
 
-  const { authToken } = authParams;
-
-  if (!authToken) {
-    throw new Error("Snowflake authToken key is required");
-  }
   if (!accountName || !user || !databaseName || !warehouse || !query) {
     throw new Error("Missing required parameters for Snowflake query");
   }
@@ -61,15 +57,15 @@ const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
   };
 
   // Set up a connection using snowflake-sdk
-  const connection = snowflake.createConnection({
-    account: accountName,
-    username: user,
-    authenticator: "OAUTH",
-    token: authToken,
-    role: "CREDAL_READ",
-    warehouse: warehouse,
-    database: databaseName,
-  });
+  const connection = getSnowflakeConnection(
+    {
+      account: accountName,
+      username: user,
+      warehouse: warehouse,
+      database: databaseName,
+    },
+    { authToken: authParams.authToken, apiKey: authParams.apiKey },
+  );
 
   try {
     // Connect to Snowflake
