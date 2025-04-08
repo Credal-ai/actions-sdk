@@ -1,6 +1,6 @@
+import dotenv from "dotenv";
 import assert from "node:assert";
 import { runAction } from "../../src/app";
-import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -29,7 +29,7 @@ async function runTest() {
       repositoryName,
       branchName: pullBranch,
       baseRefOrHash: `heads/${sourceBranch}`, // Use the target branch as the base
-    },
+    }
   );
 
   console.log(JSON.stringify(branchResult, null, 2));
@@ -38,7 +38,7 @@ async function runTest() {
   assert(branchResult, "Branch creation response should not be null");
   assert(
     branchResult.success,
-    "Branch creation response should indicate success",
+    "Branch creation response should indicate success"
   );
   console.log(`Successfully created branch: ${pullBranch}`);
 
@@ -56,7 +56,7 @@ async function runTest() {
       base: targetBranch,
       title,
       description,
-    },
+    }
   );
 
   console.log(JSON.stringify(pullRequestResult, null, 2));
@@ -65,18 +65,18 @@ async function runTest() {
   assert(pullRequestResult, "Pull request response should not be null");
   assert(
     pullRequestResult.success,
-    "Pull request response should indicate success",
+    "Pull request response should indicate success"
   );
   assert(
     pullRequestResult.pullRequestUrl,
-    "Pull request response should contain the pull request URL",
+    "Pull request response should contain the pull request URL"
   );
   assert(
     pullRequestResult.pullRequestNumber,
-    "Pull request response should contain the pull request number",
+    "Pull request response should contain the pull request number"
   );
   console.log(
-    `Successfully created pull request. URL: ${pullRequestResult.pullRequestUrl}`,
+    `Successfully created pull request. URL: ${pullRequestResult.pullRequestUrl}`
   );
 }
 

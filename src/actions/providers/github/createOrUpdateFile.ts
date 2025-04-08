@@ -4,7 +4,6 @@ import type {
   githubCreateOrUpdateFileOutputType,
   githubCreateOrUpdateFileParamsType,
 } from "../../autogen/types";
-import { Octokit, RequestError } from "octokit";
 import { z } from "zod";
 
 /**
@@ -20,6 +19,8 @@ const createOrUpdateFile: githubCreateOrUpdateFileFunction = async ({
   if (!authParams.authToken) {
     return { success: false, error: "authToken is required for GitHub API" };
   }
+
+  const { Octokit, RequestError} = await import("octokit");
 
   const { repositoryOwner, repositoryName, filePath, branch, fileContent, commitMessage } = params;
 

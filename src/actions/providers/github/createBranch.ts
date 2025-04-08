@@ -4,7 +4,6 @@ import type {
   githubCreateBranchOutputType,
   githubCreateBranchParamsType,
 } from "../../autogen/types";
-import { Octokit, RequestError } from "octokit";
 
 /**
  * Creates a new branch in a GitHub repository
@@ -19,6 +18,7 @@ const createBranch: githubCreateBranchFunction = async ({
   if (!authParams.authToken) {
     return { success: false, error: "authToken is required for GitHub API" };
   }
+  const { Octokit, RequestError} = await import("octokit");
 
   const { repositoryOwner, repositoryName, branchName, baseRefOrHash } = params;
 
@@ -32,7 +32,7 @@ const createBranch: githubCreateBranchFunction = async ({
         repo: repositoryName,
         ref: baseRefOrHash,
       })
-      .catch(async (error: RequestError) => {
+      .catch(async (error: InstanceType<typeof RequestError>) => {
         if (error.status === 404 && /^[a-f0-9]{40}$/i.test(baseRefOrHash)) {
           // If baseRef is a full commit SHA and not a ref, use it directly
           return { data: { object: { sha: baseRefOrHash } } };
