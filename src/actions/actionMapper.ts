@@ -1,8 +1,8 @@
 import type { z } from "zod";
 import {
   type ActionFunction,
-  genericFillTemplateActionParamsSchema,
-  genericFillTemplateActionOutputSchema,
+  genericFillTemplateParamsSchema,
+  genericFillTemplateOutputSchema,
   confluenceOverwritePageParamsSchema,
   confluenceOverwritePageOutputSchema,
   credalCallCopilotOutputSchema,
@@ -209,10 +209,10 @@ interface ActionFunctionComponents {
 
 export const ActionMapper: Record<string, Record<string, ActionFunctionComponents>> = {
   generic: {
-    fillTemplateAction: {
+    fillTemplate: {
       fn: fillTemplate,
-      paramsSchema: genericFillTemplateActionParamsSchema,
-      outputSchema: genericFillTemplateActionOutputSchema,
+      paramsSchema: genericFillTemplateParamsSchema,
+      outputSchema: genericFillTemplateOutputSchema,
     },
   },
   asana: {

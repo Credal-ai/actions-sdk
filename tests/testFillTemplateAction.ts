@@ -5,7 +5,7 @@ async function runTest() {
   const template = "This is a template that's not filled in ${VALUE}";
 
   const result = await runAction(
-    "fillTemplateAction",
+    "fillTemplate",
     "generic",
     {},
     {
@@ -17,7 +17,7 @@ async function runTest() {
   assert(result.result, "Response should contain a result");
   assert.strictEqual(result.result, template, "Template should be returned as-is");
 
-  console.log("Successfully tested fillTemplateAction");
+  console.log("Successfully tested fillTemplate");
 }
 
 runTest().catch((error) => {

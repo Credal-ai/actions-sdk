@@ -25,21 +25,21 @@ export const AuthParamsSchema = z.object({
 
 export type AuthParamsType = z.infer<typeof AuthParamsSchema>;
 
-export const genericFillTemplateActionParamsSchema = z.object({
+export const genericFillTemplateParamsSchema = z.object({
   template: z.string().describe("The template string to be processed and returned"),
 });
 
-export type genericFillTemplateActionParamsType = z.infer<typeof genericFillTemplateActionParamsSchema>;
+export type genericFillTemplateParamsType = z.infer<typeof genericFillTemplateParamsSchema>;
 
-export const genericFillTemplateActionOutputSchema = z.object({
-  result: z.string().describe("The template string returned without modification"),
+export const genericFillTemplateOutputSchema = z.object({
+  result: z.string().describe("The template string returned filled in"),
 });
 
-export type genericFillTemplateActionOutputType = z.infer<typeof genericFillTemplateActionOutputSchema>;
-export type genericFillTemplateActionFunction = ActionFunction<
-  genericFillTemplateActionParamsType,
+export type genericFillTemplateOutputType = z.infer<typeof genericFillTemplateOutputSchema>;
+export type genericFillTemplateFunction = ActionFunction<
+  genericFillTemplateParamsType,
   AuthParamsType,
-  genericFillTemplateActionOutputType
+  genericFillTemplateOutputType
 >;
 
 export const asanaCommentTaskParamsSchema = z.object({

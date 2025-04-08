@@ -1,7 +1,7 @@
 actions:
   generic:
-    fillTemplateAction:
-      description: Simple utility that takes a template and returns it without modification
+    fillTemplate:
+      description: Simple utility that takes a template and returns it filled in
       scopes: []
       parameters:
         type: object
@@ -16,7 +16,7 @@ actions:
         properties:
           result:
             type: string
-            description: The template string returned without modification
+            description: The template string returned filled in
   asana:
     commentTask:
       description: Comments on an Asana task with specified content

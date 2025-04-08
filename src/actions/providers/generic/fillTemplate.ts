@@ -1,14 +1,14 @@
 import type {
-  genericFillTemplateActionFunction,
-  genericFillTemplateActionOutputType,
-  genericFillTemplateActionParamsType,
+  genericFillTemplateFunction,
+  genericFillTemplateOutputType,
+  genericFillTemplateParamsType,
 } from "../../autogen/types";
 
-const fillTemplate: genericFillTemplateActionFunction = async ({
+const fillTemplate: genericFillTemplateFunction = async ({
   params,
 }: {
-  params: genericFillTemplateActionParamsType;
-}): Promise<genericFillTemplateActionOutputType> => {
+  params: genericFillTemplateParamsType;
+}): Promise<genericFillTemplateOutputType> => {
   return {
     result: params.template,
   };
