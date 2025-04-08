@@ -16,6 +16,7 @@ async function runTest() {
 
   const authParams = {
     authToken: "insert-oauth-access-token",
+    apiKey: "insert-private-key", // Optional if not using OAuth
   };
 
   try {
