@@ -1,6 +1,10 @@
 import type { z } from "zod";
 import {
   type ActionFunction,
+  genericFillTemplateActionParamsSchema,
+  genericFillTemplateActionOutputSchema,
+  genericUniversalTestActionParamsSchema,
+  genericUniversalTestActionOutputSchema,
   confluenceOverwritePageParamsSchema,
   confluenceOverwritePageOutputSchema,
   credalCallCopilotOutputSchema,
@@ -133,6 +137,8 @@ import {
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
 import add from "./providers/math/add";
+import fillTemplate from "./providers/generic/fillTemplate";
+import genericApiCall from "./providers/generic/genericApiCall";
 import insertMongoDoc from "./providers/mongodb/insertMongoDoc";
 import listConversations from "./providers/slack/listConversations";
 import sendMessage from "./providers/slack/sendMessage";
@@ -205,6 +211,18 @@ interface ActionFunctionComponents {
 }
 
 export const ActionMapper: Record<string, Record<string, ActionFunctionComponents>> = {
+  generic: {
+    fillTemplateAction: {
+      fn: fillTemplate,
+      paramsSchema: genericFillTemplateActionParamsSchema,
+      outputSchema: genericFillTemplateActionOutputSchema,
+    },
+    universalTestAction: {
+      fn: genericApiCall,
+      paramsSchema: genericUniversalTestActionParamsSchema,
+      outputSchema: genericUniversalTestActionOutputSchema,
+    },
+  },
   asana: {
     commentTask: {
       fn: commentAsanaTask,

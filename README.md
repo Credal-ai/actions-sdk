@@ -32,5 +32,5 @@ const result = await runAction(
 ## Running a basic test for `runAction`
 
 ```
-npx ts-node -r tsconfig-paths/register --project tsconfig.json tests/testRunMathAction.ts
+npm run test tests/testRunMathAction.ts
 ```
