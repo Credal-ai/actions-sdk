@@ -42,32 +42,6 @@ export type genericFillTemplateActionFunction = ActionFunction<
   genericFillTemplateActionOutputType
 >;
 
-export const genericUniversalTestActionParamsSchema = z.object({
-  endpoint: z.string().describe("The URL endpoint for the request"),
-  method: z.enum(["GET", "POST", "PUT", "DELETE", "PATCH"]).describe("The HTTP method for the request"),
-  headers: z
-    .object({})
-    .catchall(z.any())
-    .describe('Request headers as a JSON object, e.g. {"Content-Type": "application/json"}'),
-  body: z.object({}).catchall(z.any()).describe("Request body as a JSON object, not used for GET requests").optional(),
-});
-
-export type genericUniversalTestActionParamsType = z.infer<typeof genericUniversalTestActionParamsSchema>;
-
-export const genericUniversalTestActionOutputSchema = z.object({
-  statusCode: z.number().describe("HTTP status code from the response"),
-  headers: z.object({}).catchall(z.any()).describe("Response headers"),
-  data: z.object({}).catchall(z.any()).describe("Response data"),
-  message: z.string().describe("Error message if request failed").optional(),
-});
-
-export type genericUniversalTestActionOutputType = z.infer<typeof genericUniversalTestActionOutputSchema>;
-export type genericUniversalTestActionFunction = ActionFunction<
-  genericUniversalTestActionParamsType,
-  AuthParamsType,
-  genericUniversalTestActionOutputType
->;
-
 export const asanaCommentTaskParamsSchema = z.object({
   taskId: z.string().describe("Task gid the comment should be added to"),
   commentText: z.string().describe("The comment text to be added"),

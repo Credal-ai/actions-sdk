@@ -26,57 +26,6 @@ export const genericFillTemplateActionDefinition: ActionTemplate = {
   name: "fillTemplateAction",
   provider: "generic",
 };
-export const genericUniversalTestActionDefinition: ActionTemplate = {
-  description: "Makes a generic API call to the specified endpoint",
-  scopes: [],
-  parameters: {
-    type: "object",
-    required: ["endpoint", "method", "headers"],
-    properties: {
-      endpoint: {
-        type: "string",
-        description: "The URL endpoint for the request",
-      },
-      method: {
-        type: "string",
-        enum: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-        description: "The HTTP method for the request",
-      },
-      headers: {
-        type: "object",
-        description: 'Request headers as a JSON object, e.g. {"Content-Type": "application/json"}',
-      },
-      body: {
-        type: "object",
-        description: "Request body as a JSON object, not used for GET requests",
-      },
-    },
-  },
-  output: {
-    type: "object",
-    required: ["statusCode", "headers", "data"],
-    properties: {
-      statusCode: {
-        type: "number",
-        description: "HTTP status code from the response",
-      },
-      headers: {
-        type: "object",
-        description: "Response headers",
-      },
-      data: {
-        type: "object",
-        description: "Response data",
-      },
-      message: {
-        type: "string",
-        description: "Error message if request failed",
-      },
-    },
-  },
-  name: "universalTestAction",
-  provider: "generic",
-};
 export const asanaCommentTaskDefinition: ActionTemplate = {
   description: "Comments on an Asana task with specified content",
   scopes: [],
