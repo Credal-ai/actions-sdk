@@ -20,7 +20,7 @@ const createOrUpdateFile: githubCreateOrUpdateFileFunction = async ({
     return { success: false, error: "authToken is required for GitHub API" };
   }
 
-  const { Octokit, RequestError} = await import("octokit");
+  const { Octokit, RequestError } = await import("octokit");
 
   const { repositoryOwner, repositoryName, filePath, branch, fileContent, commitMessage } = params;
 
