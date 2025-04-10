@@ -56,3 +56,30 @@ export function getSnowflakeConnection(
     throw new Error("Snowflake authToken or apiKey is required");
   }
 }
+
+export async function connectToSnowflakeAndWarehouse(connection: Connection, warehouse?: string) {
+  await new Promise((resolve, reject) => {
+    connection.connect((err, conn) => {
+      if (err) {
+        console.error("Unable to connect to Snowflake:", err.message);
+        return reject(err);
+      }
+      resolve(conn);
+    });
+  });
+
+  if (warehouse) {
+    await new Promise((resolve, reject) => {
+      connection.execute({
+        sqlText: `USE WAREHOUSE ${warehouse}`,
+        complete: (err, stmt, rows) => {
+          if (err) {
+            console.error("Unable to use warehouse:", err.message);
+            return reject(err);
+          }
+          resolve(rows);
+        },
+      });
+    });
+  }
+}

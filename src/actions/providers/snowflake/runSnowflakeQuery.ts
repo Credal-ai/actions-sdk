@@ -5,7 +5,8 @@ import type {
   snowflakeRunSnowflakeQueryOutputType,
   snowflakeRunSnowflakeQueryParamsType,
 } from "../../autogen/types";
-import { getSnowflakeConnection } from "./auth/getSnowflakeConnection";
+import { connectToSnowflakeAndWarehouse, getSnowflakeConnection } from "./auth/getSnowflakeConnection";
+import { formatDataForCodeInterpreter } from "../../util/formatDataForCodeInterpreter";
 
 snowflake.configure({ logLevel: "ERROR" });
 
@@ -23,7 +24,7 @@ const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
   }
   const executeQueryAndFormatData = async (): Promise<{ formattedData: string; resultsLength: number }> => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const queryResults = await new Promise<any[]>((resolve, reject) => {
+    const queryResults: any[] = await new Promise<any[]>((resolve, reject) => {
       connection.execute({
         sqlText: query,
         complete: (err, stmt, rows) => {
@@ -36,24 +37,8 @@ const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
     });
 
     // Format the results based on the output format
-    let formattedData;
-    if (outputFormat.toLowerCase() === "csv") {
-      if (queryResults.length === 0) {
-        formattedData = "";
-      } else {
-        const headers = Object.keys(queryResults[0]).join(",");
-        const rows = queryResults.map(row =>
-          Object.values(row)
-            .map(value => (typeof value === "object" && value !== null ? JSON.stringify(value) : value))
-            .join(","),
-        );
-        formattedData = [headers, ...rows].join("\n");
-      }
-    } else {
-      // Default to JSON
-      formattedData = JSON.stringify(queryResults).replace(/\s+/g, "");
-    }
-    return { formattedData, resultsLength: queryResults.length };
+    const { formattedData, resultsLength } = formatDataForCodeInterpreter(queryResults, outputFormat);
+    return { formattedData, resultsLength };
   };
 
   // Set up a connection using snowflake-sdk
@@ -69,16 +54,7 @@ const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
 
   try {
     // Connect to Snowflake
-    await new Promise((resolve, reject) => {
-      connection.connect((err, conn) => {
-        if (err) {
-          console.error("Unable to connect to Snowflake:", err.message);
-          return reject(err);
-        }
-        resolve(conn);
-      });
-    });
-
+    await connectToSnowflakeAndWarehouse(connection, warehouse);
     const { formattedData, resultsLength } = await executeQueryAndFormatData();
 
     // Return fields to match schema definition
