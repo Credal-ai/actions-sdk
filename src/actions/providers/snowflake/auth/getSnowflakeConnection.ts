@@ -1,7 +1,19 @@
 import type { AuthParamsType } from "../../../autogen/types";
-import crypto from "crypto";
 import type { Connection } from "snowflake-sdk";
 import snowflake from "snowflake-sdk";
+import * as forge from "node-forge";
+
+const getPrivateKeyCorrectFormat = (privateKey: string): string => {
+  try {
+    // Parse the private key
+    const pemKey = forge.pem.decode(privateKey)[0];
+    // Re-encode it properly with correct formatting
+    return forge.pem.encode(pemKey);
+  } catch (error) {
+    console.error("Error processing private key:", error);
+    throw new Error("Invalid private key format. Please check the key format and try again.");
+  }
+};
 
 export function getSnowflakeConnection(
   snowflakeData: {
@@ -16,7 +28,7 @@ export function getSnowflakeConnection(
   const { account, username, warehouse, database } = snowflakeData;
 
   if (authToken) {
-    // Always try to use Nango-Snowflake OAuth
+    // Always try to use Nango-Snowflake OAuth (unused for now)
     return snowflake.createConnection({
       account: account,
       username: username,
@@ -27,20 +39,6 @@ export function getSnowflakeConnection(
       database: database,
     });
   } else if (apiKey) {
-    // Use the apiKey for authentication (one off)
-    const getPrivateKeyCorrectFormat = (privateKey: string): string => {
-      const buffer: Buffer = Buffer.from(privateKey);
-      const privateKeyObject = crypto.createPrivateKey({
-        key: buffer,
-        format: "pem",
-        passphrase: "password",
-      });
-      const privateKeyCorrectFormat = privateKeyObject.export({
-        format: "pem",
-        type: "pkcs8",
-      });
-      return privateKeyCorrectFormat.toString();
-    };
     const privateKeyCorrectFormatString = getPrivateKeyCorrectFormat(apiKey);
 
     return snowflake.createConnection({
