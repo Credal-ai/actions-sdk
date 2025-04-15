@@ -23,8 +23,7 @@ const fetchSalesforceSchemaByObject: salesforceFetchSalesforceSchemaByObjectFunc
     };
   }
 
-  // The API limits the maximum number of records returned to 2000, the limit lets the user set a smaller custom limit
-  const url = `${baseUrl}/services/data/v56.0/sobjects/${objectType}/`;
+  const url = `${baseUrl}/services/data/v56.0/sobjects/${objectType}/describe/`;
 
   try {
     const response = await axiosClient.get(url, {
@@ -35,7 +34,7 @@ const fetchSalesforceSchemaByObject: salesforceFetchSalesforceSchemaByObjectFunc
 
     return {
       success: true,
-      schema: response.data,
+      schema: response.data.fields,
     };
   } catch (error) {
     console.error("Error retrieving Salesforce record:", error);
