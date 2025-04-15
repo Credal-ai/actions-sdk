@@ -37,7 +37,7 @@ const fetchSalesforceSchemaByObject: salesforceFetchSalesforceSchemaByObjectFunc
       schema: response.data.fields,
     };
   } catch (error) {
-    console.error("Error retrieving Salesforce record:", error);
+    console.error("Error retrieving Salesforce schema:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "An unknown error occurred",
