@@ -53,6 +53,7 @@ import {
   microsoftUpdateDocumentDefinition,
   microsoftCreateDocumentDefinition,
   microsoftGetDocumentDefinition,
+  salesforceFetchSalesforceSchemaByObjectDefinition,
 } from "../actions/autogen/templates";
 import type { ActionTemplate } from "../actions/parse";
 
@@ -166,6 +167,7 @@ export const ACTION_GROUPS: ActionGroups = {
       salesforceGenerateSalesReportDefinition,
       salesforceGetRecordDefinition,
       salesforceGetSalesforceRecordsByQueryDefinition,
+      salesforceFetchSalesforceSchemaByObjectDefinition
     ],
   },
   MICROSOFT: {

@@ -131,6 +131,8 @@ import {
   microsoftUpdateDocumentOutputSchema,
   microsoftGetDocumentParamsSchema,
   microsoftGetDocumentOutputSchema,
+  salesforceFetchSalesforceSchemaByObjectParamsSchema,
+  salesforceFetchSalesforceSchemaByObjectOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -199,6 +201,7 @@ import microsoftUpdateSpreadsheet from "./providers/microsoft/updateSpreadsheet"
 import updateDocument from "./providers/microsoft/updateDocument";
 import createDocument from "./providers/microsoft/createDocument";
 import getDocument from "./providers/microsoft/getDocument";
+import fetchSalesforceSchemaByObject from "./providers/salesforce/fetchSalesforceSchema";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -541,6 +544,11 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       paramsSchema: salesforceGetSalesforceRecordsByQueryParamsSchema,
       outputSchema: salesforceGetSalesforceRecordsByQueryOutputSchema,
     },
+    fetchSalesforceSchemaByObject: {
+      fn: fetchSalesforceSchemaByObject,
+      paramsSchema: salesforceFetchSalesforceSchemaByObjectParamsSchema,
+      outputSchema: salesforceFetchSalesforceSchemaByObjectOutputSchema
+    }
   },
   microsoft: {
     messageTeamsChat: {
