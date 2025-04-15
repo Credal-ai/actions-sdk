@@ -2889,6 +2889,29 @@ export type salesforceGetRecordFunction = ActionFunction<
   salesforceGetRecordOutputType
 >;
 
+export const salesforceFetchSalesforceSchemaByObjectParamsSchema = z.object({
+  objectType: z.string().describe("The Salesforce object type to fetch the schema for (e.g., Lead, Account, Contact)"),
+});
+
+export type salesforceFetchSalesforceSchemaByObjectParamsType = z.infer<
+  typeof salesforceFetchSalesforceSchemaByObjectParamsSchema
+>;
+
+export const salesforceFetchSalesforceSchemaByObjectOutputSchema = z.object({
+  success: z.boolean().describe("Whether the schema was successfully retrieved"),
+  schema: z.record(z.string()).describe("The retrieved schema data").optional(),
+  error: z.string().describe("The error that occurred if the schema was not successfully retrieved").optional(),
+});
+
+export type salesforceFetchSalesforceSchemaByObjectOutputType = z.infer<
+  typeof salesforceFetchSalesforceSchemaByObjectOutputSchema
+>;
+export type salesforceFetchSalesforceSchemaByObjectFunction = ActionFunction<
+  salesforceFetchSalesforceSchemaByObjectParamsType,
+  AuthParamsType,
+  salesforceFetchSalesforceSchemaByObjectOutputType
+>;
+
 export const microsoftCreateDocumentParamsSchema = z.object({
   siteId: z.string().describe("The ID of the site where the document will be created").optional(),
   name: z.string().describe("The name of the new document (include extension like .docx or .xlsx)"),

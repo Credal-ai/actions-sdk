@@ -5424,6 +5424,43 @@ export const salesforceGetRecordDefinition: ActionTemplate = {
   name: "getRecord",
   provider: "salesforce",
 };
+export const salesforceFetchSalesforceSchemaByObjectDefinition: ActionTemplate = {
+  description: "Fetch the schema of a Salesforce object",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["objectType"],
+    properties: {
+      objectType: {
+        type: "string",
+        description: "The Salesforce object type to fetch the schema for (e.g., Lead, Account, Contact)",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the schema was successfully retrieved",
+      },
+      schema: {
+        type: "object",
+        description: "The retrieved schema data",
+        additionalProperties: {
+          type: "string",
+        },
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the schema was not successfully retrieved",
+      },
+    },
+  },
+  name: "fetchSalesforceSchemaByObject",
+  provider: "salesforce",
+};
 export const microsoftCreateDocumentDefinition: ActionTemplate = {
   description: "Creates a new Office365 document",
   scopes: ["Files.ReadWrite", "Sites.Manage.All", "Sites.ReadWrite.All"],
