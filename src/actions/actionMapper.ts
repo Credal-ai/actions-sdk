@@ -547,8 +547,8 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
     fetchSalesforceSchemaByObject: {
       fn: fetchSalesforceSchemaByObject,
       paramsSchema: salesforceFetchSalesforceSchemaByObjectParamsSchema,
-      outputSchema: salesforceFetchSalesforceSchemaByObjectOutputSchema
-    }
+      outputSchema: salesforceFetchSalesforceSchemaByObjectOutputSchema,
+    },
   },
   microsoft: {
     messageTeamsChat: {

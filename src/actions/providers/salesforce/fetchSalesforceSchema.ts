@@ -2,7 +2,7 @@ import type {
   AuthParamsType,
   salesforceFetchSalesforceSchemaByObjectFunction,
   salesforceFetchSalesforceSchemaByObjectOutputType,
-  salesforceFetchSalesforceSchemaByObjectParamsType
+  salesforceFetchSalesforceSchemaByObjectParamsType,
 } from "../../autogen/types";
 import { axiosClient } from "../../util/axiosClient";
 

@@ -167,7 +167,7 @@ export const ACTION_GROUPS: ActionGroups = {
       salesforceGenerateSalesReportDefinition,
       salesforceGetRecordDefinition,
       salesforceGetSalesforceRecordsByQueryDefinition,
-      salesforceFetchSalesforceSchemaByObjectDefinition
+      salesforceFetchSalesforceSchemaByObjectDefinition,
     ],
   },
   MICROSOFT: {
