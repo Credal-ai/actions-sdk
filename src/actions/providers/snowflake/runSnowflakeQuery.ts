@@ -23,10 +23,12 @@ const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
     throw new Error("Missing required parameters for Snowflake query");
   }
   const executeQueryAndFormatData = async (): Promise<{ formattedData: string; resultsLength: number }> => {
+    const formattedQuery = query.trim().replace(/\n/g, " ").replace(/\s+/g, " "); // Replace newlines and multiple spaces with a single space
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const queryResults: any[] = await new Promise<any[]>((resolve, reject) => {
       connection.execute({
-        sqlText: query,
+        sqlText: formattedQuery,
         complete: (err, stmt, rows) => {
           if (err) {
             return reject(err);
