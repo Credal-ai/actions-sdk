@@ -41,7 +41,12 @@ const getSalesforceRecordsByQuery: salesforceGetSalesforceRecordsByQueryFunction
     console.error("Error retrieving Salesforce record:", error);
     return {
       success: false,
-      error: error instanceof ApiError ? error.data.length > 0 ? error.data[0].message : error.message : "An unknown error occurred",
+      error:
+        error instanceof ApiError
+          ? error.data.length > 0
+            ? error.data[0].message
+            : error.message
+          : "An unknown error occurred",
     };
   }
 };
