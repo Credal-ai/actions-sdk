@@ -735,7 +735,6 @@ export const snowflakeGetRowByFieldValueParamsSchema = z.object({
   fieldName: z.string().describe("The name of the field to query"),
   fieldValue: z.string().describe("The value of the field to query"),
   accountName: z.string().describe("The name of the Snowflake account").optional(),
-  user: z.string().describe("The user to authenticate with").optional(),
   warehouse: z.string().describe("The warehouse to use").optional(),
 });
 
@@ -761,7 +760,6 @@ export const snowflakeRunSnowflakeQueryParamsSchema = z.object({
   databaseName: z.string().describe("The name of the database to query"),
   warehouse: z.string().describe("The warehouse to use for executing the query"),
   query: z.string().describe("The SQL query to execute"),
-  user: z.string().describe("The username to authenticate with"),
   accountName: z.string().describe("The name of the Snowflake account"),
   outputFormat: z.enum(["json", "csv"]).describe("The format of the output").optional(),
 });

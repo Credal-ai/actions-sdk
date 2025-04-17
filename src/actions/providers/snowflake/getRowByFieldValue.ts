@@ -13,9 +13,9 @@ const getRowByFieldValue: snowflakeGetRowByFieldValueFunction = async ({
   params: snowflakeGetRowByFieldValueParamsType;
   authParams: AuthParamsType;
 }): Promise<snowflakeGetRowByFieldValueOutputType> => {
-  const { databaseName, tableName, fieldName, warehouse, fieldValue, user, accountName } = params;
+  const { databaseName, tableName, fieldName, warehouse, fieldValue, accountName } = params;
 
-  if (!accountName || !user || !databaseName || !warehouse || !tableName || !fieldName || !fieldValue) {
+  if (!accountName || !databaseName || !warehouse || !tableName || !fieldName || !fieldValue) {
     throw new Error("Account name and user are required");
   }
 
@@ -23,7 +23,7 @@ const getRowByFieldValue: snowflakeGetRowByFieldValueFunction = async ({
   const connection = getSnowflakeConnection(
     {
       account: accountName,
-      username: user,
+      username: authParams.username || "CREDAL_USER",
       warehouse: warehouse,
       database: databaseName,
     },

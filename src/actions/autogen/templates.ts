@@ -1345,10 +1345,6 @@ export const snowflakeGetRowByFieldValueDefinition: ActionTemplate = {
         type: "string",
         description: "The name of the Snowflake account",
       },
-      user: {
-        type: "string",
-        description: "The user to authenticate with",
-      },
       warehouse: {
         type: "string",
         description: "The warehouse to use",
@@ -1383,7 +1379,7 @@ export const snowflakeRunSnowflakeQueryDefinition: ActionTemplate = {
   scopes: [],
   parameters: {
     type: "object",
-    required: ["databaseName", "warehouse", "query", "user", "accountName"],
+    required: ["databaseName", "warehouse", "query", "accountName"],
     properties: {
       databaseName: {
         type: "string",
@@ -1396,10 +1392,6 @@ export const snowflakeRunSnowflakeQueryDefinition: ActionTemplate = {
       query: {
         type: "string",
         description: "The SQL query to execute",
-      },
-      user: {
-        type: "string",
-        description: "The username to authenticate with",
       },
       accountName: {
         type: "string",

@@ -7,7 +7,6 @@ async function runTest() {
     // Database connection params
     databaseName: "insert-database-name",
     warehouse: "insert-warehouse-name",
-    user: "insert-user-name",
     accountName: "insert-account-name",
     // Query param
     query: "insert-query",
@@ -15,8 +14,8 @@ async function runTest() {
   };
 
   const authParams = {
-    authToken: "insert-oauth-access-token",
-    apiKey: "insert-private-key", // Optional if not using OAuth
+    apiKey: "insert-private-key", // Private Key for Key-pair authentication
+    username: "insert-username", // Username for Key-pair authentication
   };
 
   try {
