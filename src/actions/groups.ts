@@ -142,7 +142,11 @@ export const ACTION_GROUPS: ActionGroups = {
   },
   FIRECRAWL: {
     description: "Actions for interacting with Firecrawl",
-    actions: [firecrawlScrapeUrlDefinition, firecrawlScrapeTweetDataWithNitterDefinition, firecrawlDeepResearchDefinition],
+    actions: [
+      firecrawlScrapeUrlDefinition,
+      firecrawlScrapeTweetDataWithNitterDefinition,
+      firecrawlDeepResearchDefinition,
+    ],
   },
   RESEND: {
     description: "Action for sending an email",
