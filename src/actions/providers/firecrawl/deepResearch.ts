@@ -5,7 +5,7 @@ import type {
   firecrawlDeepResearchParamsType,
   firecrawlDeepResearchOutputType,
 } from "../../autogen/types";
-import { firecrawlDeepResearchOutputSchema, firecrawlScrapeUrlOutputSchema } from "../../autogen/types";
+import { firecrawlDeepResearchOutputSchema } from "../../autogen/types";
 
 const deepResearch: firecrawlDeepResearchFunction = async ({
   params,

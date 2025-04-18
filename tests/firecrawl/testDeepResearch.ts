@@ -1,5 +1,4 @@
 import { runAction } from "../../src/app";
-import { assert } from "node:console";
 
 async function runTest() {
   const result = await runAction(
