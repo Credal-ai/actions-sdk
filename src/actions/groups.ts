@@ -54,6 +54,7 @@ import {
   microsoftCreateDocumentDefinition,
   microsoftGetDocumentDefinition,
   salesforceFetchSalesforceSchemaByObjectDefinition,
+  firecrawlDeepResearchDefinition,
 } from "../actions/autogen/templates";
 import type { ActionTemplate } from "../actions/parse";
 
@@ -141,7 +142,7 @@ export const ACTION_GROUPS: ActionGroups = {
   },
   FIRECRAWL: {
     description: "Actions for interacting with Firecrawl",
-    actions: [firecrawlScrapeUrlDefinition, firecrawlScrapeTweetDataWithNitterDefinition],
+    actions: [firecrawlScrapeUrlDefinition, firecrawlScrapeTweetDataWithNitterDefinition, firecrawlDeepResearchDefinition],
   },
   RESEND: {
     description: "Action for sending an email",

@@ -202,6 +202,7 @@ import updateDocument from "./providers/microsoft/updateDocument";
 import createDocument from "./providers/microsoft/createDocument";
 import getDocument from "./providers/microsoft/getDocument";
 import fetchSalesforceSchemaByObject from "./providers/salesforce/fetchSalesforceSchema";
+import deepResearch from "./providers/firecrawl/deepResearch";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -404,6 +405,11 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: scrapeTweetDataWithNitter,
       paramsSchema: firecrawlScrapeTweetDataWithNitterParamsSchema,
       outputSchema: firecrawlScrapeTweetDataWithNitterOutputSchema,
+    },
+    deepResearch: {
+      fn: deepResearch,
+      paramsSchema: firecrawlScrapeUrlParamsSchema,
+      outputSchema: firecrawlScrapeUrlOutputSchema,
     },
   },
   resend: {

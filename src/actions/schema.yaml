@@ -1088,6 +1088,49 @@ actions:
                 type: string
                 description: The forecast for the location
   firecrawl:
+    deepResearch:
+      description: Deep research on a topic using Firecrawl
+      scopes: []
+      parameters:
+        type: object
+        required: [query]
+        properties:
+          query:
+            type: string
+            description: The query to search for
+          maxDepth: 
+            type: number
+            description: The maximum depth of the search
+          timeLimit:
+            type: number
+            description: The time limit for the search in seconds
+          maxUrls:
+            type: number
+            description: The maximum number of URLs to scrape
+      output:
+        type: object
+        required: [finalAnalysis, sources]
+        properties:
+          finalAnalysis:
+            type: string
+            description: The content of the research
+          sources:
+            type: array
+            description: The sources of the research
+            items:
+              type: object
+              required: [url, title]
+              properties:
+                url:
+                  type: string
+                  description: The URL of the source
+                title:
+                  type: string
+                  description: The title of the source
+                description:
+                  type: string
+                  description: The description of the source
+
     scrapeUrl:
       description: Scrape a URL and get website content using Firecrawl
       scopes: []
