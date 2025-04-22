@@ -133,6 +133,8 @@ import {
   microsoftGetDocumentOutputSchema,
   salesforceFetchSalesforceSchemaByObjectParamsSchema,
   salesforceFetchSalesforceSchemaByObjectOutputSchema,
+  githubListPullRequestsParamsSchema,
+  githubListPullRequestsOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -203,6 +205,7 @@ import createDocument from "./providers/microsoft/createDocument";
 import getDocument from "./providers/microsoft/getDocument";
 import fetchSalesforceSchemaByObject from "./providers/salesforce/fetchSalesforceSchema";
 import deepResearch from "./providers/firecrawl/deepResearch";
+import listPullRequests from "./providers/github/listPullRequests";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -604,5 +607,10 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       paramsSchema: githubCreatePullRequestParamsSchema,
       outputSchema: githubCreatePullRequestOutputSchema,
     },
+    listPullRequests: {
+      fn: listPullRequests,
+      paramsSchema: githubListPullRequestsParamsSchema,
+      outputSchema: githubListPullRequestsOutputSchema,
+    }
   },
 };

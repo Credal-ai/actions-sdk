@@ -4152,3 +4152,56 @@ actions:
           pullRequestNumber:
             type: number
             description: The number of the created pull request
+    listPullRequests:
+      description: List pull requests in a GitHub repository
+      scopes: []
+      parameters:
+        type: object
+        required: [repositoryOwner, repositoryName]
+        properties:
+          repositoryOwner:
+            type: string
+            description: The owner of the repository
+          repositoryName:
+            type: string
+            description: The name of the repository
+          state:
+            type: string
+            description: The state of the pull requests to list (e.g., open, closed)
+      output:
+        type: object
+        required: [pullRequests]
+        properties:
+          pullRequests:
+            type: array
+            description: A list of pull requests in the repository
+            items:
+              type: object
+              properties:
+                number:
+                  type: number
+                  description: The number of the pull request
+                title:
+                  type: string
+                  description: The title of the pull request
+                state:
+                  type: string
+                  description: The state of the pull request (e.g., open, closed)
+                url:
+                  type: string
+                  description: The URL of the pull request
+                createdAt:
+                  type: string
+                  description: The date and time when the pull request was created
+                updatedAt:
+                  type: string
+                  description: The date and time when the pull request was last updated
+                user:
+                  type: object
+                  properties:
+                    login:
+                      type: string
+                      description: The username of the user who created the pull request
+                description:
+                  type: string
+                  description: The description of the pull request
