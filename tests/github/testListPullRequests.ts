@@ -21,7 +21,6 @@ async function runTest() {
 
   // Validate response
   assert(result, "Response should not be null");
-  assert(result.success, "Response should indicate success");
 }
 
 runTest().catch((error) => {

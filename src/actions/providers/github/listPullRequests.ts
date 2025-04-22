@@ -67,7 +67,7 @@ const listPullRequests: githubListPullRequestsFunction = async ({
         htmlUrl: pr.user.html_url,
       },
       state: pr.state,
-      number: number(pr.number),
+      number: pr.number,
       description: pr.description,
     })),
   });
