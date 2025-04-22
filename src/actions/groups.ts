@@ -55,6 +55,7 @@ import {
   microsoftGetDocumentDefinition,
   salesforceFetchSalesforceSchemaByObjectDefinition,
   firecrawlDeepResearchDefinition,
+  jiraGetJiraIssuesByQueryDefinition,
 } from "../actions/autogen/templates";
 import type { ActionTemplate } from "../actions/parse";
 
@@ -130,6 +131,7 @@ export const ACTION_GROUPS: ActionGroups = {
       jiraGetJiraTicketHistoryDefinition,
       jiraUpdateJiraTicketDetailsDefinition,
       jiraUpdateJiraTicketStatusDefinition,
+      jiraGetJiraIssuesByQueryDefinition,
     ],
   },
   OPENSTREETMAP_GET_LATITUDE_LONGITUDE_FROM_LOCATION: {
