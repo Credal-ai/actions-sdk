@@ -611,6 +611,6 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: listPullRequests,
       paramsSchema: githubListPullRequestsParamsSchema,
       outputSchema: githubListPullRequestsOutputSchema,
-    }
+    },
   },
 };

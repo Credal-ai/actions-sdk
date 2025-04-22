@@ -1,12 +1,12 @@
-import axios from 'axios';
+import axios from "axios";
 import {
-    type AuthParamsType,
-    type githubListPullRequestsFunction,
-    type githubListPullRequestsParamsType,
-    type githubListPullRequestsOutputType,
-    githubListPullRequestsOutputSchema,
-  } from "../../autogen/types";
-import { number } from 'zod';
+  type AuthParamsType,
+  type githubListPullRequestsFunction,
+  type githubListPullRequestsParamsType,
+  type githubListPullRequestsOutputType,
+  githubListPullRequestsOutputSchema,
+} from "../../autogen/types";
+import { number } from "zod";
 
 const listPullRequests: githubListPullRequestsFunction = async ({
   params,
@@ -14,8 +14,7 @@ const listPullRequests: githubListPullRequestsFunction = async ({
 }: {
   params: githubListPullRequestsParamsType;
   authParams: AuthParamsType;
-}): Promise<githubListPullRequestsOutputType> => {  
-
+}): Promise<githubListPullRequestsOutputType> => {
   const { authToken } = authParams;
   const { repositoryName, repositoryOwner } = params;
 
@@ -31,13 +30,13 @@ const listPullRequests: githubListPullRequestsFunction = async ({
     const response = await axios.get(url, {
       headers: {
         Authorization: `Bearer ${authToken}`,
-        Accept: 'application/vnd.github+json',
-        'X-GitHub-Api-Version': '2022-11-28',
+        Accept: "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
       },
       params: {
-        state: 'all',
-        sort: 'created',
-        direction: 'desc',
+        state: "all",
+        sort: "created",
+        direction: "desc",
         per_page: perPage,
         page,
       },
@@ -72,6 +71,6 @@ const listPullRequests: githubListPullRequestsFunction = async ({
       description: pr.description,
     })),
   });
-}
+};
 
 export default listPullRequests;
