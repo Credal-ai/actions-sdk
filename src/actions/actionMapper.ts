@@ -135,6 +135,8 @@ import {
   salesforceFetchSalesforceSchemaByObjectOutputSchema,
   githubListPullRequestsParamsSchema,
   githubListPullRequestsOutputSchema,
+  jiraGetJiraIssuesByQueryOutputSchema,
+  jiraGetJiraIssuesByQueryParamsSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -206,6 +208,7 @@ import getDocument from "./providers/microsoft/getDocument";
 import fetchSalesforceSchemaByObject from "./providers/salesforce/fetchSalesforceSchema";
 import deepResearch from "./providers/firecrawl/deepResearch";
 import listPullRequests from "./providers/github/listPullRequests";
+import getJiraIssuesByQuery from "./providers/jira/getJiraIssuesByQuery";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -348,6 +351,11 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
     },
   },
   jira: {
+    getJiraIssuesByQuery: {
+      fn: getJiraIssuesByQuery,
+      paramsSchema: jiraGetJiraIssuesByQueryParamsSchema,
+      outputSchema: jiraGetJiraIssuesByQueryOutputSchema,
+    },
     assignJiraTicket: {
       fn: assignJiraTicket,
       paramsSchema: jiraAssignJiraTicketParamsSchema,

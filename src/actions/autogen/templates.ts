@@ -690,6 +690,51 @@ export const jiraUpdateJiraTicketStatusDefinition: ActionTemplate = {
   name: "updateJiraTicketStatus",
   provider: "jira",
 };
+export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
+  description: "Retrieve Jira Issues by JQL query",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["query"],
+    properties: {
+      query: {
+        type: "string",
+        description: "The JQL query to execute",
+      },
+      limit: {
+        type: "number",
+        description: "The maximum number of records to retrieve",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the records were successfully retrieved",
+      },
+      records: {
+        type: "array",
+        description: "The retrieved records",
+        items: {
+          type: "object",
+          description: "An issue from Jira",
+          additionalProperties: {
+            type: "string",
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the records were not successfully retrieved",
+      },
+    },
+  },
+  name: "getJiraIssuesByQuery",
+  provider: "jira",
+};
 export const googlemapsValidateAddressDefinition: ActionTemplate = {
   description: "Validate a Google Maps address",
   scopes: [],

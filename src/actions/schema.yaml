@@ -497,6 +497,37 @@ actions:
           ticketUrl:
             type: string
             description: The url to the Jira ticket
+    getJiraIssuesByQuery:
+      description: Retrieve Jira Issues by JQL query
+      scopes: []
+      parameters:
+        type: object
+        required: [query]
+        properties:
+          query:
+            type: string
+            description: The JQL query to execute
+          limit:
+            type: number
+            description: The maximum number of records to retrieve
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the records were successfully retrieved
+          records:
+            type: array
+            description: The retrieved records
+            items:
+              type: object
+              description: An issue from Jira
+              additionalProperties:
+                type: string
+          error:
+            type: string
+            description: The error that occurred if the records were not successfully retrieved
 
   googlemaps:
     validateAddress:
@@ -1098,7 +1129,7 @@ actions:
           query:
             type: string
             description: The query to search for
-          maxDepth: 
+          maxDepth:
             type: number
             description: The maximum depth of the search
           timeLimit:
