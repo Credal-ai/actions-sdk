@@ -699,7 +699,7 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
     properties: {
       query: {
         type: "string",
-        description: "The SOQL query to execute",
+        description: "The JQL query to execute",
       },
       limit: {
         type: "number",
@@ -720,7 +720,7 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
         description: "The retrieved records",
         items: {
           type: "object",
-          description: "A record from Salesforce",
+          description: "An issue from Jira",
           additionalProperties: {
             type: "string",
           },

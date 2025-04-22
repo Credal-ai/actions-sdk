@@ -397,7 +397,7 @@ export type jiraUpdateJiraTicketStatusFunction = ActionFunction<
 >;
 
 export const jiraGetJiraIssuesByQueryParamsSchema = z.object({
-  query: z.string().describe("The SOQL query to execute"),
+  query: z.string().describe("The JQL query to execute"),
   limit: z.number().describe("The maximum number of records to retrieve").optional(),
 });
 
@@ -405,10 +405,7 @@ export type jiraGetJiraIssuesByQueryParamsType = z.infer<typeof jiraGetJiraIssue
 
 export const jiraGetJiraIssuesByQueryOutputSchema = z.object({
   success: z.boolean().describe("Whether the records were successfully retrieved"),
-  records: z
-    .array(z.record(z.string()).describe("A record from Salesforce"))
-    .describe("The retrieved records")
-    .optional(),
+  records: z.array(z.record(z.string()).describe("An issue from Jira")).describe("The retrieved records").optional(),
   error: z.string().describe("The error that occurred if the records were not successfully retrieved").optional(),
 });
 
