@@ -6,7 +6,6 @@ import {
   type githubListPullRequestsOutputType,
   githubListPullRequestsOutputSchema,
 } from "../../autogen/types";
-import { number } from "zod";
 
 const listPullRequests: githubListPullRequestsFunction = async ({
   params,
