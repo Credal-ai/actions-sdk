@@ -20,6 +20,26 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
   const queryParams = new URLSearchParams();
   queryParams.set("jql", query);
   queryParams.set("maxResults", String(limit != undefined && limit <= DEFAULT_LIMIT ? limit : DEFAULT_LIMIT));
+  const fields = [
+    "key",
+    "id",
+    "project",
+    "issuetype",
+    "summary",
+    "description",
+    "status",
+    "assignee",
+    "reporter",
+    "creator",
+    "created",
+    "updated",
+    "resolution",
+    "duedate",
+    "timeoriginalestimate",
+    "timespent",
+    "aggregatetimeoriginalestimate",
+  ];
+  queryParams.set("fields", fields.join(","));
 
   const apiUrl = `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3/search/jql?${queryParams.toString()}`;
 
