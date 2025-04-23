@@ -57,6 +57,7 @@ import {
   firecrawlDeepResearchDefinition,
   jiraGetJiraIssuesByQueryDefinition,
   githubListPullRequestsDefinition,
+  salesforceCreateRecordDefinition,
 } from "../actions/autogen/templates";
 import type { ActionTemplate } from "../actions/parse";
 
@@ -171,6 +172,7 @@ export const ACTION_GROUPS: ActionGroups = {
     description: "Actions for interacting with Salesforce",
     actions: [
       salesforceUpdateRecordDefinition,
+      salesforceCreateRecordDefinition,
       salesforceCreateCaseDefinition,
       salesforceGenerateSalesReportDefinition,
       salesforceGetRecordDefinition,

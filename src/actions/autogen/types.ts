@@ -2842,6 +2842,26 @@ export type salesforceUpdateRecordFunction = ActionFunction<
   salesforceUpdateRecordOutputType
 >;
 
+export const salesforceCreateRecordParamsSchema = z.object({
+  objectType: z.string().describe("The Salesforce object type to create (e.g., Lead, Account, Contact)"),
+  fieldsToCreate: z.record(z.string()).describe("The fields to create on the record"),
+});
+
+export type salesforceCreateRecordParamsType = z.infer<typeof salesforceCreateRecordParamsSchema>;
+
+export const salesforceCreateRecordOutputSchema = z.object({
+  success: z.boolean().describe("Whether the record was successfully created"),
+  recordId: z.string().describe("The ID of the created object").optional(),
+  error: z.string().describe("The error that occurred if the record was not successfully created").optional(),
+});
+
+export type salesforceCreateRecordOutputType = z.infer<typeof salesforceCreateRecordOutputSchema>;
+export type salesforceCreateRecordFunction = ActionFunction<
+  salesforceCreateRecordParamsType,
+  AuthParamsType,
+  salesforceCreateRecordOutputType
+>;
+
 export const salesforceCreateCaseParamsSchema = z.object({
   subject: z.string().describe("The subject of the case"),
   description: z.string().describe("The detailed description of the case"),

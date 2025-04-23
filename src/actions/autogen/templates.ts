@@ -5344,6 +5344,47 @@ export const salesforceUpdateRecordDefinition: ActionTemplate = {
   name: "updateRecord",
   provider: "salesforce",
 };
+export const salesforceCreateRecordDefinition: ActionTemplate = {
+  description: "Create a record in Salesforce",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["objectType", "fieldsToCreate"],
+    properties: {
+      objectType: {
+        type: "string",
+        description: "The Salesforce object type to create (e.g., Lead, Account, Contact)",
+      },
+      fieldsToCreate: {
+        type: "object",
+        description: "The fields to create on the record",
+        additionalProperties: {
+          type: "string",
+        },
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the record was successfully created",
+      },
+      recordId: {
+        type: "string",
+        description: "The ID of the created object",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the record was not successfully created",
+      },
+    },
+  },
+  name: "createRecord",
+  provider: "salesforce",
+};
 export const salesforceCreateCaseDefinition: ActionTemplate = {
   description: "Create a case or support ticket in Salesforce",
   scopes: [],
