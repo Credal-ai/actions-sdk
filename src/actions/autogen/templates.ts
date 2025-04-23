@@ -1461,6 +1461,10 @@ export const snowflakeRunSnowflakeQueryDefinition: ActionTemplate = {
         description: "The format of the output",
         enum: ["json", "csv"],
       },
+      limit: {
+        type: "number",
+        description: "A limit on the number of rows to return",
+      },
     },
   },
   output: {

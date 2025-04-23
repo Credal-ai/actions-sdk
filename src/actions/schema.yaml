@@ -1049,6 +1049,9 @@ actions:
             type: string
             description: The format of the output
             enum: [json, csv]
+          limit: 
+            type: number
+            description: A limit on the number of rows to return
       output:
         type: object
         required: [format, content, rowCount]

@@ -785,6 +785,7 @@ export const snowflakeRunSnowflakeQueryParamsSchema = z.object({
   query: z.string().describe("The SQL query to execute"),
   accountName: z.string().describe("The name of the Snowflake account"),
   outputFormat: z.enum(["json", "csv"]).describe("The format of the output").optional(),
+  limit: z.number().describe("A limit on the number of rows to return").optional(),
 });
 
 export type snowflakeRunSnowflakeQueryParamsType = z.infer<typeof snowflakeRunSnowflakeQueryParamsSchema>;

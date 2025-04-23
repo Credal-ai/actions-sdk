@@ -17,7 +17,7 @@ const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
   params: snowflakeRunSnowflakeQueryParamsType;
   authParams: AuthParamsType;
 }): Promise<snowflakeRunSnowflakeQueryOutputType> => {
-  const { databaseName, warehouse, query, accountName, outputFormat = "json" } = params;
+  const { databaseName, warehouse, query, accountName, outputFormat = "json", limit } = params;
 
   if (!accountName || !databaseName || !warehouse || !query) {
     throw new Error("Missing required parameters for Snowflake query");
@@ -39,6 +39,9 @@ const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
     });
 
     // Format the results based on the output format
+    if (limit && queryResults.length - 1 > limit) {
+      queryResults.splice(limit + 1); // Include header
+    }
     const { formattedData, resultsLength } = formatDataForCodeInterpreter(queryResults, outputFormat);
     return { formattedData, resultsLength };
   };
