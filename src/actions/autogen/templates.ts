@@ -211,6 +211,20 @@ export const slackSendMessageDefinition: ActionTemplate = {
       },
     },
   },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the email was sent successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the email was not sent successfully",
+      },
+    },
+  },
   name: "sendMessage",
   provider: "slack",
 };

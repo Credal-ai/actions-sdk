@@ -152,6 +152,16 @@ actions:
           message:
             type: string
             description: The message content to send to Slack. Can include markdown formatting.
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the email was sent successfully
+          error:
+            type: string
+            description: The error that occurred if the email was not sent successfully
     listConversations:
       description: Lists all conversations in a Slack workspace
       scopes:

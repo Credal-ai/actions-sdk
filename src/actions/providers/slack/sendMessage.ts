@@ -1,9 +1,10 @@
 import { WebClient } from "@slack/web-api";
-import type {
-  slackSendMessageFunction,
-  slackSendMessageOutputType,
-  slackSendMessageParamsType,
-  AuthParamsType,
+import {
+  type slackSendMessageFunction,
+  type slackSendMessageOutputType,
+  type slackSendMessageParamsType,
+  type AuthParamsType,
+  slackSendMessageOutputSchema,
 } from "../../autogen/types";
 import { getSlackChannels } from "./helpers";
 
@@ -24,19 +25,28 @@ const sendMessage: slackSendMessageFunction = async ({
     throw Error(`Channel with name ${channelName} not found`);
   }
 
-  await client.chat.postMessage({
-    channel: channel.id,
-    blocks: [
-      {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: message,
+  try {
+    await client.chat.postMessage({
+      channel: channel.id,
+      blocks: [
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: message,
+          },
         },
-      },
-    ],
-  });
-  return;
+      ],
+    });
+    return slackSendMessageOutputSchema.parse({
+      success: true,
+    });
+  } catch (error) {
+    return slackSendMessageOutputSchema.parse({
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
 };
 
 export default sendMessage;
