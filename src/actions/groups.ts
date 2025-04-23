@@ -56,6 +56,7 @@ import {
   salesforceFetchSalesforceSchemaByObjectDefinition,
   firecrawlDeepResearchDefinition,
   jiraGetJiraIssuesByQueryDefinition,
+  githubListPullRequestsDefinition,
 } from "../actions/autogen/templates";
 import type { ActionTemplate } from "../actions/parse";
 
@@ -190,6 +191,11 @@ export const ACTION_GROUPS: ActionGroups = {
   },
   GITHUB: {
     description: "Actions for interacting with GitHub",
-    actions: [githubCreateOrUpdateFileDefinition, githubCreateBranchDefinition, githubCreatePullRequestDefinition],
+    actions: [
+      githubCreateOrUpdateFileDefinition,
+      githubCreateBranchDefinition,
+      githubCreatePullRequestDefinition,
+      githubListPullRequestsDefinition,
+    ],
   },
 };
