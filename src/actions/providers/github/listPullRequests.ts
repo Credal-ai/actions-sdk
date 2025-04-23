@@ -45,7 +45,7 @@ const listPullRequests: githubListPullRequestsFunction = async ({
     allPulls.push(...pulls);
 
     // Stop if the rest are older than one year
-    if (pulls.length < pulls.length) break;
+    if (pulls.length < perPage) break;
 
     page++;
   }
