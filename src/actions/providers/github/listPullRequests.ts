@@ -15,12 +15,9 @@ const listPullRequests: githubListPullRequestsFunction = async ({
   authParams: AuthParamsType;
 }): Promise<githubListPullRequestsOutputType> => {
   const { authToken } = authParams;
-  const { repositoryName, repositoryOwner } = params;
+  const { repositoryName, repositoryOwner, state } = params;
 
   const url = `https://api.github.com/repos/${repositoryOwner}/${repositoryName}/pulls`;
-  const oneYearAgo = new Date();
-  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-
   type PullRequest = githubListPullRequestsOutputType["pullRequests"][number];
 
   const allPulls: PullRequest[] = [];
@@ -35,7 +32,7 @@ const listPullRequests: githubListPullRequestsFunction = async ({
         "X-GitHub-Api-Version": "2022-11-28",
       },
       params: {
-        state: "all",
+        state: state ?? "all",
         sort: "created",
         direction: "desc",
         per_page: perPage,
@@ -45,14 +42,10 @@ const listPullRequests: githubListPullRequestsFunction = async ({
 
     const pulls = response.data;
     if (pulls.length === 0) break;
-
-    // Filter by date
-    const recentPulls = pulls.filter(pr => pr.createdAt && new Date(pr.createdAt) >= oneYearAgo);
-
-    allPulls.push(...recentPulls);
+    allPulls.push(...pulls);
 
     // Stop if the rest are older than one year
-    if (recentPulls.length < pulls.length) break;
+    if (pulls.length < pulls.length) break;
 
     page++;
   }
