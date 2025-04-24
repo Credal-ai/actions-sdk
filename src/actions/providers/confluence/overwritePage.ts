@@ -7,12 +7,12 @@ import type {
 } from "../../autogen/types";
 import { axiosClient } from "../../util/axiosClient";
 
-function getConfluenceRequestConfig(baseUrl: string, username: string, apiToken: string): AxiosRequestConfig {
+function getConfluenceRequestConfig(baseUrl: string, authToken: string): AxiosRequestConfig {
   return {
     baseURL: baseUrl,
     headers: {
       Accept: "application/json",
-      Authorization: `Basic ${Buffer.from(`${username}:${apiToken}`).toString("base64")}`,
+      Authorization: `Bearer ${authToken}`,
     },
   };
 }
@@ -25,15 +25,20 @@ const confluenceOverwritePage: confluenceOverwritePageFunction = async ({
   authParams: AuthParamsType;
 }): Promise<confluenceOverwritePageOutputType> => {
   const { pageId, content, title } = params;
-  const { baseUrl, authToken, username } = authParams;
+  const { authToken } = authParams;
 
-  if (!baseUrl || !authToken || !username) {
+  if (!authToken) {
     throw new Error("Missing required authentication parameters");
   }
-  const config = getConfluenceRequestConfig(baseUrl, username, authToken);
+
+  const cloudDetails = await axiosClient.get("https://api.atlassian.com/oauth/token/accessible-resources");
+  const cloudId = cloudDetails.data[0].id;
+  const baseUrl = `https://api.atlassian.com/ex/confluence/${cloudId}/api/v2`;
+
+  const config = getConfluenceRequestConfig(baseUrl, authToken);
 
   // Get current page content and version number
-  const response = await axiosClient.get(`/api/v2/pages/${pageId}?body-format=storage`, config);
+  const response = await axiosClient.get(`/pages/${pageId}?body-format=storage`, config);
   const currVersion = response.data.version.number;
 
   const payload = {
@@ -49,7 +54,7 @@ const confluenceOverwritePage: confluenceOverwritePageFunction = async ({
     },
   };
 
-  await axiosClient.put(`/api/v2/pages/${pageId}`, payload, config);
+  await axiosClient.put(`/pages/${pageId}`, payload, config);
 };
 
 export default confluenceOverwritePage;

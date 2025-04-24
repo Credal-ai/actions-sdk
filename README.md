@@ -6,6 +6,8 @@ Easily add custom actions for your Credal Copilots. Read more about Credal's Age
 
 ## Adding or updating actions
 
+We strongly encourage you to develop actions that rely on oauth based credentials. This is to ensure we respect the permissions of the underlying systems the actions library interacts with. In some situations, oauth is not a valid option and so API keys are a good fallback.
+
 1. Add or update the action in `src/actions/schema.yaml`
 2. Run `npm run generate:types` to generate the new types
 3. Run `npm run prettier-format` to format the new files
@@ -25,7 +27,7 @@ const result = await runAction(
   "listConversations",
   "slack",
   { authToken: "xoxb-..." },
-  {},
+  {}
 );
 ```
 
