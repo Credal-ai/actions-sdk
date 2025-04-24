@@ -1049,7 +1049,7 @@ actions:
             type: string
             description: The format of the output
             enum: [json, csv]
-          limit: 
+          limit:
             type: number
             description: A limit on the number of rows to return
       output:
