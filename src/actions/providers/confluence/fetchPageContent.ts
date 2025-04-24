@@ -1,21 +1,11 @@
-import type { AxiosRequestConfig } from "axios";
 import type {
   confluenceFetchPageContentFunction,
   confluenceFetchPageContentParamsType,
   confluenceFetchPageContentOutputType,
   AuthParamsType,
 } from "../../autogen/types";
+import { getConfluenceRequestConfig } from "./helpers";
 import { axiosClient } from "../../util/axiosClient";
-
-function getConfluenceRequestConfig(baseUrl: string, authToken: string): AxiosRequestConfig {
-  return {
-    baseURL: baseUrl,
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${authToken}`,
-    },
-  };
-}
 
 const confluenceFetchPageContent: confluenceFetchPageContentFunction = async ({
   params,
