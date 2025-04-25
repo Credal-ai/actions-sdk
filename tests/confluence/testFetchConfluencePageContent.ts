@@ -6,8 +6,6 @@ async function runTest() {
 
   // Generate from https://id.atlassian.com/manage-profile/security/api-tokens
   const authParams = {
-    baseUrl: "insert-your-baseurl-here", // https://<your-domain>.atlassian.net/wiki
-    username: "insert-your-username-here", // Email associated with api token
     authToken: "insert-your-token-here",
   };
 
@@ -21,7 +19,7 @@ async function runTest() {
       "fetchPageContent",
       "confluence",
       authParams,
-      pageParams,
+      pageParams
     );
 
     console.log("Confluence page content fetched successfully!");
@@ -31,7 +29,7 @@ async function runTest() {
     // Validate the result
     assert(
       result.pageId === pageParams.pageId,
-      "Result should contain matching page ID",
+      "Result should contain matching page ID"
     );
     assert(result.title, "Result should contain a page title");
     assert(result.content, "Result should contain page content");

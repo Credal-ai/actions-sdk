@@ -21,7 +21,11 @@ const confluenceFetchPageContent: confluenceFetchPageContentFunction = async ({
     throw new Error("Missing required authentication parameters");
   }
 
-  const cloudDetails = await axiosClient.get("https://api.atlassian.com/oauth/token/accessible-resources");
+  const cloudDetails = await axiosClient.get("https://api.atlassian.com/oauth/token/accessible-resources", {
+    headers: {
+      Authorization: `Bearer ${authToken}`,
+    },
+  });
   const cloudId = cloudDetails.data[0].id;
   const baseUrl = `https://api.atlassian.com/ex/confluence/${cloudId}/api/v2`;
 

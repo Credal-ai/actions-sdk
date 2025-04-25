@@ -8,8 +8,6 @@ async function runTest() {
 
   // Generate from https://id.atlassian.com/manage-profile/security/api-tokens
   const authParams = {
-    baseUrl: "insert-your-baseurl-here", // https://<your-domain>.atlassian.net/wiki
-    username: "insert-your-username-here", // Email associated with api token
     authToken: "insert-your-token-here",
   };
 
