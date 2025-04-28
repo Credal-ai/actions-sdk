@@ -2845,7 +2845,7 @@ export type salesforceUpdateRecordFunction = ActionFunction<
 
 export const salesforceCreateRecordParamsSchema = z.object({
   objectType: z.string().describe("The Salesforce object type to create (e.g., Lead, Account, Contact)"),
-  fieldsToCreate: z.record(z.string()).describe("The fields to create on the record"),
+  fieldsToCreate: z.record(z.string()).describe("The fields to create on the record").optional(),
 });
 
 export type salesforceCreateRecordParamsType = z.infer<typeof salesforceCreateRecordParamsSchema>;

@@ -5353,7 +5353,7 @@ export const salesforceCreateRecordDefinition: ActionTemplate = {
   scopes: [],
   parameters: {
     type: "object",
-    required: ["objectType", "fieldsToCreate"],
+    required: ["objectType"],
     properties: {
       objectType: {
         type: "string",
