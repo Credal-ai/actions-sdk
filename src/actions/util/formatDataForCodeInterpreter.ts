@@ -6,10 +6,7 @@
  * @param outputFormat The desired output format ("csv" or "json")
  * @returns Object containing formatted data and result count
  */
-export function formatDataForCodeInterpreter(
-  queryResults: any[],
-  outputFormat: string = "json",
-): { formattedData: string; resultsLength: number } {
+export function formatDataForCodeInterpreter(queryResults: any[], outputFormat: string = "json"): string {
   let formattedData: string;
 
   if (outputFormat.toLowerCase() === "csv") {
@@ -46,5 +43,5 @@ export function formatDataForCodeInterpreter(
     formattedData = JSON.stringify(queryResults, null, 2);
   }
 
-  return { formattedData, resultsLength: queryResults.length };
+  return formattedData;
 }

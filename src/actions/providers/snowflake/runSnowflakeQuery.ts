@@ -38,12 +38,14 @@ const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
       });
     });
 
+    const fullResultLength = queryResults.length;
+
     // Format the results based on the output format
-    if (limit && queryResults.length - 1 > limit) {
-      queryResults.splice(limit + 1); // Include header
+    if (limit && queryResults.length > limit) {
+      queryResults.splice(limit);
     }
-    const { formattedData, resultsLength } = formatDataForCodeInterpreter(queryResults, outputFormat);
-    return { formattedData, resultsLength };
+    const formattedData = formatDataForCodeInterpreter(queryResults, outputFormat);
+    return { formattedData: formattedData, resultsLength: fullResultLength };
   };
 
   // Set up a connection using snowflake-sdk
