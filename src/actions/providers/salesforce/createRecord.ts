@@ -23,6 +23,13 @@ const createRecord: salesforceCreateRecordFunction = async ({
     };
   }
 
+  if (!fieldsToCreate) {
+    return {
+      success: false,
+      error: "fieldsToCreate is required to create a Salesforce object",
+    }
+  }
+
   const url = `${baseUrl}/services/data/v56.0/sobjects/${objectType}/`;
 
   try {
