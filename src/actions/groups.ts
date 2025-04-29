@@ -128,12 +128,12 @@ export const ACTION_GROUPS: ActionGroups = {
   ZENDESK_ACTIONS: {
     description: "Actions for interacting with Zendesk",
     actions: [
-      zendeskCreateZendeskTicketDefinition, 
+      zendeskCreateZendeskTicketDefinition,
       zendeskListTicketsDefinition,
       zendeskGetTicketDetailsDefinition,
       zendeskUpdateTicketStatusDefinition,
       zendeskAddCommentToTicketDefinition,
-      zendeskAssignTicketDefinition
+      zendeskAssignTicketDefinition,
     ],
   },
   MONGO_INSERT_DOC: {
