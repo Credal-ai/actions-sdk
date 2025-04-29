@@ -9,6 +9,7 @@ import {
   slackSendMessageDefinition,
   snowflakeGetRowByFieldValueDefinition,
   zendeskCreateZendeskTicketDefinition,
+  zendeskListTicketsDefinition,
   openstreetmapGetLatitudeLongitudeFromLocationDefinition,
   nwsGetForecastForLocationDefinition,
   jiraAssignJiraTicketDefinition,
@@ -111,9 +112,9 @@ export const ACTION_GROUPS: ActionGroups = {
     description: "Action for creating a share post url on linkedin",
     actions: [linkedinCreateShareLinkedinPostUrlDefinition],
   },
-  ZENDESK_CREATE_TICKET: {
-    description: "Action for creating a Zendesk ticket",
-    actions: [zendeskCreateZendeskTicketDefinition],
+  ZENDESK_ACTIONS: {
+    description: "Actions for interacting with Zendesk",
+    actions: [zendeskCreateZendeskTicketDefinition, zendeskListTicketsDefinition],
   },
   MONGO_INSERT_DOC: {
     description: "Action for inserting a document into a MongoDB collection",

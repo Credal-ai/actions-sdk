@@ -612,6 +612,27 @@ export type zendeskCreateZendeskTicketFunction = ActionFunction<
   zendeskCreateZendeskTicketOutputType
 >;
 
+export const zendeskListTicketsParamsSchema = z.object({
+  subdomain: z.string().describe("The subdomain of the Zendesk account"),
+  status: z.string().describe("Filter tickets by status (new, open, pending, hold, solved, closed)").optional(),
+  sortBy: z.string().describe("Field to sort tickets by (default is created_at)").optional(),
+  sortOrder: z.string().describe("Sort order (asc or desc, default is desc)").optional(),
+});
+
+export type zendeskListTicketsParamsType = z.infer<typeof zendeskListTicketsParamsSchema>;
+
+export const zendeskListTicketsOutputSchema = z.object({
+  tickets: z.array(z.object({}).catchall(z.any())).describe("List of tickets"),
+  count: z.number().describe("Number of tickets found"),
+});
+
+export type zendeskListTicketsOutputType = z.infer<typeof zendeskListTicketsOutputSchema>;
+export type zendeskListTicketsFunction = ActionFunction<
+  zendeskListTicketsParamsType,
+  AuthParamsType,
+  zendeskListTicketsOutputType
+>;
+
 export const zendeskGetTicketDetailsParamsSchema = z.object({
   ticketId: z.string().describe("The ID of the ticket"),
   subdomain: z.string().describe("The subdomain of the Zendesk account"),
