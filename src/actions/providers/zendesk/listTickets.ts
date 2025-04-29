@@ -29,7 +29,7 @@ const listZendeskTickets: zendeskListTicketsFunction = async ({
   }
 
   // Add query parameters for filtering
-  let queryParams = new URLSearchParams();
+  const queryParams = new URLSearchParams();
   queryParams.append("created_after", formattedDate);
 
   if (status) {
