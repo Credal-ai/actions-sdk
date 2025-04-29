@@ -10,7 +10,7 @@ import {
   slackGetChannelMessagesDefinition,
   snowflakeGetRowByFieldValueDefinition,
   zendeskCreateZendeskTicketDefinition,
-  zendeskListTicketsDefinition,
+  zendeskListZendeskTicketsDefinition,
   zendeskGetTicketDetailsDefinition,
   zendeskUpdateTicketStatusDefinition,
   zendeskAddCommentToTicketDefinition,
@@ -129,7 +129,7 @@ export const ACTION_GROUPS: ActionGroups = {
     description: "Actions for interacting with Zendesk",
     actions: [
       zendeskCreateZendeskTicketDefinition,
-      zendeskListTicketsDefinition,
+      zendeskListZendeskTicketsDefinition,
       zendeskGetTicketDetailsDefinition,
       zendeskUpdateTicketStatusDefinition,
       zendeskAddCommentToTicketDefinition,

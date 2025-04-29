@@ -1,18 +1,18 @@
 import type {
   AuthParamsType,
-  zendeskListTicketsFunction,
-  zendeskListTicketsOutputType,
-  zendeskListTicketsParamsType,
+  zendeskListZendeskTicketsFunction,
+  zendeskListZendeskTicketsOutputType,
+  zendeskListZendeskTicketsParamsType,
 } from "../../autogen/types";
 import { axiosClient } from "../../util/axiosClient";
 
-const listZendeskTickets: zendeskListTicketsFunction = async ({
+const listZendeskTickets: zendeskListZendeskTicketsFunction = async ({
   params,
   authParams,
 }: {
-  params: zendeskListTicketsParamsType;
+  params: zendeskListZendeskTicketsParamsType;
   authParams: AuthParamsType;
-}): Promise<zendeskListTicketsOutputType> => {
+}): Promise<zendeskListZendeskTicketsOutputType> => {
   const { apiKey, username } = authParams;
   const { subdomain, status } = params;
 

@@ -13,12 +13,12 @@ const getZendeskTicketDetails: zendeskGetTicketDetailsFunction = async ({
   params: zendeskGetTicketDetailsParamsType;
   authParams: AuthParamsType;
 }): Promise<zendeskGetTicketDetailsOutputType> => {
-  const { authToken, username } = authParams;
+  const { apiKey, username } = authParams;
   const { subdomain, ticketId } = params;
   const url = `https://${subdomain}.zendesk.com/api/v2/tickets/${ticketId}.json`;
 
-  if (!authToken) {
-    throw new Error("Auth token is required");
+  if (!apiKey) {
+    throw new Error("API key is required");
   }
 
   const response = await axiosClient.request({
@@ -26,7 +26,7 @@ const getZendeskTicketDetails: zendeskGetTicketDetailsFunction = async ({
     method: "GET",
     auth: {
       username: `${username}/token`,
-      password: authToken,
+      password: apiKey,
     },
     headers: {
       "Content-Type": "application/json",

@@ -33,8 +33,8 @@ import {
   zendeskAddCommentToTicketParamsSchema,
   zendeskAssignTicketOutputSchema,
   zendeskAssignTicketParamsSchema,
-  zendeskListTicketsOutputSchema,
-  zendeskListTicketsParamsSchema,
+  zendeskListZendeskTicketsOutputSchema,
+  zendeskListZendeskTicketsParamsSchema,
   jiraAssignJiraTicketParamsSchema,
   jiraAssignJiraTicketOutputSchema,
   jiraCommentJiraTicketParamsSchema,
@@ -329,10 +329,10 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       paramsSchema: zendeskAssignTicketParamsSchema,
       outputSchema: zendeskAssignTicketOutputSchema,
     },
-    listTickets: {
+    listZendeskTickets: {
       fn: listZendeskTickets,
-      paramsSchema: zendeskListTicketsParamsSchema,
-      outputSchema: zendeskListTicketsOutputSchema,
+      paramsSchema: zendeskListZendeskTicketsParamsSchema,
+      outputSchema: zendeskListZendeskTicketsOutputSchema,
     },
   },
   mongo: {

@@ -1154,7 +1154,7 @@ export const zendeskCreateZendeskTicketDefinition: ActionTemplate = {
   name: "createZendeskTicket",
   provider: "zendesk",
 };
-export const zendeskListTicketsDefinition: ActionTemplate = {
+export const zendeskListZendeskTicketsDefinition: ActionTemplate = {
   description: "List tickets in Zendesk from the past 3 months",
   scopes: [],
   parameters: {
@@ -1188,7 +1188,7 @@ export const zendeskListTicketsDefinition: ActionTemplate = {
       },
     },
   },
-  name: "listTickets",
+  name: "listZendeskTickets",
   provider: "zendesk",
 };
 export const zendeskGetTicketDetailsDefinition: ActionTemplate = {

@@ -829,7 +829,7 @@ actions:
           ticketUrl:
             type: string
             description: The URL of the ticket created
-    listTickets:
+    listZendeskTickets:
       description: List tickets in Zendesk from the past 3 months
       scopes: []
       parameters:
