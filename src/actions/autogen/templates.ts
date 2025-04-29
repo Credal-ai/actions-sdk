@@ -1169,14 +1169,6 @@ export const zendeskListTicketsDefinition: ActionTemplate = {
         type: "string",
         description: "Filter tickets by status (new, open, pending, hold, solved, closed)",
       },
-      sortBy: {
-        type: "string",
-        description: "Field to sort tickets by (default is created_at)",
-      },
-      sortOrder: {
-        type: "string",
-        description: "Sort order (asc or desc, default is desc)",
-      },
     },
   },
   output: {

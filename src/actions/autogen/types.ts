@@ -615,8 +615,6 @@ export type zendeskCreateZendeskTicketFunction = ActionFunction<
 export const zendeskListTicketsParamsSchema = z.object({
   subdomain: z.string().describe("The subdomain of the Zendesk account"),
   status: z.string().describe("Filter tickets by status (new, open, pending, hold, solved, closed)").optional(),
-  sortBy: z.string().describe("Field to sort tickets by (default is created_at)").optional(),
-  sortOrder: z.string().describe("Sort order (asc or desc, default is desc)").optional(),
 });
 
 export type zendeskListTicketsParamsType = z.infer<typeof zendeskListTicketsParamsSchema>;
