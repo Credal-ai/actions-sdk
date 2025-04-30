@@ -141,6 +141,8 @@ import {
   jiraGetJiraIssuesByQueryParamsSchema,
   salesforceCreateRecordParamsSchema,
   salesforceCreateRecordOutputSchema,
+  firecrawlDeepResearchParamsSchema,
+  firecrawlDeepResearchOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -430,8 +432,8 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
     },
     deepResearch: {
       fn: deepResearch,
-      paramsSchema: firecrawlScrapeUrlParamsSchema,
-      outputSchema: firecrawlScrapeUrlOutputSchema,
+      paramsSchema: firecrawlDeepResearchParamsSchema,
+      outputSchema: firecrawlDeepResearchOutputSchema,
     },
   },
   resend: {
