@@ -18,10 +18,7 @@ const getTopNSearchResultUrls: bingGetTopNSearchResultUrlsFunction = async ({
     const { apiKey } = authParams;
 
     // Build the search query
-    let searchQuery = query;
-    if (site) {
-        searchQuery = `${searchQuery} site:${site}`;
-    }
+    const searchQuery = `${query}${site ? ` site:${site}` : ""}`;
 
     // Ensure we have an API key
     if (!apiKey) {
