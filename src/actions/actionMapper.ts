@@ -143,6 +143,8 @@ import {
   salesforceCreateRecordOutputSchema,
   firecrawlDeepResearchParamsSchema,
   firecrawlDeepResearchOutputSchema,
+  bingGetTopNSearchResultUrlsParamsSchema,
+  bingGetTopNSearchResultUrlsOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -217,6 +219,7 @@ import deepResearch from "./providers/firecrawl/deepResearch";
 import listPullRequests from "./providers/github/listPullRequests";
 import getJiraIssuesByQuery from "./providers/jira/getJiraIssuesByQuery";
 import createRecord from "./providers/salesforce/createRecord";
+import getTopNSearchResultUrls from "./providers/bing/getTopNSearchResultUrls";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -303,6 +306,13 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: callCopilot,
       paramsSchema: credalCallCopilotParamsSchema,
       outputSchema: credalCallCopilotOutputSchema,
+    },
+  },
+  bing: {
+    getTopNSearchResultUrls: {
+      fn: getTopNSearchResultUrls,
+      paramsSchema: bingGetTopNSearchResultUrlsParamsSchema,
+      outputSchema: bingGetTopNSearchResultUrlsOutputSchema,
     },
   },
   zendesk: {

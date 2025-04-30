@@ -72,6 +72,7 @@ import {
   ashbyCreateCandidateDefinition,
   ashbyUpdateCandidateDefinition,
   ashbyAddCandidateToProjectDefinition,
+  bingGetTopNSearchResultUrlsDefinition,
 } from "../actions/autogen/templates";
 import type { ActionTemplate } from "../actions/parse";
 
@@ -135,6 +136,10 @@ export const ACTION_GROUPS: ActionGroups = {
       zendeskAddCommentToTicketDefinition,
       zendeskAssignTicketDefinition,
     ],
+  },
+  BING_SEARCH: {
+    description: "Action for searching Bing",
+    actions: [bingGetTopNSearchResultUrlsDefinition],
   },
   MONGO_INSERT_DOC: {
     description: "Action for inserting a document into a MongoDB collection",

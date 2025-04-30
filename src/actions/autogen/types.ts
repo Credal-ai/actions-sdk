@@ -525,6 +525,37 @@ export type googlemapsNearbysearchRestaurantsFunction = ActionFunction<
   googlemapsNearbysearchRestaurantsOutputType
 >;
 
+export const bingGetTopNSearchResultUrlsParamsSchema = z.object({
+  query: z.string().describe("The query to search for"),
+  count: z.number().describe("The number of results to return. Default is 5.").optional(),
+  site: z
+    .string()
+    .describe(
+      "The site to restrict the search to (by inserting site:<site.com> in the query). Examples include openai.com, github.com",
+    )
+    .optional(),
+});
+
+export type bingGetTopNSearchResultUrlsParamsType = z.infer<typeof bingGetTopNSearchResultUrlsParamsSchema>;
+
+export const bingGetTopNSearchResultUrlsOutputSchema = z.object({
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The name or title of the search result").optional(),
+        url: z.string().describe("The URL of the search result").optional(),
+      }),
+    )
+    .describe("The top five search result objects"),
+});
+
+export type bingGetTopNSearchResultUrlsOutputType = z.infer<typeof bingGetTopNSearchResultUrlsOutputSchema>;
+export type bingGetTopNSearchResultUrlsFunction = ActionFunction<
+  bingGetTopNSearchResultUrlsParamsType,
+  AuthParamsType,
+  bingGetTopNSearchResultUrlsOutputType
+>;
+
 export const credalCallCopilotParamsSchema = z.object({
   agentId: z.string().describe("The ID of the copilot to call"),
   query: z.string().describe("The query to ask Credal Copilot"),
