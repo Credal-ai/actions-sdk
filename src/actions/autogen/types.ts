@@ -546,7 +546,7 @@ export const bingGetTopNSearchResultUrlsOutputSchema = z.object({
         url: z.string().describe("The URL of the search result").optional(),
       }),
     )
-    .describe("The top five search result objects"),
+    .describe("The top N search result objects"),
 });
 
 export type bingGetTopNSearchResultUrlsOutputType = z.infer<typeof bingGetTopNSearchResultUrlsOutputSchema>;
