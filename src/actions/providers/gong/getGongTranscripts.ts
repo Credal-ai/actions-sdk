@@ -258,8 +258,7 @@ const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
       success: true,
       callTranscripts: callTranscriptsWithNames,
     };
-    // disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
+  } catch (error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
     return {
       success: false,
       error: error.response?.data?.errors ?? error.message,
