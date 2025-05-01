@@ -4894,6 +4894,106 @@ export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
   name: "updatePresentation",
   provider: "googleOauth",
 };
+export const gongGetGongTranscriptsDefinition: ActionTemplate = {
+  description: "Get sales call transcripts from Gong",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["userRole"],
+    properties: {
+      userRole: {
+        type: "string",
+        description: "The role of users whose transcripts are being fetched",
+      },
+      trackers: {
+        type: "array",
+        description: "The trackers to fetch transcripts for",
+        items: {
+          type: "string",
+          description: "The names of the trackers to fetch transcripts for",
+        },
+      },
+      startDate: {
+        type: "string",
+        description: "The start date of the transcripts to fetch in ISO 8601 format",
+      },
+      endDate: {
+        type: "string",
+        description: "The end date of the transcripts to fetch in ISO 8601 format",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the transcripts were fetched successfully",
+      },
+      callTranscripts: {
+        type: "array",
+        description: "The transcripts fetched",
+        items: {
+          type: "object",
+          description: "A transcript",
+          properties: {
+            callId: {
+              type: "string",
+              description: "The ID of the transcript",
+            },
+            transcript: {
+              type: "array",
+              description: "The transcript",
+              items: {
+                type: "object",
+                description: "A transcript",
+                properties: {
+                  speakerName: {
+                    type: "string",
+                    description: "The name of the speaker",
+                  },
+                  topic: {
+                    type: "string",
+                    description: "The topic of the transcript",
+                  },
+                  sentences: {
+                    type: "array",
+                    description: "The sentences in the transcript",
+                    items: {
+                      type: "object",
+                      description: "A sentence",
+                      properties: {
+                        start: {
+                          type: "number",
+                          description: "The start time of the sentence in seconds",
+                        },
+                        end: {
+                          type: "number",
+                          description: "The end time of the sentence in seconds",
+                        },
+                        text: {
+                          type: "string",
+                          description: "The text of the sentence",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the transcripts weren't fetched successfully",
+      },
+    },
+  },
+  name: "getGongTranscripts",
+  provider: "gong",
+};
 export const finnhubSymbolLookupDefinition: ActionTemplate = {
   description: "Look up a stock symbol by name",
   scopes: [],

@@ -73,6 +73,7 @@ import {
   ashbyUpdateCandidateDefinition,
   ashbyAddCandidateToProjectDefinition,
   bingGetTopNSearchResultUrlsDefinition,
+  gongGetGongTranscriptsDefinition,
 } from "../actions/autogen/templates";
 import type { ActionTemplate } from "../actions/parse";
 
@@ -185,6 +186,10 @@ export const ACTION_GROUPS: ActionGroups = {
   X: {
     description: "Actions for interacting with X(formerly twitter)",
     actions: [xCreateShareXPostUrlDefinition],
+  },
+  GONG: {
+    description: "Actions for interacting with Gong",
+    actions: [gongGetGongTranscriptsDefinition],
   },
   FINNHUB: {
     description: "Action for interacting with Finnhub for stock market data",

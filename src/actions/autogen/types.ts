@@ -2575,6 +2575,63 @@ export type googleOauthUpdatePresentationFunction = ActionFunction<
   googleOauthUpdatePresentationOutputType
 >;
 
+export const gongGetGongTranscriptsParamsSchema = z.object({
+  userRole: z.string().describe("The role of users whose transcripts are being fetched"),
+  trackers: z
+    .array(z.string().describe("The names of the trackers to fetch transcripts for"))
+    .describe("The trackers to fetch transcripts for")
+    .optional(),
+  startDate: z.string().describe("The start date of the transcripts to fetch in ISO 8601 format").optional(),
+  endDate: z.string().describe("The end date of the transcripts to fetch in ISO 8601 format").optional(),
+});
+
+export type gongGetGongTranscriptsParamsType = z.infer<typeof gongGetGongTranscriptsParamsSchema>;
+
+export const gongGetGongTranscriptsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the transcripts were fetched successfully"),
+  callTranscripts: z
+    .array(
+      z
+        .object({
+          callId: z.string().describe("The ID of the transcript").optional(),
+          transcript: z
+            .array(
+              z
+                .object({
+                  speakerName: z.string().describe("The name of the speaker").optional(),
+                  topic: z.string().describe("The topic of the transcript").optional(),
+                  sentences: z
+                    .array(
+                      z
+                        .object({
+                          start: z.number().describe("The start time of the sentence in seconds").optional(),
+                          end: z.number().describe("The end time of the sentence in seconds").optional(),
+                          text: z.string().describe("The text of the sentence").optional(),
+                        })
+                        .describe("A sentence"),
+                    )
+                    .describe("The sentences in the transcript")
+                    .optional(),
+                })
+                .describe("A transcript"),
+            )
+            .describe("The transcript")
+            .optional(),
+        })
+        .describe("A transcript"),
+    )
+    .describe("The transcripts fetched")
+    .optional(),
+  error: z.string().describe("The error that occurred if the transcripts weren't fetched successfully").optional(),
+});
+
+export type gongGetGongTranscriptsOutputType = z.infer<typeof gongGetGongTranscriptsOutputSchema>;
+export type gongGetGongTranscriptsFunction = ActionFunction<
+  gongGetGongTranscriptsParamsType,
+  AuthParamsType,
+  gongGetGongTranscriptsOutputType
+>;
+
 export const finnhubSymbolLookupParamsSchema = z.object({
   query: z.string().describe("The symbol or colloquial name of the company to look up"),
 });

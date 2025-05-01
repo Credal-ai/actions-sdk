@@ -1,11 +1,12 @@
 {
   "name": "@credal/actions",
-  "version": "0.1.66",
+  "version": "0.1.67",
   "description": "AI Actions by Credal AI",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "npx ts-node -r tsconfig-paths/register --project tsconfig.json ",
+    "jest-test": "jest",
     "build": "tsc",
     "dev": "ts-node-dev -r tsconfig-paths/register src/app.ts",
     "generate:types": "ts-node -r tsconfig-paths/register src/actions/parse.ts",
@@ -24,6 +25,7 @@
   "license": "ISC",
   "devDependencies": {
     "@eslint/js": "^9.16.0",
+    "@jest/globals": "^29.7.0",
     "@types/js-yaml": "^4.0.9",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.10.1",
@@ -31,9 +33,11 @@
     "@typescript-eslint/eslint-plugin": "^8.18.0",
     "@typescript-eslint/parser": "^8.18.0",
     "eslint": "^9.16.0",
+    "eslint-plugin-jest": "^28.11.0",
     "globals": "^15.13.0",
     "js-yaml": "^4.1.0",
     "prettier": "^3.4.2",
+    "ts-jest": "^29.3.2",
     "ts-morph": "^24.0.0",
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0",

@@ -220,6 +220,8 @@ import listPullRequests from "./providers/github/listPullRequests";
 import getJiraIssuesByQuery from "./providers/jira/getJiraIssuesByQuery";
 import createRecord from "./providers/salesforce/createRecord";
 import getTopNSearchResultUrls from "./providers/bing/getTopNSearchResultUrls";
+import getGongTranscripts from "./providers/gong/getGongTranscripts";
+import { gongGetGongTranscriptsParamsSchema, gongGetGongTranscriptsOutputSchema } from "./autogen/types";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -495,6 +497,13 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: createXSharePostUrl,
       paramsSchema: xCreateShareXPostUrlParamsSchema,
       outputSchema: xCreateShareXPostUrlOutputSchema,
+    },
+  },
+  gong: {
+    getGongTranscripts: {
+      fn: getGongTranscripts,
+      paramsSchema: gongGetGongTranscriptsParamsSchema,
+      outputSchema: gongGetGongTranscriptsOutputSchema,
     },
   },
   finnhub: {
