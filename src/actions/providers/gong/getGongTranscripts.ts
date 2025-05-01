@@ -46,6 +46,7 @@ type Tracker = z.infer<typeof TrackerSchema>;
 type Call = z.infer<typeof CallSchema>;
 type Transcript = z.infer<typeof TranscriptSchema>;
 
+// disable-next-line @typescript-eslint/no-unused-vars
 const GongResponseSchema = z.object({
   users: z.array(UserSchema).optional(),
   trackers: z.array(TrackerSchema).optional(),
@@ -56,7 +57,7 @@ const GongResponseSchema = z.object({
 
 type GongResponse = z.infer<typeof GongResponseSchema>;
 
-async function getUsers(username: string, password: string, params: Record<string, any> = {}): Promise<User[]> {
+async function getUsers(username: string, password: string, params: Record<string, number | string> = {}): Promise<User[]> {
   let results: User[] = [];
   let cursor: string | undefined = undefined;
 
@@ -91,7 +92,7 @@ async function getUsers(username: string, password: string, params: Record<strin
   return results;
 }
 
-async function getTrackers(username: string, password: string, params: Record<string, any> = {}): Promise<Tracker[]> {
+async function getTrackers(username: string, password: string, params: Record<string, number | string> = {}): Promise<Tracker[]> {
   let results: Tracker[] = [];
   let cursor: string | undefined = undefined;
 
@@ -126,7 +127,7 @@ async function getTrackers(username: string, password: string, params: Record<st
   return results;
 }
 
-async function getCalls(username: string, password: string, params: Record<string, any> = {}): Promise<Call[]> {
+async function getCalls(username: string, password: string, params: Record<string, string[] | string | undefined> = {}): Promise<Call[]> {
   let results: Call[] = [];
   let cursor: string | undefined = undefined;
 
@@ -164,7 +165,7 @@ async function getCalls(username: string, password: string, params: Record<strin
 async function getTranscripts(
   username: string,
   password: string,
-  params: Record<string, any> = {},
+  params: Record<string, string | string[] | number> = {},
 ): Promise<Transcript[]> {
   let results: Transcript[] = [];
   let cursor: string | undefined = undefined;
@@ -241,11 +242,11 @@ const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
         speakerName: userIdToNameMap[transcript.speakerId] || transcript.speakerId,
       })),
     }));
-
     return {
       success: true,
       callTranscripts: callTranscriptsWithNames,
     };
+    // disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return {
       success: false,
