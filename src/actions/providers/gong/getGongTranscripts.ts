@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { z } from "zod";
 import type {
   AuthParamsType,
@@ -258,10 +258,10 @@ const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
       success: true,
       callTranscripts: callTranscriptsWithNames,
     };
-  } catch (error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+  } catch (error) {
     return {
       success: false,
-      error: error.response?.data?.errors ?? error.message,
+      error: error instanceof AxiosError ? error.response?.data?.errors ?? error.message : error,
     };
   }
 };
