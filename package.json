@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@credal/sdk": "^0.0.21",
-    "@mendable/firecrawl-js": "^1.19.0",
+    "@mendable/firecrawl-js": "^1.24.0",
     "@microsoft/microsoft-graph-client": "^3.0.7",
     "@slack/web-api": "^7.8.0",
     "@types/snowflake-sdk": "^1.6.24",
