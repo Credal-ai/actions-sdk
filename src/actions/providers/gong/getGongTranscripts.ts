@@ -57,7 +57,11 @@ const GongResponseSchema = z.object({
 
 type GongResponse = z.infer<typeof GongResponseSchema>;
 
-async function getUsers(username: string, password: string, params: Record<string, number | string> = {}): Promise<User[]> {
+async function getUsers(
+  username: string,
+  password: string,
+  params: Record<string, number | string> = {},
+): Promise<User[]> {
   let results: User[] = [];
   let cursor: string | undefined = undefined;
 
@@ -92,7 +96,11 @@ async function getUsers(username: string, password: string, params: Record<strin
   return results;
 }
 
-async function getTrackers(username: string, password: string, params: Record<string, number | string> = {}): Promise<Tracker[]> {
+async function getTrackers(
+  username: string,
+  password: string,
+  params: Record<string, number | string> = {},
+): Promise<Tracker[]> {
   let results: Tracker[] = [];
   let cursor: string | undefined = undefined;
 
@@ -127,7 +135,11 @@ async function getTrackers(username: string, password: string, params: Record<st
   return results;
 }
 
-async function getCalls(username: string, password: string, params: Record<string, string[] | string | undefined> = {}): Promise<Call[]> {
+async function getCalls(
+  username: string,
+  password: string,
+  params: Record<string, string[] | string | undefined> = {},
+): Promise<Call[]> {
   let results: Call[] = [];
   let cursor: string | undefined = undefined;
 
@@ -219,7 +231,7 @@ const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
     const gongUsers = await getUsers(authParams.username, authParams.password, { userRole: params.userRole });
     const filteredGongUsers = gongUsers.filter(user => user.title === params.userRole);
     const trackers = await getTrackers(authParams.username, authParams.password, {});
-    const filteredTrackers = trackers.filter(tracker => tracker.name in (params.trackers ?? []));
+    const filteredTrackers = trackers.filter(tracker => (params.trackers ?? []).includes(tracker.name));
     // Get calls owned by the users and filtered by the trackers
     const calls = await getCalls(authParams.username, authParams.password, {
       fromDateTime: params.startDate ?? "",
