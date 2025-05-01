@@ -17,24 +17,27 @@ async function getAllPaginatedResults<T>(
 
   do {
     const encodedAuth = Buffer.from(`${username}:${password}`).toString("base64");
-    const response: { data?: any } = await axios.get(`https://api.gong.io/v2/${endpoint}` + (cursor ? `?cursor=${cursor}` : ""), {
-      headers: {
-        Authorization: `Basic ${encodedAuth}`,
-        "Content-Type": "application/json",
-      },
-      params: {
-        filter: {
-          ...params,
+    const response: { data?: any } = await axios.get(
+      `https://api.gong.io/v2/${endpoint}` + (cursor ? `?cursor=${cursor}` : ""),
+      {
+        headers: {
+          Authorization: `Basic ${encodedAuth}`,
+          "Content-Type": "application/json",
+        },
+        params: {
+          filter: {
+            ...params,
+          },
         },
       },
-    });
+    );
     if (!response) {
-        return results;
+      return results;
     }
     if (endpoint == "settings/trackers") {
-        results = [...results, ...response.data.trackers];
+      results = [...results, ...response.data.trackers];
     } else if (endpoint == "users") {
-        results = [...results, ...response.data.users];
+      results = [...results, ...response.data.users];
     }
     cursor = response.data?.cursor;
   } while (cursor);
@@ -68,12 +71,12 @@ async function postAllPaginatedResults<T>(
       },
     );
     if (!response) {
-        return results;
+      return results;
     }
     if (endpoint === "transcript") {
-        results = [...results, ...response.data.callTranscripts];
+      results = [...results, ...response.data.callTranscripts];
     } else if (endpoint === "extensive") {
-        results = [...results, ...response.data.calls];
+      results = [...results, ...response.data.calls];
     }
     cursor = response.data?.cursor;
   } while (cursor);
