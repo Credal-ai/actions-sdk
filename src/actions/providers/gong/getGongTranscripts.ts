@@ -1,4 +1,5 @@
 import axios from "axios";
+import { z } from "zod";
 import type {
   AuthParamsType,
   gongGetGongTranscriptsFunction,
@@ -6,58 +7,63 @@ import type {
   gongGetGongTranscriptsOutputType,
 } from "../../autogen/types";
 
-async function getAllPaginatedResults<T>(
-  username: string,
-  password: string,
-  endpoint: string,
-  params: Record<string, any> = {},
-): Promise<T[]> {
-  let results: T[] = [];
+const UserSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  title: z.string(),
+});
+
+const TrackerSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+});
+
+const CallSchema = z.object({
+  id: z.string(),
+  primaryUserId: z.string().optional(),
+  started: z.string().optional(),
+});
+
+const SentenceSchema = z.object({
+  start: z.number(),
+  end: z.number(),
+  text: z.string(),
+});
+
+const TranscriptSchema = z.object({
+  callId: z.string(),
+  transcript: z.array(
+    z.object({
+      speakerId: z.string(),
+      topic: z.string(),
+      sentences: z.array(SentenceSchema),
+    }),
+  ),
+});
+
+type User = z.infer<typeof UserSchema>;
+type Tracker = z.infer<typeof TrackerSchema>;
+type Call = z.infer<typeof CallSchema>;
+type Transcript = z.infer<typeof TranscriptSchema>;
+
+const GongResponseSchema = z.object({
+  users: z.array(UserSchema).optional(),
+  trackers: z.array(TrackerSchema).optional(),
+  calls: z.array(CallSchema).optional(),
+  callTranscripts: z.array(TranscriptSchema).optional(),
+  cursor: z.string().optional(),
+});
+
+type GongResponse = z.infer<typeof GongResponseSchema>;
+
+async function getUsers(username: string, password: string, params: Record<string, any> = {}): Promise<User[]> {
+  let results: User[] = [];
   let cursor: string | undefined = undefined;
 
   do {
     const encodedAuth = Buffer.from(`${username}:${password}`).toString("base64");
-    const response: { data?: any } = await axios.get(
-      `https://api.gong.io/v2/${endpoint}` + (cursor ? `?cursor=${cursor}` : ""),
-      {
-        headers: {
-          Authorization: `Basic ${encodedAuth}`,
-          "Content-Type": "application/json",
-        },
-        params: {
-          filter: {
-            ...params,
-          },
-        },
-      },
-    );
-    if (!response) {
-      return results;
-    }
-    if (endpoint == "settings/trackers") {
-      results = [...results, ...response.data.trackers];
-    } else if (endpoint == "users") {
-      results = [...results, ...response.data.users];
-    }
-    cursor = response.data?.cursor;
-  } while (cursor);
-
-  return results;
-}
-
-async function postAllPaginatedResults<T>(
-  username: string,
-  password: string,
-  endpoint: string,
-  params: Record<string, any> = {},
-): Promise<T[]> {
-  let results: T[] = [];
-  let cursor: string | undefined = undefined;
-
-  do {
-    const encodedAuth = Buffer.from(`${username}:${password}`).toString("base64");
-    const response: { data?: any } = await axios.post(
-      `https://api.gong.io/v2/${endpoint}/calls` + (cursor ? `?cursor=${cursor}` : ""),
+    const response: { data: GongResponse } = await axios.post<GongResponse>(
+      `https://api.gong.io/v2/users/extensive` + (cursor ? `?cursor=${cursor}` : ""),
       {
         filter: {
           ...params,
@@ -73,61 +79,125 @@ async function postAllPaginatedResults<T>(
     if (!response) {
       return results;
     }
-    if (endpoint === "transcript") {
-      results = [...results, ...response.data.callTranscripts];
-    } else if (endpoint === "extensive") {
-      results = [...results, ...response.data.calls];
+    const parsedItems = z.array(UserSchema).safeParse(response.data.users);
+    if (parsedItems.success) {
+      results = [...results, ...parsedItems.data];
+    } else {
+      return results;
     }
-    cursor = response.data?.cursor;
+    cursor = response.data.cursor;
   } while (cursor);
 
   return results;
 }
 
-async function getTrackersByName(username: string, password: string, trackerNames: string[]) {
-  const trackers = await getAllPaginatedResults<any>(username, password, "settings/trackers");
-  return trackers.filter(tracker => trackerNames.includes(tracker.name)).map(tracker => tracker.id);
+async function getTrackers(username: string, password: string, params: Record<string, any> = {}): Promise<Tracker[]> {
+  let results: Tracker[] = [];
+  let cursor: string | undefined = undefined;
+
+  do {
+    const encodedAuth = Buffer.from(`${username}:${password}`).toString("base64");
+    const response: { data: GongResponse } = await axios.get<GongResponse>(
+      `https://api.gong.io/v2/settings/trackers` + (cursor ? `?cursor=${cursor}` : ""),
+      {
+        headers: {
+          Authorization: `Basic ${encodedAuth}`,
+          "Content-Type": "application/json",
+        },
+        params: {
+          filter: {
+            ...params,
+          },
+        },
+      },
+    );
+    if (!response) {
+      return results;
+    }
+    const parsedItems = z.array(TrackerSchema).safeParse(response.data.trackers);
+    if (parsedItems.success) {
+      results = [...results, ...parsedItems.data];
+    } else {
+      return results;
+    }
+    cursor = response.data.cursor;
+  } while (cursor);
+
+  return results;
 }
 
-async function getGongUsersByRole(
-  username: string,
-  password: string,
-  role: string,
-): Promise<{ id: string; name: string }[]> {
-  const users = await getAllPaginatedResults<any>(username, password, "users");
-  return users.filter(user => user.title === role).map(user => ({ id: user.id, name: user.name }));
+async function getCalls(username: string, password: string, params: Record<string, any> = {}): Promise<Call[]> {
+  let results: Call[] = [];
+  let cursor: string | undefined = undefined;
+
+  do {
+    const encodedAuth = Buffer.from(`${username}:${password}`).toString("base64");
+    const response: { data: GongResponse } = await axios.post<GongResponse>(
+      `https://api.gong.io/v2/calls/extensive` + (cursor ? `?cursor=${cursor}` : ""),
+      {
+        filter: {
+          ...params,
+        },
+      },
+      {
+        headers: {
+          Authorization: `Basic ${encodedAuth}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+    if (!response) {
+      return results;
+    }
+    const parsedItems = z.array(CallSchema).safeParse(response.data.calls);
+    if (parsedItems.success) {
+      results = [...results, ...parsedItems.data];
+    } else {
+      return results;
+    }
+    cursor = response.data.cursor;
+  } while (cursor);
+
+  return results;
 }
 
-async function getFilteredCallsForUsers(
+async function getTranscripts(
   username: string,
   password: string,
-  userIds: string[],
-  trackerIds: string[],
-  startDate: string,
-  endDate: string,
-) {
-  const calls = await postAllPaginatedResults<any>(username, password, "extensive", {
-    fromDateTime: startDate,
-    toDateTime: endDate,
-    primaryUserIds: userIds.length > 0 ? userIds : null,
-    trackerIds,
-  });
-  return calls.map(call => call.id);
-}
+  params: Record<string, any> = {},
+): Promise<Transcript[]> {
+  let results: Transcript[] = [];
+  let cursor: string | undefined = undefined;
 
-async function getTranscriptsForCalls(
-  username: string,
-  password: string,
-  callIds: string[],
-  startDate: string,
-  endDate: string,
-) {
-  const transcripts = await postAllPaginatedResults<any>(username, password, "transcript", {
-    fromDateTime: startDate,
-    toDateTime: endDate,
-    callIds,
-  });
-  return transcripts;
+  do {
+    const encodedAuth = Buffer.from(`${username}:${password}`).toString("base64");
+    const response: { data: GongResponse } = await axios.post<GongResponse>(
+      `https://api.gong.io/v2/transcript/calls/transcripts` + (cursor ? `?cursor=${cursor}` : ""),
+      {
+        filter: {
+          ...params,
+        },
+      },
+      {
+        headers: {
+          Authorization: `Basic ${encodedAuth}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+    if (!response) {
+      return results;
+    }
+    const parsedItems = z.array(TranscriptSchema).safeParse(response.data.callTranscripts);
+    if (parsedItems.success) {
+      results = [...results, ...parsedItems.data];
+    } else {
+      return results;
+    }
+    cursor = response.data.cursor;
+  } while (cursor);
+
+  return results;
 }
 
 // Retrieves transcripts from Gong based on the provided parameters
@@ -144,29 +214,26 @@ const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
       error: "No username or password provided",
     };
   }
-
   try {
-    const gongUsers = await getGongUsersByRole(authParams.username, authParams.password, params.userRole ?? "");
-    const trackerIds = await getTrackersByName(authParams.username, authParams.password, params.trackers ?? []);
+    const gongUsers = await getUsers(authParams.username, authParams.password, { userRole: params.userRole });
+    const filteredGongUsers = gongUsers.filter(user => user.title === params.userRole);
+    const trackers = await getTrackers(authParams.username, authParams.password, {});
+    const filteredTrackers = trackers.filter(tracker => tracker.name in (params.trackers ?? []));
     // Get calls owned by the users and filtered by the trackers
-    const calls = await getFilteredCallsForUsers(
-      authParams.username,
-      authParams.password,
-      gongUsers.map(user => user.id),
-      trackerIds,
-      params.startDate ?? "",
-      params.endDate ?? "",
-    );
+    const calls = await getCalls(authParams.username, authParams.password, {
+      fromDateTime: params.startDate ?? "",
+      toDateTime: params.endDate ?? "",
+      primaryUserIds: filteredGongUsers.length > 0 ? filteredGongUsers.map(user => user.id) : undefined,
+      trackerIds: filteredTrackers.length > 0 ? filteredTrackers.map(tracker => tracker.id) : undefined,
+    });
     // Get transcripts for the calls we found
-    const callTranscripts = await getTranscriptsForCalls(
-      authParams.username,
-      authParams.password,
-      calls,
-      params.startDate ?? "",
-      params.endDate ?? "",
-    );
+    const callTranscripts = await getTranscripts(authParams.username, authParams.password, {
+      fromDateTime: params.startDate ?? "",
+      toDateTime: params.endDate ?? "",
+      callIds: calls.map(call => call.id),
+    });
     // Map speaker IDs to names in the transcripts
-    const userIdToNameMap = Object.fromEntries(gongUsers.map(user => [user.id, user.name]));
+    const userIdToNameMap = Object.fromEntries(filteredGongUsers.map(user => [user.id, user.name]));
     const callTranscriptsWithNames = callTranscripts.map(callTranscript => ({
       ...callTranscript,
       transcript: callTranscript.transcript.map((transcript: { speakerId: string }) => ({

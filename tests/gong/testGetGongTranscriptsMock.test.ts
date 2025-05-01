@@ -26,7 +26,7 @@ describe("getGongTranscripts", () => {
 
   it("should successfully fetch transcripts", async () => {
     // Mock users response
-    mockedAxios.get.mockResolvedValueOnce({
+    mockedAxios.post.mockResolvedValueOnce({
       data: {
         users: [
           { id: "user1", title: "Sales", name: "John" },
@@ -136,7 +136,7 @@ describe("getGongTranscripts", () => {
 
   it("should handle empty results", async () => {
     // Mock users response
-    mockedAxios.get.mockResolvedValueOnce({
+    mockedAxios.post.mockResolvedValueOnce({
       data: {
         users: [],
         cursor: null,
@@ -159,6 +159,14 @@ describe("getGongTranscripts", () => {
       },
     });
 
+    // Mock transcripts response
+    mockedAxios.post.mockResolvedValueOnce({
+      data: {
+        callTranscripts: [],
+        cursor: null,
+      },
+    });
+
     const result = await getGongTranscripts({
       params: mockParams,
       authParams: mockAuthParams,
@@ -170,7 +178,7 @@ describe("getGongTranscripts", () => {
 
   it("should handle pagination in responses", async () => {
     // Mock users response with pagination
-    mockedAxios.get.mockResolvedValueOnce({
+    mockedAxios.post.mockResolvedValueOnce({
       data: {
         users: [
           { id: "user1", title: "Sales", name: "John" },
@@ -258,7 +266,7 @@ describe("getGongTranscripts", () => {
     expect(result.callTranscripts![0].transcript![0].speakerName).toBe("John");
     expect(result.callTranscripts![1].callId).toBe("call2");
     expect(result.callTranscripts![1].transcript![0].speakerName).toBe("Jane");
-    expect(mockedAxios.get).toHaveBeenCalledTimes(3);
-    expect(mockedAxios.post).toHaveBeenCalledTimes(3);
+    expect(mockedAxios.get).toHaveBeenCalledTimes(1);
+    expect(mockedAxios.post).toHaveBeenCalledTimes(5);
   });
 }); 
