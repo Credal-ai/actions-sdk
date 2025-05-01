@@ -46,7 +46,7 @@ type Tracker = z.infer<typeof TrackerSchema>;
 type Call = z.infer<typeof CallSchema>;
 type Transcript = z.infer<typeof TranscriptSchema>;
 
-// disable-next-line @typescript-eslint/no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const GongResponseSchema = z.object({
   users: z.array(UserSchema).optional(),
   trackers: z.array(TrackerSchema).optional(),
