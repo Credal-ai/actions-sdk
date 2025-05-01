@@ -261,7 +261,7 @@ const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
   } catch (error) {
     return {
       success: false,
-      error: error instanceof AxiosError ? error.response?.data?.errors ?? error.message : error,
+      error: error instanceof AxiosError ? (error.response?.data?.errors ?? error.message) : error,
     };
   }
 };
