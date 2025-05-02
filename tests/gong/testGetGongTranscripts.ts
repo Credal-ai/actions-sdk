@@ -9,8 +9,7 @@ async function runTest() {
     "getGongTranscripts",
     "gong",
     {
-      username: process.env.GONG_USERNAME!,
-      password: process.env.GONG_PASSWORD!,
+      authToken: process.env.GONG_TOKEN!,
     },
     {
       userRole: "Sales",

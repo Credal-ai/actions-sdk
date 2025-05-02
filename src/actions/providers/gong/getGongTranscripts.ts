@@ -57,16 +57,11 @@ const GongResponseSchema = z.object({
 
 type GongResponse = z.infer<typeof GongResponseSchema>;
 
-async function getUsers(
-  username: string,
-  password: string,
-  params: Record<string, number | string> = {},
-): Promise<User[]> {
+async function getUsers(authToken: string, params: Record<string, number | string> = {}): Promise<User[]> {
   let results: User[] = [];
   let cursor: string | undefined = undefined;
 
   do {
-    const encodedAuth = Buffer.from(`${username}:${password}`).toString("base64");
     const response: { data: GongResponse } = await axios.post<GongResponse>(
       `https://api.gong.io/v2/users/extensive` + (cursor ? `?cursor=${cursor}` : ""),
       {
@@ -76,7 +71,7 @@ async function getUsers(
       },
       {
         headers: {
-          Authorization: `Basic ${encodedAuth}`,
+          Authorization: `Bearer ${authToken}`,
           "Content-Type": "application/json",
         },
       },
@@ -96,21 +91,16 @@ async function getUsers(
   return results;
 }
 
-async function getTrackers(
-  username: string,
-  password: string,
-  params: Record<string, number | string> = {},
-): Promise<Tracker[]> {
+async function getTrackers(authToken: string, params: Record<string, number | string> = {}): Promise<Tracker[]> {
   let results: Tracker[] = [];
   let cursor: string | undefined = undefined;
 
   do {
-    const encodedAuth = Buffer.from(`${username}:${password}`).toString("base64");
     const response: { data: GongResponse } = await axios.get<GongResponse>(
       `https://api.gong.io/v2/settings/trackers` + (cursor ? `?cursor=${cursor}` : ""),
       {
         headers: {
-          Authorization: `Basic ${encodedAuth}`,
+          Authorization: `Bearer ${authToken}`,
           "Content-Type": "application/json",
         },
         params: {
@@ -136,15 +126,13 @@ async function getTrackers(
 }
 
 async function getCalls(
-  username: string,
-  password: string,
+  authToken: string,
   params: Record<string, string[] | string | undefined> = {},
 ): Promise<Call[]> {
   let results: Call[] = [];
   let cursor: string | undefined = undefined;
 
   do {
-    const encodedAuth = Buffer.from(`${username}:${password}`).toString("base64");
     const response: { data: GongResponse } = await axios.post<GongResponse>(
       `https://api.gong.io/v2/calls/extensive` + (cursor ? `?cursor=${cursor}` : ""),
       {
@@ -154,7 +142,7 @@ async function getCalls(
       },
       {
         headers: {
-          Authorization: `Basic ${encodedAuth}`,
+          Authorization: `Bearer ${authToken}`,
           "Content-Type": "application/json",
         },
       },
@@ -175,15 +163,13 @@ async function getCalls(
 }
 
 async function getTranscripts(
-  username: string,
-  password: string,
+  authToken: string,
   params: Record<string, string | string[] | number> = {},
 ): Promise<Transcript[]> {
   let results: Transcript[] = [];
   let cursor: string | undefined = undefined;
 
   do {
-    const encodedAuth = Buffer.from(`${username}:${password}`).toString("base64");
     const response: { data: GongResponse } = await axios.post<GongResponse>(
       `https://api.gong.io/v2/transcript/calls/transcripts` + (cursor ? `?cursor=${cursor}` : ""),
       {
@@ -193,7 +179,7 @@ async function getTranscripts(
       },
       {
         headers: {
-          Authorization: `Basic ${encodedAuth}`,
+          Authorization: `Bearer ${authToken}`,
           "Content-Type": "application/json",
         },
       },
@@ -221,26 +207,26 @@ const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
   params: gongGetGongTranscriptsParamsType;
   authParams: AuthParamsType;
 }): Promise<gongGetGongTranscriptsOutputType> => {
-  if (!authParams.username || !authParams.password) {
+  if (!authParams.authToken) {
     return {
       success: false,
-      error: "No username or password provided",
+      error: "No auth token provided",
     };
   }
   try {
-    const gongUsers = await getUsers(authParams.username, authParams.password, { userRole: params.userRole });
+    const gongUsers = await getUsers(authParams.authToken, { userRole: params.userRole });
     const filteredGongUsers = gongUsers.filter(user => user.title === params.userRole);
-    const trackers = await getTrackers(authParams.username, authParams.password, {});
+    const trackers = await getTrackers(authParams.authToken, {});
     const filteredTrackers = trackers.filter(tracker => (params.trackers ?? []).includes(tracker.name));
     // Get calls owned by the users and filtered by the trackers
-    const calls = await getCalls(authParams.username, authParams.password, {
+    const calls = await getCalls(authParams.authToken, {
       fromDateTime: params.startDate ?? "",
       toDateTime: params.endDate ?? "",
       primaryUserIds: filteredGongUsers.length > 0 ? filteredGongUsers.map(user => user.id) : undefined,
       trackerIds: filteredTrackers.length > 0 ? filteredTrackers.map(tracker => tracker.id) : undefined,
     });
     // Get transcripts for the calls we found
-    const callTranscripts = await getTranscripts(authParams.username, authParams.password, {
+    const callTranscripts = await getTranscripts(authParams.authToken, {
       fromDateTime: params.startDate ?? "",
       toDateTime: params.endDate ?? "",
       callIds: calls.map(call => call.id),

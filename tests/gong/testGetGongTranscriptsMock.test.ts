@@ -9,8 +9,7 @@ const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 describe("getGongTranscripts", () => {
   const mockAuthParams = {
-    username: process.env.GONG_USERNAME!,
-    password: process.env.GONG_PASSWORD!,
+    authToken: process.env.GONG_TOKEN!,
   };
 
   const mockParams = {
@@ -131,7 +130,13 @@ describe("getGongTranscripts", () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toEqual(["Invalid credentials"]);
+    expect(result.error).toEqual({
+      response: {
+        data: {
+          errors: ["Invalid credentials"],
+        },
+      },
+    });
   });
 
   it("should handle empty results", async () => {
