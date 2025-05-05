@@ -17,7 +17,7 @@ export function formatDataForCodeInterpreter(queryResults: any[], outputFormat: 
 
       // Helper function to properly escape CSV fields
       const escapeCsvField = (field: any): string => {
-        if (field === null || field === undefined) return "";
+        if (field === null || field === undefined) return "null";
 
         const stringValue = typeof field === "object" ? JSON.stringify(field) : String(field);
 
