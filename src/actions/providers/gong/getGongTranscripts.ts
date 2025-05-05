@@ -244,10 +244,10 @@ const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
       success: true,
       callTranscripts: callTranscriptsWithNames,
     };
-  } catch (error) {
+  } catch (error: unknown) {
     return {
       success: false,
-      error: error instanceof AxiosError ? (error.response?.data?.errors ?? error.message) : error,
+      error: error instanceof AxiosError ? (error.response?.data?.errors ?? error.message) : String(error),
     };
   }
 };
