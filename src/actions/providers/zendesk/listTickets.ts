@@ -25,7 +25,7 @@ const listZendeskTickets: zendeskListZendeskTicketsFunction = async ({
   const url = `https://${subdomain}.zendesk.com/api/v2/tickets.json`;
 
   if (!authToken) {
-    throw new Error("API key is required");
+    throw new Error("Auth token is required");
   }
 
   // Add query parameters for filtering
