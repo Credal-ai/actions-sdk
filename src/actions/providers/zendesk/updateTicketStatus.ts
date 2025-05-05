@@ -13,22 +13,19 @@ const updateTicketStatus: zendeskUpdateTicketStatusFunction = async ({
   params: zendeskUpdateTicketStatusParamsType;
   authParams: AuthParamsType;
 }): Promise<zendeskUpdateTicketStatusOutputType> => {
-  const { apiKey, username } = authParams;
+  const { authToken } = authParams;
   const { subdomain, ticketId, status } = params;
   const url = `https://${subdomain}.zendesk.com/api/v2/tickets/${ticketId}.json`;
 
-  if (!apiKey) {
-    throw new Error("API key is required");
+  if (!authToken) {
+    throw new Error("Auth token is required");
   }
   await axiosClient.request({
     url: url,
     method: "PUT",
-    auth: {
-      username: `${username}/token`,
-      password: apiKey,
-    },
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
     },
     data: {
       ticket: {

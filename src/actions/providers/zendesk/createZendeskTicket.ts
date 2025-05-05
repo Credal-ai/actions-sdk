@@ -13,7 +13,7 @@ const createZendeskTicket: zendeskCreateZendeskTicketFunction = async ({
   params: zendeskCreateZendeskTicketParamsType;
   authParams: AuthParamsType;
 }): Promise<zendeskCreateZendeskTicketOutputType> => {
-  const { apiKey, username } = authParams;
+  const { authToken } = authParams;
   const { subdomain, subject, body } = params;
   const url = `https://${subdomain}.zendesk.com/api/v2/tickets.json`;
   const payload = {
@@ -25,17 +25,14 @@ const createZendeskTicket: zendeskCreateZendeskTicketFunction = async ({
     },
   };
 
-  if (!apiKey) {
-    throw new Error("API key is required");
+  if (!authToken) {
+    throw new Error("Auth token is required");
   }
 
   const response = await axiosClient.post(url, payload, {
-    auth: {
-      username: `${username}/token`,
-      password: apiKey,
-    },
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
     },
   });
   return {

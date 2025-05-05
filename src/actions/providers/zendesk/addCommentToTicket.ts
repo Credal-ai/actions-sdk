@@ -13,23 +13,20 @@ const addCommentToTicket: zendeskAddCommentToTicketFunction = async ({
   params: zendeskAddCommentToTicketParamsType;
   authParams: AuthParamsType;
 }): Promise<zendeskAddCommentToTicketOutputType> => {
-  const { apiKey, username } = authParams;
+  const { authToken } = authParams;
   const { subdomain, ticketId, comment } = params;
   const url = `https://${subdomain}.zendesk.com/api/v2/tickets/${ticketId}.json`;
 
-  if (!apiKey) {
-    throw new Error("API key is required");
+  if (!authToken) {
+    throw new Error("Auth token is required");
   }
 
   await axiosClient.request({
     url: url,
     method: "PUT",
-    auth: {
-      username: `${username}/token`,
-      password: apiKey,
-    },
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
     },
     data: {
       ticket: {
