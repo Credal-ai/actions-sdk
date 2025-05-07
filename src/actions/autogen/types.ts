@@ -138,32 +138,6 @@ export type slackSendMessageFunction = ActionFunction<
   slackSendMessageOutputType
 >;
 
-export const slackListConversationsParamsSchema = z.object({});
-
-export type slackListConversationsParamsType = z.infer<typeof slackListConversationsParamsSchema>;
-
-export const slackListConversationsOutputSchema = z.object({
-  channels: z
-    .array(
-      z
-        .object({
-          id: z.string().describe("The ID of the channel"),
-          name: z.string().describe("The name of the channel"),
-          topic: z.string().describe("The topic of the channel"),
-          purpose: z.string().describe("The purpose of the channel"),
-        })
-        .describe("A channel in Slack"),
-    )
-    .describe("A list of channels in Slack"),
-});
-
-export type slackListConversationsOutputType = z.infer<typeof slackListConversationsOutputSchema>;
-export type slackListConversationsFunction = ActionFunction<
-  slackListConversationsParamsType,
-  AuthParamsType,
-  slackListConversationsOutputType
->;
-
 export const slackGetChannelMessagesParamsSchema = z.object({
   channelName: z.string().describe("Name of the channel to summarize"),
   oldest: z.string().describe("Only messages after this Unix timestamp will be included in results"),
@@ -546,7 +520,7 @@ export const bingGetTopNSearchResultUrlsOutputSchema = z.object({
         url: z.string().describe("The URL of the search result").optional(),
       }),
     )
-    .describe("The top N search result objects"),
+    .describe("The top five search result objects"),
 });
 
 export type bingGetTopNSearchResultUrlsOutputType = z.infer<typeof bingGetTopNSearchResultUrlsOutputSchema>;

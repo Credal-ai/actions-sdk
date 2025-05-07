@@ -15,8 +15,6 @@ import {
   mathAddParamsSchema,
   mongoInsertMongoDocOutputSchema,
   mongoInsertMongoDocParamsSchema,
-  slackListConversationsOutputSchema,
-  slackListConversationsParamsSchema,
   slackSendMessageOutputSchema,
   slackSendMessageParamsSchema,
   slackGetChannelMessagesOutputSchema,
@@ -151,7 +149,6 @@ import validateAddress from "./providers/googlemaps/validateAddress";
 import add from "./providers/math/add";
 import fillTemplate from "./providers/generic/fillTemplate";
 import insertMongoDoc from "./providers/mongodb/insertMongoDoc";
-import listConversations from "./providers/slack/listConversations";
 import sendMessage from "./providers/slack/sendMessage";
 import getChannelMessages from "./providers/slack/getChannelMessages";
 import getRowByFieldValue from "./providers/snowflake/getRowByFieldValue";
@@ -263,11 +260,6 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
     },
   },
   slack: {
-    listConversations: {
-      fn: listConversations,
-      paramsSchema: slackListConversationsParamsSchema,
-      outputSchema: slackListConversationsOutputSchema,
-    },
     sendMessage: {
       fn: sendMessage,
       paramsSchema: slackSendMessageParamsSchema,

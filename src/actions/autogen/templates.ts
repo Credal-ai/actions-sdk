@@ -228,45 +228,6 @@ export const slackSendMessageDefinition: ActionTemplate = {
   name: "sendMessage",
   provider: "slack",
 };
-export const slackListConversationsDefinition: ActionTemplate = {
-  description: "Lists all conversations in a Slack workspace",
-  scopes: ["channels:read", "groups:read", "im:read", "mpim:read"],
-  output: {
-    type: "object",
-    required: ["channels"],
-    properties: {
-      channels: {
-        type: "array",
-        description: "A list of channels in Slack",
-        items: {
-          type: "object",
-          description: "A channel in Slack",
-          required: ["id", "name", "topic", "purpose"],
-          properties: {
-            id: {
-              type: "string",
-              description: "The ID of the channel",
-            },
-            name: {
-              type: "string",
-              description: "The name of the channel",
-            },
-            topic: {
-              type: "string",
-              description: "The topic of the channel",
-            },
-            purpose: {
-              type: "string",
-              description: "The purpose of the channel",
-            },
-          },
-        },
-      },
-    },
-  },
-  name: "listConversations",
-  provider: "slack",
-};
 export const slackGetChannelMessagesDefinition: ActionTemplate = {
   description: "Gets messages from a Slack channel",
   scopes: ["channels:history"],
