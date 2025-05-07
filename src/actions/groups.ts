@@ -5,7 +5,6 @@ import {
   googlemapsValidateAddressDefinition,
   mathAddDefinition,
   mongoInsertMongoDocDefinition,
-  slackListConversationsDefinition,
   slackSendMessageDefinition,
   slackGetChannelMessagesDefinition,
   snowflakeGetRowByFieldValueDefinition,
@@ -90,7 +89,7 @@ export const ACTION_GROUPS: ActionGroups = {
   },
   SLACK_LIST_CONVERSATIONS: {
     description: "Actions for interacting with Slack",
-    actions: [slackListConversationsDefinition, slackSendMessageDefinition, slackGetChannelMessagesDefinition],
+    actions: [slackSendMessageDefinition, slackGetChannelMessagesDefinition],
   },
   CONFLUENCE: {
     description: "Action for interacting with Confluence",
