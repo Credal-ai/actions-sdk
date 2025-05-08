@@ -241,17 +241,15 @@ const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
       callIds: calls.map(call => call.metaData?.id).filter((id): id is string => id !== undefined),
     });
     // Map speaker IDs to names in the transcripts
-    const userIdToNameMap = Object.fromEntries(
-      gongUsers.map(user => [user.id, user.firstName + " " + user.lastName]),
-    );
+    const userIdToNameMap = Object.fromEntries(gongUsers.map(user => [user.id, user.firstName + " " + user.lastName]));
     const callTranscriptsWithNames = callTranscripts.map(callTranscript => {
       const currTranscript = { ...callTranscript };
       currTranscript.transcript = callTranscript.transcript?.map(transcript => {
-        const {speakerId, ...rest} = transcript;
+        const { speakerId, ...rest } = transcript;
         return {
-        ...rest,
-        speakerName: userIdToNameMap[transcript.speakerId ?? ""],
-        }
+          ...rest,
+          speakerName: userIdToNameMap[transcript.speakerId ?? ""],
+        };
       });
       return currTranscript;
     });
