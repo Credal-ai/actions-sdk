@@ -5,6 +5,7 @@ import type {
   githubCreateOrUpdateFileParamsType,
 } from "../../autogen/types";
 import { z } from "zod";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
 
 /**
  * Creates or updates a file in a GitHub repository
@@ -17,7 +18,7 @@ const createOrUpdateFile: githubCreateOrUpdateFileFunction = async ({
   authParams: AuthParamsType;
 }): Promise<githubCreateOrUpdateFileOutputType> => {
   if (!authParams.authToken) {
-    return { success: false, error: "authToken is required for GitHub API" };
+    return { success: false, error: MISSING_AUTH_TOKEN };
   }
 
   const { Octokit, RequestError } = await import("octokit");

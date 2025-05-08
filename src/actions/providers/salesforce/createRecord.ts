@@ -22,14 +22,6 @@ const createRecord: salesforceCreateRecordFunction = async ({
       error: "authToken and baseUrl are required for Salesforce API",
     };
   }
-
-  if (!fieldsToCreate) {
-    return {
-      success: false,
-      error: "fieldsToCreate is required to create a Salesforce object",
-    };
-  }
-
   const url = `${baseUrl}/services/data/v56.0/sobjects/${objectType}/`;
 
   try {

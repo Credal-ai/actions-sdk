@@ -6,6 +6,7 @@ import {
   type githubListPullRequestsOutputType,
   githubListPullRequestsOutputSchema,
 } from "../../autogen/types";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
 
 const listPullRequests: githubListPullRequestsFunction = async ({
   params,
@@ -15,6 +16,11 @@ const listPullRequests: githubListPullRequestsFunction = async ({
   authParams: AuthParamsType;
 }): Promise<githubListPullRequestsOutputType> => {
   const { authToken } = authParams;
+
+  if (!authToken) {
+    throw new Error(MISSING_AUTH_TOKEN);
+  }
+
   const { repositoryName, repositoryOwner, state } = params;
 
   const url = `https://api.github.com/repos/${repositoryOwner}/${repositoryName}/pulls`;

@@ -7,6 +7,7 @@ import {
   slackSendMessageOutputSchema,
 } from "../../autogen/types";
 import { getSlackChannels } from "./helpers";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
 
 const sendMessage: slackSendMessageFunction = async ({
   params,
@@ -15,7 +16,11 @@ const sendMessage: slackSendMessageFunction = async ({
   params: slackSendMessageParamsType;
   authParams: AuthParamsType;
 }): Promise<slackSendMessageOutputType> => {
-  const client = new WebClient(authParams.authToken!);
+  if (!authParams.authToken) {
+    throw new Error(MISSING_AUTH_TOKEN);
+  }
+
+  const client = new WebClient(authParams.authToken);
   const { channelName, message } = params;
 
   const allChannels = await getSlackChannels(client);

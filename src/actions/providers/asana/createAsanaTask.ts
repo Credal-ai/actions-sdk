@@ -5,6 +5,7 @@ import type {
   asanaCreateTaskParamsType,
 } from "../../autogen/types";
 import { axiosClient } from "../../util/axiosClient";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
 import { getWorkspaceIdFromProject, getUserIdByEmail } from "./utils";
 
 const getTaskTemplates = async (authToken: string, projectId: string) => {
@@ -30,8 +31,8 @@ const createAsanaTask: asanaCreateTaskFunction = async ({
   const { authToken } = authParams;
   const { name, projectId, description, customFields, taskTemplate, assignee, approvalStatus, dueAt } = params;
 
-  if (!name || !authToken || !projectId) {
-    return { success: false, error: "Task name, valid authToken, and projectId are required" };
+  if (!authToken) {
+    return { success: false, error: MISSING_AUTH_TOKEN };
   }
 
   const workspaceId = await getWorkspaceIdFromProject(projectId, authToken);

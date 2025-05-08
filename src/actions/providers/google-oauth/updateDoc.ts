@@ -5,6 +5,7 @@ import type {
   googleOauthUpdateDocParamsType,
   googleOauthUpdateDocOutputType,
 } from "../../autogen/types";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
 
 /**
  * Updates an existing Google Docs document using OAuth authentication with batch requests
@@ -21,7 +22,7 @@ const updateDoc: googleOauthUpdateDocFunction = async ({
     return {
       success: false,
       documentId: params.documentId,
-      error: "No auth token provided",
+      error: MISSING_AUTH_TOKEN,
     };
   }
 

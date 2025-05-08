@@ -15,7 +15,8 @@ const getRowByFieldValue: snowflakeGetRowByFieldValueFunction = async ({
 }): Promise<snowflakeGetRowByFieldValueOutputType> => {
   const { databaseName, tableName, fieldName, warehouse, fieldValue, accountName } = params;
 
-  if (!accountName || !databaseName || !warehouse || !tableName || !fieldName || !fieldValue) {
+  if (!accountName || !databaseName || !warehouse) {
+    // TODO: Move these to required params
     throw new Error("Account name and user are required");
   }
 

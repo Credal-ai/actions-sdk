@@ -5,6 +5,7 @@ import type {
   zendeskUpdateTicketStatusParamsType,
 } from "../../autogen/types";
 import { axiosClient } from "../../util/axiosClient";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
 
 const updateTicketStatus: zendeskUpdateTicketStatusFunction = async ({
   params,
@@ -18,7 +19,7 @@ const updateTicketStatus: zendeskUpdateTicketStatusFunction = async ({
   const url = `https://${subdomain}.zendesk.com/api/v2/tickets/${ticketId}.json`;
 
   if (!authToken) {
-    throw new Error("Auth token is required");
+    throw new Error(MISSING_AUTH_TOKEN);
   }
   await axiosClient.request({
     url: url,

@@ -4,6 +4,7 @@ import type {
   githubCreateBranchOutputType,
   githubCreateBranchParamsType,
 } from "../../autogen/types";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
 
 /**
  * Creates a new branch in a GitHub repository
@@ -16,7 +17,7 @@ const createBranch: githubCreateBranchFunction = async ({
   authParams: AuthParamsType;
 }): Promise<githubCreateBranchOutputType> => {
   if (!authParams.authToken) {
-    return { success: false, error: "authToken is required for GitHub API" };
+    return { success: false, error: MISSING_AUTH_TOKEN };
   }
   const { Octokit, RequestError } = await import("octokit");
 

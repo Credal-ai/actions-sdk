@@ -17,6 +17,11 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
 }): Promise<jiraGetJiraIssuesByQueryOutputType> => {
   const { authToken, cloudId } = authParams;
   const { query, limit } = params;
+
+  if (!cloudId || !authToken) {
+    throw new Error("Valid Cloud ID and auth token are required to comment on Jira ticket");
+  }
+
   const queryParams = new URLSearchParams();
   queryParams.set("jql", query);
   queryParams.set("maxResults", String(limit != undefined && limit <= DEFAULT_LIMIT ? limit : DEFAULT_LIMIT));

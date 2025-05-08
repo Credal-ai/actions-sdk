@@ -4,6 +4,7 @@ import type {
   githubCreatePullRequestOutputType,
   githubCreatePullRequestParamsType,
 } from "../../autogen/types";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
 
 /**
  * Creates a pull request in a GitHub repository
@@ -16,7 +17,7 @@ const createPullRequest: githubCreatePullRequestFunction = async ({
   authParams: AuthParamsType;
 }): Promise<githubCreatePullRequestOutputType> => {
   if (!authParams.authToken) {
-    return { success: false, error: "authToken is required for GitHub API" };
+    return { success: false, error: MISSING_AUTH_TOKEN };
   }
 
   const { Octokit, RequestError } = await import("octokit");

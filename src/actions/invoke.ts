@@ -15,5 +15,10 @@ export async function invokeAction<P, A>(input: InvokeActionInput<P, A>) {
   }
   const providerFunction = ActionMapper[provider][name].fn;
 
+  const safeParseParams = ActionMapper[provider][name].paramsSchema.safeParse(parameters);
+  if (!safeParseParams.success) {
+    throw new Error(`Invalid parameters for action '${name}': ${safeParseParams.error}`);
+  }
+
   return providerFunction({ params: parameters, authParams });
 }

@@ -5,6 +5,7 @@ import type {
   firecrawlScrapeTweetDataWithNitterParamsType,
   firecrawlScrapeTweetDataWithNitterOutputType,
 } from "../../autogen/types";
+import { MISSING_API_KEY } from "../../util/missingAuthConstants";
 
 const scrapeTweetDataWithNitter: firecrawlScrapeTweetDataWithNitterFunction = async ({
   params,
@@ -27,7 +28,7 @@ const scrapeTweetDataWithNitter: firecrawlScrapeTweetDataWithNitterFunction = as
 
   // Initialize Firecrawl
   if (!authParams.apiKey) {
-    throw new Error("API key is required for X+Nitter+Firecrawl");
+    throw new Error(MISSING_API_KEY);
   }
 
   const firecrawl = new FirecrawlApp({

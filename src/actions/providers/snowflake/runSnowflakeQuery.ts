@@ -19,9 +19,6 @@ const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
 }): Promise<snowflakeRunSnowflakeQueryOutputType> => {
   const { databaseName, warehouse, query, accountName, outputFormat = "json", limit } = params;
 
-  if (!accountName || !databaseName || !warehouse || !query) {
-    throw new Error("Missing required parameters for Snowflake query");
-  }
   const executeQueryAndFormatData = async (): Promise<{ formattedData: string; resultsLength: number }> => {
     const formattedQuery = query.trim().replace(/\s+/g, " "); // Normalize all whitespace to single spaces
 

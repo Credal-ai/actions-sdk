@@ -17,20 +17,6 @@ const sendMessageToTeamsChat: microsoftMessageTeamsChatFunction = async ({
 }): Promise<microsoftMessageTeamsChatOutputType> => {
   const { chatId, message } = params;
 
-  if (!chatId) {
-    return {
-      success: false,
-      error: "Chat ID is required to send a message",
-    };
-  }
-
-  if (!message) {
-    return {
-      success: false,
-      error: "Message content is required to send a message",
-    };
-  }
-
   let client = undefined;
   try {
     client = await getGraphClient(authParams, microsoftMessageTeamsChatDefinition.scopes.join(" "));

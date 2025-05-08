@@ -6,6 +6,7 @@ import type {
   slackGetChannelMessagesParamsType,
 } from "../../autogen/types";
 import { getSlackChannels } from "./helpers";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
 
 type SlackMessage = {
   type: string;
@@ -22,7 +23,11 @@ const getChannelMessages: slackGetChannelMessagesFunction = async ({
   params: slackGetChannelMessagesParamsType;
   authParams: AuthParamsType;
 }): Promise<slackGetChannelMessagesOutputType> => {
-  const client = new WebClient(authParams.authToken!);
+  if (!authParams.authToken) {
+    throw new Error(MISSING_AUTH_TOKEN);
+  }
+
+  const client = new WebClient(authParams.authToken);
   const { channelName, oldest } = params;
 
   const allChannels = await getSlackChannels(client);

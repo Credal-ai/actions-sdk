@@ -6,7 +6,7 @@ async function runTest() {
     "add",
     "math",
     {}, // authParams
-    { a: 1, b: 2 },
+    { a: 1, b: 2 }
   );
 
   assert(result.result === 3, "Result should be 3");

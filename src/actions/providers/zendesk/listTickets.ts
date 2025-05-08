@@ -5,6 +5,7 @@ import type {
   zendeskListZendeskTicketsParamsType,
 } from "../../autogen/types";
 import { axiosClient } from "../../util/axiosClient";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
 
 const listZendeskTickets: zendeskListZendeskTicketsFunction = async ({
   params,
@@ -25,7 +26,7 @@ const listZendeskTickets: zendeskListZendeskTicketsFunction = async ({
   const url = `https://${subdomain}.zendesk.com/api/v2/tickets.json`;
 
   if (!authToken) {
-    throw new Error("Auth token is required");
+    throw new Error(MISSING_AUTH_TOKEN);
   }
 
   // Add query parameters for filtering

@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types";
 
 import { axiosClient } from "../../util/axiosClient";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
 const getCandidateInfo: ashbyGetCandidateInfoFunction = async ({
   params,
   authParams,
@@ -17,7 +18,7 @@ const getCandidateInfo: ashbyGetCandidateInfoFunction = async ({
   const { authToken } = authParams;
 
   if (!authToken) {
-    throw new Error("Auth token is required");
+    throw new Error(MISSING_AUTH_TOKEN);
   }
 
   const response = await axiosClient.post(

@@ -5,6 +5,7 @@ import type {
   zendeskCreateZendeskTicketParamsType,
 } from "../../autogen/types";
 import { axiosClient } from "../../util/axiosClient";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
 
 const createZendeskTicket: zendeskCreateZendeskTicketFunction = async ({
   params,
@@ -26,7 +27,7 @@ const createZendeskTicket: zendeskCreateZendeskTicketFunction = async ({
   };
 
   if (!authToken) {
-    throw new Error("Auth token is required");
+    throw new Error(MISSING_AUTH_TOKEN);
   }
 
   const response = await axiosClient.post(url, payload, {

@@ -16,8 +16,8 @@ const updateJiraTicketDetails: jiraUpdateJiraTicketDetailsFunction = async ({
   const { authToken, cloudId, baseUrl } = authParams;
   const { issueId, summary, description, customFields } = params;
 
-  if (!cloudId || !issueId) {
-    throw new Error("Cloud ID and Issue ID are required to update a Jira ticket");
+  if (!cloudId || !authToken) {
+    throw new Error("Valid Cloud ID and auth token are required to comment on Jira ticket");
   }
 
   const apiUrl = `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3/issue/${issueId}`;

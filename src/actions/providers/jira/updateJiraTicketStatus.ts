@@ -14,8 +14,9 @@ const updateJiraTicketStatus: jiraUpdateJiraTicketStatusFunction = async ({
   authParams: AuthParamsType;
 }): Promise<jiraUpdateJiraTicketStatusOutputType> => {
   const { authToken, cloudId, baseUrl } = authParams;
-  if (!cloudId || !params?.issueId || !params?.status) {
-    throw new Error("Cloud ID, Issue ID, and Status Name are required to update a Jira ticket status");
+
+  if (!cloudId || !authToken) {
+    throw new Error("Valid Cloud ID and auth token are required to comment on Jira ticket");
   }
 
   const { issueId, status } = params;

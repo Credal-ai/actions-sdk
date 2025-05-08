@@ -6,6 +6,7 @@ import type {
   gongGetGongTranscriptsParamsType,
   gongGetGongTranscriptsOutputType,
 } from "../../autogen/types";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
 
 const UserSchema = z.object({
   id: z.string(),
@@ -210,7 +211,7 @@ const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
   if (!authParams.authToken) {
     return {
       success: false,
-      error: "No auth token provided",
+      error: MISSING_AUTH_TOKEN,
     };
   }
   try {

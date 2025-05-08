@@ -18,8 +18,8 @@ const createJiraTicket: jiraCreateJiraTicketFunction = async ({
 
   const apiUrl = `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3/`;
 
-  if (!cloudId) {
-    throw new Error("Cloud ID is required to create a Jira ticket");
+  if (!cloudId || !authToken) {
+    throw new Error("Valid Cloud ID and auth token are required to comment on Jira ticket");
   }
 
   // If assignee is an email, look up the account ID

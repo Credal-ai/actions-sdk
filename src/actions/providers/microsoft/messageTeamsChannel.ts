@@ -17,24 +17,6 @@ const sendMessageToTeamsChannel: microsoftMessageTeamsChannelFunction = async ({
 }): Promise<microsoftMessageTeamsChannelOutputType> => {
   const { channelId, teamId, message } = params;
 
-  if (!teamId) {
-    return {
-      success: false,
-      error: "Team ID is required to send a message",
-    };
-  }
-
-  if (!channelId) {
-    return { success: false, error: "Channel ID is required to send a message" };
-  }
-
-  if (!message) {
-    return {
-      success: false,
-      error: "Message content is required to send a message",
-    };
-  }
-
   let client = undefined;
   try {
     client = await getGraphClient(authParams, microsoftMessageTeamsChannelDefinition.scopes.join(" "));

@@ -5,6 +5,7 @@ import type {
   AuthParamsType,
 } from "../../autogen/types";
 import { axiosClient } from "../../util/axiosClient";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
 import { getConfluenceRequestConfig } from "./helpers";
 
 const confluenceOverwritePage: confluenceOverwritePageFunction = async ({
@@ -18,7 +19,7 @@ const confluenceOverwritePage: confluenceOverwritePageFunction = async ({
   const { authToken } = authParams;
 
   if (!authToken) {
-    throw new Error("Missing required authentication parameters");
+    throw new Error(MISSING_AUTH_TOKEN);
   }
 
   const cloudDetails = await axiosClient.get("https://api.atlassian.com/oauth/token/accessible-resources", {

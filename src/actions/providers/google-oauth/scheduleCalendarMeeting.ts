@@ -6,6 +6,7 @@ import type {
   googleOauthScheduleCalendarMeetingParamsType,
 } from "../../autogen/types";
 import { axiosClient } from "../../util/axiosClient";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
 
 /**
  * Creates a new Google calendar event using OAuth authentication
@@ -18,7 +19,7 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
   authParams: AuthParamsType;
 }): Promise<googleOauthScheduleCalendarMeetingOutputType> => {
   if (!authParams.authToken) {
-    throw new Error("authToken is required for Google Calendar API");
+    throw new Error(MISSING_AUTH_TOKEN);
   }
   const { calendarId, name, start, end, description, attendees, useGoogleMeet } = params;
   // https://developers.google.com/calendar/api/v3/reference/events/insert
