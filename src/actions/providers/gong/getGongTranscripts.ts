@@ -7,22 +7,34 @@ import type {
   gongGetGongTranscriptsOutputType,
 } from "../../autogen/types";
 
-const UserSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  title: z.string(),
-});
+const UserSchema = z
+  .object({
+    id: z.string(),
+    firstName: z.string(),
+    lastName: z.string(),
+    title: z.string(),
+  })
+  .partial()
+  .passthrough();
 
-const TrackerSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-});
+const TrackerSchema = z
+  .object({
+    trackerId: z.string(),
+    trackerName: z.string(),
+  })
+  .partial()
+  .passthrough();
 
-const CallSchema = z.object({
-  id: z.string(),
-  primaryUserId: z.string().optional(),
-  started: z.string().optional(),
-});
+const CallSchema = z
+  .object({
+    metaData: z.object({
+      id: z.string(),
+      primaryUserId: z.string(),
+      started: z.string(),
+    }),
+  })
+  .partial()
+  .passthrough();
 
 const SentenceSchema = z.object({
   start: z.number(),
@@ -30,16 +42,19 @@ const SentenceSchema = z.object({
   text: z.string(),
 });
 
-const TranscriptSchema = z.object({
-  callId: z.string(),
-  transcript: z.array(
-    z.object({
-      speakerId: z.string(),
-      topic: z.string(),
-      sentences: z.array(SentenceSchema),
-    }),
-  ),
-});
+const TranscriptSchema = z
+  .object({
+    callId: z.string(),
+    transcript: z.array(
+      z.object({
+        speakerId: z.string().optional(),
+        topic: z.string(),
+        sentences: z.array(SentenceSchema),
+      }),
+    ),
+  })
+  .partial()
+  .passthrough();
 
 type User = z.infer<typeof UserSchema>;
 type Tracker = z.infer<typeof TrackerSchema>;
@@ -49,7 +64,7 @@ type Transcript = z.infer<typeof TranscriptSchema>;
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const GongResponseSchema = z.object({
   users: z.array(UserSchema).optional(),
-  trackers: z.array(TrackerSchema).optional(),
+  keywordTrackers: z.array(TrackerSchema).optional(),
   calls: z.array(CallSchema).optional(),
   callTranscripts: z.array(TranscriptSchema).optional(),
   cursor: z.string().optional(),
@@ -57,18 +72,12 @@ const GongResponseSchema = z.object({
 
 type GongResponse = z.infer<typeof GongResponseSchema>;
 
-async function getUsers(authToken: string, params: Record<string, number | string> = {}): Promise<User[]> {
+async function getUsers(authToken: string): Promise<User[]> {
   let results: User[] = [];
   let cursor: string | undefined = undefined;
-
   do {
-    const response: { data: GongResponse } = await axios.post<GongResponse>(
-      `https://api.gong.io/v2/users/extensive` + (cursor ? `?cursor=${cursor}` : ""),
-      {
-        filter: {
-          ...params,
-        },
-      },
+    const response: { data: GongResponse } = await axios.get<GongResponse>(
+      `https://api.gong.io/v2/users` + (cursor ? `?cursor=${cursor}` : ""),
       {
         headers: {
           Authorization: `Bearer ${authToken}`,
@@ -87,11 +96,10 @@ async function getUsers(authToken: string, params: Record<string, number | strin
     }
     cursor = response.data.cursor;
   } while (cursor);
-
   return results;
 }
 
-async function getTrackers(authToken: string, params: Record<string, number | string> = {}): Promise<Tracker[]> {
+async function getTrackers(authToken: string): Promise<Tracker[]> {
   let results: Tracker[] = [];
   let cursor: string | undefined = undefined;
 
@@ -103,17 +111,13 @@ async function getTrackers(authToken: string, params: Record<string, number | st
           Authorization: `Bearer ${authToken}`,
           "Content-Type": "application/json",
         },
-        params: {
-          filter: {
-            ...params,
-          },
-        },
+        params: {},
       },
     );
     if (!response) {
       return results;
     }
-    const parsedItems = z.array(TrackerSchema).safeParse(response.data.trackers);
+    const parsedItems = z.array(TrackerSchema).safeParse(response.data.keywordTrackers);
     if (parsedItems.success) {
       results = [...results, ...parsedItems.data];
     } else {
@@ -171,7 +175,7 @@ async function getTranscripts(
 
   do {
     const response: { data: GongResponse } = await axios.post<GongResponse>(
-      `https://api.gong.io/v2/transcript/calls/transcripts` + (cursor ? `?cursor=${cursor}` : ""),
+      `https://api.gong.io/v2/calls/transcript` + (cursor ? `?cursor=${cursor}` : ""),
       {
         filter: {
           ...params,
@@ -214,32 +218,43 @@ const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
     };
   }
   try {
-    const gongUsers = await getUsers(authParams.authToken, { userRole: params.userRole });
+    const gongUsers = await getUsers(authParams.authToken);
     const filteredGongUsers = gongUsers.filter(user => user.title === params.userRole);
-    const trackers = await getTrackers(authParams.authToken, {});
-    const filteredTrackers = trackers.filter(tracker => (params.trackers ?? []).includes(tracker.name));
-    // Get calls owned by the users and filtered by the trackers
+    const trackers = await getTrackers(authParams.authToken);
+    const filteredTrackers = trackers.filter(tracker => params.trackers?.includes(tracker.trackerName ?? ""));
     const calls = await getCalls(authParams.authToken, {
       fromDateTime: params.startDate ?? "",
       toDateTime: params.endDate ?? "",
-      primaryUserIds: filteredGongUsers.length > 0 ? filteredGongUsers.map(user => user.id) : undefined,
-      trackerIds: filteredTrackers.length > 0 ? filteredTrackers.map(tracker => tracker.id) : undefined,
+      primaryUserIds:
+        filteredGongUsers.length > 0
+          ? filteredGongUsers.map(user => user.id).filter((id): id is string => id !== undefined)
+          : undefined,
+      trackerIds:
+        filteredTrackers.length > 0
+          ? filteredTrackers.map(tracker => tracker.trackerId).filter((id): id is string => id !== undefined)
+          : undefined,
     });
     // Get transcripts for the calls we found
     const callTranscripts = await getTranscripts(authParams.authToken, {
       fromDateTime: params.startDate ?? "",
       toDateTime: params.endDate ?? "",
-      callIds: calls.map(call => call.id),
+      callIds: calls.map(call => call.metaData?.id).filter((id): id is string => id !== undefined),
     });
     // Map speaker IDs to names in the transcripts
-    const userIdToNameMap = Object.fromEntries(filteredGongUsers.map(user => [user.id, user.name]));
-    const callTranscriptsWithNames = callTranscripts.map(callTranscript => ({
-      ...callTranscript,
-      transcript: callTranscript.transcript.map((transcript: { speakerId: string }) => ({
-        ...transcript,
-        speakerName: userIdToNameMap[transcript.speakerId] || transcript.speakerId,
-      })),
-    }));
+    const userIdToNameMap = Object.fromEntries(
+      gongUsers.map(user => [user.id, user.firstName + " " + user.lastName]),
+    );
+    const callTranscriptsWithNames = callTranscripts.map(callTranscript => {
+      const currTranscript = { ...callTranscript };
+      currTranscript.transcript = callTranscript.transcript?.map(transcript => {
+        const {speakerId, ...rest} = transcript;
+        return {
+        ...rest,
+        speakerName: userIdToNameMap[transcript.speakerId ?? ""],
+        }
+      });
+      return currTranscript;
+    });
     return {
       success: true,
       callTranscripts: callTranscriptsWithNames,

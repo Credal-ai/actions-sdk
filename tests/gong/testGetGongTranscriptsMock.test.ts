@@ -25,11 +25,11 @@ describe("getGongTranscripts", () => {
 
   it("should successfully fetch transcripts", async () => {
     // Mock users response
-    mockedAxios.post.mockResolvedValueOnce({
+    mockedAxios.get.mockResolvedValueOnce({
       data: {
         users: [
-          { id: "user1", title: "Sales", name: "John" },
-          { id: "user2", title: "Sales", name: "Jane" },
+          { id: "user1", title: "Sales", firstName: "John", lastName: "Doe" },
+          { id: "user2", title: "Sales", firstName: "Jane", lastName: "Doe" },
         ],
         cursor: null,
       },
@@ -39,8 +39,8 @@ describe("getGongTranscripts", () => {
     mockedAxios.get.mockResolvedValueOnce({
       data: {
         trackers: [
-          { id: "tracker1", name: "Tracker1" },
-          { id: "tracker2", name: "Tracker2" },
+          { trackerId: "tracker1", trackerName: "Tracker1" },
+          { trackerId: "tracker2", trackerName: "Tracker2" },
         ],
         cursor: null,
       },
@@ -64,7 +64,7 @@ describe("getGongTranscripts", () => {
           {
             callId: "call1",
             transcript: [{
-              speakerId: "John",
+              speakerId: "user1",
               topic: "Sales Call",
               sentences: [{
                 start: 0,
@@ -81,7 +81,7 @@ describe("getGongTranscripts", () => {
           {
             callId: "call2",
             transcript: [{
-              speakerId: "Jane",
+              speakerId: "user2",
               topic: "Product Demo",
               sentences: [
                 {
@@ -111,7 +111,7 @@ describe("getGongTranscripts", () => {
     expect(result.callTranscripts).toBeDefined();
     expect(result.callTranscripts).toHaveLength(2);
     expect(result.callTranscripts![0].callId).toBe("call1");
-    expect(result.callTranscripts![0].transcript![0].speakerName).toEqual("John");
+    expect(result.callTranscripts![0].transcript![0].speakerName).toEqual("John Doe");
     expect(result.callTranscripts![1].transcript![0].topic).toBe("Product Demo");
   });
 
@@ -141,7 +141,7 @@ describe("getGongTranscripts", () => {
 
   it("should handle empty results", async () => {
     // Mock users response
-    mockedAxios.post.mockResolvedValueOnce({
+    mockedAxios.get.mockResolvedValueOnce({
       data: {
         users: [],
         cursor: null,
@@ -183,17 +183,17 @@ describe("getGongTranscripts", () => {
 
   it("should handle pagination in responses", async () => {
     // Mock users response with pagination
-    mockedAxios.post.mockResolvedValueOnce({
+    mockedAxios.get.mockResolvedValueOnce({
       data: {
         users: [
-          { id: "user1", title: "Sales", name: "John" },
+          { id: "user1", title: "Sales", firstName: "John", lastName: "Doe" },
         ],
         cursor: "cursor1",
       },
     }).mockResolvedValueOnce({
       data: {
         users: [
-          { id: "user2", title: "Sales", name: "Jane" },
+          { id: "user2", title: "Sales", firstName: "Jane", lastName: "Doe" },
         ],
         cursor: null,
       },
@@ -234,7 +234,7 @@ describe("getGongTranscripts", () => {
           {
             callId: "call1",
             transcript: [{
-              speakerId: "John",
+              speakerId: "user1",
               topic: "First Call",
               sentences: [{
                 start: 0,
@@ -246,7 +246,7 @@ describe("getGongTranscripts", () => {
           {
             callId: "call2",
             transcript: [{
-              speakerId: "Jane",
+              speakerId: "user2",
               topic: "Second Call",
               sentences: [{
                 start: 10,
@@ -268,10 +268,10 @@ describe("getGongTranscripts", () => {
     expect(result.success).toBe(true);
     expect(result.callTranscripts).toHaveLength(2);
     expect(result.callTranscripts![0].callId).toBe("call1");
-    expect(result.callTranscripts![0].transcript![0].speakerName).toBe("John");
+    expect(result.callTranscripts![0].transcript![0].speakerName).toBe("John Doe");
     expect(result.callTranscripts![1].callId).toBe("call2");
-    expect(result.callTranscripts![1].transcript![0].speakerName).toBe("Jane");
-    expect(mockedAxios.get).toHaveBeenCalledTimes(1);
-    expect(mockedAxios.post).toHaveBeenCalledTimes(5);
+    expect(result.callTranscripts![1].transcript![0].speakerName).toBe("Jane Doe");
+    expect(mockedAxios.get).toHaveBeenCalledTimes(3);
+    expect(mockedAxios.post).toHaveBeenCalledTimes(3);
   });
 }); 

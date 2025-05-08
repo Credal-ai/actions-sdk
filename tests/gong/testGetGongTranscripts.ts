@@ -12,20 +12,20 @@ async function runTest() {
       authToken: process.env.GONG_TOKEN!,
     },
     {
-      userRole: "Sales",
-      trackers: ["Tracker1", "Tracker2"],
-      startDate: "2022-07-01T02:00:00-05:00",
-      endDate: "2022-07-31T02:00:00-05:00"
+      userRole: "Chief of Staff",
+      trackers: ["Value Prop"],
+      startDate: "2025-05-01T00:00:00Z",
+      endDate: "2025-05-08T23:59:59Z"
     }
   );
 
   // Validate response
   assert(result, "Response should not be null");
   assert(result.success, "Response should indicate success");
-  assert(Array.isArray(result.transcripts), "Response should contain transcripts array");
+  assert(Array.isArray(result.callTranscripts), "Response should contain callTranscripts array");
   
-  if (result.transcripts.length > 0) {
-    const firstTranscript = result.transcripts[0];
+  if (result.callTranscripts.length > 0) {
+    const firstTranscript = result.callTranscripts[0];
     assert(firstTranscript.callId, "Transcript should have a callId");
     assert(firstTranscript, "Transcript should have transcript data");
     assert(firstTranscript.speakerNames, "Transcript should have speaker names");
