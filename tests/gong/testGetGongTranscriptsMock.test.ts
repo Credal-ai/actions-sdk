@@ -50,8 +50,21 @@ describe("getGongTranscripts", () => {
     mockedAxios.post.mockResolvedValueOnce({
       data: {
         calls: [
-          { id: "call1", primaryUserId: "user1", started: "2024-01-02T00:00:00.000Z" },
-          { id: "call2", primaryUserId: "user2", started: "2024-01-02T00:00:00.000Z" },
+          {
+            metaData: { id: "call1", primaryUserId: "user1", started: "2024-01-02T00:00:00.000Z" },
+            parties: [{speakerId: "speaker1", name: "Joe Jonas"},
+                  {speakerId: "user1", name: "John Doe"},
+                  {speakerId: "user2", name: "Jane Doe"},
+            ],
+          },
+          {
+            metaData: { id: "call2", primaryUserId: "user2", started: "2024-01-02T00:00:00.000Z" },
+            parties: [
+              {speakerId: "speaker1", name: "Joe Jonas"},
+              {speakerId: "user1", name: "John Doe"},
+              {speakerId: "user2", name: "Jane Doe"},
+        ],
+          }
         ],
         cursor: null,
       },
@@ -97,6 +110,20 @@ describe("getGongTranscripts", () => {
             ],
             }],
           },
+          {
+            callId: "call2",
+            transcript: [{
+              speakerId: "speaker1",
+              topic: "Product Demo",
+              sentences: [
+                {
+                start: 0,
+                end: 10,
+                text: "Sick demo",
+              },
+            ],
+            }],
+          },
         ],
         cursor: null,     
       },
@@ -109,10 +136,11 @@ describe("getGongTranscripts", () => {
 
     expect(result.success).toBe(true);
     expect(result.callTranscripts).toBeDefined();
-    expect(result.callTranscripts).toHaveLength(2);
+    expect(result.callTranscripts).toHaveLength(3);
     expect(result.callTranscripts![0].callId).toBe("call1");
     expect(result.callTranscripts![0].transcript![0].speakerName).toEqual("John Doe");
     expect(result.callTranscripts![1].transcript![0].topic).toBe("Product Demo");
+    expect(result.callTranscripts![2].transcript![0].speakerName).toEqual("Joe Jonas");
   });
 
   it("should handle authentication error", async () => {
@@ -213,15 +241,24 @@ describe("getGongTranscripts", () => {
     // Mock calls response with pagination
     mockedAxios.post.mockResolvedValueOnce({
       data: {
-        calls: [
-          { id: "call1", primaryUserId: "user1", started: "2024-01-02T00:00:00.000Z" },
+        calls: [{
+          metaData: { id: "call1", primaryUserId: "user1", started: "2024-01-02T00:00:00.000Z" },
+          parties: [
+            { speakerId: "user1", name: "John Doe"},
+          ],
+        },
         ],
         cursor: "cursor2",
       },
     }).mockResolvedValueOnce({
       data: {
         calls: [
-          { id: "call2", primaryUserId: "user2", started: "2024-01-02T00:00:00.000Z" },
+          {
+            metaData: { id: "call2", primaryUserId: "user2", started: "2024-01-02T00:00:00.000Z" },
+            parties: [
+              {speakerId: "user2", name: "Jane Doe"},
+            ],
+          },
         ],
         cursor: null,
       },

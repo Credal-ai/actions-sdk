@@ -28,9 +28,8 @@ async function runTest() {
     const firstTranscript = result.callTranscripts[0];
     assert(firstTranscript.callId, "Transcript should have a callId");
     assert(firstTranscript, "Transcript should have transcript data");
-    assert(firstTranscript.speakerNames, "Transcript should have speaker names");
-    assert(firstTranscript.topic, "Transcript should have a topic");
-    assert(Array.isArray(firstTranscript.sentences), "Transcript should have sentences array");
+    assert(firstTranscript.transcript[0].speakerName, "Transcript should have speaker names");
+    assert(Array.isArray(firstTranscript.transcript[0].sentences), "Transcript should have sentences array");
   }
 
   console.log("Test passed successfully!");

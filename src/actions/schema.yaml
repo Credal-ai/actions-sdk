@@ -3442,6 +3442,7 @@ actions:
                         description: The name of the speaker
                       topic:
                         type: string
+                        nullable: true
                         description: The topic of the transcript
                       sentences:
                         type: array

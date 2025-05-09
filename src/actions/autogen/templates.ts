@@ -4916,6 +4916,7 @@ export const gongGetGongTranscriptsDefinition: ActionTemplate = {
                   },
                   topic: {
                     type: "string",
+                    nullable: true,
                     description: "The topic of the transcript",
                   },
                   sentences: {
