@@ -283,7 +283,7 @@ const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
         const { speakerId, ...rest } = transcript;
         return {
           ...rest,
-          speakerName: userIdToNameMap[transcript.speakerId ?? ""] ?? "Unknown",
+          speakerName: userIdToNameMap[speakerId ?? ""] ?? "Unknown",
         };
       });
       return currTranscript;
