@@ -5,6 +5,7 @@ import type {
   jamfGetComputerInventoryParamsType,
 } from "../../autogen/types";
 import { axiosClient } from "../../util/axiosClient";
+import base64 from "base-64";
 
 const getComputerInventory: jamfGetComputerInventoryFunction = async ({
   params,
@@ -13,24 +14,26 @@ const getComputerInventory: jamfGetComputerInventoryFunction = async ({
   params: jamfGetComputerInventoryParamsType;
   authParams: AuthParamsType;
 }): Promise<jamfGetComputerInventoryOutputType> => {
-  const { authToken, baseUrl } = authParams;
+  const { username, password, baseUrl } = authParams;
   const { section } = params;
 
-  if (!baseUrl) {
+  if (!baseUrl || !username || !password) {
     throw new Error("Base URL is required to fetch computer inventory");
   }
 
-  const apiUrl = `${baseUrl}/v1/computer-inventory`;
+  const apiUrl = `${baseUrl}/api/v1/computer-inventory`;
   const queryParams: Record<string, string> = {};
 
   if (section) {
     queryParams.section = section;
   }
 
+  const auth = "Basic " + base64.encode(`${username}:${password}`);
+
   try {
     const response = await axiosClient.get(apiUrl, {
       headers: {
-        Authorization: `Bearer ${authToken}`,
+        Authorization: `Basic ${auth}`,
         Accept: "application/json",
       },
       params: queryParams,
