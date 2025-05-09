@@ -17,8 +17,8 @@ const getFileVaultRecoveryKey: jamfGetFileVaultRecoveryKeyFunction = async ({
   const { username, password, baseUrl } = authParams;
   const { computerId } = params;
 
-  if (!baseUrl || !computerId || !username || !password) {
-    throw new Error("Base URL and Computer ID are required to fetch FileVault2 recovery key");
+  if (!baseUrl || !username || !password) {
+    throw new Error("Base URL, username, and password are required to fetch FileVault2 recovery key");
   }
 
   const apiUrl = `${baseUrl}/JSSResource/computers/${computerId}/FileVault2RecoveryKey`;
