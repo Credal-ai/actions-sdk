@@ -28,7 +28,7 @@ const getComputerInventory: jamfGetComputerInventoryFunction = async ({
     queryParams.section = section;
   }
 
-  const auth = "Basic " + base64.encode(`${username}:${password}`);
+  const auth = base64.encode(`${username}:${password}`);
 
   try {
     const response = await axiosClient.get(apiUrl, {
