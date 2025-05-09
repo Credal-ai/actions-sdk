@@ -33,25 +33,42 @@ const CallSchema = z
       primaryUserId: z.string(),
       started: z.string(),
     }),
+    parties: z.array(
+      z
+        .object({
+          id: z.string(),
+          name: z.string(),
+          userId: z.string(),
+          speakerId: z.string().nullable(),
+        })
+        .partial()
+        .passthrough(),
+    ),
   })
   .partial()
   .passthrough();
 
-const SentenceSchema = z.object({
-  start: z.number(),
-  end: z.number(),
-  text: z.string(),
-});
+const SentenceSchema = z
+  .object({
+    start: z.number(),
+    end: z.number(),
+    text: z.string(),
+  })
+  .partial()
+  .passthrough();
 
 const TranscriptSchema = z
   .object({
     callId: z.string(),
     transcript: z.array(
-      z.object({
-        speakerId: z.string().optional(),
-        topic: z.string(),
-        sentences: z.array(SentenceSchema),
-      }),
+      z
+        .object({
+          speakerId: z.string(),
+          topic: z.string().nullable(),
+          sentences: z.array(SentenceSchema),
+        })
+        .partial()
+        .passthrough(),
     ),
   })
   .partial()
@@ -143,6 +160,11 @@ async function getCalls(
       {
         filter: {
           ...params,
+        },
+        contentSelector: {
+          exposedFields: {
+            parties: true,
+          },
         },
       },
       {
@@ -242,15 +264,26 @@ const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
       callIds: calls.map(call => call.metaData?.id).filter((id): id is string => id !== undefined),
     });
     // Map speaker IDs to names in the transcripts
-    const userIdToNameMap = Object.fromEntries(gongUsers.map(user => [user.id, user.firstName + " " + user.lastName]));
+    const userIdToNameMap: Record<string, string> = {};
+    calls.forEach(call => {
+      // Check if call has parties array
+      if (call.parties && Array.isArray(call.parties)) {
+        // Iterate through each party in the call
+        call.parties.forEach(party => {
+          // Add the mapping of speakerId to name
+          if (party.speakerId && party.name) {
+            userIdToNameMap[party.speakerId] = party.name;
+          }
+        });
+      }
+    });
     const callTranscriptsWithNames = callTranscripts.map(callTranscript => {
       const currTranscript = { ...callTranscript };
       currTranscript.transcript = callTranscript.transcript?.map(transcript => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { speakerId, ...rest } = transcript;
         return {
           ...rest,
-          speakerName: userIdToNameMap[transcript.speakerId ?? ""],
+          speakerName: userIdToNameMap[speakerId ?? ""] ?? "Unknown",
         };
       });
       return currTranscript;

@@ -143,6 +143,10 @@ import {
   firecrawlDeepResearchOutputSchema,
   bingGetTopNSearchResultUrlsParamsSchema,
   bingGetTopNSearchResultUrlsOutputSchema,
+  ashbyAddCandidateToProjectParamsSchema,
+  ashbyAddCandidateToProjectOutputSchema,
+  microsoftCreateDocumentParamsSchema,
+  microsoftCreateDocumentOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -555,8 +559,8 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
     },
     addCandidateToProject: {
       fn: addCandidateToProject,
-      paramsSchema: ashbyUpdateCandidateParamsSchema,
-      outputSchema: ashbyUpdateCandidateOutputSchema,
+      paramsSchema: ashbyAddCandidateToProjectParamsSchema,
+      outputSchema: ashbyAddCandidateToProjectOutputSchema,
     },
   },
   salesforce: {
@@ -619,8 +623,8 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
     },
     createDocument: {
       fn: createDocument,
-      paramsSchema: microsoftUpdateDocumentParamsSchema,
-      outputSchema: microsoftUpdateDocumentOutputSchema,
+      paramsSchema: microsoftCreateDocumentParamsSchema,
+      outputSchema: microsoftCreateDocumentOutputSchema,
     },
     getDocument: {
       fn: getDocument,
