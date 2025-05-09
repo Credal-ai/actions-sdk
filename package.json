@@ -26,6 +26,7 @@
   "devDependencies": {
     "@eslint/js": "^9.16.0",
     "@jest/globals": "^29.7.0",
+    "@types/base-64": "^1.0.2",
     "@types/js-yaml": "^4.0.9",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.10.1",
@@ -50,6 +51,7 @@
     "@slack/web-api": "^7.8.0",
     "@types/snowflake-sdk": "^1.6.24",
     "ajv": "^8.17.1",
+    "base-64": "^1.0.0",
     "date-fns": "^4.1.0",
     "docx": "^9.3.0",
     "dotenv": "^16.4.7",

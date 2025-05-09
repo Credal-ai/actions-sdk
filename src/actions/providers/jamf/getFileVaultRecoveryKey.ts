@@ -1,3 +1,4 @@
+import base64 from "base-64";
 import type {
   AuthParamsType,
   jamfGetFileVaultRecoveryKeyFunction,
@@ -13,7 +14,7 @@ const getFileVaultRecoveryKey: jamfGetFileVaultRecoveryKeyFunction = async ({
   params: jamfGetFileVaultRecoveryKeyParamsType;
   authParams: AuthParamsType;
 }): Promise<jamfGetFileVaultRecoveryKeyOutputType> => {
-  const { authToken, baseUrl } = authParams;
+  const { username, password, baseUrl } = authParams;
   const { computerId } = params;
 
   if (!baseUrl || !computerId) {
@@ -21,11 +22,12 @@ const getFileVaultRecoveryKey: jamfGetFileVaultRecoveryKeyFunction = async ({
   }
 
   const apiUrl = `${baseUrl}/JSSResource/computers/${computerId}/FileVault2RecoveryKey`;
+  const auth = "Basic " + base64.encode(`${username}:${password}`);
 
   try {
     const response = await axiosClient.get(apiUrl, {
       headers: {
-        Authorization: `Bearer ${authToken}`,
+        Authorization: `Basic ${auth}`,
         Accept: "application/json",
       },
     });
