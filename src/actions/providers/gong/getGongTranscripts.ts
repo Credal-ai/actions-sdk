@@ -280,7 +280,6 @@ const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
     const callTranscriptsWithNames = callTranscripts.map(callTranscript => {
       const currTranscript = { ...callTranscript };
       currTranscript.transcript = callTranscript.transcript?.map(transcript => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { speakerId, ...rest } = transcript;
         return {
           ...rest,
