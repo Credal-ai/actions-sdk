@@ -18,7 +18,7 @@ const getComputerInventory: jamfGetComputerInventoryFunction = async ({
   const { section } = params;
 
   if (!baseUrl || !username || !password) {
-    throw new Error("Base URL is required to fetch computer inventory");
+    throw new Error("Base URL, username, and password are required to fetch computer inventory");
   }
 
   const apiUrl = `${baseUrl}/api/v1/computer-inventory`;
