@@ -715,11 +715,15 @@ export const kandjiGetFVRecoveryKeyForDeviceDefinition: ActionTemplate = {
   scopes: [],
   parameters: {
     type: "object",
-    required: ["serialNumber"],
+    required: ["serialNumber", "subdomain"],
     properties: {
       serialNumber: {
         type: "string",
         description: "The serial number of the device",
+      },
+      subdomain: {
+        type: "string",
+        description: "The subdomain of the Kandji account",
       },
     },
   },
