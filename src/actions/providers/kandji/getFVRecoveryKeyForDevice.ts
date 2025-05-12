@@ -35,7 +35,7 @@ const getFVRecoveryKeyForDevice: kandjiGetFVRecoveryKeyForDeviceFunction = async
   }
   try {
     // First list all devices to get the device for the specific device
-    const device = await getDevices({
+    const device = await getDeviceBySerialNumber({
       apiKey,
       serialNumber,
       subdomain,
@@ -75,7 +75,11 @@ const getFVRecoveryKeyForDevice: kandjiGetFVRecoveryKeyForDeviceFunction = async
   }
 };
 
-async function getDevices(input: { apiKey: string; serialNumber: string; subdomain: string }): Promise<Device | null> {
+async function getDeviceBySerialNumber(input: {
+  apiKey: string;
+  serialNumber: string;
+  subdomain: string;
+}): Promise<Device | null> {
   let count = 0;
   const limit = 300;
   let offset = 0;
