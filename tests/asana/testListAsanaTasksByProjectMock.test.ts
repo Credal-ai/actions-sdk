@@ -126,14 +126,12 @@ describe("listAsanaTasksByProject", () => {
     expect(result.success).toBe(true);
     expect(result.tasks).toBeDefined();
     expect(result.tasks).toHaveLength(2);
-
     // Verify first task
     expect(result.tasks![0].task.name).toBe("First Task");
     expect(result.tasks![0].task.completed).toBe(false);
     expect(result.tasks![0].subtasks).toHaveLength(1);
     expect(result.tasks![0].taskStories).toHaveLength(1);
     expect(result.tasks![0].taskStories![0].text).toBe("Comment on task");
-
     // Verify second task
     expect(result.tasks![1].task.name).toBe("Second Task");
     expect(result.tasks![1].task.completed).toBe(true);
