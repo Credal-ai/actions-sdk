@@ -45,7 +45,7 @@ const getFVRecoveryKeyForDevice: kandjiGetFVRecoveryKeyForDeviceFunction = async
     }
 
     // Then get the FV recovery key for that device
-    const fvRecoveryKey = await axiosClient.get(
+    const fvRecoveryKey: { data: { key: string } } = await axiosClient.get(
       `https://${subdomain}.api.kandji.io/api/v1/devices/${device.device_id}/secrets/filevaultkey`,
       {
         headers: {
@@ -54,18 +54,12 @@ const getFVRecoveryKeyForDevice: kandjiGetFVRecoveryKeyForDeviceFunction = async
         },
       },
     );
-    console.log("recovery key data", fvRecoveryKey.data);
     if (!fvRecoveryKey || !fvRecoveryKey.data) {
       throw new Error("No FV recovery key found for the specified device");
     }
-    // Validate response
-    const fvRecoveryKeyData = fvRecoveryKey.data;
-    if (!fvRecoveryKeyData) {
-      throw new Error("Failed to retrieve FV recovery key: No valid data returned from Kandji");
-    }
     return {
       success: true,
-      recoveryKey: fvRecoveryKeyData,
+      recoveryKey: fvRecoveryKey.data.key,
     };
   } catch (error) {
     return {
