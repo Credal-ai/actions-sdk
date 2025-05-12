@@ -63,6 +63,96 @@ export type asanaCommentTaskFunction = ActionFunction<
   asanaCommentTaskOutputType
 >;
 
+export const asanaListAsanaTasksByProjectParamsSchema = z.object({
+  projectId: z.string().describe("Project gid the tasks belong to"),
+});
+
+export type asanaListAsanaTasksByProjectParamsType = z.infer<typeof asanaListAsanaTasksByProjectParamsSchema>;
+
+export const asanaListAsanaTasksByProjectOutputSchema = z.object({
+  error: z.string().describe("Error if task retrieval was unsuccessful").optional(),
+  success: z.boolean().describe("Whether task retrieval was successful"),
+  tasks: z
+    .array(
+      z
+        .object({
+          task: z.object({
+            name: z.string().optional(),
+            resource_type: z.string().optional(),
+            completed: z.boolean().optional(),
+            modified_at: z.string().optional(),
+            notes: z.string().optional(),
+            assignee: z.string().optional(),
+            custom_fields: z
+              .array(
+                z.object({
+                  gid: z.string().optional(),
+                  name: z.string().optional(),
+                  enum_options: z
+                    .array(z.object({ gid: z.string().optional(), name: z.string().optional() }))
+                    .optional(),
+                }),
+              )
+              .optional(),
+            num_subtasks: z.number().optional(),
+          }),
+          subtasks: z
+            .array(
+              z.object({
+                name: z.string().optional(),
+                resource_type: z.string().optional(),
+                completed: z.boolean().optional(),
+                modified_at: z.string().optional(),
+                notes: z.string().optional(),
+                assignee: z.string().optional(),
+                custom_fields: z
+                  .array(
+                    z.object({
+                      gid: z.string().optional(),
+                      name: z.string().optional(),
+                      enum_options: z
+                        .array(z.object({ gid: z.string().optional(), name: z.string().optional() }))
+                        .optional(),
+                    }),
+                  )
+                  .optional(),
+                num_subtasks: z.number().optional(),
+              }),
+            )
+            .nullable()
+            .optional(),
+          taskStories: z
+            .array(
+              z.object({
+                gid: z.string().optional(),
+                created_at: z.string().optional(),
+                text: z.string().optional(),
+                resource_type: z.string().optional(),
+                created_by: z
+                  .object({
+                    gid: z.string().optional(),
+                    name: z.string().optional(),
+                    resource_type: z.string().optional(),
+                  })
+                  .optional(),
+              }),
+            )
+            .nullable()
+            .optional(),
+        })
+        .describe("A task in the project"),
+    )
+    .describe("The list of tasks in the project")
+    .optional(),
+});
+
+export type asanaListAsanaTasksByProjectOutputType = z.infer<typeof asanaListAsanaTasksByProjectOutputSchema>;
+export type asanaListAsanaTasksByProjectFunction = ActionFunction<
+  asanaListAsanaTasksByProjectParamsType,
+  AuthParamsType,
+  asanaListAsanaTasksByProjectOutputType
+>;
+
 export const asanaCreateTaskParamsSchema = z.object({
   projectId: z.string().describe("Project gid the task belongs to"),
   name: z.string().describe("The name of the new task"),

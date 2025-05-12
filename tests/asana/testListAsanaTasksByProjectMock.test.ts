@@ -1,0 +1,275 @@
+import axios from "axios";
+import { describe, expect, jest, beforeEach, it } from '@jest/globals';
+import listAsanaTasksByProject from "../../src/actions/providers/asana/listAsanaTasksByProject";
+import dotenv from "dotenv";
+
+dotenv.config();
+jest.mock("axios");
+const mockedAxios = axios as jest.Mocked<typeof axios>;
+
+describe("listAsanaTasksByProject", () => {
+  const mockAuthParams = {
+    authToken: process.env.ASANA_TOKEN || "mock-token",
+  };
+
+  const mockParams = {
+    projectId: "123456789",
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should successfully list tasks from a project", async () => {
+    // Mock project tasks response
+    mockedAxios.get.mockResolvedValueOnce({
+      data: [
+        { gid: "task1" },
+        { gid: "task2" },
+      ],
+      cursor: null,
+    });
+
+    // Mock task1 details
+    mockedAxios.get.mockResolvedValueOnce({
+      data: {
+        gid: "task1",
+        name: "First Task",
+        resource_type: "task",
+        completed: false,
+        modified_at: "2023-01-01T00:00:00.000Z",
+        notes: "Task notes",
+        assignee: "user1",
+        custom_fields: [
+          {
+            gid: "field1",
+            name: "Priority",
+            enum_options: [
+              { gid: "opt1", name: "High" },
+              { gid: "opt2", name: "Medium" },
+            ],
+          },
+        ],
+        num_subtasks: 1,
+      },
+    });
+
+    // Mock task1 subtasks
+    mockedAxios.get.mockResolvedValueOnce({
+      data: [
+        { gid: "subtask1" },
+      ],
+      cursor: null,
+    });
+
+    // Mock task1 stories
+    mockedAxios.get.mockResolvedValueOnce({
+      data: [
+        {
+          gid: "story1",
+          created_at: "2023-01-02T00:00:00.000Z",
+          text: "Comment on task",
+          resource_type: "story",
+          created_by: {
+            gid: "user1",
+            name: "John Doe",
+            resource_type: "user",
+          },
+        },
+      ],
+      cursor: null,
+    });
+
+    // Mock task2 details
+    mockedAxios.get.mockResolvedValueOnce({
+      data: {
+        gid: "task2",
+        name: "Second Task",
+        resource_type: "task",
+        completed: true,
+        modified_at: "2023-01-03T00:00:00.000Z",
+        notes: "Another task",
+        assignee: "user2",
+        custom_fields: [],
+        num_subtasks: 0,
+      },
+    });
+
+    // Mock task2 subtasks (empty)
+    mockedAxios.get.mockResolvedValueOnce({
+      data: [],
+      cursor: null,
+    });
+
+    // Mock task2 stories (empty)
+    mockedAxios.get.mockResolvedValueOnce({
+      data: [],
+      cursor: null,
+    });
+
+    const result = await listAsanaTasksByProject({
+      params: mockParams,
+      authParams: mockAuthParams,
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.tasks).toBeDefined();
+    expect(result.tasks).toHaveLength(2);
+    
+    // Verify first task
+    expect(result.tasks![0].task.name).toBe("First Task");
+    expect(result.tasks![0].task.completed).toBe(false);
+    expect(result.tasks![0].subtasks).toHaveLength(1);
+    expect(result.tasks![0].taskStories).toHaveLength(1);
+    expect(result.tasks![0].taskStories![0].text).toBe("Comment on task");
+    
+    // Verify second task
+    expect(result.tasks![1].task.name).toBe("Second Task");
+    expect(result.tasks![1].task.completed).toBe(true);
+    expect(result.tasks![1].subtasks).toHaveLength(0);
+    expect(result.tasks![1].taskStories).toHaveLength(0);
+  });
+
+  it("should handle authentication error", async () => {
+    const authParams = {
+      authToken: "",
+    };
+
+    const result = await listAsanaTasksByProject({
+      params: mockParams,
+      authParams,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBeDefined();
+  });
+
+  it("should handle API errors", async () => {
+    mockedAxios.get.mockRejectedValueOnce(new Error("API error"));
+
+    const result = await listAsanaTasksByProject({
+      params: mockParams,
+      authParams: mockAuthParams,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBe("API error");
+  });
+
+  it("should handle empty results", async () => {
+    // Mock empty project tasks response
+    mockedAxios.get.mockResolvedValueOnce({
+      data: [],
+      cursor: null,
+    });
+
+    const result = await listAsanaTasksByProject({
+      params: mockParams,
+      authParams: mockAuthParams,
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.tasks).toHaveLength(0);
+  });
+
+  it("should handle pagination in project tasks", async () => {
+    // First page of project tasks
+    mockedAxios.get.mockResolvedValueOnce({
+      data: [
+        { gid: "task1" },
+      ],
+      cursor: "next-page",
+    });
+
+    // Second page of project tasks
+    mockedAxios.get.mockResolvedValueOnce({
+      data: [
+        { gid: "task2" },
+      ],
+      cursor: null,
+    });
+
+    // Mock task1 details
+    mockedAxios.get.mockResolvedValueOnce({
+      data: {
+        gid: "task1",
+        name: "First Task",
+        resource_type: "task",
+        completed: false,
+        num_subtasks: 0,
+      },
+    });
+
+    // Mock task1 subtasks (empty)
+    mockedAxios.get.mockResolvedValueOnce({
+      data: [],
+      cursor: null,
+    });
+
+    // Mock task1 stories (empty)
+    mockedAxios.get.mockResolvedValueOnce({
+      data: [],
+      cursor: null,
+    });
+
+    // Mock task2 details
+    mockedAxios.get.mockResolvedValueOnce({
+      data: {
+        gid: "task2",
+        name: "Second Task",
+        resource_type: "task",
+        completed: true,
+        num_subtasks: 0,
+      },
+    });
+
+    // Mock task2 subtasks (empty)
+    mockedAxios.get.mockResolvedValueOnce({
+      data: [],
+      cursor: null,
+    });
+
+    // Mock task2 stories (empty)
+    mockedAxios.get.mockResolvedValueOnce({
+      data: [],
+      cursor: null,
+    });
+
+    const result = await listAsanaTasksByProject({
+      params: mockParams,
+      authParams: mockAuthParams,
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.tasks).toHaveLength(2);
+    expect(result.tasks![0].task.name).toBe("First Task");
+    expect(result.tasks![1].task.name).toBe("Second Task");
+    expect(mockedAxios.get).toHaveBeenCalledTimes(8); // 2 for pagination + 3 per task
+  });
+
+  it("should handle failed task details parsing", async () => {
+    // Mock project tasks response
+    mockedAxios.get.mockResolvedValueOnce({
+      data: [
+        { gid: "task1" },
+      ],
+      cursor: null,
+    });
+
+    // Mock invalid task details
+    mockedAxios.get.mockResolvedValueOnce({
+      data: {
+        // Missing required fields
+        gid: "task1",
+      },
+    });
+
+    const result = await listAsanaTasksByProject({
+      params: mockParams,
+      authParams: mockAuthParams,
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.tasks).toHaveLength(0); // No tasks should be added when details parsing fails
+  });
+});

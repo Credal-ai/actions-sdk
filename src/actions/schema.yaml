@@ -47,6 +47,130 @@ actions:
           commentUrl:
             type: string
             description: The url to the created comment
+    listAsanaTasksByProject:
+      description: List all tasks associated with an Asana project and their data
+      scopes: []
+      parameters:
+        type: object
+        required: [projectId]
+        properties:
+          projectId:
+            type: string
+            description: Project gid the tasks belong to
+      output:
+        type: object
+        required: [success]
+        properties: 
+          error:
+            type: string
+            description: Error if task retrieval was unsuccessful
+          success:
+            type: boolean
+            description: Whether task retrieval was successful
+          tasks:
+            type: array
+            description: The list of tasks in the project
+            items:
+              type: object
+              description: A task in the project
+              required: [task]
+              properties:
+                task:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    resource_type:
+                      type: string
+                    completed:
+                      type: boolean
+                    modified_at:
+                      type: string
+                    notes:
+                      type: string
+                    assignee:
+                      type: string
+                    custom_fields:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          gid:
+                            type: string
+                          name:
+                            type: string
+                          enum_options:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                gid:
+                                  type: string
+                                name:
+                                  type: string
+                    num_subtasks:
+                      type: number
+                subtasks:
+                  type: array
+                  nullable: true
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      resource_type:
+                        type: string
+                      completed:
+                        type: boolean
+                      modified_at:
+                        type: string
+                      notes:
+                        type: string
+                      assignee:
+                        type: string
+                      custom_fields:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            gid:
+                              type: string
+                            name:
+                              type: string
+                            enum_options:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  gid:
+                                    type: string
+                                  name:
+                                    type: string
+                      num_subtasks:
+                        type: number
+                taskStories:
+                  type: array
+                  nullable: true
+                  items:
+                    type: object
+                    properties:
+                      gid:
+                        type: string
+                      created_at:
+                        type: string
+                      text:
+                        type: string
+                      resource_type:
+                        type: string
+                      created_by:
+                        type: object
+                        properties:
+                          gid:
+                            type: string
+                          name:
+                            type: string
+                          resource_type:
+                            type: string
     createTask:
       description: Create an Asana task with specified content using optional template
       scopes: []
