@@ -246,7 +246,7 @@ const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
     return {
       success: false,
       error: "Missing user email",
-    }
+    };
   }
   try {
     const gongUsers = await getUsers(authParams.authToken);
