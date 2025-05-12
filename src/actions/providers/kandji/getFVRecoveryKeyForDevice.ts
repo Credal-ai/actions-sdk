@@ -54,7 +54,7 @@ const getFVRecoveryKeyForDevice: kandjiGetFVRecoveryKeyForDeviceFunction = async
         },
       },
     );
-    if (!fvRecoveryKey || !fvRecoveryKey.data) {
+    if (!fvRecoveryKey || !fvRecoveryKey.data || !fvRecoveryKey.data.key) {
       throw new Error("No FV recovery key found for the specified device");
     }
     return {
