@@ -41,7 +41,10 @@ const getFVRecoveryKeyForDevice: kandjiGetFVRecoveryKeyForDeviceFunction = async
       subdomain,
     });
     if (!device) {
-      throw new Error("No device found with the specified serial number");
+      return {
+        success: false,
+        error: "Device not found for the given serial number",
+      };
     }
 
     // Then get the FV recovery key for that device
@@ -55,10 +58,10 @@ const getFVRecoveryKeyForDevice: kandjiGetFVRecoveryKeyForDeviceFunction = async
       },
     );
     if (!fvRecoveryKey || !fvRecoveryKey.data || !fvRecoveryKey.data.key) {
-        return {
-            success: false,
-            error: "FireVault recovery key not found",
-          };
+      return {
+        success: false,
+        error: "FireVault recovery key not found",
+      };
     }
     return {
       success: true,
