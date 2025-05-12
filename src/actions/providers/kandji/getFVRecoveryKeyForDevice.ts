@@ -80,7 +80,6 @@ async function getDeviceBySerialNumber(input: {
   serialNumber: string;
   subdomain: string;
 }): Promise<Device | null> {
-  let count = 0;
   const limit = 300;
   let offset = 0;
   const { apiKey, serialNumber, subdomain } = input;
@@ -108,7 +107,6 @@ async function getDeviceBySerialNumber(input: {
         return device;
       }
     }
-    count += response.data.length;
     offset += limit;
     if (response.data.length === 0) {
       break;
