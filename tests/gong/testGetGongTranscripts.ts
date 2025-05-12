@@ -10,12 +10,13 @@ async function runTest() {
     "gong",
     {
       authToken: process.env.GONG_TOKEN!,
+      username: process.env.GONG_USERNAME!,
     },
     {
       userRole: "Chief of Staff",
       trackers: ["Value Prop"],
       startDate: "2025-05-01T00:00:00Z",
-      endDate: "2025-05-08T23:59:59Z"
+      endDate: "2025-05-13T23:59:59Z"
     }
   );
 
@@ -35,6 +36,29 @@ async function runTest() {
   console.log("Test passed successfully!");
 }
 
+async function runTestInvalidUsername() {
+  const result = await runAction(
+    "getGongTranscripts",
+    "gong",
+    {
+      authToken: process.env.GONG_TOKEN!,
+      username: process.env.BAD_GONG_USERNAME!,
+    },
+    {
+      userRole: "Chief of Staff",
+      trackers: ["Value Prop"],
+      startDate: "2025-05-01T00:00:00Z",
+      endDate: "2025-05-08T23:59:59Z"
+    }
+  );
+
+  // Validate response
+  assert(result.error, "Response should indicate an error");
+  assert(result.error === "User email not found in Gong users", "Error message should indicate user not found");
+
+  console.log("Test passed successfully!");
+}
+
 runTest().catch((error) => {
   console.error("Test failed:", error);
   if (error.response) {
@@ -43,3 +67,12 @@ runTest().catch((error) => {
   }
   process.exit(1);
 }); 
+
+runTestInvalidUsername().catch((error) => {
+  console.error("Test failed:", error);
+  if (error.response) {
+    console.error("API response:", error.response.data);
+    console.error("Status code:", error.response.status);
+  }
+  process.exit(1);
+});

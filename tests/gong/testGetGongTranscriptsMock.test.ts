@@ -10,6 +10,7 @@ const mockedAxios = axios as jest.Mocked<typeof axios>;
 describe("getGongTranscripts", () => {
   const mockAuthParams = {
     authToken: process.env.GONG_TOKEN!,
+    username: process.env.GONG_USERNAME!,
   };
 
   const mockParams = {
@@ -21,6 +22,7 @@ describe("getGongTranscripts", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   it("should successfully fetch transcripts", async () => {
@@ -28,8 +30,8 @@ describe("getGongTranscripts", () => {
     mockedAxios.get.mockResolvedValueOnce({
       data: {
         users: [
-          { id: "user1", title: "Sales", firstName: "John", lastName: "Doe" },
-          { id: "user2", title: "Sales", firstName: "Jane", lastName: "Doe" },
+          { id: "user1", title: "Sales", firstName: "John", lastName: "Doe", emailAddress: process.env.GONG_USERNAME! },
+          { id: "user2", title: "Sales", firstName: "Jane", lastName: "Doe", emailAddress: "fake@credal.ai" },
         ],
         cursor: null,
       },
@@ -38,7 +40,7 @@ describe("getGongTranscripts", () => {
     // Mock trackers response
     mockedAxios.get.mockResolvedValueOnce({
       data: {
-        trackers: [
+        keywordTrackers: [
           { trackerId: "tracker1", trackerName: "Tracker1" },
           { trackerId: "tracker2", trackerName: "Tracker2" },
         ],
@@ -51,14 +53,14 @@ describe("getGongTranscripts", () => {
       data: {
         calls: [
           {
-            metaData: { id: "call1", primaryUserId: "user1", started: "2024-01-02T00:00:00.000Z" },
+            metaData: { id: "call1", primaryUserId: "user1", started: "2024-01-02T00:00:00.000Z", isPrivate: false },
             parties: [{speakerId: "speaker1", name: "Joe Jonas"},
                   {speakerId: "user1", name: "John Doe"},
                   {speakerId: "user2", name: "Jane Doe"},
             ],
           },
           {
-            metaData: { id: "call2", primaryUserId: "user2", started: "2024-01-02T00:00:00.000Z" },
+            metaData: { id: "call2", primaryUserId: "user2", started: "2024-01-02T00:00:00.000Z", isPrivate: false },
             parties: [
               {speakerId: "speaker1", name: "Joe Jonas"},
               {speakerId: "user1", name: "John Doe"},
@@ -179,7 +181,7 @@ describe("getGongTranscripts", () => {
     // Mock trackers response
     mockedAxios.get.mockResolvedValueOnce({
       data: {
-        trackers: [],
+        keywordTrackers: [],
         cursor: null,
       },
     });
@@ -205,8 +207,8 @@ describe("getGongTranscripts", () => {
       authParams: mockAuthParams,
     });
 
-    expect(result.success).toBe(true);
-    expect(result.callTranscripts).toHaveLength(0);
+    expect(result.success).toBe(false);
+    expect(result.error).toEqual("User email not found in Gong users");
   });
 
   it("should handle pagination in responses", async () => {
@@ -214,14 +216,14 @@ describe("getGongTranscripts", () => {
     mockedAxios.get.mockResolvedValueOnce({
       data: {
         users: [
-          { id: "user1", title: "Sales", firstName: "John", lastName: "Doe" },
+          { id: "user1", title: "Sales", firstName: "John", lastName: "Doe", emailAddress: process.env.GONG_USERNAME! },
         ],
         cursor: "cursor1",
       },
     }).mockResolvedValueOnce({
       data: {
         users: [
-          { id: "user2", title: "Sales", firstName: "Jane", lastName: "Doe" },
+          { id: "user2", title: "Sales", firstName: "Jane", lastName: "Doe", emailAddress: "fake@credal.ai" },
         ],
         cursor: null,
       },
@@ -230,9 +232,9 @@ describe("getGongTranscripts", () => {
     // Mock trackers response
     mockedAxios.get.mockResolvedValueOnce({
       data: {
-        trackers: [
-          { id: "tracker1", name: "Tracker1" },
-          { id: "tracker2", name: "Tracker2" },
+        keywordTrackers: [
+          { trackerId: "tracker1", trackerName: "Tracker1" },
+          { trackerId: "tracker2", trackerName: "Tracker2" },
         ],
         cursor: null,
       },
@@ -242,7 +244,7 @@ describe("getGongTranscripts", () => {
     mockedAxios.post.mockResolvedValueOnce({
       data: {
         calls: [{
-          metaData: { id: "call1", primaryUserId: "user1", started: "2024-01-02T00:00:00.000Z" },
+          metaData: { id: "call1", primaryUserId: "user1", started: "2024-01-02T00:00:00.000Z", isPrivate: false },
           parties: [
             { speakerId: "user1", name: "John Doe"},
           ],
@@ -254,7 +256,7 @@ describe("getGongTranscripts", () => {
       data: {
         calls: [
           {
-            metaData: { id: "call2", primaryUserId: "user2", started: "2024-01-02T00:00:00.000Z" },
+            metaData: { id: "call2", primaryUserId: "user2", started: "2024-01-02T00:00:00.000Z", isPrivate: false },
             parties: [
               {speakerId: "user2", name: "Jane Doe"},
             ],
@@ -312,3 +314,30 @@ describe("getGongTranscripts", () => {
     expect(mockedAxios.post).toHaveBeenCalledTimes(3);
   });
 }); 
+
+describe("getGongTranscriptsWithoutUsername", () => {
+  const mockAuthParams = {
+    authToken: process.env.GONG_TOKEN!,
+  };
+
+  const mockParams = {
+    userRole: "Sales",
+    trackers: ["Tracker1", "Tracker2"],
+    startDate: "2024-01-01T00:00:00.000Z",
+    endDate: "2024-01-31T23:59:59.999Z",
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.resetAllMocks();
+  });
+
+  it("should not successfully fetch transcripts", async () => {
+    const result = await getGongTranscripts({
+      params: mockParams,
+      authParams: mockAuthParams,
+    });
+    expect(result.success).toBe(false);
+    expect(result.error).toEqual("Missing user email");
+  });
+});

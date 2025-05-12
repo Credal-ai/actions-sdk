@@ -14,6 +14,7 @@ const UserSchema = z
     firstName: z.string(),
     lastName: z.string(),
     title: z.string(),
+    emailAddress: z.string(),
   })
   .partial()
   .passthrough();
@@ -32,6 +33,7 @@ const CallSchema = z
       id: z.string(),
       primaryUserId: z.string(),
       started: z.string(),
+      isPrivate: z.boolean(),
     }),
     parties: z.array(
       z
@@ -240,8 +242,21 @@ const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
       error: MISSING_AUTH_TOKEN,
     };
   }
+  if (!authParams.username) {
+    return {
+      success: false,
+      error: "Missing user email",
+    }
+  }
   try {
     const gongUsers = await getUsers(authParams.authToken);
+    const userEmails = gongUsers.map(user => user.emailAddress);
+    if (!userEmails.includes(authParams.username)) {
+      return {
+        success: false,
+        error: "User email not found in Gong users",
+      };
+    }
     const filteredGongUsers = gongUsers.filter(user => user.title === params.userRole);
     const trackers = await getTrackers(authParams.authToken);
     const filteredTrackers = trackers.filter(tracker => params.trackers?.includes(tracker.trackerName ?? ""));
@@ -257,15 +272,21 @@ const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
           ? filteredTrackers.map(tracker => tracker.trackerId).filter((id): id is string => id !== undefined)
           : undefined,
     });
+    const publicCalls = calls.filter(call => {
+      if (!call.metaData) {
+        return false;
+      }
+      return !call.metaData.isPrivate;
+    });
     // Get transcripts for the calls we found
     const callTranscripts = await getTranscripts(authParams.authToken, {
       fromDateTime: params.startDate ?? "",
       toDateTime: params.endDate ?? "",
-      callIds: calls.map(call => call.metaData?.id).filter((id): id is string => id !== undefined),
+      callIds: publicCalls.map(call => call.metaData?.id).filter((id): id is string => id !== undefined),
     });
     // Map speaker IDs to names in the transcripts
     const userIdToNameMap: Record<string, string> = {};
-    calls.forEach(call => {
+    publicCalls.forEach(call => {
       // Check if call has parties array
       if (call.parties && Array.isArray(call.parties)) {
         // Iterate through each party in the call
