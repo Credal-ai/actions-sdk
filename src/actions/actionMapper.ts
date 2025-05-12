@@ -147,6 +147,8 @@ import {
   ashbyAddCandidateToProjectOutputSchema,
   microsoftCreateDocumentParamsSchema,
   microsoftCreateDocumentOutputSchema,
+  kandjiGetFVRecoveryKeyForDeviceParamsSchema,
+  kandjiGetFVRecoveryKeyForDeviceOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -223,6 +225,7 @@ import createRecord from "./providers/salesforce/createRecord";
 import getTopNSearchResultUrls from "./providers/bing/getTopNSearchResultUrls";
 import getGongTranscripts from "./providers/gong/getGongTranscripts";
 import { gongGetGongTranscriptsParamsSchema, gongGetGongTranscriptsOutputSchema } from "./autogen/types";
+import getFVRecoveryKeyForDevice from "./providers/kandji/getFVRecoveryKeyForDevice";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -304,6 +307,13 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: callCopilot,
       paramsSchema: credalCallCopilotParamsSchema,
       outputSchema: credalCallCopilotOutputSchema,
+    },
+  },
+  kandji: {
+    getFVRecoveryKeyForDevice: {
+      fn: getFVRecoveryKeyForDevice,
+      paramsSchema: kandjiGetFVRecoveryKeyForDeviceParamsSchema,
+      outputSchema: kandjiGetFVRecoveryKeyForDeviceOutputSchema,
     },
   },
   bing: {

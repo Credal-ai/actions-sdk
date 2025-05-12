@@ -393,6 +393,25 @@ export type jiraGetJiraIssuesByQueryFunction = ActionFunction<
   jiraGetJiraIssuesByQueryOutputType
 >;
 
+export const kandjiGetFVRecoveryKeyForDeviceParamsSchema = z.object({
+  serialNumber: z.string().describe("The serial number of the device"),
+});
+
+export type kandjiGetFVRecoveryKeyForDeviceParamsType = z.infer<typeof kandjiGetFVRecoveryKeyForDeviceParamsSchema>;
+
+export const kandjiGetFVRecoveryKeyForDeviceOutputSchema = z.object({
+  success: z.boolean().describe("Whether the recovery key was retrieved successfully"),
+  recoveryKey: z.string().describe("The FileVault recovery key for the device").optional(),
+  error: z.string().describe("The error that occurred if the recovery key was not retrieved successfully").optional(),
+});
+
+export type kandjiGetFVRecoveryKeyForDeviceOutputType = z.infer<typeof kandjiGetFVRecoveryKeyForDeviceOutputSchema>;
+export type kandjiGetFVRecoveryKeyForDeviceFunction = ActionFunction<
+  kandjiGetFVRecoveryKeyForDeviceParamsType,
+  AuthParamsType,
+  kandjiGetFVRecoveryKeyForDeviceOutputType
+>;
+
 export const googlemapsValidateAddressParamsSchema = z.object({
   regionCode: z.string().describe("The country of the address being verified."),
   locality: z.string().describe("The locality of the address being verified. This is likely a city."),

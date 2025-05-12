@@ -710,6 +710,40 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
   name: "getJiraIssuesByQuery",
   provider: "jira",
 };
+export const kandjiGetFVRecoveryKeyForDeviceDefinition: ActionTemplate = {
+  description: "Get the FileVault recovery key for a device",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["serialNumber"],
+    properties: {
+      serialNumber: {
+        type: "string",
+        description: "The serial number of the device",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the recovery key was retrieved successfully",
+      },
+      recoveryKey: {
+        type: "string",
+        description: "The FileVault recovery key for the device",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the recovery key was not retrieved successfully",
+      },
+    },
+  },
+  name: "getFVRecoveryKeyForDevice",
+  provider: "kandji",
+};
 export const googlemapsValidateAddressDefinition: ActionTemplate = {
   description: "Validate a Google Maps address",
   scopes: [],

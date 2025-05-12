@@ -73,6 +73,7 @@ import {
   ashbyAddCandidateToProjectDefinition,
   bingGetTopNSearchResultUrlsDefinition,
   gongGetGongTranscriptsDefinition,
+  kandjiGetFVRecoveryKeyForDeviceDefinition,
 } from "../actions/autogen/templates";
 import type { ActionTemplate } from "../actions/parse";
 
@@ -220,6 +221,10 @@ export const ACTION_GROUPS: ActionGroups = {
       microsoftCreateDocumentDefinition,
       microsoftGetDocumentDefinition,
     ],
+  },
+  KANDJI: {
+    description: "Actions for interacting with Kandji",
+    actions: [kandjiGetFVRecoveryKeyForDeviceDefinition],
   },
   GITHUB: {
     description: "Actions for interacting with GitHub",
