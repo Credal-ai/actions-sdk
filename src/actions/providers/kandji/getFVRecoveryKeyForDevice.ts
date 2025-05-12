@@ -31,7 +31,7 @@ const getFVRecoveryKeyForDevice: kandjiGetFVRecoveryKeyForDeviceFunction = async
   const { serialNumber } = params;
   const { subdomain, apiKey } = authParams;
   if (!apiKey || !subdomain) {
-    throw new Error("Missing API key in auth parameters");
+    throw new Error("Missing API key or subdomain in auth parameters");
   }
   try {
     // First list all devices to get the device for the specific device
