@@ -228,11 +228,7 @@ import getTopNSearchResultUrls from "./providers/bing/getTopNSearchResultUrls";
 import getGongTranscripts from "./providers/gong/getGongTranscripts";
 import { gongGetGongTranscriptsParamsSchema, gongGetGongTranscriptsOutputSchema } from "./autogen/types";
 import getFVRecoveryKeyForDevice from "./providers/kandji/getFVRecoveryKeyForDevice";
-<<<<<<< HEAD
 import listAsanaTasksByProject from "./providers/asana/listAsanaTasksByProject";
-=======
-import listAsanaTaskByProject from "./providers/asana/listAsanaTasksByProject";
->>>>>>> 5eea4fa (more)
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -266,17 +262,10 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       outputSchema: asanaUpdateTaskOutputSchema,
     },
     listAsanaTasksByProject: {
-<<<<<<< HEAD
       fn: listAsanaTasksByProject,
       paramsSchema: asanaListAsanaTasksByProjectParamsSchema,
       outputSchema: asanaListAsanaTasksByProjectOutputSchema,
     },
-=======
-      fn: listAsanaTaskByProject,
-      paramsSchema: asanaListAsanaTasksByProjectParamsSchema,
-      outputSchema: asanaListAsanaTasksByProjectOutputSchema
-    }
->>>>>>> 5eea4fa (more)
   },
   math: {
     add: {
