@@ -87,7 +87,12 @@ export const ACTION_GROUPS: ActionGroups = {
   },
   ASANA: {
     description: "Actions for interacting with Asana",
-    actions: [asanaCommentTaskDefinition, asanaCreateTaskDefinition, asanaUpdateTaskDefinition, asanaListAsanaTasksByProjectDefinition],
+    actions: [
+      asanaCommentTaskDefinition,
+      asanaCreateTaskDefinition,
+      asanaUpdateTaskDefinition,
+      asanaListAsanaTasksByProjectDefinition,
+    ],
   },
   SLACK_LIST_CONVERSATIONS: {
     description: "Actions for interacting with Slack",
