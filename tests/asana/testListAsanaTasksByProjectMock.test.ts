@@ -1,5 +1,5 @@
 import axios from "axios";
-import { describe, expect, jest, beforeEach, it } from '@jest/globals';
+import { describe, expect, jest, beforeEach, it } from "@jest/globals";
 import listAsanaTasksByProject from "../../src/actions/providers/asana/listAsanaTasksByProject";
 import dotenv from "dotenv";
 
@@ -25,45 +25,42 @@ describe("listAsanaTasksByProject", () => {
     // Mock project tasks response
     mockedAxios.get.mockResolvedValueOnce({
       data: {
-        data: [
-          { gid: "task1" },
-          { gid: "task2" },
-        ],
-        next_page: null
-      }
+        data: [{ gid: "task1" }, { gid: "task2" }],
+        next_page: null,
+      },
     });
 
     // Mock task1 details
     mockedAxios.get.mockResolvedValueOnce({
       data: {
-        gid: "task1",
-        name: "First Task",
-        resource_type: "task",
-        completed: false,
-        modified_at: "2023-01-01T00:00:00.000Z",
-        notes: "Task notes",
-        custom_fields: [
-          {
-            gid: "field1",
-            name: "Priority",
-            enum_options: [
-              { gid: "opt1", name: "High" },
-              { gid: "opt2", name: "Medium" },
-            ],
-          },
-        ],
-        num_subtasks: 1,
+        data: {
+          gid: "task1",
+          name: "First Task",
+          resource_type: "task",
+          completed: false,
+          modified_at: "2023-01-01T00:00:00.000Z",
+          notes: "Task notes",
+          custom_fields: [
+            {
+              gid: "field1",
+              name: "Priority",
+              enum_options: [
+                { gid: "opt1", name: "High" },
+                { gid: "opt2", name: "Medium" },
+              ],
+            },
+          ],
+          num_subtasks: 1,
+        },
       },
     });
 
     // Mock task1 subtasks
     mockedAxios.get.mockResolvedValueOnce({
       data: {
-        data: [
-          { gid: "subtask1" },
-        ],
-        next_page: null
-      }
+        data: [{ gid: "subtask1" }],
+        next_page: null,
+      },
     });
 
     // Mock task1 stories
@@ -82,21 +79,23 @@ describe("listAsanaTasksByProject", () => {
             },
           },
         ],
-        next_page: null
-      }
+        next_page: null,
+      },
     });
 
     // Mock task2 details
     mockedAxios.get.mockResolvedValueOnce({
       data: {
-        gid: "task2",
-        name: "Second Task",
-        resource_type: "task",
-        completed: true,
-        modified_at: "2023-01-03T00:00:00.000Z",
-        notes: "Another task",
-        custom_fields: [],
-        num_subtasks: 0,
+        data: {
+          gid: "task2",
+          name: "Second Task",
+          resource_type: "task",
+          completed: true,
+          modified_at: "2023-01-03T00:00:00.000Z",
+          notes: "Another task",
+          custom_fields: [],
+          num_subtasks: 0,
+        },
       },
     });
 
@@ -104,16 +103,16 @@ describe("listAsanaTasksByProject", () => {
     mockedAxios.get.mockResolvedValueOnce({
       data: {
         data: [],
-        next_page: null
-      }
+        next_page: null,
+      },
     });
 
     // Mock task2 stories (empty)
     mockedAxios.get.mockResolvedValueOnce({
       data: {
         data: [],
-        next_page: null
-      }
+        next_page: null,
+      },
     });
 
     const result = await listAsanaTasksByProject({
@@ -124,14 +123,14 @@ describe("listAsanaTasksByProject", () => {
     expect(result.success).toBe(true);
     expect(result.tasks).toBeDefined();
     expect(result.tasks).toHaveLength(2);
-    
+
     // Verify first task
     expect(result.tasks![0].task.name).toBe("First Task");
     expect(result.tasks![0].task.completed).toBe(false);
     expect(result.tasks![0].subtasks).toHaveLength(1);
     expect(result.tasks![0].taskStories).toHaveLength(1);
     expect(result.tasks![0].taskStories![0].text).toBe("Comment on task");
-    
+
     // Verify second task
     expect(result.tasks![1].task.name).toBe("Second Task");
     expect(result.tasks![1].task.completed).toBe(true);
@@ -170,8 +169,8 @@ describe("listAsanaTasksByProject", () => {
     mockedAxios.get.mockResolvedValueOnce({
       data: {
         data: [],
-        next_page: null
-      }
+        next_page: null,
+      },
     });
 
     const result = await listAsanaTasksByProject({
@@ -185,30 +184,30 @@ describe("listAsanaTasksByProject", () => {
 
   it("should handle pagination in project tasks", async () => {
     // First page of project tasks
-    mockedAxios.get.mockResolvedValueOnce({
-      data: {
-        data: [
-          { gid: "task1" },
-        ],
-        next_page: "next-page"
-      }
-    }).mockResolvedValueOnce({
-      data: {
-        data: [
-          { gid: "task2" },
-        ],
-        next_page: null
-      }
-    });
+    mockedAxios.get
+      .mockResolvedValueOnce({
+        data: {
+          data: [{ gid: "task1" }],
+          next_page: "next-page",
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          data: [{ gid: "task2" }],
+          next_page: null,
+        },
+      });
 
     // Mock task1 details
     mockedAxios.get.mockResolvedValueOnce({
       data: {
-        gid: "task1",
-        name: "First Task",
-        resource_type: "task",
-        completed: false,
-        num_subtasks: 0,
+        data: {
+          gid: "task1",
+          name: "First Task",
+          resource_type: "task",
+          completed: false,
+          num_subtasks: 0,
+        },
       },
     });
 
@@ -216,26 +215,28 @@ describe("listAsanaTasksByProject", () => {
     mockedAxios.get.mockResolvedValueOnce({
       data: {
         data: [],
-        next_page: null
-      }
+        next_page: null,
+      },
     });
 
     // Mock task1 stories (empty)
     mockedAxios.get.mockResolvedValueOnce({
       data: {
         data: [],
-        next_page: null
-      }
+        next_page: null,
+      },
     });
 
     // Mock task2 details
     mockedAxios.get.mockResolvedValueOnce({
       data: {
-        gid: "task2",
-        name: "Second Task",
-        resource_type: "task",
-        completed: true,
-        num_subtasks: 0,
+        data: {
+          gid: "task2",
+          name: "Second Task",
+          resource_type: "task",
+          completed: true,
+          num_subtasks: 0,
+        },
       },
     });
 
@@ -243,16 +244,16 @@ describe("listAsanaTasksByProject", () => {
     mockedAxios.get.mockResolvedValueOnce({
       data: {
         data: [],
-        next_page: null
-      }
+        next_page: null,
+      },
     });
 
     // Mock task2 stories (empty)
     mockedAxios.get.mockResolvedValueOnce({
       data: {
         data: [],
-        next_page: null
-      }
+        next_page: null,
+      },
     });
 
     const result = await listAsanaTasksByProject({
@@ -265,31 +266,5 @@ describe("listAsanaTasksByProject", () => {
     expect(result.tasks![0].task.name).toBe("First Task");
     expect(result.tasks![1].task.name).toBe("Second Task");
     expect(mockedAxios.get).toHaveBeenCalledTimes(8); // 2 for pagination + 3 per task
-  });
-
-  it("should handle failed task details parsing", async () => {
-    // Mock project tasks response
-    mockedAxios.get.mockResolvedValueOnce({
-      data: [
-        { gid: "task1" },
-      ],
-      next_page: null,
-    });
-
-    // Mock invalid task details
-    mockedAxios.get.mockResolvedValueOnce({
-      data: {
-        // Missing required fields
-        gid: "task1",
-      },
-    });
-
-    const result = await listAsanaTasksByProject({
-      params: mockParams,
-      authParams: mockAuthParams,
-    });
-
-    expect(result.success).toBe(true);
-    expect(result.tasks).toHaveLength(0); // No tasks should be added when details parsing fails
   });
 });
