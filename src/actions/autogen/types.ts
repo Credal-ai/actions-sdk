@@ -82,7 +82,6 @@ export const asanaListAsanaTasksByProjectOutputSchema = z.object({
             completed: z.boolean().optional(),
             modified_at: z.string().optional(),
             notes: z.string().optional(),
-            assignee: z.string().optional(),
             custom_fields: z
               .array(
                 z.object({

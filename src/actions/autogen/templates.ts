@@ -119,9 +119,6 @@ export const asanaListAsanaTasksByProjectDefinition: ActionTemplate = {
                 notes: {
                   type: "string",
                 },
-                assignee: {
-                  type: "string",
-                },
                 custom_fields: {
                   type: "array",
                   items: {

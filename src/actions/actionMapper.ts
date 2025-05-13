@@ -264,8 +264,8 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
     listAsanaTasksByProject: {
       fn: listAsanaTaskByProject,
       paramsSchema: asanaListAsanaTasksByProjectParamsSchema,
-      outputSchema: asanaListAsanaTasksByProjectOutputSchema
-    }
+      outputSchema: asanaListAsanaTasksByProjectOutputSchema,
+    },
   },
   math: {
     add: {
