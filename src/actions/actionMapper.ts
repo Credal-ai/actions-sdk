@@ -228,7 +228,7 @@ import getTopNSearchResultUrls from "./providers/bing/getTopNSearchResultUrls";
 import getGongTranscripts from "./providers/gong/getGongTranscripts";
 import { gongGetGongTranscriptsParamsSchema, gongGetGongTranscriptsOutputSchema } from "./autogen/types";
 import getFVRecoveryKeyForDevice from "./providers/kandji/getFVRecoveryKeyForDevice";
-import listAsanaTaskByProject from "./providers/asana/listAsanaTasksByProject";
+import listAsanaTasksByProject from "./providers/asana/listAsanaTasksByProject";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -262,7 +262,7 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       outputSchema: asanaUpdateTaskOutputSchema,
     },
     listAsanaTasksByProject: {
-      fn: listAsanaTaskByProject,
+      fn: listAsanaTasksByProject,
       paramsSchema: asanaListAsanaTasksByProjectParamsSchema,
       outputSchema: asanaListAsanaTasksByProjectOutputSchema,
     },

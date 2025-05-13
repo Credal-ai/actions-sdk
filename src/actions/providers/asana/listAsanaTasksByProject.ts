@@ -70,6 +70,10 @@ async function getTaskIdsFromProject(authToken: string, projectId: string): Prom
   do {
     const response = await axios.get(`https://app.asana.com/api/1.0/projects/${projectId}/tasks`, {
       headers: { Authorization: `Bearer ${authToken}` },
+      params: {
+        limit: 100,
+        completed_since: "now",
+      }
     });
     const parsedTasks = z.array(TaskSchema).safeParse(response.data.data);
     if (!parsedTasks.success) {
@@ -81,12 +85,16 @@ async function getTaskIdsFromProject(authToken: string, projectId: string): Prom
   return tasks;
 }
 
+// Only handles the first layer of subtasks, not nested ones
 async function getSubtasksFromTask(authToken: string, taskId: string): Promise<TaskDetails[]> {
   let nextPage: string | undefined = undefined;
   const subtasks: TaskDetails[] = [];
   do {
     const response = await axios.get(`https://app.asana.com/api/1.0/tasks/${taskId}/subtasks`, {
       headers: { Authorization: `Bearer ${authToken}` },
+      params: {
+        limit: 100,
+      }
     });
     const parsedSubtasks = z.array(TaskSchema).safeParse(response.data.data);
     if (!parsedSubtasks.success) {
@@ -124,7 +132,7 @@ async function getTaskStories(authToken: string, taskId: string): Promise<TaskSt
   return parsedTask.data;
 }
 
-const listAsanaTaskByProject: asanaListAsanaTasksByProjectFunction = async ({
+const listAsanaTasksByProject: asanaListAsanaTasksByProjectFunction = async ({
   params,
   authParams,
 }: {
@@ -168,4 +176,4 @@ const listAsanaTaskByProject: asanaListAsanaTasksByProjectFunction = async ({
   }
 };
 
-export default listAsanaTaskByProject;
+export default listAsanaTasksByProject;
