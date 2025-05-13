@@ -26,12 +26,7 @@ const TaskDetailsSchema = z
       z.object({
         gid: z.string(),
         name: z.string(),
-        enum_options: z.array(
-          z.object({
-            gid: z.string(),
-            name: z.string(),
-          }),
-        ),
+        display_value: z.string(),
       }),
     ),
     num_subtasks: z.number(),
@@ -54,27 +49,49 @@ const TaskStorySchema = z
   .partial()
   .passthrough();
 
+const NextPageSchema = z
+  .object({
+    offset: z.string(),
+    path: z.string(),
+    uri: z.string(),
+  })
+  .nullable();
+
 const TaskOutputSchema = z.object({
   task: TaskDetailsSchema,
   subtasks: z.array(TaskDetailsSchema).nullable(),
   taskStories: z.array(TaskStorySchema).nullable(),
 });
 
+const AsanaOutputSchema = z.object({
+  data: z.object({
+    tasks: z.array(TaskOutputSchema),
+    subtasks: z.array(TaskDetailsSchema).nullable(),
+  }),
+  next_page: NextPageSchema,
+});
+
 type TaskOutput = z.infer<typeof TaskOutputSchema>;
 type TaskDetails = z.infer<typeof TaskSchema>;
 type TaskStory = z.infer<typeof TaskStorySchema>;
+type NextPage = z.infer<typeof NextPageSchema>;
+type AsanaOutput = z.infer<typeof AsanaOutputSchema>;
 
 async function getTaskIdsFromProject(authToken: string, projectId: string): Promise<string[]> {
-  let nextPage: string | undefined = undefined;
+  let nextPage: NextPage | undefined = undefined;
   const tasks: string[] = [];
   do {
-    const response = await axios.get(`https://app.asana.com/api/1.0/projects/${projectId}/tasks`, {
-      headers: { Authorization: `Bearer ${authToken}` },
-      params: {
-        limit: 100,
-        completed_since: "now",
-      }
-    });
+    const response: { data: AsanaOutput } = await axios.get(
+      `https://app.asana.com/api/1.0/projects/${projectId}/tasks`,
+      {
+        headers: { Authorization: `Bearer ${authToken}` },
+        params: {
+          limit: 100,
+          completed_since: "now",
+          offset: nextPage ? nextPage.offset : undefined,
+        },
+      },
+    );
     const parsedTasks = z.array(TaskSchema).safeParse(response.data.data);
     if (!parsedTasks.success) {
       return tasks;
@@ -87,14 +104,15 @@ async function getTaskIdsFromProject(authToken: string, projectId: string): Prom
 
 // Only handles the first layer of subtasks, not nested ones
 async function getSubtasksFromTask(authToken: string, taskId: string): Promise<TaskDetails[]> {
-  let nextPage: string | undefined = undefined;
+  let nextPage: NextPage | undefined = undefined;
   const subtasks: TaskDetails[] = [];
   do {
-    const response = await axios.get(`https://app.asana.com/api/1.0/tasks/${taskId}/subtasks`, {
+    const response: { data: AsanaOutput } = await axios.get(`https://app.asana.com/api/1.0/tasks/${taskId}/subtasks`, {
       headers: { Authorization: `Bearer ${authToken}` },
       params: {
         limit: 100,
-      }
+        offset: nextPage ? nextPage.offset : undefined,
+      },
     });
     const parsedSubtasks = z.array(TaskSchema).safeParse(response.data.data);
     if (!parsedSubtasks.success) {

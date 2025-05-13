@@ -42,12 +42,9 @@ describe("listAsanaTasksByProject", () => {
           notes: "Task notes",
           custom_fields: [
             {
-              gid: "field1",
-              name: "Priority",
-              enum_options: [
-                { gid: "opt1", name: "High" },
-                { gid: "opt2", name: "Medium" },
-              ],
+              gid: "custom_field_1",
+              name: "Custom Field 1",
+              display_value: "Custom Value 1",
             },
           ],
           num_subtasks: 1,
@@ -93,7 +90,13 @@ describe("listAsanaTasksByProject", () => {
           completed: true,
           modified_at: "2023-01-03T00:00:00.000Z",
           notes: "Another task",
-          custom_fields: [],
+          custom_fields: [
+            {
+              gid: "custom_field_2",
+              name: "Custom Field 2",
+              display_value: "Custom Value 2",
+            },
+          ],
           num_subtasks: 0,
         },
       },
