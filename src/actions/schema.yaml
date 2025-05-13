@@ -88,8 +88,6 @@ actions:
                       type: string
                     notes:
                       type: string
-                    assignee:
-                      type: string
                     custom_fields:
                       type: array
                       items:

@@ -1,11 +1,11 @@
 import { z } from "zod";
+import axios from "axios";
 import type {
   AuthParamsType,
   asanaListAsanaTasksByProjectOutputType,
   asanaListAsanaTasksByProjectParamsType,
-  asanaListAsanaTasksByProjectFunction
+  asanaListAsanaTasksByProjectFunction,
 } from "../../autogen/types";
-import { axiosClient } from "../../util/axiosClient";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
 
 const TaskSchema = z
@@ -22,7 +22,6 @@ const TaskDetailsSchema = z
     completed: z.boolean(),
     modified_at: z.string(),
     notes: z.string(),
-    assignee: z.string(),
     custom_fields: z.array(
       z.object({
         gid: z.string(),
@@ -66,41 +65,41 @@ type TaskDetails = z.infer<typeof TaskSchema>;
 type TaskStory = z.infer<typeof TaskStorySchema>;
 
 async function getTaskIdsFromProject(authToken: string, projectId: string): Promise<string[]> {
-  let cursor: string | undefined = undefined;
+  let nextPage: string | undefined = undefined;
   const tasks: string[] = [];
   do {
-    const response = await axiosClient.get(`https://app.asana.com/api/1.0/projects/${projectId}/tasks`, {
+    const response = await axios.get(`https://app.asana.com/api/1.0/projects/${projectId}/tasks`, {
       headers: { Authorization: `Bearer ${authToken}` },
     });
-    const parsedTasks = z.array(TaskSchema).safeParse(response.data);
+    const parsedTasks = z.array(TaskSchema).safeParse(response.data.data);
     if (!parsedTasks.success) {
       return tasks;
     }
     tasks.push(...parsedTasks.data.map(task => task.gid).filter((gid): gid is string => gid !== undefined));
-    cursor = response.data.cursor;
-  } while (cursor);
+    nextPage = response.data.next_page;
+  } while (nextPage);
   return tasks;
 }
 
 async function getSubtasksFromTask(authToken: string, taskId: string): Promise<TaskDetails[]> {
-  let cursor: string | undefined = undefined;
+  let nextPage: string | undefined = undefined;
   const subtasks: TaskDetails[] = [];
   do {
-    const response = await axiosClient.get(`https://app.asana.com/api/1.0/tasks/${taskId}/subtasks`, {
+    const response = await axios.get(`https://app.asana.com/api/1.0/tasks/${taskId}/subtasks`, {
       headers: { Authorization: `Bearer ${authToken}` },
     });
-    const parsedSubtasks = z.array(TaskSchema).safeParse(response.data);
+    const parsedSubtasks = z.array(TaskSchema).safeParse(response.data.data);
     if (!parsedSubtasks.success) {
       return subtasks;
     }
     subtasks.push(...parsedSubtasks.data);
-    cursor = response.data.cursor;
-  } while (cursor);
+    nextPage = response.data.next_page;
+  } while (nextPage);
   return subtasks;
 }
 
 async function getTaskDetails(authToken: string, taskId: string): Promise<TaskDetails | null> {
-  const response = await axiosClient.get(`https://app.asana.com/api/1.0/tasks/${taskId}`, {
+  const response = await axios.get(`https://app.asana.com/api/1.0/tasks/${taskId}`, {
     headers: { Authorization: `Bearer ${authToken}` },
     params: {
       options: {
@@ -108,17 +107,17 @@ async function getTaskDetails(authToken: string, taskId: string): Promise<TaskDe
       },
     },
   });
-  const parsedTask = TaskDetailsSchema.safeParse(response.data);
+  const parsedTask = TaskDetailsSchema.safeParse(response.data.data);
   if (!parsedTask.success) {
     return null;
   }
   return parsedTask.data;
 }
 async function getTaskStories(authToken: string, taskId: string): Promise<TaskStory[] | null> {
-  const response = await axiosClient.get(`https://app.asana.com/api/1.0/tasks/${taskId}/stories`, {
+  const response = await axios.get(`https://app.asana.com/api/1.0/tasks/${taskId}/stories`, {
     headers: { Authorization: `Bearer ${authToken}` },
   });
-  const parsedTask = z.array(TaskStorySchema).safeParse(response.data);
+  const parsedTask = z.array(TaskStorySchema).safeParse(response.data.data);
   if (!parsedTask.success) {
     return null;
   }
@@ -140,14 +139,18 @@ const listAsanaTaskByProject: asanaListAsanaTasksByProjectFunction = async ({
   }
   try {
     const taskIds = await getTaskIdsFromProject(authToken, projectId);
+    console.log(taskIds);
     const tasks: TaskOutput[] = [];
     for (const taskId of taskIds) {
       const task = await getTaskDetails(authToken, taskId);
+      console.log(task);
       if (!task) {
         continue;
       }
       const subtasks = await getSubtasksFromTask(authToken, taskId);
+      console.log(subtasks.length);
       const taskStories = await getTaskStories(authToken, taskId);
+      console.log(taskStories?.length);
 
       tasks.push({
         task,
@@ -161,7 +164,7 @@ const listAsanaTaskByProject: asanaListAsanaTasksByProjectFunction = async ({
       tasks,
     };
   } catch (error) {
-    console.error("Error creating Asana task:", error);
+    console.error("Error listing asana tasks:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
