@@ -166,14 +166,18 @@ const listAsanaTasksByProject: asanaListAsanaTasksByProjectFunction = async ({
   }
   try {
     const taskIds = await getTaskIdsFromProject(authToken, projectId);
+    console.log(taskIds);
     const tasks: TaskOutput[] = [];
     for (const taskId of taskIds) {
       const task = await getTaskDetails(authToken, taskId);
+      console.log(task);
       if (!task) {
         continue;
       }
       const subtasks = await getSubtasksFromTask(authToken, taskId);
+      console.log(subtasks.length);
       const taskStories = await getTaskStories(authToken, taskId);
+      console.log(taskStories?.length);
 
       tasks.push({
         task,
