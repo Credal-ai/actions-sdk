@@ -74,6 +74,7 @@ import {
   bingGetTopNSearchResultUrlsDefinition,
   gongGetGongTranscriptsDefinition,
   kandjiGetFVRecoveryKeyForDeviceDefinition,
+  asanaListAsanaTasksByProjectDefinition,
 } from "../actions/autogen/templates";
 import type { ActionTemplate } from "../actions/parse";
 
@@ -86,7 +87,7 @@ export const ACTION_GROUPS: ActionGroups = {
   },
   ASANA: {
     description: "Actions for interacting with Asana",
-    actions: [asanaCommentTaskDefinition, asanaCreateTaskDefinition, asanaUpdateTaskDefinition],
+    actions: [asanaCommentTaskDefinition, asanaCreateTaskDefinition, asanaUpdateTaskDefinition, asanaListAsanaTasksByProjectDefinition],
   },
   SLACK_LIST_CONVERSATIONS: {
     description: "Actions for interacting with Slack",
