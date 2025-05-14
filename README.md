@@ -13,7 +13,7 @@ We strongly encourage you to develop actions that rely on oauth based credential
 3. Run `npm run prettier-format` to format the new files
 4. Create a new provider function in `src/actions/providers/<provider>/<action>.ts` (eg. `src/actions/providers/math/add.ts`) which exports a function using the generated types
 5. If adding a new action or provider, update `src/actions/actionMapper.ts` and `src/actions/groups.ts`.
-6. In `package.json`, bump the version number.
+6. In `package.json` and `package-lock.json`, bump the version number.
 7. Run `npm publish --access public` to publish the new version to npm. (Need to be logged in via `npm login`)
 
 ## Usage
