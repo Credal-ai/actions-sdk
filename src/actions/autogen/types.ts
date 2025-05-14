@@ -921,6 +921,12 @@ export const snowflakeRunSnowflakeQueryParamsSchema = z.object({
     .number()
     .describe("A minimum number of rows required to pass to code interpreter (if enabled)")
     .optional(),
+  generateImageViaCodeInterpreter: z
+    .union([z.literal(true), z.literal(false)])
+    .describe(
+      "Whether we should try to generate an image with results via code interpreter, regardless of if the codeInterpreter limit is reached",
+    )
+    .optional(),
 });
 
 export type snowflakeRunSnowflakeQueryParamsType = z.infer<typeof snowflakeRunSnowflakeQueryParamsSchema>;

@@ -1727,6 +1727,12 @@ export const snowflakeRunSnowflakeQueryDefinition: ActionTemplate = {
         type: "number",
         description: "A minimum number of rows required to pass to code interpreter (if enabled)",
       },
+      generateImageViaCodeInterpreter: {
+        enum: [true, false],
+        type: "boolean",
+        description:
+          "Whether we should try to generate an image with results via code interpreter, regardless of if the codeInterpreter limit is reached",
+      },
     },
   },
   output: {
