@@ -5691,7 +5691,8 @@ export const salesforceUpdateRecordDefinition: ActionTemplate = {
       },
       fieldsToUpdate: {
         type: "object",
-        description: "The fields to update on the record",
+        description:
+          "A key,value pair where the keys are the fields to update on the record and the values are the new values of those fields.",
         additionalProperties: {
           type: "string",
         },

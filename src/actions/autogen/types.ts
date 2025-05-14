@@ -3019,7 +3019,11 @@ export type ashbyUpdateCandidateFunction = ActionFunction<
 export const salesforceUpdateRecordParamsSchema = z.object({
   objectType: z.string().describe("The Salesforce object type to update (e.g., Lead, Account, Contact)"),
   recordId: z.string().describe("The ID of the record to update"),
-  fieldsToUpdate: z.record(z.string()).describe("The fields to update on the record"),
+  fieldsToUpdate: z
+    .record(z.string())
+    .describe(
+      "A key,value pair where the keys are the fields to update on the record and the values are the new values of those fields.",
+    ),
 });
 
 export type salesforceUpdateRecordParamsType = z.infer<typeof salesforceUpdateRecordParamsSchema>;
