@@ -917,6 +917,10 @@ export const snowflakeRunSnowflakeQueryParamsSchema = z.object({
   accountName: z.string().describe("The name of the Snowflake account"),
   outputFormat: z.enum(["json", "csv"]).describe("The format of the output").optional(),
   limit: z.number().describe("A limit on the number of rows to return").optional(),
+  codeInterpreterLimit: z
+    .number()
+    .describe("A minimum number of rows required to pass to code interpreter (if enabled)")
+    .optional(),
 });
 
 export type snowflakeRunSnowflakeQueryParamsType = z.infer<typeof snowflakeRunSnowflakeQueryParamsSchema>;
@@ -925,6 +929,7 @@ export const snowflakeRunSnowflakeQueryOutputSchema = z.object({
   format: z.enum(["json", "csv"]).describe("The format of the output"),
   content: z.string().describe("The content of the query result (json)"),
   rowCount: z.number().describe("The number of rows returned by the query"),
+  error: z.string().describe("The error that occurred if the query results failed or were limited").optional(),
 });
 
 export type snowflakeRunSnowflakeQueryOutputType = z.infer<typeof snowflakeRunSnowflakeQueryOutputSchema>;

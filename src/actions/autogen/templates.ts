@@ -1723,6 +1723,10 @@ export const snowflakeRunSnowflakeQueryDefinition: ActionTemplate = {
         type: "number",
         description: "A limit on the number of rows to return",
       },
+      codeInterpreterLimit: {
+        type: "number",
+        description: "A minimum number of rows required to pass to code interpreter (if enabled)",
+      },
     },
   },
   output: {
@@ -1741,6 +1745,10 @@ export const snowflakeRunSnowflakeQueryDefinition: ActionTemplate = {
       rowCount: {
         type: "number",
         description: "The number of rows returned by the query",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the query results failed or were limited",
       },
     },
   },

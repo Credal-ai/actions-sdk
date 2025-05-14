@@ -71,6 +71,7 @@ const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
       rowCount: resultsLength,
       content: formattedData,
       format: outputFormat,
+      error: limit && limit < resultsLength ? `Query results truncated to ${limit} rows.` : undefined,
     };
   } catch (error: unknown) {
     connection.destroy(err => {
