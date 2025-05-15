@@ -25,7 +25,7 @@ const actionSchema = z.object({
 
 type ActionType = z.infer<typeof actionSchema>;
 
-export type ActionProviderName = typeof ActionProviderNames;
+export type ActionProviderName = (typeof ActionProviderNames)[number];
 export type ActionName = typeof ActionNames;
 
 const actionProviderSchema = z.enum(ActionProviderNames);
