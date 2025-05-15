@@ -2685,7 +2685,8 @@ export const gongGetGongTranscriptsOutputSchema = z.object({
     .array(
       z
         .object({
-          callId: z.string().describe("The ID of the transcript").optional(),
+          callId: z.string().describe("The ID of the call").optional(),
+          callName: z.string().describe("The name of the call").optional(),
           transcript: z
             .array(
               z

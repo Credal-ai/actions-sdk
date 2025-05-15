@@ -34,6 +34,7 @@ const CallSchema = z
       primaryUserId: z.string(),
       started: z.string(),
       isPrivate: z.boolean(),
+      title: z.string(),
     }),
     parties: z.array(
       z
@@ -307,7 +308,10 @@ const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
           speakerName: userIdToNameMap[speakerId ?? ""] ?? "Unknown",
         };
       });
-      return currTranscript;
+      return {
+        callName: publicCalls.find(call => call.metaData?.id === callTranscript.callId)?.metaData?.title ?? "",
+        ...currTranscript,
+      };
     });
     return {
       success: true,

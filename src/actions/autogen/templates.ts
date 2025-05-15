@@ -5120,7 +5120,11 @@ export const gongGetGongTranscriptsDefinition: ActionTemplate = {
           properties: {
             callId: {
               type: "string",
-              description: "The ID of the transcript",
+              description: "The ID of the call",
+            },
+            callName: {
+              type: "string",
+              description: "The name of the call",
             },
             transcript: {
               type: "array",

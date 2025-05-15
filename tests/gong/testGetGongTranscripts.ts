@@ -28,6 +28,7 @@ async function runTest() {
   if (result.callTranscripts.length > 0) {
     const firstTranscript = result.callTranscripts[0];
     assert(firstTranscript.callId, "Transcript should have a callId");
+    assert(firstTranscript.callName, "Transcript should have a callName");
     assert(firstTranscript, "Transcript should have transcript data");
     assert(firstTranscript.transcript[0].speakerName, "Transcript should have speaker names");
     assert(Array.isArray(firstTranscript.transcript[0].sentences), "Transcript should have sentences array");
