@@ -24,9 +24,14 @@ const actionSchema = z.object({
 
 type ActionType = z.infer<typeof actionSchema>;
 
+const actionProviderSchema = z.enum(["generic", "asana"]);
+export type ActionProviderName = z.infer<typeof actionProviderSchema>;
+const actionNameSchema = z.enum(["st", "stelse"]);
+export type ActionName = z.infer<typeof actionNameSchema>;
+
 const actionTemplateSchema = actionSchema.extend({
-  name: z.string(),
-  provider: z.string(),
+  provider: actionProviderSchema,
+  name: actionNameSchema,
 });
 
 export type ActionTemplate = z.infer<typeof actionTemplateSchema>;
