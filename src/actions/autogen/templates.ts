@@ -121,6 +121,7 @@ export const asanaListAsanaTasksByProjectDefinition: ActionTemplate = {
                 },
                 custom_fields: {
                   type: "array",
+                  nullable: true,
                   items: {
                     type: "object",
                     properties: {
@@ -132,6 +133,7 @@ export const asanaListAsanaTasksByProjectDefinition: ActionTemplate = {
                       },
                       display_value: {
                         type: "string",
+                        nullable: true,
                       },
                     },
                   },
@@ -167,6 +169,7 @@ export const asanaListAsanaTasksByProjectDefinition: ActionTemplate = {
                   },
                   custom_fields: {
                     type: "array",
+                    nullable: true,
                     items: {
                       type: "object",
                       properties: {
@@ -176,19 +179,9 @@ export const asanaListAsanaTasksByProjectDefinition: ActionTemplate = {
                         name: {
                           type: "string",
                         },
-                        enum_options: {
-                          type: "array",
-                          items: {
-                            type: "object",
-                            properties: {
-                              gid: {
-                                type: "string",
-                              },
-                              name: {
-                                type: "string",
-                              },
-                            },
-                          },
+                        display_value: {
+                          type: "string",
+                          nullable: true,
                         },
                       },
                     },

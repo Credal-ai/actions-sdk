@@ -87,9 +87,10 @@ export const asanaListAsanaTasksByProjectOutputSchema = z.object({
                 z.object({
                   gid: z.string().optional(),
                   name: z.string().optional(),
-                  display_value: z.string().optional(),
+                  display_value: z.string().nullable().optional(),
                 }),
               )
+              .nullable()
               .optional(),
             num_subtasks: z.number().optional(),
           }),
@@ -107,11 +108,10 @@ export const asanaListAsanaTasksByProjectOutputSchema = z.object({
                     z.object({
                       gid: z.string().optional(),
                       name: z.string().optional(),
-                      enum_options: z
-                        .array(z.object({ gid: z.string().optional(), name: z.string().optional() }))
-                        .optional(),
+                      display_value: z.string().nullable().optional(),
                     }),
                   )
+                  .nullable()
                   .optional(),
                 num_subtasks: z.number().optional(),
               }),

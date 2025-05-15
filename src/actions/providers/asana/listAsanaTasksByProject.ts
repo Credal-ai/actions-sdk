@@ -22,13 +22,15 @@ const TaskDetailsSchema = z
     completed: z.boolean(),
     modified_at: z.string(),
     notes: z.string(),
-    custom_fields: z.array(
-      z.object({
-        gid: z.string(),
-        name: z.string(),
-        display_value: z.string(),
-      }),
-    ),
+    custom_fields: z
+      .array(
+        z.object({
+          gid: z.string(),
+          name: z.string(),
+          display_value: z.string().nullable(),
+        }),
+      )
+      .nullable(),
     num_subtasks: z.number(),
   })
   .partial()
@@ -61,6 +63,12 @@ const TaskOutputSchema = z.object({
   task: TaskDetailsSchema,
   subtasks: z.array(TaskDetailsSchema).nullable(),
   taskStories: z.array(TaskStorySchema).nullable(),
+});
+
+const SectionOutputSchema = z.object({
+  gid: z.string(),
+  name: z.string(),
+  resource_type: z.string(),
 });
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

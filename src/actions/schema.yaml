@@ -90,6 +90,7 @@ actions:
                       type: string
                     custom_fields:
                       type: array
+                      nullable: true
                       items:
                         type: object
                         properties:
@@ -99,6 +100,7 @@ actions:
                             type: string
                           display_value:
                             type: string
+                            nullable: true
                     num_subtasks:
                       type: number
                 subtasks:
@@ -121,6 +123,7 @@ actions:
                         type: string
                       custom_fields:
                         type: array
+                        nullable: true
                         items:
                           type: object
                           properties:
@@ -128,15 +131,9 @@ actions:
                               type: string
                             name:
                               type: string
-                            enum_options:
-                              type: array
-                              items:
-                                type: object
-                                properties:
-                                  gid:
-                                    type: string
-                                  name:
-                                    type: string
+                            display_value:
+                              type: string
+                              nullable: true
                       num_subtasks:
                         type: number
                 taskStories:
