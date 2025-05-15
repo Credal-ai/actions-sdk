@@ -919,13 +919,13 @@ export const snowflakeRunSnowflakeQueryParamsSchema = z.object({
   limit: z.number().describe("A limit on the number of rows to return").optional(),
   codeInterpreterLimit: z
     .number()
-    .describe("A minimum number of rows required to pass to code interpreter (if enabled)")
-    .optional(),
-  generateImageViaCodeInterpreter: z
-    .union([z.literal(true), z.literal(false)])
     .describe(
-      "Whether we should try to generate an image with results via code interpreter, regardless of if the codeInterpreter limit is reached",
+      "A minimum number of rows required to pass to code interpreter for analysis and image generation (if enabled)",
     )
+    .optional(),
+  codeInterpreterImageGenLimit: z
+    .number()
+    .describe("A minimum number of rows required to pass to code interpreter for image generation only (if enabled)")
     .optional(),
 });
 
