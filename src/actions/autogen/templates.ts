@@ -23,8 +23,8 @@ export const genericFillTemplateDefinition: ActionTemplate = {
       },
     },
   },
-  name: "fillTemplate",
   provider: "generic",
+  name: "fillTemplate",
 };
 export const asanaCommentTaskDefinition: ActionTemplate = {
   description: "Comments on an Asana task with specified content",
@@ -65,8 +65,8 @@ export const asanaCommentTaskDefinition: ActionTemplate = {
       },
     },
   },
-  name: "commentTask",
   provider: "asana",
+  name: "commentTask",
 };
 export const asanaListAsanaTasksByProjectDefinition: ActionTemplate = {
   description: "List all tasks associated with an Asana project and their data",
@@ -232,8 +232,8 @@ export const asanaListAsanaTasksByProjectDefinition: ActionTemplate = {
       },
     },
   },
-  name: "listAsanaTasksByProject",
   provider: "asana",
+  name: "listAsanaTasksByProject",
 };
 export const asanaCreateTaskDefinition: ActionTemplate = {
   description: "Create an Asana task with specified content using optional template",
@@ -295,8 +295,8 @@ export const asanaCreateTaskDefinition: ActionTemplate = {
       },
     },
   },
-  name: "createTask",
   provider: "asana",
+  name: "createTask",
 };
 export const asanaUpdateTaskDefinition: ActionTemplate = {
   description: "Updates a Asana task with specified content",
@@ -358,8 +358,8 @@ export const asanaUpdateTaskDefinition: ActionTemplate = {
       },
     },
   },
-  name: "updateTask",
   provider: "asana",
+  name: "updateTask",
 };
 export const slackSendMessageDefinition: ActionTemplate = {
   description: "Sends a message to a Slack channel",
@@ -392,8 +392,8 @@ export const slackSendMessageDefinition: ActionTemplate = {
       },
     },
   },
-  name: "sendMessage",
   provider: "slack",
+  name: "sendMessage",
 };
 export const slackGetChannelMessagesDefinition: ActionTemplate = {
   description: "Gets messages from a Slack channel",
@@ -441,8 +441,8 @@ export const slackGetChannelMessagesDefinition: ActionTemplate = {
       },
     },
   },
-  name: "getChannelMessages",
   provider: "slack",
+  name: "getChannelMessages",
 };
 export const mathAddDefinition: ActionTemplate = {
   description: "Adds two numbers together",
@@ -471,8 +471,8 @@ export const mathAddDefinition: ActionTemplate = {
       },
     },
   },
-  name: "add",
   provider: "math",
+  name: "add",
 };
 export const confluenceOverwritePageDefinition: ActionTemplate = {
   description: "Updates a Confluence page with the new content specified",
@@ -495,8 +495,8 @@ export const confluenceOverwritePageDefinition: ActionTemplate = {
       },
     },
   },
-  name: "overwritePage",
   provider: "confluence",
+  name: "overwritePage",
 };
 export const confluenceFetchPageContentDefinition: ActionTemplate = {
   description: "Fetches content from a Confluence page",
@@ -529,8 +529,8 @@ export const confluenceFetchPageContentDefinition: ActionTemplate = {
       },
     },
   },
-  name: "fetchPageContent",
   provider: "confluence",
+  name: "fetchPageContent",
 };
 export const jiraAssignJiraTicketDefinition: ActionTemplate = {
   description: "Assigns/Re-assignes a Jira ticket to a specified user",
@@ -571,8 +571,8 @@ export const jiraAssignJiraTicketDefinition: ActionTemplate = {
       },
     },
   },
-  name: "assignJiraTicket",
   provider: "jira",
+  name: "assignJiraTicket",
 };
 export const jiraCommentJiraTicketDefinition: ActionTemplate = {
   description: "Comments on a Jira ticket with specified content",
@@ -613,8 +613,8 @@ export const jiraCommentJiraTicketDefinition: ActionTemplate = {
       },
     },
   },
-  name: "commentJiraTicket",
   provider: "jira",
+  name: "commentJiraTicket",
 };
 export const jiraCreateJiraTicketDefinition: ActionTemplate = {
   description: "Create a jira ticket with new content specified",
@@ -664,8 +664,8 @@ export const jiraCreateJiraTicketDefinition: ActionTemplate = {
       },
     },
   },
-  name: "createJiraTicket",
   provider: "jira",
+  name: "createJiraTicket",
 };
 export const jiraGetJiraTicketDetailsDefinition: ActionTemplate = {
   description: "Get details of a ticket in Jira",
@@ -702,8 +702,8 @@ export const jiraGetJiraTicketDetailsDefinition: ActionTemplate = {
       },
     },
   },
-  name: "getJiraTicketDetails",
   provider: "jira",
+  name: "getJiraTicketDetails",
 };
 export const jiraGetJiraTicketHistoryDefinition: ActionTemplate = {
   description: "Get ticket history of a ticket in Jira",
@@ -740,8 +740,8 @@ export const jiraGetJiraTicketHistoryDefinition: ActionTemplate = {
       },
     },
   },
-  name: "getJiraTicketHistory",
   provider: "jira",
+  name: "getJiraTicketHistory",
 };
 export const jiraUpdateJiraTicketDetailsDefinition: ActionTemplate = {
   description: "Update a Jira ticket with new content specified",
@@ -787,8 +787,8 @@ export const jiraUpdateJiraTicketDetailsDefinition: ActionTemplate = {
       },
     },
   },
-  name: "updateJiraTicketDetails",
   provider: "jira",
+  name: "updateJiraTicketDetails",
 };
 export const jiraUpdateJiraTicketStatusDefinition: ActionTemplate = {
   description: "Updates the status of Jira ticket with specified status",
@@ -829,8 +829,8 @@ export const jiraUpdateJiraTicketStatusDefinition: ActionTemplate = {
       },
     },
   },
-  name: "updateJiraTicketStatus",
   provider: "jira",
+  name: "updateJiraTicketStatus",
 };
 export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
   description: "Retrieve Jira Issues by JQL query",
@@ -874,8 +874,8 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
       },
     },
   },
-  name: "getJiraIssuesByQuery",
   provider: "jira",
+  name: "getJiraIssuesByQuery",
 };
 export const kandjiGetFVRecoveryKeyForDeviceDefinition: ActionTemplate = {
   description: "Get the FileVault recovery key for a device",
@@ -912,8 +912,8 @@ export const kandjiGetFVRecoveryKeyForDeviceDefinition: ActionTemplate = {
       },
     },
   },
-  name: "getFVRecoveryKeyForDevice",
   provider: "kandji",
+  name: "getFVRecoveryKeyForDevice",
 };
 export const googlemapsValidateAddressDefinition: ActionTemplate = {
   description: "Validate a Google Maps address",
@@ -1079,8 +1079,8 @@ export const googlemapsValidateAddressDefinition: ActionTemplate = {
       },
     },
   },
-  name: "validateAddress",
   provider: "googlemaps",
+  name: "validateAddress",
 };
 export const googlemapsNearbysearchRestaurantsDefinition: ActionTemplate = {
   description: "Search for nearby places using Google Maps",
@@ -1146,8 +1146,8 @@ export const googlemapsNearbysearchRestaurantsDefinition: ActionTemplate = {
       },
     },
   },
-  name: "nearbysearchRestaurants",
   provider: "googlemaps",
+  name: "nearbysearchRestaurants",
 };
 export const bingGetTopNSearchResultUrlsDefinition: ActionTemplate = {
   description: "Get the top five search result URLs from Bing",
@@ -1194,8 +1194,8 @@ export const bingGetTopNSearchResultUrlsDefinition: ActionTemplate = {
       },
     },
   },
-  name: "getTopNSearchResultUrls",
   provider: "bing",
+  name: "getTopNSearchResultUrls",
 };
 export const credalCallCopilotDefinition: ActionTemplate = {
   description: "Call Credal Copilot for response on a given query",
@@ -1327,8 +1327,8 @@ export const credalCallCopilotDefinition: ActionTemplate = {
       },
     },
   },
-  name: "callCopilot",
   provider: "credal",
+  name: "callCopilot",
 };
 export const zendeskCreateZendeskTicketDefinition: ActionTemplate = {
   description: "Create a ticket in Zendesk",
@@ -1365,8 +1365,8 @@ export const zendeskCreateZendeskTicketDefinition: ActionTemplate = {
       },
     },
   },
-  name: "createZendeskTicket",
   provider: "zendesk",
+  name: "createZendeskTicket",
 };
 export const zendeskListZendeskTicketsDefinition: ActionTemplate = {
   description: "List tickets in Zendesk from the past 3 months",
@@ -1402,8 +1402,8 @@ export const zendeskListZendeskTicketsDefinition: ActionTemplate = {
       },
     },
   },
-  name: "listZendeskTickets",
   provider: "zendesk",
+  name: "listZendeskTickets",
 };
 export const zendeskGetTicketDetailsDefinition: ActionTemplate = {
   description: "Get details of a ticket in Zendesk",
@@ -1432,8 +1432,8 @@ export const zendeskGetTicketDetailsDefinition: ActionTemplate = {
       },
     },
   },
-  name: "getTicketDetails",
   provider: "zendesk",
+  name: "getTicketDetails",
 };
 export const zendeskUpdateTicketStatusDefinition: ActionTemplate = {
   description: "Update the status of a ticket in Zendesk",
@@ -1457,8 +1457,8 @@ export const zendeskUpdateTicketStatusDefinition: ActionTemplate = {
       },
     },
   },
-  name: "updateTicketStatus",
   provider: "zendesk",
+  name: "updateTicketStatus",
 };
 export const zendeskAddCommentToTicketDefinition: ActionTemplate = {
   description: "Add a comment to a ticket in Zendesk",
@@ -1492,8 +1492,8 @@ export const zendeskAddCommentToTicketDefinition: ActionTemplate = {
       },
     },
   },
-  name: "addCommentToTicket",
   provider: "zendesk",
+  name: "addCommentToTicket",
 };
 export const zendeskAssignTicketDefinition: ActionTemplate = {
   description: "Assign a ticket in Zendesk to a specific user",
@@ -1516,8 +1516,8 @@ export const zendeskAssignTicketDefinition: ActionTemplate = {
       },
     },
   },
-  name: "assignTicket",
   provider: "zendesk",
+  name: "assignTicket",
 };
 export const linkedinCreateShareLinkedinPostUrlDefinition: ActionTemplate = {
   description: "Create a share linkedin post link",
@@ -1546,8 +1546,8 @@ export const linkedinCreateShareLinkedinPostUrlDefinition: ActionTemplate = {
       },
     },
   },
-  name: "createShareLinkedinPostUrl",
   provider: "linkedin",
+  name: "createShareLinkedinPostUrl",
 };
 export const xCreateShareXPostUrlDefinition: ActionTemplate = {
   description: "Create a share X (formerly twitter) post link",
@@ -1591,8 +1591,8 @@ export const xCreateShareXPostUrlDefinition: ActionTemplate = {
       },
     },
   },
-  name: "createShareXPostUrl",
   provider: "x",
+  name: "createShareXPostUrl",
 };
 export const mongoInsertMongoDocDefinition: ActionTemplate = {
   description: "Insert a document into a MongoDB collection",
@@ -1625,8 +1625,8 @@ export const mongoInsertMongoDocDefinition: ActionTemplate = {
       },
     },
   },
-  name: "insertMongoDoc",
   provider: "mongo",
+  name: "insertMongoDoc",
 };
 export const snowflakeGetRowByFieldValueDefinition: ActionTemplate = {
   description: "Get a row from a Snowflake table by a field value",
@@ -1681,8 +1681,8 @@ export const snowflakeGetRowByFieldValueDefinition: ActionTemplate = {
       },
     },
   },
-  name: "getRowByFieldValue",
   provider: "snowflake",
+  name: "getRowByFieldValue",
 };
 export const snowflakeRunSnowflakeQueryDefinition: ActionTemplate = {
   description: "Execute a Snowflake query and return output.",
@@ -1751,8 +1751,8 @@ export const snowflakeRunSnowflakeQueryDefinition: ActionTemplate = {
       },
     },
   },
-  name: "runSnowflakeQuery",
   provider: "snowflake",
+  name: "runSnowflakeQuery",
 };
 export const openstreetmapGetLatitudeLongitudeFromLocationDefinition: ActionTemplate = {
   description: "Get the latitude and longitude of a location",
@@ -1795,8 +1795,8 @@ export const openstreetmapGetLatitudeLongitudeFromLocationDefinition: ActionTemp
       },
     },
   },
-  name: "getLatitudeLongitudeFromLocation",
   provider: "openstreetmap",
+  name: "getLatitudeLongitudeFromLocation",
 };
 export const nwsGetForecastForLocationDefinition: ActionTemplate = {
   description: "Get the weather forecast for a location using latitude and longitude",
@@ -1843,8 +1843,8 @@ export const nwsGetForecastForLocationDefinition: ActionTemplate = {
       },
     },
   },
-  name: "getForecastForLocation",
   provider: "nws",
+  name: "getForecastForLocation",
 };
 export const firecrawlDeepResearchDefinition: ActionTemplate = {
   description: "Deep research on a topic using Firecrawl",
@@ -1903,8 +1903,8 @@ export const firecrawlDeepResearchDefinition: ActionTemplate = {
       },
     },
   },
-  name: "deepResearch",
   provider: "firecrawl",
+  name: "deepResearch",
 };
 export const firecrawlScrapeUrlDefinition: ActionTemplate = {
   description: "Scrape a URL and get website content using Firecrawl",
@@ -1929,8 +1929,8 @@ export const firecrawlScrapeUrlDefinition: ActionTemplate = {
       },
     },
   },
-  name: "scrapeUrl",
   provider: "firecrawl",
+  name: "scrapeUrl",
 };
 export const firecrawlScrapeTweetDataWithNitterDefinition: ActionTemplate = {
   description: "Given A tweet URL scrape the tweet data with nitter+firecrawl",
@@ -1955,8 +1955,8 @@ export const firecrawlScrapeTweetDataWithNitterDefinition: ActionTemplate = {
       },
     },
   },
-  name: "scrapeTweetDataWithNitter",
   provider: "firecrawl",
+  name: "scrapeTweetDataWithNitter",
 };
 export const resendSendEmailDefinition: ActionTemplate = {
   description: "Send an email using Resend",
@@ -1993,8 +1993,8 @@ export const resendSendEmailDefinition: ActionTemplate = {
       },
     },
   },
-  name: "sendEmail",
   provider: "resend",
+  name: "sendEmail",
 };
 export const googleOauthCreateNewGoogleDocDefinition: ActionTemplate = {
   description: "Create a new Google Docs document using OAuth authentication",
@@ -2027,8 +2027,8 @@ export const googleOauthCreateNewGoogleDocDefinition: ActionTemplate = {
       },
     },
   },
-  name: "createNewGoogleDoc",
   provider: "googleOauth",
+  name: "createNewGoogleDoc",
 };
 export const googleOauthUpdateDocDefinition: ActionTemplate = {
   description: "Update an existing Google Docs document using OAuth authentication with batch requests",
@@ -3139,8 +3139,8 @@ export const googleOauthUpdateDocDefinition: ActionTemplate = {
       },
     },
   },
-  name: "updateDoc",
   provider: "googleOauth",
+  name: "updateDoc",
 };
 export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
   description: "Schedule a meeting on google calendar using OAuth authentication",
@@ -3205,8 +3205,8 @@ export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
       },
     },
   },
-  name: "scheduleCalendarMeeting",
   provider: "googleOauth",
+  name: "scheduleCalendarMeeting",
 };
 export const googleOauthCreateSpreadsheetDefinition: ActionTemplate = {
   description: "Create a new Google Spreadsheet using OAuth authentication",
@@ -3317,8 +3317,8 @@ export const googleOauthCreateSpreadsheetDefinition: ActionTemplate = {
       },
     },
   },
-  name: "createSpreadsheet",
   provider: "googleOauth",
+  name: "createSpreadsheet",
 };
 export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
   description: "Update a Google Spreadsheet with new content specified",
@@ -3700,8 +3700,8 @@ export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
       },
     },
   },
-  name: "updateSpreadsheet",
   provider: "googleOauth",
+  name: "updateSpreadsheet",
 };
 export const googleOauthCreatePresentationDefinition: ActionTemplate = {
   description: "Create a Google Presentation",
@@ -3773,8 +3773,8 @@ export const googleOauthCreatePresentationDefinition: ActionTemplate = {
       },
     },
   },
-  name: "createPresentation",
   provider: "googleOauth",
+  name: "createPresentation",
 };
 export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
   description: "Update a Google Presentation",
@@ -5071,8 +5071,8 @@ export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
       },
     },
   },
-  name: "updatePresentation",
   provider: "googleOauth",
+  name: "updatePresentation",
 };
 export const gongGetGongTranscriptsDefinition: ActionTemplate = {
   description: "Get sales call transcripts from Gong",
@@ -5176,8 +5176,8 @@ export const gongGetGongTranscriptsDefinition: ActionTemplate = {
       },
     },
   },
-  name: "getGongTranscripts",
   provider: "gong",
+  name: "getGongTranscripts",
 };
 export const finnhubSymbolLookupDefinition: ActionTemplate = {
   description: "Look up a stock symbol by name",
@@ -5216,8 +5216,8 @@ export const finnhubSymbolLookupDefinition: ActionTemplate = {
       },
     },
   },
-  name: "symbolLookup",
   provider: "finnhub",
+  name: "symbolLookup",
 };
 export const finnhubGetBasicFinancialsDefinition: ActionTemplate = {
   description: "Get company basic financials such as margin, P/E ratio, 52-week high/low etc.",
@@ -5308,8 +5308,8 @@ export const finnhubGetBasicFinancialsDefinition: ActionTemplate = {
       },
     },
   },
-  name: "getBasicFinancials",
   provider: "finnhub",
+  name: "getBasicFinancials",
 };
 export const lookerEnableUserByEmailDefinition: ActionTemplate = {
   description: "Search for a Looker user by email and enable them if disabled",
@@ -5369,8 +5369,8 @@ export const lookerEnableUserByEmailDefinition: ActionTemplate = {
       },
     },
   },
-  name: "enableUserByEmail",
   provider: "looker",
+  name: "enableUserByEmail",
 };
 export const ashbyCreateNoteDefinition: ActionTemplate = {
   description: "Creates a note on a candidate",
@@ -5389,8 +5389,8 @@ export const ashbyCreateNoteDefinition: ActionTemplate = {
       },
     },
   },
-  name: "createNote",
   provider: "ashby",
+  name: "createNote",
 };
 export const ashbyGetCandidateInfoDefinition: ActionTemplate = {
   description: "Gets a candidate's information",
@@ -5416,8 +5416,8 @@ export const ashbyGetCandidateInfoDefinition: ActionTemplate = {
       },
     },
   },
-  name: "getCandidateInfo",
   provider: "ashby",
+  name: "getCandidateInfo",
 };
 export const ashbyAddCandidateToProjectDefinition: ActionTemplate = {
   description: "Adds a candidate to a project",
@@ -5436,8 +5436,8 @@ export const ashbyAddCandidateToProjectDefinition: ActionTemplate = {
       },
     },
   },
-  name: "addCandidateToProject",
   provider: "ashby",
+  name: "addCandidateToProject",
 };
 export const ashbyListCandidatesDefinition: ActionTemplate = {
   description: "Lists all candidates",
@@ -5452,8 +5452,8 @@ export const ashbyListCandidatesDefinition: ActionTemplate = {
       },
     },
   },
-  name: "listCandidates",
   provider: "ashby",
+  name: "listCandidates",
 };
 export const ashbySearchCandidatesDefinition: ActionTemplate = {
   description: "Search for candidates by email and/or name.",
@@ -5482,8 +5482,8 @@ export const ashbySearchCandidatesDefinition: ActionTemplate = {
       },
     },
   },
-  name: "searchCandidates",
   provider: "ashby",
+  name: "searchCandidates",
 };
 export const ashbyListCandidateNotesDefinition: ActionTemplate = {
   description: "Lists all notes on a candidate",
@@ -5508,8 +5508,8 @@ export const ashbyListCandidateNotesDefinition: ActionTemplate = {
       },
     },
   },
-  name: "listCandidateNotes",
   provider: "ashby",
+  name: "listCandidateNotes",
 };
 export const ashbyCreateCandidateDefinition: ActionTemplate = {
   description: "Creates a candidate",
@@ -5577,8 +5577,8 @@ export const ashbyCreateCandidateDefinition: ActionTemplate = {
       },
     },
   },
-  name: "createCandidate",
   provider: "ashby",
+  name: "createCandidate",
 };
 export const ashbyUpdateCandidateDefinition: ActionTemplate = {
   description: "Updates a candidate",
@@ -5674,8 +5674,8 @@ export const ashbyUpdateCandidateDefinition: ActionTemplate = {
       },
     },
   },
-  name: "updateCandidate",
   provider: "ashby",
+  name: "updateCandidate",
 };
 export const salesforceUpdateRecordDefinition: ActionTemplate = {
   description: "Update a record in Salesforce",
@@ -5716,8 +5716,8 @@ export const salesforceUpdateRecordDefinition: ActionTemplate = {
       },
     },
   },
-  name: "updateRecord",
   provider: "salesforce",
+  name: "updateRecord",
 };
 export const salesforceCreateRecordDefinition: ActionTemplate = {
   description: "Create a record in Salesforce",
@@ -5757,8 +5757,8 @@ export const salesforceCreateRecordDefinition: ActionTemplate = {
       },
     },
   },
-  name: "createRecord",
   provider: "salesforce",
+  name: "createRecord",
 };
 export const salesforceCreateCaseDefinition: ActionTemplate = {
   description: "Create a case or support ticket in Salesforce",
@@ -5810,8 +5810,8 @@ export const salesforceCreateCaseDefinition: ActionTemplate = {
       },
     },
   },
-  name: "createCase",
   provider: "salesforce",
+  name: "createCase",
 };
 export const salesforceGenerateSalesReportDefinition: ActionTemplate = {
   description: "Generate a sales report from Salesforce",
@@ -5862,8 +5862,8 @@ export const salesforceGenerateSalesReportDefinition: ActionTemplate = {
       },
     },
   },
-  name: "generateSalesReport",
   provider: "salesforce",
+  name: "generateSalesReport",
 };
 export const salesforceGetSalesforceRecordsByQueryDefinition: ActionTemplate = {
   description: "Retrieve Salesforce records by SOQL query",
@@ -5907,8 +5907,8 @@ export const salesforceGetSalesforceRecordsByQueryDefinition: ActionTemplate = {
       },
     },
   },
-  name: "getSalesforceRecordsByQuery",
   provider: "salesforce",
+  name: "getSalesforceRecordsByQuery",
 };
 export const salesforceGetRecordDefinition: ActionTemplate = {
   description: "Retrieve a record from Salesforce",
@@ -5948,8 +5948,8 @@ export const salesforceGetRecordDefinition: ActionTemplate = {
       },
     },
   },
-  name: "getRecord",
   provider: "salesforce",
+  name: "getRecord",
 };
 export const salesforceFetchSalesforceSchemaByObjectDefinition: ActionTemplate = {
   description: "Fetch the schema of a Salesforce object",
@@ -5985,8 +5985,8 @@ export const salesforceFetchSalesforceSchemaByObjectDefinition: ActionTemplate =
       },
     },
   },
-  name: "fetchSalesforceSchemaByObject",
   provider: "salesforce",
+  name: "fetchSalesforceSchemaByObject",
 };
 export const microsoftCreateDocumentDefinition: ActionTemplate = {
   description: "Creates a new Office365 document",
@@ -6039,8 +6039,8 @@ export const microsoftCreateDocumentDefinition: ActionTemplate = {
       },
     },
   },
-  name: "createDocument",
   provider: "microsoft",
+  name: "createDocument",
 };
 export const microsoftUpdateDocumentDefinition: ActionTemplate = {
   description: "Updates a Office365 document",
@@ -6081,8 +6081,8 @@ export const microsoftUpdateDocumentDefinition: ActionTemplate = {
       },
     },
   },
-  name: "updateDocument",
   provider: "microsoft",
+  name: "updateDocument",
 };
 export const microsoftUpdateSpreadsheetDefinition: ActionTemplate = {
   description: "Updates a Microsoft Excel spreadsheet",
@@ -6133,8 +6133,8 @@ export const microsoftUpdateSpreadsheetDefinition: ActionTemplate = {
       },
     },
   },
-  name: "updateSpreadsheet",
   provider: "microsoft",
+  name: "updateSpreadsheet",
 };
 export const microsoftMessageTeamsChatDefinition: ActionTemplate = {
   description: "Sends a message to a Microsoft Teams chat",
@@ -6171,8 +6171,8 @@ export const microsoftMessageTeamsChatDefinition: ActionTemplate = {
       },
     },
   },
-  name: "messageTeamsChat",
   provider: "microsoft",
+  name: "messageTeamsChat",
 };
 export const microsoftMessageTeamsChannelDefinition: ActionTemplate = {
   description: "Sends a message to a Microsoft Teams channel",
@@ -6213,8 +6213,8 @@ export const microsoftMessageTeamsChannelDefinition: ActionTemplate = {
       },
     },
   },
-  name: "messageTeamsChannel",
   provider: "microsoft",
+  name: "messageTeamsChannel",
 };
 export const microsoftGetDocumentDefinition: ActionTemplate = {
   description: "Retrieves the content of a Microsoft Office document",
@@ -6251,8 +6251,8 @@ export const microsoftGetDocumentDefinition: ActionTemplate = {
       },
     },
   },
-  name: "getDocument",
   provider: "microsoft",
+  name: "getDocument",
 };
 export const githubCreateOrUpdateFileDefinition: ActionTemplate = {
   description: "Create or update a file in a GitHub repository",
@@ -6314,8 +6314,8 @@ export const githubCreateOrUpdateFileDefinition: ActionTemplate = {
       },
     },
   },
-  name: "createOrUpdateFile",
   provider: "github",
+  name: "createOrUpdateFile",
 };
 export const githubCreateBranchDefinition: ActionTemplate = {
   description: "Create a new branch in a GitHub repository",
@@ -6356,8 +6356,8 @@ export const githubCreateBranchDefinition: ActionTemplate = {
       },
     },
   },
-  name: "createBranch",
   provider: "github",
+  name: "createBranch",
 };
 export const githubCreatePullRequestDefinition: ActionTemplate = {
   description: "Create a pull request in a GitHub repository",
@@ -6415,8 +6415,8 @@ export const githubCreatePullRequestDefinition: ActionTemplate = {
       },
     },
   },
-  name: "createPullRequest",
   provider: "github",
+  name: "createPullRequest",
 };
 export const githubListPullRequestsDefinition: ActionTemplate = {
   description: "List pull requests in a GitHub repository",
@@ -6491,6 +6491,6 @@ export const githubListPullRequestsDefinition: ActionTemplate = {
       },
     },
   },
-  name: "listPullRequests",
   provider: "github",
+  name: "listPullRequests",
 };
