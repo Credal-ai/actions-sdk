@@ -154,6 +154,7 @@ import {
   zendeskUpdateTicketStatusOutputSchema,
   zendeskUpdateTicketStatusParamsSchema,
 } from "./autogen/types";
+import type { ActionName, ActionProviderName } from "./parse";
 import commentAsanaTask from "./providers/asana/commentAsanaTask";
 import createAsanaTask from "./providers/asana/createAsanaTask";
 import listAsanaTasksByProject from "./providers/asana/listAsanaTasksByProject";
@@ -238,9 +239,7 @@ interface ActionFunctionComponents {
   outputSchema: z.ZodSchema;
 }
 
-// TODO
-// export const ActionMapper: Record<ActionProviderName, Record<ActionName, ActionFunctionComponents>> = {
-export const ActionMapper: Record<string, Record<string, ActionFunctionComponents>> = {
+export const ActionMapper: Record<ActionProviderName, Partial<Record<ActionName, ActionFunctionComponents>>> = {
   generic: {
     fillTemplate: {
       fn: fillTemplate,
@@ -307,7 +306,7 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       paramsSchema: googlemapsValidateAddressParamsSchema,
       outputSchema: googlemapsValidateAddressOutputSchema,
     },
-    nearbysearch: {
+    nearbysearchRestaurants: {
       fn: nearbysearch,
       paramsSchema: googlemapsNearbysearchRestaurantsParamsSchema,
       outputSchema: googlemapsNearbysearchRestaurantsOutputSchema,
