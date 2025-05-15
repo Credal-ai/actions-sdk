@@ -65,12 +65,6 @@ const TaskOutputSchema = z.object({
   taskStories: z.array(TaskStorySchema).nullable(),
 });
 
-const SectionOutputSchema = z.object({
-  gid: z.string(),
-  name: z.string(),
-  resource_type: z.string(),
-});
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const AsanaOutputSchema = z.object({
   data: z.object({
