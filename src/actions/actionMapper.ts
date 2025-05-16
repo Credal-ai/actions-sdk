@@ -1,236 +1,234 @@
 import type { z } from "zod";
 import {
   type ActionFunction,
-  asanaCommentTaskOutputSchema,
-  asanaCommentTaskParamsSchema,
-  asanaCreateTaskOutputSchema,
-  asanaCreateTaskParamsSchema,
-  asanaListAsanaTasksByProjectOutputSchema,
-  asanaListAsanaTasksByProjectParamsSchema,
-  asanaUpdateTaskOutputSchema,
-  asanaUpdateTaskParamsSchema,
-  ashbyAddCandidateToProjectOutputSchema,
-  ashbyAddCandidateToProjectParamsSchema,
-  ashbyCreateCandidateOutputSchema,
-  ashbyCreateCandidateParamsSchema,
-  ashbyCreateNoteOutputSchema,
-  ashbyCreateNoteParamsSchema,
-  ashbyGetCandidateInfoOutputSchema,
-  ashbyGetCandidateInfoParamsSchema,
-  ashbyListCandidateNotesOutputSchema,
-  ashbyListCandidateNotesParamsSchema,
-  ashbyListCandidatesOutputSchema,
-  ashbyListCandidatesParamsSchema,
-  ashbySearchCandidatesOutputSchema,
-  ashbySearchCandidatesParamsSchema,
-  ashbyUpdateCandidateOutputSchema,
-  ashbyUpdateCandidateParamsSchema,
-  bingGetTopNSearchResultUrlsOutputSchema,
-  bingGetTopNSearchResultUrlsParamsSchema,
-  confluenceFetchPageContentOutputSchema,
-  confluenceFetchPageContentParamsSchema,
-  confluenceOverwritePageOutputSchema,
+  genericFillTemplateParamsSchema,
+  genericFillTemplateOutputSchema,
   confluenceOverwritePageParamsSchema,
+  confluenceOverwritePageOutputSchema,
   credalCallCopilotOutputSchema,
   credalCallCopilotParamsSchema,
-  finnhubGetBasicFinancialsOutputSchema,
-  finnhubGetBasicFinancialsParamsSchema,
-  finnhubSymbolLookupOutputSchema,
-  finnhubSymbolLookupParamsSchema,
-  firecrawlDeepResearchOutputSchema,
-  firecrawlDeepResearchParamsSchema,
-  firecrawlScrapeTweetDataWithNitterOutputSchema,
-  firecrawlScrapeTweetDataWithNitterParamsSchema,
-  firecrawlScrapeUrlOutputSchema,
-  firecrawlScrapeUrlParamsSchema,
-  genericFillTemplateOutputSchema,
-  genericFillTemplateParamsSchema,
-  githubCreateBranchOutputSchema,
-  githubCreateBranchParamsSchema,
-  githubCreateOrUpdateFileOutputSchema,
-  githubCreateOrUpdateFileParamsSchema,
-  githubCreatePullRequestOutputSchema,
-  githubCreatePullRequestParamsSchema,
-  githubListPullRequestsOutputSchema,
-  githubListPullRequestsParamsSchema,
-  gongGetGongTranscriptsOutputSchema,
-  gongGetGongTranscriptsParamsSchema,
-  googlemapsNearbysearchRestaurantsOutputSchema,
-  googlemapsNearbysearchRestaurantsParamsSchema,
   googlemapsValidateAddressOutputSchema,
   googlemapsValidateAddressParamsSchema,
-  googleOauthCreateNewGoogleDocOutputSchema,
   googleOauthCreateNewGoogleDocParamsSchema,
-  googleOauthCreatePresentationOutputSchema,
-  googleOauthCreatePresentationParamsSchema,
-  googleOauthCreateSpreadsheetOutputSchema,
-  googleOauthCreateSpreadsheetParamsSchema,
-  googleOauthScheduleCalendarMeetingOutputSchema,
-  googleOauthScheduleCalendarMeetingParamsSchema,
-  googleOauthUpdateDocOutputSchema,
-  googleOauthUpdateDocParamsSchema,
-  googleOauthUpdatePresentationOutputSchema,
-  googleOauthUpdatePresentationParamsSchema,
-  googleOauthUpdateSpreadsheetOutputSchema,
-  googleOauthUpdateSpreadsheetParamsSchema,
-  jiraAssignJiraTicketOutputSchema,
-  jiraAssignJiraTicketParamsSchema,
-  jiraCommentJiraTicketOutputSchema,
-  jiraCommentJiraTicketParamsSchema,
-  jiraCreateJiraTicketOutputSchema,
-  jiraCreateJiraTicketParamsSchema,
-  jiraGetJiraIssuesByQueryOutputSchema,
-  jiraGetJiraIssuesByQueryParamsSchema,
-  jiraGetJiraTicketDetailsOutputSchema,
-  jiraGetJiraTicketDetailsParamsSchema,
-  jiraGetJiraTicketHistoryOutputSchema,
-  jiraGetJiraTicketHistoryParamsSchema,
-  jiraUpdateJiraTicketDetailsOutputSchema,
-  jiraUpdateJiraTicketDetailsParamsSchema,
-  jiraUpdateJiraTicketStatusOutputSchema,
-  jiraUpdateJiraTicketStatusParamsSchema,
-  kandjiGetFVRecoveryKeyForDeviceOutputSchema,
-  kandjiGetFVRecoveryKeyForDeviceParamsSchema,
-  linkedinCreateShareLinkedinPostUrlOutputSchema,
-  linkedinCreateShareLinkedinPostUrlParamsSchema,
-  lookerEnableUserByEmailOutputSchema,
-  lookerEnableUserByEmailParamsSchema,
+  googleOauthCreateNewGoogleDocOutputSchema,
   mathAddOutputSchema,
   mathAddParamsSchema,
-  microsoftCreateDocumentOutputSchema,
-  microsoftCreateDocumentParamsSchema,
-  microsoftGetDocumentOutputSchema,
-  microsoftGetDocumentParamsSchema,
-  microsoftMessageTeamsChannelOutputSchema,
-  microsoftMessageTeamsChannelParamsSchema,
-  microsoftMessageTeamsChatOutputSchema,
-  microsoftMessageTeamsChatParamsSchema,
-  microsoftUpdateDocumentOutputSchema,
-  microsoftUpdateDocumentParamsSchema,
-  microsoftUpdateSpreadsheetOutputSchema,
-  microsoftUpdateSpreadsheetParamsSchema,
   mongoInsertMongoDocOutputSchema,
   mongoInsertMongoDocParamsSchema,
-  nwsGetForecastForLocationOutputSchema,
-  nwsGetForecastForLocationParamsSchema,
-  openstreetmapGetLatitudeLongitudeFromLocationOutputSchema,
-  openstreetmapGetLatitudeLongitudeFromLocationParamsSchema,
-  resendSendEmailOutputSchema,
-  resendSendEmailParamsSchema,
-  salesforceCreateCaseOutputSchema,
-  salesforceCreateCaseParamsSchema,
-  salesforceCreateRecordOutputSchema,
-  salesforceCreateRecordParamsSchema,
-  salesforceFetchSalesforceSchemaByObjectOutputSchema,
-  salesforceFetchSalesforceSchemaByObjectParamsSchema,
-  salesforceGenerateSalesReportOutputSchema,
-  salesforceGenerateSalesReportParamsSchema,
-  salesforceGetRecordOutputSchema,
-  salesforceGetRecordParamsSchema,
-  salesforceGetSalesforceRecordsByQueryOutputSchema,
-  salesforceGetSalesforceRecordsByQueryParamsSchema,
-  salesforceUpdateRecordOutputSchema,
-  salesforceUpdateRecordParamsSchema,
-  slackGetChannelMessagesOutputSchema,
-  slackGetChannelMessagesParamsSchema,
   slackSendMessageOutputSchema,
   slackSendMessageParamsSchema,
+  slackGetChannelMessagesOutputSchema,
+  slackGetChannelMessagesParamsSchema,
   snowflakeGetRowByFieldValueOutputSchema,
   snowflakeGetRowByFieldValueParamsSchema,
-  snowflakeRunSnowflakeQueryOutputSchema,
-  snowflakeRunSnowflakeQueryParamsSchema,
-  xCreateShareXPostUrlOutputSchema,
-  xCreateShareXPostUrlParamsSchema,
-  zendeskAddCommentToTicketOutputSchema,
-  zendeskAddCommentToTicketParamsSchema,
-  zendeskAssignTicketOutputSchema,
-  zendeskAssignTicketParamsSchema,
   zendeskCreateZendeskTicketOutputSchema,
   zendeskCreateZendeskTicketParamsSchema,
   zendeskGetTicketDetailsOutputSchema,
   zendeskGetTicketDetailsParamsSchema,
-  zendeskListZendeskTicketsOutputSchema,
-  zendeskListZendeskTicketsParamsSchema,
   zendeskUpdateTicketStatusOutputSchema,
   zendeskUpdateTicketStatusParamsSchema,
+  zendeskAddCommentToTicketOutputSchema,
+  zendeskAddCommentToTicketParamsSchema,
+  zendeskAssignTicketOutputSchema,
+  zendeskAssignTicketParamsSchema,
+  zendeskListZendeskTicketsOutputSchema,
+  zendeskListZendeskTicketsParamsSchema,
+  jiraAssignJiraTicketParamsSchema,
+  jiraAssignJiraTicketOutputSchema,
+  jiraCommentJiraTicketParamsSchema,
+  jiraCommentJiraTicketOutputSchema,
+  jiraCreateJiraTicketParamsSchema,
+  jiraCreateJiraTicketOutputSchema,
+  jiraGetJiraTicketDetailsParamsSchema,
+  jiraGetJiraTicketDetailsOutputSchema,
+  jiraGetJiraTicketHistoryParamsSchema,
+  jiraGetJiraTicketHistoryOutputSchema,
+  jiraUpdateJiraTicketDetailsParamsSchema,
+  jiraUpdateJiraTicketDetailsOutputSchema,
+  jiraUpdateJiraTicketStatusParamsSchema,
+  jiraUpdateJiraTicketStatusOutputSchema,
+  openstreetmapGetLatitudeLongitudeFromLocationParamsSchema,
+  openstreetmapGetLatitudeLongitudeFromLocationOutputSchema,
+  nwsGetForecastForLocationParamsSchema,
+  nwsGetForecastForLocationOutputSchema,
+  googlemapsNearbysearchRestaurantsOutputSchema,
+  googlemapsNearbysearchRestaurantsParamsSchema,
+  firecrawlScrapeUrlOutputSchema,
+  firecrawlScrapeUrlParamsSchema,
+  resendSendEmailOutputSchema,
+  firecrawlScrapeTweetDataWithNitterParamsSchema,
+  firecrawlScrapeTweetDataWithNitterOutputSchema,
+  resendSendEmailParamsSchema,
+  linkedinCreateShareLinkedinPostUrlParamsSchema,
+  linkedinCreateShareLinkedinPostUrlOutputSchema,
+  xCreateShareXPostUrlParamsSchema,
+  xCreateShareXPostUrlOutputSchema,
+  finnhubSymbolLookupParamsSchema,
+  finnhubSymbolLookupOutputSchema,
+  finnhubGetBasicFinancialsParamsSchema,
+  finnhubGetBasicFinancialsOutputSchema,
+  confluenceFetchPageContentParamsSchema,
+  confluenceFetchPageContentOutputSchema,
+  snowflakeRunSnowflakeQueryParamsSchema,
+  snowflakeRunSnowflakeQueryOutputSchema,
+  lookerEnableUserByEmailParamsSchema,
+  lookerEnableUserByEmailOutputSchema,
+  googleOauthUpdateDocParamsSchema,
+  googleOauthUpdateDocOutputSchema,
+  googleOauthCreateSpreadsheetParamsSchema,
+  googleOauthCreateSpreadsheetOutputSchema,
+  googleOauthUpdateSpreadsheetParamsSchema,
+  googleOauthUpdateSpreadsheetOutputSchema,
+  googleOauthScheduleCalendarMeetingParamsSchema,
+  googleOauthScheduleCalendarMeetingOutputSchema,
+  googleOauthCreatePresentationParamsSchema,
+  googleOauthCreatePresentationOutputSchema,
+  googleOauthUpdatePresentationParamsSchema,
+  googleOauthUpdatePresentationOutputSchema,
+  ashbyCreateNoteParamsSchema,
+  ashbyCreateNoteOutputSchema,
+  ashbyGetCandidateInfoParamsSchema,
+  ashbyGetCandidateInfoOutputSchema,
+  salesforceUpdateRecordParamsSchema,
+  salesforceUpdateRecordOutputSchema,
+  salesforceCreateCaseParamsSchema,
+  salesforceCreateCaseOutputSchema,
+  salesforceGenerateSalesReportParamsSchema,
+  salesforceGenerateSalesReportOutputSchema,
+  salesforceGetRecordParamsSchema,
+  salesforceGetRecordOutputSchema,
+  ashbyListCandidatesParamsSchema,
+  ashbyListCandidatesOutputSchema,
+  ashbyListCandidateNotesParamsSchema,
+  ashbyListCandidateNotesOutputSchema,
+  ashbySearchCandidatesParamsSchema,
+  ashbySearchCandidatesOutputSchema,
+  ashbyCreateCandidateParamsSchema,
+  ashbyCreateCandidateOutputSchema,
+  ashbyUpdateCandidateParamsSchema,
+  ashbyUpdateCandidateOutputSchema,
+  microsoftMessageTeamsChatParamsSchema,
+  microsoftMessageTeamsChatOutputSchema,
+  microsoftMessageTeamsChannelParamsSchema,
+  microsoftMessageTeamsChannelOutputSchema,
+  salesforceGetSalesforceRecordsByQueryParamsSchema,
+  salesforceGetSalesforceRecordsByQueryOutputSchema,
+  asanaCommentTaskParamsSchema,
+  asanaCommentTaskOutputSchema,
+  asanaCreateTaskParamsSchema,
+  asanaCreateTaskOutputSchema,
+  asanaUpdateTaskParamsSchema,
+  asanaUpdateTaskOutputSchema,
+  githubCreateOrUpdateFileParamsSchema,
+  githubCreateOrUpdateFileOutputSchema,
+  githubCreateBranchParamsSchema,
+  githubCreateBranchOutputSchema,
+  githubCreatePullRequestParamsSchema,
+  githubCreatePullRequestOutputSchema,
+  microsoftUpdateSpreadsheetParamsSchema,
+  microsoftUpdateSpreadsheetOutputSchema,
+  microsoftUpdateDocumentParamsSchema,
+  microsoftUpdateDocumentOutputSchema,
+  microsoftGetDocumentParamsSchema,
+  microsoftGetDocumentOutputSchema,
+  salesforceFetchSalesforceSchemaByObjectParamsSchema,
+  salesforceFetchSalesforceSchemaByObjectOutputSchema,
+  githubListPullRequestsParamsSchema,
+  githubListPullRequestsOutputSchema,
+  jiraGetJiraIssuesByQueryOutputSchema,
+  jiraGetJiraIssuesByQueryParamsSchema,
+  salesforceCreateRecordParamsSchema,
+  salesforceCreateRecordOutputSchema,
+  firecrawlDeepResearchParamsSchema,
+  firecrawlDeepResearchOutputSchema,
+  bingGetTopNSearchResultUrlsParamsSchema,
+  bingGetTopNSearchResultUrlsOutputSchema,
+  ashbyAddCandidateToProjectParamsSchema,
+  ashbyAddCandidateToProjectOutputSchema,
+  microsoftCreateDocumentParamsSchema,
+  microsoftCreateDocumentOutputSchema,
+  kandjiGetFVRecoveryKeyForDeviceParamsSchema,
+  kandjiGetFVRecoveryKeyForDeviceOutputSchema,
+  asanaListAsanaTasksByProjectParamsSchema,
+  asanaListAsanaTasksByProjectOutputSchema,
 } from "./autogen/types";
-import type { ActionName, ActionProviderName } from "./parse";
-import commentAsanaTask from "./providers/asana/commentAsanaTask";
-import createAsanaTask from "./providers/asana/createAsanaTask";
-import listAsanaTasksByProject from "./providers/asana/listAsanaTasksByProject";
-import updateAsanaTask from "./providers/asana/updateAsanaTask";
-import addCandidateToProject from "./providers/ashby/addCandidateToProject";
-import createCandidate from "./providers/ashby/createCandidate";
-import createNote from "./providers/ashby/createNote";
-import getCandidateInfo from "./providers/ashby/getCandidateInfo";
-import listCandidateNotes from "./providers/ashby/listCandidateNotes";
-import listCandidates from "./providers/ashby/listCandidates";
-import searchCandidates from "./providers/ashby/searchCandidates";
-import updateCandidate from "./providers/ashby/updateCandidate";
-import getTopNSearchResultUrls from "./providers/bing/getTopNSearchResultUrls";
-import confluenceFetchPageContent from "./providers/confluence/fetchPageContent";
-import confluenceOverwritePage from "./providers/confluence/overwritePage";
 import callCopilot from "./providers/credal/callCopilot";
-import getBasicFinancials from "./providers/finnhub/getBasicFinancials";
-import symbolLookup from "./providers/finnhub/symbolLookup";
-import deepResearch from "./providers/firecrawl/deepResearch";
-import scrapeTweetDataWithNitter from "./providers/firecrawl/scrapeTweetDataWithNitter";
-import scrapeUrl from "./providers/firecrawl/scrapeUrl";
-import fillTemplate from "./providers/generic/fillTemplate";
-import createBranch from "./providers/github/createBranch";
-import createOrUpdateFile from "./providers/github/createOrUpdateFile";
-import createPullRequest from "./providers/github/createPullRequest";
-import listPullRequests from "./providers/github/listPullRequests";
-import getGongTranscripts from "./providers/gong/getGongTranscripts";
-import createNewGoogleDoc from "./providers/google-oauth/createNewGoogleDoc";
-import createPresentation from "./providers/google-oauth/createPresentation";
-import createSpreadsheet from "./providers/google-oauth/createSpreadsheet";
-import scheduleCalendarMeeting from "./providers/google-oauth/scheduleCalendarMeeting";
-import updateDoc from "./providers/google-oauth/updateDoc";
-import updatePresentation from "./providers/google-oauth/updatePresentation";
-import updateSpreadsheet from "./providers/google-oauth/updateSpreadsheet";
-import nearbysearch from "./providers/googlemaps/nearbysearchRestaurants";
 import validateAddress from "./providers/googlemaps/validateAddress";
+import add from "./providers/math/add";
+import fillTemplate from "./providers/generic/fillTemplate";
+import insertMongoDoc from "./providers/mongodb/insertMongoDoc";
+import sendMessage from "./providers/slack/sendMessage";
+import getChannelMessages from "./providers/slack/getChannelMessages";
+import getRowByFieldValue from "./providers/snowflake/getRowByFieldValue";
+import createZendeskTicket from "./providers/zendesk/createZendeskTicket";
+import getZendeskTicketDetails from "./providers/zendesk/getTicketDetails";
+import updateTicketStatus from "./providers/zendesk/updateTicketStatus";
+import addCommentToTicket from "./providers/zendesk/addCommentToTicket";
+import assignTicket from "./providers/zendesk/assignTicket";
+import listZendeskTickets from "./providers/zendesk/listTickets";
 import assignJiraTicket from "./providers/jira/assignJiraTicket";
 import commentJiraTicket from "./providers/jira/commentJiraTicket";
 import createJiraTicket from "./providers/jira/createJiraTicket";
-import getJiraIssuesByQuery from "./providers/jira/getJiraIssuesByQuery";
 import getJiraTicketDetails from "./providers/jira/getJiraTicketDetails";
 import getJiraTicketHistory from "./providers/jira/getJiraTicketHistory";
 import updateJiraTicketDetails from "./providers/jira/updateJiraTicketDetails";
 import updateJiraTicketStatus from "./providers/jira/updateJiraTicketStatus";
-import getFVRecoveryKeyForDevice from "./providers/kandji/getFVRecoveryKeyForDevice";
-import createShareLinkedinPostUrl from "./providers/linkedin/createSharePostLinkedinUrl";
-import enableUserByEmail from "./providers/looker/enableUserByEmail";
-import add from "./providers/math/add";
-import createDocument from "./providers/microsoft/createDocument";
-import getDocument from "./providers/microsoft/getDocument";
-import sendMessageToTeamsChannel from "./providers/microsoft/messageTeamsChannel";
-import sendMessageToTeamsChat from "./providers/microsoft/messageTeamsChat";
-import updateDocument from "./providers/microsoft/updateDocument";
-import microsoftUpdateSpreadsheet from "./providers/microsoft/updateSpreadsheet";
-import insertMongoDoc from "./providers/mongodb/insertMongoDoc";
-import getForecastForLocation from "./providers/nws/getForecastForLocation";
 import getLatitudeLongitudeFromLocation from "./providers/openstreetmap/getLatitudeLongitudeFromLocation";
+import getForecastForLocation from "./providers/nws/getForecastForLocation";
+import getSalesforceRecordsByQuery from "./providers/salesforce/getSalesforceRecordsByQuery";
+import nearbysearch from "./providers/googlemaps/nearbysearchRestaurants";
+import scrapeUrl from "./providers/firecrawl/scrapeUrl";
 import sendEmail from "./providers/resend/sendEmail";
+import commentAsanaTask from "./providers/asana/commentAsanaTask";
+import createAsanaTask from "./providers/asana/createAsanaTask";
+import updateAsanaTask from "./providers/asana/updateAsanaTask";
+import createShareLinkedinPostUrl from "./providers/linkedin/createSharePostLinkedinUrl";
+import createNewGoogleDoc from "./providers/google-oauth/createNewGoogleDoc";
+import createXSharePostUrl from "./providers/x/createXSharePostUrl";
+import scrapeTweetDataWithNitter from "./providers/firecrawl/scrapeTweetDataWithNitter";
+import symbolLookup from "./providers/finnhub/symbolLookup";
+import getBasicFinancials from "./providers/finnhub/getBasicFinancials";
+import confluenceOverwritePage from "./providers/confluence/overwritePage";
+import confluenceFetchPageContent from "./providers/confluence/fetchPageContent";
+import runSnowflakeQuery from "./providers/snowflake/runSnowflakeQuery";
+import enableUserByEmail from "./providers/looker/enableUserByEmail";
+import updateDoc from "./providers/google-oauth/updateDoc";
+import scheduleCalendarMeeting from "./providers/google-oauth/scheduleCalendarMeeting";
+import createSpreadsheet from "./providers/google-oauth/createSpreadsheet";
+import updateSpreadsheet from "./providers/google-oauth/updateSpreadsheet";
+import createPresentation from "./providers/google-oauth/createPresentation";
+import updatePresentation from "./providers/google-oauth/updatePresentation";
+import createNote from "./providers/ashby/createNote";
+import getCandidateInfo from "./providers/ashby/getCandidateInfo";
+import updateRecord from "./providers/salesforce/updateRecord";
 import createCase from "./providers/salesforce/createCase";
-import createRecord from "./providers/salesforce/createRecord";
-import fetchSalesforceSchemaByObject from "./providers/salesforce/fetchSalesforceSchema";
 import generateSalesReport from "./providers/salesforce/generateSalesReport";
 import getRecord from "./providers/salesforce/getRecord";
-import getSalesforceRecordsByQuery from "./providers/salesforce/getSalesforceRecordsByQuery";
-import updateRecord from "./providers/salesforce/updateRecord";
-import getChannelMessages from "./providers/slack/getChannelMessages";
-import sendMessage from "./providers/slack/sendMessage";
-import getRowByFieldValue from "./providers/snowflake/getRowByFieldValue";
-import runSnowflakeQuery from "./providers/snowflake/runSnowflakeQuery";
-import createXSharePostUrl from "./providers/x/createXSharePostUrl";
-import addCommentToTicket from "./providers/zendesk/addCommentToTicket";
-import assignTicket from "./providers/zendesk/assignTicket";
-import createZendeskTicket from "./providers/zendesk/createZendeskTicket";
-import getZendeskTicketDetails from "./providers/zendesk/getTicketDetails";
-import listZendeskTickets from "./providers/zendesk/listTickets";
-import updateTicketStatus from "./providers/zendesk/updateTicketStatus";
+import listCandidates from "./providers/ashby/listCandidates";
+import listCandidateNotes from "./providers/ashby/listCandidateNotes";
+import searchCandidates from "./providers/ashby/searchCandidates";
+import createCandidate from "./providers/ashby/createCandidate";
+import updateCandidate from "./providers/ashby/updateCandidate";
+import addCandidateToProject from "./providers/ashby/addCandidateToProject";
+import sendMessageToTeamsChat from "./providers/microsoft/messageTeamsChat";
+import sendMessageToTeamsChannel from "./providers/microsoft/messageTeamsChannel";
+import createOrUpdateFile from "./providers/github/createOrUpdateFile";
+import createBranch from "./providers/github/createBranch";
+import createPullRequest from "./providers/github/createPullRequest";
+import microsoftUpdateSpreadsheet from "./providers/microsoft/updateSpreadsheet";
+import updateDocument from "./providers/microsoft/updateDocument";
+import createDocument from "./providers/microsoft/createDocument";
+import getDocument from "./providers/microsoft/getDocument";
+import fetchSalesforceSchemaByObject from "./providers/salesforce/fetchSalesforceSchema";
+import deepResearch from "./providers/firecrawl/deepResearch";
+import listPullRequests from "./providers/github/listPullRequests";
+import getJiraIssuesByQuery from "./providers/jira/getJiraIssuesByQuery";
+import createRecord from "./providers/salesforce/createRecord";
+import getTopNSearchResultUrls from "./providers/bing/getTopNSearchResultUrls";
+import getGongTranscripts from "./providers/gong/getGongTranscripts";
+import { gongGetGongTranscriptsParamsSchema, gongGetGongTranscriptsOutputSchema } from "./autogen/types";
+import getFVRecoveryKeyForDevice from "./providers/kandji/getFVRecoveryKeyForDevice";
+import listAsanaTasksByProject from "./providers/asana/listAsanaTasksByProject";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -239,7 +237,7 @@ interface ActionFunctionComponents {
   outputSchema: z.ZodSchema;
 }
 
-export const ActionMapper: Record<ActionProviderName, Partial<Record<ActionName, ActionFunctionComponents>>> = {
+export const ActionMapper: Record<string, Record<string, ActionFunctionComponents>> = {
   generic: {
     fillTemplate: {
       fn: fillTemplate,
@@ -306,7 +304,7 @@ export const ActionMapper: Record<ActionProviderName, Partial<Record<ActionName,
       paramsSchema: googlemapsValidateAddressParamsSchema,
       outputSchema: googlemapsValidateAddressOutputSchema,
     },
-    nearbysearchRestaurants: {
+    nearbysearch: {
       fn: nearbysearch,
       paramsSchema: googlemapsNearbysearchRestaurantsParamsSchema,
       outputSchema: googlemapsNearbysearchRestaurantsOutputSchema,

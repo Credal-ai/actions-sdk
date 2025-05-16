@@ -3,10 +3,9 @@ import fs from "fs/promises";
 import yaml from "js-yaml";
 import convert from "json-schema-to-zod";
 import type { SourceFile } from "ts-morph";
-import { Project, VariableDeclarationKind, Writers } from "ts-morph";
+import { Project, VariableDeclarationKind } from "ts-morph";
 import { z } from "zod";
 import { snakeToPascal } from "../utils/string";
-import { ActionNames, ActionProviderNames } from "./autogen/types";
 
 const jsonObjectSchema = z.object({
   type: z.string(),
@@ -25,15 +24,9 @@ const actionSchema = z.object({
 
 type ActionType = z.infer<typeof actionSchema>;
 
-export type ActionProviderName = (typeof ActionProviderNames)[number];
-export type ActionName = (typeof ActionNames)[number];
-
-const actionProviderSchema = z.enum(ActionProviderNames);
-const actionNameSchema = z.enum(ActionNames);
-
 const actionTemplateSchema = actionSchema.extend({
-  provider: actionProviderSchema,
-  name: actionNameSchema,
+  name: z.string(),
+  provider: z.string(),
 });
 
 export type ActionTemplate = z.infer<typeof actionTemplateSchema>;
@@ -246,30 +239,6 @@ async function generateTypes({
       });
     }
   }
-
-  // Add the ActionProviderName and ActionName schemas and types
-  const actionProviderNames = Object.keys(parsedConfig.actions);
-  typesFile.addVariableStatement({
-    declarationKind: VariableDeclarationKind.Const,
-    isExported: true,
-    declarations: [
-      {
-        name: "ActionProviderNames",
-        initializer: Writers.assertion(JSON.stringify(actionProviderNames), "const"),
-      },
-    ],
-  });
-  const actionNames = Object.values(parsedConfig.actions).flatMap(category => Object.keys(category));
-  typesFile.addVariableStatement({
-    declarationKind: VariableDeclarationKind.Const,
-    isExported: true,
-    declarations: [
-      {
-        name: "ActionNames",
-        initializer: Writers.assertion(JSON.stringify(actionNames), "const"),
-      },
-    ],
-  });
 
   // Save the generated TypeScript file
   await templatesFile.save();

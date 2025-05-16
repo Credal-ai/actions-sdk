@@ -1,9 +1,8 @@
 import { ActionMapper } from "./actionMapper";
-import type { ActionName, ActionProviderName } from "./parse";
 
 interface InvokeActionInput<P, A> {
-  provider: ActionProviderName;
-  name: ActionName;
+  provider: string;
+  name: string;
   parameters: P;
   authParams: A;
 }
@@ -14,13 +13,9 @@ export async function invokeAction<P, A>(input: InvokeActionInput<P, A>) {
   if (!ActionMapper[provider]) {
     throw new Error(`Provider '${provider}' not found`);
   }
-  const action = ActionMapper[provider][name];
-  if (!action) {
-    throw new Error(`Action '${name}' not found for provider '${provider}'`);
-  }
-  const providerFunction = action.fn;
+  const providerFunction = ActionMapper[provider][name].fn;
 
-  const safeParseParams = action.paramsSchema.safeParse(parameters);
+  const safeParseParams = ActionMapper[provider][name].paramsSchema.safeParse(parameters);
   if (!safeParseParams.success) {
     throw new Error(`Invalid parameters for action '${name}': ${safeParseParams.error}`);
   }
