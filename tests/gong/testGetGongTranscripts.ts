@@ -60,6 +60,25 @@ async function runTestInvalidUsername() {
   console.log("Test passed successfully!");
 }
 
+async function runTestInvalidUserRole() {
+  const result = await runAction(
+    "getGongTranscripts",
+    "gong",
+    {
+      authToken: process.env.GONG_TOKEN!,
+      username: process.env.GONG_USERNAME!,
+    },
+    {
+      userRole: "Nonexistent Role",
+      trackers: ["Value Prop"],
+      startDate: "2025-05-01T00:00:00Z",
+      endDate: "2025-05-13T23:59:59Z"
+    }
+  );
+  assert(result.error, "Response should indicate an error");
+  console.log("Test passed successfully!");
+}
+
 runTest().catch((error) => {
   console.error("Test failed:", error);
   if (error.response) {
@@ -70,6 +89,15 @@ runTest().catch((error) => {
 }); 
 
 runTestInvalidUsername().catch((error) => {
+  console.error("Test failed:", error);
+  if (error.response) {
+    console.error("API response:", error.response.data);
+    console.error("Status code:", error.response.status);
+  }
+  process.exit(1);
+});
+
+runTestInvalidUserRole().catch((error) => {
   console.error("Test failed:", error);
   if (error.response) {
     console.error("API response:", error.response.data);

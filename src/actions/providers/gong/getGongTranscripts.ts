@@ -259,15 +259,19 @@ const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
       };
     }
     const filteredGongUsers = gongUsers.filter(user => user.title === params.userRole);
+    const filteredPrimaryIds = filteredGongUsers.map(user => user.id).filter((id): id is string => id !== undefined);
+    if (filteredPrimaryIds.length === 0) {
+      return {
+        success: false,
+        error: "No Gong users found with the specified role",
+      };
+    }
     const trackers = await getTrackers(authParams.authToken);
     const filteredTrackers = trackers.filter(tracker => params.trackers?.includes(tracker.trackerName ?? ""));
     const calls = await getCalls(authParams.authToken, {
       fromDateTime: params.startDate ?? "",
       toDateTime: params.endDate ?? "",
-      primaryUserIds:
-        filteredGongUsers.length > 0
-          ? filteredGongUsers.map(user => user.id).filter((id): id is string => id !== undefined)
-          : undefined,
+      primaryUserIds: filteredPrimaryIds,
       trackerIds:
         filteredTrackers.length > 0
           ? filteredTrackers.map(tracker => tracker.trackerId).filter((id): id is string => id !== undefined)
