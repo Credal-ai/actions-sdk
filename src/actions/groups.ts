@@ -7,6 +7,7 @@ import {
   mongoInsertMongoDocDefinition,
   slackSendMessageDefinition,
   slackGetChannelMessagesDefinition,
+  slackSearchMessagesDefinition,
   snowflakeGetRowByFieldValueDefinition,
   zendeskCreateZendeskTicketDefinition,
   zendeskListZendeskTicketsDefinition,
@@ -96,7 +97,7 @@ export const ACTION_GROUPS: ActionGroups = {
   },
   SLACK_LIST_CONVERSATIONS: {
     description: "Actions for interacting with Slack",
-    actions: [slackSendMessageDefinition, slackGetChannelMessagesDefinition],
+    actions: [slackSendMessageDefinition, slackGetChannelMessagesDefinition, slackSearchMessagesDefinition],
   },
   CONFLUENCE: {
     description: "Action for interacting with Confluence",

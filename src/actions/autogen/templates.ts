@@ -361,6 +361,66 @@ export const asanaUpdateTaskDefinition: ActionTemplate = {
   name: "updateTask",
   provider: "asana",
 };
+export const slackSearchMessagesDefinition: ActionTemplate = {
+  description: "Searches Slack for matching messages",
+  scopes: ["search:read"],
+  parameters: {
+    type: "object",
+    required: ["query"],
+    properties: {
+      query: {
+        type: "string",
+        description: "The search query",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the search was was successful",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the search failed",
+      },
+      results: {
+        type: "array",
+        description: "List of matches",
+        items: {
+          type: "object",
+          description: "a match",
+          properties: {
+            permalink: {
+              type: "string",
+              description: "url of the matched message",
+            },
+            channelId: {
+              type: "string",
+              description: "name of the Slack channel the match belongs to",
+            },
+            text: {
+              type: "string",
+              description: "text of the matched message",
+            },
+            user: {
+              type: "string",
+              description: "The user who sent the message",
+            },
+            ts: {
+              type: "string",
+              description: "The timestamp of the message",
+            },
+          },
+        },
+      },
+    },
+  },
+  name: "searchMessages",
+  provider: "slack",
+};
 export const slackSendMessageDefinition: ActionTemplate = {
   description: "Sends a message to a Slack channel",
   scopes: ["chat:write"],

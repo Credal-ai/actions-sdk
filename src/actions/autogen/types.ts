@@ -206,6 +206,36 @@ export type asanaUpdateTaskFunction = ActionFunction<
   asanaUpdateTaskOutputType
 >;
 
+export const slackSearchMessagesParamsSchema = z.object({ query: z.string().describe("The search query") });
+
+export type slackSearchMessagesParamsType = z.infer<typeof slackSearchMessagesParamsSchema>;
+
+export const slackSearchMessagesOutputSchema = z.object({
+  success: z.boolean().describe("Whether the search was was successful"),
+  error: z.string().describe("The error that occurred if the search failed").optional(),
+  results: z
+    .array(
+      z
+        .object({
+          permalink: z.string().describe("url of the matched message").optional(),
+          channelId: z.string().describe("name of the Slack channel the match belongs to").optional(),
+          text: z.string().describe("text of the matched message").optional(),
+          user: z.string().describe("The user who sent the message").optional(),
+          ts: z.string().describe("The timestamp of the message").optional(),
+        })
+        .describe("a match"),
+    )
+    .describe("List of matches")
+    .optional(),
+});
+
+export type slackSearchMessagesOutputType = z.infer<typeof slackSearchMessagesOutputSchema>;
+export type slackSearchMessagesFunction = ActionFunction<
+  slackSearchMessagesParamsType,
+  AuthParamsType,
+  slackSearchMessagesOutputType
+>;
+
 export const slackSendMessageParamsSchema = z.object({
   channelName: z.string().describe("The name of the Slack channel to send the message to (e.g. general, alerts)"),
   message: z.string().describe("The message content to send to Slack. Can include markdown formatting."),
