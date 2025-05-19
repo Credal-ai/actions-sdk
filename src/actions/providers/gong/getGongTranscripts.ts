@@ -19,14 +19,6 @@ const UserSchema = z
   .partial()
   .passthrough();
 
-const TrackerSchema = z
-  .object({
-    trackerId: z.string(),
-    trackerName: z.string(),
-  })
-  .partial()
-  .passthrough();
-
 const CallSchema = z
   .object({
     metaData: z.object({
@@ -86,14 +78,12 @@ const TranscriptSchema = z
   .passthrough();
 
 type User = z.infer<typeof UserSchema>;
-type Tracker = z.infer<typeof TrackerSchema>;
 type Call = z.infer<typeof CallSchema>;
 type Transcript = z.infer<typeof TranscriptSchema>;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const GongResponseSchema = z.object({
   users: z.array(UserSchema).optional(),
-  keywordTrackers: z.array(TrackerSchema).optional(),
   calls: z.array(CallSchema).optional(),
   callTranscripts: z.array(TranscriptSchema).optional(),
   cursor: z.string().optional(),
