@@ -263,12 +263,7 @@ const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
       }
       const trackerNames = call.content.trackers.map(tracker => tracker.name);
       // Check if any of the trackers in the call match the ones provided by the user
-      for (const tracker of params.trackers) {
-        if (trackerNames.includes(tracker)) {
-          return true;
-        }
-      }
-      return false;
+      return params.trackers.some(tr => trackerNames.includes(tr));
     });
     const publicCalls = callsWithTrackers.filter(call => {
       if (!call.metaData) {
