@@ -230,6 +230,42 @@ export type asanaSearchTasksFunction = ActionFunction<
   asanaSearchTasksOutputType
 >;
 
+export const asanaGetTasksDetailsParamsSchema = z.object({
+  taskIds: z.array(z.string()).describe("The list of task ids to get details for"),
+});
+
+export type asanaGetTasksDetailsParamsType = z.infer<typeof asanaGetTasksDetailsParamsSchema>;
+
+export const asanaGetTasksDetailsOutputSchema = z.object({
+  error: z.string().describe("Error if search was unsuccessful").optional(),
+  success: z.boolean().describe("Whether search was successful"),
+  results: z
+    .array(
+      z
+        .object({
+          id: z.string(),
+          name: z.string(),
+          approval_status: z.string(),
+          completed: z.boolean(),
+          created_at: z.string(),
+          due_at: z.string(),
+          assignee_name: z.string(),
+          notes: z.string(),
+          comments: z.array(z.object({ text: z.string(), created_at: z.string(), creator_name: z.string() })),
+        })
+        .describe("List of tasks that match search query"),
+    )
+    .describe("The list of tasks that match search query")
+    .optional(),
+});
+
+export type asanaGetTasksDetailsOutputType = z.infer<typeof asanaGetTasksDetailsOutputSchema>;
+export type asanaGetTasksDetailsFunction = ActionFunction<
+  asanaGetTasksDetailsParamsType,
+  AuthParamsType,
+  asanaGetTasksDetailsOutputType
+>;
+
 export const slackSendMessageParamsSchema = z.object({
   channelName: z.string().describe("The name of the Slack channel to send the message to (e.g. general, alerts)"),
   message: z.string().describe("The message content to send to Slack. Can include markdown formatting."),

@@ -414,6 +414,102 @@ export const asanaSearchTasksDefinition: ActionTemplate = {
   name: "searchTasks",
   provider: "asana",
 };
+export const asanaGetTasksDetailsDefinition: ActionTemplate = {
+  description: "List all tasks associated with search query",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["taskIds"],
+    properties: {
+      taskIds: {
+        type: "array",
+        description: "The list of task ids to get details for",
+        items: {
+          type: "string",
+        },
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      error: {
+        type: "string",
+        description: "Error if search was unsuccessful",
+      },
+      success: {
+        type: "boolean",
+        description: "Whether search was successful",
+      },
+      results: {
+        type: "array",
+        description: "The list of tasks that match search query",
+        items: {
+          type: "object",
+          description: "List of tasks that match search query",
+          required: [
+            "id",
+            "name",
+            "approval_status",
+            "completed",
+            "created_at",
+            "due_at",
+            "assignee_name",
+            "notes",
+            "comments",
+          ],
+          properties: {
+            id: {
+              type: "string",
+            },
+            name: {
+              type: "string",
+            },
+            approval_status: {
+              type: "string",
+            },
+            completed: {
+              type: "boolean",
+            },
+            created_at: {
+              type: "string",
+            },
+            due_at: {
+              type: "string",
+            },
+            assignee_name: {
+              type: "string",
+            },
+            notes: {
+              type: "string",
+            },
+            comments: {
+              type: "array",
+              items: {
+                type: "object",
+                required: ["text", "created_at", "creator_name"],
+                properties: {
+                  text: {
+                    type: "string",
+                  },
+                  created_at: {
+                    type: "string",
+                  },
+                  creator_name: {
+                    type: "string",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  name: "getTasksDetails",
+  provider: "asana",
+};
 export const slackSendMessageDefinition: ActionTemplate = {
   description: "Sends a message to a Slack channel",
   scopes: ["chat:write"],
