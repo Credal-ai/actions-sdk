@@ -50,11 +50,11 @@ const CallSchema = z
     content: z.object({
       trackers: z.array(
         z.object({
-            id: z.string(),
-            name: z.string(),
-          }),
-        ),
-      }),
+          id: z.string(),
+          name: z.string(),
+        }),
+      ),
+    }),
   })
   .partial()
   .passthrough();
@@ -147,7 +147,7 @@ async function getCalls(
             parties: true,
             content: {
               trackers: true,
-            }
+            },
           },
         },
       },
