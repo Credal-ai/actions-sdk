@@ -3582,6 +3582,9 @@ actions:
                 callName:
                   type: string
                   description: The name of the call
+                startTime:
+                  type: string
+                  description: The start time of the call in ISO 8601 format
                 transcript:
                   type: array
                   description: The transcript

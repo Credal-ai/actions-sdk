@@ -314,6 +314,7 @@ const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
       });
       return {
         callName: publicCalls.find(call => call.metaData?.id === callTranscript.callId)?.metaData?.title ?? "",
+        startTime: publicCalls.find(call => call.metaData?.id === callTranscript.callId)?.metaData?.started ?? "",
         ...currTranscript,
       };
     });
