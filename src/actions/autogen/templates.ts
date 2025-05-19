@@ -415,7 +415,7 @@ export const asanaSearchTasksDefinition: ActionTemplate = {
   provider: "asana",
 };
 export const asanaGetTasksDetailsDefinition: ActionTemplate = {
-  description: "List all tasks associated with search query",
+  description: "Retrieve detailed information (assignee, comments, description, title, etc.) for a list of task IDs",
   scopes: [],
   parameters: {
     type: "object",
@@ -434,9 +434,12 @@ export const asanaGetTasksDetailsDefinition: ActionTemplate = {
     type: "object",
     required: ["success"],
     properties: {
-      error: {
-        type: "string",
-        description: "Error if search was unsuccessful",
+      errors: {
+        type: "array",
+        description: "Errors if search was unsuccessful",
+        items: {
+          type: "string",
+        },
       },
       success: {
         type: "boolean",

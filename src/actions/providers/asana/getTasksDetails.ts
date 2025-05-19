@@ -43,17 +43,18 @@ const getTasksDetails: asanaGetTasksDetailsFunction = async ({
   const { taskIds } = params;
 
   if (!authToken) {
-    return { success: false, error: MISSING_AUTH_TOKEN };
+    return { success: false, errors: [MISSING_AUTH_TOKEN] };
   }
 
   const tasks = [];
+  const errors = [];
 
   // Process each task ID
   for (const taskId of taskIds) {
     try {
       // Get task details
       const taskResponse = await axiosClient.get<AsanaTaskResponse>(
-        `https://app.asana.com/api/1.0/tasks/${taskId}?opt_fields=name,notes,assignee,assignee.name,created_at,completed,due_on,approval_status`,
+        `https://app.asana.com/api/1.0/tasks/${taskId}?opt_fields=name,notes,assignee,assignee.name,created_at,completed,due_at,approval_status`,
         {
           headers: { Authorization: `Bearer ${authToken}` },
         },
@@ -119,7 +120,12 @@ const getTasksDetails: asanaGetTasksDetailsFunction = async ({
       tasks.push(taskDetails);
     } catch (error) {
       console.warn(`Error getting details for task ${taskId}:`, error);
+      errors.push(JSON.stringify(error));
     }
+  }
+
+  if (errors.length > 0 && tasks.length === 0) {
+    return { success: false, errors };
   }
 
   const result = {

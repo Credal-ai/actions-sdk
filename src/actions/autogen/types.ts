@@ -237,7 +237,7 @@ export const asanaGetTasksDetailsParamsSchema = z.object({
 export type asanaGetTasksDetailsParamsType = z.infer<typeof asanaGetTasksDetailsParamsSchema>;
 
 export const asanaGetTasksDetailsOutputSchema = z.object({
-  error: z.string().describe("Error if search was unsuccessful").optional(),
+  errors: z.array(z.string()).describe("Errors if search was unsuccessful").optional(),
   success: z.boolean().describe("Whether search was successful"),
   results: z
     .array(
