@@ -37,17 +37,6 @@ describe("getGongTranscripts", () => {
       },
     });
 
-    // Mock trackers response
-    mockedAxios.get.mockResolvedValueOnce({
-      data: {
-        keywordTrackers: [
-          { trackerId: "tracker1", trackerName: "Tracker1" },
-          { trackerId: "tracker2", trackerName: "Tracker2" },
-        ],
-        cursor: null,
-      },
-    });
-
     // Mock calls response
     mockedAxios.post.mockResolvedValueOnce({
       data: {
@@ -58,6 +47,12 @@ describe("getGongTranscripts", () => {
                   {speakerId: "user1", name: "John Doe"},
                   {speakerId: "user2", name: "Jane Doe"},
             ],
+            content: {
+              trackers: [
+                { id: "tracker1", name: "Tracker1" },
+                { id: "tracker2", name: "Tracker2" },
+              ],
+            },
           },
           {
             metaData: { id: "call2", primaryUserId: "user2", started: "2024-01-03T00:00:00.000Z", isPrivate: false, title: "Product Demo"},
@@ -65,7 +60,13 @@ describe("getGongTranscripts", () => {
               {speakerId: "speaker1", name: "Joe Jonas"},
               {speakerId: "user1", name: "John Doe"},
               {speakerId: "user2", name: "Jane Doe"},
-        ],
+            ],
+            content: {
+              trackers: [
+                { id: "tracker1", name: "Tracker1" },
+                { id: "tracker2", name: "Tracker2" },
+              ],
+            },
           }
         ],
         cursor: null,
@@ -231,17 +232,6 @@ describe("getGongTranscripts", () => {
       },
     });
 
-    // Mock trackers response
-    mockedAxios.get.mockResolvedValueOnce({
-      data: {
-        keywordTrackers: [
-          { trackerId: "tracker1", trackerName: "Tracker1" },
-          { trackerId: "tracker2", trackerName: "Tracker2" },
-        ],
-        cursor: null,
-      },
-    });
-
     // Mock calls response with pagination
     mockedAxios.post.mockResolvedValueOnce({
       data: {
@@ -250,6 +240,12 @@ describe("getGongTranscripts", () => {
           parties: [
             { speakerId: "user1", name: "John Doe"},
           ],
+          content: {
+            trackers: [
+              { id: "tracker1", name: "Tracker1" },
+              { id: "tracker2", name: "Tracker2" },
+            ],
+          },
         },
         ],
         cursor: "cursor2",
@@ -262,6 +258,12 @@ describe("getGongTranscripts", () => {
             parties: [
               {speakerId: "user2", name: "Jane Doe"},
             ],
+            content: {
+              trackers: [
+                { id: "tracker1", name: "Tracker1" },
+                { id: "tracker2", name: "Tracker2" },
+              ],
+            },
           },
         ],
         cursor: null,
@@ -314,7 +316,7 @@ describe("getGongTranscripts", () => {
     expect(result.callTranscripts![0].transcript![0].speakerName).toBe("John Doe");
     expect(result.callTranscripts![1].callId).toBe("call2");
     expect(result.callTranscripts![1].transcript![0].speakerName).toBe("Jane Doe");
-    expect(mockedAxios.get).toHaveBeenCalledTimes(3);
+    expect(mockedAxios.get).toHaveBeenCalledTimes(2);
     expect(mockedAxios.post).toHaveBeenCalledTimes(3);
   });
 }); 

@@ -47,6 +47,14 @@ const CallSchema = z
         .partial()
         .passthrough(),
     ),
+    content: z.object({
+      trackers: z.array(
+        z.object({
+            id: z.string(),
+            name: z.string(),
+          }),
+        ),
+      }),
   })
   .partial()
   .passthrough();
@@ -120,36 +128,6 @@ async function getUsers(authToken: string): Promise<User[]> {
   return results;
 }
 
-async function getTrackers(authToken: string): Promise<Tracker[]> {
-  let results: Tracker[] = [];
-  let cursor: string | undefined = undefined;
-
-  do {
-    const response: { data: GongResponse } = await axios.get<GongResponse>(
-      `https://api.gong.io/v2/settings/trackers` + (cursor ? `?cursor=${cursor}` : ""),
-      {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          "Content-Type": "application/json",
-        },
-        params: {},
-      },
-    );
-    if (!response) {
-      return results;
-    }
-    const parsedItems = z.array(TrackerSchema).safeParse(response.data.keywordTrackers);
-    if (parsedItems.success) {
-      results = [...results, ...parsedItems.data];
-    } else {
-      return results;
-    }
-    cursor = response.data.cursor;
-  } while (cursor);
-
-  return results;
-}
-
 async function getCalls(
   authToken: string,
   params: Record<string, string[] | string | undefined> = {},
@@ -167,6 +145,9 @@ async function getCalls(
         contentSelector: {
           exposedFields: {
             parties: true,
+            content: {
+              trackers: true,
+            }
           },
         },
       },
@@ -194,7 +175,7 @@ async function getCalls(
 
 async function getTranscripts(
   authToken: string,
-  params: Record<string, string | string[] | number> = {},
+  params: Record<string, string | string[] | number | null> = {},
 ): Promise<Transcript[]> {
   let results: Transcript[] = [];
   let cursor: string | undefined = undefined;
@@ -266,23 +247,41 @@ const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
         error: "No Gong users found with the specified role",
       };
     }
-    const trackers = await getTrackers(authParams.authToken);
-    const filteredTrackers = trackers.filter(tracker => params.trackers?.includes(tracker.trackerName ?? ""));
     const calls = await getCalls(authParams.authToken, {
       fromDateTime: params.startDate ?? "",
       toDateTime: params.endDate ?? "",
       primaryUserIds: filteredPrimaryIds,
-      trackerIds:
-        filteredTrackers.length > 0
-          ? filteredTrackers.map(tracker => tracker.trackerId).filter((id): id is string => id !== undefined)
-          : undefined,
     });
-    const publicCalls = calls.filter(call => {
+    const callsWithTrackers = calls.filter(call => {
+      // If the user didn't provide any trackers to filter on, return all calls
+      if (!params.trackers || params.trackers.length === 0) {
+        return true;
+      }
+      // Filter out calls that don't have trackers if the user specified trackers
+      if (!call.content || !call.content.trackers) {
+        return false;
+      }
+      const trackerNames = call.content.trackers.map(tracker => tracker.name);
+      // Check if any of the trackers in the call match the ones provided by the user
+      for (const tracker of params.trackers) {
+        if (trackerNames.includes(tracker)) {
+          return true;
+        }
+      }
+      return false;
+    });
+    const publicCalls = callsWithTrackers.filter(call => {
       if (!call.metaData) {
         return false;
       }
       return !call.metaData.isPrivate;
     });
+    if (publicCalls.length === 0) {
+      return {
+        success: true,
+        callTranscripts: [],
+      };
+    }
     // Get transcripts for the calls we found
     const callTranscripts = await getTranscripts(authParams.authToken, {
       fromDateTime: params.startDate ?? "",
