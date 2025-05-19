@@ -153,6 +153,8 @@ import {
   asanaListAsanaTasksByProjectOutputSchema,
   asanaSearchTasksParamsSchema,
   asanaSearchTasksOutputSchema,
+  asanaGetTasksDetailsParamsSchema,
+  asanaGetTasksDetailsOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -232,7 +234,7 @@ import getGongTranscripts from "./providers/gong/getGongTranscripts";
 import { gongGetGongTranscriptsParamsSchema, gongGetGongTranscriptsOutputSchema } from "./autogen/types";
 import getFVRecoveryKeyForDevice from "./providers/kandji/getFVRecoveryKeyForDevice";
 import listAsanaTasksByProject from "./providers/asana/listAsanaTasksByProject";
-
+import getTasksDetails from "./providers/asana/getTasksDetails";
 interface ActionFunctionComponents {
   // eslint-disable-next-line
   fn: ActionFunction<any, any, any>;
@@ -273,6 +275,11 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: listAsanaTasksByProject,
       paramsSchema: asanaListAsanaTasksByProjectParamsSchema,
       outputSchema: asanaListAsanaTasksByProjectOutputSchema,
+    },
+    getTasksDetails: {
+      fn: getTasksDetails,
+      paramsSchema: asanaGetTasksDetailsParamsSchema,
+      outputSchema: asanaGetTasksDetailsOutputSchema,
     },
   },
   math: {

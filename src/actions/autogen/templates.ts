@@ -448,17 +448,7 @@ export const asanaGetTasksDetailsDefinition: ActionTemplate = {
         items: {
           type: "object",
           description: "List of tasks that match search query",
-          required: [
-            "id",
-            "name",
-            "approval_status",
-            "completed",
-            "created_at",
-            "due_at",
-            "assignee_name",
-            "notes",
-            "comments",
-          ],
+          required: ["id", "name", "approval_status", "completed", "created_at", "assignee_name", "notes", "comments"],
           properties: {
             id: {
               type: "string",

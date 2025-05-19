@@ -248,7 +248,7 @@ export const asanaGetTasksDetailsOutputSchema = z.object({
           approval_status: z.string(),
           completed: z.boolean(),
           created_at: z.string(),
-          due_at: z.string(),
+          due_at: z.string().optional(),
           assignee_name: z.string(),
           notes: z.string(),
           comments: z.array(z.object({ text: z.string(), created_at: z.string(), creator_name: z.string() })),
