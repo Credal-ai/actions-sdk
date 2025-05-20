@@ -1143,6 +1143,34 @@ export type resendSendEmailFunction = ActionFunction<
   resendSendEmailOutputType
 >;
 
+export const googleOauthSearchFilesByKeywordsParamsSchema = z.object({
+  keywords: z.array(z.string()).describe("List of keywords to search for in file contents."),
+});
+
+export type googleOauthSearchFilesByKeywordsParamsType = z.infer<typeof googleOauthSearchFilesByKeywordsParamsSchema>;
+
+export const googleOauthSearchFilesByKeywordsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the search was successful"),
+  files: z
+    .array(
+      z.object({
+        id: z.string().describe("The file ID"),
+        name: z.string().describe("The file name"),
+        mimeType: z.string().describe("The MIME type of the file"),
+        webViewLink: z.string().describe("The web link to view the file"),
+      }),
+    )
+    .describe("List of files matching the search"),
+  error: z.string().describe("Error message if search failed").optional(),
+});
+
+export type googleOauthSearchFilesByKeywordsOutputType = z.infer<typeof googleOauthSearchFilesByKeywordsOutputSchema>;
+export type googleOauthSearchFilesByKeywordsFunction = ActionFunction<
+  googleOauthSearchFilesByKeywordsParamsType,
+  AuthParamsType,
+  googleOauthSearchFilesByKeywordsOutputType
+>;
+
 export const googleOauthCreateNewGoogleDocParamsSchema = z.object({
   title: z.string().describe("The title of the new Google Doc"),
   content: z.string().describe("The content to add to the new Google Doc").optional(),
@@ -3513,34 +3541,6 @@ export type githubListPullRequestsFunction = ActionFunction<
   githubListPullRequestsParamsType,
   AuthParamsType,
   githubListPullRequestsOutputType
->;
-
-export const googleDriveSearchFilesByKeywordsParamsSchema = z.object({
-  keywords: z.array(z.string()).describe("List of keywords to search for in file contents."),
-});
-
-export type googleDriveSearchFilesByKeywordsParamsType = z.infer<typeof googleDriveSearchFilesByKeywordsParamsSchema>;
-
-export const googleDriveSearchFilesByKeywordsOutputSchema = z.object({
-  success: z.boolean().describe("Whether the search was successful"),
-  files: z
-    .array(
-      z.object({
-        id: z.string().describe("The file ID"),
-        name: z.string().describe("The file name"),
-        mimeType: z.string().describe("The MIME type of the file"),
-        webViewLink: z.string().describe("The web link to view the file"),
-      }),
-    )
-    .describe("List of files matching the search"),
-  error: z.string().describe("Error message if search failed").optional(),
-});
-
-export type googleDriveSearchFilesByKeywordsOutputType = z.infer<typeof googleDriveSearchFilesByKeywordsOutputSchema>;
-export type googleDriveSearchFilesByKeywordsFunction = ActionFunction<
-  googleDriveSearchFilesByKeywordsParamsType,
-  AuthParamsType,
-  googleDriveSearchFilesByKeywordsOutputType
 >;
 
 export const notionSearchByTitleParamsSchema = z.object({
