@@ -78,6 +78,7 @@ import {
   kandjiGetFVRecoveryKeyForDeviceDefinition,
   asanaListAsanaTasksByProjectDefinition,
   notionSearchByTitleDefinition,
+  asanaGetTasksDetailsDefinition,
 } from "../actions/autogen/templates";
 import type { ActionTemplate } from "../actions/parse";
 
@@ -96,6 +97,7 @@ export const ACTION_GROUPS: ActionGroups = {
       asanaUpdateTaskDefinition,
       asanaSearchTasksDefinition,
       asanaListAsanaTasksByProjectDefinition,
+      asanaGetTasksDetailsDefinition,
     ],
   },
   SLACK_LIST_CONVERSATIONS: {
