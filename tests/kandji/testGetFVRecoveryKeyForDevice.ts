@@ -4,9 +4,9 @@ import { runAction } from "../../src/app";
 async function runTest() {
   const subdomain = "insert-during-test"; // Replace with your actual subdomain
   const apiKey = "insert-during-test"; // Replace with your actual API key
-  const serialNumber = "insert-during-test"; // Replace with the serial number of the device you want to test
+  const userEmail = "insert-during-test"; // Replace with the serial number of the device you want to test
 
-  if (!subdomain || !apiKey || !serialNumber) {
+  if (!subdomain || !apiKey || !userEmail) {
     console.error("Missing required environment variables for test");
     process.exit(1);
   }
@@ -15,11 +15,11 @@ async function runTest() {
     "getFVRecoveryKeyForDevice",
     "kandji",
     {
-      subdomain,
       apiKey,
     },
     {
-      serialNumber,
+      userEmail,
+      subdomain,
     },
   );
 
@@ -30,7 +30,7 @@ async function runTest() {
   assert(result.success, "Response should indicate success");
   assert(result.recoveryKey, "Response should contain the recovery key");
 
-  console.log(`Successfully retrieved FileVault recovery key for device: ${serialNumber}`);
+  console.log(`Successfully retrieved FileVault recovery key for device: ${userEmail}`);
 }
 
 runTest().catch((error) => {

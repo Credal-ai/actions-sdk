@@ -28,16 +28,16 @@ const getFVRecoveryKeyForDevice: kandjiGetFVRecoveryKeyForDeviceFunction = async
   params: kandjiGetFVRecoveryKeyForDeviceParamsType;
   authParams: AuthParamsType;
 }): Promise<kandjiGetFVRecoveryKeyForDeviceOutputType> => {
-  const { serialNumber, subdomain } = params;
+  const { userEmail, subdomain } = params;
   const { apiKey } = authParams;
   if (!apiKey) {
     throw new Error("Missing API key in auth parameters");
   }
   try {
     // First list all devices to get the device for the specific device
-    const device = await getDeviceBySerialNumber({
+    const device = await getDeviceByEmail({
       apiKey,
-      serialNumber,
+      userEmail,
       subdomain,
     });
     if (!device) {
@@ -75,14 +75,14 @@ const getFVRecoveryKeyForDevice: kandjiGetFVRecoveryKeyForDeviceFunction = async
   }
 };
 
-async function getDeviceBySerialNumber(input: {
+async function getDeviceByEmail(input: {
   apiKey: string;
-  serialNumber: string;
+  userEmail: string;
   subdomain: string;
 }): Promise<Device | null> {
   const limit = 300;
   let offset = 0;
-  const { apiKey, serialNumber, subdomain } = input;
+  const { apiKey, userEmail, subdomain } = input;
 
   while (true) {
     // Update params
@@ -90,7 +90,6 @@ async function getDeviceBySerialNumber(input: {
 
     const endpoint = `https://${subdomain}.api.kandji.io/api/v1/devices`;
 
-    // Check to see if a platform was specified
     const response = await axiosClient.get(endpoint, {
       params: {
         ...params,
@@ -102,8 +101,8 @@ async function getDeviceBySerialNumber(input: {
     });
 
     for (const device of response.data) {
-      if (device.serial_number === serialNumber) {
-        // If the device serial number matches, return the device
+      if (device.user && device.user.email === userEmail) {
+        // If the device user email matches, return the device
         return device;
       }
     }
