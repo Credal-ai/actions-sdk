@@ -4,7 +4,7 @@ import { runAction } from "../../src/app";
 async function runTest() {
   const subdomain = "insert-during-test"; // Replace with your actual subdomain
   const apiKey = "insert-during-test"; // Replace with your actual API key
-  const userEmail = "insert-during-test"; // Replace with the serial number of the device you want to test
+  const userEmail = "insert-during-test"; // Replace with the user email of the device owner
 
   if (!subdomain || !apiKey || !userEmail) {
     console.error("Missing required environment variables for test");
