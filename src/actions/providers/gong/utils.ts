@@ -1,15 +1,8 @@
-import axios, { AxiosError } from "axios";
 import { z } from "zod";
-import type {
-  AuthParamsType,
-  gongGetGongTranscriptsFunction,
-  gongGetGongTranscriptsParamsType,
-  gongGetGongTranscriptsOutputType,
-} from "../../autogen/types";
-import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
-import { getGongTranscripsFromPrimaryUserIds } from "./utils";
+import axios, { AxiosError } from "axios";
+import { AuthParamsType } from "../../autogen/types";
 
-const UserSchema = z
+export const UserSchema = z
   .object({
     id: z.string(),
     firstName: z.string(),
@@ -20,7 +13,7 @@ const UserSchema = z
   .partial()
   .passthrough();
 
-const CallSchema = z
+export const CallSchema = z
   .object({
     metaData: z.object({
       id: z.string(),
@@ -52,7 +45,7 @@ const CallSchema = z
   .partial()
   .passthrough();
 
-const SentenceSchema = z
+export const SentenceSchema = z
   .object({
     start: z.number(),
     end: z.number(),
@@ -61,7 +54,7 @@ const SentenceSchema = z
   .partial()
   .passthrough();
 
-const TranscriptSchema = z
+export const TranscriptSchema = z
   .object({
     callId: z.string(),
     transcript: z.array(
@@ -91,33 +84,6 @@ const GongResponseSchema = z.object({
 });
 
 type GongResponse = z.infer<typeof GongResponseSchema>;
-
-async function getUsers(authToken: string): Promise<User[]> {
-  let results: User[] = [];
-  let cursor: string | undefined = undefined;
-  do {
-    const response: { data: GongResponse } = await axios.get<GongResponse>(
-      `https://api.gong.io/v2/users` + (cursor ? `?cursor=${cursor}` : ""),
-      {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          "Content-Type": "application/json",
-        },
-      },
-    );
-    if (!response) {
-      return results;
-    }
-    const parsedItems = z.array(UserSchema).safeParse(response.data.users);
-    if (parsedItems.success) {
-      results = [...results, ...parsedItems.data];
-    } else {
-      return results;
-    }
-    cursor = response.data.cursor;
-  } while (cursor);
-  return results;
-}
 
 async function getCalls(
   authToken: string,
@@ -201,61 +167,76 @@ async function getTranscripts(
   return results;
 }
 
-// Retrieves transcripts from Gong based on the provided parameters
-const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
-  params,
-  authParams,
-}: {
-  params: gongGetGongTranscriptsParamsType;
-  authParams: AuthParamsType;
-}): Promise<gongGetGongTranscriptsOutputType> => {
-  if (!authParams.authToken) {
-    return {
-      success: false,
-      error: MISSING_AUTH_TOKEN,
-    };
-  }
-  if (!authParams.username) {
-    return {
-      success: false,
-      error: "Missing user email",
-    };
-  }
-  try {
-    const gongUsers = await getUsers(authParams.authToken);
-    const userEmails = gongUsers.map(user => user.emailAddress);
-    if (!userEmails.includes(authParams.username)) {
-      return {
-        success: false,
-        error: "User email not found in Gong users",
-      };
+export async function getGongTranscripsFromPrimaryUserIds(primaryUserIds: string[],
+    authToken: string,
+    startDate: string | undefined,
+    endDate: string | undefined,
+    trackerInput: string[] | undefined,
+) {
+  const calls = await getCalls(authToken, {
+    fromDateTime: startDate ?? "",
+    toDateTime: endDate ?? "",
+    primaryUserIds: primaryUserIds,
+  });
+  const callsWithTrackers = calls.filter(call => {
+    // If the user didn't provide any trackers to filter on, return all calls
+    if (!trackerInput || trackerInput.length === 0) {
+      return true;
     }
-    const filteredGongUsers = gongUsers.filter(user => user.title === params.userRole);
-    const filteredPrimaryIds = filteredGongUsers.map(user => user.id).filter((id): id is string => id !== undefined);
-    if (filteredPrimaryIds.length === 0) {
-      return {
-        success: false,
-        error: "No Gong users found with the specified role",
-      };
+    // Filter out calls that don't have trackers if the user specified trackers
+    if (!call.content || !call.content.trackers) {
+      return false;
     }
-    
-    const callTranscriptsWithNames = await getGongTranscripsFromPrimaryUserIds(
-      filteredPrimaryIds,
-      authParams.authToken,
-      params.startDate,
-      params.endDate,
-      params.trackers,
-    );
+    const trackerNames = call.content.trackers.map(tracker => tracker.name);
+    // Check if any of the trackers in the call match the ones provided by the user
+    return trackerInput.some(tr => trackerNames.includes(tr));
+  });
+  const publicCalls = callsWithTrackers.filter(call => {
+    if (!call.metaData) {
+      return false;
+    }
+    return !call.metaData.isPrivate;
+  });
+  if (publicCalls.length === 0) {
     return {
       success: true,
-      callTranscripts: callTranscriptsWithNames,
-    };
-  } catch (error: unknown) {
-    return {
-      success: false,
-      error: error instanceof AxiosError ? (error.response?.data?.errors ?? error.message) : error,
+      callTranscripts: [],
     };
   }
-};
-
-export default getGongTranscripts;
+  // Get transcripts for the calls we found
+  const callTranscripts = await getTranscripts(authToken, {
+    fromDateTime: startDate ?? "",
+    toDateTime: endDate ?? "",
+    callIds: publicCalls.map(call => call.metaData?.id).filter((id): id is string => id !== undefined),
+  });
+  // Map speaker IDs to names in the transcripts
+  const userIdToNameMap: Record<string, string> = {};
+  publicCalls.forEach(call => {
+    // Check if call has parties array
+    if (call.parties && Array.isArray(call.parties)) {
+      // Iterate through each party in the call
+      call.parties.forEach(party => {
+        // Add the mapping of speakerId to name
+        if (party.speakerId && party.name) {
+          userIdToNameMap[party.speakerId] = party.name;
+        }
+      });
+    }
+  });
+  const callTranscriptsWithNames = callTranscripts.map(callTranscript => {
+    const currTranscript = { ...callTranscript };
+    currTranscript.transcript = callTranscript.transcript?.map(transcript => {
+      const { speakerId, ...rest } = transcript;
+      return {
+        ...rest,
+        speakerName: userIdToNameMap[speakerId ?? ""] ?? "Unknown",
+      };
+    });
+    return {
+      callName: publicCalls.find(call => call.metaData?.id === callTranscript.callId)?.metaData?.title ?? "",
+      startTime: publicCalls.find(call => call.metaData?.id === callTranscript.callId)?.metaData?.started ?? "",
+      ...currTranscript,
+    };
+  });
+  return callTranscriptsWithNames;
+}
