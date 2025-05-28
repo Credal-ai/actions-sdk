@@ -5402,6 +5402,10 @@ export const gongGetGongTranscriptsDefinition: ActionTemplate = {
                     type: "string",
                     description: "The name of the speaker",
                   },
+                  speakerEmail: {
+                    type: "string",
+                    description: "The email of the speaker",
+                  },
                   topic: {
                     type: "string",
                     nullable: true,

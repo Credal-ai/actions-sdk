@@ -33,6 +33,8 @@ async function runTest() {
     assert(firstTranscript.startTime, "Transcript should have a startTime");
     assert(firstTranscript, "Transcript should have transcript data");
     assert(firstTranscript.transcript[0].speakerName, "Transcript should have speaker names");
+    assert(firstTranscript.transcript[0].speakerEmail, "Transcript should have speaker emails");
+    assert(firstTranscript.transcript[0].speakerEmail != "Unknown", "Speaker email should not be 'Unknown'");
     assert(Array.isArray(firstTranscript.transcript[0].sentences), "Transcript should have sentences array");
   }
 

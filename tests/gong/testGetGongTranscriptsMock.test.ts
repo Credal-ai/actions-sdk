@@ -43,9 +43,10 @@ describe("getGongTranscripts", () => {
         calls: [
           {
             metaData: { id: "call1", primaryUserId: "user1", started: "2024-01-02T00:00:00.000Z", isPrivate: false, title: "Sales Call"},
-            parties: [{speakerId: "speaker1", name: "Joe Jonas"},
-                  {speakerId: "user1", name: "John Doe"},
-                  {speakerId: "user2", name: "Jane Doe"},
+            parties: [
+                  {speakerId: "speaker1", name: "Joe Jonas", emailAddress: "joe@credal.ai"},
+                  {speakerId: "user1", name: "John Doe", emailAddress: process.env.GONG_USERNAME!},
+                  {speakerId: "user2", name: "Jane Doe", emailAddress: "fake@credal.ai"},
             ],
             content: {
               trackers: [
@@ -57,9 +58,9 @@ describe("getGongTranscripts", () => {
           {
             metaData: { id: "call2", primaryUserId: "user2", started: "2024-01-03T00:00:00.000Z", isPrivate: false, title: "Product Demo"},
             parties: [
-              {speakerId: "speaker1", name: "Joe Jonas"},
-              {speakerId: "user1", name: "John Doe"},
-              {speakerId: "user2", name: "Jane Doe"},
+                  {speakerId: "speaker1", name: "Joe Jonas", emailAddress: "joe@credal.ai"},
+                  {speakerId: "user1", name: "John Doe", emailAddress: process.env.GONG_USERNAME!},
+                  {speakerId: "user2", name: "Jane Doe", emailAddress: "fake@credal.ai"},
             ],
             content: {
               trackers: [
@@ -144,8 +145,10 @@ describe("getGongTranscripts", () => {
     expect(result.callTranscripts![0].callName).toBe("Sales Call");
     expect(result.callTranscripts![0].startTime).toBe("2024-01-02T00:00:00.000Z");
     expect(result.callTranscripts![0].transcript![0].speakerName).toEqual("John Doe");
+    expect(result.callTranscripts![0].transcript![0].speakerEmail).toEqual(process.env.GONG_USERNAME!);
     expect(result.callTranscripts![1].transcript![0].topic).toBe("Product Demo");
     expect(result.callTranscripts![2].transcript![0].speakerName).toEqual("Joe Jonas");
+    expect(result.callTranscripts![2].transcript![0].speakerEmail).toEqual("joe@credal.ai");
   });
 
   it("should handle authentication error", async () => {
@@ -238,7 +241,7 @@ describe("getGongTranscripts", () => {
         calls: [{
           metaData: { id: "call1", primaryUserId: "user1", started: "2024-01-04T00:00:00.000Z", isPrivate: false, title: "First Call" },
           parties: [
-            { speakerId: "user1", name: "John Doe"},
+            { speakerId: "user1", name: "John Doe", emailAddress: process.env.GONG_USERNAME! },
           ],
           content: {
             trackers: [
@@ -256,7 +259,7 @@ describe("getGongTranscripts", () => {
           {
             metaData: { id: "call2", primaryUserId: "user2", started: "2024-01-02T00:00:00.000Z", isPrivate: false, title: "Second Call" },
             parties: [
-              {speakerId: "user2", name: "Jane Doe"},
+              {speakerId: "user2", name: "Jane Doe", emailAddress: "fake@credal.ai"},
             ],
             content: {
               trackers: [
@@ -314,8 +317,10 @@ describe("getGongTranscripts", () => {
     expect(result.callTranscripts![0].callName).toBe("First Call");
     expect(result.callTranscripts![0].startTime).toBe("2024-01-04T00:00:00.000Z");
     expect(result.callTranscripts![0].transcript![0].speakerName).toBe("John Doe");
+    expect(result.callTranscripts![0].transcript![0].speakerEmail).toBe(process.env.GONG_USERNAME!);
     expect(result.callTranscripts![1].callId).toBe("call2");
     expect(result.callTranscripts![1].transcript![0].speakerName).toBe("Jane Doe");
+    expect(result.callTranscripts![1].transcript![0].speakerEmail).toBe("fake@credal.ai");
     expect(mockedAxios.get).toHaveBeenCalledTimes(2);
     expect(mockedAxios.post).toHaveBeenCalledTimes(3);
   });

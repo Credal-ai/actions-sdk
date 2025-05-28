@@ -2810,6 +2810,7 @@ export const gongGetGongTranscriptsOutputSchema = z.object({
               z
                 .object({
                   speakerName: z.string().describe("The name of the speaker").optional(),
+                  speakerEmail: z.string().describe("The email of the speaker").optional(),
                   topic: z.string().nullable().describe("The topic of the transcript").optional(),
                   sentences: z
                     .array(

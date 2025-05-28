@@ -34,6 +34,7 @@ const CallSchema = z
           id: z.string(),
           name: z.string(),
           userId: z.string(),
+          emailAddress: z.string(),
           speakerId: z.string().nullable(),
         })
         .partial()
@@ -275,14 +276,20 @@ const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
     });
     // Map speaker IDs to names in the transcripts
     const userIdToNameMap: Record<string, string> = {};
+    const userIdToEmailMap: Record<string, string> = {};
     publicCalls.forEach(call => {
       // Check if call has parties array
       if (call.parties && Array.isArray(call.parties)) {
         // Iterate through each party in the call
         call.parties.forEach(party => {
           // Add the mapping of speakerId to name
-          if (party.speakerId && party.name) {
-            userIdToNameMap[party.speakerId] = party.name;
+          if (party.speakerId) {
+            if (party.name) {
+              userIdToNameMap[party.speakerId] = party.name;
+            }
+            if (party.emailAddress) {
+              userIdToEmailMap[party.speakerId] = party.emailAddress;
+            }
           }
         });
       }
@@ -294,6 +301,7 @@ const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
         return {
           ...rest,
           speakerName: userIdToNameMap[speakerId ?? ""] ?? "Unknown",
+          speakerEmail: userIdToEmailMap[speakerId ?? ""] ?? "Unknown",
         };
       });
       return {
