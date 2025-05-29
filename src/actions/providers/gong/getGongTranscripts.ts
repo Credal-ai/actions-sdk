@@ -93,7 +93,7 @@ const GongResponseSchema = z.object({
 type GongResponse = z.infer<typeof GongResponseSchema>;
 
 async function getUsers(authToken: string): Promise<User[]> {
-  let results: User[] = [];
+  const results: User[] = [];
   let cursor: string | undefined = undefined;
   do {
     const response: { data: GongResponse } = await axios.get<GongResponse>(
