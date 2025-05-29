@@ -108,11 +108,11 @@ async function getUsers(authToken: string): Promise<User[]> {
     if (!response) {
       return results;
     }
-    const parsedItems = z.array(UserSchema).safeParse(response.data.users);
-    if (parsedItems.success) {
-      results = [...results, ...parsedItems.data];
-    } else {
-      return results;
+    for (const user of response.data.users ?? []) {
+      const parsedUser = UserSchema.safeParse(user);
+      if (parsedUser.success) {
+        results.push(parsedUser.data);
+      }
     }
     cursor = response.data.cursor;
   } while (cursor);
