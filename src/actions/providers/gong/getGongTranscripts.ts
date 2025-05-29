@@ -298,7 +298,6 @@ const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
               }
             }
           });
-        } else {
         }
       }
     });
