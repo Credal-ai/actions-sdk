@@ -277,39 +277,62 @@ const getGongTranscripts: gongGetGongTranscriptsFunction = async ({
     // Map speaker IDs to names in the transcripts
     const userIdToNameMap: Record<string, string> = {};
     const userIdToEmailMap: Record<string, string> = {};
+    const callIdToEmails: Record<string, string[]> = {};
     publicCalls.forEach(call => {
       // Check if call has parties array
       if (call.parties && Array.isArray(call.parties)) {
         // Iterate through each party in the call
-        call.parties.forEach(party => {
-          // Add the mapping of speakerId to name
-          if (party.speakerId) {
-            if (party.name) {
-              userIdToNameMap[party.speakerId] = party.name;
+        if (call.metaData?.id) {
+          callIdToEmails[call.metaData.id] = [];
+          call.parties.forEach(party => {
+            // Add the mapping of speakerId to name
+            if (party.speakerId) {
+              if (party.name) {
+                userIdToNameMap[party.speakerId] = party.name;
+              }
+              if (party.emailAddress) {
+                userIdToEmailMap[party.speakerId] = party.emailAddress;
+                if (call.metaData?.id) {
+                  callIdToEmails[call.metaData.id].push(party.emailAddress);
+                }
+              }
             }
-            if (party.emailAddress) {
-              userIdToEmailMap[party.speakerId] = party.emailAddress;
-            }
-          }
-        });
+          });
+        } else {
+        }
       }
     });
-    const callTranscriptsWithNames = callTranscripts.map(callTranscript => {
-      const currTranscript = { ...callTranscript };
-      currTranscript.transcript = callTranscript.transcript?.map(transcript => {
-        const { speakerId, ...rest } = transcript;
+    const callTranscriptsWithNames = callTranscripts
+      .map(callTranscript => {
+        const currTranscript = { ...callTranscript };
+        const callId = callTranscript.callId!;
+        currTranscript.transcript = callTranscript.transcript?.map(transcript => {
+          const { speakerId, ...rest } = transcript;
+          return {
+            ...rest,
+            speakerName: userIdToNameMap[speakerId ?? ""] ?? "Unknown",
+            speakerEmail: userIdToEmailMap[speakerId ?? ""] ?? "Unknown",
+          };
+        });
         return {
-          ...rest,
-          speakerName: userIdToNameMap[speakerId ?? ""] ?? "Unknown",
-          speakerEmail: userIdToEmailMap[speakerId ?? ""] ?? "Unknown",
+          callName: publicCalls.find(call => call.metaData?.id === callTranscript.callId)?.metaData?.title ?? "",
+          userEmails: callIdToEmails[callId] ?? [],
+          startTime: publicCalls.find(call => call.metaData?.id === callTranscript.callId)?.metaData?.started ?? "",
+          ...currTranscript,
         };
+      })
+      .filter(callTranscript => {
+        if (!params.company || params.company === "") {
+          return true; // If no company filter is provided, include all transcripts
+        }
+        for (const email of callIdToEmails[callTranscript.callId!]) {
+          const companyName = params.company?.toLowerCase().replace(/ /g, "");
+          if (email.includes(companyName)) {
+            return true;
+          }
+        }
+        return false;
       });
-      return {
-        callName: publicCalls.find(call => call.metaData?.id === callTranscript.callId)?.metaData?.title ?? "",
-        startTime: publicCalls.find(call => call.metaData?.id === callTranscript.callId)?.metaData?.started ?? "",
-        ...currTranscript,
-      };
-    });
     return {
       success: true,
       callTranscripts: callTranscriptsWithNames,

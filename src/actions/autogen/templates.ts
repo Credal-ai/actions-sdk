@@ -5354,6 +5354,10 @@ export const gongGetGongTranscriptsDefinition: ActionTemplate = {
           description: "The names of the trackers to fetch transcripts for",
         },
       },
+      company: {
+        type: "string",
+        description: "The company to get calls with",
+      },
       startDate: {
         type: "string",
         description: "The start date of the transcripts to fetch in ISO 8601 format",

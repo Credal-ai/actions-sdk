@@ -14,10 +14,10 @@ async function runTest() {
       username: process.env.GONG_USERNAME!,
     },
     {
-      userRole: "Chief of Staff",
+      userRole: "CEO",
       trackers: ["Value Prop"],
       startDate: "2025-05-01T00:00:00Z",
-      endDate: "2025-05-13T23:59:59Z"
+      endDate: "2025-05-29T23:59:59Z"
     }
   );
 
@@ -36,6 +36,47 @@ async function runTest() {
     assert(firstTranscript.transcript[0].speakerEmail, "Transcript should have speaker emails");
     assert(firstTranscript.transcript[0].speakerEmail != "Unknown", "Speaker email should not be 'Unknown'");
     assert(Array.isArray(firstTranscript.transcript[0].sentences), "Transcript should have sentences array");
+  }
+
+  console.log("Test passed successfully!");
+}
+
+async function runTestFilterByCompany() {
+  console.log("Running filter by company test");
+  const result = await runAction(
+    "getGongTranscripts",
+    "gong",
+    {
+      authToken: process.env.GONG_TOKEN!,
+      username: process.env.GONG_USERNAME!,
+    },
+    {
+      userRole: "CEO",
+      startDate: "2025-05-01T00:00:00Z",
+      endDate: "2025-05-29T23:59:59Z",
+      company: "Flatiron",
+    }
+  );
+
+  // Validate response
+  assert(result, "Response should not be null");
+  assert(result.success, "Response should indicate success");
+  assert(Array.isArray(result.callTranscripts), "Response should contain callTranscripts array");
+  assert(result.callTranscripts.length > 0, "Response should contain at least one transcript");
+  
+  if (result.callTranscripts.length > 0) {
+    const firstTranscript = result.callTranscripts[0];
+    assert(firstTranscript.callId, "Transcript should have a callId");
+    assert(firstTranscript.callName, "Transcript should have a callName");
+    assert(firstTranscript.startTime, "Transcript should have a startTime");
+    assert(firstTranscript, "Transcript should have transcript data");
+    assert(firstTranscript.transcript[0].speakerName, "Transcript should have speaker names");
+    assert(firstTranscript.transcript[0].speakerEmail, "Transcript should have speaker emails");
+    assert(firstTranscript.transcript[0].speakerEmail != "Unknown", "Speaker email should not be 'Unknown'");
+    assert(Array.isArray(firstTranscript.transcript[0].sentences), "Transcript should have sentences array");
+  }
+  for (const transcript of result.callTranscripts) {
+    assert(transcript.callName.includes("Flatiron"), "Transcript callName should include 'Flatiron'");
   }
 
   console.log("Test passed successfully!");
@@ -166,6 +207,16 @@ runTestInvalidTracker().catch((error) => {
 });
 
 runTestNoTracker().catch((error) => {
+  console.error("Test failed:", error);
+  if (error.response) {
+    console.error("API response:", error.response.data);
+    console.error("Status code:", error.response.status);
+  }
+  process.exit(1);
+}
+);
+
+runTestFilterByCompany().catch((error) => {
   console.error("Test failed:", error);
   if (error.response) {
     console.error("API response:", error.response.data);

@@ -2790,6 +2790,7 @@ export const gongGetGongTranscriptsParamsSchema = z.object({
     .array(z.string().describe("The names of the trackers to fetch transcripts for"))
     .describe("The trackers to fetch transcripts for")
     .optional(),
+  company: z.string().describe("The company to get calls with").optional(),
   startDate: z.string().describe("The start date of the transcripts to fetch in ISO 8601 format").optional(),
   endDate: z.string().describe("The end date of the transcripts to fetch in ISO 8601 format").optional(),
 });
