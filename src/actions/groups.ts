@@ -42,6 +42,8 @@ import {
   googleOauthCreatePresentationDefinition,
   googleOauthUpdatePresentationDefinition,
   googleOauthSearchDriveByKeywordsDefinition,
+  googleOauthSearchGmailMessagesDefinition,
+  googleOauthListGmailThreadsDefinition,
   salesforceUpdateRecordDefinition,
   salesforceCreateCaseDefinition,
   salesforceGenerateSalesReportDefinition,
@@ -131,6 +133,10 @@ export const ACTION_GROUPS: ActionGroups = {
   GOOGLE_CALENDAR: {
     description: "Actions for interacting with Google Calendar",
     actions: [googleOauthScheduleCalendarMeetingDefinition],
+  },
+  GMAIL: {
+    description: "Actions for interacting with Gmail",
+    actions: [googleOauthSearchGmailMessagesDefinition, googleOauthListGmailThreadsDefinition],
   },
   CREDAL_CALL_COPILOT: {
     description: "Action for calling a Credal Copilot",

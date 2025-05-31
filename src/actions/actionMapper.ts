@@ -87,6 +87,10 @@ import {
   googleOauthUpdatePresentationOutputSchema,
   googleOauthSearchDriveByKeywordsParamsSchema,
   googleOauthSearchDriveByKeywordsOutputSchema,
+  googleOauthSearchGmailMessagesParamsSchema,
+  googleOauthSearchGmailMessagesOutputSchema,
+  googleOauthListGmailThreadsParamsSchema,
+  googleOauthListGmailThreadsOutputSchema,
   ashbyCreateNoteParamsSchema,
   ashbyCreateNoteOutputSchema,
   ashbyGetCandidateInfoParamsSchema,
@@ -241,6 +245,8 @@ import getFVRecoveryKeyForDevice from "./providers/kandji/getFVRecoveryKeyForDev
 import listAsanaTasksByProject from "./providers/asana/listAsanaTasksByProject";
 import getTasksDetails from "./providers/asana/getTasksDetails";
 import searchByTitle from "./providers/notion/searchByTitle";
+import searchGmailMessages from "./providers/google-oauth/searchGmailMessages";
+import listGmailThreads from "./providers/google-oauth/listGmailThreads";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -531,6 +537,16 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: searchDriveByKeywords,
       paramsSchema: googleOauthSearchDriveByKeywordsParamsSchema,
       outputSchema: googleOauthSearchDriveByKeywordsOutputSchema,
+    },
+    searchGmailMessages: {
+      fn: searchGmailMessages,
+      paramsSchema: googleOauthSearchGmailMessagesParamsSchema,
+      outputSchema: googleOauthSearchGmailMessagesOutputSchema,
+    },
+    listGmailThreads: {
+      fn: listGmailThreads,
+      paramsSchema: googleOauthListGmailThreadsParamsSchema,
+      outputSchema: googleOauthListGmailThreadsOutputSchema,
     },
   },
   x: {
