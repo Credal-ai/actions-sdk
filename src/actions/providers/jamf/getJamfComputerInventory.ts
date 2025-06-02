@@ -1,4 +1,3 @@
-import base64 from "base-64";
 import type {
   AuthParamsType,
   jamfGetFileVaultRecoveryKeyFunction,
