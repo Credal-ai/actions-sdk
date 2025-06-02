@@ -79,6 +79,8 @@ import {
   asanaListAsanaTasksByProjectDefinition,
   notionSearchByTitleDefinition,
   asanaGetTasksDetailsDefinition,
+  jamfGetComputerInventoryDefinition,
+  jamfGetFileVaultRecoveryKeyDefinition,
 } from "../actions/autogen/templates";
 import type { ActionTemplate } from "../actions/parse";
 
@@ -234,6 +236,10 @@ export const ACTION_GROUPS: ActionGroups = {
       microsoftCreateDocumentDefinition,
       microsoftGetDocumentDefinition,
     ],
+  },
+  JAMF: {
+    description: "Actions for interacting with Jamf",
+    actions: [jamfGetComputerInventoryDefinition, jamfGetFileVaultRecoveryKeyDefinition],
   },
   KANDJI: {
     description: "Actions for interacting with Kandji",

@@ -4766,7 +4766,7 @@ actions:
         properties:
           computerId:
             type: string
-            description: The computer ID to get the FileVault2 recovery key for
+            description: The computerId of the device to get the FileVault2 recovery key for
       output:
         type: object
         required: [success]

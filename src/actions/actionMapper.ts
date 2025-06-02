@@ -159,6 +159,10 @@ import {
   asanaGetTasksDetailsOutputSchema,
   notionSearchByTitleParamsSchema,
   notionSearchByTitleOutputSchema,
+  jamfGetFileVaultRecoveryKeyParamsSchema,
+  jamfGetFileVaultRecoveryKeyOutputSchema,
+  jamfGetComputerInventoryParamsSchema,
+  jamfGetComputerInventoryOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -241,6 +245,8 @@ import getFVRecoveryKeyForDevice from "./providers/kandji/getFVRecoveryKeyForDev
 import listAsanaTasksByProject from "./providers/asana/listAsanaTasksByProject";
 import getTasksDetails from "./providers/asana/getTasksDetails";
 import searchByTitle from "./providers/notion/searchByTitle";
+import getFileVaultRecoveryKey from "./providers/jamf/getFileVaultRecoveryKey";
+import getComputerInventory from "./providers/jamf/getComputerInventory";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -306,6 +312,18 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: getChannelMessages,
       paramsSchema: slackGetChannelMessagesParamsSchema,
       outputSchema: slackGetChannelMessagesOutputSchema,
+    },
+  },
+  jamf: {
+    getFileVaultRecoveryKey: {
+      fn: getFileVaultRecoveryKey,
+      paramsSchema: jamfGetFileVaultRecoveryKeyParamsSchema,
+      outputSchema: jamfGetFileVaultRecoveryKeyOutputSchema,
+    },
+    getComputerInventory: {
+      fn: getComputerInventory,
+      paramsSchema: jamfGetComputerInventoryParamsSchema,
+      outputSchema: jamfGetComputerInventoryOutputSchema,
     },
   },
   confluence: {

@@ -1,50 +1,69 @@
+import base64 from "base-64";
 import type {
   AuthParamsType,
-  jamfGetComputerInventoryFunction,
-  jamfGetComputerInventoryOutputType,
-  jamfGetComputerInventoryParamsType,
+  jamfGetFileVaultRecoveryKeyFunction,
+  jamfGetFileVaultRecoveryKeyOutputType,
+  jamfGetFileVaultRecoveryKeyParamsType,
 } from "../../autogen/types";
 import { axiosClient } from "../../util/axiosClient";
-import base64 from "base-64";
 
-const getComputerInventory: jamfGetComputerInventoryFunction = async ({
+const getFileVaultRecoveryKey: jamfGetFileVaultRecoveryKeyFunction = async ({
   params,
   authParams,
 }: {
-  params: jamfGetComputerInventoryParamsType;
+  params: jamfGetFileVaultRecoveryKeyParamsType;
   authParams: AuthParamsType;
-}): Promise<jamfGetComputerInventoryOutputType> => {
-  const { username, password, baseUrl } = authParams;
-  const { section } = params;
+}): Promise<jamfGetFileVaultRecoveryKeyOutputType> => {
+  const { username, password, subdomain } = authParams;
+  const { computerId } = params;
 
-  if (!baseUrl || !username || !password) {
-    throw new Error("Base URL, username, and password are required to fetch computer inventory");
+  if (!subdomain || !username || !password) {
+    throw new Error("Base URL, username, and password are required to fetch FileVault2 recovery key");
   }
 
-  const apiUrl = `${baseUrl}/api/v1/computer-inventory`;
-  const queryParams: Record<string, string> = {};
+  // const apiUrl = `${baseUrl}/api/v1/computers-inventory/${computerId}/filevault`;
+  const url = `https://${subdomain}.jamfcloud.com`;
+  const auth = "Basic " + Buffer.from(`${username}:${password}`).toString('base64');
 
-  if (section) {
-    queryParams.section = section;
-  }
-
-  const auth = base64.encode(`${username}:${password}`);
+  console.log("Fetching FileVault2 recovery key for computer ID:", computerId, auth, url);
 
   try {
-    const response = await axiosClient.get(apiUrl, {
+    const response = await axiosClient.post(`${url}/api/v1/auth/token`, {}, {
       headers: {
-        Authorization: `Basic ${auth}`,
+        Authorization: auth,
         Accept: "application/json",
       },
-      params: queryParams,
     });
+
+    const token = response.data.token;
+    const computers = await axiosClient.get(
+      `${url}/api/v1/computers-inventory`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+        },
+      }
+    );
+
+    await axiosClient.post(
+      `${url}/api/v1/auth/invalidate-token`,
+      {},
+      {
+          headers: {
+              'Authorization': `Bearer ${token}`
+          },
+          // Accept all status codes so we can handle them manually
+          validateStatus: () => true
+      }
+  );
 
     return {
       success: true,
-      data: response.data,
+      data: computers.data,
     };
   } catch (error) {
-    console.error("Error retrieving computer inventory: ", error);
+    console.error("Error retrieving FileVault2 recovery key: ", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -52,4 +71,4 @@ const getComputerInventory: jamfGetComputerInventoryFunction = async ({
   }
 };
 
-export default getComputerInventory;
+export default getFileVaultRecoveryKey;
