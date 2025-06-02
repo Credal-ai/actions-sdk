@@ -3934,113 +3934,6 @@ actions:
           error:
             type: string
             description: Error message if search failed
-    searchGmailMessages:
-      description: Search Gmail messages in a user's inbox using a query string.
-      scopes:
-        - https://www.googleapis.com/auth/gmail.readonly
-      parameters:
-        type: object
-        required: [query]
-        properties:
-          query:
-            type: string
-            description: Gmail search query (e.g. "from:alice subject:urgent")
-          maxResults:
-            type: integer
-            description: Maximum number of messages to return (optional)
-      output:
-        type: object
-        required: [success, messages]
-        properties:
-          success:
-            type: boolean
-          messages:
-            type: array
-            description: List of matching Gmail messages
-            items:
-              type: object
-              required: [id, threadId]
-              properties:
-                id:
-                  type: string
-                  description: The message ID
-                threadId:
-                  type: string
-                  description: The thread ID
-                snippet:
-                  type: string
-                  description: A short part of the message text
-                labelIds:
-                  type: array
-                  items:
-                    type: string
-                  description: Labels on the message
-                internalDate:
-                  type: string
-                  description: Internal timestamp of the message
-                emailBody:
-                  type: string
-                  description: The body of the message
-          error:
-            type: string
-            description: Error message if search failed
-    listGmailThreads:
-      description: List Gmail threads in a user's inbox using a query string.
-      scopes:
-        - https://www.googleapis.com/auth/gmail.readonly
-      parameters:
-        type: object
-        required: [query]
-        properties:
-          query:
-            type: string
-            description: Gmail search query (e.g. "from:alice subject:project")
-          maxResults:
-            type: integer
-            description: Maximum number of threads to return
-      output:
-        type: object
-        required: [success, threads]
-        properties:
-          success:
-            type: boolean
-          threads:
-            type: array
-            description: List of matching Gmail threads
-            items:
-              type: object
-              required: [id, historyId, messages]
-              properties:
-                id:
-                  type: string
-                  description: The thread ID
-                historyId:
-                  type: string
-                  description: The thread history ID
-                messages:
-                  type: array
-                  description: The messages in the thread
-                  items:
-                    type: object
-                    required: [id, threadId, snippet, labelIds, internalDate, emailBody]
-                    properties:
-                      id:
-                        type: string
-                      threadId:
-                        type: string
-                      snippet:
-                        type: string
-                      labelIds:
-                        type: array
-                        items:
-                          type: string
-                      internalDate:
-                        type: string
-                      emailBody:
-                        type: string
-          error:
-            type: string
-            description: Error message if search failed
     listGroups:
       description: List all Google Groups for the customer.
       scopes:
@@ -4239,6 +4132,114 @@ actions:
           error:
             type: string
             description: The error that occurred if the member could not be removed
+  googlemail:
+    searchGmailMessages:
+      description: Search Gmail messages in a user's inbox using a query string.
+      scopes:
+        - https://www.googleapis.com/auth/gmail.readonly
+      parameters:
+        type: object
+        required: [query]
+        properties:
+          query:
+            type: string
+            description: Gmail search query (e.g. "from:alice subject:urgent")
+          maxResults:
+            type: integer
+            description: Maximum number of messages to return (optional)
+      output:
+        type: object
+        required: [success, messages]
+        properties:
+          success:
+            type: boolean
+          messages:
+            type: array
+            description: List of matching Gmail messages
+            items:
+              type: object
+              required: [id, threadId]
+              properties:
+                id:
+                  type: string
+                  description: The message ID
+                threadId:
+                  type: string
+                  description: The thread ID
+                snippet:
+                  type: string
+                  description: A short part of the message text
+                labelIds:
+                  type: array
+                  items:
+                    type: string
+                  description: Labels on the message
+                internalDate:
+                  type: string
+                  description: Internal timestamp of the message
+                emailBody:
+                  type: string
+                  description: The body of the message
+          error:
+            type: string
+            description: Error message if search failed
+    listGmailThreads:
+      description: List Gmail threads in a user's inbox using a query string.
+      scopes:
+        - https://www.googleapis.com/auth/gmail.readonly
+      parameters:
+        type: object
+        required: [query]
+        properties:
+          query:
+            type: string
+            description: Gmail search query (e.g. "from:alice subject:project")
+          maxResults:
+            type: integer
+            description: Maximum number of threads to return
+      output:
+        type: object
+        required: [success, threads]
+        properties:
+          success:
+            type: boolean
+          threads:
+            type: array
+            description: List of matching Gmail threads
+            items:
+              type: object
+              required: [id, historyId, messages]
+              properties:
+                id:
+                  type: string
+                  description: The thread ID
+                historyId:
+                  type: string
+                  description: The thread history ID
+                messages:
+                  type: array
+                  description: The messages in the thread
+                  items:
+                    type: object
+                    required: [id, threadId, snippet, labelIds, internalDate, emailBody]
+                    properties:
+                      id:
+                        type: string
+                      threadId:
+                        type: string
+                      snippet:
+                        type: string
+                      labelIds:
+                        type: array
+                        items:
+                          type: string
+                      internalDate:
+                        type: string
+                      emailBody:
+                        type: string
+          error:
+            type: string
+            description: Error message if search failed
   gong:
     getGongTranscripts:
       description: Get sales call transcripts from Gong

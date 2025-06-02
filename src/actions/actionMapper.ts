@@ -95,10 +95,6 @@ import {
   googleOauthUpdatePresentationOutputSchema,
   googleOauthSearchDriveByKeywordsParamsSchema,
   googleOauthSearchDriveByKeywordsOutputSchema,
-  googleOauthSearchGmailMessagesParamsSchema,
-  googleOauthSearchGmailMessagesOutputSchema,
-  googleOauthListGmailThreadsParamsSchema,
-  googleOauthListGmailThreadsOutputSchema,
   googleOauthListGroupsOutputSchema,
   googleOauthListGroupsParamsSchema,
   googleOauthGetGroupOutputSchema,
@@ -185,6 +181,10 @@ import {
   asanaGetTasksDetailsOutputSchema,
   notionSearchByTitleParamsSchema,
   notionSearchByTitleOutputSchema,
+  googlemailSearchGmailMessagesOutputSchema,
+  googlemailSearchGmailMessagesParamsSchema,
+  googlemailListGmailThreadsOutputSchema,
+  googlemailListGmailThreadsParamsSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -270,8 +270,8 @@ import getFVRecoveryKeyForDevice from "./providers/kandji/getFVRecoveryKeyForDev
 import listAsanaTasksByProject from "./providers/asana/listAsanaTasksByProject";
 import getTasksDetails from "./providers/asana/getTasksDetails";
 import searchByTitle from "./providers/notion/searchByTitle";
-import searchGmailMessages from "./providers/google-oauth/searchGmailMessages";
-import listGmailThreads from "./providers/google-oauth/listGmailThreads";
+import searchGmailMessages from "./providers/googlemail/searchGmailMessages";
+import listGmailThreads from "./providers/googlemail/listGmailThreads";
 // import listCalendarEvents from "./providers/google-oauth/listCalendarEvents";
 // import updateCalendarEvent from "./providers/google-oauth/updateCalendarEvent";
 // import deleteCalendarEvent from "./providers/google-oauth/deleteCalendarEvent";
@@ -574,13 +574,13 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
     },
     searchGmailMessages: {
       fn: searchGmailMessages,
-      paramsSchema: googleOauthSearchGmailMessagesParamsSchema,
-      outputSchema: googleOauthSearchGmailMessagesOutputSchema,
+      paramsSchema: googlemailSearchGmailMessagesParamsSchema,
+      outputSchema: googlemailSearchGmailMessagesOutputSchema,
     },
     listGmailThreads: {
       fn: listGmailThreads,
-      paramsSchema: googleOauthListGmailThreadsParamsSchema,
-      outputSchema: googleOauthListGmailThreadsOutputSchema,
+      paramsSchema: googlemailListGmailThreadsParamsSchema,
+      outputSchema: googlemailListGmailThreadsOutputSchema,
     },
     listCalendars: {
       fn: listCalendars,

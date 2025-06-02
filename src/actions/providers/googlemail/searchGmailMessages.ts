@@ -1,20 +1,20 @@
 import { axiosClient } from "../../util/axiosClient";
 import type {
   AuthParamsType,
-  googleOauthSearchGmailMessagesFunction,
-  googleOauthSearchGmailMessagesOutputType,
-  googleOauthSearchGmailMessagesParamsType,
+  googlemailSearchGmailMessagesFunction,
+  googlemailSearchGmailMessagesOutputType,
+  googlemailSearchGmailMessagesParamsType,
 } from "../../autogen/types";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
-import { getEmailContent } from "./utils/decodeMessage";
+import { getEmailContent } from "../google-oauth/utils/decodeMessage";
 
-const searchGmailMessages: googleOauthSearchGmailMessagesFunction = async ({
+const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
   params,
   authParams,
 }: {
-  params: googleOauthSearchGmailMessagesParamsType;
+  params: googlemailSearchGmailMessagesParamsType;
   authParams: AuthParamsType;
-}): Promise<googleOauthSearchGmailMessagesOutputType> => {
+}): Promise<googlemailSearchGmailMessagesOutputType> => {
   if (!authParams.authToken) {
     return { success: false, error: MISSING_AUTH_TOKEN, messages: [] };
   }
