@@ -23,41 +23,42 @@ const getFileVaultRecoveryKey: jamfGetFileVaultRecoveryKeyFunction = async ({
 
   // const apiUrl = `${baseUrl}/api/v1/computers-inventory/${computerId}/filevault`;
   const url = `https://${subdomain}.jamfcloud.com`;
-  const auth = "Basic " + Buffer.from(`${username}:${password}`).toString('base64');
+  const auth = "Basic " + Buffer.from(`${username}:${password}`).toString("base64");
 
   console.log("Fetching FileVault2 recovery key for computer ID:", computerId, auth, url);
 
   try {
-    const response = await axiosClient.post(`${url}/api/v1/auth/token`, {}, {
-      headers: {
-        Authorization: auth,
-        Accept: "application/json",
+    const response = await axiosClient.post(
+      `${url}/api/v1/auth/token`,
+      {},
+      {
+        headers: {
+          Authorization: auth,
+          Accept: "application/json",
+        },
       },
-    });
+    );
 
     const token = response.data.token;
 
-    const fileVaultResponse = await axiosClient.get(
-      `${url}/api/v1/computers-inventory/${computerId}/filevault`,
-      {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json',
-        },
-      }
-    );
+    const fileVaultResponse = await axiosClient.get(`${url}/api/v1/computers-inventory/${computerId}/filevault`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+    });
 
     await axiosClient.post(
       `${url}/api/v1/auth/invalidate-token`,
       {},
       {
-          headers: {
-              'Authorization': `Bearer ${token}`
-          },
-          // Accept all status codes so we can handle them manually
-          validateStatus: () => true
-      }
-  );
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        // Accept all status codes so we can handle them manually
+        validateStatus: () => true,
+      },
+    );
 
     return {
       success: true,
