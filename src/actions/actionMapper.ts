@@ -572,16 +572,6 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       paramsSchema: googleOauthSearchDriveByKeywordsParamsSchema,
       outputSchema: googleOauthSearchDriveByKeywordsOutputSchema,
     },
-    searchGmailMessages: {
-      fn: searchGmailMessages,
-      paramsSchema: googlemailSearchGmailMessagesParamsSchema,
-      outputSchema: googlemailSearchGmailMessagesOutputSchema,
-    },
-    listGmailThreads: {
-      fn: listGmailThreads,
-      paramsSchema: googlemailListGmailThreadsParamsSchema,
-      outputSchema: googlemailListGmailThreadsOutputSchema,
-    },
     listCalendars: {
       fn: listCalendars,
       paramsSchema: googleOauthListCalendarsParamsSchema,
@@ -631,6 +621,18 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: deleteGroupMember,
       paramsSchema: googleOauthDeleteGroupMemberParamsSchema,
       outputSchema: googleOauthDeleteGroupMemberOutputSchema,
+    },
+  },
+  googlemail: {
+    searchGmailMessages: {
+      fn: searchGmailMessages,
+      paramsSchema: googlemailSearchGmailMessagesParamsSchema,
+      outputSchema: googlemailSearchGmailMessagesOutputSchema,
+    },
+    listGmailThreads: {
+      fn: listGmailThreads,
+      paramsSchema: googlemailListGmailThreadsParamsSchema,
+      outputSchema: googlemailListGmailThreadsOutputSchema,
     },
   },
   x: {
