@@ -15,7 +15,6 @@ const getFileVaultRecoveryKey: jamfGetFileVaultRecoveryKeyFunction = async ({
   authParams: AuthParamsType;
 }): Promise<jamfGetFileVaultRecoveryKeyOutputType> => {
   const { username, password, subdomain } = authParams;
-  const { computerId } = params;
 
   if (!subdomain || !username || !password) {
     throw new Error("Base URL, username, and password are required to fetch FileVault2 recovery key");
@@ -24,8 +23,6 @@ const getFileVaultRecoveryKey: jamfGetFileVaultRecoveryKeyFunction = async ({
   // const apiUrl = `${baseUrl}/api/v1/computers-inventory/${computerId}/filevault`;
   const url = `https://${subdomain}.jamfcloud.com`;
   const auth = "Basic " + Buffer.from(`${username}:${password}`).toString("base64");
-
-  console.log("Fetching FileVault2 recovery key for computer ID:", computerId, auth, url);
 
   try {
     const response = await axiosClient.post(

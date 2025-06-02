@@ -2,10 +2,10 @@ import assert from "node:assert";
 import { runAction } from "../../src/app";
 
 async function runTest() {
-  const subdomain = "credalainfr"; // Replace with your actual subdomain
-  const username = "riaballi"; // Replace with your actual username
-  const password = "H7oMrBnxgnAQYXk4wCdW"; // Replace with your actual password
-  const computerId = "Mtxgqm4x72"; // Replace with the actual computer ID
+  const subdomain = "insert-during-testing"; // Replace with your actual subdomain
+  const username = "insert-during-testing"; // Replace with your actual username
+  const password = "insert-during-testing"; // Replace with your actual password
+  const computerId = "insert-during-testing"; // Replace with the actual computer ID
 
   if (!subdomain || !username || !password || !computerId) {
     console.error("Missing required environment variables for test");
