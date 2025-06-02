@@ -37,6 +37,37 @@ const configSchema = z.object({
   actions: z.record(z.string(), providerSchema),
 });
 
+// This will be populated dynamically during type generation
+export enum ProviderName {
+    GENERIC = "generic",
+    ASANA = "asana",
+    SLACK = "slack",
+    MATH = "math",
+    CONFLUENCE = "confluence",
+    JIRA = "jira",
+    KANDJI = "kandji",
+    GOOGLEMAPS = "googlemaps",
+    BING = "bing",
+    ZENDESK = "zendesk",
+    LINKEDIN = "linkedin",
+    X = "x",
+    MONGO = "mongo",
+    SNOWFLAKE = "snowflake",
+    OPENSTREETMAP = "openstreetmap",
+    NWS = "nws",
+    FIRECRAWL = "firecrawl",
+    RESEND = "resend",
+    GOOGLEOAUTH = "googleOauth",
+    GONG = "gong",
+    FINNHUB = "finnhub",
+    LOOKER = "looker",
+    ASHBY = "ashby",
+    SALESFORCE = "salesforce",
+    MICROSOFT = "microsoft",
+    GITHUB = "github",
+    NOTION = "notion"
+}
+
 const authParamsSchemaStr = `
 z.object({
     authToken: z.string().optional(),
@@ -160,6 +191,19 @@ async function generateTypes({
   const templatesFile = project.createSourceFile(outputPath, "", { overwrite: true });
   const typesFile = project.createSourceFile(templatesOutputPath, "", { overwrite: true });
 
+  // Update the ProviderName enum in parse.ts
+  const parseFile = project.addSourceFileAtPath("src/actions/parse.ts");
+  const providerEnum = parseFile.getEnum("ProviderName");
+  if (providerEnum) {
+    providerEnum.getMembers().forEach(member => member.remove());
+    Object.keys(parsedConfig.actions).forEach(providerName => {
+      providerEnum.addMember({
+        name: providerName.toUpperCase().replace(/-/g, '_'),
+        value: providerName,
+      });
+    });
+  }
+
   // Add imports
   templatesFile.addImportDeclaration({
     moduleSpecifier: "../../actions/parse",
@@ -243,6 +287,7 @@ async function generateTypes({
   // Save the generated TypeScript file
   await templatesFile.save();
   await typesFile.save();
+  await parseFile.save();
 }
 
 generateTypes({});

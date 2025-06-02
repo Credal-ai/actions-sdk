@@ -5,8 +5,6 @@ import {
   genericFillTemplateOutputSchema,
   confluenceOverwritePageParamsSchema,
   confluenceOverwritePageOutputSchema,
-  credalCallCopilotOutputSchema,
-  credalCallCopilotParamsSchema,
   googlemapsValidateAddressOutputSchema,
   googlemapsValidateAddressParamsSchema,
   googleOauthCreateNewGoogleDocParamsSchema,
@@ -160,7 +158,6 @@ import {
   notionSearchByTitleParamsSchema,
   notionSearchByTitleOutputSchema,
 } from "./autogen/types";
-import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
 import add from "./providers/math/add";
 import fillTemplate from "./providers/generic/fillTemplate";
@@ -330,13 +327,6 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: nearbysearch,
       paramsSchema: googlemapsNearbysearchRestaurantsParamsSchema,
       outputSchema: googlemapsNearbysearchRestaurantsOutputSchema,
-    },
-  },
-  credal: {
-    callCopilot: {
-      fn: callCopilot,
-      paramsSchema: credalCallCopilotParamsSchema,
-      outputSchema: credalCallCopilotOutputSchema,
     },
   },
   kandji: {
