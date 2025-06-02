@@ -20,7 +20,6 @@ const getJamfComputerInventory: jamfGetFileVaultRecoveryKeyFunction = async ({
     throw new Error("Base URL, username, and password are required to fetch FileVault2 recovery key");
   }
 
-  // const apiUrl = `${baseUrl}/api/v1/computers-inventory/${computerId}/filevault`;
   const url = `https://${subdomain}.jamfcloud.com`;
   const auth = "Basic " + Buffer.from(`${username}:${password}`).toString("base64");
 
