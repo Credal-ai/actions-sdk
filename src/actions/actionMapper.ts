@@ -185,6 +185,10 @@ import {
   asanaGetTasksDetailsOutputSchema,
   notionSearchByTitleParamsSchema,
   notionSearchByTitleOutputSchema,
+  jamfGetComputerInventoryParamsSchema,
+  jamfGetComputerInventoryOutputSchema,
+  jamfGetFileVaultRecoveryKeyParamsSchema,
+  jamfGetFileVaultRecoveryKeyOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -281,6 +285,8 @@ import listGroupMembers from "./providers/google-oauth/listGroupMembers";
 import hasGroupMember from "./providers/google-oauth/hasGroupMember";
 import addGroupMember from "./providers/google-oauth/addGroupMember";
 import deleteGroupMember from "./providers/google-oauth/deleteGroupMember";
+import getJamfComputerInventory from "./providers/jamf/getJamfComputerInventory";
+import getJamfFileVaultRecoveryKey from "./providers/jamf/getJamfFileVaultRecoveryKey";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -327,6 +333,18 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: getTasksDetails,
       paramsSchema: asanaGetTasksDetailsParamsSchema,
       outputSchema: asanaGetTasksDetailsOutputSchema,
+    },
+  },
+  jamf: {
+    getJamfComputerInventory: {
+      fn: getJamfComputerInventory,
+      paramsSchema: jamfGetComputerInventoryParamsSchema,
+      outputSchema: jamfGetComputerInventoryOutputSchema,
+    },
+    getJamfFileVaultRecoveryKey: {
+      fn: getJamfFileVaultRecoveryKey,
+      paramsSchema: jamfGetFileVaultRecoveryKeyParamsSchema,
+      outputSchema: jamfGetFileVaultRecoveryKeyOutputSchema,
     },
   },
   math: {

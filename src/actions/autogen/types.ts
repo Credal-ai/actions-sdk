@@ -3924,3 +3924,41 @@ export type notionSearchByTitleFunction = ActionFunction<
   AuthParamsType,
   notionSearchByTitleOutputType
 >;
+
+export const jamfGetFileVaultRecoveryKeyParamsSchema = z.object({
+  computerId: z.string().describe("The computerId of the device to get the FileVault2 recovery key for"),
+});
+
+export type jamfGetFileVaultRecoveryKeyParamsType = z.infer<typeof jamfGetFileVaultRecoveryKeyParamsSchema>;
+
+export const jamfGetFileVaultRecoveryKeyOutputSchema = z.object({
+  success: z.boolean().describe("Whether the request was successful"),
+  data: z.string().describe("The FileVault2 recovery key data").optional(),
+  error: z.string().describe("Error message if the request failed").optional(),
+});
+
+export type jamfGetFileVaultRecoveryKeyOutputType = z.infer<typeof jamfGetFileVaultRecoveryKeyOutputSchema>;
+export type jamfGetFileVaultRecoveryKeyFunction = ActionFunction<
+  jamfGetFileVaultRecoveryKeyParamsType,
+  AuthParamsType,
+  jamfGetFileVaultRecoveryKeyOutputType
+>;
+
+export const jamfGetComputerInventoryParamsSchema = z.object({
+  section: z.string().describe("Optional section parameter to filter inventory data").optional(),
+});
+
+export type jamfGetComputerInventoryParamsType = z.infer<typeof jamfGetComputerInventoryParamsSchema>;
+
+export const jamfGetComputerInventoryOutputSchema = z.object({
+  success: z.boolean().describe("Whether the request was successful"),
+  data: z.array(z.any()).describe("The computer inventory data").optional(),
+  error: z.string().describe("Error message if the request failed").optional(),
+});
+
+export type jamfGetComputerInventoryOutputType = z.infer<typeof jamfGetComputerInventoryOutputSchema>;
+export type jamfGetComputerInventoryFunction = ActionFunction<
+  jamfGetComputerInventoryParamsType,
+  AuthParamsType,
+  jamfGetComputerInventoryOutputType
+>;
