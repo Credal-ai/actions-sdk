@@ -504,6 +504,78 @@ export const asanaGetTasksDetailsDefinition: ActionTemplate = {
   name: "getTasksDetails",
   provider: "asana",
 };
+export const slackCreateChannelDefinition: ActionTemplate = {
+  description: "Creates a new Slack channel using a bot token",
+  scopes: ["channels:manage"],
+  parameters: {
+    type: "object",
+    required: ["channelName"],
+    properties: {
+      channelName: {
+        type: "string",
+        description: "The name of the channel to create (without '#')",
+      },
+      isPrivate: {
+        type: "boolean",
+        description: "Whether to create a private channel (defaults to false)",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the channel was created successfully",
+      },
+      channelId: {
+        type: "string",
+        description: "The ID of the created channel",
+      },
+      channelUrl: {
+        type: "string",
+        description: "The URL of the created channel",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the channel was not created successfully",
+      },
+    },
+  },
+  name: "createChannel",
+  provider: "slack",
+};
+export const slackArchiveChannelDefinition: ActionTemplate = {
+  description: "Archives a Slack channel using a bot token",
+  scopes: ["channels:manage"],
+  parameters: {
+    type: "object",
+    required: ["channelId"],
+    properties: {
+      channelId: {
+        type: "string",
+        description: "The ID of the channel to archive",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the channel was archived successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the channel was not archived successfully",
+      },
+    },
+  },
+  name: "archiveChannel",
+  provider: "slack",
+};
 export const slackSendMessageDefinition: ActionTemplate = {
   description: "Sends a message to a Slack channel",
   scopes: ["chat:write"],

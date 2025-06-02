@@ -19,6 +19,10 @@ import {
   slackSendMessageParamsSchema,
   slackGetChannelMessagesOutputSchema,
   slackGetChannelMessagesParamsSchema,
+  slackArchiveChannelParamsSchema,
+  slackArchiveChannelOutputSchema,
+  slackCreateChannelParamsSchema,
+  slackCreateChannelOutputSchema,
   snowflakeGetRowByFieldValueOutputSchema,
   snowflakeGetRowByFieldValueParamsSchema,
   zendeskCreateZendeskTicketOutputSchema,
@@ -272,15 +276,14 @@ import getTasksDetails from "./providers/asana/getTasksDetails";
 import searchByTitle from "./providers/notion/searchByTitle";
 import searchGmailMessages from "./providers/googlemail/searchGmailMessages";
 import listGmailThreads from "./providers/googlemail/listGmailThreads";
-// import listCalendarEvents from "./providers/google-oauth/listCalendarEvents";
-// import updateCalendarEvent from "./providers/google-oauth/updateCalendarEvent";
-// import deleteCalendarEvent from "./providers/google-oauth/deleteCalendarEvent";
 import listGroups from "./providers/google-oauth/listGroups";
 import getGroup from "./providers/google-oauth/getGroup";
 import listGroupMembers from "./providers/google-oauth/listGroupMembers";
 import hasGroupMember from "./providers/google-oauth/hasGroupMember";
 import addGroupMember from "./providers/google-oauth/addGroupMember";
 import deleteGroupMember from "./providers/google-oauth/deleteGroupMember";
+import createChannel from "./providers/slack/createChannel";
+import archiveChannel from "./providers/slack/archiveChannel";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -346,6 +349,16 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: getChannelMessages,
       paramsSchema: slackGetChannelMessagesParamsSchema,
       outputSchema: slackGetChannelMessagesOutputSchema,
+    },
+    createChannel: {
+      fn: createChannel,
+      paramsSchema: slackCreateChannelParamsSchema,
+      outputSchema: slackCreateChannelOutputSchema,
+    },
+    archiveChannel: {
+      fn: archiveChannel,
+      paramsSchema: slackArchiveChannelParamsSchema,
+      outputSchema: slackArchiveChannelOutputSchema,
     },
   },
   confluence: {
