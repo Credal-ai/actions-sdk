@@ -7,7 +7,6 @@ import type {
 import { axiosClient } from "../../util/axiosClient";
 
 const getJamfComputerInventory: jamfGetJamfComputerInventoryFunction = async ({
-  params,
   authParams,
 }: {
   params: jamfGetJamfComputerInventoryParamsType;
