@@ -15,7 +15,7 @@ const getJamfComputerInventory: jamfGetJamfComputerInventoryFunction = async ({
   const { authToken, subdomain } = authParams;
 
   if (!subdomain || !authToken) {
-    throw new Error("Instance and authToken are required to fetch Jamf cmoputer inventory");
+    throw new Error("Instance and authToken are required to fetch Jamf computer inventory");
   }
 
   const url = `https://${subdomain}.jamfcloud.com`;
