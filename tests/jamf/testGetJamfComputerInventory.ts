@@ -2,11 +2,10 @@ import assert from "node:assert";
 import { runAction } from "../../src/app";
 
 async function runTest() {
-  const subdomain = "insert-during-testing"; // Replace with your actual subdomain
-  const username = "insert-during-testing"; // Replace with your actual username
-  const password = "insert-during-testing"; // Replace with your actual password
+  const subdomain = "insert-during-test"; // Replace with your actual subdomain
+  const authToken = "insert-during-test"; // Replace with your actual password
 
-  if (!subdomain || !username || !password) {
+  if (!subdomain || !authToken) {
     console.error("Missing required environment variables for test");
     process.exit(1);
   }
@@ -15,8 +14,7 @@ async function runTest() {
     "getJamfComputerInventory",
     "jamf",
     {
-      username,
-      password,
+      authToken,
       subdomain,
     },
     {

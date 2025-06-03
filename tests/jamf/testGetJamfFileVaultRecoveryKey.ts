@@ -3,11 +3,10 @@ import { runAction } from "../../src/app";
 
 async function runTest() {
   const subdomain = "insert-during-testing"; // Replace with your actual subdomain
-  const username = "insert-during-testing"; // Replace with your actual username
-  const password = "insert-during-testing"; // Replace with your actual password
+  const authToken = "insert-during-testing"; // Replace with your actual password
   const computerId = "insert-during-testing"; // Replace with the actual computer ID
 
-  if (!subdomain || !username || !password || !computerId) {
+  if (!subdomain || !authToken || !computerId) {
     console.error("Missing required environment variables for test");
     process.exit(1);
   }
@@ -16,8 +15,7 @@ async function runTest() {
     "getJamfFileVaultRecoveryKey",
     "jamf",
     {
-      username,
-      password,
+      authToken,
       subdomain,
     },
     {
