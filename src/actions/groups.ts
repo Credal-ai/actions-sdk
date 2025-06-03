@@ -92,6 +92,17 @@ import {
   asanaGetTasksDetailsDefinition,
   jamfGetJamfComputerInventoryDefinition,
   jamfGetJamfFileVaultRecoveryKeyDefinition,
+  oktaListOktaUsersDefinition,
+  oktaGetOktaUserDefinition,
+  oktaListOktaUserGroupsDefinition,
+  oktaListOktaGroupsDefinition,
+  oktaGetOktaGroupDefinition,
+  oktaListOktaGroupMembersDefinition,
+  oktaRemoveUserFromGroupDefinition,
+  oktaAddUserToGroupDefinition,
+  oktaResetPasswordDefinition,
+  oktaResetMFADefinition,
+  oktaListMFADefinition,
 } from "../actions/autogen/templates";
 import type { ActionTemplate } from "../actions/parse";
 
@@ -297,6 +308,22 @@ export const ACTION_GROUPS: ActionGroups = {
       googleOauthHasGroupMemberDefinition,
       googleOauthAddGroupMemberDefinition,
       googleOauthDeleteGroupMemberDefinition,
+    ],
+  },
+  OKTA: {
+    description: "Actions for interacting with Okta",
+    actions: [
+      oktaListOktaUsersDefinition,
+      oktaGetOktaUserDefinition,
+      oktaListOktaUserGroupsDefinition,
+      oktaListOktaGroupsDefinition,
+      oktaGetOktaGroupDefinition,
+      oktaListOktaGroupMembersDefinition,
+      oktaRemoveUserFromGroupDefinition,
+      oktaAddUserToGroupDefinition,
+      oktaResetPasswordDefinition,
+      oktaResetMFADefinition,
+      oktaListMFADefinition,
     ],
   },
 };
