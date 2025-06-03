@@ -2309,6 +2309,220 @@ actions:
           error:
             type: string
             description: The error that occurred if the meeting was not scheduled successfully
+    listCalendars:
+      description: List all Google Calendars for the authenticated user
+      scopes: [https://www.googleapis.com/auth/calendar.readonly]
+      parameters:
+        type: object
+        required: []
+        properties:
+          maxResults:
+            type: integer
+            description: Maximum number of calendars to return, defaults to 250
+      output:
+        type: object
+        required: [success, calendars]
+        properties:
+          success:
+            type: boolean
+            description: Whether the calendars were listed successfully
+          calendars:
+            type: array
+            description: List of calendars
+            items:
+              type: object
+              required: [id, summary]
+              properties:
+                id:
+                  type: string
+                  description: The calendar ID
+                summary:
+                  type: string
+                  description: The calendar name
+          error:
+            type: string
+            description: Error message if listing failed
+    listCalendarEvents:
+      description: List events on a Google Calendar, optionally searching by query.
+      scopes: [https://www.googleapis.com/auth/calendar.readonly]
+      parameters:
+        type: object
+        required: [calendarId]
+        properties:
+          calendarId:
+            type: string
+            description: The ID of the calendar to list events from
+          query:
+            type: string
+            description: Optional free-text search query to filter events
+          maxResults:
+            type: integer
+            description: Maximum number of events to return, defaults to 250
+      output:
+        type: object
+        required: [success, events]
+        properties:
+          success:
+            type: boolean
+            description: Whether the events were listed successfully
+          events:
+            type: array
+            description: List of events
+            items:
+              type: object
+              description: A calendar event
+              properties:
+                id:
+                  type: string
+                  description: Event unique identifier
+                status:
+                  type: string
+                  description: Status of the event (e.g., confirmed, cancelled)
+                url:
+                  type: string
+                  description: Link to the event in the Google Calendar web UI
+                title:
+                  type: string
+                  description: Title of the event
+                description:
+                  type: string
+                  description: Description of the event
+                location:
+                  type: string
+                  description: Geographic location of the event as free-form text
+                start:
+                  type: string
+                  description: Start date/time (for timed events, RFC3339 timestamp)
+                end:
+                  type: string
+                  description: End date/time (for timed events, RFC3339 timestamp)
+                attendees:
+                  type: array
+                  description: List of attendees
+                  items:
+                    type: object
+                    properties:
+                      email:
+                        type: string
+                        description: The attendee's email address
+                      displayName:
+                        type: string
+                        description: The attendee's name
+                      responseStatus:
+                        type: string
+                        description: The attendee's response status (accepted, declined, etc.)
+                organizer:
+                  type: object
+                  description: The organizer of the event
+                  properties:
+                    email:
+                      type: string
+                      description: The organizer's email address
+                    displayName:
+                      type: string
+                      description: The organizer's name
+                hangoutLink:
+                  type: string
+                  description: Google Meet link for the event, if available
+                created:
+                  type: string
+                  description: Creation time of the event (RFC3339 timestamp)
+                updated:
+                  type: string
+                  description: Last modification time of the event (RFC3339 timestamp)
+          error:
+            type: string
+            description: Error message if listing failed
+    updateCalendarEvent:
+      description: Update an event on a Google Calendar using OAuth authentication
+      scopes: [https://www.googleapis.com/auth/calendar]
+      parameters:
+        type: object
+        required: [calendarId, eventId]
+        properties:
+          calendarId:
+            type: string
+            description: The ID of the calendar containing the event
+          eventId:
+            type: string
+            description: The ID of the event to update
+          updates:
+            type: object
+            description: The fields to update on the event
+            properties:
+              title:
+                type: string
+                description: The new title of the event
+              description:
+                type: string
+                description: The new description of the event
+              start:
+                type: string
+                description: The new start date/time (RFC3339 timestamp)
+              end:
+                type: string
+                description: The new end date/time (RFC3339 timestamp)
+              location:
+                type: string
+                description: The new location of the event
+              attendees:
+                type: array
+                description: The new list of attendees
+                items:
+                  type: string
+                  description: The email of the attendee
+              status:
+                type: string
+                description: The new status of the event (e.g., confirmed, cancelled)
+              organizer:
+                type: object
+                description: The new organizer of the event
+                properties:
+                  email:
+                    type: string
+                    description: The organizer's email address
+                  displayName:
+                    type: string
+                    description: The organizer's name
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the event was updated successfully
+          eventId:
+            type: string
+            description: The ID of the updated event
+          eventUrl:
+            type: string
+            description: The URL to access the updated event
+          error:
+            type: string
+            description: The error that occurred if the event was not updated successfully
+    deleteCalendarEvent:
+      description: Delete an event from a Google Calendar using OAuth authentication
+      scopes: [https://www.googleapis.com/auth/calendar]
+      parameters:
+        type: object
+        required: [calendarId, eventId]
+        properties:
+          calendarId:
+            type: string
+            description: The ID of the calendar containing the event
+          eventId:
+            type: string
+            description: The ID of the event to delete
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the event was deleted successfully
+          error:
+            type: string
+            description: The error that occurred if the event was not deleted successfully    
     createSpreadsheet:
       description: Create a new Google Spreadsheet using OAuth authentication
       scopes: []
@@ -3619,6 +3833,312 @@ actions:
                 url:
                   type: string
                   description: The web link to view the file
+          error:
+            type: string
+            description: Error message if search failed
+    listGroups:
+      description: List all Google Groups for the customer.
+      scopes:
+        - https://www.googleapis.com/auth/admin.directory.group.readonly
+      parameters:
+        type: object
+        required: []
+        properties: 
+          maxResults:
+            type: integer
+            description: The maximum number of groups to return (max allowed is 200)
+      output:
+        type: object
+        required: [success, groups]
+        properties:
+          success:
+            type: boolean
+            description: Whether the groups were listed successfully
+          groups:
+            type: array
+            description: The list of Google Groups
+            items:
+              type: object
+              required: [id, email, name]
+              properties:
+                id:
+                  type: string
+                  description: The unique ID of the group
+                email:
+                  type: string
+                  description: The email address of the group
+                name:
+                  type: string
+                  description: The name of the group
+                description:
+                  type: string
+                  description: The description of the group
+          error:
+            type: string
+            description: The error that occurred if the groups could not be listed
+    getGroup:
+      description: Get details for a specific Google Group by group email or ID.
+      scopes:
+        - https://www.googleapis.com/auth/admin.directory.group.readonly
+      parameters:
+        type: object
+        required: [groupKey]
+        properties:
+          groupKey:
+            type: string
+            description: The group's email address or unique group ID
+      output:
+        type: object
+        required: [success, group]
+        properties:
+          success:
+            type: boolean
+            description: Whether the group was retrieved successfully
+          group:
+            type: object
+            required: [id, email, name]
+            properties:
+              id:
+                type: string
+                description: The unique ID of the group
+              email:
+                type: string
+                description: The email address of the group
+              name:
+                type: string
+                description: The name of the group
+              description:
+                type: string
+                description: The description of the group
+          error:
+            type: string
+            description: The error that occurred if the group could not be retrieved
+    listGroupMembers:
+      description: List all members of a Google Group.
+      scopes:
+        - https://www.googleapis.com/auth/admin.directory.group.member.readonly
+      parameters:
+        type: object
+        required: [groupKey]
+        properties:
+          groupKey:
+            type: string
+            description: The group's email address or unique group ID
+          maxResults:
+            type: integer
+            description: The maximum number of members to return (max allowed is 200)
+      output:
+        type: object
+        required: [success, members]
+        properties:
+          success:
+            type: boolean
+            description: Whether the members were listed successfully
+          members:
+            type: array
+            description: The list of group members
+            items:
+              type: object
+              required: [id, email, role, type]
+              properties:
+                id:
+                  type: string
+                  description: The unique ID of the member
+                email:
+                  type: string
+                  description: The email address of the member
+                role:
+                  type: string
+                  description: The role of the member in the group (OWNER, MANAGER, MEMBER)
+                type:
+                  type: string
+                  description: The type of the member (USER, GROUP)
+          error:
+            type: string
+            description: The error that occurred if the members could not be listed
+    hasGroupMember:
+      description: Check if a user is a member of a Google Group.
+      scopes:
+        - https://www.googleapis.com/auth/admin.directory.group.member.readonly
+      parameters:
+        type: object
+        required: [groupKey, memberKey]
+        properties:
+          groupKey:
+            type: string
+            description: The group's email address or unique group ID
+          memberKey:
+            type: string
+            description: The member's email address or unique member ID
+      output:
+        type: object
+        required: [success, isMember]
+        properties:
+          success:
+            type: boolean
+            description: Whether the check was performed successfully
+          isMember:
+            type: boolean
+            description: Whether the user is a member of the group
+          error:
+            type: string
+            description: The error that occurred if the check could not be performed
+    addGroupMember:
+      description: Add a member to a Google Group.
+      scopes:
+        - https://www.googleapis.com/auth/admin.directory.group.member
+      parameters:
+        type: object
+        required: [groupKey, email]
+        properties:
+          groupKey:
+            type: string
+            description: The group's email address or unique group ID
+          email:
+            type: string
+            description: The email address of the user to add
+      output:
+        type: object
+        required: [success, memberID]
+        properties:
+          success:
+            type: boolean
+            description: Whether the member was added successfully
+          memberID:
+            type: string
+            description: The unique ID of the member
+          error:
+            type: string
+            description: The error that occurred if the member could not be added
+    deleteGroupMember:
+      description: Remove a member from a Google Group.
+      scopes:
+        - https://www.googleapis.com/auth/admin.directory.group.member
+      parameters:
+        type: object
+        required: [groupKey, memberKey]
+        properties:
+          groupKey:
+            type: string
+            description: The group's email address or unique group ID
+          memberKey:
+            type: string
+            description: The member's email address or unique member ID
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the member was removed successfully
+          error:
+            type: string
+            description: The error that occurred if the member could not be removed
+  googlemail:
+    searchGmailMessages:
+      description: Search Gmail messages in a user's inbox using a query string.
+      scopes:
+        - https://www.googleapis.com/auth/gmail.readonly
+      parameters:
+        type: object
+        required: [query]
+        properties:
+          query:
+            type: string
+            description: Gmail search query (e.g. "from:alice subject:urgent")
+          maxResults:
+            type: integer
+            description: Maximum number of messages to return (optional)
+      output:
+        type: object
+        required: [success, messages]
+        properties:
+          success:
+            type: boolean
+          messages:
+            type: array
+            description: List of matching Gmail messages
+            items:
+              type: object
+              required: [id, threadId]
+              properties:
+                id:
+                  type: string
+                  description: The message ID
+                threadId:
+                  type: string
+                  description: The thread ID
+                snippet:
+                  type: string
+                  description: A short part of the message text
+                labelIds:
+                  type: array
+                  items:
+                    type: string
+                  description: Labels on the message
+                internalDate:
+                  type: string
+                  description: Internal timestamp of the message
+                emailBody:
+                  type: string
+                  description: The body of the message
+          error:
+            type: string
+            description: Error message if search failed
+    listGmailThreads:
+      description: List Gmail threads in a user's inbox using a query string.
+      scopes:
+        - https://www.googleapis.com/auth/gmail.readonly
+      parameters:
+        type: object
+        required: [query]
+        properties:
+          query:
+            type: string
+            description: Gmail search query (e.g. "from:alice subject:project")
+          maxResults:
+            type: integer
+            description: Maximum number of threads to return
+      output:
+        type: object
+        required: [success, threads]
+        properties:
+          success:
+            type: boolean
+          threads:
+            type: array
+            description: List of matching Gmail threads
+            items:
+              type: object
+              required: [id, historyId, messages]
+              properties:
+                id:
+                  type: string
+                  description: The thread ID
+                historyId:
+                  type: string
+                  description: The thread history ID
+                messages:
+                  type: array
+                  description: The messages in the thread
+                  items:
+                    type: object
+                    required: [id, threadId, snippet, labelIds, internalDate, emailBody]
+                    properties:
+                      id:
+                        type: string
+                      threadId:
+                        type: string
+                      snippet:
+                        type: string
+                      labelIds:
+                        type: array
+                        items:
+                          type: string
+                      internalDate:
+                        type: string
+                      emailBody:
+                        type: string
           error:
             type: string
             description: Error message if search failed

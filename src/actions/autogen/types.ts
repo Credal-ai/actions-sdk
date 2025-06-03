@@ -450,6 +450,42 @@ export const googleOauthScheduleCalendarMeetingOutputSchema = z.object({ "succes
 export type googleOauthScheduleCalendarMeetingOutputType = z.infer<typeof googleOauthScheduleCalendarMeetingOutputSchema>;
 export type googleOauthScheduleCalendarMeetingFunction = ActionFunction<googleOauthScheduleCalendarMeetingParamsType, AuthParamsType, googleOauthScheduleCalendarMeetingOutputType>;
 
+export const googleOauthListCalendarsParamsSchema = z.object({ "maxResults": z.number().int().describe("Maximum number of calendars to return, defaults to 250").optional() });
+
+export type googleOauthListCalendarsParamsType = z.infer<typeof googleOauthListCalendarsParamsSchema>;
+
+export const googleOauthListCalendarsOutputSchema = z.object({ "success": z.boolean().describe("Whether the calendars were listed successfully"), "calendars": z.array(z.object({ "id": z.string().describe("The calendar ID"), "summary": z.string().describe("The calendar name") })).describe("List of calendars"), "error": z.string().describe("Error message if listing failed").optional() });
+
+export type googleOauthListCalendarsOutputType = z.infer<typeof googleOauthListCalendarsOutputSchema>;
+export type googleOauthListCalendarsFunction = ActionFunction<googleOauthListCalendarsParamsType, AuthParamsType, googleOauthListCalendarsOutputType>;
+
+export const googleOauthListCalendarEventsParamsSchema = z.object({ "calendarId": z.string().describe("The ID of the calendar to list events from"), "query": z.string().describe("Optional free-text search query to filter events").optional(), "maxResults": z.number().int().describe("Maximum number of events to return, defaults to 250").optional() });
+
+export type googleOauthListCalendarEventsParamsType = z.infer<typeof googleOauthListCalendarEventsParamsSchema>;
+
+export const googleOauthListCalendarEventsOutputSchema = z.object({ "success": z.boolean().describe("Whether the events were listed successfully"), "events": z.array(z.object({ "id": z.string().describe("Event unique identifier").optional(), "status": z.string().describe("Status of the event (e.g., confirmed, cancelled)").optional(), "url": z.string().describe("Link to the event in the Google Calendar web UI").optional(), "title": z.string().describe("Title of the event").optional(), "description": z.string().describe("Description of the event").optional(), "location": z.string().describe("Geographic location of the event as free-form text").optional(), "start": z.string().describe("Start date/time (for timed events, RFC3339 timestamp)").optional(), "end": z.string().describe("End date/time (for timed events, RFC3339 timestamp)").optional(), "attendees": z.array(z.object({ "email": z.string().describe("The attendee's email address").optional(), "displayName": z.string().describe("The attendee's name").optional(), "responseStatus": z.string().describe("The attendee's response status (accepted, declined, etc.)").optional() })).describe("List of attendees").optional(), "organizer": z.object({ "email": z.string().describe("The organizer's email address").optional(), "displayName": z.string().describe("The organizer's name").optional() }).describe("The organizer of the event").optional(), "hangoutLink": z.string().describe("Google Meet link for the event, if available").optional(), "created": z.string().describe("Creation time of the event (RFC3339 timestamp)").optional(), "updated": z.string().describe("Last modification time of the event (RFC3339 timestamp)").optional() }).describe("A calendar event")).describe("List of events"), "error": z.string().describe("Error message if listing failed").optional() });
+
+export type googleOauthListCalendarEventsOutputType = z.infer<typeof googleOauthListCalendarEventsOutputSchema>;
+export type googleOauthListCalendarEventsFunction = ActionFunction<googleOauthListCalendarEventsParamsType, AuthParamsType, googleOauthListCalendarEventsOutputType>;
+
+export const googleOauthUpdateCalendarEventParamsSchema = z.object({ "calendarId": z.string().describe("The ID of the calendar containing the event"), "eventId": z.string().describe("The ID of the event to update"), "updates": z.object({ "title": z.string().describe("The new title of the event").optional(), "description": z.string().describe("The new description of the event").optional(), "start": z.string().describe("The new start date/time (RFC3339 timestamp)").optional(), "end": z.string().describe("The new end date/time (RFC3339 timestamp)").optional(), "location": z.string().describe("The new location of the event").optional(), "attendees": z.array(z.string().describe("The email of the attendee")).describe("The new list of attendees").optional(), "status": z.string().describe("The new status of the event (e.g., confirmed, cancelled)").optional(), "organizer": z.object({ "email": z.string().describe("The organizer's email address").optional(), "displayName": z.string().describe("The organizer's name").optional() }).describe("The new organizer of the event").optional() }).describe("The fields to update on the event").optional() });
+
+export type googleOauthUpdateCalendarEventParamsType = z.infer<typeof googleOauthUpdateCalendarEventParamsSchema>;
+
+export const googleOauthUpdateCalendarEventOutputSchema = z.object({ "success": z.boolean().describe("Whether the event was updated successfully"), "eventId": z.string().describe("The ID of the updated event").optional(), "eventUrl": z.string().describe("The URL to access the updated event").optional(), "error": z.string().describe("The error that occurred if the event was not updated successfully").optional() });
+
+export type googleOauthUpdateCalendarEventOutputType = z.infer<typeof googleOauthUpdateCalendarEventOutputSchema>;
+export type googleOauthUpdateCalendarEventFunction = ActionFunction<googleOauthUpdateCalendarEventParamsType, AuthParamsType, googleOauthUpdateCalendarEventOutputType>;
+
+export const googleOauthDeleteCalendarEventParamsSchema = z.object({ "calendarId": z.string().describe("The ID of the calendar containing the event"), "eventId": z.string().describe("The ID of the event to delete") });
+
+export type googleOauthDeleteCalendarEventParamsType = z.infer<typeof googleOauthDeleteCalendarEventParamsSchema>;
+
+export const googleOauthDeleteCalendarEventOutputSchema = z.object({ "success": z.boolean().describe("Whether the event was deleted successfully"), "error": z.string().describe("The error that occurred if the event was not deleted successfully").optional() });
+
+export type googleOauthDeleteCalendarEventOutputType = z.infer<typeof googleOauthDeleteCalendarEventOutputSchema>;
+export type googleOauthDeleteCalendarEventFunction = ActionFunction<googleOauthDeleteCalendarEventParamsType, AuthParamsType, googleOauthDeleteCalendarEventOutputType>;
+
 export const googleOauthCreateSpreadsheetParamsSchema = z.object({ "title": z.string().describe("The title of the new spreadsheet"), "sheets": z.array(z.object({ "title": z.string().describe("The title of the sheet").optional(), "gridProperties": z.object({ "rowCount": z.number().int().describe("The number of rows in the sheet").optional(), "columnCount": z.number().int().describe("The number of columns in the sheet").optional(), "frozenRowCount": z.number().int().describe("The number of frozen rows").optional(), "frozenColumnCount": z.number().int().describe("The number of frozen columns").optional() }).optional() })).describe("The initial sheets to create in the spreadsheet").optional(), "properties": z.object({ "locale": z.string().describe("The locale of the spreadsheet (e.g., en_US)").optional(), "timeZone": z.string().describe("The time zone of the spreadsheet (e.g., America/New_York)").optional(), "autoRecalc": z.enum(["ON_CHANGE","MINUTE","HOUR"]).describe("When to recalculate the spreadsheet").optional() }).describe("Properties for the spreadsheet").optional() });
 
 export type googleOauthCreateSpreadsheetParamsType = z.infer<typeof googleOauthCreateSpreadsheetParamsSchema>;
@@ -530,6 +566,78 @@ export const googleOauthSearchDriveByKeywordsOutputSchema = z.object({ "success"
 
 export type googleOauthSearchDriveByKeywordsOutputType = z.infer<typeof googleOauthSearchDriveByKeywordsOutputSchema>;
 export type googleOauthSearchDriveByKeywordsFunction = ActionFunction<googleOauthSearchDriveByKeywordsParamsType, AuthParamsType, googleOauthSearchDriveByKeywordsOutputType>;
+
+export const googleOauthListGroupsParamsSchema = z.object({ "maxResults": z.number().int().describe("The maximum number of groups to return (max allowed is 200)").optional() });
+
+export type googleOauthListGroupsParamsType = z.infer<typeof googleOauthListGroupsParamsSchema>;
+
+export const googleOauthListGroupsOutputSchema = z.object({ "success": z.boolean().describe("Whether the groups were listed successfully"), "groups": z.array(z.object({ "id": z.string().describe("The unique ID of the group"), "email": z.string().describe("The email address of the group"), "name": z.string().describe("The name of the group"), "description": z.string().describe("The description of the group").optional() })).describe("The list of Google Groups"), "error": z.string().describe("The error that occurred if the groups could not be listed").optional() });
+
+export type googleOauthListGroupsOutputType = z.infer<typeof googleOauthListGroupsOutputSchema>;
+export type googleOauthListGroupsFunction = ActionFunction<googleOauthListGroupsParamsType, AuthParamsType, googleOauthListGroupsOutputType>;
+
+export const googleOauthGetGroupParamsSchema = z.object({ "groupKey": z.string().describe("The group's email address or unique group ID") });
+
+export type googleOauthGetGroupParamsType = z.infer<typeof googleOauthGetGroupParamsSchema>;
+
+export const googleOauthGetGroupOutputSchema = z.object({ "success": z.boolean().describe("Whether the group was retrieved successfully"), "group": z.object({ "id": z.string().describe("The unique ID of the group"), "email": z.string().describe("The email address of the group"), "name": z.string().describe("The name of the group"), "description": z.string().describe("The description of the group").optional() }), "error": z.string().describe("The error that occurred if the group could not be retrieved").optional() });
+
+export type googleOauthGetGroupOutputType = z.infer<typeof googleOauthGetGroupOutputSchema>;
+export type googleOauthGetGroupFunction = ActionFunction<googleOauthGetGroupParamsType, AuthParamsType, googleOauthGetGroupOutputType>;
+
+export const googleOauthListGroupMembersParamsSchema = z.object({ "groupKey": z.string().describe("The group's email address or unique group ID"), "maxResults": z.number().int().describe("The maximum number of members to return (max allowed is 200)").optional() });
+
+export type googleOauthListGroupMembersParamsType = z.infer<typeof googleOauthListGroupMembersParamsSchema>;
+
+export const googleOauthListGroupMembersOutputSchema = z.object({ "success": z.boolean().describe("Whether the members were listed successfully"), "members": z.array(z.object({ "id": z.string().describe("The unique ID of the member"), "email": z.string().describe("The email address of the member"), "role": z.string().describe("The role of the member in the group (OWNER, MANAGER, MEMBER)"), "type": z.string().describe("The type of the member (USER, GROUP)") })).describe("The list of group members"), "error": z.string().describe("The error that occurred if the members could not be listed").optional() });
+
+export type googleOauthListGroupMembersOutputType = z.infer<typeof googleOauthListGroupMembersOutputSchema>;
+export type googleOauthListGroupMembersFunction = ActionFunction<googleOauthListGroupMembersParamsType, AuthParamsType, googleOauthListGroupMembersOutputType>;
+
+export const googleOauthHasGroupMemberParamsSchema = z.object({ "groupKey": z.string().describe("The group's email address or unique group ID"), "memberKey": z.string().describe("The member's email address or unique member ID") });
+
+export type googleOauthHasGroupMemberParamsType = z.infer<typeof googleOauthHasGroupMemberParamsSchema>;
+
+export const googleOauthHasGroupMemberOutputSchema = z.object({ "success": z.boolean().describe("Whether the check was performed successfully"), "isMember": z.boolean().describe("Whether the user is a member of the group"), "error": z.string().describe("The error that occurred if the check could not be performed").optional() });
+
+export type googleOauthHasGroupMemberOutputType = z.infer<typeof googleOauthHasGroupMemberOutputSchema>;
+export type googleOauthHasGroupMemberFunction = ActionFunction<googleOauthHasGroupMemberParamsType, AuthParamsType, googleOauthHasGroupMemberOutputType>;
+
+export const googleOauthAddGroupMemberParamsSchema = z.object({ "groupKey": z.string().describe("The group's email address or unique group ID"), "email": z.string().describe("The email address of the user to add") });
+
+export type googleOauthAddGroupMemberParamsType = z.infer<typeof googleOauthAddGroupMemberParamsSchema>;
+
+export const googleOauthAddGroupMemberOutputSchema = z.object({ "success": z.boolean().describe("Whether the member was added successfully"), "memberID": z.string().describe("The unique ID of the member"), "error": z.string().describe("The error that occurred if the member could not be added").optional() });
+
+export type googleOauthAddGroupMemberOutputType = z.infer<typeof googleOauthAddGroupMemberOutputSchema>;
+export type googleOauthAddGroupMemberFunction = ActionFunction<googleOauthAddGroupMemberParamsType, AuthParamsType, googleOauthAddGroupMemberOutputType>;
+
+export const googleOauthDeleteGroupMemberParamsSchema = z.object({ "groupKey": z.string().describe("The group's email address or unique group ID"), "memberKey": z.string().describe("The member's email address or unique member ID") });
+
+export type googleOauthDeleteGroupMemberParamsType = z.infer<typeof googleOauthDeleteGroupMemberParamsSchema>;
+
+export const googleOauthDeleteGroupMemberOutputSchema = z.object({ "success": z.boolean().describe("Whether the member was removed successfully"), "error": z.string().describe("The error that occurred if the member could not be removed").optional() });
+
+export type googleOauthDeleteGroupMemberOutputType = z.infer<typeof googleOauthDeleteGroupMemberOutputSchema>;
+export type googleOauthDeleteGroupMemberFunction = ActionFunction<googleOauthDeleteGroupMemberParamsType, AuthParamsType, googleOauthDeleteGroupMemberOutputType>;
+
+export const googlemailSearchGmailMessagesParamsSchema = z.object({ "query": z.string().describe("Gmail search query (e.g. \"from:alice subject:urgent\")"), "maxResults": z.number().int().describe("Maximum number of messages to return (optional)").optional() });
+
+export type googlemailSearchGmailMessagesParamsType = z.infer<typeof googlemailSearchGmailMessagesParamsSchema>;
+
+export const googlemailSearchGmailMessagesOutputSchema = z.object({ "success": z.boolean(), "messages": z.array(z.object({ "id": z.string().describe("The message ID"), "threadId": z.string().describe("The thread ID"), "snippet": z.string().describe("A short part of the message text").optional(), "labelIds": z.array(z.string()).describe("Labels on the message").optional(), "internalDate": z.string().describe("Internal timestamp of the message").optional(), "emailBody": z.string().describe("The body of the message").optional() })).describe("List of matching Gmail messages"), "error": z.string().describe("Error message if search failed").optional() });
+
+export type googlemailSearchGmailMessagesOutputType = z.infer<typeof googlemailSearchGmailMessagesOutputSchema>;
+export type googlemailSearchGmailMessagesFunction = ActionFunction<googlemailSearchGmailMessagesParamsType, AuthParamsType, googlemailSearchGmailMessagesOutputType>;
+
+export const googlemailListGmailThreadsParamsSchema = z.object({ "query": z.string().describe("Gmail search query (e.g. \"from:alice subject:project\")"), "maxResults": z.number().int().describe("Maximum number of threads to return").optional() });
+
+export type googlemailListGmailThreadsParamsType = z.infer<typeof googlemailListGmailThreadsParamsSchema>;
+
+export const googlemailListGmailThreadsOutputSchema = z.object({ "success": z.boolean(), "threads": z.array(z.object({ "id": z.string().describe("The thread ID"), "historyId": z.string().describe("The thread history ID"), "messages": z.array(z.object({ "id": z.string(), "threadId": z.string(), "snippet": z.string(), "labelIds": z.array(z.string()), "internalDate": z.string(), "emailBody": z.string() })).describe("The messages in the thread") })).describe("List of matching Gmail threads"), "error": z.string().describe("Error message if search failed").optional() });
+
+export type googlemailListGmailThreadsOutputType = z.infer<typeof googlemailListGmailThreadsOutputSchema>;
+export type googlemailListGmailThreadsFunction = ActionFunction<googlemailListGmailThreadsParamsType, AuthParamsType, googlemailListGmailThreadsOutputType>;
 
 export const gongGetGongTranscriptsParamsSchema = z.object({ "userRole": z.string().describe("The role of users whose transcripts are being fetched"), "trackers": z.array(z.string().describe("The names of the trackers to fetch transcripts for")).describe("The trackers to fetch transcripts for").optional(), "company": z.string().describe("The company to get calls with").optional(), "startDate": z.string().describe("The start date of the transcripts to fetch in ISO 8601 format").optional(), "endDate": z.string().describe("The end date of the transcripts to fetch in ISO 8601 format").optional() });
 

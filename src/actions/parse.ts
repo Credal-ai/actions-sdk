@@ -58,6 +58,7 @@ export enum ProviderName {
     FIRECRAWL = "firecrawl",
     RESEND = "resend",
     GOOGLEOAUTH = "googleOauth",
+    GOOGLEMAIL = "googlemail",
     GONG = "gong",
     FINNHUB = "finnhub",
     LOOKER = "looker",
