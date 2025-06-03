@@ -46,8 +46,8 @@ import {
   googleOauthCreatePresentationDefinition,
   googleOauthUpdatePresentationDefinition,
   googleOauthSearchDriveByKeywordsDefinition,
-  googleOauthSearchGmailMessagesDefinition,
-  googleOauthListGmailThreadsDefinition,
+  googlemailSearchGmailMessagesDefinition,
+  googlemailListGmailThreadsDefinition,
   googleOauthListGroupsDefinition,
   googleOauthGetGroupDefinition,
   googleOauthListGroupMembersDefinition,
@@ -154,7 +154,7 @@ export const ACTION_GROUPS: ActionGroups = {
   },
   GMAIL: {
     description: "Actions for interacting with Gmail",
-    actions: [googleOauthSearchGmailMessagesDefinition, googleOauthListGmailThreadsDefinition],
+    actions: [googlemailSearchGmailMessagesDefinition, googlemailListGmailThreadsDefinition],
   },
   CREDAL_CALL_COPILOT: {
     description: "Action for calling a Credal Copilot",

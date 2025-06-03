@@ -2926,76 +2926,6 @@ export type googleOauthSearchDriveByKeywordsFunction = ActionFunction<
   googleOauthSearchDriveByKeywordsOutputType
 >;
 
-export const googleOauthSearchGmailMessagesParamsSchema = z.object({
-  query: z.string().describe('Gmail search query (e.g. "from:alice subject:urgent")'),
-  maxResults: z.number().int().describe("Maximum number of messages to return (optional)").optional(),
-});
-
-export type googleOauthSearchGmailMessagesParamsType = z.infer<typeof googleOauthSearchGmailMessagesParamsSchema>;
-
-export const googleOauthSearchGmailMessagesOutputSchema = z.object({
-  success: z.boolean(),
-  messages: z
-    .array(
-      z.object({
-        id: z.string().describe("The message ID"),
-        threadId: z.string().describe("The thread ID"),
-        snippet: z.string().describe("A short part of the message text").optional(),
-        labelIds: z.array(z.string()).describe("Labels on the message").optional(),
-        internalDate: z.string().describe("Internal timestamp of the message").optional(),
-        emailBody: z.string().describe("The body of the message").optional(),
-      }),
-    )
-    .describe("List of matching Gmail messages"),
-  error: z.string().describe("Error message if search failed").optional(),
-});
-
-export type googleOauthSearchGmailMessagesOutputType = z.infer<typeof googleOauthSearchGmailMessagesOutputSchema>;
-export type googleOauthSearchGmailMessagesFunction = ActionFunction<
-  googleOauthSearchGmailMessagesParamsType,
-  AuthParamsType,
-  googleOauthSearchGmailMessagesOutputType
->;
-
-export const googleOauthListGmailThreadsParamsSchema = z.object({
-  query: z.string().describe('Gmail search query (e.g. "from:alice subject:project")'),
-  maxResults: z.number().int().describe("Maximum number of threads to return").optional(),
-});
-
-export type googleOauthListGmailThreadsParamsType = z.infer<typeof googleOauthListGmailThreadsParamsSchema>;
-
-export const googleOauthListGmailThreadsOutputSchema = z.object({
-  success: z.boolean(),
-  threads: z
-    .array(
-      z.object({
-        id: z.string().describe("The thread ID"),
-        historyId: z.string().describe("The thread history ID"),
-        messages: z
-          .array(
-            z.object({
-              id: z.string(),
-              threadId: z.string(),
-              snippet: z.string(),
-              labelIds: z.array(z.string()),
-              internalDate: z.string(),
-              emailBody: z.string(),
-            }),
-          )
-          .describe("The messages in the thread"),
-      }),
-    )
-    .describe("List of matching Gmail threads"),
-  error: z.string().describe("Error message if search failed").optional(),
-});
-
-export type googleOauthListGmailThreadsOutputType = z.infer<typeof googleOauthListGmailThreadsOutputSchema>;
-export type googleOauthListGmailThreadsFunction = ActionFunction<
-  googleOauthListGmailThreadsParamsType,
-  AuthParamsType,
-  googleOauthListGmailThreadsOutputType
->;
-
 export const googleOauthListGroupsParamsSchema = z.object({
   maxResults: z.number().int().describe("The maximum number of groups to return (max allowed is 200)").optional(),
 });
@@ -3134,6 +3064,76 @@ export type googleOauthDeleteGroupMemberFunction = ActionFunction<
   googleOauthDeleteGroupMemberParamsType,
   AuthParamsType,
   googleOauthDeleteGroupMemberOutputType
+>;
+
+export const googlemailSearchGmailMessagesParamsSchema = z.object({
+  query: z.string().describe('Gmail search query (e.g. "from:alice subject:urgent")'),
+  maxResults: z.number().int().describe("Maximum number of messages to return (optional)").optional(),
+});
+
+export type googlemailSearchGmailMessagesParamsType = z.infer<typeof googlemailSearchGmailMessagesParamsSchema>;
+
+export const googlemailSearchGmailMessagesOutputSchema = z.object({
+  success: z.boolean(),
+  messages: z
+    .array(
+      z.object({
+        id: z.string().describe("The message ID"),
+        threadId: z.string().describe("The thread ID"),
+        snippet: z.string().describe("A short part of the message text").optional(),
+        labelIds: z.array(z.string()).describe("Labels on the message").optional(),
+        internalDate: z.string().describe("Internal timestamp of the message").optional(),
+        emailBody: z.string().describe("The body of the message").optional(),
+      }),
+    )
+    .describe("List of matching Gmail messages"),
+  error: z.string().describe("Error message if search failed").optional(),
+});
+
+export type googlemailSearchGmailMessagesOutputType = z.infer<typeof googlemailSearchGmailMessagesOutputSchema>;
+export type googlemailSearchGmailMessagesFunction = ActionFunction<
+  googlemailSearchGmailMessagesParamsType,
+  AuthParamsType,
+  googlemailSearchGmailMessagesOutputType
+>;
+
+export const googlemailListGmailThreadsParamsSchema = z.object({
+  query: z.string().describe('Gmail search query (e.g. "from:alice subject:project")'),
+  maxResults: z.number().int().describe("Maximum number of threads to return").optional(),
+});
+
+export type googlemailListGmailThreadsParamsType = z.infer<typeof googlemailListGmailThreadsParamsSchema>;
+
+export const googlemailListGmailThreadsOutputSchema = z.object({
+  success: z.boolean(),
+  threads: z
+    .array(
+      z.object({
+        id: z.string().describe("The thread ID"),
+        historyId: z.string().describe("The thread history ID"),
+        messages: z
+          .array(
+            z.object({
+              id: z.string(),
+              threadId: z.string(),
+              snippet: z.string(),
+              labelIds: z.array(z.string()),
+              internalDate: z.string(),
+              emailBody: z.string(),
+            }),
+          )
+          .describe("The messages in the thread"),
+      }),
+    )
+    .describe("List of matching Gmail threads"),
+  error: z.string().describe("Error message if search failed").optional(),
+});
+
+export type googlemailListGmailThreadsOutputType = z.infer<typeof googlemailListGmailThreadsOutputSchema>;
+export type googlemailListGmailThreadsFunction = ActionFunction<
+  googlemailListGmailThreadsParamsType,
+  AuthParamsType,
+  googlemailListGmailThreadsOutputType
 >;
 
 export const gongGetGongTranscriptsParamsSchema = z.object({

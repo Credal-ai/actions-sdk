@@ -5638,158 +5638,6 @@ export const googleOauthSearchDriveByKeywordsDefinition: ActionTemplate = {
   name: "searchDriveByKeywords",
   provider: "googleOauth",
 };
-export const googleOauthSearchGmailMessagesDefinition: ActionTemplate = {
-  description: "Search Gmail messages in a user's inbox using a query string.",
-  scopes: ["https://www.googleapis.com/auth/gmail.readonly"],
-  parameters: {
-    type: "object",
-    required: ["query"],
-    properties: {
-      query: {
-        type: "string",
-        description: 'Gmail search query (e.g. "from:alice subject:urgent")',
-      },
-      maxResults: {
-        type: "integer",
-        description: "Maximum number of messages to return (optional)",
-      },
-    },
-  },
-  output: {
-    type: "object",
-    required: ["success", "messages"],
-    properties: {
-      success: {
-        type: "boolean",
-      },
-      messages: {
-        type: "array",
-        description: "List of matching Gmail messages",
-        items: {
-          type: "object",
-          required: ["id", "threadId"],
-          properties: {
-            id: {
-              type: "string",
-              description: "The message ID",
-            },
-            threadId: {
-              type: "string",
-              description: "The thread ID",
-            },
-            snippet: {
-              type: "string",
-              description: "A short part of the message text",
-            },
-            labelIds: {
-              type: "array",
-              items: {
-                type: "string",
-              },
-              description: "Labels on the message",
-            },
-            internalDate: {
-              type: "string",
-              description: "Internal timestamp of the message",
-            },
-            emailBody: {
-              type: "string",
-              description: "The body of the message",
-            },
-          },
-        },
-      },
-      error: {
-        type: "string",
-        description: "Error message if search failed",
-      },
-    },
-  },
-  name: "searchGmailMessages",
-  provider: "googleOauth",
-};
-export const googleOauthListGmailThreadsDefinition: ActionTemplate = {
-  description: "List Gmail threads in a user's inbox using a query string.",
-  scopes: ["https://www.googleapis.com/auth/gmail.readonly"],
-  parameters: {
-    type: "object",
-    required: ["query"],
-    properties: {
-      query: {
-        type: "string",
-        description: 'Gmail search query (e.g. "from:alice subject:project")',
-      },
-      maxResults: {
-        type: "integer",
-        description: "Maximum number of threads to return",
-      },
-    },
-  },
-  output: {
-    type: "object",
-    required: ["success", "threads"],
-    properties: {
-      success: {
-        type: "boolean",
-      },
-      threads: {
-        type: "array",
-        description: "List of matching Gmail threads",
-        items: {
-          type: "object",
-          required: ["id", "historyId", "messages"],
-          properties: {
-            id: {
-              type: "string",
-              description: "The thread ID",
-            },
-            historyId: {
-              type: "string",
-              description: "The thread history ID",
-            },
-            messages: {
-              type: "array",
-              description: "The messages in the thread",
-              items: {
-                type: "object",
-                required: ["id", "threadId", "snippet", "labelIds", "internalDate", "emailBody"],
-                properties: {
-                  id: {
-                    type: "string",
-                  },
-                  threadId: {
-                    type: "string",
-                  },
-                  snippet: {
-                    type: "string",
-                  },
-                  labelIds: {
-                    type: "array",
-                    items: {
-                      type: "string",
-                    },
-                  },
-                  internalDate: {
-                    type: "string",
-                  },
-                  emailBody: {
-                    type: "string",
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      error: {
-        type: "string",
-        description: "Error message if search failed",
-      },
-    },
-  },
-  name: "listGmailThreads",
-  provider: "googleOauth",
-};
 export const googleOauthListGroupsDefinition: ActionTemplate = {
   description: "List all Google Groups for the customer.",
   scopes: ["https://www.googleapis.com/auth/admin.directory.group.readonly"],
@@ -6067,6 +5915,158 @@ export const googleOauthDeleteGroupMemberDefinition: ActionTemplate = {
   },
   name: "deleteGroupMember",
   provider: "googleOauth",
+};
+export const googlemailSearchGmailMessagesDefinition: ActionTemplate = {
+  description: "Search Gmail messages in a user's inbox using a query string.",
+  scopes: ["https://www.googleapis.com/auth/gmail.readonly"],
+  parameters: {
+    type: "object",
+    required: ["query"],
+    properties: {
+      query: {
+        type: "string",
+        description: 'Gmail search query (e.g. "from:alice subject:urgent")',
+      },
+      maxResults: {
+        type: "integer",
+        description: "Maximum number of messages to return (optional)",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success", "messages"],
+    properties: {
+      success: {
+        type: "boolean",
+      },
+      messages: {
+        type: "array",
+        description: "List of matching Gmail messages",
+        items: {
+          type: "object",
+          required: ["id", "threadId"],
+          properties: {
+            id: {
+              type: "string",
+              description: "The message ID",
+            },
+            threadId: {
+              type: "string",
+              description: "The thread ID",
+            },
+            snippet: {
+              type: "string",
+              description: "A short part of the message text",
+            },
+            labelIds: {
+              type: "array",
+              items: {
+                type: "string",
+              },
+              description: "Labels on the message",
+            },
+            internalDate: {
+              type: "string",
+              description: "Internal timestamp of the message",
+            },
+            emailBody: {
+              type: "string",
+              description: "The body of the message",
+            },
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "Error message if search failed",
+      },
+    },
+  },
+  name: "searchGmailMessages",
+  provider: "googlemail",
+};
+export const googlemailListGmailThreadsDefinition: ActionTemplate = {
+  description: "List Gmail threads in a user's inbox using a query string.",
+  scopes: ["https://www.googleapis.com/auth/gmail.readonly"],
+  parameters: {
+    type: "object",
+    required: ["query"],
+    properties: {
+      query: {
+        type: "string",
+        description: 'Gmail search query (e.g. "from:alice subject:project")',
+      },
+      maxResults: {
+        type: "integer",
+        description: "Maximum number of threads to return",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success", "threads"],
+    properties: {
+      success: {
+        type: "boolean",
+      },
+      threads: {
+        type: "array",
+        description: "List of matching Gmail threads",
+        items: {
+          type: "object",
+          required: ["id", "historyId", "messages"],
+          properties: {
+            id: {
+              type: "string",
+              description: "The thread ID",
+            },
+            historyId: {
+              type: "string",
+              description: "The thread history ID",
+            },
+            messages: {
+              type: "array",
+              description: "The messages in the thread",
+              items: {
+                type: "object",
+                required: ["id", "threadId", "snippet", "labelIds", "internalDate", "emailBody"],
+                properties: {
+                  id: {
+                    type: "string",
+                  },
+                  threadId: {
+                    type: "string",
+                  },
+                  snippet: {
+                    type: "string",
+                  },
+                  labelIds: {
+                    type: "array",
+                    items: {
+                      type: "string",
+                    },
+                  },
+                  internalDate: {
+                    type: "string",
+                  },
+                  emailBody: {
+                    type: "string",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "Error message if search failed",
+      },
+    },
+  },
+  name: "listGmailThreads",
+  provider: "googlemail",
 };
 export const gongGetGongTranscriptsDefinition: ActionTemplate = {
   description: "Get sales call transcripts from Gong",

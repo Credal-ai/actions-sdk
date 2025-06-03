@@ -1,20 +1,20 @@
 import { axiosClient } from "../../util/axiosClient";
 import type {
   AuthParamsType,
-  googleOauthListGmailThreadsFunction,
-  googleOauthListGmailThreadsOutputType,
-  googleOauthListGmailThreadsParamsType,
+  googlemailListGmailThreadsFunction,
+  googlemailListGmailThreadsOutputType,
+  googlemailListGmailThreadsParamsType,
 } from "../../autogen/types";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
-import { getEmailContent } from "./utils/decodeMessage";
+import { getEmailContent } from "../google-oauth/utils/decodeMessage";
 
-const listGmailThreads: googleOauthListGmailThreadsFunction = async ({
+const listGmailThreads: googlemailListGmailThreadsFunction = async ({
   params,
   authParams,
 }: {
-  params: googleOauthListGmailThreadsParamsType;
+  params: googlemailListGmailThreadsParamsType;
   authParams: AuthParamsType;
-}): Promise<googleOauthListGmailThreadsOutputType> => {
+}): Promise<googlemailListGmailThreadsOutputType> => {
   if (!authParams.authToken) {
     return { success: false, error: MISSING_AUTH_TOKEN, threads: [] };
   }

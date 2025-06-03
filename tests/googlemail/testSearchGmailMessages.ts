@@ -1,18 +1,20 @@
-import { googleOauthSearchGmailMessagesParamsType } from "../../src/actions/autogen/types";
+import type { googlemailSearchGmailMessagesParamsType } from "../../src/actions/autogen/types";
 import { runAction } from "../../src/app";
 import assert from "node:assert";
 
 async function runTest() {
   console.log("Running test searchGmailMessages");
 
+  const params: googlemailSearchGmailMessagesParamsType = {
+    query: "insert-query-here",
+    maxResults: 1, // optional field
+  };
+
   const result = await runAction(
     "searchGmailMessages",
-    "googleOauth",
+    "googlemail",
     { authToken: "insert-access-token-with-gmail-ready-only-scope" }, 
-    {
-      query: "insert-query-here",
-      maxResults: 1, // optional field
-    } as googleOauthSearchGmailMessagesParamsType,
+    params,
   );
 
   console.log("Resulting payload:");
