@@ -185,10 +185,10 @@ import {
   asanaGetTasksDetailsOutputSchema,
   notionSearchByTitleParamsSchema,
   notionSearchByTitleOutputSchema,
-  jamfGetComputerInventoryParamsSchema,
-  jamfGetComputerInventoryOutputSchema,
-  jamfGetFileVaultRecoveryKeyParamsSchema,
-  jamfGetFileVaultRecoveryKeyOutputSchema,
+  jamfGetJamfComputerInventoryParamsSchema,
+  jamfGetJamfComputerInventoryOutputSchema,
+  jamfGetJamfFileVaultRecoveryKeyParamsSchema,
+  jamfGetJamfFileVaultRecoveryKeyOutputSchema,
 } from "./autogen/types";
 import callCopilot from "./providers/credal/callCopilot";
 import validateAddress from "./providers/googlemaps/validateAddress";
@@ -338,13 +338,13 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
   jamf: {
     getJamfComputerInventory: {
       fn: getJamfComputerInventory,
-      paramsSchema: jamfGetComputerInventoryParamsSchema,
-      outputSchema: jamfGetComputerInventoryOutputSchema,
+      paramsSchema: jamfGetJamfComputerInventoryParamsSchema,
+      outputSchema: jamfGetJamfComputerInventoryOutputSchema,
     },
     getJamfFileVaultRecoveryKey: {
       fn: getJamfFileVaultRecoveryKey,
-      paramsSchema: jamfGetFileVaultRecoveryKeyParamsSchema,
-      outputSchema: jamfGetFileVaultRecoveryKeyOutputSchema,
+      paramsSchema: jamfGetJamfFileVaultRecoveryKeyParamsSchema,
+      outputSchema: jamfGetJamfFileVaultRecoveryKeyOutputSchema,
     },
   },
   math: {

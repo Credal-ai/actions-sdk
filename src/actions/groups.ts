@@ -91,8 +91,8 @@ import {
   asanaListAsanaTasksByProjectDefinition,
   notionSearchByTitleDefinition,
   asanaGetTasksDetailsDefinition,
-  jamfGetComputerInventoryDefinition,
-  jamfGetFileVaultRecoveryKeyDefinition,
+  jamfGetJamfComputerInventoryDefinition,
+  jamfGetJamfFileVaultRecoveryKeyDefinition,
 } from "../actions/autogen/templates";
 import type { ActionTemplate } from "../actions/parse";
 
@@ -234,7 +234,7 @@ export const ACTION_GROUPS: ActionGroups = {
   },
   JAMF: {
     description: "Actions for interacting with Jamf",
-    actions: [jamfGetComputerInventoryDefinition, jamfGetFileVaultRecoveryKeyDefinition],
+    actions: [jamfGetJamfComputerInventoryDefinition, jamfGetJamfFileVaultRecoveryKeyDefinition],
   },
   LOOKER: {
     description: "Actions for interacting with Looker",

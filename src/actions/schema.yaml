@@ -5276,7 +5276,7 @@ actions:
             type: string
             description: Error message if search failed
   jamf:
-    getFileVaultRecoveryKey:
+    getJamfFileVaultRecoveryKey:
       description: Retrieves the FileVault2 recovery key for a specified computer
       scopes: []
       parameters:
@@ -5299,7 +5299,7 @@ actions:
           error:
             type: string
             description: Error message if the request failed
-    getComputerInventory:
+    getJamfComputerInventory:
       description: Retrieves computer inventory information from Jamf
       scopes: []
       parameters:

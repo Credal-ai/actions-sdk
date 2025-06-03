@@ -3925,40 +3925,40 @@ export type notionSearchByTitleFunction = ActionFunction<
   notionSearchByTitleOutputType
 >;
 
-export const jamfGetFileVaultRecoveryKeyParamsSchema = z.object({
+export const jamfGetJamfFileVaultRecoveryKeyParamsSchema = z.object({
   computerId: z.string().describe("The computerId of the device to get the FileVault2 recovery key for"),
 });
 
-export type jamfGetFileVaultRecoveryKeyParamsType = z.infer<typeof jamfGetFileVaultRecoveryKeyParamsSchema>;
+export type jamfGetJamfFileVaultRecoveryKeyParamsType = z.infer<typeof jamfGetJamfFileVaultRecoveryKeyParamsSchema>;
 
-export const jamfGetFileVaultRecoveryKeyOutputSchema = z.object({
+export const jamfGetJamfFileVaultRecoveryKeyOutputSchema = z.object({
   success: z.boolean().describe("Whether the request was successful"),
   data: z.string().describe("The FileVault2 recovery key data").optional(),
   error: z.string().describe("Error message if the request failed").optional(),
 });
 
-export type jamfGetFileVaultRecoveryKeyOutputType = z.infer<typeof jamfGetFileVaultRecoveryKeyOutputSchema>;
-export type jamfGetFileVaultRecoveryKeyFunction = ActionFunction<
-  jamfGetFileVaultRecoveryKeyParamsType,
+export type jamfGetJamfFileVaultRecoveryKeyOutputType = z.infer<typeof jamfGetJamfFileVaultRecoveryKeyOutputSchema>;
+export type jamfGetJamfFileVaultRecoveryKeyFunction = ActionFunction<
+  jamfGetJamfFileVaultRecoveryKeyParamsType,
   AuthParamsType,
-  jamfGetFileVaultRecoveryKeyOutputType
+  jamfGetJamfFileVaultRecoveryKeyOutputType
 >;
 
-export const jamfGetComputerInventoryParamsSchema = z.object({
+export const jamfGetJamfComputerInventoryParamsSchema = z.object({
   section: z.string().describe("Optional section parameter to filter inventory data").optional(),
 });
 
-export type jamfGetComputerInventoryParamsType = z.infer<typeof jamfGetComputerInventoryParamsSchema>;
+export type jamfGetJamfComputerInventoryParamsType = z.infer<typeof jamfGetJamfComputerInventoryParamsSchema>;
 
-export const jamfGetComputerInventoryOutputSchema = z.object({
+export const jamfGetJamfComputerInventoryOutputSchema = z.object({
   success: z.boolean().describe("Whether the request was successful"),
   data: z.array(z.any()).describe("The computer inventory data").optional(),
   error: z.string().describe("Error message if the request failed").optional(),
 });
 
-export type jamfGetComputerInventoryOutputType = z.infer<typeof jamfGetComputerInventoryOutputSchema>;
-export type jamfGetComputerInventoryFunction = ActionFunction<
-  jamfGetComputerInventoryParamsType,
+export type jamfGetJamfComputerInventoryOutputType = z.infer<typeof jamfGetJamfComputerInventoryOutputSchema>;
+export type jamfGetJamfComputerInventoryFunction = ActionFunction<
+  jamfGetJamfComputerInventoryParamsType,
   AuthParamsType,
-  jamfGetComputerInventoryOutputType
+  jamfGetJamfComputerInventoryOutputType
 >;

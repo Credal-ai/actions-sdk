@@ -12,7 +12,7 @@ async function runTest() {
   }
 
   const result = await runAction(
-    "getComputerInventory",
+    "getJamfComputerInventory",
     "jamf",
     {
       username,

@@ -1,18 +1,18 @@
 import type {
   AuthParamsType,
-  jamfGetFileVaultRecoveryKeyFunction,
-  jamfGetFileVaultRecoveryKeyOutputType,
-  jamfGetFileVaultRecoveryKeyParamsType,
+  jamfGetJamfFileVaultRecoveryKeyFunction,
+  jamfGetJamfFileVaultRecoveryKeyOutputType,
+  jamfGetJamfFileVaultRecoveryKeyParamsType,
 } from "../../autogen/types";
 import { axiosClient } from "../../util/axiosClient";
 
-const getJamfFileVaultRecoveryKey: jamfGetFileVaultRecoveryKeyFunction = async ({
+const getJamfFileVaultRecoveryKey: jamfGetJamfFileVaultRecoveryKeyFunction = async ({
   params,
   authParams,
 }: {
-  params: jamfGetFileVaultRecoveryKeyParamsType;
+  params: jamfGetJamfFileVaultRecoveryKeyParamsType;
   authParams: AuthParamsType;
-}): Promise<jamfGetFileVaultRecoveryKeyOutputType> => {
+}): Promise<jamfGetJamfFileVaultRecoveryKeyOutputType> => {
   const { username, password, subdomain } = authParams;
   const { computerId } = params;
 

@@ -7553,7 +7553,7 @@ export const notionSearchByTitleDefinition: ActionTemplate = {
   name: "searchByTitle",
   provider: "notion",
 };
-export const jamfGetFileVaultRecoveryKeyDefinition: ActionTemplate = {
+export const jamfGetJamfFileVaultRecoveryKeyDefinition: ActionTemplate = {
   description: "Retrieves the FileVault2 recovery key for a specified computer",
   scopes: [],
   parameters: {
@@ -7584,10 +7584,10 @@ export const jamfGetFileVaultRecoveryKeyDefinition: ActionTemplate = {
       },
     },
   },
-  name: "getFileVaultRecoveryKey",
+  name: "getJamfFileVaultRecoveryKey",
   provider: "jamf",
 };
-export const jamfGetComputerInventoryDefinition: ActionTemplate = {
+export const jamfGetJamfComputerInventoryDefinition: ActionTemplate = {
   description: "Retrieves computer inventory information from Jamf",
   scopes: [],
   parameters: {
@@ -7618,6 +7618,6 @@ export const jamfGetComputerInventoryDefinition: ActionTemplate = {
       },
     },
   },
-  name: "getComputerInventory",
+  name: "getJamfComputerInventory",
   provider: "jamf",
 };
