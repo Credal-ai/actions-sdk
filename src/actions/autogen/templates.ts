@@ -8479,3 +8479,77 @@ export const notionSearchByTitleDefinition: ActionTemplate = {
         "name": "searchByTitle",
         "provider": "notion"
     };
+export const jamfGetJamfFileVaultRecoveryKeyDefinition: ActionTemplate = {
+        "description": "Retrieves the FileVault2 recovery key for a specified computer",
+        "scopes": [],
+        "parameters": {
+            "type": "object",
+            "required": [
+                "computerId"
+            ],
+            "properties": {
+                "computerId": {
+                    "type": "string",
+                    "description": "The computerId of the device to get the FileVault2 recovery key for"
+                }
+            }
+        },
+        "output": {
+            "type": "object",
+            "required": [
+                "success"
+            ],
+            "properties": {
+                "success": {
+                    "type": "boolean",
+                    "description": "Whether the request was successful"
+                },
+                "data": {
+                    "type": "string",
+                    "description": "The FileVault2 recovery key data"
+                },
+                "error": {
+                    "type": "string",
+                    "description": "Error message if the request failed"
+                }
+            }
+        },
+        "name": "getJamfFileVaultRecoveryKey",
+        "provider": "jamf"
+    };
+export const jamfGetJamfComputerInventoryDefinition: ActionTemplate = {
+        "description": "Retrieves computer inventory information from Jamf",
+        "scopes": [],
+        "parameters": {
+            "type": "object",
+            "required": [],
+            "properties": {
+                "section": {
+                    "type": "string",
+                    "description": "Optional section parameter to filter inventory data"
+                }
+            }
+        },
+        "output": {
+            "type": "object",
+            "required": [
+                "success"
+            ],
+            "properties": {
+                "success": {
+                    "type": "boolean",
+                    "description": "Whether the request was successful"
+                },
+                "data": {
+                    "type": "array",
+                    "description": "The computer inventory data"
+                },
+                "error": {
+                    "type": "string",
+                    "description": "Error message if the request failed"
+                }
+            }
+        },
+        "name": "getJamfComputerInventory",
+        "provider": "jamf"
+    };

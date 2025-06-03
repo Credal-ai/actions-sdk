@@ -28,7 +28,8 @@ export enum ProviderName {
     SALESFORCE = "salesforce",
     MICROSOFT = "microsoft",
     GITHUB = "github",
-    NOTION = "notion"
+    NOTION = "notion",
+    JAMF = "jamf"
 }
 
 export type ActionFunction<P, A, O> = (input: {params: P, authParams: A}) => Promise<O>;
@@ -939,3 +940,21 @@ export const notionSearchByTitleOutputSchema = z.object({ "success": z.boolean()
 
 export type notionSearchByTitleOutputType = z.infer<typeof notionSearchByTitleOutputSchema>;
 export type notionSearchByTitleFunction = ActionFunction<notionSearchByTitleParamsType, AuthParamsType, notionSearchByTitleOutputType>;
+
+export const jamfGetJamfFileVaultRecoveryKeyParamsSchema = z.object({ "computerId": z.string().describe("The computerId of the device to get the FileVault2 recovery key for") });
+
+export type jamfGetJamfFileVaultRecoveryKeyParamsType = z.infer<typeof jamfGetJamfFileVaultRecoveryKeyParamsSchema>;
+
+export const jamfGetJamfFileVaultRecoveryKeyOutputSchema = z.object({ "success": z.boolean().describe("Whether the request was successful"), "data": z.string().describe("The FileVault2 recovery key data").optional(), "error": z.string().describe("Error message if the request failed").optional() });
+
+export type jamfGetJamfFileVaultRecoveryKeyOutputType = z.infer<typeof jamfGetJamfFileVaultRecoveryKeyOutputSchema>;
+export type jamfGetJamfFileVaultRecoveryKeyFunction = ActionFunction<jamfGetJamfFileVaultRecoveryKeyParamsType, AuthParamsType, jamfGetJamfFileVaultRecoveryKeyOutputType>;
+
+export const jamfGetJamfComputerInventoryParamsSchema = z.object({ "section": z.string().describe("Optional section parameter to filter inventory data").optional() });
+
+export type jamfGetJamfComputerInventoryParamsType = z.infer<typeof jamfGetJamfComputerInventoryParamsSchema>;
+
+export const jamfGetJamfComputerInventoryOutputSchema = z.object({ "success": z.boolean().describe("Whether the request was successful"), "data": z.array(z.any()).describe("The computer inventory data").optional(), "error": z.string().describe("Error message if the request failed").optional() });
+
+export type jamfGetJamfComputerInventoryOutputType = z.infer<typeof jamfGetJamfComputerInventoryOutputSchema>;
+export type jamfGetJamfComputerInventoryFunction = ActionFunction<jamfGetJamfComputerInventoryParamsType, AuthParamsType, jamfGetJamfComputerInventoryOutputType>;
