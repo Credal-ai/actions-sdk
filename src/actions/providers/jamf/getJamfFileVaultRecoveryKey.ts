@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type {
   AuthParamsType,
   jamfGetJamfFileVaultRecoveryKeyFunction,
@@ -5,6 +6,7 @@ import type {
   jamfGetJamfFileVaultRecoveryKeyParamsType,
 } from "../../autogen/types";
 import { axiosClient } from "../../util/axiosClient";
+import { TokenResponseSchema } from "./types";
 
 const getJamfFileVaultRecoveryKey: jamfGetJamfFileVaultRecoveryKeyFunction = async ({
   params,
@@ -38,7 +40,7 @@ const getJamfFileVaultRecoveryKey: jamfGetJamfFileVaultRecoveryKeyFunction = asy
       },
     );
 
-    const token = response.data.token;
+    const token = TokenResponseSchema.parse(response.data).token;
 
     const fileVaultResponse = await axiosClient.get(`${url}/api/v1/computers-inventory/${computerId}/filevault`, {
       headers: {

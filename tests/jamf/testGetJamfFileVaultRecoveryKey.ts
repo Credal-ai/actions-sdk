@@ -5,7 +5,7 @@ async function runTest() {
   const subdomain = "insert-during-testing"; // Replace with your actual subdomain
   const username = "insert-during-testing"; // Replace with your actual username
   const password = "insert-during-testing"; // Replace with your actual password
-  const computerId = "B037B8F6-4053-5EFE-B646-1054CC5CCFB4"; // Replace with the actual computer ID
+  const computerId = "insert-during-testing"; // Replace with the actual computer ID
 
   if (!subdomain || !username || !password || !computerId) {
     console.error("Missing required environment variables for test");

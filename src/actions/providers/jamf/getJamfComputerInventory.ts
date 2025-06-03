@@ -5,6 +5,7 @@ import type {
   jamfGetJamfComputerInventoryParamsType,
 } from "../../autogen/types";
 import { axiosClient } from "../../util/axiosClient";
+import { TokenResponseSchema } from "./types";
 
 const getJamfComputerInventory: jamfGetJamfComputerInventoryFunction = async ({
   authParams,
@@ -33,7 +34,7 @@ const getJamfComputerInventory: jamfGetJamfComputerInventoryFunction = async ({
       },
     );
 
-    const token = response.data.token;
+    const token = TokenResponseSchema.parse(response.data).token;
     const computers = await axiosClient.get(`${url}/api/v1/computers-inventory`, {
       headers: {
         Authorization: `Bearer ${token}`,
