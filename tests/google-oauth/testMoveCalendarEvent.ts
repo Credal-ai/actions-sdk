@@ -6,21 +6,22 @@ dotenv.config();
 
 async function runTest() {
   const result = await runAction(
-    "listCalendars",
+    "moveCalendarEvent",
     "googleOauth",
     { authToken: process.env.GOOGLE_OAUTH_TOKEN },
-    { maxResults: 5 }, // optional
+    {
+      calendarId: process.env.GOOGLE_CALENDAR_ID || "primary",
+      eventId: process.env.GOOGLE_EVENT_ID,
+      destination: process.env.GOOGLE_CALENDAR_DESTINATION_ID,
+    },
   );
 
+  console.log("Response: ", result);
   assert(result, "Response should not be null");
   assert(result.success, "Success should be true");
-  assert(Array.isArray(result.calendars), "Calendars should be an array");
-  if (result.calendars.length > 0) {
-    assert(result.calendars[0].id, "Calendar should have an id");
-    assert(result.calendars[0].summary, "Calendar should have a summary");
-  }
-  console.log(`Successfully listed ${result.calendars.length} calendars`);
-  console.log("Response: ", result);
+  assert(typeof result.eventId === "string" && result.eventId.length > 0, "Should return eventId");
+  assert(typeof result.eventUrl === "string" && result.eventUrl.length > 0, "Should return eventUrl");
+  console.log(`Successfully moved event: ${result.eventId}`);
 }
 
 runTest().catch((error) => {

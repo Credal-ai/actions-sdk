@@ -93,6 +93,8 @@ import {
   googleOauthUpdatePresentationOutputSchema,
   googleOauthSearchDriveByKeywordsParamsSchema,
   googleOauthSearchDriveByKeywordsOutputSchema,
+  googleOauthMoveCalendarEventParamsSchema,
+  googleOauthMoveCalendarEventOutputSchema,
   googleOauthListGroupsOutputSchema,
   googleOauthListGroupsParamsSchema,
   googleOauthGetGroupOutputSchema,
@@ -234,6 +236,7 @@ import listCalendars from "./providers/google-oauth/listCalendars";
 import listCalendarEvents from "./providers/google-oauth/listCalendarEvents";
 import updateCalendarEvent from "./providers/google-oauth/updateCalendarEvent";
 import deleteCalendarEvent from "./providers/google-oauth/deleteCalendarEvent";
+import moveCalendarEvent from "./providers/google-oauth/moveCalendarEvent";
 import createSpreadsheet from "./providers/google-oauth/createSpreadsheet";
 import updateSpreadsheet from "./providers/google-oauth/updateSpreadsheet";
 import createPresentation from "./providers/google-oauth/createPresentation";
@@ -273,9 +276,6 @@ import getTasksDetails from "./providers/asana/getTasksDetails";
 import searchByTitle from "./providers/notion/searchByTitle";
 import searchGmailMessages from "./providers/googlemail/searchGmailMessages";
 import listGmailThreads from "./providers/googlemail/listGmailThreads";
-// import listCalendarEvents from "./providers/google-oauth/listCalendarEvents";
-// import updateCalendarEvent from "./providers/google-oauth/updateCalendarEvent";
-// import deleteCalendarEvent from "./providers/google-oauth/deleteCalendarEvent";
 import listGroups from "./providers/google-oauth/listGroups";
 import getGroup from "./providers/google-oauth/getGroup";
 import listGroupMembers from "./providers/google-oauth/listGroupMembers";
@@ -609,6 +609,11 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: deleteCalendarEvent,
       paramsSchema: googleOauthDeleteCalendarEventParamsSchema,
       outputSchema: googleOauthDeleteCalendarEventOutputSchema,
+    },
+    moveCalendarEvent: {
+      fn: moveCalendarEvent,
+      paramsSchema: googleOauthMoveCalendarEventParamsSchema,
+      outputSchema: googleOauthMoveCalendarEventOutputSchema,
     },
     listGroups: {
       fn: listGroups,

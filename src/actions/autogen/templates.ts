@@ -3503,20 +3503,6 @@ export const googleOauthUpdateCalendarEventDefinition: ActionTemplate = {
             type: "string",
             description: "The new status of the event (e.g., confirmed, cancelled)",
           },
-          organizer: {
-            type: "object",
-            description: "The new organizer of the event",
-            properties: {
-              email: {
-                type: "string",
-                description: "The organizer's email address",
-              },
-              displayName: {
-                type: "string",
-                description: "The organizer's name",
-              },
-            },
-          },
         },
       },
     },
@@ -3578,6 +3564,48 @@ export const googleOauthDeleteCalendarEventDefinition: ActionTemplate = {
     },
   },
   name: "deleteCalendarEvent",
+  provider: "googleOauth",
+};
+export const googleOauthMoveCalendarEventDefinition: ActionTemplate = {
+  description: "Moves an event to another calendar, i.e. changes an event's organizer.",
+  scopes: ["https://www.googleapis.com/auth/calendar"],
+  parameters: {
+    type: "object",
+    required: ["calendarId", "eventId", "destination"],
+    properties: {
+      calendarId: {
+        type: "string",
+        description: "The ID of the source calendar containing the event",
+      },
+      eventId: {
+        type: "string",
+        description: "The ID of the event to move",
+      },
+      destination: {
+        type: "string",
+        description: "The ID of the destination calendar to move the event to",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the event was moved successfully",
+      },
+      eventId: {
+        type: "string",
+        description: "The ID of the moved event in the destination calendar",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the event was not moved successfully",
+      },
+    },
+  },
+  name: "moveCalendarEvent",
   provider: "googleOauth",
 };
 export const googleOauthCreateSpreadsheetDefinition: ActionTemplate = {

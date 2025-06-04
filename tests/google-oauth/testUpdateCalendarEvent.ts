@@ -1,14 +1,18 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app";
+import dotenv from "dotenv";
+
+
+dotenv.config();
 
 async function runTest() {
   const result = await runAction(
     "updateCalendarEvent",
     "googleOauth",
-    { authToken: "auth-token-with-calendar-scope-here" },
+    { authToken: process.env.GOOGLE_OAUTH_TOKEN },
     {
-      calendarId: "primary",
-      eventId: "event-id-here", 
+      calendarId: process.env.GOOGLE_CALENDAR_ID || "primary",
+      eventId: process.env.GOOGLE_CALENDAR_EVENT_ID, 
       updates: {
         title: "Updated Event Title",
         description: "Updated event description",

@@ -1808,13 +1808,6 @@ export const googleOauthUpdateCalendarEventParamsSchema = z.object({
         .describe("The new list of attendees")
         .optional(),
       status: z.string().describe("The new status of the event (e.g., confirmed, cancelled)").optional(),
-      organizer: z
-        .object({
-          email: z.string().describe("The organizer's email address").optional(),
-          displayName: z.string().describe("The organizer's name").optional(),
-        })
-        .describe("The new organizer of the event")
-        .optional(),
     })
     .describe("The fields to update on the event")
     .optional(),
@@ -1853,6 +1846,27 @@ export type googleOauthDeleteCalendarEventFunction = ActionFunction<
   googleOauthDeleteCalendarEventParamsType,
   AuthParamsType,
   googleOauthDeleteCalendarEventOutputType
+>;
+
+export const googleOauthMoveCalendarEventParamsSchema = z.object({
+  calendarId: z.string().describe("The ID of the source calendar containing the event"),
+  eventId: z.string().describe("The ID of the event to move"),
+  destination: z.string().describe("The ID of the destination calendar to move the event to"),
+});
+
+export type googleOauthMoveCalendarEventParamsType = z.infer<typeof googleOauthMoveCalendarEventParamsSchema>;
+
+export const googleOauthMoveCalendarEventOutputSchema = z.object({
+  success: z.boolean().describe("Whether the event was moved successfully"),
+  eventId: z.string().describe("The ID of the moved event in the destination calendar").optional(),
+  error: z.string().describe("The error that occurred if the event was not moved successfully").optional(),
+});
+
+export type googleOauthMoveCalendarEventOutputType = z.infer<typeof googleOauthMoveCalendarEventOutputSchema>;
+export type googleOauthMoveCalendarEventFunction = ActionFunction<
+  googleOauthMoveCalendarEventParamsType,
+  AuthParamsType,
+  googleOauthMoveCalendarEventOutputType
 >;
 
 export const googleOauthCreateSpreadsheetParamsSchema = z.object({
