@@ -160,16 +160,16 @@ async function generateTypes({
   const templatesFile = project.createSourceFile(outputPath, "", { overwrite: true });
   const typesFile = project.createSourceFile(templatesOutputPath, "", { overwrite: true });
 
-  // Set the ProviderName enum based on the schema providers
-  typesFile
-    .addEnum({
-      name: "ProviderName",
-      members: Object.keys(parsedConfig.actions).map(providerName => ({
-        name: providerName.toUpperCase().replace(/-/g, "_"),
-        value: providerName,
-      })),
-    })
-    .setIsExported(true);
+  // // Set the ProviderName enum based on the schema providers
+  // typesFile
+  //   .addEnum({
+  //     name: "ProviderName",
+  //     members: Object.keys(parsedConfig.actions).map(providerName => ({
+  //       name: providerName.toUpperCase().replace(/-/g, "_"),
+  //       value: providerName,
+  //     })),
+  //   })
+  //   .setIsExported(true);
 
   // Add imports
   templatesFile.addImportDeclaration({
