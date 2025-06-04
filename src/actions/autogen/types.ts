@@ -1,37 +1,5 @@
 import { z } from "zod";
 
-export enum ProviderName {
-  GENERIC = "generic",
-  ASANA = "asana",
-  SLACK = "slack",
-  MATH = "math",
-  CONFLUENCE = "confluence",
-  JIRA = "jira",
-  KANDJI = "kandji",
-  GOOGLEMAPS = "googlemaps",
-  BING = "bing",
-  ZENDESK = "zendesk",
-  LINKEDIN = "linkedin",
-  X = "x",
-  MONGO = "mongo",
-  SNOWFLAKE = "snowflake",
-  OPENSTREETMAP = "openstreetmap",
-  NWS = "nws",
-  FIRECRAWL = "firecrawl",
-  RESEND = "resend",
-  GOOGLEOAUTH = "googleOauth",
-  GOOGLEMAIL = "googlemail",
-  GONG = "gong",
-  FINNHUB = "finnhub",
-  LOOKER = "looker",
-  ASHBY = "ashby",
-  SALESFORCE = "salesforce",
-  MICROSOFT = "microsoft",
-  GITHUB = "github",
-  NOTION = "notion",
-  JAMF = "jamf",
-}
-
 export type ActionFunction<P, A, O> = (input: { params: P; authParams: A }) => Promise<O>;
 
 export const AuthParamsSchema = z.object({
