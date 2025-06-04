@@ -5726,6 +5726,11 @@ export const googleOauthAddGroupMemberDefinition: ActionTemplate = {
         type: "string",
         description: "The email address of the user to add",
       },
+      role: {
+        type: "string",
+        description: "The role for the member",
+        enum: ["OWNER", "MANAGER", "MEMBER"],
+      },
     },
   },
   output: {
@@ -5781,6 +5786,95 @@ export const googleOauthDeleteGroupMemberDefinition: ActionTemplate = {
     },
   },
   name: "deleteGroupMember",
+  provider: "googleOauth",
+};
+export const googleOauthCreateGroupDefinition: ActionTemplate = {
+  description: "Creates a new Google Group.",
+  scopes: ["https://www.googleapis.com/auth/admin.directory.group"],
+  parameters: {
+    type: "object",
+    required: ["email", "name"],
+    properties: {
+      email: {
+        type: "string",
+        description: "The email address for the new group",
+      },
+      name: {
+        type: "string",
+        description: "The name of the new group",
+      },
+      description: {
+        type: "string",
+        description: "The description of the new group",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the group was created successfully",
+      },
+      groupId: {
+        type: "string",
+        description: "The unique ID of the group",
+      },
+      groupEmail: {
+        type: "string",
+        description: "The email address of the group",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the group could not be created",
+      },
+    },
+  },
+  name: "createGroup",
+  provider: "googleOauth",
+};
+export const googleOauthUpdateGroupMemberDefinition: ActionTemplate = {
+  description: "Update a member's role or type in a Google Group.",
+  scopes: ["https://www.googleapis.com/auth/admin.directory.group.member"],
+  parameters: {
+    type: "object",
+    required: ["groupKey", "memberKey", "role"],
+    properties: {
+      groupKey: {
+        type: "string",
+        description: "The group's email address or unique group ID",
+      },
+      memberKey: {
+        type: "string",
+        description: "The member's email address or unique member ID",
+      },
+      role: {
+        type: "string",
+        description: "The new role for the member",
+        enum: ["OWNER", "MANAGER", "MEMBER"],
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the member was updated successfully",
+      },
+      memberID: {
+        type: "string",
+        description: "The unique ID of the member",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the member could not be updated",
+      },
+    },
+  },
+  name: "updateGroupMember",
   provider: "googleOauth",
 };
 export const googlemailSearchGmailMessagesDefinition: ActionTemplate = {

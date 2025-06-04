@@ -10,14 +10,14 @@ async function runTests() {
     "googleOauth",
     { authToken: process.env.GOOGLE_OAUTH_TOKEN! },
     {
-      groupKey: process.env.GOOGLE_GROUP_KEY!,
-      email: process.env.GOOGLE_GROUP_MEMBER_EMAIL!, 
-      role: "MEMBER", // Set role as needed, e.g., "MEMBER" or "OWNER"
+      groupKey: process.env.GOOGLE_GROUP_KEY! || "groupkey",
+      email: process.env.GOOGLE_GROUP_MEMBER_EMAIL! || "email@example.com", 
+      role: "MEMBER", // Set role as needed, e.g., "MEMBER", "MANAGER" or "OWNER"
     }
   );
   assert(result, "Should return a result");
   assert(result.success, "Should have success boolean");
-  assert(typeof result.memberID === "string", "Should have memberID string");
+  assert(typeof result.memberID === "string" && result.memberID.length > 0, "Should have memberID string");
   console.log("Add Group Members Test Result:", result);
 }
 

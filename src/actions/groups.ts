@@ -53,6 +53,8 @@ import {
   googleOauthHasGroupMemberDefinition,
   googleOauthAddGroupMemberDefinition,
   googleOauthDeleteGroupMemberDefinition,
+  googleOauthCreateGroupDefinition,
+  googleOauthUpdateGroupMemberDefinition,
   salesforceUpdateRecordDefinition,
   salesforceCreateCaseDefinition,
   salesforceGenerateSalesReportDefinition,
@@ -297,6 +299,8 @@ export const ACTION_GROUPS: ActionGroups = {
       googleOauthHasGroupMemberDefinition,
       googleOauthAddGroupMemberDefinition,
       googleOauthDeleteGroupMemberDefinition,
+      googleOauthCreateGroupDefinition,
+      googleOauthUpdateGroupMemberDefinition,
     ],
   },
 };

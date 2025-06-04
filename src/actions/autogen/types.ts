@@ -2963,6 +2963,7 @@ export type googleOauthHasGroupMemberFunction = ActionFunction<
 export const googleOauthAddGroupMemberParamsSchema = z.object({
   groupKey: z.string().describe("The group's email address or unique group ID"),
   email: z.string().describe("The email address of the user to add"),
+  role: z.enum(["OWNER", "MANAGER", "MEMBER"]).describe("The role for the member").optional(),
 });
 
 export type googleOauthAddGroupMemberParamsType = z.infer<typeof googleOauthAddGroupMemberParamsSchema>;
@@ -2997,6 +2998,49 @@ export type googleOauthDeleteGroupMemberFunction = ActionFunction<
   googleOauthDeleteGroupMemberParamsType,
   AuthParamsType,
   googleOauthDeleteGroupMemberOutputType
+>;
+
+export const googleOauthCreateGroupParamsSchema = z.object({
+  email: z.string().describe("The email address for the new group"),
+  name: z.string().describe("The name of the new group"),
+  description: z.string().describe("The description of the new group").optional(),
+});
+
+export type googleOauthCreateGroupParamsType = z.infer<typeof googleOauthCreateGroupParamsSchema>;
+
+export const googleOauthCreateGroupOutputSchema = z.object({
+  success: z.boolean().describe("Whether the group was created successfully"),
+  groupId: z.string().describe("The unique ID of the group").optional(),
+  groupEmail: z.string().describe("The email address of the group").optional(),
+  error: z.string().describe("The error that occurred if the group could not be created").optional(),
+});
+
+export type googleOauthCreateGroupOutputType = z.infer<typeof googleOauthCreateGroupOutputSchema>;
+export type googleOauthCreateGroupFunction = ActionFunction<
+  googleOauthCreateGroupParamsType,
+  AuthParamsType,
+  googleOauthCreateGroupOutputType
+>;
+
+export const googleOauthUpdateGroupMemberParamsSchema = z.object({
+  groupKey: z.string().describe("The group's email address or unique group ID"),
+  memberKey: z.string().describe("The member's email address or unique member ID"),
+  role: z.enum(["OWNER", "MANAGER", "MEMBER"]).describe("The new role for the member"),
+});
+
+export type googleOauthUpdateGroupMemberParamsType = z.infer<typeof googleOauthUpdateGroupMemberParamsSchema>;
+
+export const googleOauthUpdateGroupMemberOutputSchema = z.object({
+  success: z.boolean().describe("Whether the member was updated successfully"),
+  memberID: z.string().describe("The unique ID of the member").optional(),
+  error: z.string().describe("The error that occurred if the member could not be updated").optional(),
+});
+
+export type googleOauthUpdateGroupMemberOutputType = z.infer<typeof googleOauthUpdateGroupMemberOutputSchema>;
+export type googleOauthUpdateGroupMemberFunction = ActionFunction<
+  googleOauthUpdateGroupMemberParamsType,
+  AuthParamsType,
+  googleOauthUpdateGroupMemberOutputType
 >;
 
 export const googlemailSearchGmailMessagesParamsSchema = z.object({
