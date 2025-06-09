@@ -1,4 +1,4 @@
-import { ActionMapper } from "./actionMapper";
+import { ActionMapper } from "./actionMapper.js";
 
 interface InvokeActionInput<P, A> {
   provider: string;

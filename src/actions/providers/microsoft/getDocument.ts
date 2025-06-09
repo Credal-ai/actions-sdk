@@ -4,7 +4,7 @@ import type {
   microsoftGetDocumentOutputType,
   microsoftGetDocumentParamsType,
 } from "../../autogen/types";
-import { getGraphClient } from "./utils";
+import { getGraphClient } from "./utils.js";
 
 const getDocument: microsoftGetDocumentFunction = async ({
   params,

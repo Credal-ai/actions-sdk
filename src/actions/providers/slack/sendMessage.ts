@@ -6,7 +6,7 @@ import {
   type AuthParamsType,
   slackSendMessageOutputSchema,
 } from "../../autogen/types";
-import { getSlackChannels } from "./helpers";
+import { getSlackChannels } from "./helpers.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
 
 const sendMessage: slackSendMessageFunction = async ({

@@ -4,7 +4,7 @@ import type {
   snowflakeGetRowByFieldValueOutputType,
   snowflakeGetRowByFieldValueParamsType,
 } from "../../autogen/types";
-import { getSnowflakeConnection } from "./auth/getSnowflakeConnection";
+import { getSnowflakeConnection } from "./auth/getSnowflakeConnection.js";
 
 const getRowByFieldValue: snowflakeGetRowByFieldValueFunction = async ({
   params,

@@ -3,10 +3,10 @@ import type {
   confluenceOverwritePageParamsType,
   confluenceOverwritePageOutputType,
   AuthParamsType,
-} from "../../autogen/types";
-import { axiosClient } from "../../util/axiosClient";
-import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
-import { getConfluenceRequestConfig } from "./helpers";
+} from "../../autogen/types.js";
+import { axiosClient } from "../../util/axiosClient.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { getConfluenceRequestConfig } from "./helpers.js";
 
 const confluenceOverwritePage: confluenceOverwritePageFunction = async ({
   params,

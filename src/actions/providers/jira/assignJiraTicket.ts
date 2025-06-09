@@ -6,7 +6,7 @@ import type {
   jiraAssignJiraTicketOutputType,
   jiraAssignJiraTicketParamsType,
 } from "../../autogen/types";
-import { getUserAccountIdFromEmail } from "./utils";
+import { getUserAccountIdFromEmail } from "./utils.js";
 
 const assignJiraTicket: jiraAssignJiraTicketFunction = async ({
   params,

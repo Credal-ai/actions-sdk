@@ -6,7 +6,7 @@ import type {
   microsoftMessageTeamsChatParamsType,
 } from "../../autogen/types";
 
-import { getGraphClient } from "./utils";
+import { getGraphClient } from "./utils.js";
 
 const sendMessageToTeamsChat: microsoftMessageTeamsChatFunction = async ({
   params,

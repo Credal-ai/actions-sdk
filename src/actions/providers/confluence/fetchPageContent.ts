@@ -3,10 +3,10 @@ import type {
   confluenceFetchPageContentParamsType,
   confluenceFetchPageContentOutputType,
   AuthParamsType,
-} from "../../autogen/types";
-import { getConfluenceRequestConfig } from "./helpers";
-import { axiosClient } from "../../util/axiosClient";
-import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
+} from "../../autogen/types.js";
+import { getConfluenceRequestConfig } from "./helpers.js";
+import { axiosClient } from "../../util/axiosClient.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 const confluenceFetchPageContent: confluenceFetchPageContentFunction = async ({
   params,

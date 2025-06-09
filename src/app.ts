@@ -1,7 +1,7 @@
-import type { ActionTemplate } from "./actions/parse";
-import * as templates from "./actions/autogen/templates";
-import { invokeAction } from "./actions/invoke";
-import type { AuthParamsType } from "./actions/autogen/types";
+import type { ActionTemplate } from "./actions/parse.js";
+import * as templates from "./actions/autogen/templates.js";
+import { invokeAction } from "./actions/invoke.js";
+import type { AuthParamsType } from "./actions/autogen/types.js";
 
 export async function runAction(
   name: string,

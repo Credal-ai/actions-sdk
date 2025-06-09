@@ -6,7 +6,7 @@ import type {
 } from "../../autogen/types";
 import { axiosClient } from "../../util/axiosClient";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
-import { getUserIdByEmail, getWorkspaceIdAndPermalinkFromTask } from "./utils";
+import { getUserIdByEmail, getWorkspaceIdAndPermalinkFromTask } from "./utils.js";
 
 const updateAsanaTask: asanaUpdateTaskFunction = async ({
   params,

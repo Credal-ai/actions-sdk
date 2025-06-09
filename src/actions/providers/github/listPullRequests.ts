@@ -5,8 +5,8 @@ import {
   type githubListPullRequestsParamsType,
   type githubListPullRequestsOutputType,
   githubListPullRequestsOutputSchema,
-} from "../../autogen/types";
-import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
+} from "../../autogen/types.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 const listPullRequests: githubListPullRequestsFunction = async ({
   params,

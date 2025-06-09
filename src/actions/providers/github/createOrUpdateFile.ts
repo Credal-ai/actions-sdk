@@ -3,9 +3,9 @@ import type {
   githubCreateOrUpdateFileFunction,
   githubCreateOrUpdateFileOutputType,
   githubCreateOrUpdateFileParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 import { z } from "zod";
-import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 /**
  * Creates or updates a file in a GitHub repository

@@ -5,7 +5,7 @@ import type {
   microsoftUpdateSpreadsheetOutputType,
   microsoftUpdateSpreadsheetParamsType,
 } from "../../autogen/types";
-import { getGraphClient } from "./utils";
+import { getGraphClient } from "./utils.js";
 
 const updateSpreadsheet: microsoftUpdateSpreadsheetFunction = async ({
   params,

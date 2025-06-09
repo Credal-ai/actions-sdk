@@ -6,7 +6,7 @@ import type {
   googlemailListGmailThreadsParamsType,
 } from "../../autogen/types";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
-import { getEmailContent } from "../google-oauth/utils/decodeMessage";
+import { getEmailContent } from "../google-oauth/utils/decodeMessage.js";
 
 const listGmailThreads: googlemailListGmailThreadsFunction = async ({
   params,

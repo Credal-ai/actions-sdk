@@ -4,8 +4,8 @@ import type {
   firecrawlScrapeTweetDataWithNitterFunction,
   firecrawlScrapeTweetDataWithNitterParamsType,
   firecrawlScrapeTweetDataWithNitterOutputType,
-} from "../../autogen/types";
-import { MISSING_API_KEY } from "../../util/missingAuthConstants";
+} from "../../autogen/types.js";
+import { MISSING_API_KEY } from "../../util/missingAuthConstants.js";
 
 const scrapeTweetDataWithNitter: firecrawlScrapeTweetDataWithNitterFunction = async ({
   params,

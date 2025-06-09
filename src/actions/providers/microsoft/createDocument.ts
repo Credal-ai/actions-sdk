@@ -5,7 +5,7 @@ import type {
   microsoftCreateDocumentOutputType,
   microsoftCreateDocumentParamsType,
 } from "../../autogen/types";
-import { getGraphClient, validateAndSanitizeFileName } from "./utils";
+import { getGraphClient, validateAndSanitizeFileName } from "./utils.js";
 
 const createDocument: microsoftCreateDocumentFunction = async ({
   params,

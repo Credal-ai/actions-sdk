@@ -4,8 +4,8 @@ import {
   type bingGetTopNSearchResultUrlsOutputType,
   type AuthParamsType,
   bingGetTopNSearchResultUrlsOutputSchema,
-} from "../../autogen/types";
-import { axiosClient } from "../../util/axiosClient";
+} from "../../autogen/types.js";
+import { axiosClient } from "../../util/axiosClient.js";
 
 const getTopNSearchResultUrls: bingGetTopNSearchResultUrlsFunction = async ({
   params,

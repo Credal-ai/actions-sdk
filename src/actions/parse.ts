@@ -5,7 +5,7 @@ import convert from "json-schema-to-zod";
 import type { SourceFile } from "ts-morph";
 import { Project, VariableDeclarationKind } from "ts-morph";
 import { z } from "zod";
-import { snakeToPascal } from "../utils/string";
+import { snakeToPascal } from "../utils/string.js";
 
 const jsonObjectSchema = z.object({
   type: z.string(),

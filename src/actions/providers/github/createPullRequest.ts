@@ -3,8 +3,8 @@ import type {
   githubCreatePullRequestFunction,
   githubCreatePullRequestOutputType,
   githubCreatePullRequestParamsType,
-} from "../../autogen/types";
-import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
+} from "../../autogen/types.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 /**
  * Creates a pull request in a GitHub repository

@@ -5,7 +5,7 @@ import type {
   microsoftUpdateDocumentOutputType,
   microsoftUpdateDocumentParamsType,
 } from "../../autogen/types";
-import { getGraphClient } from "./utils";
+import { getGraphClient } from "./utils.js";
 
 const updateDocument: microsoftUpdateDocumentFunction = async ({
   params,

@@ -3,9 +3,9 @@ import type {
   finnhubGetBasicFinancialsParamsType,
   finnhubGetBasicFinancialsOutputType,
   AuthParamsType,
-} from "../../autogen/types";
-import { finnhubGetBasicFinancialsOutputSchema } from "../../autogen/types";
-import { axiosClient } from "../../util/axiosClient";
+} from "../../autogen/types.js";
+import { finnhubGetBasicFinancialsOutputSchema } from "../../autogen/types.js";
+import { axiosClient } from "../../util/axiosClient.js";
 
 interface FinancialMetricData {
   period: string;

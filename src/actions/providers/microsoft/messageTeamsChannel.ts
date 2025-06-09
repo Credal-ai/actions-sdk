@@ -6,7 +6,7 @@ import type {
   microsoftMessageTeamsChannelParamsType,
 } from "../../autogen/types";
 
-import { getGraphClient } from "./utils";
+import { getGraphClient } from "./utils.js";
 
 const sendMessageToTeamsChannel: microsoftMessageTeamsChannelFunction = async ({
   params,
