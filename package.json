@@ -1,6 +1,6 @@
 {
   "name": "@credal/actions",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "type": "module",
   "description": "AI Actions by Credal AI",
   "main": "dist/index.js",

@@ -1,6 +1,6 @@
 import type { AuthParamsType } from "../../../autogen/types";
 import type { Connection } from "snowflake-sdk";
-import * as snowflake from "snowflake-sdk";
+import {createConnection} from "snowflake-sdk";
 import * as forge from "node-forge";
 
 const getPrivateKeyCorrectFormat = (privateKey: string): string => {
@@ -29,7 +29,7 @@ export function getSnowflakeConnection(
 
   if (authToken) {
     // Always try to use Nango-Snowflake OAuth (unused for now)
-    return snowflake.createConnection({
+    return createConnection({
       account: account,
       username: username,
       authenticator: "OAUTH",
@@ -41,7 +41,7 @@ export function getSnowflakeConnection(
   } else if (apiKey) {
     const privateKeyCorrectFormatString = getPrivateKeyCorrectFormat(apiKey);
 
-    return snowflake.createConnection({
+    return createConnection({
       account: account,
       username: username,
       privateKey: privateKeyCorrectFormatString,
