@@ -57,10 +57,6 @@ import {
   firecrawlScrapeTweetDataWithNitterParamsSchema,
   firecrawlScrapeTweetDataWithNitterOutputSchema,
   resendSendEmailParamsSchema,
-  linkedinCreateShareLinkedinPostUrlParamsSchema,
-  linkedinCreateShareLinkedinPostUrlOutputSchema,
-  xCreateShareXPostUrlParamsSchema,
-  xCreateShareXPostUrlOutputSchema,
   finnhubSymbolLookupParamsSchema,
   finnhubSymbolLookupOutputSchema,
   finnhubGetBasicFinancialsParamsSchema,
@@ -218,9 +214,7 @@ import commentAsanaTask from "./providers/asana/commentAsanaTask";
 import createAsanaTask from "./providers/asana/createAsanaTask";
 import updateAsanaTask from "./providers/asana/updateAsanaTask";
 import searchAsanaTasks from "./providers/asana/searchAsanaTasks";
-import createShareLinkedinPostUrl from "./providers/linkedin/createSharePostLinkedinUrl";
 import createNewGoogleDoc from "./providers/google-oauth/createNewGoogleDoc";
-import createXSharePostUrl from "./providers/x/createXSharePostUrl";
 import scrapeTweetDataWithNitter from "./providers/firecrawl/scrapeTweetDataWithNitter";
 import symbolLookup from "./providers/finnhub/symbolLookup";
 import getBasicFinancials from "./providers/finnhub/getBasicFinancials";
@@ -452,13 +446,6 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       outputSchema: snowflakeRunSnowflakeQueryOutputSchema,
     },
   },
-  linkedin: {
-    createShareLinkedinPostUrl: {
-      fn: createShareLinkedinPostUrl,
-      paramsSchema: linkedinCreateShareLinkedinPostUrlParamsSchema,
-      outputSchema: linkedinCreateShareLinkedinPostUrlOutputSchema,
-    },
-  },
   jira: {
     getJiraIssuesByQuery: {
       fn: getJiraIssuesByQuery,
@@ -639,13 +626,6 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: deleteGroupMember,
       paramsSchema: googleOauthDeleteGroupMemberParamsSchema,
       outputSchema: googleOauthDeleteGroupMemberOutputSchema,
-    },
-  },
-  x: {
-    createShareXPostUrl: {
-      fn: createXSharePostUrl,
-      paramsSchema: xCreateShareXPostUrlParamsSchema,
-      outputSchema: xCreateShareXPostUrlOutputSchema,
     },
   },
   gong: {
