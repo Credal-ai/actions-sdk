@@ -1,4 +1,4 @@
-import type { AuthParamsType } from "../../../autogen/types";
+import type { AuthParamsType } from "../../../autogen/types.js";
 import type { Connection } from "snowflake-sdk";
 import { createConnection } from "snowflake-sdk";
 import * as forge from "node-forge";

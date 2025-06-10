@@ -3,7 +3,7 @@ import type {
   jamfGetJamfFileVaultRecoveryKeyFunction,
   jamfGetJamfFileVaultRecoveryKeyOutputType,
   jamfGetJamfFileVaultRecoveryKeyParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient";
 
 const getJamfFileVaultRecoveryKey: jamfGetJamfFileVaultRecoveryKeyFunction = async ({

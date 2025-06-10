@@ -5,7 +5,7 @@ import type {
   oktaListMFAFunction,
   oktaListMFAOutputType,
   oktaListMFAParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient";
 
 const listMFA: oktaListMFAFunction = async ({

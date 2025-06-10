@@ -4,7 +4,7 @@ import type {
   googleOauthDeleteCalendarEventFunction,
   googleOauthDeleteCalendarEventOutputType,
   googleOauthDeleteCalendarEventParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
 
 const deleteCalendarEvent: googleOauthDeleteCalendarEventFunction = async ({

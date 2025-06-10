@@ -5,7 +5,7 @@ import type {
   oktaRemoveUserFromGroupFunction,
   oktaRemoveUserFromGroupOutputType,
   oktaRemoveUserFromGroupParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient";
 
 const removeUserFromGroup: oktaRemoveUserFromGroupFunction = async ({

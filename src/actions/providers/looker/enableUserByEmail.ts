@@ -3,8 +3,8 @@ import type {
   lookerEnableUserByEmailFunction,
   lookerEnableUserByEmailParamsType,
   lookerEnableUserByEmailOutputType,
-} from "../../autogen/types";
-import { axiosClient } from "../../util/axiosClient";
+} from "../../autogen/types.js";
+import { axiosClient } from "../../util/axiosClient.js";
 
 const enableUserByEmail: lookerEnableUserByEmailFunction = async ({
   params,

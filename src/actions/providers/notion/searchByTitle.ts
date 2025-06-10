@@ -3,8 +3,8 @@ import type {
   notionSearchByTitleFunction,
   notionSearchByTitleOutputType,
   notionSearchByTitleParamsType,
-} from "../../autogen/types";
-import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
+} from "../../autogen/types.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import axios from "axios";
 
 interface NotionResult {

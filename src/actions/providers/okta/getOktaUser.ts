@@ -4,7 +4,7 @@ import type {
   oktaGetOktaUserParamsType,
   oktaGetOktaUserOutputType,
   oktaGetOktaUserFunction,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient";
 
 const getOktaUser: oktaGetOktaUserFunction = async ({

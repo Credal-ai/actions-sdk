@@ -1,10 +1,10 @@
-import { microsoftUpdateSpreadsheetDefinition } from "../../autogen/templates";
+import { microsoftUpdateSpreadsheetDefinition } from "../../autogen/templates.js";
 import type {
   AuthParamsType,
   microsoftUpdateSpreadsheetFunction,
   microsoftUpdateSpreadsheetOutputType,
   microsoftUpdateSpreadsheetParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 import { getGraphClient } from "./utils.js";
 
 const updateSpreadsheet: microsoftUpdateSpreadsheetFunction = async ({

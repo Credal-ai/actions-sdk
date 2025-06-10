@@ -5,7 +5,7 @@ import type {
   oktaListOktaUsersFunction,
   oktaListOktaUsersOutputType,
   oktaListOktaUsersParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient";
 
 // page limit default in Okta documentation

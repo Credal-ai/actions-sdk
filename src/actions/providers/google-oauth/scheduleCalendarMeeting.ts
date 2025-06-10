@@ -4,7 +4,7 @@ import type {
   googleOauthScheduleCalendarMeetingFunction,
   googleOauthScheduleCalendarMeetingOutputType,
   googleOauthScheduleCalendarMeetingParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
 

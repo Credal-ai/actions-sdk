@@ -3,7 +3,7 @@ import type {
   salesforceUpdateRecordFunction,
   salesforceUpdateRecordOutputType,
   salesforceUpdateRecordParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient";
 
 const updateRecord: salesforceUpdateRecordFunction = async ({

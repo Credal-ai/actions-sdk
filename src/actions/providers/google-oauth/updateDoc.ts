@@ -4,7 +4,7 @@ import type {
   googleOauthUpdateDocFunction,
   googleOauthUpdateDocParamsType,
   googleOauthUpdateDocOutputType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
 
 /**

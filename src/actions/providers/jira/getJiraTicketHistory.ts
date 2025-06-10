@@ -3,7 +3,7 @@ import type {
   jiraGetJiraTicketHistoryFunction,
   jiraGetJiraTicketHistoryOutputType,
   jiraGetJiraTicketHistoryParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient";
 
 const getJiraTicketHistory: jiraGetJiraTicketHistoryFunction = async ({

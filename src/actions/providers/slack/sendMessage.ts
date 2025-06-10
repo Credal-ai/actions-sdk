@@ -5,7 +5,7 @@ import {
   type slackSendMessageParamsType,
   type AuthParamsType,
   slackSendMessageOutputSchema,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 import { getSlackChannels } from "./helpers.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
 

@@ -4,7 +4,7 @@ import type {
   googlemailListGmailThreadsFunction,
   googlemailListGmailThreadsOutputType,
   googlemailListGmailThreadsParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
 import { getEmailContent } from "../google-oauth/utils/decodeMessage.js";
 

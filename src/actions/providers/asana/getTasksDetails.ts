@@ -3,10 +3,10 @@ import type {
   asanaGetTasksDetailsFunction,
   asanaGetTasksDetailsOutputType,
   asanaGetTasksDetailsParamsType,
-} from "../../autogen/types";
-import { asanaGetTasksDetailsOutputSchema } from "../../autogen/types";
-import { axiosClient } from "../../util/axiosClient";
-import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
+} from "../../autogen/types.js";
+import { asanaGetTasksDetailsOutputSchema } from "../../autogen/types.js";
+import { axiosClient } from "../../util/axiosClient.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 // Define interfaces for better type safety
 interface AsanaStoryResponse {

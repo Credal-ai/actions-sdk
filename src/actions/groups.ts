@@ -103,8 +103,8 @@ import {
   oktaResetPasswordDefinition,
   oktaResetMFADefinition,
   oktaListMFADefinition,
-} from "../actions/autogen/templates.js";
-import type { ActionTemplate } from "../actions/parse.js";
+} from "./autogen/templates.js";
+import type { ActionTemplate } from "./parse.js";
 
 export type ActionGroups = Record<string, { description: string; actions: ActionTemplate[] }>;
 

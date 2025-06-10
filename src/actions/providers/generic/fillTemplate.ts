@@ -2,7 +2,7 @@ import type {
   genericFillTemplateFunction,
   genericFillTemplateOutputType,
   genericFillTemplateParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 
 const fillTemplate: genericFillTemplateFunction = async ({
   params,

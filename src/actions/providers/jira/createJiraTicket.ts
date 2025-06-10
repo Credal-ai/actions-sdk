@@ -3,7 +3,7 @@ import type {
   jiraCreateJiraTicketFunction,
   jiraCreateJiraTicketOutputType,
   jiraCreateJiraTicketParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient";
 import { getUserAccountIdFromEmail } from "./utils.js";
 

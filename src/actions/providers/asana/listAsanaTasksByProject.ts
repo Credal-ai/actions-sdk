@@ -5,8 +5,8 @@ import type {
   asanaListAsanaTasksByProjectOutputType,
   asanaListAsanaTasksByProjectParamsType,
   asanaListAsanaTasksByProjectFunction,
-} from "../../autogen/types";
-import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
+} from "../../autogen/types.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 const TaskSchema = z
   .object({

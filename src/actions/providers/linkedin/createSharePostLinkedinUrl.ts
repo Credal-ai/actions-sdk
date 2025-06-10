@@ -3,7 +3,7 @@ import type {
   linkedinCreateShareLinkedinPostUrlFunction,
   linkedinCreateShareLinkedinPostUrlParamsType,
   linkedinCreateShareLinkedinPostUrlOutputType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 
 const createShareLinkedinPostUrl: linkedinCreateShareLinkedinPostUrlFunction = ({
   params,

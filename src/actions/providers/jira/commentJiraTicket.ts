@@ -3,7 +3,7 @@ import type {
   jiraCommentJiraTicketFunction,
   jiraCommentJiraTicketOutputType,
   jiraCommentJiraTicketParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient";
 
 const commentJiraTicket: jiraCommentJiraTicketFunction = async ({

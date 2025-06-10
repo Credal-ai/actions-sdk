@@ -4,7 +4,7 @@ import type {
   googleOauthSearchDriveByKeywordsFunction,
   googleOauthSearchDriveByKeywordsOutputType,
   googleOauthSearchDriveByKeywordsParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
 
 const searchDriveByKeywords: googleOauthSearchDriveByKeywordsFunction = async ({

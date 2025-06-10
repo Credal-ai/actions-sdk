@@ -5,7 +5,7 @@ import type {
   oktaResetPasswordFunction,
   oktaResetPasswordOutputType,
   oktaResetPasswordParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient";
 
 const resetPassword: oktaResetPasswordFunction = async ({

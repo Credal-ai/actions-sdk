@@ -3,7 +3,7 @@ import type {
   jiraGetJiraIssuesByQueryFunction,
   jiraGetJiraIssuesByQueryOutputType,
   jiraGetJiraIssuesByQueryParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 import { ApiError, axiosClient } from "../../util/axiosClient";
 
 const DEFAULT_LIMIT = 1000;

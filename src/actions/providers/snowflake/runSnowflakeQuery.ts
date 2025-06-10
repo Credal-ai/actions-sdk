@@ -4,9 +4,9 @@ import type {
   snowflakeRunSnowflakeQueryFunction,
   snowflakeRunSnowflakeQueryOutputType,
   snowflakeRunSnowflakeQueryParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 import { connectToSnowflakeAndWarehouse, getSnowflakeConnection } from "./auth/getSnowflakeConnection.js";
-import { formatDataForCodeInterpreter } from "../../util/formatDataForCodeInterpreter";
+import { formatDataForCodeInterpreter } from "../../util/formatDataForCodeInterpreter.js";
 
 snowflake.configure({ logLevel: "ERROR" });
 

@@ -3,7 +3,7 @@ import type {
   salesforceGenerateSalesReportFunction,
   salesforceGenerateSalesReportOutputType,
   salesforceGenerateSalesReportParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient";
 
 const generateSalesReport: salesforceGenerateSalesReportFunction = async ({

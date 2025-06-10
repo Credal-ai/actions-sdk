@@ -1,4 +1,4 @@
-import type { googlemailListGmailThreadsParamsType } from "../../src/actions/autogen/types";
+import type { googlemailListGmailThreadsParamsType } from "../../src/actions/autogen/types.js";
 import { runAction } from "../../src/app";
 import assert from "node:assert";
 

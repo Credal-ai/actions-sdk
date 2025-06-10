@@ -3,7 +3,7 @@ import type {
   xCreateShareXPostUrlFunction,
   xCreateShareXPostUrlParamsType,
   xCreateShareXPostUrlOutputType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 
 const createXSharePostUrl: xCreateShareXPostUrlFunction = ({
   params,

@@ -1,6 +1,6 @@
 import { Client } from "@microsoft/microsoft-graph-client";
-import { axiosClient } from "../../util/axiosClient";
-import type { AuthParamsType } from "../../autogen/types";
+import { axiosClient } from "../../util/axiosClient.js";
+import type { AuthParamsType } from "../../autogen/types.js";
 
 export async function getGraphClient(authParams: AuthParamsType, scope: string): Promise<Client> {
   if (

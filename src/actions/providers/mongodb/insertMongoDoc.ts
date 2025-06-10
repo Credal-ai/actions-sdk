@@ -4,7 +4,7 @@ import type {
   mongoInsertMongoDocFunction,
   mongoInsertMongoDocOutputType,
   mongoInsertMongoDocParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 
 const insertMongoDoc: mongoInsertMongoDocFunction = async ({
   params,

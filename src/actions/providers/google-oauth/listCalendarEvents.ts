@@ -5,7 +5,7 @@ import type {
   googleOauthListCalendarEventsFunction,
   googleOauthListCalendarEventsOutputType,
   googleOauthListCalendarEventsParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
 
 const listCalendarEvents: googleOauthListCalendarEventsFunction = async ({

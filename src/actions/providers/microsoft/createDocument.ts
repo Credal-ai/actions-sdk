@@ -1,10 +1,10 @@
-import { microsoftCreateDocumentDefinition } from "../../autogen/templates";
+import { microsoftCreateDocumentDefinition } from "../../autogen/templates.js";
 import type {
   AuthParamsType,
   microsoftCreateDocumentFunction,
   microsoftCreateDocumentOutputType,
   microsoftCreateDocumentParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 import { getGraphClient, validateAndSanitizeFileName } from "./utils.js";
 
 const createDocument: microsoftCreateDocumentFunction = async ({

@@ -1,10 +1,10 @@
-import { microsoftUpdateDocumentDefinition } from "../../autogen/templates";
+import { microsoftUpdateDocumentDefinition } from "../../autogen/templates.js";
 import type {
   AuthParamsType,
   microsoftUpdateDocumentFunction,
   microsoftUpdateDocumentOutputType,
   microsoftUpdateDocumentParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 import { getGraphClient } from "./utils.js";
 
 const updateDocument: microsoftUpdateDocumentFunction = async ({

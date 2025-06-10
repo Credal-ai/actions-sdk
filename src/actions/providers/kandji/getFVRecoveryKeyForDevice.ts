@@ -3,7 +3,7 @@ import {
   type kandjiGetFVRecoveryKeyForDeviceOutputType,
   type AuthParamsType,
   type kandjiGetFVRecoveryKeyForDeviceFunction,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient";
 
 type User = {
