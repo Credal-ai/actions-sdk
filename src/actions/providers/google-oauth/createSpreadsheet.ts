@@ -5,7 +5,7 @@ import type {
   googleOauthCreateSpreadsheetParamsType,
   googleOauthCreateSpreadsheetOutputType,
 } from "../../autogen/types.js";
-import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 /**
  * Creates a new Google Spreadsheet using OAuth authentication

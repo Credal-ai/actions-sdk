@@ -1,4 +1,4 @@
-import { runAction } from "../../src/app";
+import { runAction } from "../../src/app.js";
 import assert from "node:assert";
 
 // Test with token from: https://developers.google.com/oauthplayground/

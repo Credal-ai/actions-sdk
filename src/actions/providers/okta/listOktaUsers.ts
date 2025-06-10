@@ -6,7 +6,7 @@ import type {
   oktaListOktaUsersOutputType,
   oktaListOktaUsersParamsType,
 } from "../../autogen/types.js";
-import { axiosClient } from "../../util/axiosClient";
+import { axiosClient } from "../../util/axiosClient.js";
 
 // page limit default in Okta documentation
 // https://developer.okta.com/docs/api/openapi/okta-management/management/tag/User/#tag/User/operation/listUsers

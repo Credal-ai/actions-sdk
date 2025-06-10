@@ -4,7 +4,7 @@ import type {
   salesforceUpdateRecordOutputType,
   salesforceUpdateRecordParamsType,
 } from "../../autogen/types.js";
-import { axiosClient } from "../../util/axiosClient";
+import { axiosClient } from "../../util/axiosClient.js";
 
 const updateRecord: salesforceUpdateRecordFunction = async ({
   params,

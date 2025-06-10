@@ -1,5 +1,5 @@
 import assert from "assert";
-import { runAction } from "../../src/app";
+import { runAction } from "../../src/app.js";
 
 async function runTest() {
   console.log("Running test for Confluence fetchPageContent");

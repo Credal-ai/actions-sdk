@@ -1,7 +1,7 @@
 import assert from "node:assert";
 import axios, { AxiosError } from "axios";
 import dotenv from "dotenv";
-import { runAction } from "../../src/app"; // Import runAction
+import { runAction } from "../../src/app.js"; // Import runAction
 
 dotenv.config(); // Load .env file
 

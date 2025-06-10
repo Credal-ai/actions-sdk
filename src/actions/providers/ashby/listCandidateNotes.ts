@@ -5,8 +5,8 @@ import type {
   AuthParamsType,
 } from "../../autogen/types.js";
 
-import { axiosClient } from "../../util/axiosClient";
-import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
+import { axiosClient } from "../../util/axiosClient.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 const listCandidateNotes: ashbyListCandidateNotesFunction = async ({
   params,
   authParams,

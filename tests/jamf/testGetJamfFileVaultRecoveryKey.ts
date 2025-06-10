@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { runAction } from "../../src/app";
+import { runAction } from "../../src/app.js";
 
 async function runTest() {
   const subdomain = "insert-during-testing"; // Replace with your actual subdomain

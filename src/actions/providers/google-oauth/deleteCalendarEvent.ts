@@ -1,11 +1,11 @@
-import { axiosClient } from "../../util/axiosClient";
+import { axiosClient } from "../../util/axiosClient.js";
 import type {
   AuthParamsType,
   googleOauthDeleteCalendarEventFunction,
   googleOauthDeleteCalendarEventOutputType,
   googleOauthDeleteCalendarEventParamsType,
 } from "../../autogen/types.js";
-import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 const deleteCalendarEvent: googleOauthDeleteCalendarEventFunction = async ({
   params,

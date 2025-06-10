@@ -1,11 +1,11 @@
-import { axiosClient } from "../../util/axiosClient";
+import { axiosClient } from "../../util/axiosClient.js";
 import type {
   AuthParamsType,
   googlemailListGmailThreadsFunction,
   googlemailListGmailThreadsOutputType,
   googlemailListGmailThreadsParamsType,
 } from "../../autogen/types.js";
-import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import { getEmailContent } from "../google-oauth/utils/decodeMessage.js";
 
 const listGmailThreads: googlemailListGmailThreadsFunction = async ({

@@ -4,7 +4,7 @@ import type {
   jiraGetJiraTicketDetailsOutputType,
   jiraGetJiraTicketDetailsParamsType,
 } from "../../autogen/types.js";
-import { axiosClient } from "../../util/axiosClient";
+import { axiosClient } from "../../util/axiosClient.js";
 
 const getJiraTicketDetails: jiraGetJiraTicketDetailsFunction = async ({
   params,

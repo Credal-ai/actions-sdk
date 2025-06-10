@@ -5,7 +5,7 @@ import type {
   googleOauthUpdateDocParamsType,
   googleOauthUpdateDocOutputType,
 } from "../../autogen/types.js";
-import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 /**
  * Updates an existing Google Docs document using OAuth authentication with batch requests

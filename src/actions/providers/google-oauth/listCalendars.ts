@@ -1,4 +1,4 @@
-import { axiosClient } from "../../util/axiosClient";
+import { axiosClient } from "../../util/axiosClient.js";
 import type { AxiosResponse } from "axios";
 import type {
   AuthParamsType,
@@ -6,7 +6,7 @@ import type {
   googleOauthListCalendarsOutputType,
   googleOauthListCalendarsParamsType,
 } from "../../autogen/types.js";
-import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 const listCalendars: googleOauthListCalendarsFunction = async ({
   params,

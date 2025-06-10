@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { runAction } from "../../src/app";
+import { runAction } from "../../src/app.js";
 
 async function runTest() {
   // Note: This test requires a valid FIRECRAWL_API_KEY in your environment variables

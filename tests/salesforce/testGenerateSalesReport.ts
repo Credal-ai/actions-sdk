@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { runAction } from "../../src/app";
+import { runAction } from "../../src/app.js";
 import { authenticateWithJWT } from "./utils";
 import dotenv from "dotenv";
 

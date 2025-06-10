@@ -4,7 +4,7 @@ import type {
   salesforceCreateRecordOutputType,
   salesforceCreateRecordParamsType,
 } from "../../autogen/types.js";
-import { ApiError, axiosClient } from "../../util/axiosClient";
+import { ApiError, axiosClient } from "../../util/axiosClient.js";
 
 const createRecord: salesforceCreateRecordFunction = async ({
   params,

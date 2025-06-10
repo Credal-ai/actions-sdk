@@ -1,4 +1,4 @@
-import { runAction } from "../../src/app";
+import { runAction } from "../../src/app.js";
 
 async function runTest() {
   await runAction(

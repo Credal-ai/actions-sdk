@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { runAction } from "../../src/app";
+import { runAction } from "../../src/app.js";
 
 async function runTest() {
   const fullParams = {

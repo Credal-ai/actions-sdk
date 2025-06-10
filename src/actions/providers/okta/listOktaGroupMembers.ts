@@ -6,7 +6,7 @@ import type {
   oktaListOktaGroupMembersOutputType,
   oktaListOktaGroupMembersParamsType,
 } from "../../autogen/types.js";
-import { axiosClient } from "../../util/axiosClient";
+import { axiosClient } from "../../util/axiosClient.js";
 
 // page limit recommended by Okta documentation
 // https://developer.okta.com/docs/api/openapi/okta-management/management/tag/Group/#tag/Group/operation/listGroupUsers

@@ -1,4 +1,4 @@
-import { runAction } from "../../src/app";
+import { runAction } from "../../src/app.js";
 
 /**
  * Test for updating a Confluence page

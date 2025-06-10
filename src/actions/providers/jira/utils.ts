@@ -1,5 +1,5 @@
 import type { AxiosError } from "axios";
-import { axiosClient } from "../../util/axiosClient";
+import { axiosClient } from "../../util/axiosClient.js";
 
 export async function getUserAccountIdFromEmail(
   email: string,

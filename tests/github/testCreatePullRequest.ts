@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import assert from "node:assert";
-import { runAction } from "../../src/app";
+import { runAction } from "../../src/app.js";
 
 dotenv.config();
 
