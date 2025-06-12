@@ -1,4 +1,5 @@
 import { ActionMapper } from "./actionMapper.js";
+import { ProviderName } from "./autogen/types.js";
 
 interface InvokeActionInput<P, A> {
   provider: string;
@@ -10,7 +11,7 @@ interface InvokeActionInput<P, A> {
 export async function invokeAction<P, A>(input: InvokeActionInput<P, A>) {
   const { provider, name, parameters, authParams } = input;
 
-  if (!ActionMapper[provider]) {
+  if (!isProviderName(provider)) {
     throw new Error(`Provider '${provider}' not found`);
   }
   const providerFunction = ActionMapper[provider][name].fn;
@@ -21,4 +22,8 @@ export async function invokeAction<P, A>(input: InvokeActionInput<P, A>) {
   }
 
   return providerFunction({ params: parameters, authParams });
+}
+
+function isProviderName(value: string): value is ProviderName {
+  return Object.values(ProviderName).includes(value as ProviderName);
 }

@@ -209,6 +209,7 @@ import {
   oktaResetMFAOutputSchema,
   oktaListMFAParamsSchema,
   oktaListMFAOutputSchema,
+  type ProviderName,
 } from "./autogen/types.js";
 import validateAddress from "./providers/googlemaps/validateAddress.js";
 import add from "./providers/math/add.js";
@@ -295,9 +296,6 @@ import getTasksDetails from "./providers/asana/getTasksDetails.js";
 import searchByTitle from "./providers/notion/searchByTitle.js";
 import searchGmailMessages from "./providers/googlemail/searchGmailMessages.js";
 import listGmailThreads from "./providers/googlemail/listGmailThreads.js";
-// import listCalendarEvents from "./providers/google-oauth/listCalendarEvents";
-// import updateCalendarEvent from "./providers/google-oauth/updateCalendarEvent";
-// import deleteCalendarEvent from "./providers/google-oauth/deleteCalendarEvent";
 import listGroups from "./providers/google-oauth/listGroups.js";
 import getGroup from "./providers/google-oauth/getGroup.js";
 import listGroupMembers from "./providers/google-oauth/listGroupMembers.js";
@@ -325,7 +323,7 @@ interface ActionFunctionComponents {
   outputSchema: z.ZodSchema;
 }
 
-export const ActionMapper: Record<string, Record<string, ActionFunctionComponents>> = {
+export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionComponents>> = {
   generic: {
     fillTemplate: {
       fn: fillTemplate,
@@ -613,16 +611,6 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       paramsSchema: googleOauthSearchDriveByKeywordsParamsSchema,
       outputSchema: googleOauthSearchDriveByKeywordsOutputSchema,
     },
-    searchGmailMessages: {
-      fn: searchGmailMessages,
-      paramsSchema: googlemailSearchGmailMessagesParamsSchema,
-      outputSchema: googlemailSearchGmailMessagesOutputSchema,
-    },
-    listGmailThreads: {
-      fn: listGmailThreads,
-      paramsSchema: googlemailListGmailThreadsParamsSchema,
-      outputSchema: googlemailListGmailThreadsOutputSchema,
-    },
     listCalendars: {
       fn: listCalendars,
       paramsSchema: googleOauthListCalendarsParamsSchema,
@@ -672,6 +660,18 @@ export const ActionMapper: Record<string, Record<string, ActionFunctionComponent
       fn: deleteGroupMember,
       paramsSchema: googleOauthDeleteGroupMemberParamsSchema,
       outputSchema: googleOauthDeleteGroupMemberOutputSchema,
+    },
+  },
+  googlemail: {
+    searchGmailMessages: {
+      fn: searchGmailMessages,
+      paramsSchema: googlemailSearchGmailMessagesParamsSchema,
+      outputSchema: googlemailSearchGmailMessagesOutputSchema,
+    },
+    listGmailThreads: {
+      fn: listGmailThreads,
+      paramsSchema: googlemailListGmailThreadsParamsSchema,
+      outputSchema: googlemailListGmailThreadsOutputSchema,
     },
   },
   x: {
