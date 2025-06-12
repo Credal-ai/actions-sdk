@@ -34,7 +34,6 @@ export function getSnowflakeConnection(
       username: username,
       authenticator: "OAUTH",
       token: authToken,
-      role: "CREDAL_READ",
       warehouse: warehouse,
       database: database,
     });
@@ -46,7 +45,6 @@ export function getSnowflakeConnection(
       username: username,
       privateKey: privateKeyCorrectFormatString,
       authenticator: "SNOWFLAKE_JWT",
-      role: "CREDAL_READ",
       warehouse: warehouse,
       database: database,
     });

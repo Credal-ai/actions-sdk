@@ -45,11 +45,15 @@ const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
     return { formattedData: formattedData, resultsLength: fullResultLength };
   };
 
+  if (!authParams.username) {
+    throw new Error("Snowflake username is required in authParams.");
+  }
+
   // Set up a connection using snowflake-sdk
   const connection = getSnowflakeConnection(
     {
       account: accountName,
-      username: authParams.username || "CREDAL_USER",
+      username: authParams.username,
       warehouse: warehouse,
       database: databaseName,
     },
