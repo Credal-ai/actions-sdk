@@ -105,6 +105,9 @@ import {
   oktaResetPasswordDefinition,
   oktaResetMFADefinition,
   oktaListMFADefinition,
+  jamfGetJamfUserComputerIdDefinition,
+  jamfLockJamfComputerByIdDefinition,
+  jamfRestartJamfComputerByIdDefinition,
 } from "./autogen/templates.js";
 import type { ActionTemplate } from "./parse.js";
 
@@ -247,7 +250,13 @@ export const ACTION_GROUPS: ActionGroups = {
   },
   JAMF: {
     description: "Actions for interacting with Jamf",
-    actions: [jamfGetJamfComputerInventoryDefinition, jamfGetJamfFileVaultRecoveryKeyDefinition],
+    actions: [
+      jamfGetJamfComputerInventoryDefinition,
+      jamfGetJamfFileVaultRecoveryKeyDefinition,
+      jamfGetJamfUserComputerIdDefinition,
+      jamfLockJamfComputerByIdDefinition,
+      jamfRestartJamfComputerByIdDefinition,
+    ],
   },
   LOOKER: {
     description: "Actions for interacting with Looker",
