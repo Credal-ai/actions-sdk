@@ -939,6 +939,7 @@ export type snowflakeGetRowByFieldValueFunction = ActionFunction<
 export const snowflakeRunSnowflakeQueryParamsSchema = z.object({
   databaseName: z.string().describe("The name of the database to query"),
   warehouse: z.string().describe("The warehouse to use for executing the query"),
+  role: z.string().describe("The snowflake role to use for executing the query").optional(),
   query: z.string().describe("The SQL query to execute"),
   accountName: z.string().describe("The name of the Snowflake account"),
   outputFormat: z.enum(["json", "csv"]).describe("The format of the output").optional(),

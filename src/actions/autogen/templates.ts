@@ -1709,6 +1709,10 @@ export const snowflakeRunSnowflakeQueryDefinition: ActionTemplate = {
         type: "string",
         description: "The warehouse to use for executing the query",
       },
+      role: {
+        type: "string",
+        description: "The snowflake role to use for executing the query",
+      },
       query: {
         type: "string",
         description: "The SQL query to execute",
