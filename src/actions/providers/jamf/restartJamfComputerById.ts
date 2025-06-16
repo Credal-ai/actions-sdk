@@ -34,7 +34,7 @@ const restartJamfComputerById: jamfRestartJamfComputerByIdFunction = async ({
       success: true,
     };
   } catch (error) {
-    console.error("Error retrieving Jamf user computer ID: ", error);
+    console.error("Error restarting Jamf computer: ", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
