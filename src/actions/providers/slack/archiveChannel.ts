@@ -4,8 +4,8 @@ import type {
   slackArchiveChannelFunction,
   slackArchiveChannelParamsType,
   slackArchiveChannelOutputType,
-} from "../../autogen/types";
-import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
+} from "../../autogen/types.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 const archiveChannel: slackArchiveChannelFunction = async ({
   params,

@@ -4,8 +4,8 @@ import type {
   slackCreateChannelFunction,
   slackCreateChannelParamsType,
   slackCreateChannelOutputType,
-} from "../../autogen/types";
-import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants";
+} from "../../autogen/types.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 const createChannel: slackCreateChannelFunction = async ({
   params,
