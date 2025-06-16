@@ -8454,3 +8454,97 @@ export const jamfGetJamfComputerInventoryDefinition: ActionTemplate = {
   name: "getJamfComputerInventory",
   provider: "jamf",
 };
+export const jamfGetJamfUserComputerIdDefinition: ActionTemplate = {
+  description: "Retrieves the computer ID associated with a Jamf user",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["userEmail"],
+    properties: {
+      userEmail: {
+        type: "string",
+        description: "The email of the Jamf user to retrieve the computer ID for",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the request was successful",
+      },
+      computerId: {
+        type: "string",
+        description: "The computer ID associated with the user",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the request failed",
+      },
+    },
+  },
+  name: "getJamfUserComputerId",
+  provider: "jamf",
+};
+export const jamfLockJamfComputerByIdDefinition: ActionTemplate = {
+  description: "Locks a Jamf computer by its ID",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["computerId"],
+    properties: {
+      computerId: {
+        type: "string",
+        description: "The computer ID of the device to lock",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the lock command was successful",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the lock command failed",
+      },
+    },
+  },
+  name: "lockJamfComputerById",
+  provider: "jamf",
+};
+export const jamfRestartJamfComputerByIdDefinition: ActionTemplate = {
+  description: "Restarts a Jamf computer by its ID",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["computerId"],
+    properties: {
+      computerId: {
+        type: "string",
+        description: "The computer ID of the device to restart",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the restart command was successful",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the restart command failed",
+      },
+    },
+  },
+  name: "restartJamfComputerById",
+  provider: "jamf",
+};
