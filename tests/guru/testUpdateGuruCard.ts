@@ -10,8 +10,19 @@ async function runTest() {
     return;
   }
 
-  // This test assumes there's a card with this ID - in real usage you'd create one first
-  const testCardId = "8fc891e9-129b-4931-8371-875d6832de3a";
+  // Create a test card first to ensure we have something to update
+  const createResult = await runAction(
+    "createGuruCard",
+    "guru",
+    { authToken: process.env.GURU_TOKEN },
+    {
+      title: `Test Card for Update - ${new Date().toISOString()}`,
+      content: "This card was created for testing the update functionality.",
+      collectionId: "3fe4f6a6-9d61-4886-8729-7ead3f5e079d"
+    }
+  );
+
+  const testCardId = createResult.id;
 
   const result = await runAction(
     "updateGuruCard",
