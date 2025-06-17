@@ -31,6 +31,7 @@ export enum ProviderName {
   GITHUB = "github",
   NOTION = "notion",
   JAMF = "jamf",
+  GURU = "guru",
 }
 
 export type ActionFunction<P, A, O> = (input: { params: P; authParams: A }) => Promise<O>;
@@ -4422,4 +4423,76 @@ export type jamfLockJamfComputerByIdFunction = ActionFunction<
   jamfLockJamfComputerByIdParamsType,
   AuthParamsType,
   jamfLockJamfComputerByIdOutputType
+>;
+
+export const guruSearchGuruCardsParamsSchema = z.object({
+  query: z.string().describe("Free-text query"),
+  collectionId: z.string().nullable().describe("Optional collection ID to filter search results").optional(),
+  limit: z.number().int().gte(1).lte(50).describe("Maximum number of results to return").default(20),
+});
+
+export type guruSearchGuruCardsParamsType = z.infer<typeof guruSearchGuruCardsParamsSchema>;
+
+export const guruSearchGuruCardsOutputSchema = z.object({
+  results: z.array(
+    z.object({
+      id: z.string().describe("The unique identifier of the Guru card"),
+      url: z.string().describe("The URL to view the Guru card"),
+      title: z.string().describe("The title of the Guru card"),
+      excerpt: z.string().describe("A brief excerpt or summary of the card content"),
+    }),
+  ),
+});
+
+export type guruSearchGuruCardsOutputType = z.infer<typeof guruSearchGuruCardsOutputSchema>;
+export type guruSearchGuruCardsFunction = ActionFunction<
+  guruSearchGuruCardsParamsType,
+  AuthParamsType,
+  guruSearchGuruCardsOutputType
+>;
+
+export const guruCreateGuruCardParamsSchema = z.object({
+  title: z.string().describe("The title of the new Guru card"),
+  content: z.string().describe("The content/body of the new Guru card"),
+  collectionId: z.string().describe("The collection ID where the card should be created"),
+  tags: z.array(z.string()).nullable().describe("Optional tags to add to the card").optional(),
+});
+
+export type guruCreateGuruCardParamsType = z.infer<typeof guruCreateGuruCardParamsSchema>;
+
+export const guruCreateGuruCardOutputSchema = z.object({
+  id: z.string().describe("The unique identifier of the created Guru card"),
+  url: z.string().describe("The URL to view the created Guru card"),
+  title: z.string().describe("The title of the created Guru card"),
+  excerpt: z.string().describe("A brief excerpt or summary of the card content"),
+});
+
+export type guruCreateGuruCardOutputType = z.infer<typeof guruCreateGuruCardOutputSchema>;
+export type guruCreateGuruCardFunction = ActionFunction<
+  guruCreateGuruCardParamsType,
+  AuthParamsType,
+  guruCreateGuruCardOutputType
+>;
+
+export const guruUpdateGuruCardParamsSchema = z.object({
+  cardId: z.string().describe("The unique identifier of the card to update"),
+  title: z.string().nullable().describe("The new title for the card (optional)").optional(),
+  content: z.string().nullable().describe("The new content for the card (optional)").optional(),
+  tags: z.array(z.string()).nullable().describe("Tags to update on the card (optional)").optional(),
+});
+
+export type guruUpdateGuruCardParamsType = z.infer<typeof guruUpdateGuruCardParamsSchema>;
+
+export const guruUpdateGuruCardOutputSchema = z.object({
+  id: z.string().describe("The unique identifier of the updated Guru card"),
+  url: z.string().describe("The URL to view the updated Guru card"),
+  title: z.string().describe("The title of the updated Guru card"),
+  excerpt: z.string().describe("A brief excerpt or summary of the card content"),
+});
+
+export type guruUpdateGuruCardOutputType = z.infer<typeof guruUpdateGuruCardOutputSchema>;
+export type guruUpdateGuruCardFunction = ActionFunction<
+  guruUpdateGuruCardParamsType,
+  AuthParamsType,
+  guruUpdateGuruCardOutputType
 >;
