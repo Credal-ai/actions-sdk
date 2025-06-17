@@ -107,7 +107,6 @@ import {
   oktaListMFADefinition,
   jamfGetJamfUserComputerIdDefinition,
   jamfLockJamfComputerByIdDefinition,
-  jamfRestartJamfComputerByIdDefinition,
 } from "./autogen/templates.js";
 import type { ActionTemplate } from "./parse.js";
 
@@ -255,7 +254,6 @@ export const ACTION_GROUPS: ActionGroups = {
       jamfGetJamfFileVaultRecoveryKeyDefinition,
       jamfGetJamfUserComputerIdDefinition,
       jamfLockJamfComputerByIdDefinition,
-      jamfRestartJamfComputerByIdDefinition,
     ],
   },
   LOOKER: {

@@ -8493,11 +8493,15 @@ export const jamfLockJamfComputerByIdDefinition: ActionTemplate = {
   scopes: [],
   parameters: {
     type: "object",
-    required: ["computerId"],
+    required: ["computerId", "passcode"],
     properties: {
       computerId: {
         type: "string",
         description: "The computer ID of the device to lock",
+      },
+      passcode: {
+        type: "string",
+        description: "Six digit passcode to unlock the computer afterwards",
       },
     },
   },
@@ -8516,35 +8520,5 @@ export const jamfLockJamfComputerByIdDefinition: ActionTemplate = {
     },
   },
   name: "lockJamfComputerById",
-  provider: "jamf",
-};
-export const jamfRestartJamfComputerByIdDefinition: ActionTemplate = {
-  description: "Restarts a Jamf computer by its ID",
-  scopes: [],
-  parameters: {
-    type: "object",
-    required: ["computerId"],
-    properties: {
-      computerId: {
-        type: "string",
-        description: "The computer ID of the device to restart",
-      },
-    },
-  },
-  output: {
-    type: "object",
-    required: ["success"],
-    properties: {
-      success: {
-        type: "boolean",
-        description: "Whether the restart command was successful",
-      },
-      error: {
-        type: "string",
-        description: "Error message if the restart command failed",
-      },
-    },
-  },
-  name: "restartJamfComputerById",
   provider: "jamf",
 };

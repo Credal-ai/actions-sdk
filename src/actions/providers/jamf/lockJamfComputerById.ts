@@ -14,7 +14,7 @@ const lockJamfComputerById: jamfLockJamfComputerByIdFunction = async ({
   authParams: AuthParamsType;
 }): Promise<jamfLockJamfComputerByIdOutputType> => {
   const { authToken, subdomain } = authParams;
-  const { computerId } = params;
+  const { computerId, passcode } = params;
 
   if (!subdomain || !authToken) {
     throw new Error("Instance and authToken are required to fetch Jamf user computer ID");
@@ -23,12 +23,18 @@ const lockJamfComputerById: jamfLockJamfComputerByIdFunction = async ({
   const url = `https://${subdomain}.jamfcloud.com`;
 
   try {
-    await axiosClient.post(`${url}/api/command/v1/computers/${computerId}/lock`, {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-        Accept: "application/json",
+    await axiosClient.post(
+      `${url}/JSSResource/computercommands/command/DeviceLock/id/${computerId}`,
+      {
+        passcode,
       },
-    });
+      {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          Accept: "application/json",
+        },
+      },
+    );
 
     return {
       success: true,

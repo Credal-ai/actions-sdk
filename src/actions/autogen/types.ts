@@ -4407,6 +4407,7 @@ export type jamfGetJamfUserComputerIdFunction = ActionFunction<
 
 export const jamfLockJamfComputerByIdParamsSchema = z.object({
   computerId: z.string().describe("The computer ID of the device to lock"),
+  passcode: z.string().describe("Six digit passcode to unlock the computer afterwards"),
 });
 
 export type jamfLockJamfComputerByIdParamsType = z.infer<typeof jamfLockJamfComputerByIdParamsSchema>;
@@ -4421,22 +4422,4 @@ export type jamfLockJamfComputerByIdFunction = ActionFunction<
   jamfLockJamfComputerByIdParamsType,
   AuthParamsType,
   jamfLockJamfComputerByIdOutputType
->;
-
-export const jamfRestartJamfComputerByIdParamsSchema = z.object({
-  computerId: z.string().describe("The computer ID of the device to restart"),
-});
-
-export type jamfRestartJamfComputerByIdParamsType = z.infer<typeof jamfRestartJamfComputerByIdParamsSchema>;
-
-export const jamfRestartJamfComputerByIdOutputSchema = z.object({
-  success: z.boolean().describe("Whether the restart command was successful"),
-  error: z.string().describe("Error message if the restart command failed").optional(),
-});
-
-export type jamfRestartJamfComputerByIdOutputType = z.infer<typeof jamfRestartJamfComputerByIdOutputSchema>;
-export type jamfRestartJamfComputerByIdFunction = ActionFunction<
-  jamfRestartJamfComputerByIdParamsType,
-  AuthParamsType,
-  jamfRestartJamfComputerByIdOutputType
 >;

@@ -218,8 +218,6 @@ import {
   jamfGetJamfUserComputerIdOutputSchema,
   jamfLockJamfComputerByIdParamsSchema,
   jamfLockJamfComputerByIdOutputSchema,
-  jamfRestartJamfComputerByIdParamsSchema,
-  jamfRestartJamfComputerByIdOutputSchema,
 } from "./autogen/types.js";
 import validateAddress from "./providers/googlemaps/validateAddress.js";
 import add from "./providers/math/add.js";
@@ -329,7 +327,6 @@ import createChannel from "./providers/slack/createChannel.js";
 import archiveChannel from "./providers/slack/archiveChannel.js";
 import getJamfUserComputerId from "./providers/jamf/getJamfUserComputerId.js";
 import lockJamfComputerById from "./providers/jamf/lockJamfComputerById.js";
-import restartJamfComputerById from "./providers/jamf/restartJamfComputerById.js";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -398,11 +395,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: lockJamfComputerById,
       paramsSchema: jamfLockJamfComputerByIdParamsSchema,
       outputSchema: jamfLockJamfComputerByIdOutputSchema,
-    },
-    restartJamfComputerById: {
-      fn: restartJamfComputerById,
-      paramsSchema: jamfRestartJamfComputerByIdParamsSchema,
-      outputSchema: jamfRestartJamfComputerByIdOutputSchema,
     },
   },
   math: {

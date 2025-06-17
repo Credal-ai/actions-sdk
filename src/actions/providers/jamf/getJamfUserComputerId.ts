@@ -42,8 +42,8 @@ const getJamfUserComputerId: jamfGetJamfUserComputerIdFunction = async ({
       },
     });
 
-    const filteredComputers: Computer[] = (computers.data as Computer[]).filter(
-      computer => computer.userAndLocation.email === userEmail,
+    const filteredComputers: Computer[] = (computers.data.results as Computer[]).filter(
+      computer => computer.userAndLocation?.email === userEmail,
     );
 
     if (filteredComputers.length === 0) {

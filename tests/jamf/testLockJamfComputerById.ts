@@ -19,6 +19,7 @@ async function runTest() {
     },
     {
         computerId: "insert-during-test", // Replace with a valid computer ID for testing
+        passcode: "insert-during-test", // Replace with a valid passcode for testing
     },
   );
 
