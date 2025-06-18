@@ -13,7 +13,7 @@ const UserSchema = z
     id: z.string(),
     firstName: z.string(),
     lastName: z.string(),
-    title: z.string(),
+    title: z.string().nullable(),
     emailAddress: z.string(),
   })
   .partial()
