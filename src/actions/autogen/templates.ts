@@ -8522,3 +8522,172 @@ export const jamfLockJamfComputerByIdDefinition: ActionTemplate = {
   name: "lockJamfComputerById",
   provider: "jamf",
 };
+export const guruSearchGuruCardsDefinition: ActionTemplate = {
+  description: "Search Guru knowledge-base cards by text or tag.",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["query"],
+    properties: {
+      query: {
+        type: "string",
+        description: "Free-text query",
+      },
+      collectionId: {
+        type: "string",
+        nullable: true,
+        description: "Optional collection ID to filter search results",
+      },
+      limit: {
+        type: "integer",
+        default: 20,
+        minimum: 1,
+        maximum: 50,
+        description: "Maximum number of results to return",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["results"],
+    properties: {
+      results: {
+        type: "array",
+        items: {
+          type: "object",
+          required: ["id", "url", "title", "excerpt"],
+          properties: {
+            id: {
+              type: "string",
+              description: "The unique identifier of the Guru card",
+            },
+            url: {
+              type: "string",
+              description: "The URL to view the Guru card",
+            },
+            title: {
+              type: "string",
+              description: "The title of the Guru card",
+            },
+            excerpt: {
+              type: "string",
+              description: "A brief excerpt or summary of the card content",
+            },
+          },
+        },
+      },
+    },
+  },
+  name: "searchGuruCards",
+  provider: "guru",
+};
+export const guruCreateGuruCardDefinition: ActionTemplate = {
+  description: "Create a new Guru card.",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["title", "content", "collectionId"],
+    properties: {
+      title: {
+        type: "string",
+        description: "The title of the new Guru card",
+      },
+      content: {
+        type: "string",
+        description: "The content/body of the new Guru card",
+      },
+      collectionId: {
+        type: "string",
+        description: "The collection ID where the card should be created",
+      },
+      tags: {
+        type: "array",
+        items: {
+          type: "string",
+        },
+        nullable: true,
+        description: "Optional tags to add to the card",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["id", "url", "title", "excerpt"],
+    properties: {
+      id: {
+        type: "string",
+        description: "The unique identifier of the created Guru card",
+      },
+      url: {
+        type: "string",
+        description: "The URL to view the created Guru card",
+      },
+      title: {
+        type: "string",
+        description: "The title of the created Guru card",
+      },
+      excerpt: {
+        type: "string",
+        description: "A brief excerpt or summary of the card content",
+      },
+    },
+  },
+  name: "createGuruCard",
+  provider: "guru",
+};
+export const guruUpdateGuruCardDefinition: ActionTemplate = {
+  description: "Update an existing Guru card.",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["cardId"],
+    properties: {
+      cardId: {
+        type: "string",
+        description: "The unique identifier of the card to update",
+      },
+      title: {
+        type: "string",
+        nullable: true,
+        description: "The new title for the card (optional)",
+      },
+      content: {
+        type: "string",
+        nullable: true,
+        description: "The new content for the card (optional)",
+      },
+      tags: {
+        type: "array",
+        items: {
+          type: "string",
+        },
+        nullable: true,
+        description: "Tags to update on the card (optional)",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["id", "url", "title", "excerpt"],
+    properties: {
+      id: {
+        type: "string",
+        description: "The unique identifier of the updated Guru card",
+      },
+      url: {
+        type: "string",
+        description: "The URL to view the updated Guru card",
+      },
+      title: {
+        type: "string",
+        description: "The title of the updated Guru card",
+      },
+      excerpt: {
+        type: "string",
+        description: "A brief excerpt or summary of the card content",
+      },
+    },
+  },
+  name: "updateGuruCard",
+  provider: "guru",
+};

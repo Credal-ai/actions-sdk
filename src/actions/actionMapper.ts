@@ -218,6 +218,12 @@ import {
   jamfGetJamfUserComputerIdOutputSchema,
   jamfLockJamfComputerByIdParamsSchema,
   jamfLockJamfComputerByIdOutputSchema,
+  guruSearchGuruCardsParamsSchema,
+  guruSearchGuruCardsOutputSchema,
+  guruCreateGuruCardParamsSchema,
+  guruCreateGuruCardOutputSchema,
+  guruUpdateGuruCardParamsSchema,
+  guruUpdateGuruCardOutputSchema,
 } from "./autogen/types.js";
 import validateAddress from "./providers/googlemaps/validateAddress.js";
 import add from "./providers/math/add.js";
@@ -327,6 +333,9 @@ import createChannel from "./providers/slack/createChannel.js";
 import archiveChannel from "./providers/slack/archiveChannel.js";
 import getJamfUserComputerId from "./providers/jamf/getJamfUserComputerId.js";
 import lockJamfComputerById from "./providers/jamf/lockJamfComputerById.js";
+import searchGuruCards from "./providers/guru/searchCards.js";
+import createGuruCard from "./providers/guru/createCard.js";
+import updateGuruCard from "./providers/guru/updateCard.js";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -934,6 +943,23 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: listMFA,
       paramsSchema: oktaListMFAParamsSchema,
       outputSchema: oktaListMFAOutputSchema,
+    },
+  },
+  guru: {
+    searchGuruCards: {
+      fn: searchGuruCards,
+      paramsSchema: guruSearchGuruCardsParamsSchema,
+      outputSchema: guruSearchGuruCardsOutputSchema,
+    },
+    createGuruCard: {
+      fn: createGuruCard,
+      paramsSchema: guruCreateGuruCardParamsSchema,
+      outputSchema: guruCreateGuruCardOutputSchema,
+    },
+    updateGuruCard: {
+      fn: updateGuruCard,
+      paramsSchema: guruUpdateGuruCardParamsSchema,
+      outputSchema: guruUpdateGuruCardOutputSchema,
     },
   },
 };

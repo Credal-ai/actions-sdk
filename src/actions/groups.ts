@@ -107,6 +107,9 @@ import {
   oktaListMFADefinition,
   jamfGetJamfUserComputerIdDefinition,
   jamfLockJamfComputerByIdDefinition,
+  guruSearchGuruCardsDefinition,
+  guruCreateGuruCardDefinition,
+  guruUpdateGuruCardDefinition,
 } from "./autogen/templates.js";
 import type { ActionTemplate } from "./parse.js";
 
@@ -339,5 +342,9 @@ export const ACTION_GROUPS: ActionGroups = {
       oktaResetMFADefinition,
       oktaListMFADefinition,
     ],
+  },
+  GURU: {
+    description: "Actions for interacting with Guru knowledge base",
+    actions: [guruSearchGuruCardsDefinition, guruCreateGuruCardDefinition, guruUpdateGuruCardDefinition],
   },
 };
