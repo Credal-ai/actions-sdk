@@ -3559,6 +3559,31 @@ export type oktaResetPasswordFunction = ActionFunction<
   oktaResetPasswordOutputType
 >;
 
+export const oktaTriggerOktaWorkflowParamsSchema = z.object({
+  httpTriggerCard: z
+    .string()
+    .describe("The unique URL path, which is created when a Workflow HTTP Connector card is configured."),
+  workflowParameters: z
+    .record(z.string())
+    .describe("A key,value pair where the keys are the input variables the values are the values of those fields.")
+    .optional(),
+});
+
+export type oktaTriggerOktaWorkflowParamsType = z.infer<typeof oktaTriggerOktaWorkflowParamsSchema>;
+
+export const oktaTriggerOktaWorkflowOutputSchema = z.object({
+  success: z.boolean().describe("Whether the workflow was successfully triggered."),
+  output: z.object({}).catchall(z.any()).describe("The output of the triggered workflow, if applicable.").optional(),
+  error: z.string().describe("Error message if the workflow trigger failed.").optional(),
+});
+
+export type oktaTriggerOktaWorkflowOutputType = z.infer<typeof oktaTriggerOktaWorkflowOutputSchema>;
+export type oktaTriggerOktaWorkflowFunction = ActionFunction<
+  oktaTriggerOktaWorkflowParamsType,
+  AuthParamsType,
+  oktaTriggerOktaWorkflowOutputType
+>;
+
 export const gongGetGongTranscriptsParamsSchema = z.object({
   userRole: z.string().describe("The role of users whose transcripts are being fetched"),
   trackers: z

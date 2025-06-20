@@ -6901,6 +6901,48 @@ export const oktaResetPasswordDefinition: ActionTemplate = {
   name: "resetPassword",
   provider: "okta",
 };
+export const oktaTriggerOktaWorkflowDefinition: ActionTemplate = {
+  description: "Trigger an Okta workflow for a specific user.",
+  scopes: ["okta.workflows.manage"],
+  parameters: {
+    type: "object",
+    required: ["httpTriggerCard"],
+    properties: {
+      httpTriggerCard: {
+        type: "string",
+        description: "The unique URL path, which is created when a Workflow HTTP Connector card is configured.",
+      },
+      workflowParameters: {
+        type: "object",
+        description:
+          "A key,value pair where the keys are the input variables the values are the values of those fields.",
+        additionalProperties: {
+          type: "string",
+        },
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the workflow was successfully triggered.",
+      },
+      output: {
+        type: "object",
+        description: "The output of the triggered workflow, if applicable.",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the workflow trigger failed.",
+      },
+    },
+  },
+  name: "triggerOktaWorkflow",
+  provider: "okta",
+};
 export const gongGetGongTranscriptsDefinition: ActionTemplate = {
   description: "Get sales call transcripts from Gong",
   scopes: [],
