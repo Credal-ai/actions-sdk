@@ -5,9 +5,9 @@ import dotenv from "dotenv";
 dotenv.config(); // Load .env file
 
 async function runTest() {
-  const oktaAuthToken = process.env.OKTA_AUTH_TOKEN;
-  const oktaDomain = process.env.OKTA_DOMAIN; // e.g., https://yourdomain.okta.com
-  const testHttpTriggerCard = process.env.OKTA_TEST_HTTP_TRIGGER_CARD;
+  const oktaAuthToken = "insert-during-test";
+  const oktaDomain = "insert-during-test"; // e.g., https://yourdomain.okta.com
+  const testHttpTriggerCard = "insert-during-test";
 
   if (!oktaAuthToken || !oktaDomain || !testHttpTriggerCard) {
     console.warn(

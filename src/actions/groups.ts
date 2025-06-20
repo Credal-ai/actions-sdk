@@ -107,6 +107,7 @@ import {
   oktaListMFADefinition,
   jamfGetJamfUserComputerIdDefinition,
   jamfLockJamfComputerByIdDefinition,
+  oktaTriggerOktaWorkflowDefinition,
 } from "./autogen/templates.js";
 import type { ActionTemplate } from "./parse.js";
 
@@ -338,6 +339,7 @@ export const ACTION_GROUPS: ActionGroups = {
       oktaResetPasswordDefinition,
       oktaResetMFADefinition,
       oktaListMFADefinition,
+      oktaTriggerOktaWorkflowDefinition,
     ],
   },
 };

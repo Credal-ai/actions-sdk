@@ -8,7 +8,7 @@ import type {
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
 
-const triggerWorkflow: oktaTriggerOktaWorkflowFunction = async ({
+const triggerOktaWorkflow: oktaTriggerOktaWorkflowFunction = async ({
   authParams,
   params,
 }: {
@@ -60,4 +60,4 @@ const triggerWorkflow: oktaTriggerOktaWorkflowFunction = async ({
   }
 };
 
-export default triggerWorkflow;
+export default triggerOktaWorkflow;

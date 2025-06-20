@@ -218,6 +218,8 @@ import {
   jamfGetJamfUserComputerIdOutputSchema,
   jamfLockJamfComputerByIdParamsSchema,
   jamfLockJamfComputerByIdOutputSchema,
+  oktaTriggerOktaWorkflowParamsSchema,
+  oktaTriggerOktaWorkflowOutputSchema,
 } from "./autogen/types.js";
 import validateAddress from "./providers/googlemaps/validateAddress.js";
 import add from "./providers/math/add.js";
@@ -327,6 +329,8 @@ import createChannel from "./providers/slack/createChannel.js";
 import archiveChannel from "./providers/slack/archiveChannel.js";
 import getJamfUserComputerId from "./providers/jamf/getJamfUserComputerId.js";
 import lockJamfComputerById from "./providers/jamf/lockJamfComputerById.js";
+import triggerWorkflow from "./providers/okta/triggerOktaWorkflow.js";
+import triggerOktaWorkflow from "./providers/okta/triggerOktaWorkflow.js";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -934,6 +938,11 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: listMFA,
       paramsSchema: oktaListMFAParamsSchema,
       outputSchema: oktaListMFAOutputSchema,
+    },
+    triggerOktaWorkflow: {
+      fn: triggerOktaWorkflow,
+      paramsSchema: oktaTriggerOktaWorkflowParamsSchema,
+      outputSchema: oktaTriggerOktaWorkflowOutputSchema,
     },
   },
 };
