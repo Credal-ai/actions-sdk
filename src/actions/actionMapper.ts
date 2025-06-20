@@ -329,7 +329,6 @@ import createChannel from "./providers/slack/createChannel.js";
 import archiveChannel from "./providers/slack/archiveChannel.js";
 import getJamfUserComputerId from "./providers/jamf/getJamfUserComputerId.js";
 import lockJamfComputerById from "./providers/jamf/lockJamfComputerById.js";
-import triggerWorkflow from "./providers/okta/triggerOktaWorkflow.js";
 import triggerOktaWorkflow from "./providers/okta/triggerOktaWorkflow.js";
 
 interface ActionFunctionComponents {

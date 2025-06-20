@@ -18,8 +18,8 @@ const triggerOktaWorkflow: oktaTriggerOktaWorkflowFunction = async ({
   const { authToken, subdomain } = authParams;
   const { httpTriggerCard, workflowParameters } = params;
 
-  if (!httpTriggerCard) {
-    return { success: false, error: "Missing httpTriggerCard in params." };
+  if (!authToken || !subdomain) {
+    return { success: false, error: "Missing authToken or subdomain in authParams." };
   }
 
   try {
