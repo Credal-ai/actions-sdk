@@ -3560,9 +3560,7 @@ export type oktaResetPasswordFunction = ActionFunction<
 >;
 
 export const oktaTriggerOktaWorkflowParamsSchema = z.object({
-  httpTriggerCard: z
-    .string()
-    .describe("The unique URL path, which is created when a Workflow HTTP Connector card is configured."),
+  workflowId: z.string().describe("The unique ID of the workflow"),
   workflowParameters: z
     .record(z.string())
     .describe("A key,value pair where the keys are the input variables the values are the values of those fields.")

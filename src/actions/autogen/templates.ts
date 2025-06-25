@@ -6906,11 +6906,11 @@ export const oktaTriggerOktaWorkflowDefinition: ActionTemplate = {
   scopes: ["okta.workflows.manage"],
   parameters: {
     type: "object",
-    required: ["httpTriggerCard"],
+    required: ["workflowId"],
     properties: {
-      httpTriggerCard: {
+      workflowId: {
         type: "string",
-        description: "The unique URL path, which is created when a Workflow HTTP Connector card is configured.",
+        description: "The unique ID of the workflow",
       },
       workflowParameters: {
         type: "object",

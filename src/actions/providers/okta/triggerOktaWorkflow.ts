@@ -16,7 +16,7 @@ const triggerOktaWorkflow: oktaTriggerOktaWorkflowFunction = async ({
   params: oktaTriggerOktaWorkflowParamsType;
 }): Promise<oktaTriggerOktaWorkflowOutputType> => {
   const { authToken, subdomain } = authParams;
-  const { httpTriggerCard, workflowParameters } = params;
+  const { workflowId, workflowParameters } = params;
 
   if (!authToken || !subdomain) {
     return { success: false, error: "Missing authToken or subdomain in authParams." };
@@ -31,7 +31,7 @@ const triggerOktaWorkflow: oktaTriggerOktaWorkflowFunction = async ({
       },
     };
 
-    const workflowUrl = `https://${subdomain}.okta.com/api/flo/https/${httpTriggerCard}`;
+    const workflowUrl = `https://${subdomain}.workflows.okta.com/api/flo/${workflowId}/invoke`;
 
     const response = await axiosClient.post(workflowUrl, workflowParameters || {}, requestConfig);
 
