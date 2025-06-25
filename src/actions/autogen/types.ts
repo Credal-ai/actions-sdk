@@ -31,6 +31,7 @@ export enum ProviderName {
   GITHUB = "github",
   NOTION = "notion",
   JAMF = "jamf",
+  GITLAB = "gitlab",
 }
 
 export type ActionFunction<P, A, O> = (input: { params: P; authParams: A }) => Promise<O>;
@@ -4447,4 +4448,81 @@ export type jamfLockJamfComputerByIdFunction = ActionFunction<
   jamfLockJamfComputerByIdParamsType,
   AuthParamsType,
   jamfLockJamfComputerByIdOutputType
+>;
+
+export const gitlabSearchGroupParamsSchema = z.object({
+  query: z.string().describe("The query that will be used to search gitlab blobs and merge requests"),
+  groupId: z.string().describe("The group ID of the project to search in"),
+});
+
+export type gitlabSearchGroupParamsType = z.infer<typeof gitlabSearchGroupParamsSchema>;
+
+export const gitlabSearchGroupOutputSchema = z.object({
+  mergeRequests: z
+    .array(
+      z.object({
+        metadata: z
+          .object({
+            id: z.number().describe("The ID of the merge request"),
+            iid: z.number().describe("The internal ID of the merge request"),
+            project_id: z.number().describe("The ID of the project the merge request belongs to"),
+            title: z.string().describe("The title of the merge request"),
+            web_url: z.string().describe("The URL of the merge request"),
+            description: z.string().describe("The description of the merge request").optional(),
+            author: z
+              .object({ name: z.string().describe("The name of the author").optional() })
+              .describe("The author of the merge request")
+              .optional(),
+            merged_at: z.string().describe("The date and time the merge request was merged").optional(),
+          })
+          .describe("The metadata of the merge request"),
+        diffs: z
+          .array(
+            z.object({
+              old_path: z.string().describe("The old path of the diff"),
+              new_path: z.string().describe("The new path of the diff"),
+              diff: z.string().describe("The contents of the diff"),
+              new_file: z.boolean().describe("Whether the diff is a new file"),
+              renamed_file: z.boolean().describe("Whether the diff is a renamed file"),
+              deleted_file: z.boolean().describe("Whether the diff is a deleted file"),
+              too_large: z.boolean().describe("Whether the diff is too large").optional(),
+            }),
+          )
+          .describe("A list of diffs that match the query"),
+      }),
+    )
+    .describe("A list of merge requests that match the query"),
+  blobs: z
+    .array(
+      z.object({
+        metadata: z.object({
+          path: z.string().describe("The path of the blob"),
+          basename: z.string().describe("The basename of the blob"),
+          data: z.string().describe("The data of the blob"),
+          project_id: z.number().describe("The ID of the project the blob belongs to"),
+          ref: z.string().describe("The ref of the blob"),
+          startline: z.number().describe("The start line of the blob"),
+          filename: z.string().describe("The filename of the blob"),
+        }),
+        matchedMergeRequests: z
+          .array(
+            z.object({
+              title: z.string().describe("The title of the merge request"),
+              web_url: z.string().describe("The URL of the merge request"),
+              author: z.object({}).catchall(z.any()).describe("The author of the merge request").optional(),
+              merged_at: z.string().describe("The date and time the merge request was merged").optional(),
+            }),
+          )
+          .describe("A list of merge requests that match the blob")
+          .optional(),
+      }),
+    )
+    .describe("A list of blobs that match the query"),
+});
+
+export type gitlabSearchGroupOutputType = z.infer<typeof gitlabSearchGroupOutputSchema>;
+export type gitlabSearchGroupFunction = ActionFunction<
+  gitlabSearchGroupParamsType,
+  AuthParamsType,
+  gitlabSearchGroupOutputType
 >;

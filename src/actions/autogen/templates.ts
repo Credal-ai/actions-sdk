@@ -8564,3 +8564,192 @@ export const jamfLockJamfComputerByIdDefinition: ActionTemplate = {
   name: "lockJamfComputerById",
   provider: "jamf",
 };
+export const gitlabSearchGroupDefinition: ActionTemplate = {
+  description: "Searches gitlab for details about a query",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["query", "groupId"],
+    properties: {
+      query: {
+        type: "string",
+        description: "The query that will be used to search gitlab blobs and merge requests",
+      },
+      groupId: {
+        type: "string",
+        description: "The group ID of the project to search in",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["mergeRequests", "blobs"],
+    properties: {
+      mergeRequests: {
+        type: "array",
+        description: "A list of merge requests that match the query",
+        items: {
+          type: "object",
+          required: ["metadata", "diffs"],
+          properties: {
+            metadata: {
+              type: "object",
+              required: ["id", "iid", "project_id", "title", "web_url"],
+              description: "The metadata of the merge request",
+              properties: {
+                id: {
+                  type: "number",
+                  description: "The ID of the merge request",
+                },
+                iid: {
+                  type: "number",
+                  description: "The internal ID of the merge request",
+                },
+                project_id: {
+                  type: "number",
+                  description: "The ID of the project the merge request belongs to",
+                },
+                title: {
+                  type: "string",
+                  description: "The title of the merge request",
+                },
+                web_url: {
+                  type: "string",
+                  description: "The URL of the merge request",
+                },
+                description: {
+                  type: "string",
+                  description: "The description of the merge request",
+                },
+                author: {
+                  type: "object",
+                  description: "The author of the merge request",
+                  properties: {
+                    name: {
+                      type: "string",
+                      description: "The name of the author",
+                    },
+                  },
+                },
+                merged_at: {
+                  type: "string",
+                  description: "The date and time the merge request was merged",
+                },
+              },
+            },
+            diffs: {
+              type: "array",
+              description: "A list of diffs that match the query",
+              items: {
+                type: "object",
+                required: ["old_path", "new_path", "diff", "new_file", "renamed_file", "deleted_file"],
+                properties: {
+                  old_path: {
+                    type: "string",
+                    description: "The old path of the diff",
+                  },
+                  new_path: {
+                    type: "string",
+                    description: "The new path of the diff",
+                  },
+                  diff: {
+                    type: "string",
+                    description: "The contents of the diff",
+                  },
+                  new_file: {
+                    type: "boolean",
+                    description: "Whether the diff is a new file",
+                  },
+                  renamed_file: {
+                    type: "boolean",
+                    description: "Whether the diff is a renamed file",
+                  },
+                  deleted_file: {
+                    type: "boolean",
+                    description: "Whether the diff is a deleted file",
+                  },
+                  too_large: {
+                    type: "boolean",
+                    description: "Whether the diff is too large",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      blobs: {
+        type: "array",
+        description: "A list of blobs that match the query",
+        items: {
+          type: "object",
+          required: ["metadata", "diffs"],
+          properties: {
+            metadata: {
+              type: "object",
+              required: ["path", "basename", "data", "project_id", "ref", "startline", "filename"],
+              properties: {
+                path: {
+                  type: "string",
+                  description: "The path of the blob",
+                },
+                basename: {
+                  type: "string",
+                  description: "The basename of the blob",
+                },
+                data: {
+                  type: "string",
+                  description: "The data of the blob",
+                },
+                project_id: {
+                  type: "number",
+                  description: "The ID of the project the blob belongs to",
+                },
+                ref: {
+                  type: "string",
+                  description: "The ref of the blob",
+                },
+                startline: {
+                  type: "number",
+                  description: "The start line of the blob",
+                },
+                filename: {
+                  type: "string",
+                  description: "The filename of the blob",
+                },
+              },
+            },
+            matchedMergeRequests: {
+              type: "array",
+              description: "A list of merge requests that match the blob",
+              items: {
+                type: "object",
+                required: ["title", "web_url"],
+                properties: {
+                  title: {
+                    type: "string",
+                    description: "The title of the merge request",
+                  },
+                  web_url: {
+                    type: "string",
+                    description: "The URL of the merge request",
+                  },
+                  author: {
+                    type: "object",
+                    description: "The author of the merge request",
+                  },
+                  merged_at: {
+                    type: "string",
+                    description: "The date and time the merge request was merged",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  name: "searchGroup",
+  provider: "gitlab",
+};
