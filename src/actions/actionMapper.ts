@@ -218,13 +218,10 @@ import {
   jamfGetJamfUserComputerIdOutputSchema,
   jamfLockJamfComputerByIdParamsSchema,
   jamfLockJamfComputerByIdOutputSchema,
-<<<<<<< Updated upstream
   oktaTriggerOktaWorkflowParamsSchema,
   oktaTriggerOktaWorkflowOutputSchema,
-=======
   gitlabSearchGroupOutputSchema,
   gitlabSearchGroupParamsSchema,
->>>>>>> Stashed changes
 } from "./autogen/types.js";
 import validateAddress from "./providers/googlemaps/validateAddress.js";
 import add from "./providers/math/add.js";
@@ -334,11 +331,8 @@ import createChannel from "./providers/slack/createChannel.js";
 import archiveChannel from "./providers/slack/archiveChannel.js";
 import getJamfUserComputerId from "./providers/jamf/getJamfUserComputerId.js";
 import lockJamfComputerById from "./providers/jamf/lockJamfComputerById.js";
-<<<<<<< Updated upstream
 import triggerOktaWorkflow from "./providers/okta/triggerOktaWorkflow.js";
-=======
 import searchGroup from "./providers/gitlab/searchGroup.js";
->>>>>>> Stashed changes
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
