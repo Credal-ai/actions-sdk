@@ -6,7 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
-const GITLAB_API_URL = "https://gitlab.com/api/v4";
+const GITLAB_API_URL = "https://gitlab.com";
 
 type GitLabSearchScope = "merge_requests" | "blobs";
 
@@ -66,13 +66,15 @@ async function gitlabFetch<T = unknown>(endpoint: string, authToken: string): Pr
   return res.json();
 }
 
-async function globalSearch<T>(
-  scope: GitLabSearchScope,
-  query: string,
-  groupId: string,
-  authToken: string,
-): Promise<T[]> {
-  const endpoint = `/groups/${groupId}/search?scope=${scope}&search=${encodeURIComponent(query)}`;
+async function globalSearch<T>(input: {
+  baseUrl: string;
+  scope: GitLabSearchScope;
+  query: string;
+  groupId: string;
+  authToken: string;
+}): Promise<T[]> {
+  const { scope, query, groupId, authToken, baseUrl } = input;
+  const endpoint = `${baseUrl}/api/v4/groups/${groupId}/search?scope=${scope}&search=${encodeURIComponent(query)}`;
   return gitlabFetch<T[]>(endpoint, authToken);
 }
 
@@ -91,7 +93,9 @@ const searchGroup: gitlabSearchGroupFunction = async ({
   params: gitlabSearchGroupParamsType;
   authParams: AuthParamsType;
 }): Promise<gitlabSearchGroupOutputType> => {
-  const { authToken } = authParams;
+  const { authToken, baseUrl } = authParams;
+
+  const gitlabBaseUrl = baseUrl ?? GITLAB_API_URL;
 
   if (!authToken) {
     throw new Error(MISSING_AUTH_TOKEN);
@@ -100,8 +104,8 @@ const searchGroup: gitlabSearchGroupFunction = async ({
   const { query, groupId } = params;
 
   const [mrResults, blobResults] = await Promise.all([
-    globalSearch<GitLabMergeRequest>("merge_requests", query, groupId, authToken),
-    globalSearch<GitLabBlob>("blobs", query, groupId, authToken),
+    globalSearch<GitLabMergeRequest>({ scope: "merge_requests", query, groupId, authToken, baseUrl: gitlabBaseUrl }),
+    globalSearch<GitLabBlob>({ scope: "blobs", query, groupId, authToken, baseUrl: gitlabBaseUrl }),
   ]);
 
   const mergeRequests: MergeRequestWithDiffs[] = await Promise.all(
