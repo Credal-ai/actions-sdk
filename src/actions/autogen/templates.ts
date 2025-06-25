@@ -8565,7 +8565,8 @@ export const jamfLockJamfComputerByIdDefinition: ActionTemplate = {
   provider: "jamf",
 };
 export const gitlabSearchGroupDefinition: ActionTemplate = {
-  description: "Searches gitlab for details about a query",
+  description:
+    "Searches gitlab for details about a query. This will return a list of merge requests and blobs that match the query.",
   scopes: [],
   parameters: {
     type: "object",
