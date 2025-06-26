@@ -59,7 +59,7 @@ interface GitLabBlobWithCorrelation {
 }
 
 async function gitlabFetch<T = unknown>(endpoint: string, authToken: string): Promise<T> {
-  const res = await fetch(`${GITLAB_API_URL}${endpoint}`, {
+  const res = await fetch(endpoint, {
     headers: { Authorization: `Bearer ${authToken}` },
   });
   if (!res.ok) throw new Error(`GitLab API error: ${res.status} ${res.statusText}`);
@@ -103,10 +103,14 @@ const searchGroup: gitlabSearchGroupFunction = async ({
 
   const { query, groupId } = params;
 
+  console.log("gitlabBaseUrl", gitlabBaseUrl);
+
   const [mrResults, blobResults] = await Promise.all([
     globalSearch<GitLabMergeRequest>({ scope: "merge_requests", query, groupId, authToken, baseUrl: gitlabBaseUrl }),
     globalSearch<GitLabBlob>({ scope: "blobs", query, groupId, authToken, baseUrl: gitlabBaseUrl }),
   ]);
+
+  console.log("mrResults", mrResults);
 
   const mergeRequests: MergeRequestWithDiffs[] = await Promise.all(
     mrResults.map(async metadata => {
