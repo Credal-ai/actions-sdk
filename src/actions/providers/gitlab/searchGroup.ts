@@ -103,14 +103,10 @@ const searchGroup: gitlabSearchGroupFunction = async ({
 
   const { query, groupId } = params;
 
-  console.log("gitlabBaseUrl", gitlabBaseUrl);
-
   const [mrResults, blobResults] = await Promise.all([
     globalSearch<GitLabMergeRequest>({ scope: "merge_requests", query, groupId, authToken, baseUrl: gitlabBaseUrl }),
     globalSearch<GitLabBlob>({ scope: "blobs", query, groupId, authToken, baseUrl: gitlabBaseUrl }),
   ]);
-
-  console.log("mrResults", mrResults);
 
   const mergeRequests: MergeRequestWithDiffs[] = await Promise.all(
     mrResults.map(async metadata => {
