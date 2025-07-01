@@ -3420,6 +3420,16 @@ export const googleOauthListCalendarEventsDefinition: ActionTemplate = {
         type: "integer",
         description: "Maximum number of events to return, defaults to 250",
       },
+      timeMin: {
+        type: "string",
+        description:
+          "Optional lower bound (exclusive) for an event's end time to filter by. Must be an RFC3339 timestamp with mandatory time zone offset, for example, 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z.",
+      },
+      timeMax: {
+        type: "string",
+        description:
+          "Optional upper bound (exclusive) for an event's start time to filter by. Must be an RFC3339 timestamp with mandatory time zone offset, for example, 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z.",
+      },
     },
   },
   output: {

@@ -19,7 +19,7 @@ const listCalendarEvents: googleOauthListCalendarEventsFunction = async ({
     return { success: false, error: MISSING_AUTH_TOKEN, events: [] };
   }
 
-  const { calendarId, query, maxResults } = params;
+  const { calendarId, query, maxResults, timeMin, timeMax } = params;
   const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`;
   const allEvents: googleOauthListCalendarEventsOutputType["events"] = [];
   let pageToken: string | undefined = undefined;
@@ -38,6 +38,8 @@ const listCalendarEvents: googleOauthListCalendarEventsFunction = async ({
           maxResults: Math.min(250, max - fetchedCount), // Google API max is 250
           singleEvents: true,
           orderBy: "startTime",
+          timeMin,
+          timeMax,
         },
       });
       const { items = [], nextPageToken = undefined } = res.data;
