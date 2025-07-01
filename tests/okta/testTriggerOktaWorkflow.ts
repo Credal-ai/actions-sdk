@@ -1,6 +1,7 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app.js";
 import dotenv from "dotenv";
+import { oktaTriggerOktaWorkflowParamsType } from "../../src/actions/autogen/types.js";
 
 dotenv.config(); // Load .env file
 
@@ -23,7 +24,7 @@ async function runTest() {
   console.log("Running Okta triggerWorkflow test...");
   
   // Test with workflow parameters
-  const testParams = {
+  const testParams: oktaTriggerOktaWorkflowParamsType = {
     workflowId,
     workflowParameters: {
       testParam1: "testValue1",
@@ -48,7 +49,7 @@ async function runTest() {
   // Test without workflow parameters
   console.log("Running Okta triggerWorkflow test without parameters...");
   
-  const testParamsWithoutWorkflowParams = {
+  const testParamsWithoutWorkflowParams: oktaTriggerOktaWorkflowParamsType = {
     workflowId,
   };
 
