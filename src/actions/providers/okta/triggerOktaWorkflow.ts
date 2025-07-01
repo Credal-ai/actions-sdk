@@ -1,12 +1,11 @@
 import type { AxiosRequestConfig } from "axios";
-import { AxiosError } from "axios";
 import type {
   AuthParamsType,
   oktaTriggerOktaWorkflowFunction,
   oktaTriggerOktaWorkflowOutputType,
   oktaTriggerOktaWorkflowParamsType,
 } from "../../autogen/types.js";
-import { axiosClient } from "../../util/axiosClient.js";
+import { ApiError, axiosClient } from "../../util/axiosClient.js";
 
 const triggerOktaWorkflow: oktaTriggerOktaWorkflowFunction = async ({
   authParams,
@@ -33,7 +32,7 @@ const triggerOktaWorkflow: oktaTriggerOktaWorkflowFunction = async ({
 
     const workflowUrl = `https://${subdomain}.workflows.okta.com/api/flo/${workflowId}/invoke`;
 
-    const response = await axiosClient.post(workflowUrl, workflowParameters || {}, requestConfig);
+    const response = await axiosClient.post(workflowUrl, workflowParameters ?? {}, requestConfig);
 
     if (response.status >= 200 && response.status < 300) {
       return { success: true, output: response.data };
@@ -43,15 +42,11 @@ const triggerOktaWorkflow: oktaTriggerOktaWorkflowFunction = async ({
       return { success: false, error: `Workflow trigger failed: ${errorDetail}` };
     }
   } catch (error) {
-    console.error("Error triggering Okta workflow:", error);
     let errorMessage = "Unknown error while triggering workflow";
 
-    if (error instanceof AxiosError && error.response) {
-      const workflowError = error.response.data;
-      errorMessage =
-        workflowError?.errorSummary ||
-        workflowError?.message ||
-        `Workflow request failed with status ${error.response.status}`;
+    if (error instanceof ApiError && error.data) {
+      const workflowError = error.data.error;
+      errorMessage = workflowError + ` Status: ${error.status}`;
     } else if (error instanceof Error) {
       errorMessage = error.message;
     }
