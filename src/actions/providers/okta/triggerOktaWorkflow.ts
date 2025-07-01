@@ -1,5 +1,4 @@
 import type { AxiosRequestConfig } from "axios";
-import { AxiosError } from "axios";
 import type {
   AuthParamsType,
   oktaTriggerOktaWorkflowFunction,
@@ -32,7 +31,7 @@ const triggerOktaWorkflow: oktaTriggerOktaWorkflowFunction = async ({
     };
 
     const workflowUrl = `https://${subdomain}.workflows.okta.com/api/flo/${workflowId}/invoke`;
-    
+
     const response = await axiosClient.post(workflowUrl, workflowParameters ?? {}, requestConfig);
 
     if (response.status >= 200 && response.status < 300) {
@@ -47,8 +46,9 @@ const triggerOktaWorkflow: oktaTriggerOktaWorkflowFunction = async ({
 
     if (error instanceof ApiError && error.data) {
       const workflowError = error.data.error;
-      errorMessage =
-        workflowError + ` Status: ${error.status}`;
+      errorMessage = workflowError + ` Status: ${error.status}`;
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
     }
 
     return { success: false, error: errorMessage };
