@@ -70,6 +70,7 @@ interface SearchIssueOrPullRequestResult {
   files?: CommitDiffFile[];
 }
 
+// Limits on the number of results to return
 const MAX_CODE_RESULTS = 15;
 const MAX_COMMITS = 10;
 const MAX_FILES_PER_COMMIT = 5;
