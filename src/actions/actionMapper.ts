@@ -222,6 +222,8 @@ import {
   oktaTriggerOktaWorkflowOutputSchema,
   gitlabSearchGroupOutputSchema,
   gitlabSearchGroupParamsSchema,
+  githubSearchRepositoryOutputSchema,
+  githubSearchRepositoryParamsSchema,
 } from "./autogen/types.js";
 import validateAddress from "./providers/googlemaps/validateAddress.js";
 import add from "./providers/math/add.js";
@@ -333,6 +335,7 @@ import getJamfUserComputerId from "./providers/jamf/getJamfUserComputerId.js";
 import lockJamfComputerById from "./providers/jamf/lockJamfComputerById.js";
 import triggerOktaWorkflow from "./providers/okta/triggerOktaWorkflow.js";
 import searchGroup from "./providers/gitlab/searchGroup.js";
+import searchRepository from "./providers/github/searchRepository.js";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -857,6 +860,11 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
     },
   },
   github: {
+    searchRepository: {
+      fn: searchRepository,
+      paramsSchema: githubSearchRepositoryParamsSchema,
+      outputSchema: githubSearchRepositoryOutputSchema,
+    },
     createOrUpdateFile: {
       fn: createOrUpdateFile,
       paramsSchema: githubCreateOrUpdateFileParamsSchema,
