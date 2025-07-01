@@ -5,11 +5,11 @@ import dotenv from "dotenv";
 dotenv.config(); // Load .env file
 
 async function runTest() {
-  const oktaAuthToken = "insert-during-test";
+  const oktaAuthToken = "insert-during-test"; //
   const oktaDomain = "insert-during-test"; // e.g., https://yourdomain.okta.com
-  const testHttpTriggerCard = "insert-during-test";
+  const workflowId = "insert-during-test";
 
-  if (!oktaAuthToken || !oktaDomain || !testHttpTriggerCard) {
+  if (!oktaAuthToken || !oktaDomain || !workflowId) {
     console.warn(
       "OKTA_AUTH_TOKEN, OKTA_DOMAIN, or OKTA_TEST_HTTP_TRIGGER_CARD environment variables are not set. Skipping Okta workflow trigger test."
     );
@@ -24,7 +24,7 @@ async function runTest() {
   
   // Test with workflow parameters
   const testParams = {
-    httpTriggerCard: testHttpTriggerCard,
+    workflowId,
     workflowParameters: {
       testParam1: "testValue1",
       testParam2: "testValue2",
@@ -49,7 +49,7 @@ async function runTest() {
   console.log("Running Okta triggerWorkflow test without parameters...");
   
   const testParamsWithoutWorkflowParams = {
-    httpTriggerCard: testHttpTriggerCard,
+    workflowId,
   };
 
   const resultWithoutParams = await runAction("triggerOktaWorkflow", "okta", authParams, testParamsWithoutWorkflowParams);
