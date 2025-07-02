@@ -85,13 +85,13 @@ const searchRepository: githubSearchRepositoryFunction = async ({
   params: githubSearchRepositoryParamsType;
   authParams: AuthParamsType;
 }): Promise<githubSearchRepositoryOutputType> => {
-  const { getOctokit } = await import("@actions/github");
+  const { Octokit } = await import("octokit");
 
   if (!authParams.authToken) {
     throw new Error(MISSING_AUTH_TOKEN);
   }
 
-  const octokit = getOctokit(authParams.authToken);
+  const octokit = new Octokit({ auth: authParams.authToken });
   const { organization, repository, query } = params;
 
   // Search CODE with text match metadata

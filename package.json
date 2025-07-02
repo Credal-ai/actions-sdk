@@ -1,6 +1,6 @@
 {
   "name": "@credal/actions",
-  "version": "0.2.28",
+  "version": "0.2.29",
   "type": "module",
   "description": "AI Actions by Credal AI",
   "sideEffects": false,
@@ -46,7 +46,6 @@
     "typescript-eslint": "^8.18.0"
   },
   "dependencies": {
-    "@actions/github": "^6.0.1",
     "@credal/sdk": "^0.0.21",
     "@mendable/firecrawl-js": "^1.24.0",
     "@microsoft/microsoft-graph-client": "^3.0.7",
