@@ -8386,7 +8386,7 @@ export const githubListPullRequestsDefinition: ActionTemplate = {
   provider: "github",
 };
 export const githubSearchRepositoryDefinition: ActionTemplate = {
-  description: "Search for repositories in a GitHub organization",
+  description: "Search for code, issues and pull requests within a repository in a GitHub organization",
   scopes: [],
   parameters: {
     type: "object",
