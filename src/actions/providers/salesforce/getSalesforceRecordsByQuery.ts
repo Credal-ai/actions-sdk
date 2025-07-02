@@ -26,10 +26,10 @@ const getSalesforceRecordsByQuery: salesforceGetSalesforceRecordsByQueryFunction
   // with parts of other words.
   const aggregateFunction = [" COUNT(", " SUM(", " AVG(", " MIN(", " MAX("];
   const containsAggregateFunction = aggregateFunction.some(func => query.toUpperCase().includes(func));
-
+  const maxLimit = 2000;
   // The API limits the maximum number of records returned to 2000, the limit lets the user set a smaller custom limit
   const url = `${baseUrl}/services/data/v56.0/queryAll?q=${encodeURIComponent(
-    containsAggregateFunction ? query : query + " LIMIT " + (limit != undefined && limit <= 2000 ? limit : 2000)
+    containsAggregateFunction ? query : query + " LIMIT " + (limit != undefined && limit <= maxLimit ? limit : maxLimit)
   )}`;
 
   try {
