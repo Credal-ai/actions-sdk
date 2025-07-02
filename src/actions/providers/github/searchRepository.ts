@@ -5,7 +5,6 @@ import type {
   githubSearchRepositoryParamsType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
-import * as github from "@actions/github";
 
 interface SearchCodeResult {
   name: string;
@@ -86,11 +85,13 @@ const searchRepository: githubSearchRepositoryFunction = async ({
   params: githubSearchRepositoryParamsType;
   authParams: AuthParamsType;
 }): Promise<githubSearchRepositoryOutputType> => {
+  const { getOctokit } = await import("@actions/github");
+
   if (!authParams.authToken) {
     throw new Error(MISSING_AUTH_TOKEN);
   }
 
-  const octokit = github.getOctokit(authParams.authToken);
+  const octokit = getOctokit(authParams.authToken);
   const { organization, repository, query } = params;
 
   // Search CODE with text match metadata
