@@ -96,7 +96,7 @@ const searchRepository: githubSearchRepositoryFunction = async ({
 
   // Search CODE with text match metadata
   const codeResultsResponse = await octokit.rest.search.code({
-    q: `${query} repo:${organization}/${repository}`,
+    q: `${query} in:file,path repo:${organization}/${repository}`,
     text_match: true,
     headers: {
       accept: "application/vnd.github.v3.text-match+json",
