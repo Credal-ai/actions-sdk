@@ -1,6 +1,6 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app.js";
-import { jiraConfig, provider } from "./utils";
+import { jiraConfig, provider } from "./utils.js";
 
 async function runTest() {
   const { authToken, cloudId, baseUrl, issueId } = jiraConfig;

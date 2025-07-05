@@ -8,5 +8,5 @@ export const jiraConfig = {
   assignee: "your-assignee-here",
 };
 
-export const provider = "jira";
-// export const provider = "jiraOrg";
+// export const provider = "jira";
+export const provider = "jiraOrg";
