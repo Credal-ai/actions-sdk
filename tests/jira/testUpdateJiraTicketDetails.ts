@@ -1,13 +1,13 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app.js";
-import { jiraConfig } from "./utils";
+import { jiraConfig, provider } from "./utils";
 
 async function runTest() {
   const { authToken, cloudId, baseUrl, issueId } = jiraConfig;
 
   const validResult = await runAction(
     "updateJiraTicketDetails",
-    "jira",
+    provider,
     {
       authToken,
       cloudId,
@@ -34,7 +34,7 @@ async function runTest() {
   // Partial update (only summary, no description/custom fields)
   const partialUpdateResult = await runAction(
     "updateJiraTicketDetails",
-    "jira",
+    provider,
     {
       authToken,
       cloudId,

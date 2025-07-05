@@ -1,13 +1,13 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app.js";
-import { jiraConfig } from "./utils";
+import { jiraConfig, provider } from "./utils";
 
 async function runTest() {
   const { authToken, cloudId, baseUrl, issueId } = jiraConfig;
 
   const result = await runAction(
     "getJiraTicketHistory",
-    "jira",
+    provider,
     {
       authToken,
       cloudId,
