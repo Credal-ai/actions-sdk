@@ -108,6 +108,14 @@ import {
   jamfGetJamfUserComputerIdDefinition,
   jamfLockJamfComputerByIdDefinition,
   oktaTriggerOktaWorkflowDefinition,
+  jiraOrgAssignJiraTicketDefinition,
+  jiraOrgCreateJiraTicketDefinition,
+  jiraOrgCommentJiraTicketDefinition,
+  jiraOrgGetJiraTicketDetailsDefinition,
+  jiraOrgGetJiraTicketHistoryDefinition,
+  jiraOrgUpdateJiraTicketDetailsDefinition,
+  jiraOrgUpdateJiraTicketStatusDefinition,
+  jiraOrgGetJiraIssuesByQueryDefinition,
 } from "./autogen/templates.js";
 import type { ActionTemplate } from "./parse.js";
 
@@ -214,6 +222,19 @@ export const ACTION_GROUPS: ActionGroups = {
       jiraUpdateJiraTicketDetailsDefinition,
       jiraUpdateJiraTicketStatusDefinition,
       jiraGetJiraIssuesByQueryDefinition,
+    ],
+  },
+  JIRA_ORG_ACTIONS: {
+    description: "Action for interacting with Jira tickets",
+    actions: [
+      jiraOrgAssignJiraTicketDefinition,
+      jiraOrgCreateJiraTicketDefinition,
+      jiraOrgCommentJiraTicketDefinition,
+      jiraOrgGetJiraTicketDetailsDefinition,
+      jiraOrgGetJiraTicketHistoryDefinition,
+      jiraOrgUpdateJiraTicketDetailsDefinition,
+      jiraOrgUpdateJiraTicketStatusDefinition,
+      jiraOrgGetJiraIssuesByQueryDefinition,
     ],
   },
   OPENSTREETMAP_GET_LATITUDE_LONGITUDE_FROM_LOCATION: {

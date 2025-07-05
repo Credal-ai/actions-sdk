@@ -519,7 +519,7 @@ actions:
           content:
             type: string
             description: The content of the page in storage format (HTML)
-  jira:
+  jira: &jira
     assignJiraTicket:
       description: Assigns/Re-assignes a Jira ticket to a specified user
       scopes:
@@ -767,6 +767,9 @@ actions:
           error:
             type: string
             description: The error that occurred if the records were not successfully retrieved
+
+  jiraOrg:
+    <<: *jira
 
   kandji:
     getFVRecoveryKeyForDevice:

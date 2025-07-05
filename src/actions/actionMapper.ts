@@ -344,6 +344,49 @@ interface ActionFunctionComponents {
   outputSchema: z.ZodSchema;
 }
 
+const jiraActions = {
+  getJiraIssuesByQuery: {
+    fn: getJiraIssuesByQuery,
+    paramsSchema: jiraGetJiraIssuesByQueryParamsSchema,
+    outputSchema: jiraGetJiraIssuesByQueryOutputSchema,
+  },
+  assignJiraTicket: {
+    fn: assignJiraTicket,
+    paramsSchema: jiraAssignJiraTicketParamsSchema,
+    outputSchema: jiraAssignJiraTicketOutputSchema,
+  },
+  commentJiraTicket: {
+    fn: commentJiraTicket,
+    paramsSchema: jiraCommentJiraTicketParamsSchema,
+    outputSchema: jiraCommentJiraTicketOutputSchema,
+  },
+  createJiraTicket: {
+    fn: createJiraTicket,
+    paramsSchema: jiraCreateJiraTicketParamsSchema,
+    outputSchema: jiraCreateJiraTicketOutputSchema,
+  },
+  getJiraTicketDetails: {
+    fn: getJiraTicketDetails,
+    paramsSchema: jiraGetJiraTicketDetailsParamsSchema,
+    outputSchema: jiraGetJiraTicketDetailsOutputSchema,
+  },
+  getJiraTicketHistory: {
+    fn: getJiraTicketHistory,
+    paramsSchema: jiraGetJiraTicketHistoryParamsSchema,
+    outputSchema: jiraGetJiraTicketHistoryOutputSchema,
+  },
+  updateJiraTicketDetails: {
+    fn: updateJiraTicketDetails,
+    paramsSchema: jiraUpdateJiraTicketDetailsParamsSchema,
+    outputSchema: jiraUpdateJiraTicketDetailsOutputSchema,
+  },
+  updateJiraTicketStatus: {
+    fn: updateJiraTicketStatus,
+    paramsSchema: jiraUpdateJiraTicketStatusParamsSchema,
+    outputSchema: jiraUpdateJiraTicketStatusOutputSchema,
+  },
+};
+
 export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionComponents>> = {
   generic: {
     fillTemplate: {
@@ -531,48 +574,8 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       outputSchema: linkedinCreateShareLinkedinPostUrlOutputSchema,
     },
   },
-  jira: {
-    getJiraIssuesByQuery: {
-      fn: getJiraIssuesByQuery,
-      paramsSchema: jiraGetJiraIssuesByQueryParamsSchema,
-      outputSchema: jiraGetJiraIssuesByQueryOutputSchema,
-    },
-    assignJiraTicket: {
-      fn: assignJiraTicket,
-      paramsSchema: jiraAssignJiraTicketParamsSchema,
-      outputSchema: jiraAssignJiraTicketOutputSchema,
-    },
-    commentJiraTicket: {
-      fn: commentJiraTicket,
-      paramsSchema: jiraCommentJiraTicketParamsSchema,
-      outputSchema: jiraCommentJiraTicketOutputSchema,
-    },
-    createJiraTicket: {
-      fn: createJiraTicket,
-      paramsSchema: jiraCreateJiraTicketParamsSchema,
-      outputSchema: jiraCreateJiraTicketOutputSchema,
-    },
-    getJiraTicketDetails: {
-      fn: getJiraTicketDetails,
-      paramsSchema: jiraGetJiraTicketDetailsParamsSchema,
-      outputSchema: jiraGetJiraTicketDetailsOutputSchema,
-    },
-    getJiraTicketHistory: {
-      fn: getJiraTicketHistory,
-      paramsSchema: jiraGetJiraTicketHistoryParamsSchema,
-      outputSchema: jiraGetJiraTicketHistoryOutputSchema,
-    },
-    updateJiraTicketDetails: {
-      fn: updateJiraTicketDetails,
-      paramsSchema: jiraUpdateJiraTicketDetailsParamsSchema,
-      outputSchema: jiraUpdateJiraTicketDetailsOutputSchema,
-    },
-    updateJiraTicketStatus: {
-      fn: updateJiraTicketStatus,
-      paramsSchema: jiraUpdateJiraTicketStatusParamsSchema,
-      outputSchema: jiraUpdateJiraTicketStatusOutputSchema,
-    },
-  },
+  jira: jiraActions,
+  jiraOrg: jiraActions,
   openstreetmap: {
     getLatitudeLongitudeFromLocation: {
       fn: getLatitudeLongitudeFromLocation,
