@@ -22,8 +22,9 @@ const searchSalesforceRecords: salesforceSearchSalesforceRecordsFunction = async
       error: "authToken and baseUrl are required for Salesforce API",
     };
   }
+  const maxLimit = 25;
   const url = `${baseUrl}/services/data/v64.0/search/?q=${encodeURIComponent(
-    `FIND {${keyword}} RETURNING ${recordType} (${fieldsToSearch.join(", ")})`,
+    `FIND {${keyword}} RETURNING ${recordType} (${fieldsToSearch.join(", ")}) LIMIT ${params.limit && params.limit <= maxLimit ? params.limit : maxLimit}`,
   )}`;
 
   try {
@@ -33,15 +34,17 @@ const searchSalesforceRecords: salesforceSearchSalesforceRecordsFunction = async
       },
     });
 
-    for (const record of response.data.searchRecords) {
-      if (record.Article_Body__c) {
-        record.Article_Body__c = record.Article_Body__c.replace(/<[^>]*>/g, "");
+    if (recordType === "Knowledge__kav") {
+      for (const record of response.data.searchRecords) {
+        if (record.Article_Body__c) {
+          record.Article_Body__c = record.Article_Body__c.replace(/<[^>]*>/g, "");
+        }
       }
     }
 
     return {
       success: true,
-      searchRecords: response.data,
+      searchRecords: response.data.searchRecords,
     };
   } catch (error) {
     console.error("Error retrieving Salesforce record:", error);

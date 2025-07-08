@@ -8425,6 +8425,10 @@ export const salesforceSearchSalesforceRecordsDefinition: ActionTemplate = {
           type: "string",
         },
       },
+      limit: {
+        type: "number",
+        description: "The maximum number of records to return",
+      },
     },
   },
   output: {

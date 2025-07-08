@@ -20,11 +20,11 @@ async function runTest() {
       keyword: "Health",
       recordType: "Account",
       fieldsToSearch: ["Name"],
+      limit: 1
     }
   );
-  console.log(regularQueryResult.searchRecords);
   assert.strictEqual(regularQueryResult.success, true);
-  console.log(regularQueryResult.searchRecords);
+  assert.equal(regularQueryResult.searchRecords.length, 1);
   console.log("All tests passed!");
 }
 

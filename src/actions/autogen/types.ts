@@ -4380,6 +4380,7 @@ export const salesforceSearchSalesforceRecordsParamsSchema = z.object({
   keyword: z.string().describe("The keyword to search for"),
   recordType: z.string().describe("The type of record to search for"),
   fieldsToSearch: z.array(z.string()).describe("The fields to search for the keyword"),
+  limit: z.number().describe("The maximum number of records to return").optional(),
 });
 
 export type salesforceSearchSalesforceRecordsParamsType = z.infer<typeof salesforceSearchSalesforceRecordsParamsSchema>;

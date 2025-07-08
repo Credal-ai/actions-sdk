@@ -5618,6 +5618,9 @@ actions:
             description: The fields to search for the keyword
             items:
               type: string
+          limit:
+            type: number
+            description: The maximum number of records to return
       output:
         type: object
         required: [success]
