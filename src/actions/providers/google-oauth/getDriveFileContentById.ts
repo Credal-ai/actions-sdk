@@ -1,0 +1,197 @@
+import { axiosClient } from "../../util/axiosClient.js";
+import mammoth from "mammoth";
+import PDFParser from "pdf2json";
+import type {
+  AuthParamsType,
+  googleOauthGetDriveFileContentByIdFunction,
+  googleOauthGetDriveFileContentByIdOutputType,
+  googleOauthGetDriveFileContentByIdParamsType,
+} from "../../autogen/types.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+
+const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = async ({
+  params,
+  authParams,
+}: {
+  params: googleOauthGetDriveFileContentByIdParamsType;
+  authParams: AuthParamsType;
+}): Promise<googleOauthGetDriveFileContentByIdOutputType> => {
+  if (!authParams.authToken) {
+    return { success: false, error: MISSING_AUTH_TOKEN };
+  }
+
+  const { fileId, limit } = params;
+
+  try {
+    // First, get file metadata to determine the file type
+    const metadataUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?fields=name,mimeType,size`;
+    const metadataRes = await axiosClient.get(metadataUrl, {
+      headers: {
+        Authorization: `Bearer ${authParams.authToken}`,
+      },
+    });
+
+    const { name: fileName, mimeType, size } = metadataRes.data;
+
+    // Check if file is too large (50MB limit for safety)
+    const maxFileSize = 50 * 1024 * 1024;
+    if (size && parseInt(size) > maxFileSize) {
+      return {
+        success: false,
+        error: "File too large (>50MB)",
+      };
+    }
+
+    let content: string = "";
+
+    // Handle different file types - read content directly
+    if (mimeType === "application/vnd.google-apps.document") {
+      // Google Docs - download as plain text
+      const exportUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}/export?mimeType=text/plain`;
+      const exportRes = await axiosClient.get(exportUrl, {
+        headers: {
+          Authorization: `Bearer ${authParams.authToken}`,
+        },
+        responseType: "text",
+      });
+      content = exportRes.data;
+    } else if (mimeType === "application/vnd.google-apps.spreadsheet") {
+      // Google Sheets - download as CSV
+      const exportUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}/export?mimeType=text/csv`;
+      const exportRes = await axiosClient.get(exportUrl, {
+        headers: {
+          Authorization: `Bearer ${authParams.authToken}`,
+        },
+        responseType: "text",
+      });
+      // Clean up excessive commas from empty columns
+      content = exportRes.data
+        .split("\n")
+        .map((line: string) => line.replace(/,+$/, "")) // Remove trailing commas
+        .map((line: string) => line.replace(/,{2,}/g, ",")) // Replace multiple commas with single comma
+        .join("\n");
+    } else if (mimeType === "application/vnd.google-apps.presentation") {
+      // Google Slides - download as plain text
+      const exportUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}/export?mimeType=text/plain`;
+      const exportRes = await axiosClient.get(exportUrl, {
+        headers: {
+          Authorization: `Bearer ${authParams.authToken}`,
+        },
+        responseType: "text",
+      });
+      content = exportRes.data;
+    } else if (mimeType === "application/pdf") {
+      // PDF files - use pdf2json
+      const downloadUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media`;
+      const downloadRes = await axiosClient.get(downloadUrl, {
+        headers: {
+          Authorization: `Bearer ${authParams.authToken}`,
+        },
+        responseType: "arraybuffer",
+      });
+
+      try {
+        const pdfParser = new PDFParser(null); // null context, 1 for text extraction
+
+        // Create a promise to handle the async PDF parsing
+        const pdfContent = await new Promise<string>((resolve, reject) => {
+          pdfParser.on("pdfParser_dataError", errData => {
+            reject(new Error(`PDF parsing error: ${errData.parserError}`));
+          });
+
+          pdfParser.on("pdfParser_dataReady", pdfData => {
+            // Extract text from all pages
+            const textContent = pdfData.Pages.map(page =>
+              page.Texts.map(text => text.R.map(run => decodeURIComponent(run.T)).join("")).join(""),
+            ).join("\n");
+
+            resolve(textContent);
+          });
+
+          // Parse the PDF buffer
+          pdfParser.parseBuffer(Buffer.from(downloadRes.data));
+        });
+
+        content = pdfContent;
+      } catch (pdfError) {
+        return {
+          success: false,
+          error: `Failed to parse PDF: ${pdfError instanceof Error ? pdfError.message : "Unknown PDF error"}`,
+        };
+      }
+    } else if (
+      mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+      mimeType === "application/msword"
+    ) {
+      // Word documents (.docx or .doc) - download and extract text using mammoth
+      const downloadUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media`;
+      const downloadRes = await axiosClient.get(downloadUrl, {
+        headers: {
+          Authorization: `Bearer ${authParams.authToken}`,
+        },
+        responseType: "arraybuffer",
+      });
+
+      try {
+        // mammoth works with .docx files. It will ignore formatting and return raw text
+        const result = await mammoth.extractRawText({ buffer: Buffer.from(downloadRes.data) });
+        content = result.value; // raw text
+      } catch (wordError) {
+        return {
+          success: false,
+          error: `Failed to parse Word document: ${wordError instanceof Error ? wordError.message : "Unknown Word error"}`,
+        };
+      }
+    } else if (
+      mimeType === "text/plain" ||
+      mimeType === "text/html" ||
+      mimeType === "application/rtf" ||
+      mimeType?.startsWith("text/")
+    ) {
+      // Text-based files
+      const downloadUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media`;
+      const downloadRes = await axiosClient.get(downloadUrl, {
+        headers: {
+          Authorization: `Bearer ${authParams.authToken}`,
+        },
+        responseType: "text",
+      });
+      content = downloadRes.data;
+    } else if (mimeType?.startsWith("image/")) {
+      // Skip images
+      return {
+        success: false,
+        error: "Image files are not supported for text extraction",
+      };
+    } else {
+      // Unsupported file type
+      return {
+        success: false,
+        error: `Unsupported file type: ${mimeType}`,
+      };
+    }
+
+    content = content.trim();
+    const originalLength = content.length;
+
+    // Naive way to truncate content
+    if (limit && content.length > limit) {
+      content = content.substring(0, limit);
+    }
+
+    return {
+      success: true,
+      content,
+      fileName,
+      fileLength: originalLength,
+    };
+  } catch (error) {
+    console.error("Error getting Google Drive file content", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+};
+
+export default getDriveFileContentById;

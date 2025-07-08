@@ -3246,6 +3246,7 @@ export type googleOauthUpdatePresentationFunction = ActionFunction<
 
 export const googleOauthSearchDriveByKeywordsParamsSchema = z.object({
   keywords: z.array(z.string()).describe("List of keywords to search for in file contents."),
+  limit: z.number().int().describe("The maximum number of files to return").optional(),
 });
 
 export type googleOauthSearchDriveByKeywordsParamsType = z.infer<typeof googleOauthSearchDriveByKeywordsParamsSchema>;
@@ -3271,6 +3272,32 @@ export type googleOauthSearchDriveByKeywordsFunction = ActionFunction<
   googleOauthSearchDriveByKeywordsParamsType,
   AuthParamsType,
   googleOauthSearchDriveByKeywordsOutputType
+>;
+
+export const googleOauthGetDriveFileContentByIdParamsSchema = z.object({
+  fileId: z.string().describe("The ID of the file to get content from"),
+  limit: z.number().int().describe("The character limit for the file content"),
+});
+
+export type googleOauthGetDriveFileContentByIdParamsType = z.infer<
+  typeof googleOauthGetDriveFileContentByIdParamsSchema
+>;
+
+export const googleOauthGetDriveFileContentByIdOutputSchema = z.object({
+  success: z.boolean().describe("Whether the file content was retrieved successfully"),
+  content: z.string().describe("The content of the file").optional(),
+  fileName: z.string().describe("The name of the file").optional(),
+  fileLength: z.number().int().describe("The length of the file content prior to truncating").optional(),
+  error: z.string().describe("Error message if file content retrieval failed").optional(),
+});
+
+export type googleOauthGetDriveFileContentByIdOutputType = z.infer<
+  typeof googleOauthGetDriveFileContentByIdOutputSchema
+>;
+export type googleOauthGetDriveFileContentByIdFunction = ActionFunction<
+  googleOauthGetDriveFileContentByIdParamsType,
+  AuthParamsType,
+  googleOauthGetDriveFileContentByIdOutputType
 >;
 
 export const googleOauthListGroupsParamsSchema = z.object({

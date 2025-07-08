@@ -118,6 +118,7 @@ import {
   jiraOrgUpdateJiraTicketDetailsDefinition,
   jiraOrgUpdateJiraTicketStatusDefinition,
   jiraOrgGetJiraIssuesByQueryDefinition,
+  googleOauthGetDriveFileContentByIdDefinition,
 } from "./autogen/templates.js";
 import type { ActionTemplate } from "./parse.js";
 
@@ -170,6 +171,7 @@ export const ACTION_GROUPS: ActionGroups = {
       googleOauthCreatePresentationDefinition,
       googleOauthUpdatePresentationDefinition,
       googleOauthSearchDriveByKeywordsDefinition,
+      googleOauthGetDriveFileContentByIdDefinition,
     ],
   },
   GOOGLE_CALENDAR: {

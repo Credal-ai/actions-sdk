@@ -18,7 +18,7 @@ const searchDriveByKeywords: googleOauthSearchDriveByKeywordsFunction = async ({
     return { success: false, error: MISSING_AUTH_TOKEN, files: [] };
   }
 
-  const { keywords } = params;
+  const { keywords, limit } = params;
 
   // Build the query: fullText contains 'keyword1' or fullText contains 'keyword2' ...
   const query = keywords.map(kw => `fullText contains '${kw.replace(/'/g, "\\'")}'`).join(" or ");
@@ -42,7 +42,7 @@ const searchDriveByKeywords: googleOauthSearchDriveByKeywordsFunction = async ({
         url: file.webViewLink || "",
       })) || [];
 
-    return { success: true, files };
+    return { success: true, files: limit ? files.splice(0, limit) : files };
   } catch (error) {
     console.error("Error searching Google Drive", error);
     return {

@@ -6193,6 +6193,10 @@ export const googleOauthSearchDriveByKeywordsDefinition: ActionTemplate = {
           type: "string",
         },
       },
+      limit: {
+        type: "integer",
+        description: "The maximum number of files to return",
+      },
     },
   },
   output: {
@@ -6236,6 +6240,52 @@ export const googleOauthSearchDriveByKeywordsDefinition: ActionTemplate = {
     },
   },
   name: "searchDriveByKeywords",
+  provider: "googleOauth",
+};
+export const googleOauthGetDriveFileContentByIdDefinition: ActionTemplate = {
+  description: "Get text content of a Google Drive file by its ID.",
+  scopes: ["drive.readonly"],
+  parameters: {
+    type: "object",
+    required: ["fileId", "limit"],
+    properties: {
+      fileId: {
+        type: "string",
+        description: "The ID of the file to get content from",
+      },
+      limit: {
+        type: "integer",
+        description: "The character limit for the file content",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the file content was retrieved successfully",
+      },
+      content: {
+        type: "string",
+        description: "The content of the file",
+      },
+      fileName: {
+        type: "string",
+        description: "The name of the file",
+      },
+      fileLength: {
+        type: "integer",
+        description: "The length of the file content prior to truncating",
+      },
+      error: {
+        type: "string",
+        description: "Error message if file content retrieval failed",
+      },
+    },
+  },
+  name: "getDriveFileContentById",
   provider: "googleOauth",
 };
 export const googleOauthListGroupsDefinition: ActionTemplate = {
