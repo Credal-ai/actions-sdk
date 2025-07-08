@@ -58,3 +58,26 @@ jobs:
       # Build project
       - name: Build project
         run: npm run build
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22" # Adjust this to match your Node.js version
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Run tests
+      - name: Run Jest tests
+        run: npm run jest-test
