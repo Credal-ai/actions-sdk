@@ -49,6 +49,10 @@ import {
   jiraUpdateJiraTicketDetailsOutputSchema,
   jiraUpdateJiraTicketStatusParamsSchema,
   jiraUpdateJiraTicketStatusOutputSchema,
+  jiraGetServiceDesksParamsSchema,
+  jiraGetServiceDesksOutputSchema,
+  jiraCreateServiceDeskRequestParamsSchema,
+  jiraCreateServiceDeskRequestOutputSchema,
   openstreetmapGetLatitudeLongitudeFromLocationParamsSchema,
   openstreetmapGetLatitudeLongitudeFromLocationOutputSchema,
   nwsGetForecastForLocationParamsSchema,
@@ -336,6 +340,8 @@ import lockJamfComputerById from "./providers/jamf/lockJamfComputerById.js";
 import triggerOktaWorkflow from "./providers/okta/triggerOktaWorkflow.js";
 import searchGroup from "./providers/gitlab/searchGroup.js";
 import searchRepository from "./providers/github/searchRepository.js";
+import getServiceDesks from "./providers/jira/getServiceDesks.js";
+import createServiceDeskRequest from "./providers/jira/createServiceDeskRequest.js";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -384,6 +390,16 @@ const jiraActions = {
     fn: updateJiraTicketStatus,
     paramsSchema: jiraUpdateJiraTicketStatusParamsSchema,
     outputSchema: jiraUpdateJiraTicketStatusOutputSchema,
+  },
+  getServiceDesks: {
+    fn: getServiceDesks,
+    paramsSchema: jiraGetServiceDesksParamsSchema,
+    outputSchema: jiraGetServiceDesksOutputSchema,
+  },
+  createServiceDeskRequest: {
+    fn: createServiceDeskRequest,
+    paramsSchema: jiraCreateServiceDeskRequestParamsSchema,
+    outputSchema: jiraCreateServiceDeskRequestOutputSchema,
   },
 };
 

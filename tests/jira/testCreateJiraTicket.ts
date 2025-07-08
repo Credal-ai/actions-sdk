@@ -20,7 +20,8 @@ async function runTest() {
       issueType: "Task", // Adjust based on available issue types in your Jira
       reporter: "", // Optional - (defaults to the authenticated user related to the oauth token)
       assignee: "", // Optional
-      customFields: { customfield_10100: "High" }, // Example of custom fields setting
+      // customFields: { customfield_10100: "High" }, // Example of custom fields setting
+      requestTypeId: "5",
     },
   );
 

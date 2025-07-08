@@ -24,6 +24,8 @@ import {
   jiraGetJiraTicketHistoryDefinition,
   jiraUpdateJiraTicketDetailsDefinition,
   jiraUpdateJiraTicketStatusDefinition,
+  jiraGetServiceDesksDefinition,
+  jiraCreateServiceDeskRequestDefinition,
   googlemapsNearbysearchRestaurantsDefinition,
   firecrawlScrapeUrlDefinition,
   resendSendEmailDefinition,
@@ -222,6 +224,8 @@ export const ACTION_GROUPS: ActionGroups = {
       jiraUpdateJiraTicketDetailsDefinition,
       jiraUpdateJiraTicketStatusDefinition,
       jiraGetJiraIssuesByQueryDefinition,
+      jiraGetServiceDesksDefinition,
+      jiraCreateServiceDeskRequestDefinition,
     ],
   },
   JIRA_ORG_ACTIONS: {

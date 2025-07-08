@@ -507,6 +507,80 @@ export type jiraCreateJiraTicketFunction = ActionFunction<
   jiraCreateJiraTicketOutputType
 >;
 
+export const jiraGetServiceDesksParamsSchema = z.object({});
+
+export type jiraGetServiceDesksParamsType = z.infer<typeof jiraGetServiceDesksParamsSchema>;
+
+export const jiraGetServiceDesksOutputSchema = z.object({
+  success: z.boolean().describe("Whether the service desks were retrieved successfully"),
+  error: z.string().describe("The error that occurred if the service desks were not retrieved successfully").optional(),
+  serviceDesks: z
+    .array(
+      z
+        .object({
+          id: z.string().describe("The ID of the service desk").optional(),
+          projectId: z.string().describe("The ID of the project").optional(),
+          projectKey: z.string().describe("The key of the project").optional(),
+          projectName: z.string().describe("The name of the service desk").optional(),
+          requestTypes: z
+            .array(
+              z
+                .object({
+                  id: z.string().describe("The ID of the request type").optional(),
+                  name: z.string().describe("The name of the request type").optional(),
+                  description: z.string().describe("The description of the request type").optional(),
+                  issueTypeId: z.string().describe("The ID of the issue type").optional(),
+                  portalId: z.string().describe("The ID of the customer portal").optional(),
+                  helpText: z.string().describe("The help text for the request type").optional(),
+                  serviceDeskId: z.string().describe("The ID of the service desk").optional(),
+                  canCreateRequest: z.boolean().describe("Whether the request type can be created").optional(),
+                })
+                .describe("A request type"),
+            )
+            .describe("The list of request types")
+            .optional(),
+        })
+        .describe("A service desk"),
+    )
+    .describe("The list of service desks")
+    .optional(),
+});
+
+export type jiraGetServiceDesksOutputType = z.infer<typeof jiraGetServiceDesksOutputSchema>;
+export type jiraGetServiceDesksFunction = ActionFunction<
+  jiraGetServiceDesksParamsType,
+  AuthParamsType,
+  jiraGetServiceDesksOutputType
+>;
+
+export const jiraCreateServiceDeskRequestParamsSchema = z.object({
+  serviceDeskId: z.string().describe("The ID of the service desk to create the request in"),
+  requestTypeId: z.string().describe("The ID of the request type to use for the new request"),
+  summary: z.string().describe("The summary of the new service desk request"),
+  description: z.string().describe("The description for the new service desk request"),
+  reporter: z
+    .string()
+    .describe("The email address of the person reporting the issue (for raising on behalf of)")
+    .optional(),
+});
+
+export type jiraCreateServiceDeskRequestParamsType = z.infer<typeof jiraCreateServiceDeskRequestParamsSchema>;
+
+export const jiraCreateServiceDeskRequestOutputSchema = z.object({
+  success: z.boolean().describe("Whether the request was created successfully"),
+  error: z.string().describe("The error that occurred if the request was not created successfully").optional(),
+  issueKey: z.string().describe("The Jira issue key of the created request").optional(),
+  webLink: z.string().describe("The link to the customer portal request, if available").optional(),
+  currentStatus: z.string().describe("The current status of the created request").optional(),
+});
+
+export type jiraCreateServiceDeskRequestOutputType = z.infer<typeof jiraCreateServiceDeskRequestOutputSchema>;
+export type jiraCreateServiceDeskRequestFunction = ActionFunction<
+  jiraCreateServiceDeskRequestParamsType,
+  AuthParamsType,
+  jiraCreateServiceDeskRequestOutputType
+>;
+
 export const jiraGetJiraTicketDetailsParamsSchema = z.object({
   projectKey: z.string().describe("The key for the project"),
   issueId: z.string().describe("The ID of the ticket"),
@@ -684,6 +758,80 @@ export type jiraOrgCreateJiraTicketFunction = ActionFunction<
   jiraOrgCreateJiraTicketParamsType,
   AuthParamsType,
   jiraOrgCreateJiraTicketOutputType
+>;
+
+export const jiraOrgGetServiceDesksParamsSchema = z.object({});
+
+export type jiraOrgGetServiceDesksParamsType = z.infer<typeof jiraOrgGetServiceDesksParamsSchema>;
+
+export const jiraOrgGetServiceDesksOutputSchema = z.object({
+  success: z.boolean().describe("Whether the service desks were retrieved successfully"),
+  error: z.string().describe("The error that occurred if the service desks were not retrieved successfully").optional(),
+  serviceDesks: z
+    .array(
+      z
+        .object({
+          id: z.string().describe("The ID of the service desk").optional(),
+          projectId: z.string().describe("The ID of the project").optional(),
+          projectKey: z.string().describe("The key of the project").optional(),
+          projectName: z.string().describe("The name of the service desk").optional(),
+          requestTypes: z
+            .array(
+              z
+                .object({
+                  id: z.string().describe("The ID of the request type").optional(),
+                  name: z.string().describe("The name of the request type").optional(),
+                  description: z.string().describe("The description of the request type").optional(),
+                  issueTypeId: z.string().describe("The ID of the issue type").optional(),
+                  portalId: z.string().describe("The ID of the customer portal").optional(),
+                  helpText: z.string().describe("The help text for the request type").optional(),
+                  serviceDeskId: z.string().describe("The ID of the service desk").optional(),
+                  canCreateRequest: z.boolean().describe("Whether the request type can be created").optional(),
+                })
+                .describe("A request type"),
+            )
+            .describe("The list of request types")
+            .optional(),
+        })
+        .describe("A service desk"),
+    )
+    .describe("The list of service desks")
+    .optional(),
+});
+
+export type jiraOrgGetServiceDesksOutputType = z.infer<typeof jiraOrgGetServiceDesksOutputSchema>;
+export type jiraOrgGetServiceDesksFunction = ActionFunction<
+  jiraOrgGetServiceDesksParamsType,
+  AuthParamsType,
+  jiraOrgGetServiceDesksOutputType
+>;
+
+export const jiraOrgCreateServiceDeskRequestParamsSchema = z.object({
+  serviceDeskId: z.string().describe("The ID of the service desk to create the request in"),
+  requestTypeId: z.string().describe("The ID of the request type to use for the new request"),
+  summary: z.string().describe("The summary of the new service desk request"),
+  description: z.string().describe("The description for the new service desk request"),
+  reporter: z
+    .string()
+    .describe("The email address of the person reporting the issue (for raising on behalf of)")
+    .optional(),
+});
+
+export type jiraOrgCreateServiceDeskRequestParamsType = z.infer<typeof jiraOrgCreateServiceDeskRequestParamsSchema>;
+
+export const jiraOrgCreateServiceDeskRequestOutputSchema = z.object({
+  success: z.boolean().describe("Whether the request was created successfully"),
+  error: z.string().describe("The error that occurred if the request was not created successfully").optional(),
+  issueKey: z.string().describe("The Jira issue key of the created request").optional(),
+  webLink: z.string().describe("The link to the customer portal request, if available").optional(),
+  currentStatus: z.string().describe("The current status of the created request").optional(),
+});
+
+export type jiraOrgCreateServiceDeskRequestOutputType = z.infer<typeof jiraOrgCreateServiceDeskRequestOutputSchema>;
+export type jiraOrgCreateServiceDeskRequestFunction = ActionFunction<
+  jiraOrgCreateServiceDeskRequestParamsType,
+  AuthParamsType,
+  jiraOrgCreateServiceDeskRequestOutputType
 >;
 
 export const jiraOrgGetJiraTicketDetailsParamsSchema = z.object({

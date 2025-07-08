@@ -882,6 +882,157 @@ export const jiraCreateJiraTicketDefinition: ActionTemplate = {
   name: "createJiraTicket",
   provider: "jira",
 };
+export const jiraGetServiceDesksDefinition: ActionTemplate = {
+  description: "Get the service desks for a Jira instance",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: [],
+    properties: {},
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the service desks were retrieved successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the service desks were not retrieved successfully",
+      },
+      serviceDesks: {
+        type: "array",
+        description: "The list of service desks",
+        items: {
+          type: "object",
+          description: "A service desk",
+          properties: {
+            id: {
+              type: "string",
+              description: "The ID of the service desk",
+            },
+            projectId: {
+              type: "string",
+              description: "The ID of the project",
+            },
+            projectKey: {
+              type: "string",
+              description: "The key of the project",
+            },
+            projectName: {
+              type: "string",
+              description: "The name of the service desk",
+            },
+            requestTypes: {
+              type: "array",
+              description: "The list of request types",
+              items: {
+                type: "object",
+                description: "A request type",
+                properties: {
+                  id: {
+                    type: "string",
+                    description: "The ID of the request type",
+                  },
+                  name: {
+                    type: "string",
+                    description: "The name of the request type",
+                  },
+                  description: {
+                    type: "string",
+                    description: "The description of the request type",
+                  },
+                  issueTypeId: {
+                    type: "string",
+                    description: "The ID of the issue type",
+                  },
+                  portalId: {
+                    type: "string",
+                    description: "The ID of the customer portal",
+                  },
+                  helpText: {
+                    type: "string",
+                    description: "The help text for the request type",
+                  },
+                  serviceDeskId: {
+                    type: "string",
+                    description: "The ID of the service desk",
+                  },
+                  canCreateRequest: {
+                    type: "boolean",
+                    description: "Whether the request type can be created",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  name: "getServiceDesks",
+  provider: "jira",
+};
+export const jiraCreateServiceDeskRequestDefinition: ActionTemplate = {
+  description: "Create a jira service desk request with specified content",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["serviceDeskId", "requestTypeId", "summary", "description"],
+    properties: {
+      serviceDeskId: {
+        type: "string",
+        description: "The ID of the service desk to create the request in",
+      },
+      requestTypeId: {
+        type: "string",
+        description: "The ID of the request type to use for the new request",
+      },
+      summary: {
+        type: "string",
+        description: "The summary of the new service desk request",
+      },
+      description: {
+        type: "string",
+        description: "The description for the new service desk request",
+      },
+      reporter: {
+        type: "string",
+        description: "The email address of the person reporting the issue (for raising on behalf of)",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the request was created successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the request was not created successfully",
+      },
+      issueKey: {
+        type: "string",
+        description: "The Jira issue key of the created request",
+      },
+      webLink: {
+        type: "string",
+        description: "The link to the customer portal request, if available",
+      },
+      currentStatus: {
+        type: "string",
+        description: "The current status of the created request",
+      },
+    },
+  },
+  name: "createServiceDeskRequest",
+  provider: "jira",
+};
 export const jiraGetJiraTicketDetailsDefinition: ActionTemplate = {
   description: "Get details of a ticket in Jira",
   scopes: ["read:jira-work"],
@@ -1225,6 +1376,157 @@ export const jiraOrgCreateJiraTicketDefinition: ActionTemplate = {
     },
   },
   name: "createJiraTicket",
+  provider: "jiraOrg",
+};
+export const jiraOrgGetServiceDesksDefinition: ActionTemplate = {
+  description: "Get the service desks for a Jira instance",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: [],
+    properties: {},
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the service desks were retrieved successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the service desks were not retrieved successfully",
+      },
+      serviceDesks: {
+        type: "array",
+        description: "The list of service desks",
+        items: {
+          type: "object",
+          description: "A service desk",
+          properties: {
+            id: {
+              type: "string",
+              description: "The ID of the service desk",
+            },
+            projectId: {
+              type: "string",
+              description: "The ID of the project",
+            },
+            projectKey: {
+              type: "string",
+              description: "The key of the project",
+            },
+            projectName: {
+              type: "string",
+              description: "The name of the service desk",
+            },
+            requestTypes: {
+              type: "array",
+              description: "The list of request types",
+              items: {
+                type: "object",
+                description: "A request type",
+                properties: {
+                  id: {
+                    type: "string",
+                    description: "The ID of the request type",
+                  },
+                  name: {
+                    type: "string",
+                    description: "The name of the request type",
+                  },
+                  description: {
+                    type: "string",
+                    description: "The description of the request type",
+                  },
+                  issueTypeId: {
+                    type: "string",
+                    description: "The ID of the issue type",
+                  },
+                  portalId: {
+                    type: "string",
+                    description: "The ID of the customer portal",
+                  },
+                  helpText: {
+                    type: "string",
+                    description: "The help text for the request type",
+                  },
+                  serviceDeskId: {
+                    type: "string",
+                    description: "The ID of the service desk",
+                  },
+                  canCreateRequest: {
+                    type: "boolean",
+                    description: "Whether the request type can be created",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  name: "getServiceDesks",
+  provider: "jiraOrg",
+};
+export const jiraOrgCreateServiceDeskRequestDefinition: ActionTemplate = {
+  description: "Create a jira service desk request with specified content",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["serviceDeskId", "requestTypeId", "summary", "description"],
+    properties: {
+      serviceDeskId: {
+        type: "string",
+        description: "The ID of the service desk to create the request in",
+      },
+      requestTypeId: {
+        type: "string",
+        description: "The ID of the request type to use for the new request",
+      },
+      summary: {
+        type: "string",
+        description: "The summary of the new service desk request",
+      },
+      description: {
+        type: "string",
+        description: "The description for the new service desk request",
+      },
+      reporter: {
+        type: "string",
+        description: "The email address of the person reporting the issue (for raising on behalf of)",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the request was created successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the request was not created successfully",
+      },
+      issueKey: {
+        type: "string",
+        description: "The Jira issue key of the created request",
+      },
+      webLink: {
+        type: "string",
+        description: "The link to the customer portal request, if available",
+      },
+      currentStatus: {
+        type: "string",
+        description: "The current status of the created request",
+      },
+    },
+  },
+  name: "createServiceDeskRequest",
   provider: "jiraOrg",
 };
 export const jiraOrgGetJiraTicketDetailsDefinition: ActionTemplate = {
