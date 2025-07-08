@@ -1,6 +1,7 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app.js";
 import dotenv from "dotenv";
+import { salesforceSearchSalesforceRecordsOutputSchema } from "../../src/actions/autogen/types.js";
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ async function runTest() {
     }
   );
   assert.strictEqual(regularQueryResult.success, true);
+  assert.equal(salesforceSearchSalesforceRecordsOutputSchema.safeParse(regularQueryResult).success, true);
   assert.equal(regularQueryResult.searchRecords.length, 1);
   console.log("All tests passed!");
 }
