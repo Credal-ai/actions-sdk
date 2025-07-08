@@ -1,5 +1,4 @@
 import { axiosClient } from "../../util/axiosClient.js";
-import mammoth from "mammoth";
 import type {
   AuthParamsType,
   googleOauthGetDriveFileContentByIdFunction,
@@ -7,6 +6,7 @@ import type {
   googleOauthGetDriveFileContentByIdParamsType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import extractContentFromDriveFileId from "./utils/extractContentFromDriveFileId.js";
 
 const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = async ({
   params,
@@ -41,102 +41,15 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
       };
     }
 
-    let content: string = "";
-
-    // Handle different file types - read content directly
-    if (mimeType === "application/vnd.google-apps.document") {
-      // Google Docs - download as plain text
-      const exportUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}/export?mimeType=text/plain`;
-      const exportRes = await axiosClient.get(exportUrl, {
-        headers: {
-          Authorization: `Bearer ${authParams.authToken}`,
-        },
-        responseType: "text",
-      });
-      content = exportRes.data;
-    } else if (mimeType === "application/vnd.google-apps.spreadsheet") {
-      // Google Sheets - download as CSV
-      const exportUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}/export?mimeType=text/csv`;
-      const exportRes = await axiosClient.get(exportUrl, {
-        headers: {
-          Authorization: `Bearer ${authParams.authToken}`,
-        },
-        responseType: "text",
-      });
-      // Clean up excessive commas from empty columns
-      content = exportRes.data
-        .split("\n")
-        .map((line: string) => line.replace(/,+$/, "")) // Remove trailing commas
-        .map((line: string) => line.replace(/,{2,}/g, ",")) // Replace multiple commas with single comma
-        .join("\n");
-    } else if (mimeType === "application/vnd.google-apps.presentation") {
-      // Google Slides - download as plain text
-      const exportUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}/export?mimeType=text/plain`;
-      const exportRes = await axiosClient.get(exportUrl, {
-        headers: {
-          Authorization: `Bearer ${authParams.authToken}`,
-        },
-        responseType: "text",
-      });
-      content = exportRes.data;
-    } else if (mimeType === "application/pdf") {
+    const data = await extractContentFromDriveFileId({ params: { fileId, mimeType }, authParams });
+    if (data.error || !data.content) {
       return {
         success: false,
-        error: `Failed to parse PDF file - currently unsupported`,
-      };
-    } else if (
-      mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
-      mimeType === "application/msword"
-    ) {
-      // Word documents (.docx or .doc) - download and extract text using mammoth
-      const downloadUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media`;
-      const downloadRes = await axiosClient.get(downloadUrl, {
-        headers: {
-          Authorization: `Bearer ${authParams.authToken}`,
-        },
-        responseType: "arraybuffer",
-      });
-
-      try {
-        // mammoth works with .docx files. It will ignore formatting and return raw text
-        const result = await mammoth.extractRawText({ buffer: Buffer.from(downloadRes.data) });
-        content = result.value; // raw text
-      } catch (wordError) {
-        return {
-          success: false,
-          error: `Failed to parse Word document: ${wordError instanceof Error ? wordError.message : "Unknown Word error"}`,
-        };
-      }
-    } else if (
-      mimeType === "text/plain" ||
-      mimeType === "text/html" ||
-      mimeType === "application/rtf" ||
-      mimeType?.startsWith("text/")
-    ) {
-      // Text-based files
-      const downloadUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media`;
-      const downloadRes = await axiosClient.get(downloadUrl, {
-        headers: {
-          Authorization: `Bearer ${authParams.authToken}`,
-        },
-        responseType: "text",
-      });
-      content = downloadRes.data;
-    } else if (mimeType?.startsWith("image/")) {
-      // Skip images
-      return {
-        success: false,
-        error: "Image files are not supported for text extraction",
-      };
-    } else {
-      // Unsupported file type
-      return {
-        success: false,
-        error: `Unsupported file type: ${mimeType}`,
+        error: data.error,
       };
     }
 
-    content = content.trim();
+    let content = data.content;
     const originalLength = content.length;
 
     // Naive way to truncate content

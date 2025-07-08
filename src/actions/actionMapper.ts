@@ -232,6 +232,8 @@ import {
   salesforceSearchSalesforceRecordsOutputSchema,
   googleOauthGetDriveFileContentByIdOutputSchema,
   googleOauthGetDriveFileContentByIdParamsSchema,
+  googleOauthSearchDriveAndGetContentByKeywordsParamsSchema,
+  googleOauthSearchDriveAndGetContentByKeywordsOutputSchema,
 } from "./autogen/types.js";
 import validateAddress from "./providers/googlemaps/validateAddress.js";
 import add from "./providers/math/add.js";
@@ -348,6 +350,7 @@ import getServiceDesks from "./providers/jira/getServiceDesks.js";
 import createServiceDeskRequest from "./providers/jira/createServiceDeskRequest.js";
 import searchSalesforceRecords from "./providers/salesforce/searchSalesforceRecords.js";
 import getDriveFileContentById from "./providers/google-oauth/getDriveFileContentById.js";
+import searchDriveAndGetContentByKeywords from "./providers/google-oauth/searchDriveAndGetContentByKeywords.js";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -676,6 +679,11 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: searchDriveByKeywords,
       paramsSchema: googleOauthSearchDriveByKeywordsParamsSchema,
       outputSchema: googleOauthSearchDriveByKeywordsOutputSchema,
+    },
+    searchDriveAndGetContentByKeywords: {
+      fn: searchDriveAndGetContentByKeywords,
+      paramsSchema: googleOauthSearchDriveAndGetContentByKeywordsParamsSchema,
+      outputSchema: googleOauthSearchDriveAndGetContentByKeywordsOutputSchema,
     },
     getDriveFileContentById: {
       fn: getDriveFileContentById,
