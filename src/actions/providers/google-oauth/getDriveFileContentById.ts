@@ -1,6 +1,5 @@
 import { axiosClient } from "../../util/axiosClient.js";
 import mammoth from "mammoth";
-import PDFParser from "pdf2json";
 import type {
   AuthParamsType,
   googleOauthGetDriveFileContentByIdFunction,
@@ -81,44 +80,10 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
       });
       content = exportRes.data;
     } else if (mimeType === "application/pdf") {
-      // PDF files - use pdf2json
-      const downloadUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media`;
-      const downloadRes = await axiosClient.get(downloadUrl, {
-        headers: {
-          Authorization: `Bearer ${authParams.authToken}`,
-        },
-        responseType: "arraybuffer",
-      });
-
-      try {
-        const pdfParser = new PDFParser(null); // null context, 1 for text extraction
-
-        // Create a promise to handle the async PDF parsing
-        const pdfContent = await new Promise<string>((resolve, reject) => {
-          pdfParser.on("pdfParser_dataError", errData => {
-            reject(new Error(`PDF parsing error: ${errData.parserError}`));
-          });
-
-          pdfParser.on("pdfParser_dataReady", pdfData => {
-            // Extract text from all pages
-            const textContent = pdfData.Pages.map(page =>
-              page.Texts.map(text => text.R.map(run => decodeURIComponent(run.T)).join("")).join(""),
-            ).join("\n");
-
-            resolve(textContent);
-          });
-
-          // Parse the PDF buffer
-          pdfParser.parseBuffer(Buffer.from(downloadRes.data));
-        });
-
-        content = pdfContent;
-      } catch (pdfError) {
-        return {
-          success: false,
-          error: `Failed to parse PDF: ${pdfError instanceof Error ? pdfError.message : "Unknown PDF error"}`,
-        };
-      }
+      return {
+        success: false,
+        error: `Failed to parse PDF file - currently unsupported`,
+      };
     } else if (
       mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
       mimeType === "application/msword"
