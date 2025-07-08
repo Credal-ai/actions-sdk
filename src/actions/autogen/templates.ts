@@ -2729,65 +2729,6 @@ export const resendSendEmailDefinition: ActionTemplate = {
   name: "sendEmail",
   provider: "resend",
 };
-export const googleOauthSearchFilesByKeywordsDefinition: ActionTemplate = {
-  description: "Search Google Drive files that contain one or more keywords in their full text.",
-  scopes: ["https://www.googleapis.com/auth/drive.readonly"],
-  parameters: {
-    type: "object",
-    required: ["keywords"],
-    properties: {
-      keywords: {
-        type: "array",
-        description: "List of keywords to search for in file contents.",
-        items: {
-          type: "string",
-        },
-      },
-    },
-  },
-  output: {
-    type: "object",
-    required: ["success", "files"],
-    properties: {
-      success: {
-        type: "boolean",
-        description: "Whether the search was successful",
-      },
-      files: {
-        type: "array",
-        description: "List of files matching the search",
-        items: {
-          type: "object",
-          required: ["id", "name", "mimeType", "webViewLink"],
-          properties: {
-            id: {
-              type: "string",
-              description: "The file ID",
-            },
-            name: {
-              type: "string",
-              description: "The file name",
-            },
-            mimeType: {
-              type: "string",
-              description: "The MIME type of the file",
-            },
-            webViewLink: {
-              type: "string",
-              description: "The web link to view the file",
-            },
-          },
-        },
-      },
-      error: {
-        type: "string",
-        description: "Error message if search failed",
-      },
-    },
-  },
-  name: "searchFilesByKeywords",
-  provider: "googleOauth",
-};
 export const googleOauthCreateNewGoogleDocDefinition: ActionTemplate = {
   description: "Create a new Google Docs document using OAuth authentication",
   scopes: [],
