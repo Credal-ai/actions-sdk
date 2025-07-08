@@ -6242,6 +6242,81 @@ export const googleOauthSearchDriveByKeywordsDefinition: ActionTemplate = {
   name: "searchDriveByKeywords",
   provider: "googleOauth",
 };
+export const googleOauthSearchDriveAndGetContentByKeywordsDefinition: ActionTemplate = {
+  description: "Search Google Drive files that contain one or more keywords and get the file content.",
+  scopes: ["drive.readonly"],
+  parameters: {
+    type: "object",
+    required: ["keywords"],
+    properties: {
+      keywords: {
+        type: "array",
+        description: "List of keywords to search for in file contents.",
+        items: {
+          type: "string",
+        },
+      },
+      fileLimit: {
+        type: "number",
+        description: "The maximum number of files to return",
+      },
+      fileSizeLimit: {
+        type: "number",
+        description: "The character limit per file to return",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the search was successful",
+      },
+      files: {
+        type: "array",
+        description: "List of files matching the search",
+        items: {
+          type: "object",
+          required: ["id", "name", "mimeType", "url"],
+          properties: {
+            id: {
+              type: "string",
+              description: "The file ID",
+            },
+            name: {
+              type: "string",
+              description: "The file name",
+            },
+            mimeType: {
+              type: "string",
+              description: "The MIME type of the file",
+            },
+            url: {
+              type: "string",
+              description: "The web link to view the file",
+            },
+            content: {
+              type: "string",
+              description: "The content of the file",
+            },
+            error: {
+              type: "string",
+              description: "Error message if file content retrieval failed",
+            },
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "Error message if search failed",
+      },
+    },
+  },
+  name: "searchDriveAndGetContentByKeywords",
+  provider: "googleOauth",
+};
 export const googleOauthGetDriveFileContentByIdDefinition: ActionTemplate = {
   description: "Get text content of a Google Drive file by its ID.",
   scopes: ["drive.readonly"],

@@ -49,6 +49,7 @@ import {
   googleOauthCreatePresentationDefinition,
   googleOauthUpdatePresentationDefinition,
   googleOauthSearchDriveByKeywordsDefinition,
+  googleOauthSearchDriveAndGetContentByKeywordsDefinition,
   googlemailSearchGmailMessagesDefinition,
   googlemailListGmailThreadsDefinition,
   googleOauthListGroupsDefinition,
@@ -172,6 +173,7 @@ export const ACTION_GROUPS: ActionGroups = {
       googleOauthUpdatePresentationDefinition,
       googleOauthSearchDriveByKeywordsDefinition,
       googleOauthGetDriveFileContentByIdDefinition,
+      googleOauthSearchDriveAndGetContentByKeywordsDefinition,
     ],
   },
   GOOGLE_CALENDAR: {

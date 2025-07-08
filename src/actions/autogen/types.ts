@@ -3258,6 +3258,43 @@ export type googleOauthSearchDriveByKeywordsFunction = ActionFunction<
   googleOauthSearchDriveByKeywordsOutputType
 >;
 
+export const googleOauthSearchDriveAndGetContentByKeywordsParamsSchema = z.object({
+  keywords: z.array(z.string()).describe("List of keywords to search for in file contents."),
+  fileLimit: z.number().describe("The maximum number of files to return").optional(),
+  fileSizeLimit: z.number().describe("The character limit per file to return").optional(),
+});
+
+export type googleOauthSearchDriveAndGetContentByKeywordsParamsType = z.infer<
+  typeof googleOauthSearchDriveAndGetContentByKeywordsParamsSchema
+>;
+
+export const googleOauthSearchDriveAndGetContentByKeywordsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the search was successful"),
+  files: z
+    .array(
+      z.object({
+        id: z.string().describe("The file ID"),
+        name: z.string().describe("The file name"),
+        mimeType: z.string().describe("The MIME type of the file"),
+        url: z.string().describe("The web link to view the file"),
+        content: z.string().describe("The content of the file").optional(),
+        error: z.string().describe("Error message if file content retrieval failed").optional(),
+      }),
+    )
+    .describe("List of files matching the search")
+    .optional(),
+  error: z.string().describe("Error message if search failed").optional(),
+});
+
+export type googleOauthSearchDriveAndGetContentByKeywordsOutputType = z.infer<
+  typeof googleOauthSearchDriveAndGetContentByKeywordsOutputSchema
+>;
+export type googleOauthSearchDriveAndGetContentByKeywordsFunction = ActionFunction<
+  googleOauthSearchDriveAndGetContentByKeywordsParamsType,
+  AuthParamsType,
+  googleOauthSearchDriveAndGetContentByKeywordsOutputType
+>;
+
 export const googleOauthGetDriveFileContentByIdParamsSchema = z.object({
   fileId: z.string().describe("The ID of the file to get content from"),
   limit: z.number().describe("The character limit for the file content"),
