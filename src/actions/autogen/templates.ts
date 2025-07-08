@@ -2892,7 +2892,7 @@ export const googleOauthUpdateDocDefinition: ActionTemplate = {
                       required: ["index"],
                       properties: {
                         index: {
-                          type: "integer",
+                          type: "number",
                           description: "The zero-based index in the document where to insert the text",
                         },
                       },
@@ -2976,7 +2976,7 @@ export const googleOauthUpdateDocDefinition: ActionTemplate = {
                               description: "The font family of the text",
                             },
                             weight: {
-                              type: "integer",
+                              type: "number",
                               description: "The weight of the font",
                             },
                           },
@@ -2993,11 +2993,11 @@ export const googleOauthUpdateDocDefinition: ActionTemplate = {
                       required: ["startIndex", "endIndex"],
                       properties: {
                         startIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The zero-based starting index of the range",
                         },
                         endIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The zero-based ending index of the range (exclusive)",
                         },
                       },
@@ -3021,11 +3021,11 @@ export const googleOauthUpdateDocDefinition: ActionTemplate = {
                       required: ["startIndex", "endIndex"],
                       properties: {
                         startIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The zero-based starting index of the range",
                         },
                         endIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The zero-based ending index of the range (exclusive)",
                         },
                       },
@@ -3054,17 +3054,17 @@ export const googleOauthUpdateDocDefinition: ActionTemplate = {
                           required: ["index"],
                           properties: {
                             index: {
-                              type: "integer",
+                              type: "number",
                               description: "The zero-based index in the document",
                             },
                           },
                         },
                         rowIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The zero-based row index",
                         },
                         columnIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The zero-based column index",
                         },
                       },
@@ -3097,17 +3097,17 @@ export const googleOauthUpdateDocDefinition: ActionTemplate = {
                           required: ["index"],
                           properties: {
                             index: {
-                              type: "integer",
+                              type: "number",
                               description: "The zero-based index in the document",
                             },
                           },
                         },
                         rowIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The zero-based row index",
                         },
                         columnIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The zero-based column index",
                         },
                       },
@@ -3140,17 +3140,17 @@ export const googleOauthUpdateDocDefinition: ActionTemplate = {
                           required: ["index"],
                           properties: {
                             index: {
-                              type: "integer",
+                              type: "number",
                               description: "The zero-based index in the document",
                             },
                           },
                         },
                         rowIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The zero-based row index",
                         },
                         columnIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The zero-based column index",
                         },
                       },
@@ -3179,17 +3179,17 @@ export const googleOauthUpdateDocDefinition: ActionTemplate = {
                           required: ["index"],
                           properties: {
                             index: {
-                              type: "integer",
+                              type: "number",
                               description: "The zero-based index in the document",
                             },
                           },
                         },
                         rowIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The zero-based row index",
                         },
                         columnIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The zero-based column index",
                         },
                       },
@@ -3213,11 +3213,11 @@ export const googleOauthUpdateDocDefinition: ActionTemplate = {
                       required: ["startIndex", "endIndex"],
                       properties: {
                         startIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The zero-based starting index of the range",
                         },
                         endIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The zero-based ending index of the range (exclusive)",
                         },
                       },
@@ -3325,11 +3325,11 @@ export const googleOauthUpdateDocDefinition: ActionTemplate = {
                       required: ["startIndex", "endIndex"],
                       properties: {
                         startIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The zero-based starting index of the range",
                         },
                         endIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The zero-based ending index of the range (exclusive)",
                         },
                       },
@@ -3376,11 +3376,11 @@ export const googleOauthUpdateDocDefinition: ActionTemplate = {
                       required: ["startIndex", "endIndex"],
                       properties: {
                         startIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The zero-based starting index of the range",
                         },
                         endIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The zero-based ending index of the range (exclusive)",
                         },
                       },
@@ -3404,7 +3404,7 @@ export const googleOauthUpdateDocDefinition: ActionTemplate = {
                       required: ["index"],
                       properties: {
                         index: {
-                          type: "integer",
+                          type: "number",
                           description: "The zero-based index in the document",
                         },
                       },
@@ -3471,7 +3471,7 @@ export const googleOauthUpdateDocDefinition: ActionTemplate = {
                           description: "The left page margin",
                         },
                         pageNumberStart: {
-                          type: "integer",
+                          type: "number",
                           description: "The page number from which to start counting",
                         },
                         pageSize: {
@@ -3572,7 +3572,7 @@ export const googleOauthUpdateDocDefinition: ActionTemplate = {
                           description: "The top border of the cells",
                         },
                         columnSpan: {
-                          type: "integer",
+                          type: "number",
                           description: "The number of columns that the cell spans",
                         },
                         contentAlignment: {
@@ -3596,7 +3596,7 @@ export const googleOauthUpdateDocDefinition: ActionTemplate = {
                           description: "The top padding of the cells",
                         },
                         rowSpan: {
-                          type: "integer",
+                          type: "number",
                           description: "The number of rows that the cell spans",
                         },
                       },
@@ -3621,27 +3621,27 @@ export const googleOauthUpdateDocDefinition: ActionTemplate = {
                               required: ["index"],
                               properties: {
                                 index: {
-                                  type: "integer",
+                                  type: "number",
                                   description: "The zero-based index in the document",
                                 },
                               },
                             },
                             rowIndex: {
-                              type: "integer",
+                              type: "number",
                               description: "The zero-based row index",
                             },
                             columnIndex: {
-                              type: "integer",
+                              type: "number",
                               description: "The zero-based column index",
                             },
                           },
                         },
                         rowSpan: {
-                          type: "integer",
+                          type: "number",
                           description: "The number of rows that the range should span",
                         },
                         columnSpan: {
-                          type: "integer",
+                          type: "number",
                           description: "The number of columns that the range should span",
                         },
                       },
@@ -3675,27 +3675,27 @@ export const googleOauthUpdateDocDefinition: ActionTemplate = {
                               required: ["index"],
                               properties: {
                                 index: {
-                                  type: "integer",
+                                  type: "number",
                                   description: "The zero-based index in the document",
                                 },
                               },
                             },
                             rowIndex: {
-                              type: "integer",
+                              type: "number",
                               description: "The zero-based row index",
                             },
                             columnIndex: {
-                              type: "integer",
+                              type: "number",
                               description: "The zero-based column index",
                             },
                           },
                         },
                         rowSpan: {
-                          type: "integer",
+                          type: "number",
                           description: "The number of rows that the range should span",
                         },
                         columnSpan: {
-                          type: "integer",
+                          type: "number",
                           description: "The number of columns that the range should span",
                         },
                       },
@@ -3729,27 +3729,27 @@ export const googleOauthUpdateDocDefinition: ActionTemplate = {
                               required: ["index"],
                               properties: {
                                 index: {
-                                  type: "integer",
+                                  type: "number",
                                   description: "The zero-based index in the document",
                                 },
                               },
                             },
                             rowIndex: {
-                              type: "integer",
+                              type: "number",
                               description: "The zero-based row index",
                             },
                             columnIndex: {
-                              type: "integer",
+                              type: "number",
                               description: "The zero-based column index",
                             },
                           },
                         },
                         rowSpan: {
-                          type: "integer",
+                          type: "number",
                           description: "The number of rows that the range should span",
                         },
                         columnSpan: {
-                          type: "integer",
+                          type: "number",
                           description: "The number of columns that the range should span",
                         },
                       },
@@ -3777,11 +3777,11 @@ export const googleOauthUpdateDocDefinition: ActionTemplate = {
                       required: ["startIndex", "endIndex"],
                       properties: {
                         startIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The zero-based starting index of the range",
                         },
                         endIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The zero-based ending index of the range (exclusive)",
                         },
                       },
@@ -3843,7 +3843,7 @@ export const googleOauthUpdateDocDefinition: ActionTemplate = {
                       required: ["index"],
                       properties: {
                         index: {
-                          type: "integer",
+                          type: "number",
                           description: "The zero-based index in the document",
                         },
                       },
@@ -4008,7 +4008,7 @@ export const googleOauthListCalendarsDefinition: ActionTemplate = {
     required: [],
     properties: {
       maxResults: {
-        type: "integer",
+        type: "number",
         description: "Maximum number of calendars to return, defaults to 250",
       },
     },
@@ -4064,7 +4064,7 @@ export const googleOauthListCalendarEventsDefinition: ActionTemplate = {
         description: "Optional free-text search query to filter events",
       },
       maxResults: {
-        type: "integer",
+        type: "number",
         description: "Maximum number of events to return, defaults to 250",
       },
       timeMin: {
@@ -4338,19 +4338,19 @@ export const googleOauthCreateSpreadsheetDefinition: ActionTemplate = {
               type: "object",
               properties: {
                 rowCount: {
-                  type: "integer",
+                  type: "number",
                   description: "The number of rows in the sheet",
                 },
                 columnCount: {
-                  type: "integer",
+                  type: "number",
                   description: "The number of columns in the sheet",
                 },
                 frozenRowCount: {
-                  type: "integer",
+                  type: "number",
                   description: "The number of frozen rows",
                 },
                 frozenColumnCount: {
-                  type: "integer",
+                  type: "number",
                   description: "The number of frozen columns",
                 },
               },
@@ -4402,7 +4402,7 @@ export const googleOauthCreateSpreadsheetDefinition: ActionTemplate = {
           type: "object",
           properties: {
             sheetId: {
-              type: "integer",
+              type: "number",
               description: "The ID of the sheet",
             },
             title: {
@@ -4410,7 +4410,7 @@ export const googleOauthCreateSpreadsheetDefinition: ActionTemplate = {
               description: "The title of the sheet",
             },
             index: {
-              type: "integer",
+              type: "number",
               description: "The index of the sheet",
             },
           },
@@ -4460,11 +4460,11 @@ export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
                           type: "object",
                           properties: {
                             rowCount: {
-                              type: "integer",
+                              type: "number",
                               description: "The number of rows in the sheet",
                             },
                             columnCount: {
-                              type: "integer",
+                              type: "number",
                               description: "The number of columns in the sheet",
                             },
                           },
@@ -4483,7 +4483,7 @@ export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
                   type: "object",
                   properties: {
                     sheetId: {
-                      type: "integer",
+                      type: "number",
                       description: "The ID of the sheet to delete",
                     },
                   },
@@ -4501,23 +4501,23 @@ export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
                       type: "object",
                       properties: {
                         sheetId: {
-                          type: "integer",
+                          type: "number",
                           description: "The ID of the sheet",
                         },
                         startRowIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The start row (0-based, inclusive)",
                         },
                         endRowIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The end row (0-based, exclusive)",
                         },
                         startColumnIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The start column (0-based, inclusive)",
                         },
                         endColumnIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The end column (0-based, exclusive)",
                         },
                       },
@@ -4570,7 +4570,7 @@ export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
                       type: "object",
                       properties: {
                         sheetId: {
-                          type: "integer",
+                          type: "number",
                           description: "The ID of the sheet to update",
                         },
                         title: {
@@ -4581,19 +4581,19 @@ export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
                           type: "object",
                           properties: {
                             rowCount: {
-                              type: "integer",
+                              type: "number",
                               description: "The new number of rows",
                             },
                             columnCount: {
-                              type: "integer",
+                              type: "number",
                               description: "The new number of columns",
                             },
                             frozenRowCount: {
-                              type: "integer",
+                              type: "number",
                               description: "The number of frozen rows",
                             },
                             frozenColumnCount: {
-                              type: "integer",
+                              type: "number",
                               description: "The number of frozen columns",
                             },
                           },
@@ -4711,7 +4711,7 @@ export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
                                   description: "The font family",
                                 },
                                 fontSize: {
-                                  type: "integer",
+                                  type: "number",
                                   description: "The size of the font in points",
                                 },
                                 bold: {
@@ -4779,7 +4779,7 @@ export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
                       type: "object",
                       properties: {
                         sheetId: {
-                          type: "integer",
+                          type: "number",
                           description: "The ID of the newly created sheet",
                         },
                         title: {
@@ -4787,7 +4787,7 @@ export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
                           description: "The title of the new sheet",
                         },
                         index: {
-                          type: "integer",
+                          type: "number",
                           description: "The index of the new sheet",
                         },
                       },
@@ -4911,7 +4911,7 @@ export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
                       description: "The object ID for the created slide",
                     },
                     insertionIndex: {
-                      type: "integer",
+                      type: "number",
                       description: "The 0-based index where the new slide should be inserted",
                     },
                     slideLayoutReference: {
@@ -4967,11 +4967,11 @@ export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
                       description: "The object ID for the created table",
                     },
                     rows: {
-                      type: "integer",
+                      type: "number",
                       description: "Number of rows in the table",
                     },
                     columns: {
-                      type: "integer",
+                      type: "number",
                       description: "Number of columns in the table",
                     },
                     elementProperties: {
@@ -5000,7 +5000,7 @@ export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
                       description: "The text to be inserted",
                     },
                     insertionIndex: {
-                      type: "integer",
+                      type: "number",
                       description: "The index where the text will be inserted",
                     },
                   },
@@ -5025,7 +5025,7 @@ export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
                       description: "Whether to insert the rows below the reference cell",
                     },
                     number: {
-                      type: "integer",
+                      type: "number",
                       description: "The number of rows to insert",
                     },
                     cellLocation: {
@@ -5054,7 +5054,7 @@ export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
                       description: "Whether to insert the columns to the right of the reference cell",
                     },
                     number: {
-                      type: "integer",
+                      type: "number",
                       description: "The number of columns to insert",
                     },
                     cellLocation: {
@@ -5216,7 +5216,7 @@ export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
                       },
                     },
                     insertionIndex: {
-                      type: "integer",
+                      type: "number",
                       description: "The 0-based index where the slides should be moved to",
                     },
                   },
@@ -5241,11 +5241,11 @@ export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
                       description: "The range of text to delete",
                       properties: {
                         startIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The starting index of the range (0-based)",
                         },
                         endIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The ending index of the range (0-based)",
                         },
                       },
@@ -5322,7 +5322,7 @@ export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
                       description: "The ID of the Google Sheets spreadsheet containing the chart",
                     },
                     chartId: {
-                      type: "integer",
+                      type: "number",
                       description: "The ID of the specific chart in the spreadsheet",
                     },
                     elementProperties: {
@@ -5640,11 +5640,11 @@ export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
                           description: "The type of range",
                         },
                         startIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The start index for FROM_START_INDEX or FIXED_RANGE",
                         },
                         endIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The end index for FIXED_RANGE",
                         },
                       },
@@ -5667,7 +5667,7 @@ export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
                       description: "The ID of the Google Sheets spreadsheet containing the chart",
                     },
                     chartId: {
-                      type: "integer",
+                      type: "number",
                       description: "The ID of the chart within the spreadsheet",
                     },
                     containsText: {
@@ -5724,11 +5724,11 @@ export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
                           description: "The type of range",
                         },
                         startIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The start index for FROM_START_INDEX or FIXED_RANGE",
                         },
                         endIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The end index for FIXED_RANGE",
                         },
                       },
@@ -5770,11 +5770,11 @@ export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
                           description: "The type of range",
                         },
                         startIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The start index for FROM_START_INDEX or FIXED_RANGE",
                         },
                         endIndex: {
-                          type: "integer",
+                          type: "number",
                           description: "The end index for FIXED_RANGE",
                         },
                       },
@@ -5819,11 +5819,11 @@ export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
                           description: "The starting cell location",
                         },
                         rowSpan: {
-                          type: "integer",
+                          type: "number",
                           description: "The number of rows in the range",
                         },
                         columnSpan: {
-                          type: "integer",
+                          type: "number",
                           description: "The number of columns in the range",
                         },
                       },
@@ -5848,7 +5848,7 @@ export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
                     columnIndices: {
                       type: "array",
                       items: {
-                        type: "integer",
+                        type: "number",
                       },
                       description: "The 0-based indices of the columns to update",
                     },
@@ -5881,7 +5881,7 @@ export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
                     rowIndices: {
                       type: "array",
                       items: {
-                        type: "integer",
+                        type: "number",
                       },
                       description: "The 0-based indices of the rows to update",
                     },
@@ -5920,11 +5920,11 @@ export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
                           description: "The starting cell location",
                         },
                         rowSpan: {
-                          type: "integer",
+                          type: "number",
                           description: "The number of rows in the range",
                         },
                         columnSpan: {
-                          type: "integer",
+                          type: "number",
                           description: "The number of columns in the range",
                         },
                       },
@@ -5955,11 +5955,11 @@ export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
                           description: "The starting cell location",
                         },
                         rowSpan: {
-                          type: "integer",
+                          type: "number",
                           description: "The number of rows in the range",
                         },
                         columnSpan: {
-                          type: "integer",
+                          type: "number",
                           description: "The number of columns in the range",
                         },
                       },
@@ -6194,7 +6194,7 @@ export const googleOauthSearchDriveByKeywordsDefinition: ActionTemplate = {
         },
       },
       limit: {
-        type: "integer",
+        type: "number",
         description: "The maximum number of files to return",
       },
     },
@@ -6254,7 +6254,7 @@ export const googleOauthGetDriveFileContentByIdDefinition: ActionTemplate = {
         description: "The ID of the file to get content from",
       },
       limit: {
-        type: "integer",
+        type: "number",
         description: "The character limit for the file content",
       },
     },
@@ -6276,7 +6276,7 @@ export const googleOauthGetDriveFileContentByIdDefinition: ActionTemplate = {
         description: "The name of the file",
       },
       fileLength: {
-        type: "integer",
+        type: "number",
         description: "The length of the file content prior to truncating",
       },
       error: {
@@ -6296,7 +6296,7 @@ export const googleOauthListGroupsDefinition: ActionTemplate = {
     required: [],
     properties: {
       maxResults: {
-        type: "integer",
+        type: "number",
         description: "The maximum number of groups to return (max allowed is 200)",
       },
     },
@@ -6408,7 +6408,7 @@ export const googleOauthListGroupMembersDefinition: ActionTemplate = {
         description: "The group's email address or unique group ID",
       },
       maxResults: {
-        type: "integer",
+        type: "number",
         description: "The maximum number of members to return (max allowed is 200)",
       },
     },
@@ -6578,7 +6578,7 @@ export const googlemailSearchGmailMessagesDefinition: ActionTemplate = {
         description: 'Gmail search query (e.g. "from:alice subject:urgent")',
       },
       maxResults: {
-        type: "integer",
+        type: "number",
         description: "Maximum number of messages to return (optional)",
       },
     },
@@ -6648,7 +6648,7 @@ export const googlemailListGmailThreadsDefinition: ActionTemplate = {
         description: 'Gmail search query (e.g. "from:alice subject:project")',
       },
       maxResults: {
-        type: "integer",
+        type: "number",
         description: "Maximum number of threads to return",
       },
     },
@@ -6904,7 +6904,7 @@ export const oktaListOktaUserGroupsDefinition: ActionTemplate = {
         description: "The ID of the user whose groups are to be listed.",
       },
       maxResults: {
-        type: "integer",
+        type: "number",
         description: "The maximum number of results to return.",
         minimum: 1,
       },
@@ -6968,7 +6968,7 @@ export const oktaListOktaGroupsDefinition: ActionTemplate = {
           "Optional search query to filter groups.\nThis field corresponds to the `search` query parameter in the Okta API's List Groups operation.\nFor detailed information on constructing search queries and available filter expressions, refer to the Okta API documentation:\nhttps://developer.okta.com/docs/api/openapi/okta-management/management/tag/Group/#tag/Group/operation/listGroups!in=query&path=search&t=request\nExample: 'profile.name eq \"My Group\"'\n",
       },
       maxResults: {
-        type: "integer",
+        type: "number",
         description: "The maximum number of results to return.",
         minimum: 1,
       },
@@ -7142,7 +7142,7 @@ export const oktaListOktaGroupMembersDefinition: ActionTemplate = {
         description: "The ID of the group whose members are to be listed.",
       },
       maxResults: {
-        type: "integer",
+        type: "number",
         description: "The maximum number of results to return.",
         minimum: 1,
       },
@@ -7337,7 +7337,7 @@ export const oktaListOktaUsersDefinition: ActionTemplate = {
           "Optional search query to filter users.\nThis field corresponds to the `search` query parameter in the Okta API's List Users operation.\nFor detailed information on constructing search queries and available filter expressions, refer to the Okta API documentation:\nhttps://developer.okta.com/docs/api/openapi/okta-management/management/tag/User/#tag/User/operation/listUsers!in=query&path=search&t=request\nExample: 'profile.email eq \"my_user@example.com\"'\n",
       },
       maxResults: {
-        type: "integer",
+        type: "number",
         description: "The maximum number of results to return.",
         minimum: 1,
       },
