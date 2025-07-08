@@ -228,6 +228,8 @@ import {
   gitlabSearchGroupParamsSchema,
   githubSearchRepositoryOutputSchema,
   githubSearchRepositoryParamsSchema,
+  salesforceSearchSalesforceRecordsParamsSchema,
+  salesforceSearchSalesforceRecordsOutputSchema,
 } from "./autogen/types.js";
 import validateAddress from "./providers/googlemaps/validateAddress.js";
 import add from "./providers/math/add.js";
@@ -342,6 +344,7 @@ import searchGroup from "./providers/gitlab/searchGroup.js";
 import searchRepository from "./providers/github/searchRepository.js";
 import getServiceDesks from "./providers/jira/getServiceDesks.js";
 import createServiceDeskRequest from "./providers/jira/createServiceDeskRequest.js";
+import searchSalesforceRecords from "./providers/salesforce/searchSalesforceRecords.js";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -834,6 +837,11 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: getRecord,
       paramsSchema: salesforceGetRecordParamsSchema,
       outputSchema: salesforceGetRecordOutputSchema,
+    },
+    searchSalesforceRecords: {
+      fn: searchSalesforceRecords,
+      paramsSchema: salesforceSearchSalesforceRecordsParamsSchema,
+      outputSchema: salesforceSearchSalesforceRecordsOutputSchema,
     },
     getSalesforceRecordsByQuery: {
       fn: getSalesforceRecordsByQuery,

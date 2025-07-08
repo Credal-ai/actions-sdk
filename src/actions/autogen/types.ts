@@ -4376,6 +4376,44 @@ export type salesforceGenerateSalesReportFunction = ActionFunction<
   salesforceGenerateSalesReportOutputType
 >;
 
+export const salesforceSearchSalesforceRecordsParamsSchema = z.object({
+  keyword: z.string().describe("The keyword to search for"),
+  recordType: z.string().describe("The type of record to search for"),
+  fieldsToSearch: z.array(z.string()).describe("The fields to search for the keyword"),
+});
+
+export type salesforceSearchSalesforceRecordsParamsType = z.infer<typeof salesforceSearchSalesforceRecordsParamsSchema>;
+
+export const salesforceSearchSalesforceRecordsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the records were successfully retrieved"),
+  searchRecords: z
+    .array(
+      z
+        .object({
+          id: z.string().describe("The Salesforce record ID").optional(),
+          attributes: z
+            .object({
+              type: z.string().describe("The Salesforce object type"),
+              url: z.string().describe("The Salesforce record URL"),
+            })
+            .catchall(z.any())
+            .describe("Metadata about the Salesforce record")
+            .optional(),
+        })
+        .describe("A record from Salesforce"),
+    )
+    .describe("The records that match the search")
+    .optional(),
+  error: z.string().describe("The error that occurred if the records were not successfully retrieved").optional(),
+});
+
+export type salesforceSearchSalesforceRecordsOutputType = z.infer<typeof salesforceSearchSalesforceRecordsOutputSchema>;
+export type salesforceSearchSalesforceRecordsFunction = ActionFunction<
+  salesforceSearchSalesforceRecordsParamsType,
+  AuthParamsType,
+  salesforceSearchSalesforceRecordsOutputType
+>;
+
 export const salesforceGetSalesforceRecordsByQueryParamsSchema = z.object({
   query: z.string().describe("The SOQL query to execute"),
   limit: z.number().describe("The maximum number of records to retrieve").optional(),

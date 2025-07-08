@@ -8403,6 +8403,77 @@ export const salesforceGenerateSalesReportDefinition: ActionTemplate = {
   name: "generateSalesReport",
   provider: "salesforce",
 };
+export const salesforceSearchSalesforceRecordsDefinition: ActionTemplate = {
+  description: "Search for Salesforce records by keyword",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["keyword", "recordType", "fieldsToSearch"],
+    properties: {
+      keyword: {
+        type: "string",
+        description: "The keyword to search for",
+      },
+      recordType: {
+        type: "string",
+        description: "The type of record to search for",
+      },
+      fieldsToSearch: {
+        type: "array",
+        description: "The fields to search for the keyword",
+        items: {
+          type: "string",
+        },
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the records were successfully retrieved",
+      },
+      searchRecords: {
+        type: "array",
+        description: "The records that match the search",
+        items: {
+          type: "object",
+          description: "A record from Salesforce",
+          properties: {
+            id: {
+              type: "string",
+              description: "The Salesforce record ID",
+            },
+            attributes: {
+              type: "object",
+              description: "Metadata about the Salesforce record",
+              properties: {
+                type: {
+                  type: "string",
+                  description: "The Salesforce object type",
+                },
+                url: {
+                  type: "string",
+                  description: "The Salesforce record URL",
+                },
+              },
+              required: ["type", "url"],
+              additionalProperties: true,
+            },
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the records were not successfully retrieved",
+      },
+    },
+  },
+  name: "searchSalesforceRecords",
+  provider: "salesforce",
+};
 export const salesforceGetSalesforceRecordsByQueryDefinition: ActionTemplate = {
   description: "Retrieve Salesforce records by SOQL query",
   scopes: [],
