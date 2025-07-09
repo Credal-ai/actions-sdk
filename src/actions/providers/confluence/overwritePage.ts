@@ -30,26 +30,36 @@ const confluenceOverwritePage: confluenceOverwritePageFunction = async ({
   const cloudId = cloudDetails.data[0].id;
   const baseUrl = `https://api.atlassian.com/ex/confluence/${cloudId}/api/v2`;
 
-  const config = getConfluenceRequestConfig(baseUrl, authToken);
+  try {
+    const config = getConfluenceRequestConfig(baseUrl, authToken);
 
-  // Get current page content and version number
-  const response = await axiosClient.get(`/pages/${pageId}?body-format=storage`, config);
-  const currVersion = response.data.version.number;
+    // Get current page content and version number
+    const response = await axiosClient.get(`/pages/${pageId}?body-format=storage`, config);
+    const currVersion = response.data.version.number;
 
-  const payload = {
-    id: pageId,
-    status: "current",
-    title,
-    body: {
-      representation: "storage",
-      value: content,
-    },
-    version: {
-      number: currVersion + 1,
-    },
-  };
+    const payload = {
+      id: pageId,
+      status: "current",
+      title,
+      body: {
+        representation: "storage",
+        value: content,
+      },
+      version: {
+        number: currVersion + 1,
+      },
+    };
 
-  await axiosClient.put(`/pages/${pageId}`, payload, config);
+    await axiosClient.put(`/pages/${pageId}`, payload, config);
+    return {
+      success: true,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "An unknown error occurred while updating the Confluence page.",
+    };
+  }
 };
 
 export default confluenceOverwritePage;

@@ -710,6 +710,20 @@ export const confluenceOverwritePageDefinition: ActionTemplate = {
       },
     },
   },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the page was successfully updated",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the page was not successfully updated",
+      },
+    },
+  },
   name: "overwritePage",
   provider: "confluence",
 };
@@ -728,8 +742,16 @@ export const confluenceFetchPageContentDefinition: ActionTemplate = {
   },
   output: {
     type: "object",
-    required: ["pageId", "title", "content"],
+    required: ["success"],
     properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the page content was successfully retrieved",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the page content was not successfully retrieved",
+      },
       pageId: {
         type: "string",
         description: "The ID of the page",

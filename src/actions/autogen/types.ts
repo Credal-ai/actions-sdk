@@ -407,7 +407,10 @@ export const confluenceOverwritePageParamsSchema = z.object({
 
 export type confluenceOverwritePageParamsType = z.infer<typeof confluenceOverwritePageParamsSchema>;
 
-export const confluenceOverwritePageOutputSchema = z.void();
+export const confluenceOverwritePageOutputSchema = z.object({
+  success: z.boolean().describe("Whether the page was successfully updated"),
+  error: z.string().describe("The error that occurred if the page was not successfully updated").optional(),
+});
 
 export type confluenceOverwritePageOutputType = z.infer<typeof confluenceOverwritePageOutputSchema>;
 export type confluenceOverwritePageFunction = ActionFunction<
@@ -423,9 +426,11 @@ export const confluenceFetchPageContentParamsSchema = z.object({
 export type confluenceFetchPageContentParamsType = z.infer<typeof confluenceFetchPageContentParamsSchema>;
 
 export const confluenceFetchPageContentOutputSchema = z.object({
-  pageId: z.string().describe("The ID of the page"),
-  title: z.string().describe("The title of the page"),
-  content: z.string().describe("The content of the page in storage format (HTML)"),
+  success: z.boolean().describe("Whether the page content was successfully retrieved"),
+  error: z.string().describe("The error that occurred if the page content was not successfully retrieved").optional(),
+  pageId: z.string().describe("The ID of the page").optional(),
+  title: z.string().describe("The title of the page").optional(),
+  content: z.string().describe("The content of the page in storage format (HTML)").optional(),
 });
 
 export type confluenceFetchPageContentOutputType = z.infer<typeof confluenceFetchPageContentOutputSchema>;
