@@ -23,8 +23,9 @@ const searchSalesforceRecords: salesforceSearchSalesforceRecordsFunction = async
     };
   }
   const maxLimit = 25;
+  const dateFieldExists = fieldsToSearch.includes("CreatedDate");
   const url = `${baseUrl}/services/data/v64.0/search/?q=${encodeURIComponent(
-    `FIND {${keyword}} RETURNING ${recordType} (${fieldsToSearch.join(", ")}) LIMIT ${params.limit && params.limit <= maxLimit ? params.limit : maxLimit}`,
+    `FIND {${keyword}} RETURNING ${recordType} (${fieldsToSearch.join(", ") + (dateFieldExists ? " ORDER BY CreatedDate DESC" : "")}) LIMIT ${params.limit && params.limit <= maxLimit ? params.limit : maxLimit}`,
   )}`;
 
   try {
