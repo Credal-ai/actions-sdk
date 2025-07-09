@@ -107,7 +107,7 @@ const searchRepository: githubSearchRepositoryFunction = async ({
   const codeResults: SearchCodeResult[] = codeResultsResponse.data.items.slice(0, MAX_CODE_RESULTS).map(item => ({
     name: item.name,
     path: item.path,
-    sha: item.sha,
+    sha: item.sha.slice(0, 7),
     url: item.url,
     score: item.score,
     textMatches: item.text_matches
