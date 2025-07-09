@@ -11,7 +11,7 @@ on:
 jobs:
   lint:
     name: Lint Code
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
 
     steps:
       # Checkout code
@@ -20,7 +20,7 @@ jobs:
 
       # Set up Node.js environment
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: useblacksmith/setup-node@v5
         with:
           node-version: "22" # Adjust this to match your Node.js version
 
@@ -38,7 +38,7 @@ jobs:
 
   build:
     name: Build Project
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
 
     steps:
       # Checkout code
@@ -47,7 +47,7 @@ jobs:
 
       # Set up Node.js environment
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: useblacksmith/setup-node@v5
         with:
           node-version: "22" # Adjust this to match your Node.js version
 
