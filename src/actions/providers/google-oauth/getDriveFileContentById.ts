@@ -22,15 +22,15 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
   const { fileId, limit } = params;
 
   try {
-    // First, get file metadata to determine the file type
-    const metadataUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?fields=name,mimeType,size`;
+    // First, get file metadata to determine the file type and if it's in a shared drive
+    const metadataUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?fields=name,mimeType,size,driveId,parents&supportsAllDrives=true`;
     const metadataRes = await axiosClient.get(metadataUrl, {
       headers: {
         Authorization: `Bearer ${authParams.authToken}`,
       },
     });
 
-    const { name: fileName, mimeType, size } = metadataRes.data;
+    const { name: fileName, mimeType, size, driveId } = metadataRes.data;
 
     // Check if file is too large (50MB limit for safety)
     const maxFileSize = 50 * 1024 * 1024;
@@ -43,10 +43,13 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
 
     let content: string = "";
 
+    // Create shared drive parameters if the file is in a shared drive
+    const sharedDriveParams = driveId ? "&supportsAllDrives=true" : "";
+
     // Handle different file types - read content directly
     if (mimeType === "application/vnd.google-apps.document") {
       // Google Docs - download as plain text
-      const exportUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}/export?mimeType=text/plain`;
+      const exportUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}/export?mimeType=text/plain${sharedDriveParams}`;
       const exportRes = await axiosClient.get(exportUrl, {
         headers: {
           Authorization: `Bearer ${authParams.authToken}`,
@@ -56,7 +59,7 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
       content = exportRes.data;
     } else if (mimeType === "application/vnd.google-apps.spreadsheet") {
       // Google Sheets - download as CSV
-      const exportUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}/export?mimeType=text/csv`;
+      const exportUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}/export?mimeType=text/csv${sharedDriveParams}`;
       const exportRes = await axiosClient.get(exportUrl, {
         headers: {
           Authorization: `Bearer ${authParams.authToken}`,
@@ -71,7 +74,7 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
         .join("\n");
     } else if (mimeType === "application/vnd.google-apps.presentation") {
       // Google Slides - download as plain text
-      const exportUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}/export?mimeType=text/plain`;
+      const exportUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}/export?mimeType=text/plain${sharedDriveParams}`;
       const exportRes = await axiosClient.get(exportUrl, {
         headers: {
           Authorization: `Bearer ${authParams.authToken}`,
@@ -89,7 +92,7 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
       mimeType === "application/msword"
     ) {
       // Word documents (.docx or .doc) - download and extract text using mammoth
-      const downloadUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media`;
+      const downloadUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media${sharedDriveParams}`;
       const downloadRes = await axiosClient.get(downloadUrl, {
         headers: {
           Authorization: `Bearer ${authParams.authToken}`,
@@ -114,7 +117,7 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
       mimeType?.startsWith("text/")
     ) {
       // Text-based files
-      const downloadUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media`;
+      const downloadUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media${sharedDriveParams}`;
       const downloadRes = await axiosClient.get(downloadUrl, {
         headers: {
           Authorization: `Bearer ${authParams.authToken}`,

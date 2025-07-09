@@ -9,7 +9,7 @@ async function runTest() {
   console.log("Running test getDriveContentById");
 
   const params: googleOauthGetDriveFileContentByIdParamsType = {
-    fileId: "replace-with-file-id", // Provide a valid file ID here
+    fileId: "insert-file-id", // Provide a valid file ID here
     limit: 5000, // optional character limit
   };
 
@@ -17,7 +17,7 @@ async function runTest() {
     "getDriveFileContentById", // Ensure this matches the action name defined in schema
     "googleOauth",
     {
-      authToken: "insert-access-token", // OAuth token with Drive readonly scope
+      authToken: "insert-auth-token"
     },
     params,
   );
