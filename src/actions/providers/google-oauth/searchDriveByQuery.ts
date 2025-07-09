@@ -22,7 +22,7 @@ const searchDriveByQuery: googleOauthSearchDriveByQueryFunction = async ({
 
   const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
     query,
-  )}&fields=files(id,name,mimeType,webViewLink)&supportsAllDrives=true&includeItemsFromAllDrives=true`;
+  )}&fields=files(id,name,mimeType,webViewLink)&supportsAllDrives=true&includeItemsFromAllDrives=true&corpora=allDrives`;
 
   try {
     const res = await axiosClient.get(url, {
