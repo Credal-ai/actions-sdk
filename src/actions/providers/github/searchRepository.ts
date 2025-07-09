@@ -74,11 +74,6 @@ const MAX_FILES_PER_PR = 5;
 const MAX_PATCH_LINES = 20;
 const MAX_FRAGMENT_LINES = 20;
 
-/**
- * TODO:
- * - the repo is hard coded. drop all the repo information
- * - drop the sha information, its just noise.
- */
 const searchRepository: githubSearchRepositoryFunction = async ({
   params,
   authParams,
