@@ -37,7 +37,16 @@ const searchSalesforceRecords: salesforceSearchSalesforceRecordsFunction = async
     if (recordType === "Knowledge__kav") {
       for (const record of response.data.searchRecords) {
         if (record.Article_Body__c) {
-          record.Article_Body__c = record.Article_Body__c.replace(/<[^>]*>/g, "");
+          record.Article_Body__c = record.Article_Body__c
+          // Convert links to text (URL) format
+          .replace(/<a[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi, '$2 ($1)')
+          // Add line breaks for block elements
+          .replace(/<\/?(p|div|br|h[1-6])[^>]*>/gi, '\n')
+          // Remove all other HTML tags
+          .replace(/<[^>]*>/g, '')
+          // Clean up extra whitespace
+          .replace(/\n\s*\n/g, '\n')
+          .trim();
         }
       }
     }
