@@ -9,8 +9,9 @@ import { snakeToPascal } from "../utils/string.js";
 
 const jsonObjectSchema = z.object({
   type: z.string(),
-  required: z.array(z.string()),
-  properties: z.record(z.string(), z.any()), // Permissive for now, validate using JSON schema later
+  required: z.array(z.string()).optional(),
+  properties: z.record(z.string(), z.any()).optional(), // Permissive for now, validate using JSON schema later
+  oneOf: z.array(z.any()).optional(), // Support oneOf schemas
 });
 
 type JsonObjectSchema = z.infer<typeof jsonObjectSchema>;
@@ -73,11 +74,21 @@ async function validateObject(object: JsonObjectSchema) {
     throw new Error(`Error validating object: ${JSON.stringify(ajv.errors, null, 4)}`);
   }
 
-  // check required fields
-  const requiredFields = object.required;
-  for (const field of requiredFields) {
-    if (!object.properties[field]) {
-      throw new Error(`Required field ${field} is missing`);
+  // Handle oneOf schemas
+  if (object.oneOf) {
+    // For oneOf schemas, validate each option
+    for (const oneOfOption of object.oneOf) {
+      const validOption = ajv.validateSchema(oneOfOption);
+      if (!validOption) {
+        throw new Error(`Error validating oneOf option: ${JSON.stringify(ajv.errors, null, 4)}`);
+      }
+    }
+  } else if (object.required && object.properties) {
+    // Handle regular object schemas - check required fields
+    for (const field of object.required) {
+      if (!object.properties[field]) {
+        throw new Error(`Required field ${field} is missing`);
+      }
     }
   }
 }

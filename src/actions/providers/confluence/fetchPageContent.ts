@@ -42,9 +42,11 @@ const confluenceFetchPageContent: confluenceFetchPageContentFunction = async ({
 
     return {
       success: true,
-      pageId,
-      title,
-      content,
+      data: {
+        pageId,
+        title,
+        content,
+      },
     };
   } catch (error) {
     return {

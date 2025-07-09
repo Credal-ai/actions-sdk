@@ -752,17 +752,22 @@ export const confluenceFetchPageContentDefinition: ActionTemplate = {
         type: "string",
         description: "The error that occurred if the page content was not successfully retrieved",
       },
-      pageId: {
-        type: "string",
-        description: "The ID of the page",
-      },
-      title: {
-        type: "string",
-        description: "The title of the page",
-      },
-      content: {
-        type: "string",
-        description: "The content of the page in storage format (HTML)",
+      data: {
+        type: "object",
+        properties: {
+          pageId: {
+            type: "string",
+            description: "The ID of the page",
+          },
+          title: {
+            type: "string",
+            description: "The title of the page",
+          },
+          content: {
+            type: "string",
+            description: "The content of the page in storage format (HTML)",
+          },
+        },
       },
     },
   },

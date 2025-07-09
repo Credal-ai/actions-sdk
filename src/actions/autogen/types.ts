@@ -428,9 +428,13 @@ export type confluenceFetchPageContentParamsType = z.infer<typeof confluenceFetc
 export const confluenceFetchPageContentOutputSchema = z.object({
   success: z.boolean().describe("Whether the page content was successfully retrieved"),
   error: z.string().describe("The error that occurred if the page content was not successfully retrieved").optional(),
-  pageId: z.string().describe("The ID of the page").optional(),
-  title: z.string().describe("The title of the page").optional(),
-  content: z.string().describe("The content of the page in storage format (HTML)").optional(),
+  data: z
+    .object({
+      pageId: z.string().describe("The ID of the page").optional(),
+      title: z.string().describe("The title of the page").optional(),
+      content: z.string().describe("The content of the page in storage format (HTML)").optional(),
+    })
+    .optional(),
 });
 
 export type confluenceFetchPageContentOutputType = z.infer<typeof confluenceFetchPageContentOutputSchema>;
