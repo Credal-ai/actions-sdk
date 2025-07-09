@@ -1,27 +1,24 @@
 import { axiosClient } from "../../util/axiosClient.js";
 import type {
   AuthParamsType,
-  googleOauthSearchDriveByKeywordsFunction,
-  googleOauthSearchDriveByKeywordsOutputType,
-  googleOauthSearchDriveByKeywordsParamsType,
+  googleOauthSearchDriveByQueryFunction,
+  googleOauthSearchDriveByQueryParamsType,
+  googleOauthSearchDriveByQueryOutputType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
-const searchDriveByKeywords: googleOauthSearchDriveByKeywordsFunction = async ({
+const searchDriveByQuery: googleOauthSearchDriveByQueryFunction = async ({
   params,
   authParams,
 }: {
-  params: googleOauthSearchDriveByKeywordsParamsType;
+  params: googleOauthSearchDriveByQueryParamsType;
   authParams: AuthParamsType;
-}): Promise<googleOauthSearchDriveByKeywordsOutputType> => {
+}): Promise<googleOauthSearchDriveByQueryOutputType> => {
   if (!authParams.authToken) {
     return { success: false, error: MISSING_AUTH_TOKEN, files: [] };
   }
 
-  const { keywords, limit } = params;
-
-  // Build the query: fullText contains 'keyword1' or fullText contains 'keyword2' ...
-  const query = keywords.map(kw => `fullText contains '${kw.replace(/'/g, "\\'")}'`).join(" or ");
+  const { query, limit } = params;
 
   const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
     query,
@@ -53,4 +50,4 @@ const searchDriveByKeywords: googleOauthSearchDriveByKeywordsFunction = async ({
   }
 };
 
-export default searchDriveByKeywords;
+export default searchDriveByQuery;

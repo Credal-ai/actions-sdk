@@ -23,8 +23,9 @@ const searchSalesforceRecords: salesforceSearchSalesforceRecordsFunction = async
     };
   }
   const maxLimit = 25;
+  const dateFieldExists = fieldsToSearch.includes("CreatedDate");
   const url = `${baseUrl}/services/data/v64.0/search/?q=${encodeURIComponent(
-    `FIND {${keyword}} RETURNING ${recordType} (${fieldsToSearch.join(", ")}) LIMIT ${params.limit && params.limit <= maxLimit ? params.limit : maxLimit}`,
+    `FIND {${keyword}} RETURNING ${recordType} (${fieldsToSearch.join(", ") + (dateFieldExists ? " ORDER BY CreatedDate DESC" : "")}) LIMIT ${params.limit && params.limit <= maxLimit ? params.limit : maxLimit}`,
   )}`;
 
   try {
@@ -37,7 +38,16 @@ const searchSalesforceRecords: salesforceSearchSalesforceRecordsFunction = async
     if (recordType === "Knowledge__kav") {
       for (const record of response.data.searchRecords) {
         if (record.Article_Body__c) {
-          record.Article_Body__c = record.Article_Body__c.replace(/<[^>]*>/g, "");
+          record.Article_Body__c = record.Article_Body__c
+            // Convert links to text (URL) format
+            .replace(/<a[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi, "$2 ($1)")
+            // Add line breaks for block elements
+            .replace(/<\/?(p|div|br|h[1-6])[^>]*>/gi, "\n")
+            // Remove all other HTML tags
+            .replace(/<[^>]*>/g, "")
+            // Clean up extra whitespace
+            .replace(/\n\s*\n/g, "\n")
+            .trim();
         }
       }
     }
