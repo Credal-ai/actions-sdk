@@ -11,10 +11,6 @@ interface SearchCodeResult {
   path: string;
   sha: string;
   url: string;
-  repository: {
-    full_name: string;
-    html_url: string;
-  };
   score: number;
   textMatches: TextMatch[];
 }
@@ -78,6 +74,11 @@ const MAX_FILES_PER_PR = 5;
 const MAX_PATCH_LINES = 20;
 const MAX_FRAGMENT_LINES = 20;
 
+/**
+ * TODO:
+ * - the repo is hard coded. drop all the repo information
+ * - drop the sha information, its just noise.
+ */
 const searchRepository: githubSearchRepositoryFunction = async ({
   params,
   authParams,
@@ -108,10 +109,6 @@ const searchRepository: githubSearchRepositoryFunction = async ({
     path: item.path,
     sha: item.sha,
     url: item.url,
-    repository: {
-      full_name: item.repository.full_name,
-      html_url: item.repository.html_url,
-    },
     score: item.score,
     textMatches: item.text_matches
       ? item.text_matches.map(match => ({
