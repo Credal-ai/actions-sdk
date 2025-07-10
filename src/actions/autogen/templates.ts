@@ -6211,11 +6211,11 @@ export const googleOauthSearchDriveByKeywordsDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthSearchDriveByQueryDefinition: ActionTemplate = {
-  description: "Search Google Drive files based on a gdrive query provided.",
+  description: "Search Google Drive files based on a google drive query provided.",
   scopes: ["drive.readonly"],
   parameters: {
     type: "object",
-    required: ["query"],
+    required: ["query", "searchDriveByDrive"],
     properties: {
       query: {
         type: "string",
@@ -6224,6 +6224,15 @@ export const googleOauthSearchDriveByQueryDefinition: ActionTemplate = {
       limit: {
         type: "number",
         description: "The maximum number of files to return",
+      },
+      searchDriveByDrive: {
+        type: "boolean",
+        description: "Whether we should search drive by drive or run a general search",
+      },
+      orderByQuery: {
+        type: "string",
+        description:
+          "The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'",
       },
     },
   },
@@ -6268,6 +6277,83 @@ export const googleOauthSearchDriveByQueryDefinition: ActionTemplate = {
     },
   },
   name: "searchDriveByQuery",
+  provider: "googleOauth",
+};
+export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTemplate = {
+  description: "Search Google Drive files based on a google drive query provided and get content for each file",
+  scopes: ["drive.readonly"],
+  parameters: {
+    type: "object",
+    required: ["query", "searchDriveByDrive"],
+    properties: {
+      query: {
+        type: "string",
+        description: "The query to search for in file contents.",
+      },
+      limit: {
+        type: "number",
+        description: "The maximum number of files to return",
+      },
+      fileSizeLimit: {
+        type: "number",
+        description: "The maximum length of a file in characters",
+      },
+      searchDriveByDrive: {
+        type: "boolean",
+        description: "Whether we should search drive by drive or run a general search",
+      },
+      orderByQuery: {
+        type: "string",
+        description:
+          "The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the search was successful",
+      },
+      files: {
+        type: "array",
+        description: "List of files matching the search",
+        items: {
+          type: "object",
+          required: ["id", "name", "mimeType", "url"],
+          properties: {
+            id: {
+              type: "string",
+              description: "The file ID",
+            },
+            name: {
+              type: "string",
+              description: "The file name",
+            },
+            mimeType: {
+              type: "string",
+              description: "The MIME type of the file",
+            },
+            url: {
+              type: "string",
+              description: "The web link to view the file",
+            },
+            content: {
+              type: "string",
+              description: "The data returned from the file limited by fileLimit",
+            },
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "Error message if search failed",
+      },
+    },
+  },
+  name: "searchDriveByQueryAndGetFileContent",
   provider: "googleOauth",
 };
 export const googleOauthGetDriveFileContentByIdDefinition: ActionTemplate = {

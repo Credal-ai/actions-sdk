@@ -120,6 +120,7 @@ import {
   jiraOrgGetJiraIssuesByQueryDefinition,
   googleOauthGetDriveFileContentByIdDefinition,
   googleOauthSearchDriveByQueryDefinition,
+  googleOauthSearchDriveByQueryAndGetFileContentDefinition,
 } from "./autogen/templates.js";
 import type { ActionTemplate } from "./parse.js";
 
@@ -173,6 +174,7 @@ export const ACTION_GROUPS: ActionGroups = {
       googleOauthUpdatePresentationDefinition,
       googleOauthSearchDriveByKeywordsDefinition,
       googleOauthSearchDriveByQueryDefinition,
+      googleOauthSearchDriveByQueryAndGetFileContentDefinition,
       googleOauthGetDriveFileContentByIdDefinition,
     ],
   },

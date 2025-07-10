@@ -1,4 +1,4 @@
-import type { googleOauthSearchDriveByQueryParamsType } from "../../src/actions/autogen/types.js";
+import type { googleOauthSearchDriveByQueryAndGetFileContentParamsType } from "../../src/actions/autogen/types.js";
 import { runAction } from "../../src/app.js";
 import assert from "node:assert";
 
@@ -9,16 +9,17 @@ async function runTest() {
   console.log("Running test searchDriveByKeywords");
 
   const result = await runAction(
-    "searchDriveByQuery",
+    "searchDriveByQueryAndGetFileContent",
     "googleOauth",
     {
-      authToken: "insert-auth-token", // Use a valid OAuth token with Drive readonly scope,
+      authToken: "", // Use a valid OAuth token with Drive readonly scope,
     },
     {
-      query: "fullText contains 'Pokemon'", // Replace with your own query
+      query: "fullText contains 'Enterprise'", // Replace with your own query
       searchDriveByDrive: false,
       orderByQuery: "modifiedTime asc", // Order by modified time descending (newest first)
-    } as googleOauthSearchDriveByQueryParamsType
+      fileSizeLimit: 300
+    } as googleOauthSearchDriveByQueryAndGetFileContentParamsType
   );
 
   // Validate the result
@@ -30,6 +31,7 @@ async function runTest() {
     assert(firstFile.name, "First file should have a name");
     assert(firstFile.mimeType, "First file should have a mimeType");
     assert(firstFile.url, "First file should have a url");
+    assert(firstFile.content, "First file has content in it")
   }
 
   console.log("Found files:", result.files);
