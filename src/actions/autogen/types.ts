@@ -4827,7 +4827,22 @@ export const githubListDirectoryParamsSchema = z.object({
 
 export type githubListDirectoryParamsType = z.infer<typeof githubListDirectoryParamsSchema>;
 
-export const githubListDirectoryOutputSchema = z.array(z.any());
+export const githubListDirectoryOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  content: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the file"),
+        path: z.string().describe("The path of the file"),
+        type: z.string().describe("The type of the file"),
+        size: z.number().describe("The size of the file in bytes"),
+        htmlUrl: z.string().describe("The URL of the file in the Github UI"),
+      }),
+    )
+    .describe("Array of directory contents")
+    .optional(),
+});
 
 export type githubListDirectoryOutputType = z.infer<typeof githubListDirectoryOutputSchema>;
 export type githubListDirectoryFunction = ActionFunction<

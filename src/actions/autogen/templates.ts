@@ -9347,7 +9347,48 @@ export const githubListDirectoryDefinition: ActionTemplate = {
     },
   },
   output: {
-    type: "array",
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the operation was successful",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the operation failed",
+      },
+      content: {
+        type: "array",
+        description: "Array of directory contents",
+        items: {
+          type: "object",
+          required: ["name", "path", "type", "size", "htmlUrl"],
+          properties: {
+            name: {
+              type: "string",
+              description: "The name of the file",
+            },
+            path: {
+              type: "string",
+              description: "The path of the file",
+            },
+            type: {
+              type: "string",
+              description: "The type of the file",
+            },
+            size: {
+              type: "number",
+              description: "The size of the file in bytes",
+            },
+            htmlUrl: {
+              type: "string",
+              description: "The URL of the file in the Github UI",
+            },
+          },
+        },
+      },
+    },
   },
   name: "listDirectory",
   provider: "github",
