@@ -7,6 +7,7 @@ import type {
   googleOauthGetDriveFileContentByIdParamsType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { extractTextFromPdf } from "../../../utils/pdf.js";
 
 const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = async ({
   params,
@@ -83,10 +84,23 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
       });
       content = exportRes.data;
     } else if (mimeType === "application/pdf") {
-      return {
-        success: false,
-        error: `Failed to parse PDF file - currently unsupported`,
-      };
+      // PDF files - download and extract text using pdfjs-dist
+      const downloadUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media${sharedDriveParams}`;
+      const downloadRes = await axiosClient.get(downloadUrl, {
+        headers: {
+          Authorization: `Bearer ${authParams.authToken}`,
+        },
+        responseType: "arraybuffer",
+      });
+      try {
+        content = await extractTextFromPdf(downloadRes.data);
+      } catch (e) {
+        return {
+          success: false,
+          error: `Failed to parse PDF document: ${e instanceof Error ? e.message : JSON.stringify(e)}`,
+        };
+      }
+      // Extract text from PDF
     } else if (
       mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
       mimeType === "application/msword"
@@ -138,8 +152,8 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
         error: `Unsupported file type: ${mimeType}`,
       };
     }
-
     content = content.trim();
+
     const originalLength = content.length;
 
     // Naive way to truncate content
