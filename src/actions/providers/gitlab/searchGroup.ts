@@ -78,7 +78,12 @@ async function globalSearch<T>(input: {
   return gitlabFetch<T[]>(endpoint, authToken);
 }
 
-async function getMRDiffs(input: { projectId: number, mrIid: number, authToken: string, baseUrl: string}): Promise<MRDiff[]> {
+async function getMRDiffs(input: {
+  projectId: number;
+  mrIid: number;
+  authToken: string;
+  baseUrl: string;
+}): Promise<MRDiff[]> {
   const { projectId, mrIid, authToken, baseUrl } = input;
   const endpoint = `${baseUrl}/projects/${projectId}/merge_requests/${mrIid}/diffs`;
   return gitlabFetch<MRDiff[]>(endpoint, authToken);
@@ -111,7 +116,12 @@ const searchGroup: gitlabSearchGroupFunction = async ({
 
   const mergeRequests: MergeRequestWithDiffs[] = await Promise.all(
     mrResults.map(async metadata => {
-      const diffs = await getMRDiffs({ projectId: metadata.project_id, mrIid: metadata.iid, authToken, baseUrl: gitlabBaseUrl });
+      const diffs = await getMRDiffs({
+        projectId: metadata.project_id,
+        mrIid: metadata.iid,
+        authToken,
+        baseUrl: gitlabBaseUrl,
+      });
       return { metadata, diffs };
     }),
   );
