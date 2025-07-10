@@ -3276,6 +3276,49 @@ export type googleOauthSearchDriveByQueryFunction = ActionFunction<
   googleOauthSearchDriveByQueryOutputType
 >;
 
+export const googleOauthSearchDriveByQueryAndGetFileContentParamsSchema = z.object({
+  query: z.string().describe("The query to search for in file contents."),
+  limit: z.number().describe("The maximum number of files to return").optional(),
+  fileSizeLimit: z.number().describe("The maximum length of a file in characters").optional(),
+  searchDriveByDrive: z.boolean().describe("Whether we should search drive by drive or run a general search"),
+  orderByQuery: z
+    .string()
+    .describe(
+      "The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'",
+    )
+    .optional(),
+});
+
+export type googleOauthSearchDriveByQueryAndGetFileContentParamsType = z.infer<
+  typeof googleOauthSearchDriveByQueryAndGetFileContentParamsSchema
+>;
+
+export const googleOauthSearchDriveByQueryAndGetFileContentOutputSchema = z.object({
+  success: z.boolean().describe("Whether the search was successful"),
+  files: z
+    .array(
+      z.object({
+        id: z.string().describe("The file ID"),
+        name: z.string().describe("The file name"),
+        mimeType: z.string().describe("The MIME type of the file"),
+        url: z.string().describe("The web link to view the file"),
+        content: z.string().describe("The data returned from the file limited by fileLimit").optional(),
+      }),
+    )
+    .describe("List of files matching the search")
+    .optional(),
+  error: z.string().describe("Error message if search failed").optional(),
+});
+
+export type googleOauthSearchDriveByQueryAndGetFileContentOutputType = z.infer<
+  typeof googleOauthSearchDriveByQueryAndGetFileContentOutputSchema
+>;
+export type googleOauthSearchDriveByQueryAndGetFileContentFunction = ActionFunction<
+  googleOauthSearchDriveByQueryAndGetFileContentParamsType,
+  AuthParamsType,
+  googleOauthSearchDriveByQueryAndGetFileContentOutputType
+>;
+
 export const googleOauthGetDriveFileContentByIdParamsSchema = z.object({
   fileId: z.string().describe("The ID of the file to get content from"),
   limit: z.number().describe("The character limit for the file content"),
