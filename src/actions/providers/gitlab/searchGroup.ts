@@ -74,13 +74,13 @@ async function globalSearch<T>(input: {
   authToken: string;
 }): Promise<T[]> {
   const { scope, query, groupId, authToken, baseUrl } = input;
-  const endpoint = `${baseUrl}/api/v4/groups/${groupId}/search?scope=${scope}&search=${encodeURIComponent(query)}`;
+  const endpoint = `${baseUrl}/groups/${groupId}/search?scope=${scope}&search=${encodeURIComponent(query)}`;
   return gitlabFetch<T[]>(endpoint, authToken);
 }
 
 async function getMRDiffs(input: { projectId: number, mrIid: number, authToken: string, baseUrl: string}): Promise<MRDiff[]> {
   const { projectId, mrIid, authToken, baseUrl } = input;
-  const endpoint = `${baseUrl}/api/v4/projects/${projectId}/merge_requests/${mrIid}/diffs`;
+  const endpoint = `${baseUrl}/projects/${projectId}/merge_requests/${mrIid}/diffs`;
   return gitlabFetch<MRDiff[]>(endpoint, authToken);
 }
 
@@ -96,7 +96,7 @@ const searchGroup: gitlabSearchGroupFunction = async ({
 }): Promise<gitlabSearchGroupOutputType> => {
   const { authToken, baseUrl } = authParams;
 
-  const gitlabBaseUrl = baseUrl ?? GITLAB_API_URL;
+  const gitlabBaseUrl = `${baseUrl ?? GITLAB_API_URL}/api/v4`;
 
   if (!authToken) {
     throw new Error(MISSING_AUTH_TOKEN);
