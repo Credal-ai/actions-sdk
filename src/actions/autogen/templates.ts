@@ -6215,7 +6215,7 @@ export const googleOauthSearchDriveByQueryDefinition: ActionTemplate = {
   scopes: ["drive.readonly"],
   parameters: {
     type: "object",
-    required: ["query"],
+    required: ["query", "searchDriveByDrive"],
     properties: {
       query: {
         type: "string",
@@ -6224,6 +6224,10 @@ export const googleOauthSearchDriveByQueryDefinition: ActionTemplate = {
       limit: {
         type: "number",
         description: "The maximum number of files to return",
+      },
+      searchDriveByDrive: {
+        type: "boolean",
+        description: "Whether we should search drive by drive or run a general search",
       },
     },
   },
