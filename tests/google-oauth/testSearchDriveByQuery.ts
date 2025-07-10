@@ -15,7 +15,9 @@ async function runTest() {
       authToken: "insert-auth-token", // Use a valid OAuth token with Drive readonly scope,
     },
     {
-      query: "fullText contains 'pokemon' and fullText contains 'charizard'", // Replace with your own query
+      query: "fullText contains 'Pokemon'", // Replace with your own query
+      searchDriveByDrive: false,
+      orderByQuery: "modifiedTime asc", // Order by modified time descending (newest first)
     } as googleOauthSearchDriveByQueryParamsType
   );
 
