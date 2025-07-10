@@ -4799,10 +4799,6 @@ export const githubGetFileContentParamsSchema = z.object({
   organization: z.string().describe("The organization that owns the repository"),
   repository: z.string().describe("The repository name"),
   path: z.string().describe("The file path to get content from"),
-  ref: z
-    .string()
-    .describe("The branch, tag, or commit SHA to get content from (defaults to default branch)")
-    .optional(),
 });
 
 export type githubGetFileContentParamsType = z.infer<typeof githubGetFileContentParamsSchema>;
@@ -4811,7 +4807,6 @@ export const githubGetFileContentOutputSchema = z.object({
   success: z.boolean().describe("Whether the operation was successful"),
   error: z.string().describe("The error that occurred if the operation was not successful").optional(),
   content: z.string().describe("The decoded file content as a string").optional(),
-  encoding: z.string().describe("The encoding of the file content").optional(),
   size: z.number().describe("The size of the file in bytes").optional(),
   name: z.string().describe("The name of the file").optional(),
   htmlUrl: z.string().describe("The URL of the file in the Github UI").optional(),

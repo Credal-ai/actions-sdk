@@ -17,7 +17,7 @@ async function runTest() {
       organization: "Credal-ai",
       repository: "app",
       query: "test",
-    },
+    }
   );
 
   console.log(JSON.stringify(result, null, 2));
@@ -26,7 +26,10 @@ async function runTest() {
   assert(result, "Response should not be null");
   assert(Array.isArray(result.code), "Code should be an array");
   assert(Array.isArray(result.commits), "Commits should be an array");
-  assert(Array.isArray(result.issuesAndPullRequests), "Issues and pull requests should be an array");
+  assert(
+    Array.isArray(result.issuesAndPullRequests),
+    "Issues and pull requests should be an array"
+  );
 }
 
 runTest().catch((error) => {

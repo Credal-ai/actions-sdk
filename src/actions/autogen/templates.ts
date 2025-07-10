@@ -9290,10 +9290,6 @@ export const githubGetFileContentDefinition: ActionTemplate = {
         type: "string",
         description: "The file path to get content from",
       },
-      ref: {
-        type: "string",
-        description: "The branch, tag, or commit SHA to get content from (defaults to default branch)",
-      },
     },
   },
   output: {
@@ -9311,10 +9307,6 @@ export const githubGetFileContentDefinition: ActionTemplate = {
       content: {
         type: "string",
         description: "The decoded file content as a string",
-      },
-      encoding: {
-        type: "string",
-        description: "The encoding of the file content",
       },
       size: {
         type: "number",

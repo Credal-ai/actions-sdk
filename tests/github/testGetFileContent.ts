@@ -7,6 +7,10 @@ dotenv.config();
 async function runTest() {
   const authToken = process.env.GITHUB_ACCESS_TOKEN;
 
+  if (!authToken) {
+    throw new Error("GITHUB_ACCESS_TOKEN is not set");
+  }
+
   const result = await runAction(
     "getFileContent",
     "github",
@@ -15,7 +19,7 @@ async function runTest() {
     },
     {
       organization: "Credal-ai",
-      repository: "app",
+      repository: "actions-sdk",
       path: "src/app.ts",
     }
   );

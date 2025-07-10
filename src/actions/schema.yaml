@@ -496,7 +496,7 @@ actions:
           content:
             type: string
             description: The new content for the page
-      output: 
+      output:
         type: object
         required: [success]
         properties:
@@ -1385,7 +1385,7 @@ actions:
           warehouse:
             type: string
             description: The warehouse to use for executing the query
-          role: 
+          role:
             type: string
             description: The snowflake role to use for executing the query
           query:
@@ -4082,7 +4082,7 @@ actions:
                 url:
                   type: string
                   description: The web link to view the file
-                content: 
+                content:
                   type: string
                   description: The data returned from the file limited by fileLimit
           error:
@@ -4114,7 +4114,7 @@ actions:
           fileName:
             type: string
             description: The name of the file
-          fileLength: 
+          fileLength:
             type: number
             description: The length of the file content prior to truncating
           error:
@@ -6234,9 +6234,6 @@ actions:
           content:
             type: string
             description: The decoded file content as a string
-          encoding:
-            type: string
-            description: The encoding of the file content
           size:
             type: number
             description: The size of the file in bytes

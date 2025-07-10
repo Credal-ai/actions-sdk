@@ -54,10 +54,13 @@ const getFileContent: githubGetFileContentFunction = async ({
     };
   }
 
+  // GitHub API returns content as base64 encoded string
+  // We need to decode it properly to UTF-8 text
+  const content = Buffer.from(data.content, data.encoding as BufferEncoding).toString("utf-8");
+
   return {
     success: true,
-    content: data.content,
-    encoding: data.encoding,
+    content,
     size: data.size,
     name: data.name,
     htmlUrl: data.html_url ?? data.url,
