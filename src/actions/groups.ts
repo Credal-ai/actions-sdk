@@ -121,6 +121,7 @@ import {
   googleOauthGetDriveFileContentByIdDefinition,
   googleOauthSearchDriveByQueryDefinition,
   googleOauthSearchDriveByQueryAndGetFileContentDefinition,
+  githubGetFileContentDefinition,
 } from "./autogen/templates.js";
 import type { ActionTemplate } from "./parse.js";
 
@@ -326,6 +327,7 @@ export const ACTION_GROUPS: ActionGroups = {
       githubCreateBranchDefinition,
       githubCreatePullRequestDefinition,
       githubListPullRequestsDefinition,
+      githubGetFileContentDefinition,
     ],
   },
   ASHBY: {
