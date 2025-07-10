@@ -17,7 +17,7 @@ async function runTest() {
     "getDriveFileContentById", // Ensure this matches the action name defined in schema
     "googleOauth",
     {
-      authToken: "insert-auth-token"
+      authToken: "insert-auth-token", // Use a valid OAuth token with Drive readonly scope,
     },
     params,
   );
@@ -31,14 +31,14 @@ async function runTest() {
     assert(result.fileName, "Should include fileName");
     assert(
       typeof result.fileLength === "number",
-      "Should include fileLength as number",
+      "Should include fileLength as number"
     );
 
     // Ensure truncation logic works when limit is set
     if (params.limit) {
       assert(
         result.content!.length <= params.limit,
-        "Content should respect the limit",
+        "Content should respect the limit"
       );
     }
   }
