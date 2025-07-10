@@ -43,7 +43,7 @@ const getFileContent: githubGetFileContentFunction = async ({
   if (Array.isArray(data)) {
     return {
       success: false,
-      error: "Content is not a file. Use the directory list tool instead",
+      error: "Path is a directory. Use the directory list tool instead.",
     };
   }
 
