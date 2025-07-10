@@ -9,6 +9,7 @@ export async function getSlackChannels(client: WebClient): Promise<ChannelWithId
 
   const allChannelsIterable = await client.paginate("conversations.list", {
     exclude_archived: true,
+    types: "public_channel,private_channel",
     limit,
   });
 
