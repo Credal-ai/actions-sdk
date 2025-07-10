@@ -9318,7 +9318,7 @@ export const githubGetFileContentDefinition: ActionTemplate = {
       },
       htmlUrl: {
         type: "string",
-        description: "The URL of the file in the Github UI",
+        description: "The URL of the file in the GitHub UI",
       },
     },
   },
