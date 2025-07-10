@@ -12,12 +12,13 @@ async function runTest() {
     "searchDriveByQueryAndGetFileContent",
     "googleOauth",
     {
-      authToken: "", // Use a valid OAuth token with Drive readonly scope,
+      authToken: "auth-token", // Use a valid OAuth token with Drive readonly scope,
     },
     {
-      query: "fullText contains 'Enterprise'", // Replace with your own query
+      query: "fullText contains 'credal'", // Replace with your own query
       searchDriveByDrive: false,
       orderByQuery: "modifiedTime asc", // Order by modified time descending (newest first)
+      limit: 20,
       fileSizeLimit: 300
     } as googleOauthSearchDriveByQueryAndGetFileContentParamsType
   );

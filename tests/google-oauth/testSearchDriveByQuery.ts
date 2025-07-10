@@ -12,7 +12,7 @@ async function runTest() {
     "searchDriveByQuery",
     "googleOauth",
     {
-      authToken: "insert-auth-token", // Use a valid OAuth token with Drive readonly scope,
+      authToken: "google-oauth-token", // Use a valid OAuth token with Drive readonly scope,
     },
     {
       query: "fullText contains 'Pokemon'", // Replace with your own query

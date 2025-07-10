@@ -160,6 +160,8 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
     if (limit && content.length > limit) {
       content = content.substring(0, limit);
     }
+    // Replace all newline characters with spaces, then collapse multiple spaces
+    content = content.replace(/\r?\n+/g, " ").replace(/ +/g, " ");
 
     return {
       success: true,

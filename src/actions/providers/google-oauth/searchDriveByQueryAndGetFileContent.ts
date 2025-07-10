@@ -33,38 +33,33 @@ const searchDriveByQueryAndGetFileContent: googleOauthSearchDriveByQueryAndGetFi
     return { success: false, error: searchResult.error, files: [] };
   }
 
-  // For each file, fetch its content
-  const filesWithContent = [] as Array<{
-    id: string;
-    name: string;
-    mimeType: string;
-    url: string;
-    content?: string;
-  }>;
+  // For each file, fetch its content in parallel
   const files = searchResult.files ?? [];
-  for (const file of files) {
+  const contentPromises = files.map(async file => {
     try {
       const contentResult = await getDriveFileContentById({
         params: { fileId: file.id, limit: fileSizeLimit ?? 1000 },
         authParams,
       });
-      filesWithContent.push({
+      return {
         id: file.id,
         name: file.name,
         mimeType: file.mimeType,
         url: file.url,
         content: contentResult.success ? contentResult.content : undefined,
-      });
+      };
     } catch (error) {
       console.error(`Error fetching content for file ${file.id}:`, error);
-      filesWithContent.push({
+      return {
         id: file.id,
         name: file.name,
         mimeType: file.mimeType,
         url: file.url,
-      });
+      };
     }
-  }
+  });
+
+  const filesWithContent = await Promise.all(contentPromises);
 
   // Return combined results
   return { success: true, files: filesWithContent };
