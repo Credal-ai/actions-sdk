@@ -14,6 +14,38 @@ interface DriveInfo {
 
 type DriveFile = { id: string; name: string; mimeType: string; url: string };
 
+// Helper function to check if a file should be excluded (images and folders)
+const shouldExcludeFile = (file: DriveFile): boolean => {
+  const mimeType = file.mimeType.toLowerCase();
+
+  // Exclude folders
+  if (mimeType === "application/vnd.google-apps.folder") {
+    return true;
+  }
+
+  // Exclude common image formats
+  const imageTypes = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/gif",
+    "image/bmp",
+    "image/svg+xml",
+    "image/webp",
+    "image/tiff",
+    "image/ico",
+    "image/heic",
+    "image/heif",
+  ];
+
+  return imageTypes.includes(mimeType);
+};
+
+// Helper function to filter files
+const filterReadableFiles = (files: DriveFile[]): DriveFile[] => {
+  return files.filter(file => !shouldExcludeFile(file));
+};
+
 const searchDriveByQuery: googleOauthSearchDriveByQueryFunction = async ({
   params,
   authParams,
@@ -25,13 +57,13 @@ const searchDriveByQuery: googleOauthSearchDriveByQueryFunction = async ({
     return { success: false, error: MISSING_AUTH_TOKEN, files: [] };
   }
 
-  const { query, limit, searchDriveByDrive } = params;
+  const { query, limit, searchDriveByDrive, orderByQuery } = params;
 
   try {
     if (searchDriveByDrive) {
-      return await searchAllDrivesIndividually(query, authParams.authToken, limit);
+      return await searchAllDrivesIndividually(query, authParams.authToken, limit, orderByQuery);
     } else {
-      return await searchAllDrivesAtOnce(query, authParams.authToken, limit);
+      return await searchAllDrivesAtOnce(query, authParams.authToken, limit, orderByQuery);
     }
   } catch (error) {
     console.error("Error searching Google Drive", error);
@@ -48,10 +80,12 @@ const searchAllDrivesAtOnce = async (
   query: string,
   authToken: string,
   limit?: number,
+  orderByQuery?: string,
 ): Promise<googleOauthSearchDriveByQueryOutputType> => {
+  const orderBy = orderByQuery || "modifiedTime desc";
   const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
     query,
-  )}&fields=files(id,name,mimeType,webViewLink)&supportsAllDrives=true&includeItemsFromAllDrives=true&corpora=allDrives&pageSize=1000`;
+  )}&fields=files(id,name,mimeType,webViewLink)&supportsAllDrives=true&includeItemsFromAllDrives=true&corpora=allDrives&pageSize=1000&orderBy=${encodeURIComponent(orderBy)}`;
 
   const res = await axiosClient.get(url, {
     headers: {
@@ -67,9 +101,12 @@ const searchAllDrivesAtOnce = async (
       url: file.webViewLink || "",
     })) || [];
 
+  // Filter out images and folders
+  const readableFiles = filterReadableFiles(files);
+
   return {
     success: true,
-    files: limit ? files.slice(0, limit) : files,
+    files: limit ? readableFiles.slice(0, limit) : readableFiles,
   };
 };
 
@@ -78,6 +115,7 @@ const searchAllDrivesIndividually = async (
   query: string,
   authToken: string,
   limit?: number,
+  orderByQuery?: string,
 ): Promise<googleOauthSearchDriveByQueryOutputType> => {
   const drives = await getAllDrives(authToken);
   let allFiles: Array<DriveFile> = [];
@@ -85,8 +123,10 @@ const searchAllDrivesIndividually = async (
   // Search each drive individually
   for (const drive of drives) {
     try {
-      const driveFiles = await searchSingleDrive(query, drive.id, authToken);
-      allFiles = allFiles.concat(driveFiles);
+      const driveFiles = await searchSingleDrive(query, drive.id, authToken, orderByQuery);
+      // Filter out images and folders before adding to results
+      const readableDriveFiles = filterReadableFiles(driveFiles);
+      allFiles = allFiles.concat(readableDriveFiles);
 
       // If we have a limit and we've reached it, break early
       if (limit && allFiles.length >= limit) {
@@ -136,8 +176,14 @@ const getAllDrives = async (authToken: string): Promise<DriveInfo[]> => {
 };
 
 // Search a single drive
-const searchSingleDrive = async (query: string, driveId: string, authToken: string): Promise<Array<DriveFile>> => {
+const searchSingleDrive = async (
+  query: string,
+  driveId: string,
+  authToken: string,
+  orderByQuery?: string,
+): Promise<Array<DriveFile>> => {
   const files: Array<DriveFile> = [];
+  const orderBy = orderByQuery || "modifiedTime desc";
 
   let nextPageToken: string | undefined;
 
@@ -148,14 +194,14 @@ const searchSingleDrive = async (query: string, driveId: string, authToken: stri
       // Search in user's personal drive
       url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
         query,
-      )}&fields=files(id,name,mimeType,webViewLink),nextPageToken&pageSize=1000${
+      )}&fields=files(id,name,mimeType,webViewLink),nextPageToken&pageSize=1000&orderBy=${encodeURIComponent(orderBy)}${
         nextPageToken ? `&pageToken=${nextPageToken}` : ""
       }`;
     } else {
       // Search in specific shared drive
       url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
         `${query} and parents in '${driveId}'`,
-      )}&fields=files(id,name,mimeType,webViewLink),nextPageToken&supportsAllDrives=true&includeItemsFromAllDrives=true&corpora=drive&driveId=${driveId}&pageSize=1000${
+      )}&fields=files(id,name,mimeType,webViewLink),nextPageToken&supportsAllDrives=true&includeItemsFromAllDrives=true&corpora=drive&driveId=${driveId}&pageSize=1000&orderBy=${encodeURIComponent(orderBy)}${
         nextPageToken ? `&pageToken=${nextPageToken}` : ""
       }`;
     }

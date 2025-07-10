@@ -6229,6 +6229,11 @@ export const googleOauthSearchDriveByQueryDefinition: ActionTemplate = {
         type: "boolean",
         description: "Whether we should search drive by drive or run a general search",
       },
+      orderByQuery: {
+        type: "string",
+        description:
+          "The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'",
+      },
     },
   },
   output: {
