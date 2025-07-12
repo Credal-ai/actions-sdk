@@ -155,8 +155,6 @@ const searchRepository: githubSearchRepositoryFunction = async ({
     advanced_search: "true",
   });
 
-  
-
   const prItems = issueResults.data.items.filter(item => item.pull_request).slice(0, MAX_ISSUES_OR_PRS);
   const prNumbers: number[] = prItems.map(item => item.number);
 
