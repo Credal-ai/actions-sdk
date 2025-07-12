@@ -1,5 +1,7 @@
 import { axiosClient } from "../../util/axiosClient.js";
 import mammoth from "mammoth";
+import { google } from "googleapis";
+import { OAuth2Client } from "google-auth-library";
 import type {
   AuthParamsType,
   googleOauthGetDriveFileContentByIdFunction,
@@ -8,6 +10,11 @@ import type {
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import { extractTextFromPdf } from "../../../utils/pdf.js";
+import {
+  parseGoogleDocFromRawContentToPlainText,
+  parseGoogleSheetsFromRawContentToPlainText,
+  parseGoogleSlidesFromRawContentToPlainText,
+} from "../../../utils/google.js";
 
 const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = async ({
   params,
@@ -20,11 +27,12 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
     return { success: false, error: MISSING_AUTH_TOKEN };
   }
 
+  const BASE_URL = "https://www.googleapis.com/drive/v3/files/";
   const { fileId, limit } = params;
 
   try {
     // First, get file metadata to determine the file type and if it's in a shared drive
-    const metadataUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?fields=name,mimeType,size,driveId,parents&supportsAllDrives=true`;
+    const metadataUrl = `${BASE_URL}${encodeURIComponent(fileId)}?fields=name,mimeType,size,driveId,parents&supportsAllDrives=true`;
     const metadataRes = await axiosClient.get(metadataUrl, {
       headers: {
         Authorization: `Bearer ${authParams.authToken}`,
@@ -43,53 +51,81 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
     }
 
     let content: string = "";
-
-    // Create shared drive parameters if the file is in a shared drive
     const sharedDriveParams = driveId ? "&supportsAllDrives=true" : "";
 
-    // Handle different file types - read content directly
+    // Create OAuth2Client from the auth token
+    const oauthClient = new OAuth2Client();
+    oauthClient.setCredentials({ access_token: authParams.authToken });
+
+    // Google Docs - use Google Docs API instead of Drive export
     if (mimeType === "application/vnd.google-apps.document") {
-      // Google Docs - download as plain text
-      const exportUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}/export?mimeType=text/plain${sharedDriveParams}`;
-      const exportRes = await axiosClient.get(exportUrl, {
-        headers: {
-          Authorization: `Bearer ${authParams.authToken}`,
-        },
-        responseType: "text",
-      });
-      content = exportRes.data;
-    } else if (mimeType === "application/vnd.google-apps.spreadsheet") {
-      // Google Sheets - download as CSV
-      const exportUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}/export?mimeType=text/csv${sharedDriveParams}`;
-      const exportRes = await axiosClient.get(exportUrl, {
-        headers: {
-          Authorization: `Bearer ${authParams.authToken}`,
-        },
-        responseType: "text",
-      });
-      // Clean up excessive commas from empty columns
-      content = exportRes.data
-        .split("\n")
-        .map((line: string) => line.replace(/,+$/, "")) // Remove trailing commas
-        .map((line: string) => line.replace(/,{2,}/g, ",")) // Replace multiple commas with single comma
-        .join("\n");
-    } else if (mimeType === "application/vnd.google-apps.presentation") {
-      // Google Slides - download as plain text
-      const exportUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}/export?mimeType=text/plain${sharedDriveParams}`;
-      const exportRes = await axiosClient.get(exportUrl, {
-        headers: {
-          Authorization: `Bearer ${authParams.authToken}`,
-        },
-        responseType: "text",
-      });
-      content = exportRes.data;
-    } else if (mimeType === "application/pdf") {
-      // PDF files - download and extract text using pdfjs-dist
-      const downloadUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media${sharedDriveParams}`;
+      try {
+        const docs = google.docs({ auth: oauthClient, version: "v1" });
+        const result = await docs.documents.get({ documentId: fileId });
+        content = parseGoogleDocFromRawContentToPlainText(result.data);
+      } catch (docsError) {
+        console.log("Error using Google Docs API", docsError);
+        // Fallback to Drive API export if Docs API fails
+        const exportUrl = `${BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/plain${sharedDriveParams}`;
+        const exportRes = await axiosClient.get(exportUrl, {
+          headers: {
+            Authorization: `Bearer ${authParams.authToken}`,
+          },
+          responseType: "text",
+        });
+        content = exportRes.data;
+      }
+    }
+    // Google Sheets - use Google Sheets API instead of Drive export
+    else if (mimeType === "application/vnd.google-apps.spreadsheet") {
+      try {
+        const sheets = google.sheets({
+          auth: oauthClient,
+          version: "v4",
+        });
+
+        const result = await sheets.spreadsheets.get({
+          spreadsheetId: fileId,
+          includeGridData: true,
+        });
+        content = parseGoogleSheetsFromRawContentToPlainText(result.data);
+      } catch (sheetsError) {
+        console.log("Error using Google Sheets API", sheetsError);
+
+        const exportUrl = `${BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/csv${sharedDriveParams}`;
+        const exportRes = await axiosClient.get(exportUrl, {
+          headers: { Authorization: `Bearer ${authParams.authToken}` },
+          responseType: "text",
+        });
+
+        content = exportRes.data
+          .split("\n")
+          .map((line: string) => line.replace(/,+$/, ""))
+          .map((line: string) => line.replace(/,{2,}/g, ","))
+          .join("\n");
+      }
+    }
+    // Google Slides - use Google Slides API instead of Drive export
+    else if (mimeType === "application/vnd.google-apps.presentation") {
+      try {
+        const slides = google.slides({ auth: oauthClient, version: "v1" });
+        const result = await slides.presentations.get({ presentationId: fileId });
+        content = parseGoogleSlidesFromRawContentToPlainText(result.data);
+      } catch (slidesError) {
+        console.log("Error using Google Slides API", slidesError);
+        const exportUrl = `${BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/plain${sharedDriveParams}`;
+        const exportRes = await axiosClient.get(exportUrl, {
+          headers: { Authorization: `Bearer ${authParams.authToken}` },
+          responseType: "text",
+        });
+        content = exportRes.data;
+      }
+    }
+    // PDF files - download and extract text using pdfjs-dist
+    else if (mimeType === "application/pdf") {
+      const downloadUrl = `${BASE_URL}${encodeURIComponent(fileId)}?alt=media${sharedDriveParams}`;
       const downloadRes = await axiosClient.get(downloadUrl, {
-        headers: {
-          Authorization: `Bearer ${authParams.authToken}`,
-        },
+        headers: { Authorization: `Bearer ${authParams.authToken}` },
         responseType: "arraybuffer",
       });
       try {
@@ -100,13 +136,13 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
           error: `Failed to parse PDF document: ${e instanceof Error ? e.message : JSON.stringify(e)}`,
         };
       }
-      // Extract text from PDF
-    } else if (
+    }
+    // Word documents (.docx or .doc) - download and extract text using mammoth
+    else if (
       mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
       mimeType === "application/msword"
     ) {
-      // Word documents (.docx or .doc) - download and extract text using mammoth
-      const downloadUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media${sharedDriveParams}`;
+      const downloadUrl = `${BASE_URL}${encodeURIComponent(fileId)}?alt=media${sharedDriveParams}`;
       const downloadRes = await axiosClient.get(downloadUrl, {
         headers: {
           Authorization: `Bearer ${authParams.authToken}`,
@@ -131,7 +167,7 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
       mimeType?.startsWith("text/")
     ) {
       // Text-based files
-      const downloadUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media${sharedDriveParams}`;
+      const downloadUrl = `${BASE_URL}${encodeURIComponent(fileId)}?alt=media${sharedDriveParams}`;
       const downloadRes = await axiosClient.get(downloadUrl, {
         headers: {
           Authorization: `Bearer ${authParams.authToken}`,
@@ -139,12 +175,6 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
         responseType: "text",
       });
       content = downloadRes.data;
-    } else if (mimeType?.startsWith("image/")) {
-      // Skip images
-      return {
-        success: false,
-        error: "Image files are not supported for text extraction",
-      };
     } else {
       // Unsupported file type
       return {
@@ -152,16 +182,14 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
         error: `Unsupported file type: ${mimeType}`,
       };
     }
+
+    // cleaning up parameters
     content = content.trim();
-
     const originalLength = content.length;
-
-    // Naive way to truncate content
+    content = content.replace(/\r?\n+/g, " ").replace(/ +/g, " ");
     if (limit && content.length > limit) {
       content = content.substring(0, limit);
     }
-    // Replace all newline characters with spaces, then collapse multiple spaces
-    content = content.replace(/\r?\n+/g, " ").replace(/ +/g, " ");
 
     return {
       success: true,

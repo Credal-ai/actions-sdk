@@ -55,6 +55,7 @@
     "date-fns": "^4.1.0",
     "docx": "^9.3.0",
     "dotenv": "^16.4.7",
+    "googleapis": "^148.0.0",
     "json-schema-to-zod": "^2.5.0",
     "jsonwebtoken": "^9.0.2",
     "mammoth": "^1.4.27",
