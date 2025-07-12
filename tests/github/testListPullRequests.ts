@@ -9,11 +9,11 @@ async function runTest() {
     "listPullRequests",
     "github",
     {
-      authToken: "insert-during-test", // authParams
+      authToken: process.env.GITHUB_ACCESS_TOKEN, // authParams
     },
     {
-      repositoryOwner: "insert-during-test",
-      repositoryName: "insert-during-test",
+      repositoryOwner: "Credal-ai",
+      repositoryName: "app",
     },
   );
 
