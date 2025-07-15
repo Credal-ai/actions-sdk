@@ -1,4 +1,87 @@
-import type { docs_v1, sheets_v4, slides_v1 } from "googleapis";
+// Custom interfaces to replace googleapis types
+interface GoogleDocsDocument {
+  body?: {
+    content?: Array<{
+      paragraph?: {
+        elements?: Array<{
+          textRun?: {
+            content?: string;
+          };
+        }>;
+        paragraphStyle?: {
+          headingId?: string;
+          namedStyleType?: string;
+        };
+        bullet?: {
+          nestingLevel?: number;
+        };
+      };
+      table?: {
+        tableRows?: Array<{
+          tableCells?: Array<{
+            content?: Array<{
+              paragraph?: {
+                elements?: Array<{
+                  textRun?: {
+                    content?: string;
+                  };
+                }>;
+              };
+            }>;
+          }>;
+        }>;
+      };
+      sectionBreak?: unknown;
+      tableOfContents?: {
+        content?: Array<{
+          paragraph?: {
+            elements?: Array<{
+              textRun?: {
+                content?: string;
+              };
+            }>;
+          };
+        }>;
+      };
+    }>;
+  };
+}
+
+interface GoogleSheetsSpreadsheet {
+  sheets?: Array<{
+    properties?: {
+      title?: string;
+    };
+    data?: Array<{
+      rowData?: Array<{
+        values?: Array<{
+          formattedValue?: string;
+          userEnteredValue?: {
+            stringValue?: string;
+            numberValue?: number;
+            boolValue?: boolean;
+          };
+        }>;
+      }>;
+    }>;
+  }>;
+}
+
+interface GoogleSlidesPresentation {
+  slides?: Array<{
+    pageElements?: Array<{
+      shape?: {
+        text?: {
+          textElements?: Array<{
+            textRun?: {
+              content?: string;
+            };
+          }>;
+        };
+      };
+    }>;
+  }>;
+}
 
 type DocSection = {
   heading: { id: string; type: string } | undefined;
@@ -6,7 +89,7 @@ type DocSection = {
 };
 
 // Helper function to parse Google Docs content to plain text
-export function parseGoogleDocFromRawContentToPlainText(snapshotRawContent: docs_v1.Schema$Document): string {
+export function parseGoogleDocFromRawContentToPlainText(snapshotRawContent: GoogleDocsDocument): string {
   const docSections: DocSection[] = [
     {
       heading: undefined,
@@ -123,7 +206,7 @@ export function parseGoogleDocFromRawContentToPlainText(snapshotRawContent: docs
   return validDocSections.map(section => section.paragraphs.join(" ")).join("\n");
 }
 
-export function parseGoogleSheetsFromRawContentToPlainText(snapshotRawContent: sheets_v4.Schema$Spreadsheet): string {
+export function parseGoogleSheetsFromRawContentToPlainText(snapshotRawContent: GoogleSheetsSpreadsheet): string {
   if (!snapshotRawContent.sheets) return "";
 
   const sheetContents: string[] = [];
@@ -164,7 +247,7 @@ export function parseGoogleSheetsFromRawContentToPlainText(snapshotRawContent: s
   return sheetContents.join("\n\n");
 }
 
-export function parseGoogleSlidesFromRawContentToPlainText(snapshotRawContent: slides_v1.Schema$Presentation): string {
+export function parseGoogleSlidesFromRawContentToPlainText(snapshotRawContent: GoogleSlidesPresentation): string {
   if (!snapshotRawContent.slides) return "";
 
   const slideContents: string[] = [];

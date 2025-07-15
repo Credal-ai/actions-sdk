@@ -1,7 +1,5 @@
 import { axiosClient } from "../../util/axiosClient.js";
 import mammoth from "mammoth";
-import { google } from "googleapis";
-import { OAuth2Client } from "google-auth-library";
 import type {
   AuthParamsType,
   googleOauthGetDriveFileContentByIdFunction,
@@ -53,16 +51,16 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
     let content: string = "";
     const sharedDriveParams = driveId ? "&supportsAllDrives=true" : "";
 
-    // Create OAuth2Client from the auth token
-    const oauthClient = new OAuth2Client();
-    oauthClient.setCredentials({ access_token: authParams.authToken });
-
     // Google Docs - use Google Docs API instead of Drive export
     if (mimeType === "application/vnd.google-apps.document") {
       try {
-        const docs = google.docs({ auth: oauthClient, version: "v1" });
-        const result = await docs.documents.get({ documentId: fileId });
-        content = parseGoogleDocFromRawContentToPlainText(result.data);
+        const docsUrl = `https://docs.googleapis.com/v1/documents/${fileId}`;
+        const docsRes = await axiosClient.get(docsUrl, {
+          headers: {
+            Authorization: `Bearer ${authParams.authToken}`,
+          },
+        });
+        content = parseGoogleDocFromRawContentToPlainText(docsRes.data);
       } catch (docsError) {
         console.log("Error using Google Docs API", docsError);
         // Fallback to Drive API export if Docs API fails
@@ -79,16 +77,13 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
     // Google Sheets - use Google Sheets API instead of Drive export
     else if (mimeType === "application/vnd.google-apps.spreadsheet") {
       try {
-        const sheets = google.sheets({
-          auth: oauthClient,
-          version: "v4",
+        const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${fileId}?includeGridData=true`;
+        const sheetsRes = await axiosClient.get(sheetsUrl, {
+          headers: {
+            Authorization: `Bearer ${authParams.authToken}`,
+          },
         });
-
-        const result = await sheets.spreadsheets.get({
-          spreadsheetId: fileId,
-          includeGridData: true,
-        });
-        content = parseGoogleSheetsFromRawContentToPlainText(result.data);
+        content = parseGoogleSheetsFromRawContentToPlainText(sheetsRes.data);
       } catch (sheetsError) {
         console.log("Error using Google Sheets API", sheetsError);
 
@@ -108,9 +103,13 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
     // Google Slides - use Google Slides API instead of Drive export
     else if (mimeType === "application/vnd.google-apps.presentation") {
       try {
-        const slides = google.slides({ auth: oauthClient, version: "v1" });
-        const result = await slides.presentations.get({ presentationId: fileId });
-        content = parseGoogleSlidesFromRawContentToPlainText(result.data);
+        const slidesUrl = `https://slides.googleapis.com/v1/presentations/${fileId}`;
+        const slidesRes = await axiosClient.get(slidesUrl, {
+          headers: {
+            Authorization: `Bearer ${authParams.authToken}`,
+          },
+        });
+        content = parseGoogleSlidesFromRawContentToPlainText(slidesRes.data);
       } catch (slidesError) {
         console.log("Error using Google Slides API", slidesError);
         const exportUrl = `${BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/plain${sharedDriveParams}`;
