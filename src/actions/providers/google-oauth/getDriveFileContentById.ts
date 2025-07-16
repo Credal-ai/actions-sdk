@@ -1,4 +1,4 @@
-import { axiosClient } from "../../util/axiosClient.js";
+import { createAxiosClientWithTimeout } from "../../util/axiosClient.js";
 import mammoth from "mammoth";
 import type {
   AuthParamsType,
@@ -27,6 +27,7 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
 
   const BASE_URL = "https://www.googleapis.com/drive/v3/files/";
   const { fileId, limit } = params;
+  const axiosClient = createAxiosClientWithTimeout(20000);
 
   try {
     // First, get file metadata to determine the file type and if it's in a shared drive

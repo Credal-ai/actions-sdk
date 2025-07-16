@@ -15,8 +15,10 @@ export class ApiError extends Error {
 }
 
 /** Create a configured axios instance with interceptors */
-function createAxiosClient(): AxiosInstance {
-  const instance = axios.create();
+function createAxiosClient(timeout?: number): AxiosInstance {
+  const instance = axios.create({
+    timeout: timeout,
+  });
 
   instance.interceptors.request.use(
     config => {
@@ -57,3 +59,7 @@ function createAxiosClient(): AxiosInstance {
 }
 
 export const axiosClient = createAxiosClient();
+
+export function createAxiosClientWithTimeout(timeout: number): AxiosInstance {
+  return createAxiosClient(timeout);
+}
