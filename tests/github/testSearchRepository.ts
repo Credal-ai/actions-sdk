@@ -14,9 +14,9 @@ async function runTest() {
       authToken,
     },
     {
-      organization: "Credal-ai",
-      repository: "app",
-      query: "test",
+      organization: "flatiron-intl",
+      repository: "intl-analytics",
+      query: "breast cancer biomarker OR biomarker OR breast cancer OR marker",
     }
   );
 

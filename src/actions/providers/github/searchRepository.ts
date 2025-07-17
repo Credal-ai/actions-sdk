@@ -159,9 +159,14 @@ const searchRepository: githubSearchRepositoryFunction = async ({
   const prNumbers: number[] = prItems.map(item => item.number);
 
   const prFiles = await Promise.all(
-    prNumbers.map(number =>
-      octokit.rest.pulls.listFiles({ owner: organization, repo: repository, pull_number: number }),
-    ),
+    prNumbers.map(async number => {
+      try {
+        return await octokit.rest.pulls.listFiles({ owner: organization, repo: repository, pull_number: number });
+      } catch (error) {
+        console.error(`Error fetching PR files for PR ${number}:`, error);
+        return { data: [] };
+      }
+    }),
   );
 
   const issuesAndPRs: SearchIssueOrPullRequestResult[] = issueResults.data.items
