@@ -128,6 +128,14 @@ import {
   googleOauthSearchDriveByQueryAndGetFileContentDefinition,
   githubGetFileContentDefinition,
   githubListDirectoryDefinition,
+  hubspotGetContactsDefinition,
+  hubspotGetContactDetailsDefinition,
+  hubspotGetCompaniesDefinition,
+  hubspotGetCompanyDetailsDefinition,
+  hubspotGetDealsDefinition,
+  hubspotGetDealDetailsDefinition,
+  hubspotGetTicketsDefinition,
+  hubspotGetTicketDetailsDefinition,
 } from "./autogen/templates.js";
 import type { ActionTemplate } from "./parse.js";
 
@@ -390,6 +398,19 @@ export const ACTION_GROUPS: ActionGroups = {
       linearGetProjectDetailsDefinition,
       linearGetTeamDetailsDefinition,
       linearGetTeamsDefinition,
+    ],
+  },
+  HUBSPOT: {
+    description: "Actions for interacting with HubSpot CRM",
+    actions: [
+      hubspotGetContactsDefinition,
+      hubspotGetContactDetailsDefinition,
+      hubspotGetCompaniesDefinition,
+      hubspotGetCompanyDetailsDefinition,
+      hubspotGetDealsDefinition,
+      hubspotGetDealDetailsDefinition,
+      hubspotGetTicketsDefinition,
+      hubspotGetTicketDetailsDefinition,
     ],
   },
 };

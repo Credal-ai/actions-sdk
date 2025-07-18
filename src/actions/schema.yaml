@@ -422,6 +422,9 @@ actions:
           error:
             type: string
             description: The error that occurred if the email was not sent successfully
+          messageId:
+            type: string
+            description: The ID of the message that was sent
     getChannelMessages:
       description: Gets messages from a Slack channel
       scopes:
@@ -7182,3 +7185,426 @@ actions:
                 name:
                   type: string
                   description: The team name
+  hubspot:
+    getContacts:
+      description: List or search HubSpot contacts by optional query
+      scopes: [oauth crm.objects.contacts.read]
+      parameters:
+        type: object
+        required: []
+        properties:
+          query:
+            type: string
+            description: Optional search query to filter contacts by name, email, or other properties
+          limit:
+            type: number
+            description: Maximum number of contacts to return (default 100, max 100)
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the operation was successful
+          error:
+            type: string
+            description: Error message if the operation failed
+          contacts:
+            type: array
+            description: List of contacts matching the search criteria
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The contact ID
+                email:
+                  type: string
+                  description: Contact email address
+                firstname:
+                  type: string
+                  description: Contact first name
+                lastname:
+                  type: string
+                  description: Contact last name
+                createdate:
+                  type: string
+                  description: When the contact was created
+    getContactDetails:
+      description: Get detailed information about a specific HubSpot contact
+      scopes: [oauth crm.objects.contacts.read]
+      parameters:
+        type: object
+        required: [contactId]
+        properties:
+          contactId:
+            type: string
+            description: The ID of the HubSpot contact to retrieve
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the operation was successful
+          error:
+            type: string
+            description: Error message if the operation failed
+          contact:
+            type: object
+            description: The contact details
+            properties:
+              id:
+                type: string
+                description: The contact ID
+              email:
+                type: string
+                description: Contact email address
+              firstname:
+                type: string
+                description: Contact first name
+              lastname:
+                type: string
+                description: Contact last name
+              company:
+                type: string
+                description: Contact company
+              phone:
+                type: string
+                description: Contact phone number
+              address:
+                type: string
+                description: Contact address
+              city:
+                type: string
+                description: Contact city
+              state:
+                type: string
+                description: Contact state
+              zip:
+                type: string
+                description: Contact zip code
+              country:
+                type: string
+                description: Contact country
+              lifecyclestage:
+                type: string
+                description: Contact lifecycle stage
+              leadstatus:
+                type: string
+                description: Contact lead status
+              createdAt:
+                type: string
+                description: When the contact was created
+              updatedAt:
+                type: string
+                description: When the contact was last updated
+              archived:
+                type: boolean
+                description: Whether the contact is archived
+    getCompanies:
+      description: List or search HubSpot companies by optional query
+      scopes: [oauth crm.objects.companies.read]
+      parameters:
+        type: object
+        required: []
+        properties:
+          query:
+            type: string
+            description: Optional search query to filter companies by name, domain, or other properties
+          limit:
+            type: number
+            description: Maximum number of companies to return (default 100, max 100)
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the operation was successful
+          error:
+            type: string
+            description: Error message if the operation failed
+          companies:
+            type: array
+            description: List of companies matching the search criteria
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The company ID
+                name:
+                  type: string
+                  description: Company name
+                domain:
+                  type: string
+                  description: Company domain
+                createdAt:
+                  type: string
+                  description: When the company was created
+    getCompanyDetails:
+      description: Get detailed information about a specific HubSpot company
+      scopes: [oauth crm.objects.companies.read]
+      parameters:
+        type: object
+        required: [companyId]
+        properties:
+          companyId:
+            type: string
+            description: The ID of the HubSpot company to retrieve
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the operation was successful
+          error:
+            type: string
+            description: Error message if the operation failed
+          company:
+            type: object
+            description: The company details
+            properties:
+              id:
+                type: string
+                description: The company ID
+              name:
+                type: string
+                description: Company name
+              domain:
+                type: string
+                description: Company domain
+              industry:
+                type: string
+                description: Company industry
+              phone:
+                type: string
+                description: Company phone number
+              address:
+                type: string
+                description: Company address
+              city:
+                type: string
+                description: Company city
+              state:
+                type: string
+                description: Company state
+              zip:
+                type: string
+                description: Company zip code
+              country:
+                type: string
+                description: Company country
+              website:
+                type: string
+                description: Company website
+              createdAt:
+                type: string
+                description: When the company was created
+              updatedAt:
+                type: string
+                description: When the company was last updated
+              archived:
+                type: boolean
+                description: Whether the company is archived
+    getDeals:
+      description: List or search HubSpot deals by optional query
+      scopes: [oauth crm.objects.deals.read]
+      parameters:
+        type: object
+        required: []
+        properties:
+          query:
+            type: string
+            description: Optional search query to filter deals by name, stage, or other properties
+          limit:
+            type: number
+            description: Maximum number of deals to return (default 100, max 100)
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the operation was successful
+          error:
+            type: string
+            description: Error message if the operation failed
+          deals:
+            type: array
+            description: List of deals matching the search criteria
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The deal ID
+                dealname:
+                  type: string
+                  description: Deal name
+                amount:
+                  type: string
+                  description: Deal amount
+                dealstage:
+                  type: string
+                  description: Deal stage
+                createdAt:
+                  type: string
+                  description: When the deal was created
+    getDealDetails:
+      description: Get detailed information about a specific HubSpot deal
+      scopes: [oauth crm.objects.deals.read]
+      parameters:
+        type: object
+        required: [dealId]
+        properties:
+          dealId:
+            type: string
+            description: The ID of the HubSpot deal to retrieve
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the operation was successful
+          error:
+            type: string
+            description: Error message if the operation failed
+          deal:
+            type: object
+            description: The deal details
+            properties:
+              id:
+                type: string
+                description: The deal ID
+              dealname:
+                type: string
+                description: Deal name
+              description:
+                type: string
+                description: Description of deal
+              amount:
+                type: string
+                description: Deal amount
+              dealstage:
+                type: string
+                description: Deal stage
+              pipeline:
+                type: string
+                description: Pipeline
+              dealtype:
+                type: string
+                description: Deal type
+              closedate:
+                type: string
+                description: Close date
+              createdAt:
+                type: string
+                description: When the deal was created
+              updatedAt:
+                type: string
+                description: When the deal was last updated
+              ownerId:
+                type: string
+                description: Deal owner ID
+              archived:
+                type: boolean
+                description: Whether the deal is archived
+    getTickets:
+      description: List or search HubSpot tickets by optional query
+      scopes: [oauth crm.objects.tickets.read]
+      parameters:
+        type: object
+        required: []
+        properties:
+          query:
+            type: string
+            description: Optional search query to filter tickets by subject, status, or other properties
+          limit:
+            type: number
+            description: Maximum number of tickets to return (default 100, max 100)
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the operation was successful
+          error:
+            type: string
+            description: Error message if the operation failed
+          tickets:
+            type: array
+            description: List of tickets matching the search criteria
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The ticket ID
+                subject:
+                  type: string
+                  description: Ticket subject
+                status:
+                  type: string
+                  description: Ticket status
+                createdAt:
+                  type: string
+                  description: When the ticket was created
+    getTicketDetails:
+      description: Get detailed information about a specific HubSpot ticket
+      scopes: [oauth crm.objects.tickets.read]
+      parameters:
+        type: object
+        required: [ticketId]
+        properties:
+          ticketId:
+            type: string
+            description: The ID of the HubSpot ticket to retrieve
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the operation was successful
+          error:
+            type: string
+            description: Error message if the operation failed
+          ticket:
+            type: object
+            description: The ticket details
+            properties:
+              id:
+                type: string
+                description: The ticket ID
+              subject:
+                type: string
+                description: Ticket subject
+              content:
+                type: string
+                description: Ticket content/description
+              pipeline:
+                type: string
+                description: Pipeline
+              status:
+                type: string
+                description: Ticket status
+              priority:
+                type: string
+                description: Ticket priority
+              createdAt:
+                type: string
+                description: When the ticket was created
+              updatedAt:
+                type: string
+                description: When the ticket was last updated
+              ownerId:
+                type: string
+                description: Ticket owner id
+              archived:
+                type: boolean
+                description: Whether the ticket is archived
