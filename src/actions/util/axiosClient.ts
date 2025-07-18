@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { AxiosError, AxiosInstance, AxiosResponse } from "axios";
+import type { AxiosInstance, AxiosResponse } from "axios";
+import type { AxiosError } from "axios";
 import axios from "axios";
 
 export class ApiError extends Error {
@@ -12,6 +13,10 @@ export class ApiError extends Error {
     this.status = status;
     this.data = data;
   }
+}
+
+export function isAxiosTimeoutError(error: unknown): boolean {
+  return error instanceof ApiError && !error.status && !error.data;
 }
 
 /** Create a configured axios instance with interceptors */

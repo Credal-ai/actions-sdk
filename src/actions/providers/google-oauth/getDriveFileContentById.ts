@@ -1,4 +1,4 @@
-import { createAxiosClientWithTimeout } from "../../util/axiosClient.js";
+import { createAxiosClientWithTimeout, isAxiosTimeoutError } from "../../util/axiosClient.js";
 import mammoth from "mammoth";
 import type {
   AuthParamsType,
@@ -63,16 +63,20 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
         });
         content = parseGoogleDocFromRawContentToPlainText(docsRes.data);
       } catch (docsError) {
-        console.log("Error using Google Docs API", docsError);
-        // Fallback to Drive API export if Docs API fails
-        const exportUrl = `${BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/plain${sharedDriveParams}`;
-        const exportRes = await axiosClient.get(exportUrl, {
-          headers: {
-            Authorization: `Bearer ${authParams.authToken}`,
-          },
-          responseType: "text",
-        });
-        content = exportRes.data;
+        if (isAxiosTimeoutError(docsError)) {
+          console.log("Request timed out using Google Docs API - dont retry");
+        } else {
+          console.log("Error using Google Docs API", docsError);
+          // Fallback to Drive API export if Docs API fails
+          const exportUrl = `${BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/plain${sharedDriveParams}`;
+          const exportRes = await axiosClient.get(exportUrl, {
+            headers: {
+              Authorization: `Bearer ${authParams.authToken}`,
+            },
+            responseType: "text",
+          });
+          content = exportRes.data;
+        }
       }
     }
     // Google Sheets - use Google Sheets API instead of Drive export
@@ -86,19 +90,21 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
         });
         content = parseGoogleSheetsFromRawContentToPlainText(sheetsRes.data);
       } catch (sheetsError) {
-        console.log("Error using Google Sheets API", sheetsError);
-
-        const exportUrl = `${BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/csv${sharedDriveParams}`;
-        const exportRes = await axiosClient.get(exportUrl, {
-          headers: { Authorization: `Bearer ${authParams.authToken}` },
-          responseType: "text",
-        });
-
-        content = exportRes.data
-          .split("\n")
-          .map((line: string) => line.replace(/,+$/, ""))
-          .map((line: string) => line.replace(/,{2,}/g, ","))
-          .join("\n");
+        if (isAxiosTimeoutError(sheetsError)) {
+          console.log("Request timed out using Google Sheets API - dont retry");
+        } else {
+          console.log("Error fetching file", sheetsError);
+          const exportUrl = `${BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/csv${sharedDriveParams}`;
+          const exportRes = await axiosClient.get(exportUrl, {
+            headers: { Authorization: `Bearer ${authParams.authToken}` },
+            responseType: "text",
+          });
+          content = exportRes.data
+            .split("\n")
+            .map((line: string) => line.replace(/,+$/, ""))
+            .map((line: string) => line.replace(/,{2,}/g, ","))
+            .join("\n");
+        }
       }
     }
     // Google Slides - use Google Slides API instead of Drive export
@@ -112,13 +118,17 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
         });
         content = parseGoogleSlidesFromRawContentToPlainText(slidesRes.data);
       } catch (slidesError) {
-        console.log("Error using Google Slides API", slidesError);
-        const exportUrl = `${BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/plain${sharedDriveParams}`;
-        const exportRes = await axiosClient.get(exportUrl, {
-          headers: { Authorization: `Bearer ${authParams.authToken}` },
-          responseType: "text",
-        });
-        content = exportRes.data;
+        if (isAxiosTimeoutError(slidesError)) {
+          console.log("Request timed out using Google Slides API - dont retry");
+        } else {
+          console.log("Error using Google Slides API", slidesError);
+          const exportUrl = `${BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/plain${sharedDriveParams}`;
+          const exportRes = await axiosClient.get(exportUrl, {
+            headers: { Authorization: `Bearer ${authParams.authToken}` },
+            responseType: "text",
+          });
+          content = exportRes.data;
+        }
       }
     }
     // PDF files - download and extract text using pdfjs-dist
