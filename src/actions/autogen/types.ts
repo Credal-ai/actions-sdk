@@ -5096,6 +5096,7 @@ export const gitlabSearchGroupOutputSchema = z.object({
           ref: z.string().describe("The ref of the blob"),
           startline: z.number().describe("The start line of the blob"),
           filename: z.string().describe("The filename of the blob"),
+          web_url: z.string().describe("The URL of the blob"),
         }),
         matchedMergeRequests: z
           .array(

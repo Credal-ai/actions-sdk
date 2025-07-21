@@ -9941,7 +9941,7 @@ export const gitlabSearchGroupDefinition: ActionTemplate = {
           properties: {
             metadata: {
               type: "object",
-              required: ["path", "basename", "data", "project_id", "ref", "startline", "filename"],
+              required: ["path", "basename", "data", "project_id", "ref", "startline", "filename", "web_url"],
               properties: {
                 path: {
                   type: "string",
@@ -9970,6 +9970,10 @@ export const gitlabSearchGroupDefinition: ActionTemplate = {
                 filename: {
                   type: "string",
                   description: "The filename of the blob",
+                },
+                web_url: {
+                  type: "string",
+                  description: "The URL of the blob",
                 },
               },
             },

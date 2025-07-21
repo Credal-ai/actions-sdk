@@ -1,19 +1,22 @@
 import type { gitlabSearchGroupParamsType } from "../../src/actions/autogen/types.js";
 import { runAction } from "../../src/app.js";
 import assert from "node:assert";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 async function runTest() {
   console.log("Running test gitlab search");
 
   const params: gitlabSearchGroupParamsType = {
     query: "test",
-    groupId: "1234567890",
+    groupId: "109849534",
   };
 
   const result = await runAction(
     "searchGroup",
     "gitlab",
-    { authToken: "test-oauth-token" }, 
+    { authToken: process.env.GITLAB_ACCESS_TOKEN }, 
     params,
   );
   console.log("Resulting payload:");
