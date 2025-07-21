@@ -62,6 +62,7 @@ const listCalendarEvents: googleOauthListCalendarEventsFunction = async ({
             hangoutLink,
             created,
             updated,
+            attachments,
           }) => ({
             id,
             status,
@@ -87,6 +88,14 @@ const listCalendarEvents: googleOauthListCalendarEventsFunction = async ({
             hangoutLink,
             created,
             updated,
+            attachments: Array.isArray(attachments)
+              ? attachments.map(({ fileId, fileUrl, title, mimeType }) => ({
+                  fileId,
+                  fileUrl,
+                  title,
+                  mimeType,
+                }))
+              : [],
           }),
         ),
       );

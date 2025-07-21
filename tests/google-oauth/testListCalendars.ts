@@ -1,6 +1,5 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app.js";
-import { maxHeaderSize } from "node:http";
 
 async function runTest() {
   const result = await runAction(
