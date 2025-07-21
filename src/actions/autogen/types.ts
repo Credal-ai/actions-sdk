@@ -5121,6 +5121,33 @@ export type gitlabSearchGroupFunction = ActionFunction<
   gitlabSearchGroupOutputType
 >;
 
+export const gitlabGetFileContentParamsSchema = z.object({
+  project_id: z.number().int().describe("Numeric project ID in GitLab (unique per project)"),
+  path: z.string().describe("The file path to get content from (e.g., src/index.js)"),
+  ref: z
+    .string()
+    .describe("Branch, tag, or commit to get the file from (defaults to HEAD, the repo’s default branch)")
+    .optional(),
+});
+
+export type gitlabGetFileContentParamsType = z.infer<typeof gitlabGetFileContentParamsSchema>;
+
+export const gitlabGetFileContentOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("The error that occurred if the operation was not successful").optional(),
+  content: z.string().describe("The decoded file content as a string").optional(),
+  size: z.number().describe("The size of the file in bytes").optional(),
+  name: z.string().describe("The name of the file").optional(),
+  htmlUrl: z.string().describe("The URL of the file in the GitLab UI").optional(),
+});
+
+export type gitlabGetFileContentOutputType = z.infer<typeof gitlabGetFileContentOutputSchema>;
+export type gitlabGetFileContentFunction = ActionFunction<
+  gitlabGetFileContentParamsType,
+  AuthParamsType,
+  gitlabGetFileContentOutputType
+>;
+
 export const linearGetIssuesParamsSchema = z.object({
   query: z.string().describe("Optional query string to filter issues").optional(),
   maxResults: z.number().describe("Optional limit to number of results").optional(),

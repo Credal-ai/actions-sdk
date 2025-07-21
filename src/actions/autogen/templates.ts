@@ -10011,6 +10011,60 @@ export const gitlabSearchGroupDefinition: ActionTemplate = {
   name: "searchGroup",
   provider: "gitlab",
 };
+export const gitlabGetFileContentDefinition: ActionTemplate = {
+  description: "Get specified file content from a GitLab repository",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["project_id", "path"],
+    properties: {
+      project_id: {
+        type: "integer",
+        description: "Numeric project ID in GitLab (unique per project)",
+      },
+      path: {
+        type: "string",
+        description: "The file path to get content from (e.g., src/index.js)",
+      },
+      ref: {
+        type: "string",
+        description: "Branch, tag, or commit to get the file from (defaults to HEAD, the repo’s default branch)",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the operation was successful",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the operation was not successful",
+      },
+      content: {
+        type: "string",
+        description: "The decoded file content as a string",
+      },
+      size: {
+        type: "number",
+        description: "The size of the file in bytes",
+      },
+      name: {
+        type: "string",
+        description: "The name of the file",
+      },
+      htmlUrl: {
+        type: "string",
+        description: "The URL of the file in the GitLab UI",
+      },
+    },
+  },
+  name: "getFileContent",
+  provider: "gitlab",
+};
 export const linearGetIssuesDefinition: ActionTemplate = {
   description: "Get Linear issues with optional query filter",
   scopes: [],

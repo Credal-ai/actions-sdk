@@ -252,6 +252,8 @@ import {
   linearGetProjectsOutputSchema,
   linearGetTeamsParamsSchema,
   linearGetTeamsOutputSchema,
+  gitlabGetFileContentParamsSchema,
+  gitlabGetFileContentOutputSchema,
 } from "./autogen/types.js";
 import validateAddress from "./providers/googlemaps/validateAddress.js";
 import add from "./providers/math/add.js";
@@ -378,6 +380,7 @@ import getProjectDetails from "./providers/linear/getProjectDetails.js";
 import getTeamDetails from "./providers/linear/getTeamDetails.js";
 import getProjects from "./providers/linear/getProjects.js";
 import getTeams from "./providers/linear/getTeams.js";
+import gitlabGetFileContent from "./providers/gitlab/getFileContent.js";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -1045,6 +1048,11 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: searchGroup,
       paramsSchema: gitlabSearchGroupParamsSchema,
       outputSchema: gitlabSearchGroupOutputSchema,
+    },
+    getFileContent: {
+      fn: gitlabGetFileContent,
+      paramsSchema: gitlabGetFileContentParamsSchema,
+      outputSchema: gitlabGetFileContentOutputSchema,
     },
   },
   linear: {
