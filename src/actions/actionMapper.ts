@@ -228,6 +228,8 @@ import {
   gitlabSearchGroupParamsSchema,
   githubSearchRepositoryOutputSchema,
   githubSearchRepositoryParamsSchema,
+  githubSearchOrganizationOutputSchema,
+  githubSearchOrganizationParamsSchema,
   salesforceSearchSalesforceRecordsParamsSchema,
   salesforceSearchSalesforceRecordsOutputSchema,
   googleOauthGetDriveFileContentByIdOutputSchema,
@@ -366,6 +368,7 @@ import lockJamfComputerById from "./providers/jamf/lockJamfComputerById.js";
 import triggerOktaWorkflow from "./providers/okta/triggerOktaWorkflow.js";
 import searchGroup from "./providers/gitlab/searchGroup.js";
 import searchRepository from "./providers/github/searchRepository.js";
+import searchOrganization from "./providers/github/searchOrganization.js";
 import getServiceDesks from "./providers/jira/getServiceDesks.js";
 import createServiceDeskRequest from "./providers/jira/createServiceDeskRequest.js";
 import searchSalesforceRecords from "./providers/salesforce/searchSalesforceRecords.js";
@@ -938,6 +941,11 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
     },
   },
   github: {
+    searchOrganization: {
+      fn: searchOrganization,
+      paramsSchema: githubSearchOrganizationParamsSchema,
+      outputSchema: githubSearchOrganizationOutputSchema,
+    },
     searchRepository: {
       fn: searchRepository,
       paramsSchema: githubSearchRepositoryParamsSchema,

@@ -4939,6 +4939,92 @@ export type githubSearchRepositoryFunction = ActionFunction<
   githubSearchRepositoryOutputType
 >;
 
+export const githubSearchOrganizationParamsSchema = z.object({
+  organization: z.string().describe("The organization to search for data in"),
+  query: z.string().describe("The query to search for in the repository"),
+});
+
+export type githubSearchOrganizationParamsType = z.infer<typeof githubSearchOrganizationParamsSchema>;
+
+export const githubSearchOrganizationOutputSchema = z.object({
+  code: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the file that had a match"),
+        path: z.string().describe("The path of the file that had a match"),
+        sha: z.string().describe("The SHA of the commit that had a match"),
+        url: z.string().describe("The URL of the file that had a match"),
+        score: z.number().describe("The similarity score of the match"),
+        textMatches: z
+          .array(
+            z.object({
+              object_url: z.string().describe("The URL of the object that had a match").optional(),
+              object_type: z.string().describe("The type of the object that had a match").optional(),
+              fragment: z.string().describe("The fragment of the text that had a match").optional(),
+              matches: z
+                .array(
+                  z.object({
+                    text: z.string().describe("The text that had a match").optional(),
+                    indices: z.array(z.number()).describe("The indices of the text that had a match").optional(),
+                  }),
+                )
+                .describe("A list of matches that match the query"),
+            }),
+          )
+          .describe("A list of text matches that match the query"),
+      }),
+    )
+    .describe("A list of code results that match the query"),
+  commits: z
+    .array(
+      z.object({
+        sha: z.string().describe("The SHA of the commit that had a match"),
+        url: z.string().describe("The URL of the commit that had a match"),
+        commit: z
+          .object({
+            author: z.object({
+              name: z.string().describe("The name of the author"),
+              email: z.string().describe("The email of the author"),
+              date: z.string().describe("The date of the commit"),
+            }),
+            message: z.string().describe("The message of the commit"),
+          })
+          .optional(),
+      }),
+    )
+    .describe("A list of commits that match the query"),
+  issuesAndPullRequests: z
+    .array(
+      z.object({
+        number: z.number().describe("The number of the issue or pull request").optional(),
+        title: z.string().describe("The title of the issue or pull request"),
+        html_url: z.string().describe("The URL of the issue or pull request").optional(),
+        state: z.enum(["open", "closed"]).describe("The state of the issue or pull request"),
+        isPullRequest: z.boolean().describe("Whether the issue or pull request is a pull request").optional(),
+        body: z.string().describe("The body of the issue or pull request").optional(),
+        score: z.number().describe("The score of the issue or pull request").optional(),
+        files: z
+          .array(
+            z.object({
+              filename: z.string().describe("The filename of the file"),
+              status: z.string().describe("The status of the file"),
+              patch: z.string().describe("The patch of the file").optional(),
+            }),
+          )
+          .describe("A list of files that match the query")
+          .optional(),
+      }),
+    )
+    .describe("A list of issues and pull requests that match the query"),
+});
+
+export type githubSearchOrganizationOutputType = z.infer<typeof githubSearchOrganizationOutputSchema>;
+export type githubSearchOrganizationFunction = ActionFunction<
+  githubSearchOrganizationParamsType,
+  AuthParamsType,
+  githubSearchOrganizationOutputType
+>;
+
 export const notionSearchByTitleParamsSchema = z.object({
   query: z.string().describe("The query to search for in Notion titles"),
 });
