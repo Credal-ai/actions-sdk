@@ -817,7 +817,7 @@ export const jiraAssignJiraTicketDefinition: ActionTemplate = {
   provider: "jira",
 };
 export const jiraPublicCommentOnServiceDeskRequestDefinition: ActionTemplate = {
-  description: "Comments publically on a Jira service desk request with specified content",
+  description: "Comments publicly on a Jira service desk request with specified content",
   scopes: ["write:comment:jira"],
   parameters: {
     type: "object",
@@ -1351,7 +1351,7 @@ export const jiraOrgAssignJiraTicketDefinition: ActionTemplate = {
   provider: "jiraOrg",
 };
 export const jiraOrgPublicCommentOnServiceDeskRequestDefinition: ActionTemplate = {
-  description: "Comments publically on a Jira service desk request with specified content",
+  description: "Comments publicly on a Jira service desk request with specified content",
   scopes: ["write:comment:jira"],
   parameters: {
     type: "object",
