@@ -10317,6 +10317,68 @@ export const gitlabSearchGroupDefinition: ActionTemplate = {
           },
         },
       },
+      commits: {
+        type: "array",
+        description: "A list of commits that match the query",
+        items: {
+          type: "object",
+          required: ["sha", "web_url", "message", "author", "created_at", "files"],
+          properties: {
+            sha: {
+              type: "string",
+              description: "The commit SHA",
+            },
+            web_url: {
+              type: "string",
+              description: "The URL to view the commit in GitLab",
+            },
+            message: {
+              type: "string",
+              description: "The full commit message",
+            },
+            author: {
+              type: "object",
+              required: ["name", "email"],
+              properties: {
+                name: {
+                  type: "string",
+                  description: "The name of the commit author",
+                },
+                email: {
+                  type: "string",
+                  description: "The email of the commit author",
+                },
+              },
+            },
+            created_at: {
+              type: "string",
+              description: "The date/time the commit was created",
+            },
+            files: {
+              type: "array",
+              description: "A list of files changed in the commit",
+              items: {
+                type: "object",
+                required: ["old_path", "new_path", "diff"],
+                properties: {
+                  old_path: {
+                    type: "string",
+                    description: "The old path of the file",
+                  },
+                  new_path: {
+                    type: "string",
+                    description: "The new path of the file",
+                  },
+                  diff: {
+                    type: "string",
+                    description: "The diff contents for the file",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
   },
   name: "searchGroup",

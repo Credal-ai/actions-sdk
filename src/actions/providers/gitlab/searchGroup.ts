@@ -8,7 +8,16 @@ import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 const GITLAB_API_URL = "https://gitlab.com";
 
-type GitLabSearchScope = "merge_requests" | "blobs";
+// Result limits
+const MAX_CODE_RESULTS = 15;
+const MAX_COMMITS = 10;
+const MAX_FILES_PER_COMMIT = 5;
+const MAX_ISSUES_OR_PRS = 10;
+const MAX_FILES_PER_PR = 5;
+const MAX_PATCH_LINES = 20;
+const MAX_FRAGMENT_LINES = 20;
+
+type GitLabSearchScope = "merge_requests" | "blobs" | "commits";
 
 interface GitLabMergeRequest {
   id: number;
@@ -33,7 +42,6 @@ interface GitLabBlob {
   filename: string;
 }
 
-// Enhanced blob interface with web_url
 interface GitLabBlobWithUrl extends GitLabBlob {
   web_url: string;
 }
@@ -63,8 +71,50 @@ interface GitLabBlobWithCorrelation {
   }[];
 }
 
-// Cache for project paths to avoid repeated API calls
-const projectPathCache = new Map<number, string>();
+// Commit-related interfaces
+interface GitLabCommit {
+  id: string; // sha
+  short_id: string;
+  title: string;
+  author_name: string;
+  author_email: string;
+  created_at: string;
+  message: string;
+  project_id: number;
+  // We'll build web_url after fetching project path
+}
+
+interface CommitDiffFile {
+  old_path: string;
+  new_path: string;
+  diff?: string;
+  new_file: boolean;
+  renamed_file: boolean;
+  deleted_file: boolean;
+}
+
+interface EnrichedGitLabCommit {
+  sha: string;
+  web_url: string;
+  message: string;
+  author: {
+    name: string;
+    email: string;
+  };
+  created_at: string;
+  files: {
+    old_path: string;
+    new_path: string;
+    diff: string;
+  }[];
+}
+
+// ---- UTILS ----
+
+// Local cache (per invocation, safe for multi-token use)
+function createProjectPathCache() {
+  return new Map<number, string>();
+}
 
 async function gitlabFetch<T = unknown>(endpoint: string, authToken: string): Promise<T> {
   const res = await fetch(endpoint, {
@@ -72,26 +122,24 @@ async function gitlabFetch<T = unknown>(endpoint: string, authToken: string): Pr
       Authorization: `Bearer ${authToken}`,
     },
   });
-
   if (!res.ok) throw new Error(`GitLab API error: ${res.status} ${res.statusText}`);
   return res.json();
 }
 
-async function getProjectPath(projectId: number, authToken: string, baseUrl: string): Promise<string> {
-  // Check cache first
-  if (projectPathCache.has(projectId)) {
-    return projectPathCache.get(projectId)!;
-  }
-
+async function getProjectPath(
+  projectId: number,
+  authToken: string,
+  baseUrl: string,
+  projectPathCache: Map<number, string>,
+): Promise<string> {
+  if (projectPathCache.has(projectId)) return projectPathCache.get(projectId)!;
   try {
     const project = await gitlabFetch<{ path_with_namespace: string }>(`${baseUrl}/projects/${projectId}`, authToken);
-
     const path = project.path_with_namespace;
     projectPathCache.set(projectId, path);
     return path;
   } catch (error) {
     console.warn(`Failed to fetch project path for project ${projectId}:`, error);
-    // Fallback to project ID if we can't get the path
     return `project-${projectId}`;
   }
 }
@@ -104,14 +152,8 @@ function constructBlobUrl(input: {
   startline?: number;
 }): string {
   const { baseUrl, projectPath, ref, path, startline } = input;
-
   let url = `${baseUrl}/${projectPath}/-/blob/${ref}/${path}`;
-
-  // Add line number anchor if provided
-  if (startline && startline > 0) {
-    url += `#L${startline}`;
-  }
-
+  if (startline && startline > 0) url += `#L${startline}`;
   return url;
 }
 
@@ -120,10 +162,10 @@ async function enhanceBlobWithUrl(
   authToken: string,
   baseUrl: string,
   gitlabWebBaseUrl: string,
+  projectPathCache: Map<number, string>,
 ): Promise<GitLabBlobWithUrl> {
   try {
-    const projectPath = await getProjectPath(blob.project_id, authToken, baseUrl);
-
+    const projectPath = await getProjectPath(blob.project_id, authToken, baseUrl, projectPathCache);
     const web_url = constructBlobUrl({
       baseUrl: gitlabWebBaseUrl,
       projectPath,
@@ -131,15 +173,9 @@ async function enhanceBlobWithUrl(
       path: blob.path,
       startline: blob.startline,
     });
-
-    return {
-      ...blob,
-      web_url,
-    };
+    return { ...blob, web_url };
   } catch (error) {
     console.warn(`Failed to construct URL for blob in project ${blob.project_id}:`, error);
-
-    // Fallback URL construction
     const fallbackUrl = constructBlobUrl({
       baseUrl: gitlabWebBaseUrl,
       projectPath: `project-${blob.project_id}`,
@@ -147,11 +183,7 @@ async function enhanceBlobWithUrl(
       path: blob.path,
       startline: blob.startline,
     });
-
-    return {
-      ...blob,
-      web_url: fallbackUrl,
-    };
+    return { ...blob, web_url: fallbackUrl };
   }
 }
 
@@ -167,20 +199,47 @@ async function globalSearch<T>(input: {
   return gitlabFetch<T[]>(endpoint, authToken);
 }
 
-async function getMRDiffs(input: {
+// Commit details (files, diffs)
+async function getCommitDetails(input: {
   projectId: number;
-  mrIid: number;
+  sha: string;
   authToken: string;
   baseUrl: string;
-}): Promise<MRDiff[]> {
-  const { projectId, mrIid, authToken, baseUrl } = input;
-  const endpoint = `${baseUrl}/projects/${projectId}/merge_requests/${mrIid}/diffs`;
-  return gitlabFetch<MRDiff[]>(endpoint, authToken);
+  webBaseUrl: string;
+  projectPathCache: Map<number, string>;
+}): Promise<EnrichedGitLabCommit> {
+  const { projectId, sha, authToken, baseUrl, webBaseUrl, projectPathCache } = input;
+  const projectPath = await getProjectPath(projectId, authToken, baseUrl, projectPathCache);
+
+  const commit = await gitlabFetch<GitLabCommit>(
+    `${baseUrl}/projects/${projectId}/repository/commits/${sha}`,
+    authToken,
+  );
+
+  const diffs = await gitlabFetch<CommitDiffFile[]>(
+    `${baseUrl}/projects/${projectId}/repository/commits/${sha}/diff`,
+    authToken,
+  );
+
+  return {
+    sha: commit.id,
+    web_url: `${webBaseUrl}/${projectPath}/-/commit/${commit.id}`,
+    message: commit.message,
+    author: {
+      name: commit.author_name,
+      email: commit.author_email,
+    },
+    created_at: commit.created_at,
+    files: (diffs || []).slice(0, MAX_FILES_PER_COMMIT).map(diff => ({
+      old_path: diff.old_path,
+      new_path: diff.new_path,
+      diff: diff.diff ? diff.diff.split("\n").slice(0, MAX_PATCH_LINES).join("\n") : "",
+    })),
+  };
 }
 
-/**
- * Searches for merge requests and blobs in a GitLab group
- */
+// ---- MAIN FUNCTION ----
+
 const searchGroup: gitlabSearchGroupFunction = async ({
   params,
   authParams,
@@ -192,44 +251,49 @@ const searchGroup: gitlabSearchGroupFunction = async ({
   const gitlabBaseUrl = baseUrl ?? GITLAB_API_URL;
   const gitlabBaseApiUrl = `${gitlabBaseUrl}/api/v4`;
 
-  if (!authToken) {
-    throw new Error(MISSING_AUTH_TOKEN);
-  }
+  if (!authToken) throw new Error(MISSING_AUTH_TOKEN);
 
   const { query, groupId } = params;
+  const projectPathCache = createProjectPathCache();
 
-  const [mrResults, blobResults] = await Promise.all([
-    globalSearch<GitLabMergeRequest>({
-      scope: "merge_requests",
-      query,
-      groupId,
-      authToken,
-      baseUrl: gitlabBaseApiUrl,
-    }),
-    globalSearch<GitLabBlob>({
-      scope: "blobs",
-      query,
-      groupId,
-      authToken,
-      baseUrl: gitlabBaseApiUrl,
-    }),
-  ]);
+  // --- 1. Merge Requests ---
+  const mrResults = await globalSearch<GitLabMergeRequest>({
+    scope: "merge_requests",
+    query,
+    groupId,
+    authToken,
+    baseUrl: gitlabBaseApiUrl,
+  });
+  const limitedMRResults = mrResults.slice(0, MAX_ISSUES_OR_PRS);
 
   const mergeRequests: MergeRequestWithDiffs[] = await Promise.all(
-    mrResults.map(async metadata => {
-      const diffs = await getMRDiffs({
-        projectId: metadata.project_id,
-        mrIid: metadata.iid,
+    limitedMRResults.map(async metadata => {
+      let diffs = await gitlabFetch<MRDiff[]>(
+        `${gitlabBaseApiUrl}/projects/${metadata.project_id}/merge_requests/${metadata.iid}/diffs`,
         authToken,
-        baseUrl: gitlabBaseApiUrl,
-      });
+      );
+      diffs = (diffs || []).slice(0, MAX_FILES_PER_PR).map(diff => ({
+        ...diff,
+        diff: diff.diff ? diff.diff.split("\n").slice(0, MAX_PATCH_LINES).join("\n") : diff.diff,
+      }));
       return { metadata, diffs };
     }),
   );
 
-  // Enhance blobs with web URLs
+  // --- 2. Blobs ---
+  const blobResults = await globalSearch<GitLabBlob>({
+    scope: "blobs",
+    query,
+    groupId,
+    authToken,
+    baseUrl: gitlabBaseApiUrl,
+  });
+  const limitedBlobResults = blobResults.slice(0, MAX_CODE_RESULTS);
+
   const blobsWithUrls: GitLabBlobWithUrl[] = await Promise.all(
-    blobResults.map(blob => enhanceBlobWithUrl(blob, authToken, gitlabBaseApiUrl, gitlabBaseUrl)),
+    limitedBlobResults.map(blob =>
+      enhanceBlobWithUrl(blob, authToken, gitlabBaseApiUrl, gitlabBaseUrl, projectPathCache),
+    ),
   );
 
   const blobs: GitLabBlobWithCorrelation[] = blobsWithUrls.map(blob => {
@@ -243,14 +307,41 @@ const searchGroup: gitlabSearchGroupFunction = async ({
       }));
 
     return {
-      metadata: blob,
+      metadata: {
+        ...blob,
+        data: blob.data.split("\n").slice(0, MAX_FRAGMENT_LINES).join("\n"),
+      },
       matched_merge_requests: matches,
     };
   });
 
+  // --- 3. Commits ---
+  const commitResults = await globalSearch<GitLabCommit>({
+    scope: "commits",
+    query,
+    groupId,
+    authToken,
+    baseUrl: gitlabBaseApiUrl,
+  });
+  const limitedCommitResults = commitResults.slice(0, MAX_COMMITS);
+
+  const commits: EnrichedGitLabCommit[] = await Promise.all(
+    limitedCommitResults.map(commit =>
+      getCommitDetails({
+        projectId: commit.project_id,
+        sha: commit.id,
+        authToken,
+        baseUrl: gitlabBaseApiUrl,
+        webBaseUrl: gitlabBaseUrl,
+        projectPathCache,
+      }),
+    ),
+  );
+
   return {
     mergeRequests,
     blobs,
+    commits,
   };
 };
 

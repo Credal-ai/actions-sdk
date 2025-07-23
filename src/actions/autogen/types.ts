@@ -5247,6 +5247,30 @@ export const gitlabSearchGroupOutputSchema = z.object({
       }),
     )
     .describe("A list of blobs that match the query"),
+  commits: z
+    .array(
+      z.object({
+        sha: z.string().describe("The commit SHA"),
+        web_url: z.string().describe("The URL to view the commit in GitLab"),
+        message: z.string().describe("The full commit message"),
+        author: z.object({
+          name: z.string().describe("The name of the commit author"),
+          email: z.string().describe("The email of the commit author"),
+        }),
+        created_at: z.string().describe("The date/time the commit was created"),
+        files: z
+          .array(
+            z.object({
+              old_path: z.string().describe("The old path of the file"),
+              new_path: z.string().describe("The new path of the file"),
+              diff: z.string().describe("The diff contents for the file"),
+            }),
+          )
+          .describe("A list of files changed in the commit"),
+      }),
+    )
+    .describe("A list of commits that match the query")
+    .optional(),
 });
 
 export type gitlabSearchGroupOutputType = z.infer<typeof gitlabSearchGroupOutputSchema>;
