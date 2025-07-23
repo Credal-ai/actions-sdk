@@ -816,6 +816,44 @@ export const jiraAssignJiraTicketDefinition: ActionTemplate = {
   name: "assignJiraTicket",
   provider: "jira",
 };
+export const jiraPublicCommentOnServiceDeskRequestDefinition: ActionTemplate = {
+  description: "Comments publically on a Jira service desk request with specified content",
+  scopes: ["write:comment:jira"],
+  parameters: {
+    type: "object",
+    required: ["issueId", "comment"],
+    properties: {
+      issueId: {
+        type: "string",
+        description: "The issue ID associated with the ticket to be commented on",
+      },
+      comment: {
+        type: "string",
+        description: "The text to be commented on the ticket",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the comment was sent successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the comment was not sent successfully",
+      },
+      commentUrl: {
+        type: "string",
+        description: "The url to the created Jira comment",
+      },
+    },
+  },
+  name: "publicCommentOnServiceDeskRequest",
+  provider: "jira",
+};
 export const jiraCommentJiraTicketDefinition: ActionTemplate = {
   description: "Comments on a Jira ticket with specified content",
   scopes: ["write:comment:jira"],
@@ -1310,6 +1348,44 @@ export const jiraOrgAssignJiraTicketDefinition: ActionTemplate = {
     },
   },
   name: "assignJiraTicket",
+  provider: "jiraOrg",
+};
+export const jiraOrgPublicCommentOnServiceDeskRequestDefinition: ActionTemplate = {
+  description: "Comments publically on a Jira service desk request with specified content",
+  scopes: ["write:comment:jira"],
+  parameters: {
+    type: "object",
+    required: ["issueId", "comment"],
+    properties: {
+      issueId: {
+        type: "string",
+        description: "The issue ID associated with the ticket to be commented on",
+      },
+      comment: {
+        type: "string",
+        description: "The text to be commented on the ticket",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the comment was sent successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the comment was not sent successfully",
+      },
+      commentUrl: {
+        type: "string",
+        description: "The url to the created Jira comment",
+      },
+    },
+  },
+  name: "publicCommentOnServiceDeskRequest",
   provider: "jiraOrg",
 };
 export const jiraOrgCommentJiraTicketDefinition: ActionTemplate = {

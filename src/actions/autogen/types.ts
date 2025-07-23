@@ -469,6 +469,30 @@ export type jiraAssignJiraTicketFunction = ActionFunction<
   jiraAssignJiraTicketOutputType
 >;
 
+export const jiraPublicCommentOnServiceDeskRequestParamsSchema = z.object({
+  issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
+  comment: z.string().describe("The text to be commented on the ticket"),
+});
+
+export type jiraPublicCommentOnServiceDeskRequestParamsType = z.infer<
+  typeof jiraPublicCommentOnServiceDeskRequestParamsSchema
+>;
+
+export const jiraPublicCommentOnServiceDeskRequestOutputSchema = z.object({
+  success: z.boolean().describe("Whether the comment was sent successfully"),
+  error: z.string().describe("The error that occurred if the comment was not sent successfully").optional(),
+  commentUrl: z.string().describe("The url to the created Jira comment").optional(),
+});
+
+export type jiraPublicCommentOnServiceDeskRequestOutputType = z.infer<
+  typeof jiraPublicCommentOnServiceDeskRequestOutputSchema
+>;
+export type jiraPublicCommentOnServiceDeskRequestFunction = ActionFunction<
+  jiraPublicCommentOnServiceDeskRequestParamsType,
+  AuthParamsType,
+  jiraPublicCommentOnServiceDeskRequestOutputType
+>;
+
 export const jiraCommentJiraTicketParamsSchema = z.object({
   projectKey: z.string().describe("The key for the project"),
   issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
@@ -720,6 +744,30 @@ export type jiraOrgAssignJiraTicketFunction = ActionFunction<
   jiraOrgAssignJiraTicketParamsType,
   AuthParamsType,
   jiraOrgAssignJiraTicketOutputType
+>;
+
+export const jiraOrgPublicCommentOnServiceDeskRequestParamsSchema = z.object({
+  issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
+  comment: z.string().describe("The text to be commented on the ticket"),
+});
+
+export type jiraOrgPublicCommentOnServiceDeskRequestParamsType = z.infer<
+  typeof jiraOrgPublicCommentOnServiceDeskRequestParamsSchema
+>;
+
+export const jiraOrgPublicCommentOnServiceDeskRequestOutputSchema = z.object({
+  success: z.boolean().describe("Whether the comment was sent successfully"),
+  error: z.string().describe("The error that occurred if the comment was not sent successfully").optional(),
+  commentUrl: z.string().describe("The url to the created Jira comment").optional(),
+});
+
+export type jiraOrgPublicCommentOnServiceDeskRequestOutputType = z.infer<
+  typeof jiraOrgPublicCommentOnServiceDeskRequestOutputSchema
+>;
+export type jiraOrgPublicCommentOnServiceDeskRequestFunction = ActionFunction<
+  jiraOrgPublicCommentOnServiceDeskRequestParamsType,
+  AuthParamsType,
+  jiraOrgPublicCommentOnServiceDeskRequestOutputType
 >;
 
 export const jiraOrgCommentJiraTicketParamsSchema = z.object({
