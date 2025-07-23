@@ -6472,7 +6472,10 @@ actions:
             description: The organization to search for data in
           query:
             type: string
-            description: The query to search for in the repository
+            description: The query to search for within the organization
+          repository:
+            type: string
+            description: The repository to search for data in
       output:
         type: object
         required: [code, commits, issuesAndPullRequests]

@@ -4941,7 +4941,8 @@ export type githubSearchRepositoryFunction = ActionFunction<
 
 export const githubSearchOrganizationParamsSchema = z.object({
   organization: z.string().describe("The organization to search for data in"),
-  query: z.string().describe("The query to search for in the repository"),
+  query: z.string().describe("The query to search for within the organization"),
+  repository: z.string().describe("The repository to search for data in").optional(),
 });
 
 export type githubSearchOrganizationParamsType = z.infer<typeof githubSearchOrganizationParamsSchema>;

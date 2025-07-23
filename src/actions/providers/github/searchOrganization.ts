@@ -88,11 +88,13 @@ const searchOrganization: githubSearchOrganizationFunction = async ({
   }
 
   const octokit = new Octokit({ auth: authParams.authToken });
-  const { organization, query } = params;
+  const { organization, query, repository } = params;
+
+  const searchScope = repository ? `repo:${organization}/${repository}` : `org:${organization}`;
 
   // Search CODE with text match metadata
   const codeResultsResponse = await octokit.rest.search.code({
-    q: `${query} in:file,path org:${organization}`,
+    q: `${query} in:file,path ${searchScope}`,
     text_match: true,
     headers: {
       accept: "application/vnd.github.v3.text-match+json",
@@ -117,7 +119,7 @@ const searchOrganization: githubSearchOrganizationFunction = async ({
 
   // Search COMMITS
   const commitResults = await octokit.rest.search.commits({
-    q: `${query} org:${organization}`,
+    q: `${query} ${searchScope}`,
     headers: {
       accept: "application/vnd.github.cloak-preview+json",
     },
@@ -153,7 +155,7 @@ const searchOrganization: githubSearchOrganizationFunction = async ({
 
   // Search Issues and PRs
   const issueResults = await octokit.rest.search.issuesAndPullRequests({
-    q: `${query} org:${organization} (is:issue OR is:pull-request)`,
+    q: `${query} ${searchScope} (is:issue OR is:pull-request)`,
     advanced_search: "true",
   });
 
@@ -164,12 +166,11 @@ const searchOrganization: githubSearchOrganizationFunction = async ({
     prItems.map(async item => {
       // Each item has a 'repository_url' like: "https://api.github.com/repos/ORG/REPO"
       const repoUrlParts = item.repository_url.split("/");
-      const owner = repoUrlParts[repoUrlParts.length - 2];
-      const repo = repoUrlParts[repoUrlParts.length - 1];
+      const repo = repository ?? repoUrlParts[repoUrlParts.length - 1];
       try {
-        return await octokit.rest.pulls.listFiles({ owner, repo, pull_number: item.number });
+        return await octokit.rest.pulls.listFiles({ owner: organization, repo: repo, pull_number: item.number });
       } catch (error) {
-        console.error(`Error fetching PR files for PR ${item.number} in ${owner}/${repo}:`, error);
+        console.error(`Error fetching PR files for PR ${item.number} in ${organization}/${repo}:`, error);
         return { data: [] };
       }
     }),

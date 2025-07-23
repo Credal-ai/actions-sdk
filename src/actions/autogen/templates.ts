@@ -9641,7 +9641,11 @@ export const githubSearchOrganizationDefinition: ActionTemplate = {
       },
       query: {
         type: "string",
-        description: "The query to search for in the repository",
+        description: "The query to search for within the organization",
+      },
+      repository: {
+        type: "string",
+        description: "The repository to search for data in",
       },
     },
   },
