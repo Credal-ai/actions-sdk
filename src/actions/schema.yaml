@@ -571,7 +571,7 @@ actions:
             type: string
             description: The url to the newly assigned/reassigned Jira ticket
     publicCommentOnServiceDeskRequest:
-      description: Comments publically on a Jira service desk request with specified content
+      description: Comments publicly on a Jira service desk request with specified content
       scopes:
         - write:comment:jira
       parameters:
