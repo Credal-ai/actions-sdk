@@ -122,13 +122,11 @@ async function getProjectPath(
   projectId: number,
   authToken: string,
   baseUrl: string,
-  projectPathCache: Map<number, string>
+  projectPathCache: Map<number, string>,
 ): Promise<string> {
   if (projectPathCache.has(projectId)) return projectPathCache.get(projectId)!;
   try {
-    const project = await gitlabFetch<{ path_with_namespace: string }>(
-      `${baseUrl}/projects/${projectId}`, authToken
-    );
+    const project = await gitlabFetch<{ path_with_namespace: string }>(`${baseUrl}/projects/${projectId}`, authToken);
     const path = project.path_with_namespace;
     projectPathCache.set(projectId, path);
     return path;
@@ -226,9 +224,7 @@ async function getCommitDetails(input: {
     files: (diffs || []).slice(0, MAX_FILES_PER_COMMIT).map(diff => ({
       old_path: diff.old_path,
       new_path: diff.new_path,
-      diff: diff.diff
-        ? diff.diff.split("\n").slice(0, MAX_PATCH_LINES).join("\n")
-        : "",
+      diff: diff.diff ? diff.diff.split("\n").slice(0, MAX_PATCH_LINES).join("\n") : "",
     })),
   };
 }
@@ -284,9 +280,7 @@ const searchGroup: gitlabSearchGroupFunction = async ({
       );
       diffs = (diffs || []).slice(0, MAX_FILES_PER_PR).map(diff => ({
         ...diff,
-        diff: diff.diff
-          ? diff.diff.split('\n').slice(0, MAX_PATCH_LINES).join('\n')
-          : diff.diff,
+        diff: diff.diff ? diff.diff.split("\n").slice(0, MAX_PATCH_LINES).join("\n") : diff.diff,
       }));
       return { metadata, diffs };
     }),
@@ -296,7 +290,7 @@ const searchGroup: gitlabSearchGroupFunction = async ({
   const limitedBlobResults = blobResults.slice(0, MAX_CODE_RESULTS);
   const blobsWithUrls: GitLabBlobWithUrl[] = await Promise.all(
     limitedBlobResults.map(blob =>
-      enhanceBlobWithUrl(blob, authToken, gitlabBaseApiUrl, gitlabBaseUrl, projectPathCache)
+      enhanceBlobWithUrl(blob, authToken, gitlabBaseApiUrl, gitlabBaseUrl, projectPathCache),
     ),
   );
   const blobs: GitLabBlobWithCorrelation[] = blobsWithUrls.map(blob => {
@@ -312,7 +306,7 @@ const searchGroup: gitlabSearchGroupFunction = async ({
     return {
       metadata: {
         ...blob,
-        data: blob.data.split('\n').slice(0, MAX_FRAGMENT_LINES).join('\n'),
+        data: blob.data.split("\n").slice(0, MAX_FRAGMENT_LINES).join("\n"),
       },
       matchedMergeRequests: matches,
     };
@@ -329,8 +323,8 @@ const searchGroup: gitlabSearchGroupFunction = async ({
         baseUrl: gitlabBaseApiUrl,
         webBaseUrl: gitlabBaseUrl,
         projectPathCache,
-      })
-    )
+      }),
+    ),
   );
 
   return {
