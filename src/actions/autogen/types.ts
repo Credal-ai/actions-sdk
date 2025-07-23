@@ -324,7 +324,7 @@ export type slackCreateChannelFunction = ActionFunction<
 >;
 
 export const slackArchiveChannelParamsSchema = z.object({
-  channelId: z.string().describe("The ID of the channel to archive"),
+  channelName: z.string().describe("The name of the channel to archive"),
 });
 
 export type slackArchiveChannelParamsType = z.infer<typeof slackArchiveChannelParamsSchema>;

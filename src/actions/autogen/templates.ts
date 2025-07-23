@@ -551,11 +551,11 @@ export const slackArchiveChannelDefinition: ActionTemplate = {
   scopes: ["channels:manage"],
   parameters: {
     type: "object",
-    required: ["channelId"],
+    required: ["channelName"],
     properties: {
-      channelId: {
+      channelName: {
         type: "string",
-        description: "The ID of the channel to archive",
+        description: "The name of the channel to archive",
       },
     },
   },

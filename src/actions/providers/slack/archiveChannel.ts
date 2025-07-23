@@ -6,6 +6,7 @@ import type {
   slackArchiveChannelOutputType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { getSlackChannels } from "./helpers.js";
 
 const archiveChannel: slackArchiveChannelFunction = async ({
   params,
@@ -20,9 +21,18 @@ const archiveChannel: slackArchiveChannelFunction = async ({
 
   try {
     const client = new WebClient(authParams.authToken);
-    const { channelId } = params;
+    const { channelName } = params;
 
-    const result = await client.conversations.archive({ channel: channelId });
+    const allChannels = await getSlackChannels(client);
+    const channel = allChannels.find(channel => channel.name == channelName);
+
+    if (!channel || !channel.id) {
+      throw Error(`Channel with name ${channelName} not found`);
+    }
+
+    await client.conversations.join({ channel: channel.id });
+
+    const result = await client.conversations.archive({ channel: channel.id });
     if (!result.ok) {
       return {
         success: false,
