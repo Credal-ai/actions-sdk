@@ -1,8 +1,5 @@
 import type {
   AuthParamsType,
-  jiraCreateServiceDeskRequestFunction,
-  jiraCreateServiceDeskRequestOutputType,
-  jiraCreateServiceDeskRequestParamsType,
   jiraPublicCommentOnServiceDeskRequestFunction,
   jiraPublicCommentOnServiceDeskRequestOutputType,
   jiraPublicCommentOnServiceDeskRequestParamsType,
