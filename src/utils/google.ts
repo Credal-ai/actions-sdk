@@ -1,3 +1,6 @@
+import type { AxiosInstance } from "axios";
+import { isAxiosTimeoutError } from "../actions/util/axiosClient.js";
+
 // Custom interfaces to replace googleapis types
 interface GoogleDocsDocument {
   body?: {
@@ -273,4 +276,141 @@ export function parseGoogleSlidesFromRawContentToPlainText(snapshotRawContent: G
   }
 
   return slideContents.join("\n\n");
+}
+
+/** Specific to google docs */
+
+const GDRIVE_BASE_URL = "https://www.googleapis.com/drive/v3/files/";
+
+interface GoogleDocTab {
+  tabId: string;
+  documentTab: GoogleDocsDocument;
+  childTabs?: GoogleDocTab[];
+}
+
+/**
+ * Given a Google Doc file ID and an OAuth auth token, this function will fetch the
+ * contents of the Google Doc and recursively fetch all of the tab contents.
+ *
+ * @param {string} fileId - The ID of the Google Doc file
+ * @param {string} authToken - The OAuth token to use for authentication
+ * @param {AxiosInstance} axiosClient - The axios client to use for making requests
+ * @returns {Promise<string>} A promise that resolves with the text content of the doc
+ */
+async function getGoogleDocContentNoExport(
+  fileId: string,
+  authToken: string,
+  axiosClient: AxiosInstance,
+): Promise<string> {
+  const docsUrl = `https://docs.googleapis.com/v1/documents/${fileId}?includeTabsContent=true`;
+  const docsRes = await axiosClient.get(docsUrl, {
+    headers: { Authorization: `Bearer ${authToken}` },
+  });
+
+  const getAllTabs = (tabs: GoogleDocTab[]): GoogleDocTab[] => {
+    const allTabs: GoogleDocTab[] = [];
+    tabs.forEach((tab: GoogleDocTab) => {
+      allTabs.push(tab);
+      if (tab.childTabs) {
+        allTabs.push(...getAllTabs(tab.childTabs));
+      }
+    });
+    return allTabs;
+  };
+
+  const tabs = docsRes.data.tabs || [];
+  const allTabs = getAllTabs(tabs);
+
+  const tabContents = allTabs.map((tab: GoogleDocTab) => parseGoogleDocFromRawContentToPlainText(tab.documentTab));
+
+  return tabContents.join("\n\n");
+}
+
+export async function getGoogleDocContent(
+  fileId: string,
+  authToken: string,
+  axiosClient: AxiosInstance,
+  sharedDriveParams: string,
+): Promise<string> {
+  try {
+    return await getGoogleDocContentNoExport(fileId, authToken, axiosClient);
+  } catch (docsError) {
+    if (isAxiosTimeoutError(docsError)) {
+      console.log("Request timed out using Google Docs API - dont retry");
+      return "";
+    } else {
+      console.log("Error using Google Docs API", docsError);
+      // Fallback to Drive API export if Docs API fails
+      const exportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/plain${sharedDriveParams}`;
+      const exportRes = await axiosClient.get(exportUrl, {
+        headers: { Authorization: `Bearer ${authToken}` },
+        responseType: "text",
+      });
+      return exportRes.data;
+    }
+  }
+}
+
+export async function getGoogleSheetContent(
+  fileId: string,
+  authToken: string,
+  axiosClient: AxiosInstance,
+  sharedDriveParams: string,
+): Promise<string> {
+  try {
+    const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${fileId}?includeGridData=true`;
+    const sheetsRes = await axiosClient.get(sheetsUrl, {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+    return parseGoogleSheetsFromRawContentToPlainText(sheetsRes.data);
+  } catch (sheetsError) {
+    if (isAxiosTimeoutError(sheetsError)) {
+      console.log("Request timed out using Google Sheets API - dont retry");
+      return "";
+    } else {
+      console.log("Error using Google Sheets API", sheetsError);
+      const exportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/csv${sharedDriveParams}`;
+      const exportRes = await axiosClient.get(exportUrl, {
+        headers: { Authorization: `Bearer ${authToken}` },
+        responseType: "text",
+      });
+      return exportRes.data
+        .split("\n")
+        .map((line: string) => line.replace(/,+$/, ""))
+        .map((line: string) => line.replace(/,{2,}/g, ","))
+        .join("\n");
+    }
+  }
+}
+
+export async function getGoogleSlidesContent(
+  fileId: string,
+  authToken: string,
+  axiosClient: AxiosInstance,
+  sharedDriveParams: string,
+): Promise<string> {
+  try {
+    const slidesUrl = `https://slides.googleapis.com/v1/presentations/${fileId}`;
+    const slidesRes = await axiosClient.get(slidesUrl, {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+    return parseGoogleSlidesFromRawContentToPlainText(slidesRes.data);
+  } catch (slidesError) {
+    if (isAxiosTimeoutError(slidesError)) {
+      console.log("Request timed out using Google Slides API - dont retry");
+      return "";
+    } else {
+      console.log("Error using Google Slides API", slidesError);
+      const exportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/plain${sharedDriveParams}`;
+      const exportRes = await axiosClient.get(exportUrl, {
+        headers: { Authorization: `Bearer ${authToken}` },
+        responseType: "text",
+      });
+      return exportRes.data;
+    }
+  }
 }
