@@ -34,6 +34,7 @@ export enum ProviderName {
   JAMF = "jamf",
   GITLAB = "gitlab",
   LINEAR = "linear",
+  HUBSPOT = "hubspot",
 }
 
 export type ActionFunction<P, A, O> = (input: { params: P; authParams: A }) => Promise<O>;
@@ -351,6 +352,7 @@ export type slackSendMessageParamsType = z.infer<typeof slackSendMessageParamsSc
 export const slackSendMessageOutputSchema = z.object({
   success: z.boolean().describe("Whether the email was sent successfully"),
   error: z.string().describe("The error that occurred if the email was not sent successfully").optional(),
+  messageId: z.string().describe("The ID of the message that was sent").optional(),
 });
 
 export type slackSendMessageOutputType = z.infer<typeof slackSendMessageOutputSchema>;
@@ -5608,3 +5610,275 @@ export const linearGetTeamsOutputSchema = z.object({
 
 export type linearGetTeamsOutputType = z.infer<typeof linearGetTeamsOutputSchema>;
 export type linearGetTeamsFunction = ActionFunction<linearGetTeamsParamsType, AuthParamsType, linearGetTeamsOutputType>;
+
+export const hubspotGetContactsParamsSchema = z.object({
+  query: z.string().describe("Optional search query to filter contacts by name, email, or other properties").optional(),
+  limit: z.number().describe("Maximum number of contacts to return (default 100, max 100)").optional(),
+});
+
+export type hubspotGetContactsParamsType = z.infer<typeof hubspotGetContactsParamsSchema>;
+
+export const hubspotGetContactsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  contacts: z
+    .array(
+      z.object({
+        id: z.string().describe("The contact ID").optional(),
+        email: z.string().describe("Contact email address").optional(),
+        firstname: z.string().describe("Contact first name").optional(),
+        lastname: z.string().describe("Contact last name").optional(),
+        createdate: z.string().describe("When the contact was created").optional(),
+      }),
+    )
+    .describe("List of contacts matching the search criteria")
+    .optional(),
+});
+
+export type hubspotGetContactsOutputType = z.infer<typeof hubspotGetContactsOutputSchema>;
+export type hubspotGetContactsFunction = ActionFunction<
+  hubspotGetContactsParamsType,
+  AuthParamsType,
+  hubspotGetContactsOutputType
+>;
+
+export const hubspotGetContactDetailsParamsSchema = z.object({
+  contactId: z.string().describe("The ID of the HubSpot contact to retrieve"),
+});
+
+export type hubspotGetContactDetailsParamsType = z.infer<typeof hubspotGetContactDetailsParamsSchema>;
+
+export const hubspotGetContactDetailsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  contact: z
+    .object({
+      id: z.string().describe("The contact ID").optional(),
+      email: z.string().describe("Contact email address").optional(),
+      firstname: z.string().describe("Contact first name").optional(),
+      lastname: z.string().describe("Contact last name").optional(),
+      company: z.string().describe("Contact company").optional(),
+      phone: z.string().describe("Contact phone number").optional(),
+      address: z.string().describe("Contact address").optional(),
+      city: z.string().describe("Contact city").optional(),
+      state: z.string().describe("Contact state").optional(),
+      zip: z.string().describe("Contact zip code").optional(),
+      country: z.string().describe("Contact country").optional(),
+      lifecyclestage: z.string().describe("Contact lifecycle stage").optional(),
+      leadstatus: z.string().describe("Contact lead status").optional(),
+      createdAt: z.string().describe("When the contact was created").optional(),
+      updatedAt: z.string().describe("When the contact was last updated").optional(),
+      archived: z.boolean().describe("Whether the contact is archived").optional(),
+    })
+    .describe("The contact details")
+    .optional(),
+});
+
+export type hubspotGetContactDetailsOutputType = z.infer<typeof hubspotGetContactDetailsOutputSchema>;
+export type hubspotGetContactDetailsFunction = ActionFunction<
+  hubspotGetContactDetailsParamsType,
+  AuthParamsType,
+  hubspotGetContactDetailsOutputType
+>;
+
+export const hubspotGetCompaniesParamsSchema = z.object({
+  query: z
+    .string()
+    .describe("Optional search query to filter companies by name, domain, or other properties")
+    .optional(),
+  limit: z.number().describe("Maximum number of companies to return (default 100, max 100)").optional(),
+});
+
+export type hubspotGetCompaniesParamsType = z.infer<typeof hubspotGetCompaniesParamsSchema>;
+
+export const hubspotGetCompaniesOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  companies: z
+    .array(
+      z.object({
+        id: z.string().describe("The company ID").optional(),
+        name: z.string().describe("Company name").optional(),
+        domain: z.string().describe("Company domain").optional(),
+        createdAt: z.string().describe("When the company was created").optional(),
+      }),
+    )
+    .describe("List of companies matching the search criteria")
+    .optional(),
+});
+
+export type hubspotGetCompaniesOutputType = z.infer<typeof hubspotGetCompaniesOutputSchema>;
+export type hubspotGetCompaniesFunction = ActionFunction<
+  hubspotGetCompaniesParamsType,
+  AuthParamsType,
+  hubspotGetCompaniesOutputType
+>;
+
+export const hubspotGetCompanyDetailsParamsSchema = z.object({
+  companyId: z.string().describe("The ID of the HubSpot company to retrieve"),
+});
+
+export type hubspotGetCompanyDetailsParamsType = z.infer<typeof hubspotGetCompanyDetailsParamsSchema>;
+
+export const hubspotGetCompanyDetailsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  company: z
+    .object({
+      id: z.string().describe("The company ID").optional(),
+      name: z.string().describe("Company name").optional(),
+      domain: z.string().describe("Company domain").optional(),
+      industry: z.string().describe("Company industry").optional(),
+      phone: z.string().describe("Company phone number").optional(),
+      address: z.string().describe("Company address").optional(),
+      city: z.string().describe("Company city").optional(),
+      state: z.string().describe("Company state").optional(),
+      zip: z.string().describe("Company zip code").optional(),
+      country: z.string().describe("Company country").optional(),
+      website: z.string().describe("Company website").optional(),
+      createdAt: z.string().describe("When the company was created").optional(),
+      updatedAt: z.string().describe("When the company was last updated").optional(),
+      archived: z.boolean().describe("Whether the company is archived").optional(),
+    })
+    .describe("The company details")
+    .optional(),
+});
+
+export type hubspotGetCompanyDetailsOutputType = z.infer<typeof hubspotGetCompanyDetailsOutputSchema>;
+export type hubspotGetCompanyDetailsFunction = ActionFunction<
+  hubspotGetCompanyDetailsParamsType,
+  AuthParamsType,
+  hubspotGetCompanyDetailsOutputType
+>;
+
+export const hubspotGetDealsParamsSchema = z.object({
+  query: z.string().describe("Optional search query to filter deals by name, stage, or other properties").optional(),
+  limit: z.number().describe("Maximum number of deals to return (default 100, max 100)").optional(),
+});
+
+export type hubspotGetDealsParamsType = z.infer<typeof hubspotGetDealsParamsSchema>;
+
+export const hubspotGetDealsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  deals: z
+    .array(
+      z.object({
+        id: z.string().describe("The deal ID").optional(),
+        dealname: z.string().describe("Deal name").optional(),
+        amount: z.string().describe("Deal amount").optional(),
+        dealstage: z.string().describe("Deal stage").optional(),
+        createdAt: z.string().describe("When the deal was created").optional(),
+      }),
+    )
+    .describe("List of deals matching the search criteria")
+    .optional(),
+});
+
+export type hubspotGetDealsOutputType = z.infer<typeof hubspotGetDealsOutputSchema>;
+export type hubspotGetDealsFunction = ActionFunction<
+  hubspotGetDealsParamsType,
+  AuthParamsType,
+  hubspotGetDealsOutputType
+>;
+
+export const hubspotGetDealDetailsParamsSchema = z.object({
+  dealId: z.string().describe("The ID of the HubSpot deal to retrieve"),
+});
+
+export type hubspotGetDealDetailsParamsType = z.infer<typeof hubspotGetDealDetailsParamsSchema>;
+
+export const hubspotGetDealDetailsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  deal: z
+    .object({
+      id: z.string().describe("The deal ID").optional(),
+      dealname: z.string().describe("Deal name").optional(),
+      description: z.string().describe("Description of deal").optional(),
+      amount: z.string().describe("Deal amount").optional(),
+      dealstage: z.string().describe("Deal stage").optional(),
+      pipeline: z.string().describe("Pipeline").optional(),
+      dealtype: z.string().describe("Deal type").optional(),
+      closedate: z.string().describe("Close date").optional(),
+      createdAt: z.string().describe("When the deal was created").optional(),
+      updatedAt: z.string().describe("When the deal was last updated").optional(),
+      ownerId: z.string().describe("Deal owner ID").optional(),
+      archived: z.boolean().describe("Whether the deal is archived").optional(),
+    })
+    .describe("The deal details")
+    .optional(),
+});
+
+export type hubspotGetDealDetailsOutputType = z.infer<typeof hubspotGetDealDetailsOutputSchema>;
+export type hubspotGetDealDetailsFunction = ActionFunction<
+  hubspotGetDealDetailsParamsType,
+  AuthParamsType,
+  hubspotGetDealDetailsOutputType
+>;
+
+export const hubspotGetTicketsParamsSchema = z.object({
+  query: z
+    .string()
+    .describe("Optional search query to filter tickets by subject, status, or other properties")
+    .optional(),
+  limit: z.number().describe("Maximum number of tickets to return (default 100, max 100)").optional(),
+});
+
+export type hubspotGetTicketsParamsType = z.infer<typeof hubspotGetTicketsParamsSchema>;
+
+export const hubspotGetTicketsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  tickets: z
+    .array(
+      z.object({
+        id: z.string().describe("The ticket ID").optional(),
+        subject: z.string().describe("Ticket subject").optional(),
+        status: z.string().describe("Ticket status").optional(),
+        createdAt: z.string().describe("When the ticket was created").optional(),
+      }),
+    )
+    .describe("List of tickets matching the search criteria")
+    .optional(),
+});
+
+export type hubspotGetTicketsOutputType = z.infer<typeof hubspotGetTicketsOutputSchema>;
+export type hubspotGetTicketsFunction = ActionFunction<
+  hubspotGetTicketsParamsType,
+  AuthParamsType,
+  hubspotGetTicketsOutputType
+>;
+
+export const hubspotGetTicketDetailsParamsSchema = z.object({
+  ticketId: z.string().describe("The ID of the HubSpot ticket to retrieve"),
+});
+
+export type hubspotGetTicketDetailsParamsType = z.infer<typeof hubspotGetTicketDetailsParamsSchema>;
+
+export const hubspotGetTicketDetailsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  ticket: z
+    .object({
+      id: z.string().describe("The ticket ID").optional(),
+      subject: z.string().describe("Ticket subject").optional(),
+      content: z.string().describe("Ticket content/description").optional(),
+      pipeline: z.string().describe("Pipeline").optional(),
+      status: z.string().describe("Ticket status").optional(),
+      priority: z.string().describe("Ticket priority").optional(),
+      createdAt: z.string().describe("When the ticket was created").optional(),
+      updatedAt: z.string().describe("When the ticket was last updated").optional(),
+      ownerId: z.string().describe("Ticket owner id").optional(),
+      archived: z.boolean().describe("Whether the ticket is archived").optional(),
+    })
+    .describe("The ticket details")
+    .optional(),
+});
+
+export type hubspotGetTicketDetailsOutputType = z.infer<typeof hubspotGetTicketDetailsOutputSchema>;
+export type hubspotGetTicketDetailsFunction = ActionFunction<
+  hubspotGetTicketDetailsParamsType,
+  AuthParamsType,
+  hubspotGetTicketDetailsOutputType
+>;

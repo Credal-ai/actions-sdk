@@ -254,6 +254,22 @@ import {
   linearGetProjectsOutputSchema,
   linearGetTeamsParamsSchema,
   linearGetTeamsOutputSchema,
+  hubspotGetContactsParamsSchema,
+  hubspotGetContactsOutputSchema,
+  hubspotGetContactDetailsParamsSchema,
+  hubspotGetContactDetailsOutputSchema,
+  hubspotGetCompaniesParamsSchema,
+  hubspotGetCompaniesOutputSchema,
+  hubspotGetCompanyDetailsParamsSchema,
+  hubspotGetCompanyDetailsOutputSchema,
+  hubspotGetDealsParamsSchema,
+  hubspotGetDealsOutputSchema,
+  hubspotGetDealDetailsParamsSchema,
+  hubspotGetDealDetailsOutputSchema,
+  hubspotGetTicketsParamsSchema,
+  hubspotGetTicketsOutputSchema,
+  hubspotGetTicketDetailsParamsSchema,
+  hubspotGetTicketDetailsOutputSchema,
   gitlabGetFileContentParamsSchema,
   gitlabGetFileContentOutputSchema,
   jiraPublicCommentOnServiceDeskRequestParamsSchema,
@@ -385,6 +401,14 @@ import getProjectDetails from "./providers/linear/getProjectDetails.js";
 import getTeamDetails from "./providers/linear/getTeamDetails.js";
 import getProjects from "./providers/linear/getProjects.js";
 import getTeams from "./providers/linear/getTeams.js";
+import getContacts from "./providers/hubspot/getContacts.js";
+import getContactDetails from "./providers/hubspot/getContactDetails.js";
+import getCompanies from "./providers/hubspot/getCompanies.js";
+import getCompanyDetails from "./providers/hubspot/getCompanyDetails.js";
+import getDeals from "./providers/hubspot/getDeals.js";
+import getDealDetails from "./providers/hubspot/getDealDetails.js";
+import getTickets from "./providers/hubspot/getTickets.js";
+import getTicketDetails from "./providers/hubspot/getTicketDetails.js";
 import gitlabGetFileContent from "./providers/gitlab/getFileContent.js";
 import publicCommentOnServiceDeskRequest from "./providers/jira/publicCommentOnServiceDeskRequest.js";
 
@@ -1101,6 +1125,48 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: getTeams,
       paramsSchema: linearGetTeamsParamsSchema,
       outputSchema: linearGetTeamsOutputSchema,
+    },
+  },
+  hubspot: {
+    getContacts: {
+      fn: getContacts,
+      paramsSchema: hubspotGetContactsParamsSchema,
+      outputSchema: hubspotGetContactsOutputSchema,
+    },
+    getContactDetails: {
+      fn: getContactDetails,
+      paramsSchema: hubspotGetContactDetailsParamsSchema,
+      outputSchema: hubspotGetContactDetailsOutputSchema,
+    },
+    getCompanies: {
+      fn: getCompanies,
+      paramsSchema: hubspotGetCompaniesParamsSchema,
+      outputSchema: hubspotGetCompaniesOutputSchema,
+    },
+    getCompanyDetails: {
+      fn: getCompanyDetails,
+      paramsSchema: hubspotGetCompanyDetailsParamsSchema,
+      outputSchema: hubspotGetCompanyDetailsOutputSchema,
+    },
+    getDeals: {
+      fn: getDeals,
+      paramsSchema: hubspotGetDealsParamsSchema,
+      outputSchema: hubspotGetDealsOutputSchema,
+    },
+    getDealDetails: {
+      fn: getDealDetails,
+      paramsSchema: hubspotGetDealDetailsParamsSchema,
+      outputSchema: hubspotGetDealDetailsOutputSchema,
+    },
+    getTickets: {
+      fn: getTickets,
+      paramsSchema: hubspotGetTicketsParamsSchema,
+      outputSchema: hubspotGetTicketsOutputSchema,
+    },
+    getTicketDetails: {
+      fn: getTicketDetails,
+      paramsSchema: hubspotGetTicketDetailsParamsSchema,
+      outputSchema: hubspotGetTicketDetailsOutputSchema,
     },
   },
 };
