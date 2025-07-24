@@ -337,7 +337,7 @@ export async function getGoogleDocContent(
   } catch (docsError) {
     if (isAxiosTimeoutError(docsError)) {
       console.log("Request timed out using Google Docs API - dont retry");
-      return "";
+      throw new Error("Request timed out using Google Docs API");
     } else {
       console.log("Error using Google Docs API", docsError);
       // Fallback to Drive API export if Docs API fails
@@ -368,7 +368,7 @@ export async function getGoogleSheetContent(
   } catch (sheetsError) {
     if (isAxiosTimeoutError(sheetsError)) {
       console.log("Request timed out using Google Sheets API - dont retry");
-      return "";
+      throw new Error("Request timed out using Google Sheets API");
     } else {
       console.log("Error using Google Sheets API", sheetsError);
       const exportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/csv${sharedDriveParams}`;
@@ -402,7 +402,7 @@ export async function getGoogleSlidesContent(
   } catch (slidesError) {
     if (isAxiosTimeoutError(slidesError)) {
       console.log("Request timed out using Google Slides API - dont retry");
-      return "";
+      throw new Error("Request timed out using Google Slides API");
     } else {
       console.log("Error using Google Slides API", slidesError);
       const exportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/plain${sharedDriveParams}`;

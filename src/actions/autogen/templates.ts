@@ -6447,6 +6447,14 @@ export const googleOauthGetDriveFileContentByIdDefinition: ActionTemplate = {
         type: "number",
         description: "The character limit for the file content",
       },
+      timeoutLimit: {
+        type: "number",
+        description: "The timeout limit for the file content retrieval (default of 15 seconds)",
+      },
+      fileSizeLimit: {
+        type: "number",
+        description: "Max file size (in MB) to retrieve content from (default of 30MB)",
+      },
     },
   },
   output: {

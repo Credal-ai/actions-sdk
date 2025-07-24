@@ -23,7 +23,9 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
 
   const BASE_URL = "https://www.googleapis.com/drive/v3/files/";
   const { fileId, limit } = params;
-  const axiosClient = createAxiosClientWithTimeout(20000);
+  const timeoutLimit =
+    params.timeoutLimit !== undefined && params.timeoutLimit > 0 ? params.timeoutLimit * 1000 : 15_000; // timeoutLimit is in seconds, converted to ms`
+  const axiosClient = createAxiosClientWithTimeout(timeoutLimit); // timeoutLimit is in seconds, converted to ms
 
   try {
     // First, get file metadata to determine the file type and if it's in a shared drive
@@ -35,11 +37,13 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
     const { name: fileName, mimeType, size, driveId } = metadataRes.data;
 
     // Check if file is too large (50MB limit for safety)
-    const maxFileSize = 50 * 1024 * 1024;
+    const maxMegabytes = params.fileSizeLimit && params.fileSizeLimit > 0 ? params.fileSizeLimit : 50;
+    const maxFileSize = maxMegabytes * 1024 * 1024;
+
     if (size && parseInt(size) > maxFileSize) {
       return {
         success: false,
-        error: "File too large (>50MB)",
+        error: "File too large (" + maxMegabytes + "MB)",
       };
     }
 
@@ -81,9 +85,7 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
     ) {
       const downloadUrl = `${BASE_URL}${encodeURIComponent(fileId)}?alt=media${sharedDriveParams}`;
       const downloadRes = await axiosClient.get(downloadUrl, {
-        headers: {
-          Authorization: `Bearer ${authParams.authToken}`,
-        },
+        headers: { Authorization: `Bearer ${authParams.authToken}` },
         responseType: "arraybuffer",
       });
 
@@ -106,9 +108,7 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
       // Text-based files
       const downloadUrl = `${BASE_URL}${encodeURIComponent(fileId)}?alt=media${sharedDriveParams}`;
       const downloadRes = await axiosClient.get(downloadUrl, {
-        headers: {
-          Authorization: `Bearer ${authParams.authToken}`,
-        },
+        headers: { Authorization: `Bearer ${authParams.authToken}` },
         responseType: "text",
       });
       content = downloadRes.data;

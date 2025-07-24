@@ -14,6 +14,7 @@ async function runTest() {
   const params: googleOauthGetDriveFileContentByIdParamsType = {
     fileId: process.env.GOOGLE_DRIVE_FILE_ID!, // Provide a valid file ID here
     limit: 5000, // optional character limit
+    timeoutLimit: 0,
   };
 
   const startTime = performance.now();

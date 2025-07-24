@@ -3371,6 +3371,11 @@ export type googleOauthSearchDriveByQueryAndGetFileContentFunction = ActionFunct
 export const googleOauthGetDriveFileContentByIdParamsSchema = z.object({
   fileId: z.string().describe("The ID of the file to get content from"),
   limit: z.number().describe("The character limit for the file content"),
+  timeoutLimit: z
+    .number()
+    .describe("The timeout limit for the file content retrieval (default of 15 seconds)")
+    .optional(),
+  fileSizeLimit: z.number().describe("Max file size (in MB) to retrieve content from (default of 30MB)").optional(),
 });
 
 export type googleOauthGetDriveFileContentByIdParamsType = z.infer<
