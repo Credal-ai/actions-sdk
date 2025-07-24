@@ -1,6 +1,9 @@
 import type { googleOauthGetDriveFileContentByIdParamsType } from "../../src/actions/autogen/types.js";
 import { runAction } from "../../src/app.js";
 import assert from "node:assert";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 /**
  * Test for retrieving Google Drive file content by ID
@@ -9,18 +12,22 @@ async function runTest() {
   console.log("Running test getDriveContentById");
 
   const params: googleOauthGetDriveFileContentByIdParamsType = {
-    fileId: "insert-file-id", // Provide a valid file ID here
+    fileId: process.env.GOOGLE_DRIVE_FILE_ID!, // Provide a valid file ID here
     limit: 5000, // optional character limit
   };
 
+  const startTime = performance.now();
   const result = await runAction(
     "getDriveFileContentById", // Ensure this matches the action name defined in schema
     "googleOauth",
     {
-      authToken: "insert-auth-token", // Use a valid OAuth token with Drive readonly scope,
+      authToken: process.env.GOOGLE_DRIVE_AUTH_TOKEN, // Use a valid OAuth token with Drive readonly scope,
     },
     params,
   );
+  const endTime = performance.now();
+  const duration = endTime - startTime;
+  console.log(`Time taken: ${duration} milliseconds`);
 
   // Basic assertions
   assert.strictEqual(result.success, true, "Retrieval should be successful");
@@ -44,7 +51,7 @@ async function runTest() {
   }
 
   console.log("File name:", result.fileName);
-  console.log("Content snippet:", result.content?.slice(0, 200));
+  console.log("Content snippet:", result.content);
 }
 
 // Run the test
