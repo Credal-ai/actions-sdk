@@ -258,6 +258,8 @@ import {
   gitlabGetFileContentOutputSchema,
   jiraPublicCommentOnServiceDeskRequestParamsSchema,
   jiraPublicCommentOnServiceDeskRequestOutputSchema,
+  googlemailSendGmailParamsSchema,
+  googlemailSendGmailOutputSchema,
 } from "./autogen/types.js";
 import validateAddress from "./providers/googlemaps/validateAddress.js";
 import add from "./providers/math/add.js";
@@ -387,6 +389,7 @@ import getProjects from "./providers/linear/getProjects.js";
 import getTeams from "./providers/linear/getTeams.js";
 import gitlabGetFileContent from "./providers/gitlab/getFileContent.js";
 import publicCommentOnServiceDeskRequest from "./providers/jira/publicCommentOnServiceDeskRequest.js";
+import sendGmail from "./providers/googlemail/sendGmail.js";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -797,6 +800,11 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: listGmailThreads,
       paramsSchema: googlemailListGmailThreadsParamsSchema,
       outputSchema: googlemailListGmailThreadsOutputSchema,
+    },
+    sendGmail: {
+      fn: sendGmail,
+      paramsSchema: googlemailSendGmailParamsSchema,
+      outputSchema: googlemailSendGmailOutputSchema,
     },
   },
   x: {

@@ -3609,6 +3609,29 @@ export type googlemailListGmailThreadsFunction = ActionFunction<
   googlemailListGmailThreadsOutputType
 >;
 
+export const googlemailSendGmailParamsSchema = z.object({
+  to: z.array(z.string()).describe("List of recipient email addresses"),
+  cc: z.array(z.string()).describe("List of CC recipient email addresses (optional)").optional(),
+  bcc: z.array(z.string()).describe("List of BCC recipient email addresses (optional)").optional(),
+  subject: z.string().describe("Email subject line"),
+  content: z.string().describe("Email body content (plain text or HTML)"),
+});
+
+export type googlemailSendGmailParamsType = z.infer<typeof googlemailSendGmailParamsSchema>;
+
+export const googlemailSendGmailOutputSchema = z.object({
+  success: z.boolean().describe("Whether the email was sent successfully"),
+  messageId: z.string().describe("The ID of the sent message").optional(),
+  error: z.string().describe("Error message if sending failed").optional(),
+});
+
+export type googlemailSendGmailOutputType = z.infer<typeof googlemailSendGmailOutputSchema>;
+export type googlemailSendGmailFunction = ActionFunction<
+  googlemailSendGmailParamsType,
+  AuthParamsType,
+  googlemailSendGmailOutputType
+>;
+
 export const oktaGetOktaUserParamsSchema = z.object({ userId: z.string().describe("The ID of the user to retrieve.") });
 
 export type oktaGetOktaUserParamsType = z.infer<typeof oktaGetOktaUserParamsSchema>;

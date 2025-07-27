@@ -6916,6 +6916,65 @@ export const googlemailListGmailThreadsDefinition: ActionTemplate = {
   name: "listGmailThreads",
   provider: "googlemail",
 };
+export const googlemailSendGmailDefinition: ActionTemplate = {
+  description: "Send an email through Gmail with support for to, cc, bcc, subject, and content.",
+  scopes: ["https://www.googleapis.com/auth/gmail.send"],
+  parameters: {
+    type: "object",
+    required: ["to", "subject", "content"],
+    properties: {
+      to: {
+        type: "array",
+        description: "List of recipient email addresses",
+        items: {
+          type: "string",
+        },
+      },
+      cc: {
+        type: "array",
+        description: "List of CC recipient email addresses (optional)",
+        items: {
+          type: "string",
+        },
+      },
+      bcc: {
+        type: "array",
+        description: "List of BCC recipient email addresses (optional)",
+        items: {
+          type: "string",
+        },
+      },
+      subject: {
+        type: "string",
+        description: "Email subject line",
+      },
+      content: {
+        type: "string",
+        description: "Email body content (plain text or HTML)",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the email was sent successfully",
+      },
+      messageId: {
+        type: "string",
+        description: "The ID of the sent message",
+      },
+      error: {
+        type: "string",
+        description: "Error message if sending failed",
+      },
+    },
+  },
+  name: "sendGmail",
+  provider: "googlemail",
+};
 export const oktaGetOktaUserDefinition: ActionTemplate = {
   description: "Retrieve details of a specific Okta user by their ID.",
   scopes: ["okta.users.read"],
