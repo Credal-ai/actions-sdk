@@ -92,23 +92,23 @@ const searchRepository: githubSearchRepositoryFunction = async ({
   // Search CODE with text match metadata
   const [codeResultsResponse, commitResults, issueResults] = await Promise.all([
     octokit.rest.search.code({
-    q: `${query} in:file,path repo:${organization}/${repository}`,
-    text_match: true,
-    headers: {
-      accept: "application/vnd.github.v3.text-match+json",
-    },
-  }),
-  octokit.rest.search.commits({
-    q: `${query} repo:${organization}/${repository}`,
-    headers: {
-      accept: "application/vnd.github.cloak-preview+json",
-    },
-  }),
-  octokit.rest.search.issuesAndPullRequests({
-    q: `${query} repo:${organization}/${repository} (is:issue OR is:pull-request)`,
-    advanced_search: "true",
-  }),
-]);
+      q: `${query} in:file,path repo:${organization}/${repository}`,
+      text_match: true,
+      headers: {
+        accept: "application/vnd.github.v3.text-match+json",
+      },
+    }),
+    octokit.rest.search.commits({
+      q: `${query} repo:${organization}/${repository}`,
+      headers: {
+        accept: "application/vnd.github.cloak-preview+json",
+      },
+    }),
+    octokit.rest.search.issuesAndPullRequests({
+      q: `${query} repo:${organization}/${repository} (is:issue OR is:pull-request)`,
+      advanced_search: "true",
+    }),
+  ]);
 
   const codeResults: SearchCodeResult[] = codeResultsResponse.data.items.slice(0, MAX_CODE_RESULTS).map(item => ({
     name: item.name,
