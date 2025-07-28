@@ -5,6 +5,7 @@ import type {
   githubCreateBranchParamsType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { getOctokit } from "./utils.js";
 
 /**
  * Creates a new branch in a GitHub repository
@@ -19,11 +20,10 @@ const createBranch: githubCreateBranchFunction = async ({
   if (!authParams.authToken) {
     return { success: false, error: MISSING_AUTH_TOKEN };
   }
-  const { Octokit, RequestError } = await import("octokit");
 
+  const octokit = await getOctokit(authParams.authToken);
+  const { RequestError } = await import("@octokit/request-error");
   const { repositoryOwner, repositoryName, branchName, baseRefOrHash } = params;
-
-  const octokit = new Octokit({ auth: authParams.authToken });
 
   try {
     // Get the reference or commit SHA for the base branch or tag

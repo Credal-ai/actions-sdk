@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { getOctokit } from "./utils.js";
 
 /**
  * Get file content
@@ -17,8 +18,6 @@ const getFileContent: githubGetFileContentFunction = async ({
   params: githubGetFileContentParamsType;
   authParams: AuthParamsType;
 }): Promise<githubGetFileContentOutputType> => {
-  const { Octokit } = await import("octokit");
-
   if (!authParams.authToken) {
     return {
       success: false,
@@ -26,7 +25,7 @@ const getFileContent: githubGetFileContentFunction = async ({
     };
   }
 
-  const octokit = new Octokit({ auth: authParams.authToken });
+  const octokit = await getOctokit(authParams.authToken);
   const { organization, repository, path } = params;
 
   const contentResponse = await octokit.rest.repos.getContent({

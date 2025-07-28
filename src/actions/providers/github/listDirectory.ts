@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { getOctokit } from "./utils.js";
 
 /**
  * List directory contents
@@ -17,8 +18,6 @@ const listDirectory: githubListDirectoryFunction = async ({
   params: githubListDirectoryParamsType;
   authParams: AuthParamsType;
 }): Promise<githubListDirectoryOutputType> => {
-  const { Octokit } = await import("octokit");
-
   if (!authParams.authToken) {
     return {
       success: false,
@@ -26,7 +25,7 @@ const listDirectory: githubListDirectoryFunction = async ({
     };
   }
 
-  const octokit = new Octokit({ auth: authParams.authToken });
+  const octokit = await getOctokit(authParams.authToken);
   const { organization, repository, path } = params;
 
   const contentResponse = await octokit.rest.repos.getContent({

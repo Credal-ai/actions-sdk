@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { z } from "zod";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { getOctokit } from "./utils.js";
 
 /**
  * Creates or updates a file in a GitHub repository
@@ -21,11 +22,10 @@ const createOrUpdateFile: githubCreateOrUpdateFileFunction = async ({
     return { success: false, error: MISSING_AUTH_TOKEN };
   }
 
-  const { Octokit, RequestError } = await import("octokit");
+  const octokit = await getOctokit(authParams.authToken);
+  const { RequestError } = await import("@octokit/request-error");
 
   const { repositoryOwner, repositoryName, filePath, branch, fileContent, commitMessage } = params;
-
-  const octokit = new Octokit({ auth: authParams.authToken });
 
   let fileSha = undefined;
   let operationPreformed = undefined;

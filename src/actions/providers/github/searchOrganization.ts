@@ -5,6 +5,7 @@ import type {
   githubSearchOrganizationParamsType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { getOctokit } from "./utils.js";
 
 interface SearchCodeResult {
   name: string;
@@ -81,25 +82,35 @@ const searchOrganization: githubSearchOrganizationFunction = async ({
   params: githubSearchOrganizationParamsType;
   authParams: AuthParamsType;
 }): Promise<githubSearchOrganizationOutputType> => {
-  const { Octokit } = await import("octokit");
-
   if (!authParams.authToken) {
     throw new Error(MISSING_AUTH_TOKEN);
   }
 
-  const octokit = new Octokit({ auth: authParams.authToken });
+  const octokit = await getOctokit(authParams.authToken);
+
   const { organization, query, repository } = params;
 
   const searchScope = repository ? `repo:${organization}/${repository}` : `org:${organization}`;
 
-  // Search CODE with text match metadata
-  const codeResultsResponse = await octokit.rest.search.code({
-    q: `${query} in:file,path ${searchScope}`,
-    text_match: true,
-    headers: {
-      accept: "application/vnd.github.v3.text-match+json",
-    },
-  });
+  const [codeResultsResponse, commitResults, issueResults] = await Promise.all([
+    octokit.rest.search.code({
+      q: `${query} in:file,path ${searchScope}`,
+      text_match: true,
+      headers: {
+        accept: "application/vnd.github.v3.text-match+json",
+      },
+    }),
+    octokit.rest.search.commits({
+      q: `${query} ${searchScope}`,
+      headers: {
+        accept: "application/vnd.github.cloak-preview+json",
+      },
+    }),
+    octokit.rest.search.issuesAndPullRequests({
+      q: `${query} ${searchScope} (is:issue OR is:pull-request)`,
+      advanced_search: "true",
+    }),
+  ]);
 
   const codeResults: SearchCodeResult[] = codeResultsResponse.data.items.slice(0, MAX_CODE_RESULTS).map(item => ({
     name: item.name,
@@ -116,14 +127,6 @@ const searchOrganization: githubSearchOrganizationFunction = async ({
         }))
       : [],
   }));
-
-  // Search COMMITS
-  const commitResults = await octokit.rest.search.commits({
-    q: `${query} ${searchScope}`,
-    headers: {
-      accept: "application/vnd.github.cloak-preview+json",
-    },
-  });
 
   const commitDetails = await Promise.all(
     commitResults.data.items.slice(0, MAX_COMMITS).map(item => {
@@ -151,12 +154,6 @@ const searchOrganization: githubSearchOrganizationFunction = async ({
           patch: f.patch?.split("\n").slice(0, MAX_PATCH_LINES).join("\n"),
         })) || [],
     };
-  });
-
-  // Search Issues and PRs
-  const issueResults = await octokit.rest.search.issuesAndPullRequests({
-    q: `${query} ${searchScope} (is:issue OR is:pull-request)`,
-    advanced_search: "true",
   });
 
   const prItems = issueResults.data.items.filter(item => item.pull_request).slice(0, MAX_ISSUES_OR_PRS);

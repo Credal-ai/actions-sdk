@@ -5,6 +5,7 @@ import type {
   githubSearchRepositoryParamsType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { getOctokit } from "./utils.js";
 
 interface SearchCodeResult {
   name: string;
@@ -81,23 +82,33 @@ const searchRepository: githubSearchRepositoryFunction = async ({
   params: githubSearchRepositoryParamsType;
   authParams: AuthParamsType;
 }): Promise<githubSearchRepositoryOutputType> => {
-  const { Octokit } = await import("octokit");
-
   if (!authParams.authToken) {
     throw new Error(MISSING_AUTH_TOKEN);
   }
 
-  const octokit = new Octokit({ auth: authParams.authToken });
+  const octokit = await getOctokit(authParams.authToken);
   const { organization, repository, query } = params;
 
   // Search CODE with text match metadata
-  const codeResultsResponse = await octokit.rest.search.code({
+  const [codeResultsResponse, commitResults, issueResults] = await Promise.all([
+    octokit.rest.search.code({
     q: `${query} in:file,path repo:${organization}/${repository}`,
     text_match: true,
     headers: {
       accept: "application/vnd.github.v3.text-match+json",
     },
-  });
+  }),
+  octokit.rest.search.commits({
+    q: `${query} repo:${organization}/${repository}`,
+    headers: {
+      accept: "application/vnd.github.cloak-preview+json",
+    },
+  }),
+  octokit.rest.search.issuesAndPullRequests({
+    q: `${query} repo:${organization}/${repository} (is:issue OR is:pull-request)`,
+    advanced_search: "true",
+  }),
+]);
 
   const codeResults: SearchCodeResult[] = codeResultsResponse.data.items.slice(0, MAX_CODE_RESULTS).map(item => ({
     name: item.name,
@@ -114,14 +125,6 @@ const searchRepository: githubSearchRepositoryFunction = async ({
         }))
       : [],
   }));
-
-  // Search COMMITS
-  const commitResults = await octokit.rest.search.commits({
-    q: `${query} repo:${organization}/${repository}`,
-    headers: {
-      accept: "application/vnd.github.cloak-preview+json",
-    },
-  });
 
   const commitSHAs: string[] = commitResults.data.items.slice(0, MAX_COMMITS).map(item => item.sha);
 
@@ -147,12 +150,6 @@ const searchRepository: githubSearchRepositoryFunction = async ({
           patch: f.patch?.split("\n").slice(0, MAX_PATCH_LINES).join("\n"),
         })) || [],
     };
-  });
-
-  // Search Issues and PRs
-  const issueResults = await octokit.rest.search.issuesAndPullRequests({
-    q: `${query} repo:${organization}/${repository} (is:issue OR is:pull-request)`,
-    advanced_search: "true",
   });
 
   const prItems = issueResults.data.items.filter(item => item.pull_request).slice(0, MAX_ISSUES_OR_PRS);

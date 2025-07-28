@@ -5,6 +5,7 @@ import type {
   githubCreatePullRequestParamsType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { getOctokit } from "./utils.js";
 
 /**
  * Creates a pull request in a GitHub repository
@@ -20,11 +21,10 @@ const createPullRequest: githubCreatePullRequestFunction = async ({
     return { success: false, error: MISSING_AUTH_TOKEN };
   }
 
-  const { Octokit, RequestError } = await import("octokit");
-
   const { repositoryOwner, repositoryName, head, base, title, description } = params;
 
-  const octokit = new Octokit({ auth: authParams.authToken });
+  const octokit = await getOctokit(authParams.authToken);
+  const { RequestError } = await import("@octokit/request-error");
 
   try {
     // Create the pull request
