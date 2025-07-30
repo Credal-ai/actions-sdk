@@ -35,6 +35,8 @@ import {
   zendeskAssignTicketParamsSchema,
   zendeskListZendeskTicketsOutputSchema,
   zendeskListZendeskTicketsParamsSchema,
+  zendeskListTicketsByQueryOutputSchema,
+  zendeskListTicketsByQueryParamsSchema,
   jiraAssignJiraTicketParamsSchema,
   jiraAssignJiraTicketOutputSchema,
   jiraCommentJiraTicketParamsSchema,
@@ -274,6 +276,7 @@ import updateTicketStatus from "./providers/zendesk/updateTicketStatus.js";
 import addCommentToTicket from "./providers/zendesk/addCommentToTicket.js";
 import assignTicket from "./providers/zendesk/assignTicket.js";
 import listZendeskTickets from "./providers/zendesk/listTickets.js";
+import listTicketsByQuery from "./providers/zendesk/listTicketsByQuery.js";
 import assignJiraTicket from "./providers/jira/assignJiraTicket.js";
 import commentJiraTicket from "./providers/jira/commentJiraTicket.js";
 import createJiraTicket from "./providers/jira/createJiraTicket.js";
@@ -615,6 +618,11 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: listZendeskTickets,
       paramsSchema: zendeskListZendeskTicketsParamsSchema,
       outputSchema: zendeskListZendeskTicketsOutputSchema,
+    },
+    listTicketsByQuery: {
+      fn: listTicketsByQuery,
+      paramsSchema: zendeskListTicketsByQueryParamsSchema,
+      outputSchema: zendeskListTicketsByQueryOutputSchema,
     },
   },
   mongo: {

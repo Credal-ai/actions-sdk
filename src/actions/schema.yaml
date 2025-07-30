@@ -1279,6 +1279,34 @@ actions:
           assigneeEmail:
             type: string
             description: The email address of the agent to assign the ticket to
+    listTicketsByQuery:
+      description: List tickets in Zendesk by search query with flexible filtering options
+      scopes: []
+      parameters:
+        type: object
+        required: [subdomain, query]
+        properties:
+          subdomain:
+            type: string
+            description: The subdomain of the Zendesk account
+          query:
+            type: string
+            description: Search query string that can include filters like status, priority, tags, assignee, etc. Examples - status:open, priority:high, tags:bug, assignee:user@example.com, or combination like "status:open priority:high"
+          limit:
+            type: number
+            description: Maximum number of tickets to return (optional, defaults to 100)
+      output:
+        type: object
+        required: [tickets, count]
+        properties:
+          tickets:
+            type: array
+            description: List of tickets matching the query
+            items:
+              type: object
+          count:
+            type: number
+            description: Number of tickets found
   linkedin:
     createShareLinkedinPostUrl:
       description: Create a share linkedin post link
