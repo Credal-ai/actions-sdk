@@ -167,7 +167,7 @@ async function getCommitDetails(input: {
   projectPathCache: Map<number, string>;
 }): Promise<MinimalGitLabCommit> {
   const { projectId, sha, authToken, baseUrl, webBaseUrl, projectPathCache } = input;
-  const projectPath = await getProjectPath(projectId, authToken, baseUrl, projectPathCache)
+  const projectPath = await getProjectPath(projectId, authToken, baseUrl, projectPathCache);
 
   const commit = await gitlabFetch<GitLabCommit>(
     `${baseUrl}/projects/${projectId}/repository/commits/${sha}`,
@@ -228,7 +228,7 @@ const searchGroup: gitlabSearchGroupFunction = async ({
   const limitedMRResults = mrResults.slice(0, MAX_ISSUES_OR_PRS);
   const mergeRequests: MergeRequestWithDiffs[] = await Promise.all(
     limitedMRResults.map(async metadata => {
-      const endpoint =  `${gitlabBaseApiUrl}/projects/${metadata.project_id}/merge_requests/${metadata.iid}/diffs`;
+      const endpoint = `${gitlabBaseApiUrl}/projects/${metadata.project_id}/merge_requests/${metadata.iid}/diffs`;
 
       let diffs = await gitlabFetch<MRDiff[]>(endpoint, authToken);
       diffs = (diffs || []).slice(0, MAX_FILES_PER_PR).map(diff => ({
