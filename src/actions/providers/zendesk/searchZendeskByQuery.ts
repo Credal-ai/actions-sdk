@@ -1,23 +1,23 @@
 import type {
   AuthParamsType,
-  zendeskListTicketsByQueryFunction,
-  zendeskListTicketsByQueryOutputType,
-  zendeskListTicketsByQueryParamsType,
+  zendeskSearchZendeskByQueryFunction,
+  zendeskSearchZendeskByQueryOutputType,
+  zendeskSearchZendeskByQueryParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
-const listTicketsByQuery: zendeskListTicketsByQueryFunction = async ({
+const searchZendeskByQuery: zendeskSearchZendeskByQueryFunction = async ({
   params,
   authParams,
 }: {
-  params: zendeskListTicketsByQueryParamsType;
+  params: zendeskSearchZendeskByQueryParamsType;
   authParams: AuthParamsType;
-}): Promise<zendeskListTicketsByQueryOutputType> => {
+}): Promise<zendeskSearchZendeskByQueryOutputType> => {
   const { authToken } = authParams;
-  const { subdomain, query, limit = 100 } = params;
+  const { subdomain, query, objectType = "ticket", limit = 100 } = params;
 
-  // Endpoint for searching tickets
+  // Endpoint for searching Zendesk objects
   const url = `https://${subdomain}.zendesk.com/api/v2/search.json`;
 
   if (!authToken) {
@@ -26,7 +26,7 @@ const listTicketsByQuery: zendeskListTicketsByQueryFunction = async ({
 
   // Build search query parameters
   const queryParams = new URLSearchParams();
-  queryParams.append("query", `type:ticket ${query}`);
+  queryParams.append("query", `type:${objectType} ${query}`);
   queryParams.append("per_page", limit.toString());
 
   const response = await axiosClient.get(`${url}?${queryParams.toString()}`, {
@@ -37,9 +37,9 @@ const listTicketsByQuery: zendeskListTicketsByQueryFunction = async ({
   });
 
   return {
-    tickets: response.data.results,
+    results: response.data.results,
     count: response.data.count,
   };
 };
 
-export default listTicketsByQuery;
+export default searchZendeskByQuery;

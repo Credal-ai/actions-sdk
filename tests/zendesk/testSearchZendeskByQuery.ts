@@ -2,7 +2,7 @@ import { runAction } from "../../src/app.js";
 
 async function runTest() {
   const output = await runAction(
-    "listTicketsByQuery",
+    "searchZendeskByQuery",
     "zendesk",
     {
       authToken: "insert-auth-token",
@@ -10,6 +10,7 @@ async function runTest() {
     {
       subdomain: "insert-subdomain",
       query: "status:closed priority:high",
+      objectType: "ticket",
       limit: 5,
     }
   );

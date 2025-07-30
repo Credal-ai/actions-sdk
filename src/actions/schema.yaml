@@ -1279,8 +1279,8 @@ actions:
           assigneeEmail:
             type: string
             description: The email address of the agent to assign the ticket to
-    listTicketsByQuery:
-      description: List tickets in Zendesk by search query with flexible filtering options
+    searchZendeskByQuery:
+      description: Search Zendesk objects by query with flexible filtering options
       scopes: []
       parameters:
         type: object
@@ -1292,21 +1292,25 @@ actions:
           query:
             type: string
             description: Search query string that can include filters like status, priority, tags, assignee, etc. Examples - status:open, priority:high, tags:bug, assignee:user@example.com, or combination like "status:open priority:high"
+          objectType:
+            type: string
+            enum: [ticket, user, organization, group]
+            description: The type of Zendesk object to search (defaults to ticket)
           limit:
             type: number
-            description: Maximum number of tickets to return (optional, defaults to 100)
+            description: Maximum number of objects to return (optional, defaults to 100)
       output:
         type: object
-        required: [tickets, count]
+        required: [results, count]
         properties:
-          tickets:
+          results:
             type: array
-            description: List of tickets matching the query
+            description: List of objects matching the query
             items:
               type: object
           count:
             type: number
-            description: Number of tickets found
+            description: Number of objects found
   linkedin:
     createShareLinkedinPostUrl:
       description: Create a share linkedin post link
