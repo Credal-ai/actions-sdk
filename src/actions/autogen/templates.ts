@@ -10258,6 +10258,10 @@ export const gitlabSearchGroupDefinition: ActionTemplate = {
         type: "string",
         description: "The group ID of the project to search in",
       },
+      project: {
+        type: "string",
+        description: "The name of the project to search in",
+      },
     },
   },
   output: {

@@ -5237,6 +5237,7 @@ export type jamfLockJamfComputerByIdFunction = ActionFunction<
 export const gitlabSearchGroupParamsSchema = z.object({
   query: z.string().describe("The query that will be used to search gitlab blobs and merge requests"),
   groupId: z.string().describe("The group ID of the project to search in"),
+  project: z.string().describe("The name of the project to search in").optional(),
 });
 
 export type gitlabSearchGroupParamsType = z.infer<typeof gitlabSearchGroupParamsSchema>;
