@@ -2,6 +2,7 @@
 import type { AxiosInstance, AxiosResponse } from "axios";
 import type { AxiosError } from "axios";
 import axios from "axios";
+import axiosRetry from "axios-retry";
 
 export class ApiError extends Error {
   status?: number;
@@ -60,6 +61,7 @@ function createAxiosClient(timeout?: number): AxiosInstance {
       }
     },
   );
+
   return instance;
 }
 
@@ -68,3 +70,21 @@ export const axiosClient = createAxiosClient();
 export function createAxiosClientWithTimeout(timeout: number): AxiosInstance {
   return createAxiosClient(timeout);
 }
+
+function createAxiosClientWithRetries(timeout?: number): AxiosInstance {
+  const instance = createAxiosClient(timeout);
+
+  axiosRetry(instance, {
+    retries: 3,
+    retryDelay: axiosRetry.exponentialDelay,
+    retryCondition: error => {
+      if (axiosRetry.isNetworkError(error) || !error.response) return true;
+      const status = error.response.status;
+      return status === 408 || status === 429 || status >= 500;
+    },
+  });
+
+  return instance;
+}
+
+export const axiosClientWithRetries = createAxiosClientWithRetries();
