@@ -187,7 +187,7 @@ async function globalSearch<T>(input: {
   authToken: string;
 }): Promise<T[]> {
   const { scope, query, groupId, authToken, baseUrl } = input;
-  const endpoint = `${baseUrl}/groups/${groupId}/search?scope=${scope}&search=${encodeURIComponent(query)}`;
+  const endpoint = `${baseUrl}/groups/${encodeURIComponent(groupId)}/search?scope=${scope}&search=${encodeURIComponent(query)}`;
   return gitlabFetch<T[]>(endpoint, authToken);
 }
 
