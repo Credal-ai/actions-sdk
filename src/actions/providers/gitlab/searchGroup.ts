@@ -107,6 +107,24 @@ async function gitlabFetch<T = unknown>(endpoint: string, authToken: string): Pr
   return res.json();
 }
 
+async function getProjectPath(
+  projectId: number,
+  authToken: string,
+  baseUrl: string,
+  projectPathCache: Map<number, string>,
+): Promise<string> {
+  if (projectPathCache.has(projectId)) return projectPathCache.get(projectId)!;
+  try {
+    const project = await gitlabFetch<{ path_with_namespace: string }>(`${baseUrl}/projects/${projectId}`, authToken);
+    const path = project.path_with_namespace;
+    projectPathCache.set(projectId, path);
+    return path;
+  } catch (error) {
+    console.warn(`Failed to fetch project path for project ${projectId}:`, error);
+    return `project-${projectId}`;
+  }
+}
+
 function constructBlobUrl(input: {
   baseUrl: string;
   projectPath: string;
@@ -127,10 +145,7 @@ async function enhanceBlobWithUrl(
   gitlabWebBaseUrl: string,
   projectPathCache: Map<number, string>,
 ): Promise<GitLabBlobWithUrl> {
-  const endpoint = `${baseUrl}/projects/${blob.project_id}`;
-  const project = await gitlabFetch<{ path_with_namespace: string }>(endpoint, authToken);
-  const projectPath = project.path_with_namespace;
-  projectPathCache.set(blob.project_id, projectPath);
+  const projectPath = await getProjectPath(blob.project_id, authToken, baseUrl, projectPathCache);
 
   const web_url = constructBlobUrl({
     baseUrl: gitlabWebBaseUrl,
@@ -144,22 +159,23 @@ async function enhanceBlobWithUrl(
 }
 
 async function getCommitDetails(input: {
-  projectPath: string;
+  projectId: number;
   sha: string;
   authToken: string;
   baseUrl: string;
   webBaseUrl: string;
+  projectPathCache: Map<number, string>;
 }): Promise<MinimalGitLabCommit> {
-  const { projectPath, sha, authToken, baseUrl, webBaseUrl } = input;
-  const encodedPath = encodeURIComponent(projectPath);
+  const { projectId, sha, authToken, baseUrl, webBaseUrl, projectPathCache } = input;
+  const projectPath = await getProjectPath(projectId, authToken, baseUrl, projectPathCache)
 
   const commit = await gitlabFetch<GitLabCommit>(
-    `${baseUrl}/projects/${encodedPath}/repository/commits/${sha}`,
+    `${baseUrl}/projects/${projectId}/repository/commits/${sha}`,
     authToken,
   );
 
   const diffs = await gitlabFetch<CommitDiffFile[]>(
-    `${baseUrl}/projects/${encodedPath}/repository/commits/${sha}/diff`,
+    `${baseUrl}/projects/${projectId}/repository/commits/${sha}/diff`,
     authToken,
   );
 
@@ -254,11 +270,12 @@ const searchGroup: gitlabSearchGroupFunction = async ({
   const commits: MinimalGitLabCommit[] = await Promise.all(
     limitedCommitResults.map(commit =>
       getCommitDetails({
-        projectPath: fullProjectPath ?? projectPathCache.get(commit.project_id)!,
+        projectId: commit.project_id,
         sha: commit.id,
         authToken,
         baseUrl: gitlabBaseApiUrl,
         webBaseUrl: gitlabBaseUrl,
+        projectPathCache,
       }),
     ),
   );
