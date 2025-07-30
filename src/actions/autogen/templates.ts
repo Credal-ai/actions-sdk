@@ -10556,6 +10556,70 @@ export const gitlabGetFileContentDefinition: ActionTemplate = {
   name: "getFileContent",
   provider: "gitlab",
 };
+export const gitlabListDirectoryDefinition: ActionTemplate = {
+  description: "List directory contents of a path in a GitLab repository",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["group", "project", "path"],
+    properties: {
+      group: {
+        type: "string",
+        description: 'The group or namespace that owns the project (e.g., "my-group" or "org/subgroup")',
+      },
+      project: {
+        type: "string",
+        description: 'The name of the GitLab project (e.g., "my-repo")',
+      },
+      path: {
+        type: "string",
+        description: "The path to list directory contents from (empty string for root)",
+      },
+      ref: {
+        type: "string",
+        description: 'The branch, tag, or commit (defaults to "main")',
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["content"],
+    properties: {
+      content: {
+        type: "array",
+        description: "Array of directory contents",
+        items: {
+          type: "object",
+          required: ["name", "path", "type", "htmlUrl"],
+          properties: {
+            name: {
+              type: "string",
+              description: "The name of the file or directory",
+            },
+            path: {
+              type: "string",
+              description: "The path of the file or directory",
+            },
+            type: {
+              type: "string",
+              description: 'The type of the entry (either "blob" for file or "tree" for directory)',
+            },
+            size: {
+              type: "number",
+              description: "The size of the file in bytes (only for blobs; omitted or 0 for trees)",
+            },
+            htmlUrl: {
+              type: "string",
+              description: "The URL of the file or folder in the GitLab UI",
+            },
+          },
+        },
+      },
+    },
+  },
+  name: "listDirectory",
+  provider: "gitlab",
+};
 export const linearGetIssuesDefinition: ActionTemplate = {
   description: "Get Linear issues with optional query filter",
   scopes: [],

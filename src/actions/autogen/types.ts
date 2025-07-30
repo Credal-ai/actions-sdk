@@ -5364,6 +5364,36 @@ export type gitlabGetFileContentFunction = ActionFunction<
   gitlabGetFileContentOutputType
 >;
 
+export const gitlabListDirectoryParamsSchema = z.object({
+  group: z.string().describe('The group or namespace that owns the project (e.g., "my-group" or "org/subgroup")'),
+  project: z.string().describe('The name of the GitLab project (e.g., "my-repo")'),
+  path: z.string().describe("The path to list directory contents from (empty string for root)"),
+  ref: z.string().describe('The branch, tag, or commit (defaults to "main")').optional(),
+});
+
+export type gitlabListDirectoryParamsType = z.infer<typeof gitlabListDirectoryParamsSchema>;
+
+export const gitlabListDirectoryOutputSchema = z.object({
+  content: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the file or directory"),
+        path: z.string().describe("The path of the file or directory"),
+        type: z.string().describe('The type of the entry (either "blob" for file or "tree" for directory)'),
+        size: z.number().describe("The size of the file in bytes (only for blobs; omitted or 0 for trees)").optional(),
+        htmlUrl: z.string().describe("The URL of the file or folder in the GitLab UI"),
+      }),
+    )
+    .describe("Array of directory contents"),
+});
+
+export type gitlabListDirectoryOutputType = z.infer<typeof gitlabListDirectoryOutputSchema>;
+export type gitlabListDirectoryFunction = ActionFunction<
+  gitlabListDirectoryParamsType,
+  AuthParamsType,
+  gitlabListDirectoryOutputType
+>;
+
 export const linearGetIssuesParamsSchema = z.object({
   query: z.string().describe("Optional query string to filter issues").optional(),
   maxResults: z.number().describe("Optional limit to number of results").optional(),
