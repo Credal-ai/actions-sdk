@@ -1,5 +1,8 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 async function runTest() {
   const params = {
@@ -7,7 +10,7 @@ async function runTest() {
     oldest: "insert-oldest-timestamp",
   };
   const authParams = {
-    authToken: "insert-oauth-access-token",
+    authToken: process.env.SLACK_AUTH_TOKEN,
   };
 
   try {

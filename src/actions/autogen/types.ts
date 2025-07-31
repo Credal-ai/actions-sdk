@@ -361,7 +361,14 @@ export type slackSendMessageFunction = ActionFunction<
 >;
 
 export const slackGetChannelMessagesParamsSchema = z.object({
-  channelName: z.string().describe("Name of the channel to summarize"),
+  channelId: z
+    .string()
+    .describe("The ID of the channel to get messages from. Either the channelId or channelName must be provided.")
+    .optional(),
+  channelName: z
+    .string()
+    .describe("Name of the channel to summarize. Either the channelId or channelName must be provided.")
+    .optional(),
   oldest: z.string().describe("Only messages after this Unix timestamp will be included in results"),
 });
 

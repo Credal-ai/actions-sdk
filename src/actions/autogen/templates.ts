@@ -615,11 +615,16 @@ export const slackGetChannelMessagesDefinition: ActionTemplate = {
   scopes: ["channels:history"],
   parameters: {
     type: "object",
-    required: ["channelName", "oldest"],
+    required: ["oldest"],
     properties: {
+      channelId: {
+        type: "string",
+        description:
+          "The ID of the channel to get messages from. Either the channelId or channelName must be provided.",
+      },
       channelName: {
         type: "string",
-        description: "Name of the channel to summarize",
+        description: "Name of the channel to summarize. Either the channelId or channelName must be provided.",
       },
       oldest: {
         type: "string",
