@@ -1,4 +1,3 @@
-import { microsoftMessageTeamsChatDefinition } from "../../autogen/templates.js";
 import type {
   AuthParamsType,
   microsoftMessageTeamsChatFunction,
@@ -19,7 +18,7 @@ const sendMessageToTeamsChat: microsoftMessageTeamsChatFunction = async ({
 
   let client = undefined;
   try {
-    client = await getGraphClient(authParams, microsoftMessageTeamsChatDefinition.scopes.join(" "));
+    client = await getGraphClient(authParams,);
   } catch (error) {
     return {
       success: false,

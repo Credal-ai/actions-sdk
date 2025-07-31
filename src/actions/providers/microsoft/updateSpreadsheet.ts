@@ -1,4 +1,3 @@
-import { microsoftUpdateSpreadsheetDefinition } from "../../autogen/templates.js";
 import type {
   AuthParamsType,
   microsoftUpdateSpreadsheetFunction,
@@ -18,7 +17,7 @@ const updateSpreadsheet: microsoftUpdateSpreadsheetFunction = async ({
 
   let client = undefined;
   try {
-    client = await getGraphClient(authParams, microsoftUpdateSpreadsheetDefinition.scopes.join(" "));
+    client = await getGraphClient(authParams);
   } catch (error) {
     return {
       success: false,

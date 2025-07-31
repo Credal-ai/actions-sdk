@@ -1,4 +1,3 @@
-import { microsoftCreateDocumentDefinition } from "../../autogen/templates.js";
 import type {
   AuthParamsType,
   microsoftCreateDocumentFunction,
@@ -18,7 +17,7 @@ const createDocument: microsoftCreateDocumentFunction = async ({
 
   let client = undefined;
   try {
-    client = await getGraphClient(authParams, microsoftCreateDocumentDefinition.scopes.join(" "));
+    client = await getGraphClient(authParams);
   } catch (error) {
     return {
       success: false,

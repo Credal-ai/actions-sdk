@@ -17,7 +17,7 @@ const getDocument: microsoftGetDocumentFunction = async ({
 
   let client;
   try {
-    client = await getGraphClient(authParams, "Files.ReadWrite Sites.ReadWrite.All");
+    client = await getGraphClient(authParams,);
   } catch (error) {
     return {
       success: false,

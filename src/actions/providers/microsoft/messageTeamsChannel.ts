@@ -1,4 +1,3 @@
-import { microsoftMessageTeamsChannelDefinition } from "../../autogen/templates.js";
 import type {
   AuthParamsType,
   microsoftMessageTeamsChannelFunction,
@@ -19,7 +18,7 @@ const sendMessageToTeamsChannel: microsoftMessageTeamsChannelFunction = async ({
 
   let client = undefined;
   try {
-    client = await getGraphClient(authParams, microsoftMessageTeamsChannelDefinition.scopes.join(" "));
+    client = await getGraphClient(authParams);
   } catch (error) {
     return {
       success: false,

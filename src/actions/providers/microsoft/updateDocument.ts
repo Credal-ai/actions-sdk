@@ -1,4 +1,3 @@
-import { microsoftUpdateDocumentDefinition } from "../../autogen/templates.js";
 import type {
   AuthParamsType,
   microsoftUpdateDocumentFunction,
@@ -18,7 +17,7 @@ const updateDocument: microsoftUpdateDocumentFunction = async ({
 
   let client = undefined;
   try {
-    client = await getGraphClient(authParams, microsoftUpdateDocumentDefinition.scopes.join(" "));
+    client = await getGraphClient(authParams);
   } catch (error) {
     return {
       success: false,
