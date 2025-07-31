@@ -17,7 +17,7 @@ const getDocument: microsoftGetDocumentFunction = async ({
 
   let client;
   try {
-    client = await getGraphClient(authParams,);
+    client = await getGraphClient(authParams);
   } catch (error) {
     return {
       success: false,
