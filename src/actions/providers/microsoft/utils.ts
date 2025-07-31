@@ -2,12 +2,9 @@ import { Client } from "@microsoft/microsoft-graph-client";
 import type { AuthParamsType } from "../../autogen/types.js";
 
 export async function getGraphClient(authParams: AuthParamsType, scope: string): Promise<Client> {
-  if (
-    !authParams.authToken
-  ) {
+  if (!authParams.authToken) {
     throw new Error("Missing required authentication parameters");
   }
-
   const accessToken = authParams.authToken;
   return Client.init({
     authProvider: done => {
