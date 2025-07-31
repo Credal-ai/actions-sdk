@@ -52,9 +52,20 @@ const searchSalesforceRecords: salesforceSearchSalesforceRecordsFunction = async
       }
     }
 
+    // Salesforce record types are confusing and non standard
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const recordsWithUrl = response.data.searchRecords.map((record: any) => {
+      const recordId = record.Id;
+      const webUrl = recordId ? `${baseUrl}/lightning/${recordId}` : undefined;
+      return {
+        ...record,
+        webUrl,
+      };
+    });
+
     return {
       success: true,
-      searchRecords: response.data.searchRecords,
+      searchRecords: recordsWithUrl,
     };
   } catch (error) {
     console.error("Error retrieving Salesforce record:", error);

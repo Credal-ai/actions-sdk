@@ -42,9 +42,20 @@ const getSalesforceRecordsByQuery: salesforceGetSalesforceRecordsByQueryFunction
       },
     });
 
+    // Salesforce record types are confusing and non standard
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const recordsWithUrl = response.data.records?.map((record: any) => {
+      const recordId = record.Id;
+      const webUrl = recordId ? `${baseUrl}/lightning/${recordId}` : undefined;
+      return {
+        ...record,
+        webUrl,
+      };
+    });
+
     return {
       success: true,
-      records: response.data,
+      records: { ...response.data, records: response.data.records ? recordsWithUrl : undefined },
     };
   } catch (error) {
     console.error("Error retrieving Salesforce record:", error);
