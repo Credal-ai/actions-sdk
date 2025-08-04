@@ -57,7 +57,7 @@ const searchSalesforceRecords: salesforceSearchSalesforceRecordsFunction = async
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const recordsWithUrl = response.data.searchRecords.map((record: any) => {
       const recordId = record.Id;
-      const webUrl = recordId ? `${baseUrl}/lightning/${recordId}` : undefined;
+      const webUrl = recordId ? `${baseUrl}/lightning/r/${recordId}/view` : undefined;
       return {
         ...record,
         webUrl,
