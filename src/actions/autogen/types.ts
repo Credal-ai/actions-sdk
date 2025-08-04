@@ -718,7 +718,36 @@ export type jiraGetJiraIssuesByQueryParamsType = z.infer<typeof jiraGetJiraIssue
 
 export const jiraGetJiraIssuesByQueryOutputSchema = z.object({
   success: z.boolean().describe("Whether the records were successfully retrieved"),
-  records: z.array(z.record(z.string()).describe("An issue from Jira")).describe("The retrieved records").optional(),
+  records: z
+    .object({
+      issues: z
+        .array(
+          z.object({
+            id: z.string().describe("Internal Jira issue ID"),
+            key: z.string().describe("Human-readable issue key (e.g. SSPR-123)"),
+            summary: z.string().describe("Summary of the issue"),
+            description: z.string().describe("Plain text description"),
+            project: z.object({ id: z.string().optional(), key: z.string().optional(), name: z.string().optional() }),
+            issueType: z.object({ id: z.string().optional(), name: z.string().optional() }),
+            status: z.object({
+              id: z.string().optional(),
+              name: z.string().optional(),
+              category: z.string().optional(),
+            }),
+            assignee: z.string().nullable().describe("Email of the assignee, if any").optional(),
+            reporter: z.string().nullable().describe("Email of the reporter, if any").optional(),
+            creator: z.string().nullable().describe("Email of the creator, if any").optional(),
+            created: z.string().datetime({ offset: true }),
+            updated: z.string().datetime({ offset: true }),
+            resolution: z.string().nullable().optional(),
+            dueDate: z.string().date().nullable().optional(),
+          }),
+        )
+        .describe("The retrieved Jira issues")
+        .optional(),
+    })
+    .describe("The result object containing issues")
+    .optional(),
   error: z.string().describe("The error that occurred if the records were not successfully retrieved").optional(),
 });
 
@@ -995,7 +1024,36 @@ export type jiraOrgGetJiraIssuesByQueryParamsType = z.infer<typeof jiraOrgGetJir
 
 export const jiraOrgGetJiraIssuesByQueryOutputSchema = z.object({
   success: z.boolean().describe("Whether the records were successfully retrieved"),
-  records: z.array(z.record(z.string()).describe("An issue from Jira")).describe("The retrieved records").optional(),
+  records: z
+    .object({
+      issues: z
+        .array(
+          z.object({
+            id: z.string().describe("Internal Jira issue ID"),
+            key: z.string().describe("Human-readable issue key (e.g. SSPR-123)"),
+            summary: z.string().describe("Summary of the issue"),
+            description: z.string().describe("Plain text description"),
+            project: z.object({ id: z.string().optional(), key: z.string().optional(), name: z.string().optional() }),
+            issueType: z.object({ id: z.string().optional(), name: z.string().optional() }),
+            status: z.object({
+              id: z.string().optional(),
+              name: z.string().optional(),
+              category: z.string().optional(),
+            }),
+            assignee: z.string().nullable().describe("Email of the assignee, if any").optional(),
+            reporter: z.string().nullable().describe("Email of the reporter, if any").optional(),
+            creator: z.string().nullable().describe("Email of the creator, if any").optional(),
+            created: z.string().datetime({ offset: true }),
+            updated: z.string().datetime({ offset: true }),
+            resolution: z.string().nullable().optional(),
+            dueDate: z.string().date().nullable().optional(),
+          }),
+        )
+        .describe("The retrieved Jira issues")
+        .optional(),
+    })
+    .describe("The result object containing issues")
+    .optional(),
   error: z.string().describe("The error that occurred if the records were not successfully retrieved").optional(),
 });
 

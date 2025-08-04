@@ -1294,13 +1294,105 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
         description: "Whether the records were successfully retrieved",
       },
       records: {
-        type: "array",
-        description: "The retrieved records",
-        items: {
-          type: "object",
-          description: "An issue from Jira",
-          additionalProperties: {
-            type: "string",
+        type: "object",
+        description: "The result object containing issues",
+        properties: {
+          issues: {
+            type: "array",
+            description: "The retrieved Jira issues",
+            items: {
+              type: "object",
+              required: ["id", "key", "summary", "description", "project", "issueType", "status", "created", "updated"],
+              properties: {
+                id: {
+                  type: "string",
+                  description: "Internal Jira issue ID",
+                },
+                key: {
+                  type: "string",
+                  description: "Human-readable issue key (e.g. SSPR-123)",
+                },
+                summary: {
+                  type: "string",
+                  description: "Summary of the issue",
+                },
+                description: {
+                  type: "string",
+                  description: "Plain text description",
+                },
+                project: {
+                  type: "object",
+                  properties: {
+                    id: {
+                      type: "string",
+                    },
+                    key: {
+                      type: "string",
+                    },
+                    name: {
+                      type: "string",
+                    },
+                  },
+                },
+                issueType: {
+                  type: "object",
+                  properties: {
+                    id: {
+                      type: "string",
+                    },
+                    name: {
+                      type: "string",
+                    },
+                  },
+                },
+                status: {
+                  type: "object",
+                  properties: {
+                    id: {
+                      type: "string",
+                    },
+                    name: {
+                      type: "string",
+                    },
+                    category: {
+                      type: "string",
+                    },
+                  },
+                },
+                assignee: {
+                  type: "string",
+                  nullable: true,
+                  description: "Email of the assignee, if any",
+                },
+                reporter: {
+                  type: "string",
+                  nullable: true,
+                  description: "Email of the reporter, if any",
+                },
+                creator: {
+                  type: "string",
+                  nullable: true,
+                  description: "Email of the creator, if any",
+                },
+                created: {
+                  type: "string",
+                  format: "date-time",
+                },
+                updated: {
+                  type: "string",
+                  format: "date-time",
+                },
+                resolution: {
+                  type: "string",
+                  nullable: true,
+                },
+                dueDate: {
+                  type: "string",
+                  nullable: true,
+                  format: "date",
+                },
+              },
+            },
           },
         },
       },
@@ -1828,13 +1920,105 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
         description: "Whether the records were successfully retrieved",
       },
       records: {
-        type: "array",
-        description: "The retrieved records",
-        items: {
-          type: "object",
-          description: "An issue from Jira",
-          additionalProperties: {
-            type: "string",
+        type: "object",
+        description: "The result object containing issues",
+        properties: {
+          issues: {
+            type: "array",
+            description: "The retrieved Jira issues",
+            items: {
+              type: "object",
+              required: ["id", "key", "summary", "description", "project", "issueType", "status", "created", "updated"],
+              properties: {
+                id: {
+                  type: "string",
+                  description: "Internal Jira issue ID",
+                },
+                key: {
+                  type: "string",
+                  description: "Human-readable issue key (e.g. SSPR-123)",
+                },
+                summary: {
+                  type: "string",
+                  description: "Summary of the issue",
+                },
+                description: {
+                  type: "string",
+                  description: "Plain text description",
+                },
+                project: {
+                  type: "object",
+                  properties: {
+                    id: {
+                      type: "string",
+                    },
+                    key: {
+                      type: "string",
+                    },
+                    name: {
+                      type: "string",
+                    },
+                  },
+                },
+                issueType: {
+                  type: "object",
+                  properties: {
+                    id: {
+                      type: "string",
+                    },
+                    name: {
+                      type: "string",
+                    },
+                  },
+                },
+                status: {
+                  type: "object",
+                  properties: {
+                    id: {
+                      type: "string",
+                    },
+                    name: {
+                      type: "string",
+                    },
+                    category: {
+                      type: "string",
+                    },
+                  },
+                },
+                assignee: {
+                  type: "string",
+                  nullable: true,
+                  description: "Email of the assignee, if any",
+                },
+                reporter: {
+                  type: "string",
+                  nullable: true,
+                  description: "Email of the reporter, if any",
+                },
+                creator: {
+                  type: "string",
+                  nullable: true,
+                  description: "Email of the creator, if any",
+                },
+                created: {
+                  type: "string",
+                  format: "date-time",
+                },
+                updated: {
+                  type: "string",
+                  format: "date-time",
+                },
+                resolution: {
+                  type: "string",
+                  nullable: true,
+                },
+                dueDate: {
+                  type: "string",
+                  nullable: true,
+                  format: "date",
+                },
+              },
+            },
           },
         },
       },
