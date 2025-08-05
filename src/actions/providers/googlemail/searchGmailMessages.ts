@@ -13,7 +13,7 @@ import type {
 const limiter = new RateLimiter({ tokensPerInterval: 10, interval: "second" });
 
 function delay(ms: number) {
-  return new Promise((res) => setTimeout(res, ms));
+  return new Promise(res => setTimeout(res, ms));
 }
 
 function cleanAndTruncateEmail(text: string, maxLength = 2000): string {
@@ -33,7 +33,10 @@ function cleanAndTruncateEmail(text: string, maxLength = 2000): string {
   }
 
   // Normalize whitespace
-  text = text.replace(/\r\n|\r/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+  text = text
+    .replace(/\r\n|\r/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 
   return text.slice(0, maxLength).trim();
 }
@@ -82,7 +85,7 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
             {
               headers: { Authorization: `Bearer ${authParams.authToken}` },
               validateStatus: () => true,
-            }
+            },
           );
 
           if (msgRes.status === 429) {
