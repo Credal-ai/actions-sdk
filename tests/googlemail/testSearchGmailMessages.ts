@@ -1,19 +1,22 @@
 import type { googlemailSearchGmailMessagesParamsType } from "../../src/actions/autogen/types.js";
 import { runAction } from "../../src/app.js";
 import assert from "node:assert";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 async function runTest() {
   console.log("Running test searchGmailMessages");
 
   const params: googlemailSearchGmailMessagesParamsType = {
-    query: "insert-query-here",
+    query: "test",
     maxResults: 1, // optional field
   };
 
   const result = await runAction(
     "searchGmailMessages",
     "googlemail",
-    { authToken: "insert-access-token-with-gmail-ready-only-scope" }, 
+    { authToken: process.env.GOOGLE_AUTH_TOKEN }, 
     params,
   );
 
