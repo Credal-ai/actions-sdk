@@ -6,7 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { ApiError, axiosClient } from "../../util/axiosClient.js";
 
-const DEFAULT_LIMIT = 1000;
+const DEFAULT_LIMIT = 100;
 
 type JiraUser = {
   accountId: string;
@@ -69,11 +69,11 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
   params: jiraGetJiraIssuesByQueryParamsType;
   authParams: AuthParamsType;
 }): Promise<jiraGetJiraIssuesByQueryOutputType> => {
-  const { authToken, cloudId } = authParams;
+  const { authToken, cloudId, baseUrl } = authParams;
   const { query, limit } = params;
 
-  if (!cloudId || !authToken) {
-    throw new Error("Valid Cloud ID and auth token are required to comment on Jira ticket");
+  if (!cloudId || !authToken || !baseUrl) {
+    throw new Error("Valid Cloud ID, base URL, and auth token are required to comment on Jira ticket");
   }
 
   const queryParams = new URLSearchParams();
@@ -139,6 +139,7 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
           updated: issue.fields.updated,
           resolution: issue.fields.resolution?.name || null,
           dueDate: issue.fields.duedate || null,
+          url: `${baseUrl}/browse/${issue.key}`,
         })),
       },
     };

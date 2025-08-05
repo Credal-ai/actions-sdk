@@ -1302,7 +1302,18 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
             description: "The retrieved Jira issues",
             items: {
               type: "object",
-              required: ["id", "key", "summary", "description", "project", "issueType", "status", "created", "updated"],
+              required: [
+                "id",
+                "key",
+                "summary",
+                "description",
+                "project",
+                "issueType",
+                "status",
+                "created",
+                "updated",
+                "url",
+              ],
               properties: {
                 id: {
                   type: "string",
@@ -1319,6 +1330,10 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
                 description: {
                   type: "string",
                   description: "Plain text description",
+                },
+                url: {
+                  type: "string",
+                  description: "The web url of the Jira ticket",
                 },
                 project: {
                   type: "object",
@@ -1928,7 +1943,18 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
             description: "The retrieved Jira issues",
             items: {
               type: "object",
-              required: ["id", "key", "summary", "description", "project", "issueType", "status", "created", "updated"],
+              required: [
+                "id",
+                "key",
+                "summary",
+                "description",
+                "project",
+                "issueType",
+                "status",
+                "created",
+                "updated",
+                "url",
+              ],
               properties: {
                 id: {
                   type: "string",
@@ -1945,6 +1971,10 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
                 description: {
                   type: "string",
                   description: "Plain text description",
+                },
+                url: {
+                  type: "string",
+                  description: "The web url of the Jira ticket",
                 },
                 project: {
                   type: "object",

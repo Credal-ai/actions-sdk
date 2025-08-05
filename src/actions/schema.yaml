@@ -932,6 +932,7 @@ actions:
                     - status
                     - created
                     - updated
+                    - url
                   properties:
                     id:
                       type: string
@@ -945,6 +946,9 @@ actions:
                     description:
                       type: string
                       description: Plain text description
+                    url:
+                      type: string
+                      description: The web url of the Jira ticket
                     project:
                       type: object
                       properties:

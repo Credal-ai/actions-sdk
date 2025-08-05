@@ -727,6 +727,7 @@ export const jiraGetJiraIssuesByQueryOutputSchema = z.object({
             key: z.string().describe("Human-readable issue key (e.g. SSPR-123)"),
             summary: z.string().describe("Summary of the issue"),
             description: z.string().describe("Plain text description"),
+            url: z.string().describe("The web url of the Jira ticket"),
             project: z.object({ id: z.string().optional(), key: z.string().optional(), name: z.string().optional() }),
             issueType: z.object({ id: z.string().optional(), name: z.string().optional() }),
             status: z.object({
@@ -1033,6 +1034,7 @@ export const jiraOrgGetJiraIssuesByQueryOutputSchema = z.object({
             key: z.string().describe("Human-readable issue key (e.g. SSPR-123)"),
             summary: z.string().describe("Summary of the issue"),
             description: z.string().describe("Plain text description"),
+            url: z.string().describe("The web url of the Jira ticket"),
             project: z.object({ id: z.string().optional(), key: z.string().optional(), name: z.string().optional() }),
             issueType: z.object({ id: z.string().optional(), name: z.string().optional() }),
             status: z.object({
