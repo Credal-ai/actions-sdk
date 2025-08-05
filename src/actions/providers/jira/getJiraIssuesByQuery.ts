@@ -160,15 +160,14 @@ function extractPlainText(adf: JiraADFDoc | null | undefined): string {
   if (!adf || adf.type !== "doc" || !Array.isArray(adf.content)) return "";
 
   return adf.content
-    .map((block) => {
+    .map(block => {
       if (block.type === "paragraph" && Array.isArray(block.content)) {
-        return block.content.map((inline) => inline.text ?? "").join("");
+        return block.content.map(inline => inline.text ?? "").join("");
       }
       return "";
     })
     .join("\n")
     .trim();
 }
-
 
 export default getJiraIssuesByQuery;
