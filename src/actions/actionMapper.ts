@@ -242,6 +242,8 @@ import {
   googleOauthSearchDriveByQueryParamsSchema,
   googleOauthSearchDriveByQueryAndGetFileContentParamsSchema,
   googleOauthSearchDriveByQueryAndGetFileContentOutputSchema,
+  googleOauthQueryGoogleBigQueryParamsSchema,
+  googleOauthQueryGoogleBigQueryOutputSchema,
   githubGetFileContentParamsSchema,
   githubGetFileContentOutputSchema,
   githubListDirectoryOutputSchema,
@@ -403,6 +405,7 @@ import searchSalesforceRecords from "./providers/salesforce/searchSalesforceReco
 import getDriveFileContentById from "./providers/google-oauth/getDriveFileContentById.js";
 import searchDriveByQuery from "./providers/google-oauth/searchDriveByQuery.js";
 import searchDriveByQueryAndGetFileContent from "./providers/google-oauth/searchDriveByQueryAndGetFileContent.js";
+import queryGoogleBigQuery from "./providers/google-oauth/queryGoogleBigQuery.js";
 import getFileContent from "./providers/github/getFileContent.js";
 import listDirectory from "./providers/github/listDirectory.js";
 import getIssueDetails from "./providers/linear/getIssueDetails.js";
@@ -831,6 +834,11 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: deleteGroupMember,
       paramsSchema: googleOauthDeleteGroupMemberParamsSchema,
       outputSchema: googleOauthDeleteGroupMemberOutputSchema,
+    },
+    queryGoogleBigQuery: {
+      fn: queryGoogleBigQuery,
+      paramsSchema: googleOauthQueryGoogleBigQueryParamsSchema,
+      outputSchema: googleOauthQueryGoogleBigQueryOutputSchema,
     },
   },
   googlemail: {

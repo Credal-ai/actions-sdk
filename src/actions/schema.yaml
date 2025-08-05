@@ -4535,6 +4535,63 @@ actions:
           error:
             type: string
             description: The error that occurred if the member could not be removed
+    queryGoogleBigQuery:
+      description: Execute read only SQL queries on Google BigQuery datasets
+      scopes:
+        - https://www.googleapis.com/auth/bigquery.readonly
+      parameters:
+        type: object
+        required: [query]
+        properties:
+          query:
+            type: string
+            description: The SQL query to execute in BigQuery
+          projectId:
+            type: string
+            description: The Google Cloud Project ID. If not provided, will use the default project
+          maxResults:
+            type: number
+            description: Maximum number of results to return. Defaults to 1000
+          timeoutMs:
+            type: number
+            description: Timeout for the query in milliseconds. Defaults to 30000
+          maximumBytesProcessed:
+            type: string
+            description: Maximum bytes to process for the query. Defaults to 500000000 (500MB). Use -1 for no limit
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the query was executed successfully
+          data:
+            type: array
+            description: The query results as an array of objects
+            items:
+              type: object
+              description: A row of data from the query result
+          totalRows:
+            type: string
+            description: Total number of rows in the result set
+          schema:
+            type: array
+            description: Schema information for the result columns
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Column name
+                type:
+                  type: string
+                  description: Column data type
+                mode:
+                  type: string
+                  description: Column mode (NULLABLE, REQUIRED, REPEATED)
+          error:
+            type: string
+            description: Error message if query failed
   googlemail:
     searchGmailMessages:
       description: Search Gmail messages in a user's inbox using a query string.
