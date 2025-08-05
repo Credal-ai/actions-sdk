@@ -1,7 +1,7 @@
 import { RateLimiter } from "limiter";
 import { axiosClient } from "../../util/axiosClient.js";
-import { getEmailContent } from "../google-oauth/utils/decodeMessage.js"; // see below for updated version
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { getEmailContent } from "../google-oauth/utils/decodeMessage.js";
 import type {
   AuthParamsType,
   googlemailSearchGmailMessagesFunction,
@@ -9,10 +9,9 @@ import type {
   googlemailSearchGmailMessagesParamsType,
 } from "../../autogen/types.js";
 
-// Limit to 10 requests/sec per user (50 quota units max)
-const limiter = new RateLimiter({ tokensPerInterval: 10, interval: "second" });
+const limiter = new RateLimiter({ tokensPerInterval: 2, interval: "second" });
 
-function delay(ms: number) {
+function delay(ms: number): Promise<void> {
   return new Promise(res => setTimeout(res, ms));
 }
 
@@ -22,12 +21,12 @@ function cleanAndTruncateEmail(text: string, maxLength = 2000): string {
   // Remove quoted replies (naive)
   text = text.replace(/^>.*$/gm, "");
 
-  // Remove signatures (based on common sign-offs)
+  // Remove signatures
   const signatureMarkers = ["\nBest", "\nRegards", "\nThanks", "\nSincerely"];
   for (const marker of signatureMarkers) {
     const index = text.indexOf(marker);
     if (index !== -1) {
-      text = text.substring(0, index).trim();
+      text = text.slice(0, index).trim();
       break;
     }
   }
@@ -53,16 +52,16 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
   }
 
   const { query, maxResults } = params;
-  const max = Math.min(maxResults ?? 25, 50); // Cap at 50 messages
+  const max = Math.min(maxResults ?? 25, 50);
 
   const allMessages = [];
   const errorMessages: string[] = [];
-  let pageToken = undefined;
+  let pageToken: string | undefined;
   let fetched = 0;
 
   try {
     while (fetched < max) {
-      const url: string =
+      const url =
         `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent(query)}` +
         (pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : "") +
         `&maxResults=${Math.min(100, max - fetched)}`;
@@ -76,58 +75,52 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
 
       const batch = messageList.slice(0, max - allMessages.length);
 
-      for (const msg of batch) {
-        await limiter.removeTokens(1); // Rate limiting
+      const results = await Promise.all(
+        batch.map(async msg => {
+          try {
+            await limiter.removeTokens(1);
 
-        try {
-          const msgRes = await axiosClient.get(
-            `https://gmail.googleapis.com/gmail/v1/users/me/messages/${msg.id}?format=full`,
-            {
-              headers: { Authorization: `Bearer ${authParams.authToken}` },
-              validateStatus: () => true,
-            },
-          );
+            const msgRes = await axiosClient.get(
+              `https://gmail.googleapis.com/gmail/v1/users/me/messages/${msg.id}?format=full`,
+              {
+                headers: { Authorization: `Bearer ${authParams.authToken}` },
+                validateStatus: () => true,
+              },
+            );
 
-          if (msgRes.status === 429) {
-            const retryAfter = parseInt(msgRes.headers["retry-after"] ?? "2", 10);
-            await delay((retryAfter || 2) * 1000);
-            continue;
+            if (msgRes.status === 429) {
+              const retryAfter = parseInt(msgRes.headers["retry-after"] ?? "2", 10);
+              await delay((retryAfter || 2) * 1000);
+              throw new Error(`Rate limited (429) — retry-after: ${retryAfter}`);
+            }
+
+            if (msgRes.status >= 400) {
+              throw new Error(`HTTP ${msgRes.status}: ${msgRes.statusText}`);
+            }
+
+            const { id, threadId, snippet, labelIds, internalDate } = msgRes.data;
+            const rawBody = getEmailContent(msgRes.data) || "";
+            const emailBody = cleanAndTruncateEmail(rawBody);
+
+            return { id, threadId, snippet, labelIds, internalDate, emailBody };
+          } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : "Failed to fetch message details";
+            errorMessages.push(errorMessage);
+            return {
+              id: msg.id,
+              threadId: "",
+              snippet: "",
+              labelIds: [],
+              internalDate: "",
+              emailBody: "",
+              error: errorMessage,
+            };
           }
+        }),
+      );
 
-          if (msgRes.status >= 400) {
-            throw new Error(`HTTP ${msgRes.status}: ${msgRes.statusText}`);
-          }
-
-          const { id, threadId, snippet, labelIds, internalDate } = msgRes.data;
-          const rawBody = getEmailContent(msgRes.data) || "";
-          const emailBody = cleanAndTruncateEmail(rawBody);
-
-          allMessages.push({
-            id,
-            threadId,
-            snippet,
-            labelIds,
-            internalDate,
-            emailBody,
-          });
-        } catch (err) {
-          const errorMessage = err instanceof Error ? err.message : "Failed to fetch message details";
-          errorMessages.push(errorMessage);
-          allMessages.push({
-            id: msg.id,
-            threadId: "",
-            snippet: "",
-            labelIds: [],
-            internalDate: "",
-            emailBody: "",
-            error: errorMessage,
-          });
-        }
-
-        fetched = allMessages.length;
-        if (fetched >= max) break;
-      }
-
+      allMessages.push(...results);
+      fetched = allMessages.length;
       if (!nextPageToken || fetched >= max) break;
       pageToken = nextPageToken;
     }
@@ -138,10 +131,9 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
       error: errorMessages.join("; "),
     };
   } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : "Unknown error searching Gmail";
     return {
       success: false,
-      error: errorMessage,
+      error: err instanceof Error ? err.message : "Unknown error searching Gmail",
       messages: [],
     };
   }
