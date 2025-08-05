@@ -11,9 +11,9 @@ import type {
 
 const limiter = new RateLimiter({ tokensPerInterval: 2, interval: "second" });
 
-function delay(ms: number): Promise<void> {
-  return new Promise(res => setTimeout(res, ms));
-}
+const MAX_EMAIL_CONTENTS_FETCHED = 50;
+const DEFAULT_EMAIL_CONTENTS_FETCHED = 25;
+const MAX_RESULTS_PER_REQUEST = 100;
 
 function cleanAndTruncateEmail(text: string, maxLength = 2000): string {
   if (!text) return "";
@@ -52,7 +52,7 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
   }
 
   const { query, maxResults } = params;
-  const max = Math.min(maxResults ?? 25, 50);
+  const max = Math.min(maxResults ?? DEFAULT_EMAIL_CONTENTS_FETCHED, MAX_EMAIL_CONTENTS_FETCHED);
 
   const allMessages = [];
   const errorMessages: string[] = [];
@@ -64,7 +64,7 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
       const url =
         `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent(query)}` +
         (pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : "") +
-        `&maxResults=${Math.min(100, max - fetched)}`;
+        `&maxResults=${Math.min(MAX_RESULTS_PER_REQUEST, max - fetched)}`;
 
       const listRes = await axiosClient.get(url, {
         headers: { Authorization: `Bearer ${authParams.authToken}` },
