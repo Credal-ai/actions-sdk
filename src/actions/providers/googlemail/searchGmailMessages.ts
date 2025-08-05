@@ -9,11 +9,12 @@ import type {
   googlemailSearchGmailMessagesParamsType,
 } from "../../autogen/types.js";
 
-const limiter = new RateLimiter({ tokensPerInterval: 2, interval: "second" });
-
 const MAX_EMAIL_CONTENTS_FETCHED = 50;
 const DEFAULT_EMAIL_CONTENTS_FETCHED = 25;
 const MAX_RESULTS_PER_REQUEST = 100;
+const MAX_EMAILS_FETCHED_CONCURRENTLY = 5;
+
+const limiter = new RateLimiter({ tokensPerInterval: MAX_EMAILS_FETCHED_CONCURRENTLY, interval: "second" });
 
 function cleanAndTruncateEmail(text: string, maxLength = 2000): string {
   if (!text) return "";
