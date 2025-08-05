@@ -87,17 +87,6 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
                 validateStatus: () => true,
               },
             );
-
-            if (msgRes.status === 429) {
-              const retryAfter = parseInt(msgRes.headers["retry-after"] ?? "2", 10);
-              await delay((retryAfter || 2) * 1000);
-              throw new Error(`Rate limited (429) — retry-after: ${retryAfter}`);
-            }
-
-            if (msgRes.status >= 400) {
-              throw new Error(`HTTP ${msgRes.status}: ${msgRes.statusText}`);
-            }
-
             const { id, threadId, snippet, labelIds, internalDate } = msgRes.data;
             const rawBody = getEmailContent(msgRes.data) || "";
             const emailBody = cleanAndTruncateEmail(rawBody);
