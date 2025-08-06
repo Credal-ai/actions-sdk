@@ -2516,7 +2516,7 @@ export const zendeskAddCommentToTicketDefinition: ActionTemplate = {
   scopes: [],
   parameters: {
     type: "object",
-    required: ["ticketId", "subdomain", "comment"],
+    required: ["ticketId", "subdomain", "body"],
     properties: {
       ticketId: {
         type: "string",
@@ -2526,20 +2526,27 @@ export const zendeskAddCommentToTicketDefinition: ActionTemplate = {
         type: "string",
         description: "The subdomain of the Zendesk account",
       },
-      comment: {
-        type: "object",
-        description: "The comment to add to the ticket",
-        required: ["body"],
-        properties: {
-          body: {
-            type: "string",
-            description: "The body of the comment",
-          },
-          public: {
-            type: "boolean",
-            description: "Whether the comment should be public",
-          },
-        },
+      body: {
+        type: "string",
+        description: "The body of the comment",
+      },
+      public: {
+        type: "boolean",
+        description: "Whether the comment should be public (defaults to true)",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the comment was successfully added",
+      },
+      ticketUrl: {
+        type: "string",
+        description: "The URL to view the ticket",
       },
     },
   },

@@ -1304,17 +1304,16 @@ export type zendeskUpdateTicketStatusFunction = ActionFunction<
 export const zendeskAddCommentToTicketParamsSchema = z.object({
   ticketId: z.string().describe("The ID of the ticket to update"),
   subdomain: z.string().describe("The subdomain of the Zendesk account"),
-  comment: z
-    .object({
-      body: z.string().describe("The body of the comment"),
-      public: z.boolean().describe("Whether the comment should be public").optional(),
-    })
-    .describe("The comment to add to the ticket"),
+  body: z.string().describe("The body of the comment"),
+  public: z.boolean().describe("Whether the comment should be public (defaults to true)").optional(),
 });
 
 export type zendeskAddCommentToTicketParamsType = z.infer<typeof zendeskAddCommentToTicketParamsSchema>;
 
-export const zendeskAddCommentToTicketOutputSchema = z.void();
+export const zendeskAddCommentToTicketOutputSchema = z.object({
+  success: z.boolean().describe("Whether the comment was successfully added"),
+  ticketUrl: z.string().describe("The URL to view the ticket").optional(),
+});
 
 export type zendeskAddCommentToTicketOutputType = z.infer<typeof zendeskAddCommentToTicketOutputSchema>;
 export type zendeskAddCommentToTicketFunction = ActionFunction<

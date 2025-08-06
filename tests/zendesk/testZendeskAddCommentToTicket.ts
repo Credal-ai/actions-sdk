@@ -1,22 +1,21 @@
 import { runAction } from "../../src/app.js";
 
 async function runTest() {
-  await runAction(
+  const result = await runAction(
     "addCommentToTicket",
     "zendesk",
     {
-      apiKey: "insert-your-api-key",
-      username: "insert-your-username",
+      authToken: "insert-auth-token",
     }, // authParams
     {
       ticketId: "62",
       subdomain: "credalai",
-      comment: {
-        body: "This is a test private comment",
-        public: true,
-      },
+      body: "This is a test private-private comment",
+      public: true,
     },
   );
+
+  console.log(result)
 }
 
 runTest().catch(console.error);
