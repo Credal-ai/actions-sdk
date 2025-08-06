@@ -4589,6 +4589,94 @@ export const googleOauthUpdateCalendarEventDefinition: ActionTemplate = {
   name: "updateCalendarEvent",
   provider: "googleOauth",
 };
+export const googleOauthEditAGoogleCalendarEventDefinition: ActionTemplate = {
+  description: "Edit an existing Google Calendar event using OAuth authentication",
+  scopes: ["https://www.googleapis.com/auth/calendar"],
+  parameters: {
+    type: "object",
+    required: ["calendarId", "eventId"],
+    properties: {
+      calendarId: {
+        type: "string",
+        description: "The ID of the calendar containing the event",
+      },
+      eventId: {
+        type: "string",
+        description: "The ID of the event to edit",
+      },
+      title: {
+        type: "string",
+        description: "The new title/summary of the event",
+      },
+      description: {
+        type: "string",
+        description: "The new description of the event",
+      },
+      start: {
+        type: "string",
+        description: "The new start date/time (RFC3339 timestamp)",
+      },
+      end: {
+        type: "string",
+        description: "The new end date/time (RFC3339 timestamp)",
+      },
+      location: {
+        type: "string",
+        description: "The new location of the event",
+      },
+      attendees: {
+        type: "array",
+        description: "The new list of attendees (replaces existing attendees)",
+        items: {
+          type: "string",
+          description: "The email address of the attendee",
+        },
+      },
+      status: {
+        type: "string",
+        description: "The new status of the event (confirmed, tentative, cancelled)",
+      },
+      organizer: {
+        type: "object",
+        description: "The new organizer of the event",
+        properties: {
+          email: {
+            type: "string",
+            description: "The organizer's email address",
+          },
+          displayName: {
+            type: "string",
+            description: "The organizer's display name",
+          },
+        },
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the event was edited successfully",
+      },
+      eventId: {
+        type: "string",
+        description: "The ID of the edited event",
+      },
+      eventUrl: {
+        type: "string",
+        description: "The URL to access the edited event",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the event was not edited successfully",
+      },
+    },
+  },
+  name: "editAGoogleCalendarEvent",
+  provider: "googleOauth",
+};
 export const googleOauthDeleteCalendarEventDefinition: ActionTemplate = {
   description: "Delete an event from a Google Calendar using OAuth authentication",
   scopes: ["https://www.googleapis.com/auth/calendar"],
@@ -7216,7 +7304,7 @@ export const googlemailSendGmailDefinition: ActionTemplate = {
       },
       content: {
         type: "string",
-        description: "Email body content (plain text or HTML)",
+        description: "Email body content in HTML format",
       },
       threadId: {
         type: "string",

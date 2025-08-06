@@ -1,12 +1,22 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app.js";
+import dotenv from "dotenv";
+dotenv.config();
+
 
 async function runTest() {
+
+  const now = new Date();
+  const weekBeg = new Date(now.setDate(now.getDate() - now.getDay())); // Sunday 00:00
+  weekBeg.setHours(0, 0, 0, 0);
+  const weekEnd = new Date(+weekBeg + 7 * 864e5);
+
+
   const result = await runAction(
     "listCalendarEvents",
     "googleOauth",
-    { authToken: "auth-token-with-calendar-scope-here" },
-    { calendarId: "primary", query: "optional-query-here", maxResults: 2 },
+    { authToken: process.env.GOOGLE_OAUTH_LIST_EVENT_SCOPE },
+    { calendarId: "primary", query: "", maxResults: 50, timeMin: weekBeg.toISOString(), timeMax: weekEnd.toISOString() },
   );
 
   assert(result, "Response should not be null");

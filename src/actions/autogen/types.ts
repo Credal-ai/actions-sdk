@@ -2368,6 +2368,48 @@ export type googleOauthUpdateCalendarEventFunction = ActionFunction<
   googleOauthUpdateCalendarEventOutputType
 >;
 
+export const googleOauthEditAGoogleCalendarEventParamsSchema = z.object({
+  calendarId: z.string().describe("The ID of the calendar containing the event"),
+  eventId: z.string().describe("The ID of the event to edit"),
+  title: z.string().describe("The new title/summary of the event").optional(),
+  description: z.string().describe("The new description of the event").optional(),
+  start: z.string().describe("The new start date/time (RFC3339 timestamp)").optional(),
+  end: z.string().describe("The new end date/time (RFC3339 timestamp)").optional(),
+  location: z.string().describe("The new location of the event").optional(),
+  attendees: z
+    .array(z.string().describe("The email address of the attendee"))
+    .describe("The new list of attendees (replaces existing attendees)")
+    .optional(),
+  status: z.string().describe("The new status of the event (confirmed, tentative, cancelled)").optional(),
+  organizer: z
+    .object({
+      email: z.string().describe("The organizer's email address").optional(),
+      displayName: z.string().describe("The organizer's display name").optional(),
+    })
+    .describe("The new organizer of the event")
+    .optional(),
+});
+
+export type googleOauthEditAGoogleCalendarEventParamsType = z.infer<
+  typeof googleOauthEditAGoogleCalendarEventParamsSchema
+>;
+
+export const googleOauthEditAGoogleCalendarEventOutputSchema = z.object({
+  success: z.boolean().describe("Whether the event was edited successfully"),
+  eventId: z.string().describe("The ID of the edited event").optional(),
+  eventUrl: z.string().describe("The URL to access the edited event").optional(),
+  error: z.string().describe("The error that occurred if the event was not edited successfully").optional(),
+});
+
+export type googleOauthEditAGoogleCalendarEventOutputType = z.infer<
+  typeof googleOauthEditAGoogleCalendarEventOutputSchema
+>;
+export type googleOauthEditAGoogleCalendarEventFunction = ActionFunction<
+  googleOauthEditAGoogleCalendarEventParamsType,
+  AuthParamsType,
+  googleOauthEditAGoogleCalendarEventOutputType
+>;
+
 export const googleOauthDeleteCalendarEventParamsSchema = z.object({
   calendarId: z.string().describe("The ID of the calendar containing the event"),
   eventId: z.string().describe("The ID of the event to delete"),
@@ -3709,7 +3751,7 @@ export const googlemailSendGmailParamsSchema = z.object({
   cc: z.array(z.string()).describe("List of CC recipient email addresses (optional)").optional(),
   bcc: z.array(z.string()).describe("List of BCC recipient email addresses (optional)").optional(),
   subject: z.string().describe("Email subject line"),
-  content: z.string().describe("Email body content (plain text or HTML)"),
+  content: z.string().describe("Email body content in HTML format"),
   threadId: z.string().describe("Optional thread ID to reply to an existing email thread").optional(),
 });
 

@@ -97,6 +97,8 @@ import {
   googleOauthUpdateCalendarEventOutputSchema,
   googleOauthDeleteCalendarEventParamsSchema,
   googleOauthDeleteCalendarEventOutputSchema,
+  googleOauthEditAGoogleCalendarEventParamsSchema,
+  googleOauthEditAGoogleCalendarEventOutputSchema,
   googleOauthCreatePresentationParamsSchema,
   googleOauthCreatePresentationOutputSchema,
   googleOauthUpdatePresentationParamsSchema,
@@ -312,6 +314,7 @@ import listCalendars from "./providers/google-oauth/listCalendars.js";
 import listCalendarEvents from "./providers/google-oauth/listCalendarEvents.js";
 import updateCalendarEvent from "./providers/google-oauth/updateCalendarEvent.js";
 import deleteCalendarEvent from "./providers/google-oauth/deleteCalendarEvent.js";
+import editAGoogleCalendarEvent from "./providers/google-oauth/editAGoogleCalendarEvent.js";
 import createSpreadsheet from "./providers/google-oauth/createSpreadsheet.js";
 import updateSpreadsheet from "./providers/google-oauth/updateSpreadsheet.js";
 import createPresentation from "./providers/google-oauth/createPresentation.js";
@@ -769,6 +772,11 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: deleteCalendarEvent,
       paramsSchema: googleOauthDeleteCalendarEventParamsSchema,
       outputSchema: googleOauthDeleteCalendarEventOutputSchema,
+    },
+    editAGoogleCalendarEvent: {
+      fn: editAGoogleCalendarEvent,
+      paramsSchema: googleOauthEditAGoogleCalendarEventParamsSchema,
+      outputSchema: googleOauthEditAGoogleCalendarEventOutputSchema,
     },
     listGroups: {
       fn: listGroups,
