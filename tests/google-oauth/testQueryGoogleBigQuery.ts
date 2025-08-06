@@ -12,23 +12,24 @@ async function runTest() {
     "queryGoogleBigQuery",
     "googleOauth",
     {
-      authToken: "google-oauth-token", // Use a valid OAuth token with BigQuery readonly scope
+      authToken: "insert-access-token", // https://www.googleapis.com/auth/bigquery.readonly
     },
     {
-      query: "SELECT * FROM `bigquery-public-data.dataflix_covid.Hevo_snapshot_world_covid` LIMIT 1000",
+      query: "SELECT * FROM `proejctName.TableName` LIMIT 1000",
       maxResults: 1000,
       timeoutMs: 30000,
       maximumBytesProcessed: "1000000000", // 1GB limit for this test
+      projectId: "ornate-entropy-468019-e6",
     } as googleOauthQueryGoogleBigQueryParamsType
   );
 
   // Validate the result
   assert.strictEqual(result.success, true, "Query should be successful");
-  
+
   if (result.data) {
     assert(Array.isArray(result.data), "Data should be an array");
     console.log("Query results:", result.data);
-    
+
     if (result.data.length > 0) {
       const firstRow = result.data[0];
       assert(typeof firstRow === "object", "First row should be an object");
@@ -39,7 +40,7 @@ async function runTest() {
   if (result.schema) {
     assert(Array.isArray(result.schema), "Schema should be an array");
     console.log("Schema:", result.schema);
-    
+
     if (result.schema.length > 0) {
       const firstColumn = result.schema[0];
       assert(firstColumn.name, "First column should have a name");
@@ -48,7 +49,10 @@ async function runTest() {
   }
 
   if (result.totalRows) {
-    assert(typeof result.totalRows === "string", "Total rows should be a string");
+    assert(
+      typeof result.totalRows === "string",
+      "Total rows should be a string"
+    );
     console.log("Total rows:", result.totalRows);
   }
 

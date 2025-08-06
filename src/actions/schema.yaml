@@ -4541,7 +4541,7 @@ actions:
         - https://www.googleapis.com/auth/bigquery.readonly
       parameters:
         type: object
-        required: [query]
+        required: [query, projectId]
         properties:
           query:
             type: string

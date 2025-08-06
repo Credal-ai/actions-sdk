@@ -7,25 +7,44 @@ import type {
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
-interface BigQueryJobResponse {
+function hasReadOnlyQuery(query: string): boolean {
+  const normalizedQuery = query
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/--.*$/gm, "")
+    .trim()
+    .toUpperCase();
+
+  const writeOperations = [
+    "INSERT",
+    "UPDATE",
+    "DELETE",
+    "CREATE",
+    "DROP",
+    "ALTER",
+    "TRUNCATE",
+    "MERGE",
+    "REPLACE",
+    "GRANT",
+    "REVOKE",
+    "CALL",
+    "EXECUTE",
+  ];
+
+  for (const operation of writeOperations) {
+    const regex = new RegExp(`\\b${operation}\\b`, "i");
+    if (regex.test(normalizedQuery)) {
+      return false; // Not read-only
+    }
+  }
+
+  return true; // Read-only
+}
+
+interface BigQueryQueryResponse {
   jobReference: {
     jobId: string;
     projectId: string;
   };
-  status: {
-    state: string;
-    errorResult?: {
-      reason: string;
-      message: string;
-    };
-    errors?: Array<{
-      reason: string;
-      message: string;
-    }>;
-  };
-}
-
-interface BigQueryResultsResponse {
   totalRows: string;
   schema: {
     fields: Array<{
@@ -35,11 +54,9 @@ interface BigQueryResultsResponse {
     }>;
   };
   rows?: Array<{
-    f: Array<{
-      v: unknown;
-    }>;
+    f: Array<{ v: unknown }>;
   }>;
-  jobComplete: boolean;
+  pageToken?: string;
   errors?: Array<{
     reason: string;
     message: string;
@@ -57,130 +74,106 @@ const queryGoogleBigQuery: googleOauthQueryGoogleBigQueryFunction = async ({
     return { success: false, error: MISSING_AUTH_TOKEN };
   }
 
-  const { query, projectId, maxResults = 1000, timeoutMs = 30000, maximumBytesProcessed = "500000000" } = params;
+  const { query, projectId, maxResults = 1000, timeoutMs = 30_000, maximumBytesProcessed = "500000000" } = params;
+
+  const hasReadOnly = hasReadOnlyQuery(query);
+  if (!hasReadOnly) {
+    return { success: false, error: `Read-only queries only. Your query contains write operations.` };
+  }
 
   try {
-    // Get default project ID if not provided
-    let resolvedProjectId = projectId;
-    if (!resolvedProjectId) {
-      const projectResponse = await axiosClient.get(
-        "https://bigquery.googleapis.com/bigquery/v2/projects",
+    const allRows: Array<Record<string, unknown>> = [];
+    let schema: Array<{ name: string; type: string; mode: string }> = [];
+    let totalRows = "0";
+    let pageToken: string | undefined;
+    const deadline = Date.now() + timeoutMs;
+
+    /**
+     * We loop while a pageToken is returned **and** we haven't exceeded the
+     * caller‑supplied timeout.
+     */
+    do {
+      const { data } = await axiosClient.post<BigQueryQueryResponse>(
+        `https://bigquery.googleapis.com/bigquery/v2/projects/${projectId}/queries`,
+        {
+          query,
+          useLegacySql: false,
+          maximumBytesProcessed,
+          maxResults,
+          pageToken,
+        },
         {
           headers: {
             Authorization: `Bearer ${authParams.authToken}`,
-          },
-        }
-      );
-      
-      if (projectResponse.data.projects && projectResponse.data.projects.length > 0) {
-        resolvedProjectId = projectResponse.data.projects[0].id;
-      } else {
-        return { success: false, error: "No BigQuery projects found. Please specify a projectId." };
-      }
-    }
-
-    // Submit the query job
-    const jobResponse = await axiosClient.post(
-      `https://bigquery.googleapis.com/bigquery/v2/projects/${resolvedProjectId}/jobs`,
-      {
-        configuration: {
-          query: {
-            query: query,
-            useLegacySql: false,
-            maximumBytesProcessed: maximumBytesProcessed,
+            "Content-Type": "application/json",
           },
         },
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${authParams.authToken}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    const jobData: BigQueryJobResponse = jobResponse.data;
-    const jobId = jobData.jobReference.jobId;
-
-    // Wait for job completion with timeout
-    const startTime = Date.now();
-    let jobComplete = false;
-    let resultsResponse: BigQueryResultsResponse;
-
-    while (!jobComplete && Date.now() - startTime < timeoutMs) {
-      const resultsRes = await axiosClient.get(
-        `https://bigquery.googleapis.com/bigquery/v2/projects/${resolvedProjectId}/queries/${jobId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${authParams.authToken}`,
-          },
-          params: {
-            maxResults: maxResults,
-          },
-        }
       );
 
-      resultsResponse = resultsRes.data;
-      jobComplete = resultsResponse.jobComplete;
-
-      if (!jobComplete) {
-        // Wait 1 second before checking again
-        await new Promise(resolve => setTimeout(resolve, 1000));
+      // capture schema once
+      if (!schema.length && data.schema?.fields) {
+        schema = data.schema.fields.map(f => ({
+          name: f.name,
+          type: f.type,
+          mode: f.mode,
+        }));
       }
+
+      // accumulate rows
+      if (data.rows?.length) {
+        data.rows.forEach(row => {
+          const rowObj: Record<string, unknown> = {};
+          row.f.forEach((cell, idx) => {
+            const fieldName = schema[idx]?.name ?? `column_${idx}`;
+            rowObj[fieldName] = cell.v;
+          });
+          allRows.push(rowObj);
+        });
+      }
+
+      totalRows = data.totalRows ?? totalRows;
+      pageToken = data.pageToken;
+
+      if (pageToken && Date.now() > deadline) {
+        return {
+          success: false,
+          error: "Query timeout exceeded while paging through results",
+        };
+      }
+    } while (pageToken);
+
+    // check for any job‑level errors that API surfaced
+    if (allRows.length === 0 && schema.length === 0) {
+      return {
+        success: false,
+        error: "Query returned no data and no schema (unexpected)",
+      };
     }
-
-    if (!jobComplete) {
-      return { success: false, error: "Query timeout exceeded" };
-    }
-
-    // Check for job errors
-    if (resultsResponse!.errors && resultsResponse!.errors.length > 0) {
-      const errorMessages = resultsResponse!.errors.map(err => err.message).join("; ");
-      return { success: false, error: errorMessages };
-    }
-
-    // Process the results
-    const schema = resultsResponse!.schema?.fields?.map(field => ({
-      name: field.name,
-      type: field.type,
-      mode: field.mode,
-    })) || [];
-
-    const data = resultsResponse!.rows?.map(row => {
-      const rowData: { [key: string]: unknown } = {};
-      row.f.forEach((cell, index) => {
-        const fieldName = schema[index]?.name || `column_${index}`;
-        rowData[fieldName] = cell.v;
-      });
-      return rowData;
-    }) || [];
 
     return {
       success: true,
-      data: data,
-      totalRows: resultsResponse!.totalRows,
-      schema: schema,
+      data: allRows,
+      totalRows,
+      schema,
     };
-
-  } catch (error) {
-    console.error("Error querying BigQuery:", error);
+  } catch (err: unknown) {
+    console.error("Error querying BigQuery:", err);
     let errorMessage = "Unknown error";
-    
-    if (error instanceof Error) {
-      errorMessage = error.message;
-    } else if (typeof error === "object" && error !== null && "response" in error) {
-      const axiosError = error as { response?: { data?: { error?: { message?: string } }; statusText?: string } };
-      if (axiosError.response?.data?.error?.message) {
-        errorMessage = axiosError.response.data.error.message;
-      } else if (axiosError.response?.statusText) {
-        errorMessage = axiosError.response.statusText;
+
+    if (err instanceof Error) {
+      errorMessage = err.message;
+    } else if (typeof err === "object" && err !== null && "response" in err) {
+      const axiosErr = err as {
+        response?: { data?: { error?: { message?: string } }; statusText?: string };
+      };
+      if (axiosErr.response?.data?.error?.message) {
+        errorMessage = axiosErr.response.data.error.message;
+      } else if (axiosErr.response?.statusText) {
+        errorMessage = axiosErr.response.statusText;
       }
     }
 
-    return {
-      success: false,
-      error: errorMessage,
-    };
+    return { success: false, error: errorMessage };
   }
 };
 
