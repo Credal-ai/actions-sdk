@@ -4600,7 +4600,10 @@ actions:
             description: Email subject line
           content:
             type: string
-            description: Email body content (plain text or HTML)
+            description: Email body content in HTML format
+          threadId:
+            type: string
+            description: Optional thread ID to reply to an existing email thread
       output:
         type: object
         required: [success]

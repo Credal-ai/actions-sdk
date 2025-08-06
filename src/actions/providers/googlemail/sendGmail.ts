@@ -18,7 +18,7 @@ const sendGmail: googlemailSendGmailFunction = async ({
     return { success: false, error: MISSING_AUTH_TOKEN };
   }
 
-  const { to, cc, bcc, subject, content } = params;
+  const { to, cc, bcc, subject, content, threadId } = params;
 
   try {
     // Create the email message in RFC 2822 format
@@ -40,6 +40,7 @@ const sendGmail: googlemailSendGmailFunction = async ({
     // Add subject
     message += `Subject: ${subject}\r\n`;
     message += `Content-Type: text/html; charset=utf-8\r\n`;
+    message += `MIME-Version: 1.0\r\n`;
     message += `\r\n`;
     message += content;
 
@@ -50,11 +51,17 @@ const sendGmail: googlemailSendGmailFunction = async ({
       .replace(/\//g, "_")
       .replace(/=+$/, "");
 
+    const requestBody: { raw: string; threadId?: string } = {
+      raw: encodedMessage,
+    };
+
+    if (threadId) {
+      requestBody.threadId = threadId;
+    }
+
     const response = await axiosClient.post(
       "https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
-      {
-        raw: encodedMessage,
-      },
+      requestBody,
       {
         headers: {
           Authorization: `Bearer ${authParams.authToken}`,

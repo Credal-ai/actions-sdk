@@ -7218,6 +7218,10 @@ export const googlemailSendGmailDefinition: ActionTemplate = {
         type: "string",
         description: "Email body content (plain text or HTML)",
       },
+      threadId: {
+        type: "string",
+        description: "Optional thread ID to reply to an existing email thread",
+      },
     },
   },
   output: {

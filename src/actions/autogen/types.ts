@@ -3710,6 +3710,7 @@ export const googlemailSendGmailParamsSchema = z.object({
   bcc: z.array(z.string()).describe("List of BCC recipient email addresses (optional)").optional(),
   subject: z.string().describe("Email subject line"),
   content: z.string().describe("Email body content (plain text or HTML)"),
+  threadId: z.string().describe("Optional thread ID to reply to an existing email thread").optional(),
 });
 
 export type googlemailSendGmailParamsType = z.infer<typeof googlemailSendGmailParamsSchema>;

@@ -13,7 +13,7 @@ async function runTest() {
     cc: ["cc@example.com"], // optional field
     bcc: ["bcc@example.com"], // optional field
     subject: "Test Email from Gmail API",
-    content: "This is a test email sent through the Gmail API. Please ignore this message.",
+    content: "<html><body><h1>Test Email</h1><p>This is a <strong>test email</strong> sent through the Gmail API with <em>HTML content</em>. Please ignore this message.</p></body></html>",
   };
 
   const result = await runAction(
