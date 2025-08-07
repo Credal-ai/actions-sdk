@@ -55,16 +55,16 @@ const sendGmail: googlemailSendGmailFunction = async ({
             headers: {
               Authorization: `Bearer ${authParams.authToken}`,
             },
-          }
+          },
         );
 
         const messages = threadResponse.data.messages;
         if (messages && messages.length > 0) {
           const lastMessage = messages[messages.length - 1];
-          
+
           // Get the Message-ID header from the last message
           const messageIdHeader = lastMessage.payload.headers?.find(
-            (h: GmailHeader) => h.name.toLowerCase() === "message-id"
+            (h: GmailHeader) => h.name.toLowerCase() === "message-id",
           );
           if (messageIdHeader) {
             inReplyTo = messageIdHeader.value;
@@ -72,7 +72,7 @@ const sendGmail: googlemailSendGmailFunction = async ({
 
           // Get existing References header or create new one
           const referencesHeader = lastMessage.payload.headers?.find(
-            (h: GmailHeader) => h.name.toLowerCase() === "references"
+            (h: GmailHeader) => h.name.toLowerCase() === "references",
           );
           if (referencesHeader) {
             references = `${referencesHeader.value} ${inReplyTo}`.trim();
@@ -82,19 +82,24 @@ const sendGmail: googlemailSendGmailFunction = async ({
 
           // Get original subject and format as reply
           const subjectHeader = lastMessage.payload.headers?.find(
-            (h: GmailHeader) => h.name.toLowerCase() === "subject"
+            (h: GmailHeader) => h.name.toLowerCase() === "subject",
           );
-          if (subjectHeader && !subject.toLowerCase().startsWith("re:")) {
+
+          // When threadId is provided, ALWAYS use the original thread's subject
+          // Ignore the subject parameter completely to ensure proper threading
+          if (subjectHeader) {
             const originalSubject = subjectHeader.value;
-            // Only add "Re: " if it's not already there
-            formattedSubject = originalSubject.toLowerCase().startsWith("re:") 
-              ? originalSubject 
+            formattedSubject = originalSubject.toLowerCase().startsWith("re:")
+              ? originalSubject
               : `Re: ${originalSubject}`;
+          } else {
+            formattedSubject = "Re: (no subject)";
           }
         }
       } catch (threadError) {
         console.warn("Could not fetch thread details for proper reply formatting:", threadError);
-        // Continue with original subject if thread fetch fails
+        // When threadId is provided but thread fetch fails, still ignore the subject param
+        formattedSubject = "Re: (no subject)";
       }
     }
 
@@ -117,7 +122,7 @@ const sendGmail: googlemailSendGmailFunction = async ({
     // Add subject (formatted for reply if needed)
     message += `Subject: ${formattedSubject}\r\n`;
 
-    // Add threading headers if replying
+    // Add threading headers if replying - CRITICAL for proper threading
     if (threadId && inReplyTo) {
       message += `In-Reply-To: ${inReplyTo}\r\n`;
       if (references) {
@@ -141,6 +146,7 @@ const sendGmail: googlemailSendGmailFunction = async ({
       raw: encodedMessage,
     };
 
+    // IMPORTANT: Include threadId in the request body for proper threading
     if (threadId) {
       requestBody.threadId = threadId;
     }
@@ -161,6 +167,7 @@ const sendGmail: googlemailSendGmailFunction = async ({
       messageId: response.data.id,
     };
   } catch (error) {
+    console.error("Gmail send error:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error sending email",
