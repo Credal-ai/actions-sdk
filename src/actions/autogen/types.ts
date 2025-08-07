@@ -1632,6 +1632,26 @@ export type resendSendEmailFunction = ActionFunction<
   resendSendEmailOutputType
 >;
 
+export const resendSendEmailHtmlParamsSchema = z.object({
+  to: z.string().describe("The email address to send the email to"),
+  subject: z.string().describe("The subject of the email"),
+  html: z.string().describe("The HTML content of the email"),
+});
+
+export type resendSendEmailHtmlParamsType = z.infer<typeof resendSendEmailHtmlParamsSchema>;
+
+export const resendSendEmailHtmlOutputSchema = z.object({
+  success: z.boolean().describe("Whether the email was sent successfully"),
+  error: z.string().describe("The error that occurred if the email was not sent successfully").optional(),
+});
+
+export type resendSendEmailHtmlOutputType = z.infer<typeof resendSendEmailHtmlOutputSchema>;
+export type resendSendEmailHtmlFunction = ActionFunction<
+  resendSendEmailHtmlParamsType,
+  AuthParamsType,
+  resendSendEmailHtmlOutputType
+>;
+
 export const googleOauthCreateNewGoogleDocParamsSchema = z.object({
   title: z.string().describe("The title of the new Google Doc"),
   content: z.string().describe("The content to add to the new Google Doc").optional(),

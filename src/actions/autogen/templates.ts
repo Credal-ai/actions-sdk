@@ -3109,6 +3109,44 @@ export const resendSendEmailDefinition: ActionTemplate = {
   name: "sendEmail",
   provider: "resend",
 };
+export const resendSendEmailHtmlDefinition: ActionTemplate = {
+  description: "Send an HTML email using Resend",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["to", "subject", "html"],
+    properties: {
+      to: {
+        type: "string",
+        description: "The email address to send the email to",
+      },
+      subject: {
+        type: "string",
+        description: "The subject of the email",
+      },
+      html: {
+        type: "string",
+        description: "The HTML content of the email",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the email was sent successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the email was not sent successfully",
+      },
+    },
+  },
+  name: "sendEmailHtml",
+  provider: "resend",
+};
 export const googleOauthCreateNewGoogleDocDefinition: ActionTemplate = {
   description: "Create a new Google Docs document using OAuth authentication",
   scopes: [],

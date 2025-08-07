@@ -64,6 +64,8 @@ import {
   firecrawlScrapeUrlOutputSchema,
   firecrawlScrapeUrlParamsSchema,
   resendSendEmailOutputSchema,
+  resendSendEmailHtmlParamsSchema,
+  resendSendEmailHtmlOutputSchema,
   firecrawlScrapeTweetDataWithNitterParamsSchema,
   firecrawlScrapeTweetDataWithNitterOutputSchema,
   resendSendEmailParamsSchema,
@@ -312,6 +314,7 @@ import getSalesforceRecordsByQuery from "./providers/salesforce/getSalesforceRec
 import nearbysearch from "./providers/googlemaps/nearbysearchRestaurants.js";
 import scrapeUrl from "./providers/firecrawl/scrapeUrl.js";
 import sendEmail from "./providers/resend/sendEmail.js";
+import sendEmailHtml from "./providers/resend/sendEmailHtml.js";
 import commentAsanaTask from "./providers/asana/commentAsanaTask.js";
 import createAsanaTask from "./providers/asana/createAsanaTask.js";
 import updateAsanaTask from "./providers/asana/updateAsanaTask.js";
@@ -722,6 +725,11 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: sendEmail,
       paramsSchema: resendSendEmailParamsSchema,
       outputSchema: resendSendEmailOutputSchema,
+    },
+    sendEmailHtml: {
+      fn: sendEmailHtml,
+      paramsSchema: resendSendEmailHtmlParamsSchema,
+      outputSchema: resendSendEmailHtmlOutputSchema,
     },
   },
   googleOauth: {
