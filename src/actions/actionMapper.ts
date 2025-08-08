@@ -286,6 +286,8 @@ import {
   googlemailSendGmailOutputSchema,
   gitlabListDirectoryParamsSchema,
   gitlabListDirectoryOutputSchema,
+  firecrawlSearchAndScrapeOutputSchema,
+  firecrawlSearchAndScrapeParamsSchema,
 } from "./autogen/types.js";
 import validateAddress from "./providers/googlemaps/validateAddress.js";
 import add from "./providers/math/add.js";
@@ -429,6 +431,7 @@ import gitlabGetFileContent from "./providers/gitlab/getFileContent.js";
 import gitlabListDirectory from "./providers/gitlab/listDirectory.js";
 import publicCommentOnServiceDeskRequest from "./providers/jira/publicCommentOnServiceDeskRequest.js";
 import sendGmail from "./providers/googlemail/sendGmail.js";
+import searchAndScrape from "./providers/firecrawl/searchAndSCrape.js";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -718,6 +721,11 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: deepResearch,
       paramsSchema: firecrawlDeepResearchParamsSchema,
       outputSchema: firecrawlDeepResearchOutputSchema,
+    },
+    searchAndScrape: {
+      fn: searchAndScrape,
+      paramsSchema: firecrawlSearchAndScrapeParamsSchema,
+      outputSchema: firecrawlSearchAndScrapeOutputSchema,
     },
   },
   resend: {

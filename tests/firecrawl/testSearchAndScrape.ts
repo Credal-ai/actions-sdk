@@ -6,15 +6,15 @@ dotenv.config();
 
 async function runTest() {
   const result = await runAction(
-    "scrapeUrl",
+    "searchAndScrape",
     "firecrawl",
     { apiKey: process.env.FIRECRAWL_API_KEY }, // authParams
     {
-      url: "https://carbonenewyork.com",
+      query: "openai",
     },
   );
   console.log(result);
-  assert(result.content.length > 0, "No content found");
+  assert(result.results.length > 0, "No content found");
 }
 
 runTest().catch(console.error);

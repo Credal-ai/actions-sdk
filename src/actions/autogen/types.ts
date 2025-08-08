@@ -1591,6 +1591,38 @@ export type firecrawlScrapeUrlFunction = ActionFunction<
   firecrawlScrapeUrlOutputType
 >;
 
+export const firecrawlSearchAndScrapeParamsSchema = z.object({
+  query: z.string().describe("The query to search for"),
+  count: z.number().describe("The number of results to return. Default is 5.").optional(),
+  site: z
+    .string()
+    .describe(
+      "The site to restrict the search to (by inserting site:<site.com> in the query). Examples include openai.com, github.com",
+    )
+    .optional(),
+});
+
+export type firecrawlSearchAndScrapeParamsType = z.infer<typeof firecrawlSearchAndScrapeParamsSchema>;
+
+export const firecrawlSearchAndScrapeOutputSchema = z.object({
+  results: z
+    .array(
+      z.object({
+        url: z.string().describe("The URL of the result"),
+        title: z.string().describe("The title of the result"),
+        contents: z.string().describe("The contents of the result"),
+      }),
+    )
+    .describe("The results of the search"),
+});
+
+export type firecrawlSearchAndScrapeOutputType = z.infer<typeof firecrawlSearchAndScrapeOutputSchema>;
+export type firecrawlSearchAndScrapeFunction = ActionFunction<
+  firecrawlSearchAndScrapeParamsType,
+  AuthParamsType,
+  firecrawlSearchAndScrapeOutputType
+>;
+
 export const firecrawlScrapeTweetDataWithNitterParamsSchema = z.object({
   tweetUrl: z.string().describe("The url for the X(formerly twitter) post"),
 });

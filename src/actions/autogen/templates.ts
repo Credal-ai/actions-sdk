@@ -3045,6 +3045,59 @@ export const firecrawlScrapeUrlDefinition: ActionTemplate = {
   name: "scrapeUrl",
   provider: "firecrawl",
 };
+export const firecrawlSearchAndScrapeDefinition: ActionTemplate = {
+  description: "Search and scrape the web using Firecrawl",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["query"],
+    properties: {
+      query: {
+        type: "string",
+        description: "The query to search for",
+      },
+      count: {
+        type: "number",
+        description: "The number of results to return. Default is 5.",
+      },
+      site: {
+        type: "string",
+        description:
+          "The site to restrict the search to (by inserting site:<site.com> in the query). Examples include openai.com, github.com",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["results"],
+    properties: {
+      results: {
+        type: "array",
+        description: "The results of the search",
+        items: {
+          type: "object",
+          required: ["url", "title", "contents"],
+          properties: {
+            url: {
+              type: "string",
+              description: "The URL of the result",
+            },
+            title: {
+              type: "string",
+              description: "The title of the result",
+            },
+            contents: {
+              type: "string",
+              description: "The contents of the result",
+            },
+          },
+        },
+      },
+    },
+  },
+  name: "searchAndScrape",
+  provider: "firecrawl",
+};
 export const firecrawlScrapeTweetDataWithNitterDefinition: ActionTemplate = {
   description: "Given A tweet URL scrape the tweet data with nitter+firecrawl",
   scopes: [],
