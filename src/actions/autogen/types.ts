@@ -1623,6 +1623,37 @@ export type firecrawlSearchAndScrapeFunction = ActionFunction<
   firecrawlSearchAndScrapeOutputType
 >;
 
+export const firecrawlGetTopNSearchResultUrlsParamsSchema = z.object({
+  query: z.string().describe("The query to search for"),
+  count: z.number().describe("The number of results to return. Default is 5.").optional(),
+  site: z
+    .string()
+    .describe(
+      "The site to restrict the search to (by inserting site:<site.com> in the query). Examples include openai.com, github.com",
+    )
+    .optional(),
+});
+
+export type firecrawlGetTopNSearchResultUrlsParamsType = z.infer<typeof firecrawlGetTopNSearchResultUrlsParamsSchema>;
+
+export const firecrawlGetTopNSearchResultUrlsOutputSchema = z.object({
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The name or title of the search result").optional(),
+        url: z.string().describe("The URL of the search result").optional(),
+      }),
+    )
+    .describe("The top five search result objects"),
+});
+
+export type firecrawlGetTopNSearchResultUrlsOutputType = z.infer<typeof firecrawlGetTopNSearchResultUrlsOutputSchema>;
+export type firecrawlGetTopNSearchResultUrlsFunction = ActionFunction<
+  firecrawlGetTopNSearchResultUrlsParamsType,
+  AuthParamsType,
+  firecrawlGetTopNSearchResultUrlsOutputType
+>;
+
 export const firecrawlScrapeTweetDataWithNitterParamsSchema = z.object({
   tweetUrl: z.string().describe("The url for the X(formerly twitter) post"),
 });

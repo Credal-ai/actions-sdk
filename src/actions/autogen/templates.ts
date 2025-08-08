@@ -3098,6 +3098,54 @@ export const firecrawlSearchAndScrapeDefinition: ActionTemplate = {
   name: "searchAndScrape",
   provider: "firecrawl",
 };
+export const firecrawlGetTopNSearchResultUrlsDefinition: ActionTemplate = {
+  description: "Get the top five search result URLs from Firecrawl",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["query"],
+    properties: {
+      query: {
+        type: "string",
+        description: "The query to search for",
+      },
+      count: {
+        type: "number",
+        description: "The number of results to return. Default is 5.",
+      },
+      site: {
+        type: "string",
+        description:
+          "The site to restrict the search to (by inserting site:<site.com> in the query). Examples include openai.com, github.com",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["results"],
+    properties: {
+      results: {
+        type: "array",
+        description: "The top five search result objects",
+        items: {
+          type: "object",
+          properties: {
+            name: {
+              type: "string",
+              description: "The name or title of the search result",
+            },
+            url: {
+              type: "string",
+              description: "The URL of the search result",
+            },
+          },
+        },
+      },
+    },
+  },
+  name: "getTopNSearchResultUrls",
+  provider: "firecrawl",
+};
 export const firecrawlScrapeTweetDataWithNitterDefinition: ActionTemplate = {
   description: "Given A tweet URL scrape the tweet data with nitter+firecrawl",
   scopes: [],
