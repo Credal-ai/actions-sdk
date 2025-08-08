@@ -40,7 +40,6 @@ const getTopNSearchResultUrls: firecrawlGetTopNSearchResultUrlsFunction = async 
       .map(r => ({
         name: r.title ?? r.metadata?.title ?? r.url,
         url: r.url,
-        snippet: r.description ?? r.markdown?.slice(0, 200) ?? undefined,
       }));
 
     return { results };
