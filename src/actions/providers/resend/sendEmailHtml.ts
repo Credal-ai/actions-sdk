@@ -23,7 +23,7 @@ const sendEmailHtml: resendSendEmailHtmlFunction = async ({
       bcc: authParams.emailBcc,
       to: params.to,
       subject: params.subject,
-      html: params.html,
+      html: params.content,
     });
 
     if (result.error) {

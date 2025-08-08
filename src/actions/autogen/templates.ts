@@ -3167,7 +3167,7 @@ export const resendSendEmailHtmlDefinition: ActionTemplate = {
   scopes: [],
   parameters: {
     type: "object",
-    required: ["to", "subject", "html"],
+    required: ["to", "subject", "content"],
     properties: {
       to: {
         type: "string",
@@ -3177,9 +3177,9 @@ export const resendSendEmailHtmlDefinition: ActionTemplate = {
         type: "string",
         description: "The subject of the email",
       },
-      html: {
+      content: {
         type: "string",
-        description: "The HTML content of the email",
+        description: "The HTML content of the email to be sent",
       },
     },
   },

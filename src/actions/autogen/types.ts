@@ -1667,7 +1667,7 @@ export type resendSendEmailFunction = ActionFunction<
 export const resendSendEmailHtmlParamsSchema = z.object({
   to: z.string().describe("The email address to send the email to"),
   subject: z.string().describe("The subject of the email"),
-  html: z.string().describe("The HTML content of the email"),
+  content: z.string().describe("The HTML content of the email to be sent"),
 });
 
 export type resendSendEmailHtmlParamsType = z.infer<typeof resendSendEmailHtmlParamsSchema>;
