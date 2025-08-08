@@ -431,7 +431,7 @@ import gitlabGetFileContent from "./providers/gitlab/getFileContent.js";
 import gitlabListDirectory from "./providers/gitlab/listDirectory.js";
 import publicCommentOnServiceDeskRequest from "./providers/jira/publicCommentOnServiceDeskRequest.js";
 import sendGmail from "./providers/googlemail/sendGmail.js";
-import searchAndScrape from "./providers/firecrawl/searchAndSCrape.js";
+import searchAndScrape from "./providers/firecrawl/searchAndScrape.js";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
