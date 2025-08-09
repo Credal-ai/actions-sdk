@@ -17,7 +17,7 @@ const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
   params: snowflakeRunSnowflakeQueryParamsType;
   authParams: AuthParamsType;
 }): Promise<snowflakeRunSnowflakeQueryOutputType> => {
-  const { databaseName, warehouse, query, accountName, outputFormat = "json", limit, role } = params;
+  const { databaseName, warehouse, query, accountName, outputFormat = "json", limit, role, username } = params;
 
   const executeQueryAndFormatData = async (): Promise<{ formattedData: string; resultsLength: number }> => {
     const formattedQuery = query.trim().replace(/\s+/g, " "); // Normalize all whitespace to single spaces
@@ -45,15 +45,16 @@ const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
     return { formattedData: formattedData, resultsLength: fullResultLength };
   };
 
-  if (!authParams.username) {
-    throw new Error("Snowflake username is required in authParams.");
+  const snowflakeUsername = authParams.username ?? username;
+  if (!snowflakeUsername) {
+    throw new Error("Snowflake username is required in authParams or as a action parameter.");
   }
 
   // Set up a connection using snowflake-sdk
   const connection = getSnowflakeConnection(
     {
       account: accountName,
-      username: authParams.username,
+      username: snowflakeUsername,
       warehouse: warehouse,
       database: databaseName,
       role: role,

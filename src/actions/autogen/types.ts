@@ -1464,6 +1464,7 @@ export const snowflakeRunSnowflakeQueryParamsSchema = z.object({
   role: z.string().describe("The snowflake role to use for executing the query").optional(),
   query: z.string().describe("The SQL query to execute"),
   accountName: z.string().describe("The name of the Snowflake account"),
+  username: z.string().describe("The username of the Snowflake Credential (optional)").optional(),
   outputFormat: z.enum(["json", "csv"]).describe("The format of the output").optional(),
   limit: z.number().describe("A limit on the number of rows to return").optional(),
   codeInterpreterLimit: z
