@@ -2820,6 +2820,10 @@ export const snowflakeRunSnowflakeQueryDefinition: ActionTemplate = {
         type: "string",
         description: "The name of the Snowflake account",
       },
+      username: {
+        type: "string",
+        description: "The username of the Snowflake Credential (optional)",
+      },
       outputFormat: {
         type: "string",
         description: "The format of the output",
