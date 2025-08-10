@@ -1,7 +1,7 @@
-import {
+import type {
   googleOauthScheduleCalendarMeetingOutputType,
   googleOauthScheduleCalendarMeetingParamsType,
-} from "../src/actions/autogen/types.js";
+} from "../../src/actions/autogen/types.js";
 import { runAction } from "../../src/app.js";
 import assert from "node:assert";
 
@@ -29,7 +29,8 @@ async function runTest() {
         "This is a test meeting created automatically by the actions-sdk test suite.",
       attendees: ["test@test.com", "test2@test.com"],
       useGoogleMeet: true,
-    } as googleOauthScheduleCalendarMeetingParamsType,
+      timeZone: "America/New_York",
+    } as googleOauthScheduleCalendarMeetingParamsType
   );
 
   console.log("Result:", result);

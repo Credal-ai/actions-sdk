@@ -18,6 +18,7 @@ async function runTest() {
       location: "Conference Room A",
       attendees: ["colleague@example.com", "manager@example.com"],
       status: "confirmed",
+      timeZone: "Europe/London",
     },
   );
 

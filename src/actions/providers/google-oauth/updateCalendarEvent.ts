@@ -26,8 +26,18 @@ const updateCalendarEvent: googleOauthUpdateCalendarEventFunction = async ({
   if (updates) {
     if (updates.title != undefined) body.summary = updates.title;
     if (updates.description != undefined) body.description = updates.description;
-    if (updates.start != undefined) body.start = { dateTime: updates.start };
-    if (updates.end != undefined) body.end = { dateTime: updates.end };
+    if (updates.start != undefined) {
+      body.start = { dateTime: updates.start };
+      if (updates.timeZone) {
+        (body.start as Record<string, unknown>).timeZone = updates.timeZone;
+      }
+    }
+    if (updates.end != undefined) {
+      body.end = { dateTime: updates.end };
+      if (updates.timeZone) {
+        (body.end as Record<string, unknown>).timeZone = updates.timeZone;
+      }
+    }
     if (updates.location != undefined) body.location = updates.location;
     if (updates.attendees != undefined) body.attendees = updates.attendees.map(email => ({ email }));
     if (updates.status != undefined) body.status = updates.status;

@@ -15,8 +15,8 @@ async function runTest() {
   const result = await runAction(
     "listCalendarEvents",
     "googleOauth",
-    { authToken: process.env.GOOGLE_OAUTH_LIST_EVENT_SCOPE },
-    { calendarId: "primary", query: "", maxResults: 50, timeMin: weekBeg.toISOString(), timeMax: weekEnd.toISOString() },
+    { authToken: process.env.GOOGLE_CAL_AUTH_TOKEN },
+    { calendarId: "test@gmail.com", query: "", maxResults: 50, timeMin: weekBeg.toISOString(), timeMax: weekEnd.toISOString() },
   );
 
   assert(result, "Response should not be null");

@@ -19,14 +19,25 @@ const editAGoogleCalendarEvent: googleOauthEditAGoogleCalendarEventFunction = as
     return { success: false, error: MISSING_AUTH_TOKEN, eventId: "", eventUrl: "" };
   }
 
-  const { calendarId, eventId, title, description, start, end, location, attendees, status, organizer } = params;
+  const { calendarId, eventId, title, description, start, end, location, attendees, status, organizer, timeZone } =
+    params;
   const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`;
 
   const body: Record<string, unknown> = {};
   if (title !== undefined) body.summary = title;
   if (description !== undefined) body.description = description;
-  if (start !== undefined) body.start = { dateTime: start };
-  if (end !== undefined) body.end = { dateTime: end };
+  if (start !== undefined) {
+    body.start = { dateTime: start };
+    if (timeZone) {
+      (body.start as Record<string, unknown>).timeZone = timeZone;
+    }
+  }
+  if (end !== undefined) {
+    body.end = { dateTime: end };
+    if (timeZone) {
+      (body.end as Record<string, unknown>).timeZone = timeZone;
+    }
+  }
   if (location !== undefined) body.location = location;
   if (attendees !== undefined) body.attendees = attendees.map(email => ({ email }));
   if (status !== undefined) body.status = status;

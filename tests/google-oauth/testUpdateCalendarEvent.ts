@@ -16,6 +16,7 @@ async function runTest() {
         end: new Date(Date.now() + 2 * 3600 * 1000).toISOString(),
         location: "Virtual",
         attendees: ["test@example.com"],
+        timeZone: "America/Los_Angeles",
       },
     },
   );

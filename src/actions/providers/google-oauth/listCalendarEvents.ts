@@ -20,15 +20,27 @@ const listCalendarEvents: googleOauthListCalendarEventsFunction = async ({
   }
 
   const { calendarId, query, maxResults, timeMin, timeMax } = params;
-  const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`;
-  const allEvents: googleOauthListCalendarEventsOutputType["events"] = [];
-  let pageToken: string | undefined = undefined;
-  let fetchedCount = 0;
-  const max = maxResults ?? 250; // Default to 250 if not specified, Google API max is 250
 
   try {
+    // First, fetch the calendar's timezone
+    const calendarUrl = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}`;
+    const calendarRes: AxiosResponse = await axiosClient.get(calendarUrl, {
+      headers: {
+        Authorization: `Bearer ${authParams.authToken}`,
+      },
+    });
+
+    const calendarTimezone = calendarRes.data.timeZone || "UTC";
+
+    // Now fetch the events
+    const eventsUrl = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`;
+    const allEvents: googleOauthListCalendarEventsOutputType["events"] = [];
+    let pageToken: string | undefined = undefined;
+    let fetchedCount = 0;
+    const max = maxResults ?? 250; // Default to 250 if not specified, Google API max is 250
+
     while (fetchedCount < max) {
-      const res: AxiosResponse = await axiosClient.get(url, {
+      const res: AxiosResponse = await axiosClient.get(eventsUrl, {
         headers: {
           Authorization: `Bearer ${authParams.authToken}`,
         },
@@ -40,8 +52,10 @@ const listCalendarEvents: googleOauthListCalendarEventsFunction = async ({
           orderBy: "startTime",
           timeMin,
           timeMax,
+          timeZone: calendarTimezone, // Include the calendar's timezone in the request
         },
       });
+
       const { items = [], nextPageToken = undefined } = res.data;
       if (!Array.isArray(items) || items.length <= 0) break;
 
@@ -104,9 +118,11 @@ const listCalendarEvents: googleOauthListCalendarEventsFunction = async ({
       if (!nextPageToken || fetchedCount >= max) break;
       pageToken = nextPageToken;
     }
+
     return {
       success: true,
       events: allEvents,
+      calendarTimezone, // Include the calendar's timezone in the response
     };
   } catch (error) {
     return {

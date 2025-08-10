@@ -21,7 +21,7 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
   if (!authParams.authToken) {
     throw new Error(MISSING_AUTH_TOKEN);
   }
-  const { calendarId, name, start, end, description, attendees, useGoogleMeet } = params;
+  const { calendarId, name, start, end, description, attendees, useGoogleMeet, timeZone } = params;
   // https://developers.google.com/calendar/api/v3/reference/events/insert
   let createEventApiUrl = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`;
 
@@ -29,9 +29,11 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
     summary: string;
     start: {
       dateTime: string;
+      timeZone?: string;
     };
     end: {
       dateTime: string;
+      timeZone?: string;
     };
     description?: string;
     attendees?: { email: string }[];
@@ -44,9 +46,11 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
     summary: name,
     start: {
       dateTime: start,
+      ...(timeZone && { timeZone }),
     },
     end: {
       dateTime: end,
+      ...(timeZone && { timeZone }),
     },
   };
 
