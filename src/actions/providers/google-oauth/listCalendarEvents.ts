@@ -122,7 +122,7 @@ const listCalendarEvents: googleOauthListCalendarEventsFunction = async ({
     return {
       success: true,
       events: allEvents,
-      calendarTimezone, // Include the calendar's timezone in the response
+      timezone: calendarTimezone, // Include the calendar's timezone in the response
     };
   } catch (error) {
     return {

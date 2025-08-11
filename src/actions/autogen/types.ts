@@ -2403,7 +2403,7 @@ export const googleOauthListCalendarEventsOutputSchema = z.object({
         .describe("A calendar event"),
     )
     .describe("List of events"),
-  calendarTimezone: z
+  timezone: z
     .string()
     .describe(
       "Timezone the user is currently based out of, given by their calender, follows the IANA Time Zone Database format, defaults to UTC if not defined",

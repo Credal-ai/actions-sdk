@@ -4640,7 +4640,7 @@ export const googleOauthListCalendarEventsDefinition: ActionTemplate = {
           },
         },
       },
-      calendarTimezone: {
+      timezone: {
         type: "string",
         description:
           "Timezone the user is currently based out of, given by their calender, follows the IANA Time Zone Database format, defaults to UTC if not defined",
