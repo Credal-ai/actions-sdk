@@ -1,9 +1,11 @@
-import {
+import type {
   AuthParamsType,
   githubCreateBranchFunction,
   githubCreateBranchOutputType,
   githubCreateBranchParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { getOctokit } from "./utils.js";
 
 /**
  * Creates a new branch in a GitHub repository
@@ -16,30 +18,27 @@ const createBranch: githubCreateBranchFunction = async ({
   authParams: AuthParamsType;
 }): Promise<githubCreateBranchOutputType> => {
   if (!authParams.authToken) {
-    return { success: false, error: "authToken is required for GitHub API" };
+    return { success: false, error: MISSING_AUTH_TOKEN };
   }
 
-  const { repositoryOwner, repositoryName, branchName, baseRefOrHash } = params;
-
-  const { Octokit } = await import("@octokit/rest");
+  const octokit = await getOctokit(authParams.authToken);
   const { RequestError } = await import("@octokit/request-error");
-  const octokit = new Octokit({ auth: authParams.authToken });
-
+  const { repositoryOwner, repositoryName, branchName, baseRefOrHash } = params;
   try {
     // Get the reference or commit SHA for the base branch or tag
-    const { data: baseRefData } = await octokit.git
+    const { data: baseRefData } = await octokit.rest.git
       .getRef({
         owner: repositoryOwner,
         repo: repositoryName,
         ref: baseRefOrHash,
       })
-      .catch(async error => {
+      .catch(async (error: InstanceType<typeof RequestError>) => {
         if (error.status === 404 && /^[a-f0-9]{40}$/i.test(baseRefOrHash)) {
           // If baseRef is a full commit SHA and not a ref, use it directly
           return { data: { object: { sha: baseRefOrHash } } };
         } else if (error.status === 404 && /^[a-f0-9]{7,39}$/i.test(baseRefOrHash)) {
           // If baseRef is a short commit SHA, try to resolve it to a full SHA
-          const { data: commits } = await octokit.repos.listCommits({
+          const { data: commits } = await octokit.rest.repos.listCommits({
             owner: repositoryOwner,
             repo: repositoryName,
             sha: baseRefOrHash,
@@ -53,7 +52,7 @@ const createBranch: githubCreateBranchFunction = async ({
       });
 
     // Create a new branch from the base reference
-    await octokit.git.createRef({
+    await octokit.rest.git.createRef({
       owner: repositoryOwner,
       repo: repositoryName,
       ref: `refs/heads/${branchName}`,

@@ -1,21 +1,12 @@
-import { AxiosRequestConfig } from "axios";
-import {
+import type {
   confluenceFetchPageContentFunction,
   confluenceFetchPageContentParamsType,
   confluenceFetchPageContentOutputType,
   AuthParamsType,
-} from "../../autogen/types";
-import { axiosClient } from "../../util/axiosClient";
-
-function getConfluenceRequestConfig(baseUrl: string, username: string, apiToken: string): AxiosRequestConfig {
-  return {
-    baseURL: baseUrl,
-    headers: {
-      Accept: "application/json",
-      Authorization: `Basic ${Buffer.from(`${username}:${apiToken}`).toString("base64")}`,
-    },
-  };
-}
+} from "../../autogen/types.js";
+import { getConfluenceRequestConfig } from "./helpers.js";
+import { axiosClient } from "../../util/axiosClient.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 const confluenceFetchPageContent: confluenceFetchPageContentFunction = async ({
   params,
@@ -25,26 +16,47 @@ const confluenceFetchPageContent: confluenceFetchPageContentFunction = async ({
   authParams: AuthParamsType;
 }): Promise<confluenceFetchPageContentOutputType> => {
   const { pageId } = params;
-  const { baseUrl, authToken, username } = authParams;
+  const { authToken } = authParams;
 
-  if (!baseUrl || !authToken || !username) {
-    throw new Error("Missing required authentication parameters");
+  if (!authToken) {
+    throw new Error(MISSING_AUTH_TOKEN);
   }
 
-  const config = getConfluenceRequestConfig(baseUrl, username, authToken);
+  try {
+    const cloudDetails = await axiosClient.get("https://api.atlassian.com/oauth/token/accessible-resources", {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+    const cloudId = cloudDetails.data[0].id;
+    const baseUrl = `https://api.atlassian.com/ex/confluence/${cloudId}/api/v2`;
 
-  // Get page content and metadata
-  const response = await axiosClient.get(`/api/v2/pages/${pageId}?body-format=storage`, config);
+    const config = getConfluenceRequestConfig(baseUrl, authToken);
 
-  // Extract needed data from response
-  const title = response.data.title;
-  const content = response.data.body?.storage?.value || "";
+    // Get page content and metadata
+    const response = await axiosClient.get(`/pages/${pageId}?body-format=storage`, config);
 
-  return {
-    pageId,
-    title,
-    content,
-  };
+    // Extract needed data from response
+    const title = response.data.title;
+    const content = response.data.body?.storage?.value || "";
+
+    return {
+      success: true,
+      data: {
+        pageId,
+        title,
+        content,
+      },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "An unknown error occurred while fetching the Confluence page content.",
+    };
+  }
 };
 
 export default confluenceFetchPageContent;

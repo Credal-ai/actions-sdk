@@ -1,5 +1,5 @@
-import { ConversationsListResponse, WebClient } from "@slack/web-api";
-import { Channel } from "@slack/web-api/dist/types/response/ConversationsListResponse";
+import type { ConversationsListResponse, WebClient } from "@slack/web-api";
+import type { Channel } from "@slack/web-api/dist/types/response/ConversationsListResponse";
 
 export type ChannelWithId = Channel & { id: string };
 

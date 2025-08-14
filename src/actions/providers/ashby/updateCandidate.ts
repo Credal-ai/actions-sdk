@@ -1,11 +1,12 @@
-import {
+import type {
   ashbyUpdateCandidateFunction,
   ashbyUpdateCandidateOutputType,
   ashbyUpdateCandidateParamsType,
   AuthParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 
-import { axiosClient } from "../../util/axiosClient";
+import { axiosClient } from "../../util/axiosClient.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 const updateCandidate: ashbyUpdateCandidateFunction = async ({
   params,
   authParams,
@@ -16,10 +17,7 @@ const updateCandidate: ashbyUpdateCandidateFunction = async ({
   const { authToken } = authParams;
 
   if (!authToken) {
-    throw new Error("Auth token is required");
-  }
-  if (!params.candidateId) {
-    throw new Error("Candidate ID is required");
+    throw new Error(MISSING_AUTH_TOKEN);
   }
 
   const body: Partial<ashbyUpdateCandidateParamsType> = {

@@ -1,10 +1,12 @@
-import {
+import type {
   AuthParamsType,
   githubCreateOrUpdateFileFunction,
   githubCreateOrUpdateFileOutputType,
   githubCreateOrUpdateFileParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 import { z } from "zod";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { getOctokit } from "./utils.js";
 
 /**
  * Creates or updates a file in a GitHub repository
@@ -17,19 +19,17 @@ const createOrUpdateFile: githubCreateOrUpdateFileFunction = async ({
   authParams: AuthParamsType;
 }): Promise<githubCreateOrUpdateFileOutputType> => {
   if (!authParams.authToken) {
-    return { success: false, error: "authToken is required for GitHub API" };
+    return { success: false, error: MISSING_AUTH_TOKEN };
   }
 
-  const { repositoryOwner, repositoryName, filePath, branch, fileContent, commitMessage } = params;
-
-  const { Octokit } = await import("@octokit/rest");
+  const octokit = await getOctokit(authParams.authToken);
   const { RequestError } = await import("@octokit/request-error");
-  const octokit = new Octokit({ auth: authParams.authToken });
+  const { repositoryOwner, repositoryName, filePath, branch, fileContent, commitMessage } = params;
 
   let fileSha = undefined;
   let operationPreformed = undefined;
   try {
-    const { data: fileData } = await octokit.repos.getContent({
+    const { data: fileData } = await octokit.rest.repos.getContent({
       owner: repositoryOwner,
       repo: repositoryName,
       path: filePath,
@@ -53,7 +53,7 @@ const createOrUpdateFile: githubCreateOrUpdateFileFunction = async ({
     }
   }
   try {
-    const { data: commitData } = await octokit.repos.createOrUpdateFileContents({
+    const { data: commitData } = await octokit.rest.repos.createOrUpdateFileContents({
       owner: repositoryOwner,
       repo: repositoryName,
       path: filePath,

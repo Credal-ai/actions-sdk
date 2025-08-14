@@ -1,10 +1,12 @@
 import snowflake from "snowflake-sdk";
-import {
+import type {
   AuthParamsType,
   snowflakeRunSnowflakeQueryFunction,
   snowflakeRunSnowflakeQueryOutputType,
   snowflakeRunSnowflakeQueryParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
+import { connectToSnowflakeAndWarehouse, getSnowflakeConnection } from "./auth/getSnowflakeConnection.js";
+import { formatDataForCodeInterpreter } from "../../util/formatDataForCodeInterpreter.js";
 
 snowflake.configure({ logLevel: "ERROR" });
 
@@ -15,21 +17,15 @@ const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
   params: snowflakeRunSnowflakeQueryParamsType;
   authParams: AuthParamsType;
 }): Promise<snowflakeRunSnowflakeQueryOutputType> => {
-  const { databaseName, warehouse, query, user, accountName, outputFormat = "json" } = params;
+  const { databaseName, warehouse, query, accountName, outputFormat = "json", limit, role, username } = params;
 
-  const { authToken } = authParams;
-
-  if (!authToken) {
-    throw new Error("Snowflake authToken key is required");
-  }
-  if (!accountName || !user || !databaseName || !warehouse || !query) {
-    throw new Error("Missing required parameters for Snowflake query");
-  }
   const executeQueryAndFormatData = async (): Promise<{ formattedData: string; resultsLength: number }> => {
+    const formattedQuery = query.trim().replace(/\s+/g, " "); // Normalize all whitespace to single spaces
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const queryResults = await new Promise<any[]>((resolve, reject) => {
+    const queryResults: any[] = await new Promise<any[]>((resolve, reject) => {
       connection.execute({
-        sqlText: query,
+        sqlText: formattedQuery,
         complete: (err, stmt, rows) => {
           if (err) {
             return reject(err);
@@ -39,50 +35,36 @@ const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
       });
     });
 
+    const fullResultLength = queryResults.length;
+
     // Format the results based on the output format
-    let formattedData;
-    if (outputFormat.toLowerCase() === "csv") {
-      if (queryResults.length === 0) {
-        formattedData = "";
-      } else {
-        const headers = Object.keys(queryResults[0]).join(",");
-        const rows = queryResults.map(row =>
-          Object.values(row)
-            .map(value => (typeof value === "object" && value !== null ? JSON.stringify(value) : value))
-            .join(","),
-        );
-        formattedData = [headers, ...rows].join("\n");
-      }
-    } else {
-      // Default to JSON
-      formattedData = JSON.stringify(queryResults).replace(/\s+/g, "");
+    if (limit && queryResults.length > limit) {
+      queryResults.splice(limit);
     }
-    return { formattedData, resultsLength: queryResults.length };
+    const formattedData = formatDataForCodeInterpreter(queryResults, outputFormat);
+    return { formattedData: formattedData, resultsLength: fullResultLength };
   };
 
+  const snowflakeUsername = authParams.username ?? username;
+  if (!snowflakeUsername) {
+    throw new Error("Snowflake username is required in authParams or as a action parameter.");
+  }
+
   // Set up a connection using snowflake-sdk
-  const connection = snowflake.createConnection({
-    account: accountName,
-    username: user,
-    authenticator: "OAUTH",
-    token: authToken,
-    role: "CREDAL_READ",
-    warehouse: warehouse,
-    database: databaseName,
-  });
+  const connection = getSnowflakeConnection(
+    {
+      account: accountName,
+      username: snowflakeUsername,
+      warehouse: warehouse,
+      database: databaseName,
+      role: role,
+    },
+    { authToken: authParams.authToken, apiKey: authParams.apiKey },
+  );
 
   try {
     // Connect to Snowflake
-    await new Promise((resolve, reject) => {
-      connection.connect((err, conn) => {
-        if (err) {
-          console.error("Unable to connect to Snowflake:", err.message);
-          return reject(err);
-        }
-        resolve(conn);
-      });
-    });
-
+    await connectToSnowflakeAndWarehouse(connection, warehouse);
     const { formattedData, resultsLength } = await executeQueryAndFormatData();
 
     // Return fields to match schema definition
@@ -95,6 +77,7 @@ const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
       rowCount: resultsLength,
       content: formattedData,
       format: outputFormat,
+      error: limit && limit < resultsLength ? `Query results truncated to ${limit} rows.` : undefined,
     };
   } catch (error: unknown) {
     connection.destroy(err => {

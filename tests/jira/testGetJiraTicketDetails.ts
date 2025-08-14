@@ -1,13 +1,13 @@
 import assert from "node:assert";
-import { runAction } from "../../src/app";
-import { jiraConfig } from "./utils";
+import { runAction } from "../../src/app.js";
+import { jiraConfig, provider } from "./utils.js";
 
 async function runTest() {
   const { authToken, cloudId, baseUrl, issueId } = jiraConfig;
 
   const result = await runAction(
     "getJiraTicketDetails",
-    "jira",
+    provider,
     {
       authToken,
       cloudId,
@@ -15,7 +15,7 @@ async function runTest() {
     },
     {
       issueId,
-    }
+    },
   );
 
   console.log(JSON.stringify(result, null, 2));
@@ -27,7 +27,9 @@ async function runTest() {
   assert(result.data.key, "Ticket data should include a key");
   assert(result.data.fields, "Ticket data should include fields");
 
-  console.log(`Successfully retrieved Jira ticket details for: ${result.data.key}`);
+  console.log(
+    `Successfully retrieved Jira ticket details for: ${result.data.key}`,
+  );
 }
 
 runTest().catch((error) => {

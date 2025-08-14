@@ -1,10 +1,11 @@
-import {
+import type {
   AuthParamsType,
   asanaCommentTaskFunction,
   asanaCommentTaskOutputType,
   asanaCommentTaskParamsType,
-} from "../../autogen/types";
-import { axiosClient } from "../../util/axiosClient";
+} from "../../autogen/types.js";
+import { axiosClient } from "../../util/axiosClient.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 const commentAsanaTask: asanaCommentTaskFunction = async ({
   params,
@@ -16,8 +17,8 @@ const commentAsanaTask: asanaCommentTaskFunction = async ({
   const { authToken } = authParams;
   const { commentText, isPinned, taskId } = params;
 
-  if (!commentText || !authToken) {
-    return { success: false, error: "Comment text and  valid authToken are required" };
+  if (!authToken) {
+    return { success: false, error: MISSING_AUTH_TOKEN };
   }
 
   try {

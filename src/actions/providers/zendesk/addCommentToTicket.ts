@@ -1,10 +1,11 @@
-import {
+import type {
   AuthParamsType,
   zendeskAddCommentToTicketFunction,
   zendeskAddCommentToTicketOutputType,
   zendeskAddCommentToTicketParamsType,
-} from "../../autogen/types";
-import { axiosClient } from "../../util/axiosClient";
+} from "../../autogen/types.js";
+import { axiosClient } from "../../util/axiosClient.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 const addCommentToTicket: zendeskAddCommentToTicketFunction = async ({
   params,
@@ -13,30 +14,43 @@ const addCommentToTicket: zendeskAddCommentToTicketFunction = async ({
   params: zendeskAddCommentToTicketParamsType;
   authParams: AuthParamsType;
 }): Promise<zendeskAddCommentToTicketOutputType> => {
-  const { authToken, username } = authParams;
-  const { subdomain, ticketId, comment } = params;
+  const { authToken } = authParams;
+  const { subdomain, ticketId, body, public: isPublic } = params;
   const url = `https://${subdomain}.zendesk.com/api/v2/tickets/${ticketId}.json`;
 
   if (!authToken) {
-    throw new Error("authToken is required");
+    throw new Error(MISSING_AUTH_TOKEN);
   }
 
-  await axiosClient.request({
-    url: url,
-    method: "PUT",
-    auth: {
-      username: `${username}/token`,
-      password: authToken,
-    },
-    headers: {
-      "Content-Type": "application/json",
-    },
-    data: {
-      ticket: {
-        comment: comment,
+  try {
+    const response = await axiosClient.request({
+      url: url,
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
       },
-    },
-  });
+      data: {
+        ticket: {
+          comment: {
+            body: body,
+            public: isPublic ?? true,
+          },
+        },
+      },
+    });
+
+    console.log(response.data);
+    return {
+      success: true,
+      ticketUrl: `https://${subdomain}.zendesk.com/agent/tickets/${ticketId}`,
+    };
+  } catch (error) {
+    console.error("Failed to add comment to Zendesk ticket:", error);
+    throw new Error(
+      `Failed to add comment to ticket ${ticketId}: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
+  }
 };
 
 export default addCommentToTicket;

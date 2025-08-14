@@ -1,11 +1,11 @@
-import {
+import type {
   AuthParamsType,
   nwsGetForecastForLocationFunction,
   nwsGetForecastForLocationOutputType,
   nwsGetForecastForLocationParamsType,
-} from "../../autogen/types";
-import { isBetweenDatetime, isValidIsoDatestring } from "../../../utils/datetime";
-import { axiosClient } from "../../util/axiosClient";
+} from "../../autogen/types.js";
+import { isBetweenDatetime, isValidIsoDatestring } from "../../../utils/datetime.js";
+import { axiosClient } from "../../util/axiosClient.js";
 interface Period {
   startTime: string;
   endTime: string;

@@ -1,10 +1,10 @@
-import {
+import type {
   googlemapsValidateAddressFunction,
   googlemapsValidateAddressParamsType,
   googlemapsValidateAddressOutputType,
   AuthParamsType,
-} from "../../autogen/types";
-import { axiosClient } from "../../util/axiosClient";
+} from "../../autogen/types.js";
+import { axiosClient } from "../../util/axiosClient.js";
 
 const validateAddress: googlemapsValidateAddressFunction = async ({
   params,

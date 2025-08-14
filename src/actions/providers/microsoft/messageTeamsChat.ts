@@ -1,11 +1,11 @@
-import {
+import type {
   AuthParamsType,
   microsoftMessageTeamsChatFunction,
   microsoftMessageTeamsChatOutputType,
   microsoftMessageTeamsChatParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 
-import { sendMessage } from "./utils";
+import { getGraphClient } from "./utils.js";
 
 const sendMessageToTeamsChat: microsoftMessageTeamsChatFunction = async ({
   params,
@@ -16,31 +16,31 @@ const sendMessageToTeamsChat: microsoftMessageTeamsChatFunction = async ({
 }): Promise<microsoftMessageTeamsChatOutputType> => {
   const { chatId, message } = params;
 
-  if (!chatId) {
+  let client = undefined;
+  try {
+    client = await getGraphClient(authParams);
+  } catch (error) {
     return {
       success: false,
-      error: "Chat ID is required to send a message",
-    };
-  }
-
-  if (!message) {
-    return {
-      success: false,
-      error: "Message content is required to send a message",
+      error: "Error while authorizing: " + (error instanceof Error ? error.message : "Unknown error"),
     };
   }
 
   try {
-    const messageId = await sendMessage(`/chats/${chatId}/messages`, message, authParams);
+    const response = await client.api(`/chats/${chatId}/messages`).post({
+      body: {
+        content: message,
+      },
+    });
     return {
       success: true,
-      messageId: messageId,
+      messageId: response.id,
     };
   } catch (error) {
     console.error(error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: "Error sending message: " + (error instanceof Error ? error.message : "Unknown error"),
     };
   }
 };

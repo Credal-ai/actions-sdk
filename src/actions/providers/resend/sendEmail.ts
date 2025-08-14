@@ -1,11 +1,11 @@
 import { Resend } from "resend";
-import {
+import type {
   resendSendEmailFunction,
   resendSendEmailParamsType,
   resendSendEmailOutputType,
-  resendSendEmailOutputSchema,
   AuthParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
+import { resendSendEmailOutputSchema } from "../../autogen/types.js";
 
 const sendEmail: resendSendEmailFunction = async ({
   params,

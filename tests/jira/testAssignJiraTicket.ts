@@ -1,13 +1,13 @@
 import assert from "node:assert";
-import { runAction } from "../../src/app";
-import { jiraConfig } from "./utils";
+import { runAction } from "../../src/app.js";
+import { jiraConfig, provider } from "./utils.js";
 
 async function runTest() {
   const { authToken, cloudId, baseUrl, issueId, assignee } = jiraConfig;
 
   const result = await runAction(
     "assignJiraTicket",
-    "jira",
+    provider,
     {
       authToken,
       cloudId,
@@ -16,7 +16,7 @@ async function runTest() {
     {
       issueId: issueId,
       assignee: assignee,
-    }
+    },
   );
 
   assert(result, "Response should not be null");

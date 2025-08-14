@@ -1,10 +1,10 @@
-import snowflake from "snowflake-sdk";
-import {
+import type {
   AuthParamsType,
   snowflakeGetRowByFieldValueFunction,
   snowflakeGetRowByFieldValueOutputType,
   snowflakeGetRowByFieldValueParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
+import { getSnowflakeConnection } from "./auth/getSnowflakeConnection.js";
 
 const getRowByFieldValue: snowflakeGetRowByFieldValueFunction = async ({
   params,
@@ -13,26 +13,26 @@ const getRowByFieldValue: snowflakeGetRowByFieldValueFunction = async ({
   params: snowflakeGetRowByFieldValueParamsType;
   authParams: AuthParamsType;
 }): Promise<snowflakeGetRowByFieldValueOutputType> => {
-  const { databaseName, tableName, fieldName, warehouse, fieldValue, user, accountName } = params;
-  const { authToken } = authParams;
-  if (!authToken) {
-    throw new Error("Access Token is required");
-  }
-  if (!accountName || !user || !databaseName || !warehouse || !tableName || !fieldName || !fieldValue) {
+  const { databaseName, tableName, fieldName, warehouse, fieldValue, accountName } = params;
+
+  if (!accountName || !databaseName || !warehouse) {
+    // TODO: Move these to required params
     throw new Error("Account name and user are required");
   }
 
   // Set up a connection using snowflake-sdk
-  const connection = snowflake.createConnection({
-    account: accountName,
-    username: user,
-    authenticator: "OAUTH",
-    token: authToken,
-    role: "CREDAL_READ",
-    warehouse: warehouse,
-    database: databaseName,
-    schema: "PUBLIC",
-  });
+  const connection = getSnowflakeConnection(
+    {
+      account: accountName,
+      username: authParams.username || "CREDAL_USER",
+      warehouse: warehouse,
+      database: databaseName,
+    },
+    {
+      authToken: authParams.authToken,
+      apiKey: authParams.apiKey,
+    },
+  );
 
   try {
     await new Promise((resolve, reject) => {

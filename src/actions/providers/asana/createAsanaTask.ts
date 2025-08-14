@@ -1,11 +1,12 @@
-import {
+import type {
   AuthParamsType,
   asanaCreateTaskFunction,
   asanaCreateTaskOutputType,
   asanaCreateTaskParamsType,
-} from "../../autogen/types";
-import { axiosClient } from "../../util/axiosClient";
-import { getWorkspaceIdFromProject, getUserIdByEmail } from "./utils";
+} from "../../autogen/types.js";
+import { axiosClient } from "../../util/axiosClient.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { getWorkspaceIdFromProject, getUserIdByEmail } from "./utils.js";
 
 const getTaskTemplates = async (authToken: string, projectId: string) => {
   const url = `https://app.asana.com/api/1.0/task_templates/?project=${projectId}`;
@@ -30,8 +31,8 @@ const createAsanaTask: asanaCreateTaskFunction = async ({
   const { authToken } = authParams;
   const { name, projectId, description, customFields, taskTemplate, assignee, approvalStatus, dueAt } = params;
 
-  if (!name || !authToken || !projectId) {
-    return { success: false, error: "Task name, valid authToken, and projectId are required" };
+  if (!authToken) {
+    return { success: false, error: MISSING_AUTH_TOKEN };
   }
 
   const workspaceId = await getWorkspaceIdFromProject(projectId, authToken);

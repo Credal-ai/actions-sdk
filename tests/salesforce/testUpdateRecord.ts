@@ -1,14 +1,15 @@
 import assert from "node:assert";
-import { runAction } from "../../src/app";
+import { runAction } from "../../src/app.js";
 import { authenticateWithJWT } from "./utils";
+import dotenv from "dotenv";
 
-require("dotenv").config();
+dotenv.config();
 
 async function runTest() {
   const authToken = await authenticateWithJWT();
-  const baseUrl = 'https://power-speed-8849.my.salesforce.com/';  // Must be a valid Salesforce instance URL
-  const recordId = "00Qfn0000004na7EAA";  // Must be a valid lead ID in your Salesforce instance
-  const objectType = "Lead";  // Must be a valid object type of recordId object
+  const baseUrl = "https://power-speed-8849.my.salesforce.com/"; // Must be a valid Salesforce instance URL
+  const recordId = "00Qfn0000004na7EAA"; // Must be a valid lead ID in your Salesforce instance
+  const objectType = "Lead"; // Must be a valid object type of recordId object
 
   const fieldsToUpdate = {
     FirstName: "Updated Actions SDK First Name",
@@ -29,7 +30,7 @@ async function runTest() {
       objectType,
       recordId,
       fieldsToUpdate,
-    }
+    },
   );
 
   console.log(JSON.stringify(result, null, 2));

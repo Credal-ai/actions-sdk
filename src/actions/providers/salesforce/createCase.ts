@@ -1,10 +1,10 @@
-import {
+import type {
   AuthParamsType,
   salesforceCreateCaseFunction,
   salesforceCreateCaseOutputType,
   salesforceCreateCaseParamsType,
-} from "../../autogen/types";
-import { axiosClient } from "../../util/axiosClient";
+} from "../../autogen/types.js";
+import { axiosClient } from "../../util/axiosClient.js";
 
 const createCase: salesforceCreateCaseFunction = async ({
   params,

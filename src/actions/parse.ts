@@ -2,14 +2,16 @@ import Ajv from "ajv";
 import fs from "fs/promises";
 import yaml from "js-yaml";
 import convert from "json-schema-to-zod";
-import { Project, SourceFile, VariableDeclarationKind } from "ts-morph";
+import type { SourceFile } from "ts-morph";
+import { Project, VariableDeclarationKind } from "ts-morph";
 import { z } from "zod";
-import { snakeToPascal } from "../utils/string";
+import { snakeToPascal } from "../utils/string.js";
 
 const jsonObjectSchema = z.object({
   type: z.string(),
-  required: z.array(z.string()),
-  properties: z.record(z.string(), z.any()), // Permissive for now, validate using JSON schema later
+  required: z.array(z.string()).optional(),
+  properties: z.record(z.string(), z.any()).optional(), // Permissive for now, validate using JSON schema later
+  oneOf: z.array(z.any()).optional(), // Support oneOf schemas
 });
 
 type JsonObjectSchema = z.infer<typeof jsonObjectSchema>;
@@ -72,11 +74,21 @@ async function validateObject(object: JsonObjectSchema) {
     throw new Error(`Error validating object: ${JSON.stringify(ajv.errors, null, 4)}`);
   }
 
-  // check required fields
-  const requiredFields = object.required;
-  for (const field of requiredFields) {
-    if (!object.properties[field]) {
-      throw new Error(`Required field ${field} is missing`);
+  // Handle oneOf schemas
+  if (object.oneOf) {
+    // For oneOf schemas, validate each option
+    for (const oneOfOption of object.oneOf) {
+      const validOption = ajv.validateSchema(oneOfOption);
+      if (!validOption) {
+        throw new Error(`Error validating oneOf option: ${JSON.stringify(ajv.errors, null, 4)}`);
+      }
+    }
+  } else if (object.required && object.properties) {
+    // Handle regular object schemas - check required fields
+    for (const field of object.required) {
+      if (!object.properties[field]) {
+        throw new Error(`Required field ${field} is missing`);
+      }
     }
   }
 }
@@ -158,6 +170,17 @@ async function generateTypes({
   const project = new Project();
   const templatesFile = project.createSourceFile(outputPath, "", { overwrite: true });
   const typesFile = project.createSourceFile(templatesOutputPath, "", { overwrite: true });
+
+  // Set the ProviderName enum based on the schema providers
+  typesFile
+    .addEnum({
+      name: "ProviderName",
+      members: Object.keys(parsedConfig.actions).map(providerName => ({
+        name: providerName.toUpperCase().replace(/-/g, "_"),
+        value: providerName,
+      })),
+    })
+    .setIsExported(true);
 
   // Add imports
   templatesFile.addImportDeclaration({

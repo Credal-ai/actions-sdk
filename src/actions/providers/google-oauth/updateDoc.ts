@@ -1,10 +1,11 @@
 import axios from "axios";
-import {
+import type {
   AuthParamsType,
   googleOauthUpdateDocFunction,
   googleOauthUpdateDocParamsType,
   googleOauthUpdateDocOutputType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 /**
  * Updates an existing Google Docs document using OAuth authentication with batch requests
@@ -21,7 +22,7 @@ const updateDoc: googleOauthUpdateDocFunction = async ({
     return {
       success: false,
       documentId: params.documentId,
-      error: "No auth token provided",
+      error: MISSING_AUTH_TOKEN,
     };
   }
 

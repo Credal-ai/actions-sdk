@@ -1,19 +1,19 @@
 import assert from "node:assert";
-import { runAction } from "../../src/app";
-import { jiraConfig } from "./utils";
+import { runAction } from "../../src/app.js";
+import { jiraConfig, provider } from "./utils.js";
 
 async function runTest() {
   const { authToken, cloudId, baseUrl, projectKey, issueId } = jiraConfig;
 
   const result = await runAction(
     "updateJiraTicketStatus",
-    "jira",
+    provider,
     { authToken, cloudId, baseUrl },
     {
       projectKey,
       issueId,
       status: "In Progress", // Adjust to a valid status for your workflow
-    }
+    },
   );
 
   console.log(JSON.stringify(result, null, 2));

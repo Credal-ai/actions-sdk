@@ -1,3 +1,3 @@
 export const authParams = {
-    authToken: "insert-during-testing"
+  authToken: "insert-during-testing",
 };

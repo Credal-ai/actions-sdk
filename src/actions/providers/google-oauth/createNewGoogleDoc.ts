@@ -1,10 +1,11 @@
-import {
+import type {
   AuthParamsType,
   googleOauthCreateNewGoogleDocFunction,
   googleOauthCreateNewGoogleDocOutputType,
   googleOauthCreateNewGoogleDocParamsType,
-} from "../../autogen/types";
-import { axiosClient } from "../../util/axiosClient";
+} from "../../autogen/types.js";
+import { axiosClient } from "../../util/axiosClient.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 /**
  * Creates a new Google Doc document using OAuth authentication
@@ -17,7 +18,7 @@ const createNewGoogleDoc: googleOauthCreateNewGoogleDocFunction = async ({
   authParams: AuthParamsType;
 }): Promise<googleOauthCreateNewGoogleDocOutputType> => {
   if (!authParams.authToken) {
-    throw new Error("authToken is required for Google Docs API");
+    throw new Error(MISSING_AUTH_TOKEN);
   }
   const { title, content } = params;
   const baseApiUrl = "https://docs.googleapis.com/v1/documents";

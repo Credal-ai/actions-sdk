@@ -1,10 +1,10 @@
 import { MongoClient } from "mongodb";
-import {
+import type {
   AuthParamsType,
   mongoInsertMongoDocFunction,
   mongoInsertMongoDocOutputType,
   mongoInsertMongoDocParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 
 const insertMongoDoc: mongoInsertMongoDocFunction = async ({
   params,

@@ -1,10 +1,11 @@
-import {
+import type {
   AuthParamsType,
   googleOauthUpdatePresentationFunction,
   googleOauthUpdatePresentationOutputType,
   googleOauthUpdatePresentationParamsType,
-} from "../../autogen/types";
-import { axiosClient } from "../../util/axiosClient";
+} from "../../autogen/types.js";
+import { axiosClient } from "../../util/axiosClient.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 /**
  * Updates an existing Google Slides presentation using OAuth authentication with batch requests
@@ -20,7 +21,7 @@ const updatePresentation: googleOauthUpdatePresentationFunction = async ({
   if (!authParams.authToken) {
     return {
       success: false,
-      error: "authToken is required for Google Slides API",
+      error: MISSING_AUTH_TOKEN,
     };
   }
 

@@ -1,11 +1,12 @@
-import {
+import type {
   AuthParamsType,
   asanaUpdateTaskFunction,
   asanaUpdateTaskOutputType,
   asanaUpdateTaskParamsType,
-} from "../../autogen/types";
-import { axiosClient } from "../../util/axiosClient";
-import { getUserIdByEmail, getWorkspaceIdAndPermalinkFromTask } from "./utils";
+} from "../../autogen/types.js";
+import { axiosClient } from "../../util/axiosClient.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { getUserIdByEmail, getWorkspaceIdAndPermalinkFromTask } from "./utils.js";
 
 const updateAsanaTask: asanaUpdateTaskFunction = async ({
   params,
@@ -17,8 +18,8 @@ const updateAsanaTask: asanaUpdateTaskFunction = async ({
   const { authToken } = authParams;
   const { name, taskId, description, customFields, completed, assignee, approvalStatus, dueAt } = params;
 
-  if (!authToken || !taskId) {
-    return { success: false, error: "Valid authToken, and taskId are required" };
+  if (!authToken) {
+    return { success: false, error: MISSING_AUTH_TOKEN };
   }
 
   const { workspaceId, permalinkUrl } = await getWorkspaceIdAndPermalinkFromTask(taskId, authToken);

@@ -1,10 +1,11 @@
-import {
+import type {
   AuthParamsType,
   zendeskUpdateTicketStatusFunction,
   zendeskUpdateTicketStatusOutputType,
   zendeskUpdateTicketStatusParamsType,
-} from "../../autogen/types";
-import { axiosClient } from "../../util/axiosClient";
+} from "../../autogen/types.js";
+import { axiosClient } from "../../util/axiosClient.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 const updateTicketStatus: zendeskUpdateTicketStatusFunction = async ({
   params,
@@ -13,22 +14,19 @@ const updateTicketStatus: zendeskUpdateTicketStatusFunction = async ({
   params: zendeskUpdateTicketStatusParamsType;
   authParams: AuthParamsType;
 }): Promise<zendeskUpdateTicketStatusOutputType> => {
-  const { authToken, username } = authParams;
+  const { authToken } = authParams;
   const { subdomain, ticketId, status } = params;
   const url = `https://${subdomain}.zendesk.com/api/v2/tickets/${ticketId}.json`;
 
   if (!authToken) {
-    throw new Error("Auth token is required");
+    throw new Error(MISSING_AUTH_TOKEN);
   }
   await axiosClient.request({
     url: url,
     method: "PUT",
-    auth: {
-      username: `${username}/token`,
-      password: authToken,
-    },
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
     },
     data: {
       ticket: {

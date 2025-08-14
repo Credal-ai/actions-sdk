@@ -1,10 +1,10 @@
-import {
+import type {
   AuthParamsType,
   jiraGetJiraTicketHistoryFunction,
   jiraGetJiraTicketHistoryOutputType,
   jiraGetJiraTicketHistoryParamsType,
-} from "../../autogen/types";
-import { axiosClient } from "../../util/axiosClient";
+} from "../../autogen/types.js";
+import { axiosClient } from "../../util/axiosClient.js";
 
 const getJiraTicketHistory: jiraGetJiraTicketHistoryFunction = async ({
   params,
@@ -16,8 +16,8 @@ const getJiraTicketHistory: jiraGetJiraTicketHistoryFunction = async ({
   const { authToken, cloudId } = authParams;
   const { issueId } = params;
 
-  if (!cloudId || !issueId) {
-    throw new Error("Cloud ID and Issue ID are required to retrieve ticket history");
+  if (!cloudId || !authToken) {
+    throw new Error("Valid Cloud ID and auth token are required to comment on Jira ticket");
   }
 
   const apiUrl = `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3/issue/${issueId}/changelog`;

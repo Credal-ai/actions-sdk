@@ -1,4 +1,4 @@
-import { runAction } from "../../src/app";
+import { runAction } from "../../src/app.js";
 import { authParams } from "./common";
 
 async function runTest() {

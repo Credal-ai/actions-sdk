@@ -1,10 +1,11 @@
-import {
+import type {
   AuthParamsType,
   zendeskGetTicketDetailsFunction,
   zendeskGetTicketDetailsOutputType,
   zendeskGetTicketDetailsParamsType,
-} from "../../autogen/types";
-import { axiosClient } from "../../util/axiosClient";
+} from "../../autogen/types.js";
+import { axiosClientWithRetries } from "../../util/axiosClient.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 const getZendeskTicketDetails: zendeskGetTicketDetailsFunction = async ({
   params,
@@ -13,23 +14,20 @@ const getZendeskTicketDetails: zendeskGetTicketDetailsFunction = async ({
   params: zendeskGetTicketDetailsParamsType;
   authParams: AuthParamsType;
 }): Promise<zendeskGetTicketDetailsOutputType> => {
-  const { authToken, username } = authParams;
+  const { authToken } = authParams;
   const { subdomain, ticketId } = params;
   const url = `https://${subdomain}.zendesk.com/api/v2/tickets/${ticketId}.json`;
 
   if (!authToken) {
-    throw new Error("Auth token is required");
+    throw new Error(MISSING_AUTH_TOKEN);
   }
 
-  const response = await axiosClient.request({
+  const response = await axiosClientWithRetries.request({
     url: url,
     method: "GET",
-    auth: {
-      username: `${username}/token`,
-      password: authToken,
-    },
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
     },
   });
   return {

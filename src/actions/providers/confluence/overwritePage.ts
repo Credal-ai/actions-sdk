@@ -1,21 +1,12 @@
-import { AxiosRequestConfig } from "axios";
-import {
+import type {
   confluenceOverwritePageFunction,
   confluenceOverwritePageParamsType,
   confluenceOverwritePageOutputType,
   AuthParamsType,
-} from "../../autogen/types";
-import { axiosClient } from "../../util/axiosClient";
-
-function getConfluenceRequestConfig(baseUrl: string, username: string, apiToken: string): AxiosRequestConfig {
-  return {
-    baseURL: baseUrl,
-    headers: {
-      Accept: "application/json",
-      Authorization: `Basic ${Buffer.from(`${username}:${apiToken}`).toString("base64")}`,
-    },
-  };
-}
+} from "../../autogen/types.js";
+import { axiosClient } from "../../util/axiosClient.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { getConfluenceRequestConfig } from "./helpers.js";
 
 const confluenceOverwritePage: confluenceOverwritePageFunction = async ({
   params,
@@ -25,31 +16,50 @@ const confluenceOverwritePage: confluenceOverwritePageFunction = async ({
   authParams: AuthParamsType;
 }): Promise<confluenceOverwritePageOutputType> => {
   const { pageId, content, title } = params;
-  const { baseUrl, authToken, username } = authParams;
+  const { authToken } = authParams;
 
-  if (!baseUrl || !authToken || !username) {
-    throw new Error("Missing required authentication parameters");
+  if (!authToken) {
+    throw new Error(MISSING_AUTH_TOKEN);
   }
-  const config = getConfluenceRequestConfig(baseUrl, username, authToken);
 
-  // Get current page content and version number
-  const response = await axiosClient.get(`/api/v2/pages/${pageId}?body-format=storage`, config);
-  const currVersion = response.data.version.number;
-
-  const payload = {
-    id: pageId,
-    status: "current",
-    title,
-    body: {
-      representation: "storage",
-      value: content,
+  const cloudDetails = await axiosClient.get("https://api.atlassian.com/oauth/token/accessible-resources", {
+    headers: {
+      Authorization: `Bearer ${authToken}`,
     },
-    version: {
-      number: currVersion + 1,
-    },
-  };
+  });
+  const cloudId = cloudDetails.data[0].id;
+  const baseUrl = `https://api.atlassian.com/ex/confluence/${cloudId}/api/v2`;
 
-  await axiosClient.put(`/api/v2/pages/${pageId}`, payload, config);
+  try {
+    const config = getConfluenceRequestConfig(baseUrl, authToken);
+
+    // Get current page content and version number
+    const response = await axiosClient.get(`/pages/${pageId}?body-format=storage`, config);
+    const currVersion = response.data.version.number;
+
+    const payload = {
+      id: pageId,
+      status: "current",
+      title,
+      body: {
+        representation: "storage",
+        value: content,
+      },
+      version: {
+        number: currVersion + 1,
+      },
+    };
+
+    await axiosClient.put(`/pages/${pageId}`, payload, config);
+    return {
+      success: true,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "An unknown error occurred while updating the Confluence page.",
+    };
+  }
 };
 
 export default confluenceOverwritePage;

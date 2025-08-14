@@ -1,10 +1,11 @@
 import axios from "axios";
-import {
+import type {
   AuthParamsType,
   googleOauthCreateSpreadsheetFunction,
   googleOauthCreateSpreadsheetParamsType,
   googleOauthCreateSpreadsheetOutputType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 /**
  * Creates a new Google Spreadsheet using OAuth authentication
@@ -17,7 +18,7 @@ const createSpreadsheet: googleOauthCreateSpreadsheetFunction = async ({
   authParams: AuthParamsType;
 }): Promise<googleOauthCreateSpreadsheetOutputType> => {
   if (!authParams.authToken) {
-    throw new Error("authToken is required for Google Sheets API");
+    throw new Error(MISSING_AUTH_TOKEN);
   }
 
   const { title, sheets = [], properties = {} } = params;

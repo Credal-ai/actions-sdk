@@ -1,11 +1,12 @@
-import {
+import type {
   ashbyCreateNoteFunction,
   ashbyCreateNoteOutputType,
   ashbyCreateNoteParamsType,
   AuthParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
 
-import { axiosClient } from "../../util/axiosClient";
+import { axiosClient } from "../../util/axiosClient.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 const createNote: ashbyCreateNoteFunction = async ({
   params,
   authParams,
@@ -17,7 +18,7 @@ const createNote: ashbyCreateNoteFunction = async ({
   const { authToken } = authParams;
 
   if (!authToken) {
-    throw new Error("Auth token is required");
+    throw new Error(MISSING_AUTH_TOKEN);
   }
 
   const response = await axiosClient.post(

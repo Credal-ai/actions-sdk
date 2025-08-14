@@ -1,10 +1,11 @@
-import {
+import type {
   AuthParamsType,
   googleOauthCreatePresentationFunction,
   googleOauthCreatePresentationParamsType,
   googleOauthCreatePresentationOutputType,
-} from "../../autogen/types";
-import { axiosClient } from "../../util/axiosClient";
+} from "../../autogen/types.js";
+import { axiosClient } from "../../util/axiosClient.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 /**
  * Creates a new Google Slides presentation using OAuth authentication
@@ -17,7 +18,7 @@ const createPresentation: googleOauthCreatePresentationFunction = async ({
   authParams: AuthParamsType;
 }): Promise<googleOauthCreatePresentationOutputType> => {
   if (!authParams.authToken) {
-    throw new Error("authToken is required for Google Slides API");
+    throw new Error(MISSING_AUTH_TOKEN);
   }
 
   const { title, pageSize } = params;

@@ -1,11 +1,12 @@
-import axios, { AxiosError } from "axios";
-import {
+import type { AxiosError } from "axios";
+import axios from "axios";
+import type {
   AuthParamsType,
   jiraAssignJiraTicketFunction,
   jiraAssignJiraTicketOutputType,
   jiraAssignJiraTicketParamsType,
-} from "../../autogen/types";
-import { getUserAccountIdFromEmail } from "./utils";
+} from "../../autogen/types.js";
+import { getUserAccountIdFromEmail } from "./utils.js";
 
 const assignJiraTicket: jiraAssignJiraTicketFunction = async ({
   params,

@@ -1,10 +1,10 @@
-import {
+import type {
   AuthParamsType,
   jiraCommentJiraTicketFunction,
   jiraCommentJiraTicketOutputType,
   jiraCommentJiraTicketParamsType,
-} from "../../autogen/types";
-import { axiosClient } from "../../util/axiosClient";
+} from "../../autogen/types.js";
+import { axiosClient } from "../../util/axiosClient.js";
 
 const commentJiraTicket: jiraCommentJiraTicketFunction = async ({
   params,
@@ -15,8 +15,8 @@ const commentJiraTicket: jiraCommentJiraTicketFunction = async ({
 }): Promise<jiraCommentJiraTicketOutputType> => {
   const { authToken, cloudId, baseUrl } = authParams;
 
-  if (!cloudId || !params?.issueId) {
-    throw new Error("Cloud ID and Issue ID are required to comment on a Jira ticket");
+  if (!cloudId || !authToken) {
+    throw new Error("Valid Cloud ID and auth token are required to comment on Jira ticket");
   }
   const apiUrl = `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3/issue/${params.issueId}/comment`;
 

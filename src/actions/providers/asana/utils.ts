@@ -1,4 +1,4 @@
-import { axiosClient } from "../../util/axiosClient";
+import { axiosClient } from "../../util/axiosClient.js";
 
 export async function getWorkspaceIdFromProject(projectId: string, authToken: string): Promise<string | null> {
   if (!projectId || !authToken) {

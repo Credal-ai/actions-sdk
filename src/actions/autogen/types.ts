@@ -1,5 +1,42 @@
 import { z } from "zod";
 
+export enum ProviderName {
+  GENERIC = "generic",
+  ASANA = "asana",
+  SLACK = "slack",
+  MATH = "math",
+  CONFLUENCE = "confluence",
+  JIRA = "jira",
+  JIRAORG = "jiraOrg",
+  KANDJI = "kandji",
+  GOOGLEMAPS = "googlemaps",
+  BING = "bing",
+  ZENDESK = "zendesk",
+  LINKEDIN = "linkedin",
+  X = "x",
+  MONGO = "mongo",
+  SNOWFLAKE = "snowflake",
+  OPENSTREETMAP = "openstreetmap",
+  NWS = "nws",
+  FIRECRAWL = "firecrawl",
+  RESEND = "resend",
+  GOOGLEOAUTH = "googleOauth",
+  GOOGLEMAIL = "googlemail",
+  OKTA = "okta",
+  GONG = "gong",
+  FINNHUB = "finnhub",
+  LOOKER = "looker",
+  ASHBY = "ashby",
+  SALESFORCE = "salesforce",
+  MICROSOFT = "microsoft",
+  GITHUB = "github",
+  NOTION = "notion",
+  JAMF = "jamf",
+  GITLAB = "gitlab",
+  LINEAR = "linear",
+  HUBSPOT = "hubspot",
+}
+
 export type ActionFunction<P, A, O> = (input: { params: P; authParams: A }) => Promise<O>;
 
 export const AuthParamsSchema = z.object({
@@ -25,6 +62,23 @@ export const AuthParamsSchema = z.object({
 
 export type AuthParamsType = z.infer<typeof AuthParamsSchema>;
 
+export const genericFillTemplateParamsSchema = z.object({
+  template: z.string().describe("The template string to be processed and returned"),
+});
+
+export type genericFillTemplateParamsType = z.infer<typeof genericFillTemplateParamsSchema>;
+
+export const genericFillTemplateOutputSchema = z.object({
+  result: z.string().describe("The template string returned filled in"),
+});
+
+export type genericFillTemplateOutputType = z.infer<typeof genericFillTemplateOutputSchema>;
+export type genericFillTemplateFunction = ActionFunction<
+  genericFillTemplateParamsType,
+  AuthParamsType,
+  genericFillTemplateOutputType
+>;
+
 export const asanaCommentTaskParamsSchema = z.object({
   taskId: z.string().describe("Task gid the comment should be added to"),
   commentText: z.string().describe("The comment text to be added"),
@@ -44,6 +98,93 @@ export type asanaCommentTaskFunction = ActionFunction<
   asanaCommentTaskParamsType,
   AuthParamsType,
   asanaCommentTaskOutputType
+>;
+
+export const asanaListAsanaTasksByProjectParamsSchema = z.object({
+  projectId: z.string().describe("Project gid the tasks belong to"),
+});
+
+export type asanaListAsanaTasksByProjectParamsType = z.infer<typeof asanaListAsanaTasksByProjectParamsSchema>;
+
+export const asanaListAsanaTasksByProjectOutputSchema = z.object({
+  error: z.string().describe("Error if task retrieval was unsuccessful").optional(),
+  success: z.boolean().describe("Whether task retrieval was successful"),
+  tasks: z
+    .array(
+      z
+        .object({
+          task: z.object({
+            name: z.string().optional(),
+            resource_type: z.string().optional(),
+            completed: z.boolean().optional(),
+            modified_at: z.string().optional(),
+            notes: z.string().optional(),
+            custom_fields: z
+              .array(
+                z.object({
+                  gid: z.string().optional(),
+                  name: z.string().optional(),
+                  display_value: z.string().nullable().optional(),
+                }),
+              )
+              .nullable()
+              .optional(),
+            num_subtasks: z.number().optional(),
+          }),
+          subtasks: z
+            .array(
+              z.object({
+                name: z.string().optional(),
+                resource_type: z.string().optional(),
+                completed: z.boolean().optional(),
+                modified_at: z.string().optional(),
+                notes: z.string().optional(),
+                assignee: z.string().optional(),
+                custom_fields: z
+                  .array(
+                    z.object({
+                      gid: z.string().optional(),
+                      name: z.string().optional(),
+                      display_value: z.string().nullable().optional(),
+                    }),
+                  )
+                  .nullable()
+                  .optional(),
+                num_subtasks: z.number().optional(),
+              }),
+            )
+            .nullable()
+            .optional(),
+          taskStories: z
+            .array(
+              z.object({
+                gid: z.string().optional(),
+                created_at: z.string().optional(),
+                text: z.string().optional(),
+                resource_type: z.string().optional(),
+                created_by: z
+                  .object({
+                    gid: z.string().optional(),
+                    name: z.string().optional(),
+                    resource_type: z.string().optional(),
+                  })
+                  .optional(),
+              }),
+            )
+            .nullable()
+            .optional(),
+        })
+        .describe("A task in the project"),
+    )
+    .describe("The list of tasks in the project")
+    .optional(),
+});
+
+export type asanaListAsanaTasksByProjectOutputType = z.infer<typeof asanaListAsanaTasksByProjectOutputSchema>;
+export type asanaListAsanaTasksByProjectFunction = ActionFunction<
+  asanaListAsanaTasksByProjectParamsType,
+  AuthParamsType,
+  asanaListAsanaTasksByProjectOutputType
 >;
 
 export const asanaCreateTaskParamsSchema = z.object({
@@ -102,6 +243,105 @@ export type asanaUpdateTaskFunction = ActionFunction<
   asanaUpdateTaskOutputType
 >;
 
+export const asanaSearchTasksParamsSchema = z.object({ query: z.string().describe("Search query") });
+
+export type asanaSearchTasksParamsType = z.infer<typeof asanaSearchTasksParamsSchema>;
+
+export const asanaSearchTasksOutputSchema = z.object({
+  error: z.string().describe("Error if search was unsuccessful").optional(),
+  success: z.boolean().describe("Whether search was successful"),
+  results: z
+    .array(
+      z
+        .object({ id: z.string(), name: z.string(), resourceType: z.string().optional(), workspaceId: z.string() })
+        .describe("List of tasks that match search query"),
+    )
+    .describe("The list of tasks that match search query")
+    .optional(),
+});
+
+export type asanaSearchTasksOutputType = z.infer<typeof asanaSearchTasksOutputSchema>;
+export type asanaSearchTasksFunction = ActionFunction<
+  asanaSearchTasksParamsType,
+  AuthParamsType,
+  asanaSearchTasksOutputType
+>;
+
+export const asanaGetTasksDetailsParamsSchema = z.object({
+  taskIds: z.array(z.string()).describe("The list of task ids to get details for"),
+});
+
+export type asanaGetTasksDetailsParamsType = z.infer<typeof asanaGetTasksDetailsParamsSchema>;
+
+export const asanaGetTasksDetailsOutputSchema = z.object({
+  errors: z.array(z.string()).describe("Errors if search was unsuccessful").optional(),
+  success: z.boolean().describe("Whether search was successful"),
+  results: z
+    .array(
+      z
+        .object({
+          id: z.string(),
+          name: z.string(),
+          approval_status: z.string(),
+          completed: z.boolean(),
+          created_at: z.string(),
+          due_at: z.string().nullable().optional(),
+          assignee_name: z.string(),
+          notes: z.string(),
+          comments: z.array(z.object({ text: z.string(), created_at: z.string(), creator_name: z.string() })),
+        })
+        .describe("List of tasks that match search query"),
+    )
+    .describe("The list of tasks that match search query")
+    .optional(),
+});
+
+export type asanaGetTasksDetailsOutputType = z.infer<typeof asanaGetTasksDetailsOutputSchema>;
+export type asanaGetTasksDetailsFunction = ActionFunction<
+  asanaGetTasksDetailsParamsType,
+  AuthParamsType,
+  asanaGetTasksDetailsOutputType
+>;
+
+export const slackCreateChannelParamsSchema = z.object({
+  channelName: z.string().describe("The name of the channel to create (without '#')"),
+  isPrivate: z.boolean().describe("Whether to create a private channel (defaults to false)").optional(),
+});
+
+export type slackCreateChannelParamsType = z.infer<typeof slackCreateChannelParamsSchema>;
+
+export const slackCreateChannelOutputSchema = z.object({
+  success: z.boolean().describe("Whether the channel was created successfully"),
+  channelId: z.string().describe("The ID of the created channel").optional(),
+  channelUrl: z.string().describe("The URL of the created channel").optional(),
+  error: z.string().describe("The error that occurred if the channel was not created successfully").optional(),
+});
+
+export type slackCreateChannelOutputType = z.infer<typeof slackCreateChannelOutputSchema>;
+export type slackCreateChannelFunction = ActionFunction<
+  slackCreateChannelParamsType,
+  AuthParamsType,
+  slackCreateChannelOutputType
+>;
+
+export const slackArchiveChannelParamsSchema = z.object({
+  channelName: z.string().describe("The name of the channel to archive"),
+});
+
+export type slackArchiveChannelParamsType = z.infer<typeof slackArchiveChannelParamsSchema>;
+
+export const slackArchiveChannelOutputSchema = z.object({
+  success: z.boolean().describe("Whether the channel was archived successfully"),
+  error: z.string().describe("The error that occurred if the channel was not archived successfully").optional(),
+});
+
+export type slackArchiveChannelOutputType = z.infer<typeof slackArchiveChannelOutputSchema>;
+export type slackArchiveChannelFunction = ActionFunction<
+  slackArchiveChannelParamsType,
+  AuthParamsType,
+  slackArchiveChannelOutputType
+>;
+
 export const slackSendMessageParamsSchema = z.object({
   channelName: z.string().describe("The name of the Slack channel to send the message to (e.g. general, alerts)"),
   message: z.string().describe("The message content to send to Slack. Can include markdown formatting."),
@@ -109,7 +349,11 @@ export const slackSendMessageParamsSchema = z.object({
 
 export type slackSendMessageParamsType = z.infer<typeof slackSendMessageParamsSchema>;
 
-export const slackSendMessageOutputSchema = z.void();
+export const slackSendMessageOutputSchema = z.object({
+  success: z.boolean().describe("Whether the email was sent successfully"),
+  error: z.string().describe("The error that occurred if the email was not sent successfully").optional(),
+  messageId: z.string().describe("The ID of the message that was sent").optional(),
+});
 
 export type slackSendMessageOutputType = z.infer<typeof slackSendMessageOutputSchema>;
 export type slackSendMessageFunction = ActionFunction<
@@ -118,34 +362,15 @@ export type slackSendMessageFunction = ActionFunction<
   slackSendMessageOutputType
 >;
 
-export const slackListConversationsParamsSchema = z.object({});
-
-export type slackListConversationsParamsType = z.infer<typeof slackListConversationsParamsSchema>;
-
-export const slackListConversationsOutputSchema = z.object({
-  channels: z
-    .array(
-      z
-        .object({
-          id: z.string().describe("The ID of the channel"),
-          name: z.string().describe("The name of the channel"),
-          topic: z.string().describe("The topic of the channel"),
-          purpose: z.string().describe("The purpose of the channel"),
-        })
-        .describe("A channel in Slack"),
-    )
-    .describe("A list of channels in Slack"),
-});
-
-export type slackListConversationsOutputType = z.infer<typeof slackListConversationsOutputSchema>;
-export type slackListConversationsFunction = ActionFunction<
-  slackListConversationsParamsType,
-  AuthParamsType,
-  slackListConversationsOutputType
->;
-
 export const slackGetChannelMessagesParamsSchema = z.object({
-  channelName: z.string().describe("Name of the channel to summarize"),
+  channelId: z
+    .string()
+    .describe("The ID of the channel to get messages from. Either the channelId or channelName must be provided.")
+    .optional(),
+  channelName: z
+    .string()
+    .describe("Name of the channel to summarize. Either the channelId or channelName must be provided.")
+    .optional(),
   oldest: z.string().describe("Only messages after this Unix timestamp will be included in results"),
 });
 
@@ -192,7 +417,10 @@ export const confluenceOverwritePageParamsSchema = z.object({
 
 export type confluenceOverwritePageParamsType = z.infer<typeof confluenceOverwritePageParamsSchema>;
 
-export const confluenceOverwritePageOutputSchema = z.void();
+export const confluenceOverwritePageOutputSchema = z.object({
+  success: z.boolean().describe("Whether the page was successfully updated"),
+  error: z.string().describe("The error that occurred if the page was not successfully updated").optional(),
+});
 
 export type confluenceOverwritePageOutputType = z.infer<typeof confluenceOverwritePageOutputSchema>;
 export type confluenceOverwritePageFunction = ActionFunction<
@@ -208,9 +436,15 @@ export const confluenceFetchPageContentParamsSchema = z.object({
 export type confluenceFetchPageContentParamsType = z.infer<typeof confluenceFetchPageContentParamsSchema>;
 
 export const confluenceFetchPageContentOutputSchema = z.object({
-  pageId: z.string().describe("The ID of the page"),
-  title: z.string().describe("The title of the page"),
-  content: z.string().describe("The content of the page in storage format (HTML)"),
+  success: z.boolean().describe("Whether the page content was successfully retrieved"),
+  error: z.string().describe("The error that occurred if the page content was not successfully retrieved").optional(),
+  data: z
+    .object({
+      pageId: z.string().describe("The ID of the page").optional(),
+      title: z.string().describe("The title of the page").optional(),
+      content: z.string().describe("The content of the page in storage format (HTML)").optional(),
+    })
+    .optional(),
 });
 
 export type confluenceFetchPageContentOutputType = z.infer<typeof confluenceFetchPageContentOutputSchema>;
@@ -244,6 +478,30 @@ export type jiraAssignJiraTicketFunction = ActionFunction<
   jiraAssignJiraTicketOutputType
 >;
 
+export const jiraPublicCommentOnServiceDeskRequestParamsSchema = z.object({
+  issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
+  comment: z.string().describe("The text to be commented on the ticket"),
+});
+
+export type jiraPublicCommentOnServiceDeskRequestParamsType = z.infer<
+  typeof jiraPublicCommentOnServiceDeskRequestParamsSchema
+>;
+
+export const jiraPublicCommentOnServiceDeskRequestOutputSchema = z.object({
+  success: z.boolean().describe("Whether the comment was sent successfully"),
+  error: z.string().describe("The error that occurred if the comment was not sent successfully").optional(),
+  commentUrl: z.string().describe("The url to the created Jira comment").optional(),
+});
+
+export type jiraPublicCommentOnServiceDeskRequestOutputType = z.infer<
+  typeof jiraPublicCommentOnServiceDeskRequestOutputSchema
+>;
+export type jiraPublicCommentOnServiceDeskRequestFunction = ActionFunction<
+  jiraPublicCommentOnServiceDeskRequestParamsType,
+  AuthParamsType,
+  jiraPublicCommentOnServiceDeskRequestOutputType
+>;
+
 export const jiraCommentJiraTicketParamsSchema = z.object({
   projectKey: z.string().describe("The key for the project"),
   issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
@@ -269,7 +527,7 @@ export const jiraCreateJiraTicketParamsSchema = z.object({
   projectKey: z.string().describe("The key for the project you want to add it to"),
   summary: z.string().describe("The summary of the new ticket"),
   description: z.string().describe("The description for the new ticket"),
-  issueType: z.string().describe("The issue type of the new ticket"),
+  issueType: z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."),
   reporter: z.string().describe("The reporter for the new ticket creation").optional(),
   assignee: z.string().describe("The assignee for the new ticket creation").optional(),
   customFields: z
@@ -290,6 +548,80 @@ export type jiraCreateJiraTicketFunction = ActionFunction<
   jiraCreateJiraTicketParamsType,
   AuthParamsType,
   jiraCreateJiraTicketOutputType
+>;
+
+export const jiraGetServiceDesksParamsSchema = z.object({});
+
+export type jiraGetServiceDesksParamsType = z.infer<typeof jiraGetServiceDesksParamsSchema>;
+
+export const jiraGetServiceDesksOutputSchema = z.object({
+  success: z.boolean().describe("Whether the service desks were retrieved successfully"),
+  error: z.string().describe("The error that occurred if the service desks were not retrieved successfully").optional(),
+  serviceDesks: z
+    .array(
+      z
+        .object({
+          id: z.string().describe("The ID of the service desk").optional(),
+          projectId: z.string().describe("The ID of the project").optional(),
+          projectKey: z.string().describe("The key of the project").optional(),
+          projectName: z.string().describe("The name of the service desk").optional(),
+          requestTypes: z
+            .array(
+              z
+                .object({
+                  id: z.string().describe("The ID of the request type").optional(),
+                  name: z.string().describe("The name of the request type").optional(),
+                  description: z.string().describe("The description of the request type").optional(),
+                  issueTypeId: z.string().describe("The ID of the issue type").optional(),
+                  portalId: z.string().describe("The ID of the customer portal").optional(),
+                  helpText: z.string().describe("The help text for the request type").optional(),
+                  serviceDeskId: z.string().describe("The ID of the service desk").optional(),
+                  canCreateRequest: z.boolean().describe("Whether the request type can be created").optional(),
+                })
+                .describe("A request type"),
+            )
+            .describe("The list of request types")
+            .optional(),
+        })
+        .describe("A service desk"),
+    )
+    .describe("The list of service desks")
+    .optional(),
+});
+
+export type jiraGetServiceDesksOutputType = z.infer<typeof jiraGetServiceDesksOutputSchema>;
+export type jiraGetServiceDesksFunction = ActionFunction<
+  jiraGetServiceDesksParamsType,
+  AuthParamsType,
+  jiraGetServiceDesksOutputType
+>;
+
+export const jiraCreateServiceDeskRequestParamsSchema = z.object({
+  serviceDeskId: z.string().describe("The ID of the service desk to create the request in"),
+  requestTypeId: z.string().describe("The ID of the request type to use for the new request"),
+  summary: z.string().describe("The summary of the new service desk request"),
+  description: z.string().describe("The description for the new service desk request"),
+  reporter: z
+    .string()
+    .describe("The email address of the person reporting the issue (for raising on behalf of)")
+    .optional(),
+});
+
+export type jiraCreateServiceDeskRequestParamsType = z.infer<typeof jiraCreateServiceDeskRequestParamsSchema>;
+
+export const jiraCreateServiceDeskRequestOutputSchema = z.object({
+  success: z.boolean().describe("Whether the request was created successfully"),
+  error: z.string().describe("The error that occurred if the request was not created successfully").optional(),
+  issueKey: z.string().describe("The Jira issue key of the created request").optional(),
+  webLink: z.string().describe("The link to the customer portal request, if available").optional(),
+  currentStatus: z.string().describe("The current status of the created request").optional(),
+});
+
+export type jiraCreateServiceDeskRequestOutputType = z.infer<typeof jiraCreateServiceDeskRequestOutputSchema>;
+export type jiraCreateServiceDeskRequestFunction = ActionFunction<
+  jiraCreateServiceDeskRequestParamsType,
+  AuthParamsType,
+  jiraCreateServiceDeskRequestOutputType
 >;
 
 export const jiraGetJiraTicketDetailsParamsSchema = z.object({
@@ -377,6 +709,383 @@ export type jiraUpdateJiraTicketStatusFunction = ActionFunction<
   jiraUpdateJiraTicketStatusParamsType,
   AuthParamsType,
   jiraUpdateJiraTicketStatusOutputType
+>;
+
+export const jiraGetJiraIssuesByQueryParamsSchema = z.object({
+  query: z.string().describe("The JQL query to execute"),
+  limit: z.number().describe("The maximum number of records to retrieve").optional(),
+});
+
+export type jiraGetJiraIssuesByQueryParamsType = z.infer<typeof jiraGetJiraIssuesByQueryParamsSchema>;
+
+export const jiraGetJiraIssuesByQueryOutputSchema = z.object({
+  success: z.boolean().describe("Whether the records were successfully retrieved"),
+  records: z
+    .object({
+      issues: z
+        .array(
+          z.object({
+            id: z.string().describe("Internal Jira issue ID"),
+            key: z.string().describe("Human-readable issue key (e.g. SSPR-123)"),
+            summary: z.string().describe("Summary of the issue"),
+            description: z.string().describe("Plain text description"),
+            url: z.string().describe("The web url of the Jira ticket"),
+            project: z.object({ id: z.string().optional(), key: z.string().optional(), name: z.string().optional() }),
+            issueType: z.object({ id: z.string().optional(), name: z.string().optional() }),
+            status: z.object({
+              id: z.string().optional(),
+              name: z.string().optional(),
+              category: z.string().optional(),
+            }),
+            assignee: z.string().nullable().describe("Email of the assignee, if any").optional(),
+            reporter: z.string().nullable().describe("Email of the reporter, if any").optional(),
+            creator: z.string().nullable().describe("Email of the creator, if any").optional(),
+            created: z.string().datetime({ offset: true }),
+            updated: z.string().datetime({ offset: true }),
+            resolution: z.string().nullable().optional(),
+            dueDate: z.string().date().nullable().optional(),
+          }),
+        )
+        .describe("The retrieved Jira issues")
+        .optional(),
+    })
+    .describe("The result object containing issues")
+    .optional(),
+  error: z.string().describe("The error that occurred if the records were not successfully retrieved").optional(),
+});
+
+export type jiraGetJiraIssuesByQueryOutputType = z.infer<typeof jiraGetJiraIssuesByQueryOutputSchema>;
+export type jiraGetJiraIssuesByQueryFunction = ActionFunction<
+  jiraGetJiraIssuesByQueryParamsType,
+  AuthParamsType,
+  jiraGetJiraIssuesByQueryOutputType
+>;
+
+export const jiraOrgAssignJiraTicketParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project you want to add it to"),
+  assignee: z.string().describe("The assignee for the ticket, userID or email"),
+  issueId: z.string().describe("The issue ID associated with the ticket to be assigned/re-assigned"),
+});
+
+export type jiraOrgAssignJiraTicketParamsType = z.infer<typeof jiraOrgAssignJiraTicketParamsSchema>;
+
+export const jiraOrgAssignJiraTicketOutputSchema = z.object({
+  success: z.boolean().describe("Whether the ticket was successfully assigned/reassigned"),
+  error: z
+    .string()
+    .describe("The error that occurred if the ticket was not successfully assigned/reassigned")
+    .optional(),
+  ticketUrl: z.string().describe("The url to the newly assigned/reassigned Jira ticket").optional(),
+});
+
+export type jiraOrgAssignJiraTicketOutputType = z.infer<typeof jiraOrgAssignJiraTicketOutputSchema>;
+export type jiraOrgAssignJiraTicketFunction = ActionFunction<
+  jiraOrgAssignJiraTicketParamsType,
+  AuthParamsType,
+  jiraOrgAssignJiraTicketOutputType
+>;
+
+export const jiraOrgPublicCommentOnServiceDeskRequestParamsSchema = z.object({
+  issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
+  comment: z.string().describe("The text to be commented on the ticket"),
+});
+
+export type jiraOrgPublicCommentOnServiceDeskRequestParamsType = z.infer<
+  typeof jiraOrgPublicCommentOnServiceDeskRequestParamsSchema
+>;
+
+export const jiraOrgPublicCommentOnServiceDeskRequestOutputSchema = z.object({
+  success: z.boolean().describe("Whether the comment was sent successfully"),
+  error: z.string().describe("The error that occurred if the comment was not sent successfully").optional(),
+  commentUrl: z.string().describe("The url to the created Jira comment").optional(),
+});
+
+export type jiraOrgPublicCommentOnServiceDeskRequestOutputType = z.infer<
+  typeof jiraOrgPublicCommentOnServiceDeskRequestOutputSchema
+>;
+export type jiraOrgPublicCommentOnServiceDeskRequestFunction = ActionFunction<
+  jiraOrgPublicCommentOnServiceDeskRequestParamsType,
+  AuthParamsType,
+  jiraOrgPublicCommentOnServiceDeskRequestOutputType
+>;
+
+export const jiraOrgCommentJiraTicketParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project"),
+  issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
+  comment: z.string().describe("The text to be commented on the ticket"),
+});
+
+export type jiraOrgCommentJiraTicketParamsType = z.infer<typeof jiraOrgCommentJiraTicketParamsSchema>;
+
+export const jiraOrgCommentJiraTicketOutputSchema = z.object({
+  success: z.boolean().describe("Whether the comment was sent successfully"),
+  error: z.string().describe("The error that occurred if the comment was not sent successfully").optional(),
+  commentUrl: z.string().describe("The url to the created Jira comment").optional(),
+});
+
+export type jiraOrgCommentJiraTicketOutputType = z.infer<typeof jiraOrgCommentJiraTicketOutputSchema>;
+export type jiraOrgCommentJiraTicketFunction = ActionFunction<
+  jiraOrgCommentJiraTicketParamsType,
+  AuthParamsType,
+  jiraOrgCommentJiraTicketOutputType
+>;
+
+export const jiraOrgCreateJiraTicketParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project you want to add it to"),
+  summary: z.string().describe("The summary of the new ticket"),
+  description: z.string().describe("The description for the new ticket"),
+  issueType: z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."),
+  reporter: z.string().describe("The reporter for the new ticket creation").optional(),
+  assignee: z.string().describe("The assignee for the new ticket creation").optional(),
+  customFields: z
+    .object({})
+    .catchall(z.any())
+    .describe("Custom fields to be set on the create ticket request")
+    .optional(),
+});
+
+export type jiraOrgCreateJiraTicketParamsType = z.infer<typeof jiraOrgCreateJiraTicketParamsSchema>;
+
+export const jiraOrgCreateJiraTicketOutputSchema = z.object({
+  ticketUrl: z.string().describe("The url to the created Jira Ticket"),
+});
+
+export type jiraOrgCreateJiraTicketOutputType = z.infer<typeof jiraOrgCreateJiraTicketOutputSchema>;
+export type jiraOrgCreateJiraTicketFunction = ActionFunction<
+  jiraOrgCreateJiraTicketParamsType,
+  AuthParamsType,
+  jiraOrgCreateJiraTicketOutputType
+>;
+
+export const jiraOrgGetServiceDesksParamsSchema = z.object({});
+
+export type jiraOrgGetServiceDesksParamsType = z.infer<typeof jiraOrgGetServiceDesksParamsSchema>;
+
+export const jiraOrgGetServiceDesksOutputSchema = z.object({
+  success: z.boolean().describe("Whether the service desks were retrieved successfully"),
+  error: z.string().describe("The error that occurred if the service desks were not retrieved successfully").optional(),
+  serviceDesks: z
+    .array(
+      z
+        .object({
+          id: z.string().describe("The ID of the service desk").optional(),
+          projectId: z.string().describe("The ID of the project").optional(),
+          projectKey: z.string().describe("The key of the project").optional(),
+          projectName: z.string().describe("The name of the service desk").optional(),
+          requestTypes: z
+            .array(
+              z
+                .object({
+                  id: z.string().describe("The ID of the request type").optional(),
+                  name: z.string().describe("The name of the request type").optional(),
+                  description: z.string().describe("The description of the request type").optional(),
+                  issueTypeId: z.string().describe("The ID of the issue type").optional(),
+                  portalId: z.string().describe("The ID of the customer portal").optional(),
+                  helpText: z.string().describe("The help text for the request type").optional(),
+                  serviceDeskId: z.string().describe("The ID of the service desk").optional(),
+                  canCreateRequest: z.boolean().describe("Whether the request type can be created").optional(),
+                })
+                .describe("A request type"),
+            )
+            .describe("The list of request types")
+            .optional(),
+        })
+        .describe("A service desk"),
+    )
+    .describe("The list of service desks")
+    .optional(),
+});
+
+export type jiraOrgGetServiceDesksOutputType = z.infer<typeof jiraOrgGetServiceDesksOutputSchema>;
+export type jiraOrgGetServiceDesksFunction = ActionFunction<
+  jiraOrgGetServiceDesksParamsType,
+  AuthParamsType,
+  jiraOrgGetServiceDesksOutputType
+>;
+
+export const jiraOrgCreateServiceDeskRequestParamsSchema = z.object({
+  serviceDeskId: z.string().describe("The ID of the service desk to create the request in"),
+  requestTypeId: z.string().describe("The ID of the request type to use for the new request"),
+  summary: z.string().describe("The summary of the new service desk request"),
+  description: z.string().describe("The description for the new service desk request"),
+  reporter: z
+    .string()
+    .describe("The email address of the person reporting the issue (for raising on behalf of)")
+    .optional(),
+});
+
+export type jiraOrgCreateServiceDeskRequestParamsType = z.infer<typeof jiraOrgCreateServiceDeskRequestParamsSchema>;
+
+export const jiraOrgCreateServiceDeskRequestOutputSchema = z.object({
+  success: z.boolean().describe("Whether the request was created successfully"),
+  error: z.string().describe("The error that occurred if the request was not created successfully").optional(),
+  issueKey: z.string().describe("The Jira issue key of the created request").optional(),
+  webLink: z.string().describe("The link to the customer portal request, if available").optional(),
+  currentStatus: z.string().describe("The current status of the created request").optional(),
+});
+
+export type jiraOrgCreateServiceDeskRequestOutputType = z.infer<typeof jiraOrgCreateServiceDeskRequestOutputSchema>;
+export type jiraOrgCreateServiceDeskRequestFunction = ActionFunction<
+  jiraOrgCreateServiceDeskRequestParamsType,
+  AuthParamsType,
+  jiraOrgCreateServiceDeskRequestOutputType
+>;
+
+export const jiraOrgGetJiraTicketDetailsParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project"),
+  issueId: z.string().describe("The ID of the ticket"),
+});
+
+export type jiraOrgGetJiraTicketDetailsParamsType = z.infer<typeof jiraOrgGetJiraTicketDetailsParamsSchema>;
+
+export const jiraOrgGetJiraTicketDetailsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the status was updated successfully"),
+  error: z.string().describe("The error that occurred if the retrieval was unsuccessful").optional(),
+  data: z.object({}).catchall(z.any()).describe("The data of the Jira ticket").optional(),
+});
+
+export type jiraOrgGetJiraTicketDetailsOutputType = z.infer<typeof jiraOrgGetJiraTicketDetailsOutputSchema>;
+export type jiraOrgGetJiraTicketDetailsFunction = ActionFunction<
+  jiraOrgGetJiraTicketDetailsParamsType,
+  AuthParamsType,
+  jiraOrgGetJiraTicketDetailsOutputType
+>;
+
+export const jiraOrgGetJiraTicketHistoryParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project"),
+  issueId: z.string().describe("The ID of the ticket"),
+});
+
+export type jiraOrgGetJiraTicketHistoryParamsType = z.infer<typeof jiraOrgGetJiraTicketHistoryParamsSchema>;
+
+export const jiraOrgGetJiraTicketHistoryOutputSchema = z.object({
+  success: z.boolean().describe("Whether the status was updated successfully"),
+  error: z.string().describe("The error that occurred if the retrieval was unsuccessful").optional(),
+  history: z.array(z.any()).describe("The history data of the Jira ticket").optional(),
+});
+
+export type jiraOrgGetJiraTicketHistoryOutputType = z.infer<typeof jiraOrgGetJiraTicketHistoryOutputSchema>;
+export type jiraOrgGetJiraTicketHistoryFunction = ActionFunction<
+  jiraOrgGetJiraTicketHistoryParamsType,
+  AuthParamsType,
+  jiraOrgGetJiraTicketHistoryOutputType
+>;
+
+export const jiraOrgUpdateJiraTicketDetailsParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project you want to add it to"),
+  issueId: z.string().describe("The issue ID associated with the ticket to be updated"),
+  summary: z.string().describe("The updated summary").optional(),
+  description: z.string().describe("The updated description").optional(),
+  issueType: z.string().describe("The updated issue type").optional(),
+  customFields: z
+    .object({})
+    .catchall(z.any())
+    .describe("Custom fields to be set on the update ticket request")
+    .optional(),
+});
+
+export type jiraOrgUpdateJiraTicketDetailsParamsType = z.infer<typeof jiraOrgUpdateJiraTicketDetailsParamsSchema>;
+
+export const jiraOrgUpdateJiraTicketDetailsOutputSchema = z.object({
+  ticketUrl: z.string().describe("The url to the Jira ticket"),
+});
+
+export type jiraOrgUpdateJiraTicketDetailsOutputType = z.infer<typeof jiraOrgUpdateJiraTicketDetailsOutputSchema>;
+export type jiraOrgUpdateJiraTicketDetailsFunction = ActionFunction<
+  jiraOrgUpdateJiraTicketDetailsParamsType,
+  AuthParamsType,
+  jiraOrgUpdateJiraTicketDetailsOutputType
+>;
+
+export const jiraOrgUpdateJiraTicketStatusParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project you want to add it to"),
+  issueId: z.string().describe("The issue ID associated with the ticket"),
+  status: z.string().describe('The status the ticket should be changed to (eg "In Progress", "Closed")'),
+});
+
+export type jiraOrgUpdateJiraTicketStatusParamsType = z.infer<typeof jiraOrgUpdateJiraTicketStatusParamsSchema>;
+
+export const jiraOrgUpdateJiraTicketStatusOutputSchema = z.object({
+  success: z.boolean().describe("Whether the status was updated successfully"),
+  error: z.string().describe("The error that occurred if the status was not updated successfully").optional(),
+  ticketUrl: z.string().describe("The url to the Jira ticket").optional(),
+});
+
+export type jiraOrgUpdateJiraTicketStatusOutputType = z.infer<typeof jiraOrgUpdateJiraTicketStatusOutputSchema>;
+export type jiraOrgUpdateJiraTicketStatusFunction = ActionFunction<
+  jiraOrgUpdateJiraTicketStatusParamsType,
+  AuthParamsType,
+  jiraOrgUpdateJiraTicketStatusOutputType
+>;
+
+export const jiraOrgGetJiraIssuesByQueryParamsSchema = z.object({
+  query: z.string().describe("The JQL query to execute"),
+  limit: z.number().describe("The maximum number of records to retrieve").optional(),
+});
+
+export type jiraOrgGetJiraIssuesByQueryParamsType = z.infer<typeof jiraOrgGetJiraIssuesByQueryParamsSchema>;
+
+export const jiraOrgGetJiraIssuesByQueryOutputSchema = z.object({
+  success: z.boolean().describe("Whether the records were successfully retrieved"),
+  records: z
+    .object({
+      issues: z
+        .array(
+          z.object({
+            id: z.string().describe("Internal Jira issue ID"),
+            key: z.string().describe("Human-readable issue key (e.g. SSPR-123)"),
+            summary: z.string().describe("Summary of the issue"),
+            description: z.string().describe("Plain text description"),
+            url: z.string().describe("The web url of the Jira ticket"),
+            project: z.object({ id: z.string().optional(), key: z.string().optional(), name: z.string().optional() }),
+            issueType: z.object({ id: z.string().optional(), name: z.string().optional() }),
+            status: z.object({
+              id: z.string().optional(),
+              name: z.string().optional(),
+              category: z.string().optional(),
+            }),
+            assignee: z.string().nullable().describe("Email of the assignee, if any").optional(),
+            reporter: z.string().nullable().describe("Email of the reporter, if any").optional(),
+            creator: z.string().nullable().describe("Email of the creator, if any").optional(),
+            created: z.string().datetime({ offset: true }),
+            updated: z.string().datetime({ offset: true }),
+            resolution: z.string().nullable().optional(),
+            dueDate: z.string().date().nullable().optional(),
+          }),
+        )
+        .describe("The retrieved Jira issues")
+        .optional(),
+    })
+    .describe("The result object containing issues")
+    .optional(),
+  error: z.string().describe("The error that occurred if the records were not successfully retrieved").optional(),
+});
+
+export type jiraOrgGetJiraIssuesByQueryOutputType = z.infer<typeof jiraOrgGetJiraIssuesByQueryOutputSchema>;
+export type jiraOrgGetJiraIssuesByQueryFunction = ActionFunction<
+  jiraOrgGetJiraIssuesByQueryParamsType,
+  AuthParamsType,
+  jiraOrgGetJiraIssuesByQueryOutputType
+>;
+
+export const kandjiGetFVRecoveryKeyForDeviceParamsSchema = z.object({
+  userEmail: z.string().describe("The email of the user requesting the recovery key"),
+  subdomain: z.string().describe("The subdomain of the Kandji account"),
+});
+
+export type kandjiGetFVRecoveryKeyForDeviceParamsType = z.infer<typeof kandjiGetFVRecoveryKeyForDeviceParamsSchema>;
+
+export const kandjiGetFVRecoveryKeyForDeviceOutputSchema = z.object({
+  success: z.boolean().describe("Whether the recovery key was retrieved successfully"),
+  recoveryKey: z.string().describe("The FileVault recovery key for the device").optional(),
+  error: z.string().describe("The error that occurred if the recovery key was not retrieved successfully").optional(),
+});
+
+export type kandjiGetFVRecoveryKeyForDeviceOutputType = z.infer<typeof kandjiGetFVRecoveryKeyForDeviceOutputSchema>;
+export type kandjiGetFVRecoveryKeyForDeviceFunction = ActionFunction<
+  kandjiGetFVRecoveryKeyForDeviceParamsType,
+  AuthParamsType,
+  kandjiGetFVRecoveryKeyForDeviceOutputType
 >;
 
 export const googlemapsValidateAddressParamsSchema = z.object({
@@ -485,71 +1194,35 @@ export type googlemapsNearbysearchRestaurantsFunction = ActionFunction<
   googlemapsNearbysearchRestaurantsOutputType
 >;
 
-export const credalCallCopilotParamsSchema = z.object({
-  agentId: z.string().describe("The ID of the copilot to call"),
-  query: z.string().describe("The query to ask Credal Copilot"),
-  userEmail: z.string().describe("The email of the user sending or authorizing the query"),
-});
-
-export type credalCallCopilotParamsType = z.infer<typeof credalCallCopilotParamsSchema>;
-
-export const credalCallCopilotOutputSchema = z.object({
-  response: z.string().describe("The response from the Credal Copilot"),
-  referencedSources: z
-    .array(
-      z
-        .object({
-          id: z.string().describe("The id of the source"),
-          externalResourceId: z
-            .object({
-              externalResourceId: z.string().describe("The external resource id of the source"),
-              resourceType: z.string().describe("The type of the resource"),
-            })
-            .describe("The external resource id of the source"),
-          name: z.string().describe("The name of the source"),
-          url: z.string().describe("The url of the source").optional(),
-        })
-        .describe("The source referenced in the response"),
+export const bingGetTopNSearchResultUrlsParamsSchema = z.object({
+  query: z.string().describe("The query to search for"),
+  count: z.number().describe("The number of results to return. Default is 5.").optional(),
+  site: z
+    .string()
+    .describe(
+      "The site to restrict the search to (by inserting site:<site.com> in the query). Examples include openai.com, github.com",
     )
-    .describe("The sources referenced in the response")
-    .optional(),
-  sourcesInDataContext: z
-    .array(
-      z
-        .object({
-          id: z.string().describe("The id of the source"),
-          externalResourceId: z
-            .object({
-              externalResourceId: z.string().describe("The external resource id of the source"),
-              resourceType: z.string().describe("The type of the resource"),
-            })
-            .describe("The external resource id of the source"),
-          name: z.string().describe("The name of the source"),
-          url: z.string().describe("The url of the source").optional(),
-        })
-        .describe("The source in the data context of the response"),
-    )
-    .describe("The sources in the data context of the response")
-    .optional(),
-  webSearchResults: z
-    .array(
-      z
-        .object({
-          title: z.string().describe("The title of the web search result"),
-          url: z.string().describe("The url of the web search result"),
-          contents: z.string().describe("The contents of the web search result").optional(),
-        })
-        .describe("The web search result in the response"),
-    )
-    .describe("The web search results in the response")
     .optional(),
 });
 
-export type credalCallCopilotOutputType = z.infer<typeof credalCallCopilotOutputSchema>;
-export type credalCallCopilotFunction = ActionFunction<
-  credalCallCopilotParamsType,
+export type bingGetTopNSearchResultUrlsParamsType = z.infer<typeof bingGetTopNSearchResultUrlsParamsSchema>;
+
+export const bingGetTopNSearchResultUrlsOutputSchema = z.object({
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The name or title of the search result").optional(),
+        url: z.string().describe("The URL of the search result").optional(),
+      }),
+    )
+    .describe("The top five search result objects"),
+});
+
+export type bingGetTopNSearchResultUrlsOutputType = z.infer<typeof bingGetTopNSearchResultUrlsOutputSchema>;
+export type bingGetTopNSearchResultUrlsFunction = ActionFunction<
+  bingGetTopNSearchResultUrlsParamsType,
   AuthParamsType,
-  credalCallCopilotOutputType
+  bingGetTopNSearchResultUrlsOutputType
 >;
 
 export const zendeskCreateZendeskTicketParamsSchema = z.object({
@@ -570,6 +1243,25 @@ export type zendeskCreateZendeskTicketFunction = ActionFunction<
   zendeskCreateZendeskTicketParamsType,
   AuthParamsType,
   zendeskCreateZendeskTicketOutputType
+>;
+
+export const zendeskListZendeskTicketsParamsSchema = z.object({
+  subdomain: z.string().describe("The subdomain of the Zendesk account"),
+  status: z.string().describe("Filter tickets by status (new, open, pending, hold, solved, closed)").optional(),
+});
+
+export type zendeskListZendeskTicketsParamsType = z.infer<typeof zendeskListZendeskTicketsParamsSchema>;
+
+export const zendeskListZendeskTicketsOutputSchema = z.object({
+  tickets: z.array(z.object({}).catchall(z.any())).describe("List of tickets"),
+  count: z.number().describe("Number of tickets found"),
+});
+
+export type zendeskListZendeskTicketsOutputType = z.infer<typeof zendeskListZendeskTicketsOutputSchema>;
+export type zendeskListZendeskTicketsFunction = ActionFunction<
+  zendeskListZendeskTicketsParamsType,
+  AuthParamsType,
+  zendeskListZendeskTicketsOutputType
 >;
 
 export const zendeskGetTicketDetailsParamsSchema = z.object({
@@ -614,17 +1306,16 @@ export type zendeskUpdateTicketStatusFunction = ActionFunction<
 export const zendeskAddCommentToTicketParamsSchema = z.object({
   ticketId: z.string().describe("The ID of the ticket to update"),
   subdomain: z.string().describe("The subdomain of the Zendesk account"),
-  comment: z
-    .object({
-      body: z.string().describe("The body of the comment"),
-      public: z.boolean().describe("Whether the comment should be public").optional(),
-    })
-    .describe("The comment to add to the ticket"),
+  body: z.string().describe("The body of the comment"),
+  public: z.boolean().describe("Whether the comment should be public (defaults to true)").optional(),
 });
 
 export type zendeskAddCommentToTicketParamsType = z.infer<typeof zendeskAddCommentToTicketParamsSchema>;
 
-export const zendeskAddCommentToTicketOutputSchema = z.void();
+export const zendeskAddCommentToTicketOutputSchema = z.object({
+  success: z.boolean().describe("Whether the comment was successfully added"),
+  ticketUrl: z.string().describe("The URL to view the ticket").optional(),
+});
 
 export type zendeskAddCommentToTicketOutputType = z.infer<typeof zendeskAddCommentToTicketOutputSchema>;
 export type zendeskAddCommentToTicketFunction = ActionFunction<
@@ -648,6 +1339,34 @@ export type zendeskAssignTicketFunction = ActionFunction<
   zendeskAssignTicketParamsType,
   AuthParamsType,
   zendeskAssignTicketOutputType
+>;
+
+export const zendeskSearchZendeskByQueryParamsSchema = z.object({
+  subdomain: z.string().describe("The subdomain of the Zendesk account"),
+  query: z
+    .string()
+    .describe(
+      'Search query string that can include filters like status, priority, tags, assignee, etc. Examples - status:open, priority:high, tags:bug, assignee:user@example.com, or combination like "status:open priority:high"',
+    ),
+  objectType: z
+    .enum(["ticket", "user", "organization", "group"])
+    .describe("The type of Zendesk object to search (defaults to ticket)")
+    .optional(),
+  limit: z.number().describe("Maximum number of objects to return (optional, defaults to 100)").optional(),
+});
+
+export type zendeskSearchZendeskByQueryParamsType = z.infer<typeof zendeskSearchZendeskByQueryParamsSchema>;
+
+export const zendeskSearchZendeskByQueryOutputSchema = z.object({
+  results: z.array(z.object({}).catchall(z.any())).describe("List of objects matching the query"),
+  count: z.number().describe("Number of objects found"),
+});
+
+export type zendeskSearchZendeskByQueryOutputType = z.infer<typeof zendeskSearchZendeskByQueryOutputSchema>;
+export type zendeskSearchZendeskByQueryFunction = ActionFunction<
+  zendeskSearchZendeskByQueryParamsType,
+  AuthParamsType,
+  zendeskSearchZendeskByQueryOutputType
 >;
 
 export const linkedinCreateShareLinkedinPostUrlParamsSchema = z.object({
@@ -718,7 +1437,6 @@ export const snowflakeGetRowByFieldValueParamsSchema = z.object({
   fieldName: z.string().describe("The name of the field to query"),
   fieldValue: z.string().describe("The value of the field to query"),
   accountName: z.string().describe("The name of the Snowflake account").optional(),
-  user: z.string().describe("The user to authenticate with").optional(),
   warehouse: z.string().describe("The warehouse to use").optional(),
 });
 
@@ -743,10 +1461,22 @@ export type snowflakeGetRowByFieldValueFunction = ActionFunction<
 export const snowflakeRunSnowflakeQueryParamsSchema = z.object({
   databaseName: z.string().describe("The name of the database to query"),
   warehouse: z.string().describe("The warehouse to use for executing the query"),
+  role: z.string().describe("The snowflake role to use for executing the query").optional(),
   query: z.string().describe("The SQL query to execute"),
-  user: z.string().describe("The username to authenticate with"),
   accountName: z.string().describe("The name of the Snowflake account"),
+  username: z.string().describe("The username of the Snowflake Credential (optional)").optional(),
   outputFormat: z.enum(["json", "csv"]).describe("The format of the output").optional(),
+  limit: z.number().describe("A limit on the number of rows to return").optional(),
+  codeInterpreterLimit: z
+    .number()
+    .describe(
+      "A minimum number of rows required to pass to code interpreter for analysis and image generation (if enabled)",
+    )
+    .optional(),
+  codeInterpreterImageGenLimit: z
+    .number()
+    .describe("A minimum number of rows required to pass to code interpreter for image generation only (if enabled)")
+    .optional(),
 });
 
 export type snowflakeRunSnowflakeQueryParamsType = z.infer<typeof snowflakeRunSnowflakeQueryParamsSchema>;
@@ -755,6 +1485,7 @@ export const snowflakeRunSnowflakeQueryOutputSchema = z.object({
   format: z.enum(["json", "csv"]).describe("The format of the output"),
   content: z.string().describe("The content of the query result (json)"),
   rowCount: z.number().describe("The number of rows returned by the query"),
+  error: z.string().describe("The error that occurred if the query results failed or were limited").optional(),
 });
 
 export type snowflakeRunSnowflakeQueryOutputType = z.infer<typeof snowflakeRunSnowflakeQueryOutputSchema>;
@@ -819,6 +1550,35 @@ export type nwsGetForecastForLocationFunction = ActionFunction<
   nwsGetForecastForLocationOutputType
 >;
 
+export const firecrawlDeepResearchParamsSchema = z.object({
+  query: z.string().describe("The query to search for"),
+  maxDepth: z.number().describe("The maximum depth of the search").optional(),
+  timeLimit: z.number().describe("The time limit for the search in seconds").optional(),
+  maxUrls: z.number().describe("The maximum number of URLs to scrape").optional(),
+});
+
+export type firecrawlDeepResearchParamsType = z.infer<typeof firecrawlDeepResearchParamsSchema>;
+
+export const firecrawlDeepResearchOutputSchema = z.object({
+  finalAnalysis: z.string().describe("The content of the research"),
+  sources: z
+    .array(
+      z.object({
+        url: z.string().describe("The URL of the source"),
+        title: z.string().describe("The title of the source"),
+        description: z.string().describe("The description of the source").optional(),
+      }),
+    )
+    .describe("The sources of the research"),
+});
+
+export type firecrawlDeepResearchOutputType = z.infer<typeof firecrawlDeepResearchOutputSchema>;
+export type firecrawlDeepResearchFunction = ActionFunction<
+  firecrawlDeepResearchParamsType,
+  AuthParamsType,
+  firecrawlDeepResearchOutputType
+>;
+
 export const firecrawlScrapeUrlParamsSchema = z.object({ url: z.string().describe("The URL to scrape") });
 
 export type firecrawlScrapeUrlParamsType = z.infer<typeof firecrawlScrapeUrlParamsSchema>;
@@ -830,6 +1590,69 @@ export type firecrawlScrapeUrlFunction = ActionFunction<
   firecrawlScrapeUrlParamsType,
   AuthParamsType,
   firecrawlScrapeUrlOutputType
+>;
+
+export const firecrawlSearchAndScrapeParamsSchema = z.object({
+  query: z.string().describe("The query to search for"),
+  count: z.number().describe("The number of results to return. Default is 5.").optional(),
+  site: z
+    .string()
+    .describe(
+      "The site to restrict the search to (by inserting site:<site.com> in the query). Examples include openai.com, github.com",
+    )
+    .optional(),
+});
+
+export type firecrawlSearchAndScrapeParamsType = z.infer<typeof firecrawlSearchAndScrapeParamsSchema>;
+
+export const firecrawlSearchAndScrapeOutputSchema = z.object({
+  results: z
+    .array(
+      z.object({
+        url: z.string().describe("The URL of the result"),
+        title: z.string().describe("The title of the result"),
+        contents: z.string().describe("The contents of the result"),
+      }),
+    )
+    .describe("The results of the search"),
+});
+
+export type firecrawlSearchAndScrapeOutputType = z.infer<typeof firecrawlSearchAndScrapeOutputSchema>;
+export type firecrawlSearchAndScrapeFunction = ActionFunction<
+  firecrawlSearchAndScrapeParamsType,
+  AuthParamsType,
+  firecrawlSearchAndScrapeOutputType
+>;
+
+export const firecrawlGetTopNSearchResultUrlsParamsSchema = z.object({
+  query: z.string().describe("The query to search for"),
+  count: z.number().describe("The number of results to return. Default is 5.").optional(),
+  site: z
+    .string()
+    .describe(
+      "The site to restrict the search to (by inserting site:<site.com> in the query). Examples include openai.com, github.com",
+    )
+    .optional(),
+});
+
+export type firecrawlGetTopNSearchResultUrlsParamsType = z.infer<typeof firecrawlGetTopNSearchResultUrlsParamsSchema>;
+
+export const firecrawlGetTopNSearchResultUrlsOutputSchema = z.object({
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The name or title of the search result").optional(),
+        url: z.string().describe("The URL of the search result").optional(),
+      }),
+    )
+    .describe("The top five search result objects"),
+});
+
+export type firecrawlGetTopNSearchResultUrlsOutputType = z.infer<typeof firecrawlGetTopNSearchResultUrlsOutputSchema>;
+export type firecrawlGetTopNSearchResultUrlsFunction = ActionFunction<
+  firecrawlGetTopNSearchResultUrlsParamsType,
+  AuthParamsType,
+  firecrawlGetTopNSearchResultUrlsOutputType
 >;
 
 export const firecrawlScrapeTweetDataWithNitterParamsSchema = z.object({
@@ -871,6 +1694,26 @@ export type resendSendEmailFunction = ActionFunction<
   resendSendEmailParamsType,
   AuthParamsType,
   resendSendEmailOutputType
+>;
+
+export const resendSendEmailHtmlParamsSchema = z.object({
+  to: z.string().describe("The email address to send the email to"),
+  subject: z.string().describe("The subject of the email"),
+  content: z.string().describe("The HTML content of the email to be sent"),
+});
+
+export type resendSendEmailHtmlParamsType = z.infer<typeof resendSendEmailHtmlParamsSchema>;
+
+export const resendSendEmailHtmlOutputSchema = z.object({
+  success: z.boolean().describe("Whether the email was sent successfully"),
+  error: z.string().describe("The error that occurred if the email was not sent successfully").optional(),
+});
+
+export type resendSendEmailHtmlOutputType = z.infer<typeof resendSendEmailHtmlOutputSchema>;
+export type resendSendEmailHtmlFunction = ActionFunction<
+  resendSendEmailHtmlParamsType,
+  AuthParamsType,
+  resendSendEmailHtmlOutputType
 >;
 
 export const googleOauthCreateNewGoogleDocParamsSchema = z.object({
@@ -921,10 +1764,7 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                     text: z.string().describe("The text to insert"),
                     location: z
                       .object({
-                        index: z
-                          .number()
-                          .int()
-                          .describe("The zero-based index in the document where to insert the text"),
+                        index: z.number().describe("The zero-based index in the document where to insert the text"),
                       })
                       .describe("The location where the text will be inserted"),
                   })
@@ -967,7 +1807,7 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                         weightedFontFamily: z
                           .object({
                             fontFamily: z.string().describe("The font family of the text").optional(),
-                            weight: z.number().int().describe("The weight of the font").optional(),
+                            weight: z.number().describe("The weight of the font").optional(),
                           })
                           .describe("The font family and weight of the text")
                           .optional(),
@@ -976,8 +1816,8 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                     fields: z.string().describe("The fields that should be updated"),
                     range: z
                       .object({
-                        startIndex: z.number().int().describe("The zero-based starting index of the range"),
-                        endIndex: z.number().int().describe("The zero-based ending index of the range (exclusive)"),
+                        startIndex: z.number().describe("The zero-based starting index of the range"),
+                        endIndex: z.number().describe("The zero-based ending index of the range (exclusive)"),
                       })
                       .describe("The range of text to style")
                       .optional(),
@@ -989,8 +1829,8 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                   .object({
                     range: z
                       .object({
-                        startIndex: z.number().int().describe("The zero-based starting index of the range"),
-                        endIndex: z.number().int().describe("The zero-based ending index of the range (exclusive)"),
+                        startIndex: z.number().describe("The zero-based starting index of the range"),
+                        endIndex: z.number().describe("The zero-based ending index of the range (exclusive)"),
                       })
                       .describe("The range of content to delete"),
                   })
@@ -1002,10 +1842,10 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                     tableCellLocation: z
                       .object({
                         tableStartLocation: z
-                          .object({ index: z.number().int().describe("The zero-based index in the document") })
+                          .object({ index: z.number().describe("The zero-based index in the document") })
                           .describe("The location where the table starts"),
-                        rowIndex: z.number().int().describe("The zero-based row index").optional(),
-                        columnIndex: z.number().int().describe("The zero-based column index").optional(),
+                        rowIndex: z.number().describe("The zero-based row index").optional(),
+                        columnIndex: z.number().describe("The zero-based column index").optional(),
                       })
                       .describe("The location where the table row will be inserted"),
                     insertBelow: z.boolean().describe("Whether to insert the row below the reference row"),
@@ -1018,10 +1858,10 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                     tableCellLocation: z
                       .object({
                         tableStartLocation: z
-                          .object({ index: z.number().int().describe("The zero-based index in the document") })
+                          .object({ index: z.number().describe("The zero-based index in the document") })
                           .describe("The location where the table starts"),
-                        rowIndex: z.number().int().describe("The zero-based row index").optional(),
-                        columnIndex: z.number().int().describe("The zero-based column index").optional(),
+                        rowIndex: z.number().describe("The zero-based row index").optional(),
+                        columnIndex: z.number().describe("The zero-based column index").optional(),
                       })
                       .describe("The location where the table column will be inserted"),
                     insertRight: z
@@ -1036,10 +1876,10 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                     tableCellLocation: z
                       .object({
                         tableStartLocation: z
-                          .object({ index: z.number().int().describe("The zero-based index in the document") })
+                          .object({ index: z.number().describe("The zero-based index in the document") })
                           .describe("The location where the table starts"),
-                        rowIndex: z.number().int().describe("The zero-based row index").optional(),
-                        columnIndex: z.number().int().describe("The zero-based column index").optional(),
+                        rowIndex: z.number().describe("The zero-based row index").optional(),
+                        columnIndex: z.number().describe("The zero-based column index").optional(),
                       })
                       .describe("The location of the row to delete"),
                   })
@@ -1051,10 +1891,10 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                     tableCellLocation: z
                       .object({
                         tableStartLocation: z
-                          .object({ index: z.number().int().describe("The zero-based index in the document") })
+                          .object({ index: z.number().describe("The zero-based index in the document") })
                           .describe("The location where the table starts"),
-                        rowIndex: z.number().int().describe("The zero-based row index").optional(),
-                        columnIndex: z.number().int().describe("The zero-based column index").optional(),
+                        rowIndex: z.number().describe("The zero-based row index").optional(),
+                        columnIndex: z.number().describe("The zero-based column index").optional(),
                       })
                       .describe("The location of the column to delete"),
                   })
@@ -1065,8 +1905,8 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                   .object({
                     range: z
                       .object({
-                        startIndex: z.number().int().describe("The zero-based starting index of the range"),
-                        endIndex: z.number().int().describe("The zero-based ending index of the range (exclusive)"),
+                        startIndex: z.number().describe("The zero-based starting index of the range"),
+                        endIndex: z.number().describe("The zero-based ending index of the range (exclusive)"),
                       })
                       .describe("The range of paragraphs to update"),
                     paragraphStyle: z
@@ -1136,8 +1976,8 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                   .object({
                     range: z
                       .object({
-                        startIndex: z.number().int().describe("The zero-based starting index of the range"),
-                        endIndex: z.number().int().describe("The zero-based ending index of the range (exclusive)"),
+                        startIndex: z.number().describe("The zero-based starting index of the range"),
+                        endIndex: z.number().describe("The zero-based ending index of the range (exclusive)"),
                       })
                       .describe("The range of paragraphs to bullet"),
                     bulletPreset: z
@@ -1169,8 +2009,8 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                   .object({
                     range: z
                       .object({
-                        startIndex: z.number().int().describe("The zero-based starting index of the range"),
-                        endIndex: z.number().int().describe("The zero-based ending index of the range (exclusive)"),
+                        startIndex: z.number().describe("The zero-based starting index of the range"),
+                        endIndex: z.number().describe("The zero-based ending index of the range (exclusive)"),
                       })
                       .describe("The range of paragraphs to remove bullets from"),
                   })
@@ -1180,7 +2020,7 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                 insertPageBreak: z
                   .object({
                     location: z
-                      .object({ index: z.number().int().describe("The zero-based index in the document") })
+                      .object({ index: z.number().describe("The zero-based index in the document") })
                       .describe("The location at which to insert the page break"),
                   })
                   .describe("Inserts a page break"),
@@ -1211,11 +2051,7 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                         marginBottom: z.object({}).catchall(z.any()).describe("The bottom page margin").optional(),
                         marginRight: z.object({}).catchall(z.any()).describe("The right page margin").optional(),
                         marginLeft: z.object({}).catchall(z.any()).describe("The left page margin").optional(),
-                        pageNumberStart: z
-                          .number()
-                          .int()
-                          .describe("The page number from which to start counting")
-                          .optional(),
+                        pageNumberStart: z.number().describe("The page number from which to start counting").optional(),
                         pageSize: z
                           .object({
                             width: z.object({}).catchall(z.any()).describe("The width of the page").optional(),
@@ -1273,7 +2109,7 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                           .describe("The right border of the cells")
                           .optional(),
                         borderTop: z.object({}).catchall(z.any()).describe("The top border of the cells").optional(),
-                        columnSpan: z.number().int().describe("The number of columns that the cell spans").optional(),
+                        columnSpan: z.number().describe("The number of columns that the cell spans").optional(),
                         contentAlignment: z
                           .string()
                           .describe("The alignment of the content within the cells")
@@ -1294,7 +2130,7 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                           .describe("The right padding of the cells")
                           .optional(),
                         paddingTop: z.object({}).catchall(z.any()).describe("The top padding of the cells").optional(),
-                        rowSpan: z.number().int().describe("The number of rows that the cell spans").optional(),
+                        rowSpan: z.number().describe("The number of rows that the cell spans").optional(),
                       })
                       .describe("The style to apply to the cells"),
                     fields: z.string().describe("The fields that should be updated"),
@@ -1303,14 +2139,14 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                         tableCellLocation: z
                           .object({
                             tableStartLocation: z
-                              .object({ index: z.number().int().describe("The zero-based index in the document") })
+                              .object({ index: z.number().describe("The zero-based index in the document") })
                               .describe("The location where the table starts"),
-                            rowIndex: z.number().int().describe("The zero-based row index").optional(),
-                            columnIndex: z.number().int().describe("The zero-based column index").optional(),
+                            rowIndex: z.number().describe("The zero-based row index").optional(),
+                            columnIndex: z.number().describe("The zero-based column index").optional(),
                           })
                           .describe("The location of the table cell"),
-                        rowSpan: z.number().int().describe("The number of rows that the range should span"),
-                        columnSpan: z.number().int().describe("The number of columns that the range should span"),
+                        rowSpan: z.number().describe("The number of rows that the range should span"),
+                        columnSpan: z.number().describe("The number of columns that the range should span"),
                       })
                       .describe("The table range to apply the style to"),
                   })
@@ -1324,14 +2160,14 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                         tableCellLocation: z
                           .object({
                             tableStartLocation: z
-                              .object({ index: z.number().int().describe("The zero-based index in the document") })
+                              .object({ index: z.number().describe("The zero-based index in the document") })
                               .describe("The location where the table starts"),
-                            rowIndex: z.number().int().describe("The zero-based row index").optional(),
-                            columnIndex: z.number().int().describe("The zero-based column index").optional(),
+                            rowIndex: z.number().describe("The zero-based row index").optional(),
+                            columnIndex: z.number().describe("The zero-based column index").optional(),
                           })
                           .describe("The location of the table cell"),
-                        rowSpan: z.number().int().describe("The number of rows that the range should span"),
-                        columnSpan: z.number().int().describe("The number of columns that the range should span"),
+                        rowSpan: z.number().describe("The number of rows that the range should span"),
+                        columnSpan: z.number().describe("The number of columns that the range should span"),
                       })
                       .describe("The table range to merge"),
                   })
@@ -1345,14 +2181,14 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                         tableCellLocation: z
                           .object({
                             tableStartLocation: z
-                              .object({ index: z.number().int().describe("The zero-based index in the document") })
+                              .object({ index: z.number().describe("The zero-based index in the document") })
                               .describe("The location where the table starts"),
-                            rowIndex: z.number().int().describe("The zero-based row index").optional(),
-                            columnIndex: z.number().int().describe("The zero-based column index").optional(),
+                            rowIndex: z.number().describe("The zero-based row index").optional(),
+                            columnIndex: z.number().describe("The zero-based column index").optional(),
                           })
                           .describe("The location of the table cell"),
-                        rowSpan: z.number().int().describe("The number of rows that the range should span"),
-                        columnSpan: z.number().int().describe("The number of columns that the range should span"),
+                        rowSpan: z.number().describe("The number of rows that the range should span"),
+                        columnSpan: z.number().describe("The number of columns that the range should span"),
                       })
                       .describe("The table range to unmerge"),
                   })
@@ -1364,8 +2200,8 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                     name: z.string().describe("The name of the range"),
                     range: z
                       .object({
-                        startIndex: z.number().int().describe("The zero-based starting index of the range"),
-                        endIndex: z.number().int().describe("The zero-based ending index of the range (exclusive)"),
+                        startIndex: z.number().describe("The zero-based starting index of the range"),
+                        endIndex: z.number().describe("The zero-based ending index of the range (exclusive)"),
                       })
                       .describe("The range to name"),
                   })
@@ -1388,7 +2224,7 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                 insertInlineImage: z
                   .object({
                     location: z
-                      .object({ index: z.number().int().describe("The zero-based index in the document") })
+                      .object({ index: z.number().describe("The zero-based index in the document") })
                       .describe("The location at which to insert the image"),
                     uri: z.string().describe("The image URI"),
                     objectSize: z
@@ -1460,6 +2296,10 @@ export const googleOauthScheduleCalendarMeetingParamsSchema = z.object({
     .describe("The attendees of the meeting")
     .optional(),
   useGoogleMeet: z.boolean().describe("Whether to use Google Meet for the meeting").optional(),
+  timeZone: z
+    .string()
+    .describe("The time zone for the meeting, IANA Time Zone identifier (e.g., 'America/New_York')")
+    .optional(),
   recurrence: z
     .object({
       frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]).describe("How often the meeting repeats").optional(),
@@ -1499,6 +2339,216 @@ export type googleOauthScheduleCalendarMeetingFunction = ActionFunction<
   googleOauthScheduleCalendarMeetingOutputType
 >;
 
+export const googleOauthListCalendarsParamsSchema = z.object({
+  maxResults: z.number().describe("Maximum number of calendars to return, defaults to 250").optional(),
+});
+
+export type googleOauthListCalendarsParamsType = z.infer<typeof googleOauthListCalendarsParamsSchema>;
+
+export const googleOauthListCalendarsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the calendars were listed successfully"),
+  calendars: z
+    .array(z.object({ id: z.string().describe("The calendar ID"), summary: z.string().describe("The calendar name") }))
+    .describe("List of calendars"),
+  error: z.string().describe("Error message if listing failed").optional(),
+});
+
+export type googleOauthListCalendarsOutputType = z.infer<typeof googleOauthListCalendarsOutputSchema>;
+export type googleOauthListCalendarsFunction = ActionFunction<
+  googleOauthListCalendarsParamsType,
+  AuthParamsType,
+  googleOauthListCalendarsOutputType
+>;
+
+export const googleOauthListCalendarEventsParamsSchema = z.object({
+  calendarId: z.string().describe("The ID of the calendar to list events from"),
+  query: z.string().describe("Optional free-text search query to filter events").optional(),
+  maxResults: z.number().describe("Maximum number of events to return, defaults to 250").optional(),
+  timeMin: z
+    .string()
+    .describe(
+      "Optional lower bound (exclusive) for an event's end time to filter by. Must be an RFC3339 timestamp with mandatory time zone offset, for example, 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z.",
+    )
+    .optional(),
+  timeMax: z
+    .string()
+    .describe(
+      "Optional upper bound (exclusive) for an event's start time to filter by. Must be an RFC3339 timestamp with mandatory time zone offset, for example, 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z.",
+    )
+    .optional(),
+});
+
+export type googleOauthListCalendarEventsParamsType = z.infer<typeof googleOauthListCalendarEventsParamsSchema>;
+
+export const googleOauthListCalendarEventsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the events were listed successfully"),
+  events: z
+    .array(
+      z
+        .object({
+          id: z.string().describe("Event unique identifier").optional(),
+          status: z.string().describe("Status of the event (e.g., confirmed, cancelled)").optional(),
+          url: z.string().describe("Link to the event in the Google Calendar web UI").optional(),
+          title: z.string().describe("Title of the event").optional(),
+          description: z.string().describe("Description of the event").optional(),
+          location: z.string().describe("Geographic location of the event as free-form text").optional(),
+          start: z.string().describe("Start date/time (for timed events, RFC3339 timestamp)").optional(),
+          end: z.string().describe("End date/time (for timed events, RFC3339 timestamp)").optional(),
+          attendees: z
+            .array(
+              z.object({
+                email: z.string().describe("The attendee's email address").optional(),
+                displayName: z.string().describe("The attendee's name").optional(),
+                responseStatus: z
+                  .string()
+                  .describe("The attendee's response status (accepted, declined, etc.)")
+                  .optional(),
+              }),
+            )
+            .describe("List of attendees")
+            .optional(),
+          organizer: z
+            .object({
+              email: z.string().describe("The organizer's email address").optional(),
+              displayName: z.string().describe("The organizer's name").optional(),
+            })
+            .describe("The organizer of the event")
+            .optional(),
+          hangoutLink: z.string().describe("Google Meet link for the event, if available").optional(),
+          created: z.string().describe("Creation time of the event (RFC3339 timestamp)").optional(),
+          updated: z.string().describe("Last modification time of the event (RFC3339 timestamp)").optional(),
+        })
+        .describe("A calendar event"),
+    )
+    .describe("List of events"),
+  timezone: z
+    .string()
+    .describe(
+      "Timezone the user is currently based out of, given by their calender, follows the IANA Time Zone Database format, defaults to UTC if not defined",
+    )
+    .optional(),
+  error: z.string().describe("Error message if listing failed").optional(),
+});
+
+export type googleOauthListCalendarEventsOutputType = z.infer<typeof googleOauthListCalendarEventsOutputSchema>;
+export type googleOauthListCalendarEventsFunction = ActionFunction<
+  googleOauthListCalendarEventsParamsType,
+  AuthParamsType,
+  googleOauthListCalendarEventsOutputType
+>;
+
+export const googleOauthUpdateCalendarEventParamsSchema = z.object({
+  calendarId: z.string().describe("The ID of the calendar containing the event"),
+  eventId: z.string().describe("The ID of the event to update"),
+  updates: z
+    .object({
+      title: z.string().describe("The new title of the event").optional(),
+      description: z.string().describe("The new description of the event").optional(),
+      start: z.string().describe("The new start date/time (RFC3339 timestamp)").optional(),
+      end: z.string().describe("The new end date/time (RFC3339 timestamp)").optional(),
+      location: z.string().describe("The new location of the event").optional(),
+      attendees: z
+        .array(z.string().describe("The email of the attendee"))
+        .describe("The new list of attendees")
+        .optional(),
+      status: z.string().describe("The new status of the event (e.g., confirmed, cancelled)").optional(),
+      organizer: z
+        .object({
+          email: z.string().describe("The organizer's email address").optional(),
+          displayName: z.string().describe("The organizer's name").optional(),
+        })
+        .describe("The new organizer of the event")
+        .optional(),
+      timeZone: z
+        .string()
+        .describe("The time zone for the event, IANA Time Zone identifier (e.g., 'America/New_York')")
+        .optional(),
+    })
+    .describe("The fields to update on the event")
+    .optional(),
+});
+
+export type googleOauthUpdateCalendarEventParamsType = z.infer<typeof googleOauthUpdateCalendarEventParamsSchema>;
+
+export const googleOauthUpdateCalendarEventOutputSchema = z.object({
+  success: z.boolean().describe("Whether the event was updated successfully"),
+  eventId: z.string().describe("The ID of the updated event").optional(),
+  eventUrl: z.string().describe("The URL to access the updated event").optional(),
+  error: z.string().describe("The error that occurred if the event was not updated successfully").optional(),
+});
+
+export type googleOauthUpdateCalendarEventOutputType = z.infer<typeof googleOauthUpdateCalendarEventOutputSchema>;
+export type googleOauthUpdateCalendarEventFunction = ActionFunction<
+  googleOauthUpdateCalendarEventParamsType,
+  AuthParamsType,
+  googleOauthUpdateCalendarEventOutputType
+>;
+
+export const googleOauthEditAGoogleCalendarEventParamsSchema = z.object({
+  calendarId: z.string().describe("The ID of the calendar containing the event"),
+  eventId: z.string().describe("The ID of the event to edit"),
+  title: z.string().describe("The new title/summary of the event").optional(),
+  description: z.string().describe("The new description of the event").optional(),
+  start: z.string().describe("The new start date/time (RFC3339 timestamp)").optional(),
+  end: z.string().describe("The new end date/time (RFC3339 timestamp)").optional(),
+  location: z.string().describe("The new location of the event").optional(),
+  attendees: z
+    .array(z.string().describe("The email address of the attendee"))
+    .describe("The new list of attendees (replaces existing attendees)")
+    .optional(),
+  status: z.string().describe("The new status of the event (confirmed, tentative, cancelled)").optional(),
+  organizer: z
+    .object({
+      email: z.string().describe("The organizer's email address").optional(),
+      displayName: z.string().describe("The organizer's display name").optional(),
+    })
+    .describe("The new organizer of the event")
+    .optional(),
+  timeZone: z
+    .string()
+    .describe("The time zone for the event, IANA Time Zone identifier (e.g., 'America/New_York')")
+    .optional(),
+});
+
+export type googleOauthEditAGoogleCalendarEventParamsType = z.infer<
+  typeof googleOauthEditAGoogleCalendarEventParamsSchema
+>;
+
+export const googleOauthEditAGoogleCalendarEventOutputSchema = z.object({
+  success: z.boolean().describe("Whether the event was edited successfully"),
+  eventId: z.string().describe("The ID of the edited event").optional(),
+  eventUrl: z.string().describe("The URL to access the edited event").optional(),
+  error: z.string().describe("The error that occurred if the event was not edited successfully").optional(),
+});
+
+export type googleOauthEditAGoogleCalendarEventOutputType = z.infer<
+  typeof googleOauthEditAGoogleCalendarEventOutputSchema
+>;
+export type googleOauthEditAGoogleCalendarEventFunction = ActionFunction<
+  googleOauthEditAGoogleCalendarEventParamsType,
+  AuthParamsType,
+  googleOauthEditAGoogleCalendarEventOutputType
+>;
+
+export const googleOauthDeleteCalendarEventParamsSchema = z.object({
+  calendarId: z.string().describe("The ID of the calendar containing the event"),
+  eventId: z.string().describe("The ID of the event to delete"),
+});
+
+export type googleOauthDeleteCalendarEventParamsType = z.infer<typeof googleOauthDeleteCalendarEventParamsSchema>;
+
+export const googleOauthDeleteCalendarEventOutputSchema = z.object({
+  success: z.boolean().describe("Whether the event was deleted successfully"),
+  error: z.string().describe("The error that occurred if the event was not deleted successfully").optional(),
+});
+
+export type googleOauthDeleteCalendarEventOutputType = z.infer<typeof googleOauthDeleteCalendarEventOutputSchema>;
+export type googleOauthDeleteCalendarEventFunction = ActionFunction<
+  googleOauthDeleteCalendarEventParamsType,
+  AuthParamsType,
+  googleOauthDeleteCalendarEventOutputType
+>;
+
 export const googleOauthCreateSpreadsheetParamsSchema = z.object({
   title: z.string().describe("The title of the new spreadsheet"),
   sheets: z
@@ -1507,10 +2557,10 @@ export const googleOauthCreateSpreadsheetParamsSchema = z.object({
         title: z.string().describe("The title of the sheet").optional(),
         gridProperties: z
           .object({
-            rowCount: z.number().int().describe("The number of rows in the sheet").optional(),
-            columnCount: z.number().int().describe("The number of columns in the sheet").optional(),
-            frozenRowCount: z.number().int().describe("The number of frozen rows").optional(),
-            frozenColumnCount: z.number().int().describe("The number of frozen columns").optional(),
+            rowCount: z.number().describe("The number of rows in the sheet").optional(),
+            columnCount: z.number().describe("The number of columns in the sheet").optional(),
+            frozenRowCount: z.number().describe("The number of frozen rows").optional(),
+            frozenColumnCount: z.number().describe("The number of frozen columns").optional(),
           })
           .optional(),
       }),
@@ -1536,9 +2586,9 @@ export const googleOauthCreateSpreadsheetOutputSchema = z.object({
   sheets: z
     .array(
       z.object({
-        sheetId: z.number().int().describe("The ID of the sheet").optional(),
+        sheetId: z.number().describe("The ID of the sheet").optional(),
         title: z.string().describe("The title of the sheet").optional(),
-        index: z.number().int().describe("The index of the sheet").optional(),
+        index: z.number().describe("The index of the sheet").optional(),
       }),
     )
     .describe("Information about the created sheets")
@@ -1572,8 +2622,8 @@ export const googleOauthUpdateSpreadsheetParamsSchema = z.object({
                           title: z.string().describe("The title of the new sheet").optional(),
                           gridProperties: z
                             .object({
-                              rowCount: z.number().int().describe("The number of rows in the sheet").optional(),
-                              columnCount: z.number().int().describe("The number of columns in the sheet").optional(),
+                              rowCount: z.number().describe("The number of rows in the sheet").optional(),
+                              columnCount: z.number().describe("The number of columns in the sheet").optional(),
                             })
                             .optional(),
                         })
@@ -1585,7 +2635,7 @@ export const googleOauthUpdateSpreadsheetParamsSchema = z.object({
               z
                 .object({
                   deleteSheet: z
-                    .object({ sheetId: z.number().int().describe("The ID of the sheet to delete").optional() })
+                    .object({ sheetId: z.number().describe("The ID of the sheet to delete").optional() })
                     .optional(),
                 })
                 .describe("Delete a sheet"),
@@ -1595,15 +2645,11 @@ export const googleOauthUpdateSpreadsheetParamsSchema = z.object({
                     .object({
                       range: z
                         .object({
-                          sheetId: z.number().int().describe("The ID of the sheet").optional(),
-                          startRowIndex: z.number().int().describe("The start row (0-based, inclusive)").optional(),
-                          endRowIndex: z.number().int().describe("The end row (0-based, exclusive)").optional(),
-                          startColumnIndex: z
-                            .number()
-                            .int()
-                            .describe("The start column (0-based, inclusive)")
-                            .optional(),
-                          endColumnIndex: z.number().int().describe("The end column (0-based, exclusive)").optional(),
+                          sheetId: z.number().describe("The ID of the sheet").optional(),
+                          startRowIndex: z.number().describe("The start row (0-based, inclusive)").optional(),
+                          endRowIndex: z.number().describe("The end row (0-based, exclusive)").optional(),
+                          startColumnIndex: z.number().describe("The start column (0-based, inclusive)").optional(),
+                          endColumnIndex: z.number().describe("The end column (0-based, exclusive)").optional(),
                         })
                         .optional(),
                       rows: z
@@ -1636,14 +2682,14 @@ export const googleOauthUpdateSpreadsheetParamsSchema = z.object({
                     .object({
                       properties: z
                         .object({
-                          sheetId: z.number().int().describe("The ID of the sheet to update").optional(),
+                          sheetId: z.number().describe("The ID of the sheet to update").optional(),
                           title: z.string().describe("The new title of the sheet").optional(),
                           gridProperties: z
                             .object({
-                              rowCount: z.number().int().describe("The new number of rows").optional(),
-                              columnCount: z.number().int().describe("The new number of columns").optional(),
-                              frozenRowCount: z.number().int().describe("The number of frozen rows").optional(),
-                              frozenColumnCount: z.number().int().describe("The number of frozen columns").optional(),
+                              rowCount: z.number().describe("The new number of rows").optional(),
+                              columnCount: z.number().describe("The new number of columns").optional(),
+                              frozenRowCount: z.number().describe("The number of frozen rows").optional(),
+                              frozenColumnCount: z.number().describe("The number of frozen columns").optional(),
                             })
                             .optional(),
                         })
@@ -1711,7 +2757,7 @@ export const googleOauthUpdateSpreadsheetParamsSchema = z.object({
                                     })
                                     .optional(),
                                   fontFamily: z.string().describe("The font family").optional(),
-                                  fontSize: z.number().int().describe("The size of the font in points").optional(),
+                                  fontSize: z.number().describe("The size of the font in points").optional(),
                                   bold: z.boolean().describe("Whether the text is bold").optional(),
                                   italic: z.boolean().describe("Whether the text is italic").optional(),
                                   strikethrough: z
@@ -1769,9 +2815,9 @@ export const googleOauthUpdateSpreadsheetOutputSchema = z.object({
                 .object({
                   properties: z
                     .object({
-                      sheetId: z.number().int().describe("The ID of the newly created sheet").optional(),
+                      sheetId: z.number().describe("The ID of the newly created sheet").optional(),
                       title: z.string().describe("The title of the new sheet").optional(),
-                      index: z.number().int().describe("The index of the new sheet").optional(),
+                      index: z.number().describe("The index of the new sheet").optional(),
                     })
                     .optional(),
                 })
@@ -1847,7 +2893,6 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                     objectId: z.string().describe("The object ID for the created slide").optional(),
                     insertionIndex: z
                       .number()
-                      .int()
                       .describe("The 0-based index where the new slide should be inserted")
                       .optional(),
                     slideLayoutReference: z
@@ -1874,8 +2919,8 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                 createTable: z
                   .object({
                     objectId: z.string().describe("The object ID for the created table").optional(),
-                    rows: z.number().int().describe("Number of rows in the table"),
-                    columns: z.number().int().describe("Number of columns in the table"),
+                    rows: z.number().describe("Number of rows in the table"),
+                    columns: z.number().describe("Number of columns in the table"),
                     elementProperties: z
                       .object({})
                       .catchall(z.any())
@@ -1889,7 +2934,7 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                   .object({
                     objectId: z.string().describe("The object ID of the shape or table cell"),
                     text: z.string().describe("The text to be inserted"),
-                    insertionIndex: z.number().int().describe("The index where the text will be inserted").optional(),
+                    insertionIndex: z.number().describe("The index where the text will be inserted").optional(),
                   })
                   .describe("Inserts text into a shape or table cell"),
               }),
@@ -1898,7 +2943,7 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                   .object({
                     tableObjectId: z.string().describe("The table to insert rows into"),
                     insertBelow: z.boolean().describe("Whether to insert the rows below the reference cell"),
-                    number: z.number().int().describe("The number of rows to insert").optional(),
+                    number: z.number().describe("The number of rows to insert").optional(),
                     cellLocation: z
                       .object({})
                       .catchall(z.any())
@@ -1914,7 +2959,7 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                     insertRight: z
                       .boolean()
                       .describe("Whether to insert the columns to the right of the reference cell"),
-                    number: z.number().int().describe("The number of columns to insert").optional(),
+                    number: z.number().describe("The number of columns to insert").optional(),
                     cellLocation: z
                       .object({})
                       .catchall(z.any())
@@ -1979,7 +3024,6 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                     slideObjectIds: z.array(z.string()).describe("The IDs of the slides to reorder"),
                     insertionIndex: z
                       .number()
-                      .int()
                       .describe("The 0-based index where the slides should be moved to")
                       .optional(),
                   })
@@ -1991,8 +3035,8 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                     objectId: z.string().describe("The object ID of the shape or table cell"),
                     textRange: z
                       .object({
-                        startIndex: z.number().int().describe("The starting index of the range (0-based)").optional(),
-                        endIndex: z.number().int().describe("The ending index of the range (0-based)").optional(),
+                        startIndex: z.number().describe("The starting index of the range (0-based)").optional(),
+                        endIndex: z.number().describe("The ending index of the range (0-based)").optional(),
                       })
                       .describe("The range of text to delete")
                       .optional(),
@@ -2030,7 +3074,7 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                   .object({
                     objectId: z.string().describe("The object ID for the created chart").optional(),
                     spreadsheetId: z.string().describe("The ID of the Google Sheets spreadsheet containing the chart"),
-                    chartId: z.number().int().describe("The ID of the specific chart in the spreadsheet"),
+                    chartId: z.number().describe("The ID of the specific chart in the spreadsheet"),
                     elementProperties: z
                       .object({})
                       .catchall(z.any())
@@ -2145,7 +3189,7 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                         text: z.string().describe("The text the shape must contain to be replaced"),
                         matchCase: z.boolean().describe("Whether the text match is case-sensitive").optional(),
                       })
-                      .describe("Criteria for shapes to replace (must contain specified text)"),
+                      .describe("The text to search for in shapes to be replaced"),
                     replaceMethod: z
                       .enum(["CENTER_INSIDE", "CENTER_CROP"])
                       .describe("The image replace method (Defaults to CENTER_INSIDE)")
@@ -2191,10 +3235,9 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                           .optional(),
                         startIndex: z
                           .number()
-                          .int()
                           .describe("The start index for FROM_START_INDEX or FIXED_RANGE")
                           .optional(),
-                        endIndex: z.number().int().describe("The end index for FIXED_RANGE").optional(),
+                        endIndex: z.number().describe("The end index for FIXED_RANGE").optional(),
                       })
                       .describe("The range of text to style (defaults to all text if unspecified)")
                       .optional(),
@@ -2205,7 +3248,7 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                 replaceAllShapesWithSheetsChart: z
                   .object({
                     spreadsheetId: z.string().describe("The ID of the Google Sheets spreadsheet containing the chart"),
-                    chartId: z.number().int().describe("The ID of the chart within the spreadsheet"),
+                    chartId: z.number().describe("The ID of the chart within the spreadsheet"),
                     containsText: z
                       .object({
                         text: z.string().describe("The text the shape must contain to be replaced"),
@@ -2235,10 +3278,9 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                           .optional(),
                         startIndex: z
                           .number()
-                          .int()
                           .describe("The start index for FROM_START_INDEX or FIXED_RANGE")
                           .optional(),
-                        endIndex: z.number().int().describe("The end index for FIXED_RANGE").optional(),
+                        endIndex: z.number().describe("The end index for FIXED_RANGE").optional(),
                       })
                       .describe("The range of text to delete bullets from (defaults to all text if unspecified)")
                       .optional(),
@@ -2266,10 +3308,9 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                           .optional(),
                         startIndex: z
                           .number()
-                          .int()
                           .describe("The start index for FROM_START_INDEX or FIXED_RANGE")
                           .optional(),
-                        endIndex: z.number().int().describe("The end index for FIXED_RANGE").optional(),
+                        endIndex: z.number().describe("The end index for FIXED_RANGE").optional(),
                       })
                       .describe("The range of text to apply the style to (defaults to all paragraphs if unspecified)")
                       .optional(),
@@ -2295,8 +3336,8 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                     tableRange: z
                       .object({
                         location: z.object({}).catchall(z.any()).describe("The starting cell location").optional(),
-                        rowSpan: z.number().int().describe("The number of rows in the range").optional(),
-                        columnSpan: z.number().int().describe("The number of columns in the range").optional(),
+                        rowSpan: z.number().describe("The number of rows in the range").optional(),
+                        columnSpan: z.number().describe("The number of columns in the range").optional(),
                       })
                       .describe(
                         "The range of cells whose border should be updated (defaults to the entire table if unspecified)",
@@ -2309,7 +3350,7 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                 updateTableColumnProperties: z
                   .object({
                     objectId: z.string().describe("The object ID of the table"),
-                    columnIndices: z.array(z.number().int()).describe("The 0-based indices of the columns to update"),
+                    columnIndices: z.array(z.number()).describe("The 0-based indices of the columns to update"),
                     tableColumnProperties: z
                       .object({})
                       .catchall(z.any())
@@ -2326,7 +3367,7 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                 updateTableRowProperties: z
                   .object({
                     objectId: z.string().describe("The object ID of the table"),
-                    rowIndices: z.array(z.number().int()).describe("The 0-based indices of the rows to update"),
+                    rowIndices: z.array(z.number()).describe("The 0-based indices of the rows to update"),
                     tableRowProperties: z
                       .object({})
                       .catchall(z.any())
@@ -2346,8 +3387,8 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                     tableRange: z
                       .object({
                         location: z.object({}).catchall(z.any()).describe("The starting cell location").optional(),
-                        rowSpan: z.number().int().describe("The number of rows in the range").optional(),
-                        columnSpan: z.number().int().describe("The number of columns in the range").optional(),
+                        rowSpan: z.number().describe("The number of rows in the range").optional(),
+                        columnSpan: z.number().describe("The number of columns in the range").optional(),
                       })
                       .describe("The range of cells to merge"),
                   })
@@ -2360,8 +3401,8 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                     tableRange: z
                       .object({
                         location: z.object({}).catchall(z.any()).describe("The starting cell location").optional(),
-                        rowSpan: z.number().int().describe("The number of rows in the range").optional(),
-                        columnSpan: z.number().int().describe("The number of columns in the range").optional(),
+                        rowSpan: z.number().describe("The number of rows in the range").optional(),
+                        columnSpan: z.number().describe("The number of columns in the range").optional(),
                       })
                       .describe("The range of cells to unmerge"),
                   })
@@ -2472,6 +3513,922 @@ export type googleOauthUpdatePresentationFunction = ActionFunction<
   googleOauthUpdatePresentationParamsType,
   AuthParamsType,
   googleOauthUpdatePresentationOutputType
+>;
+
+export const googleOauthSearchDriveByKeywordsParamsSchema = z.object({
+  keywords: z.array(z.string()).describe("List of keywords to search for in file contents."),
+  limit: z.number().describe("The maximum number of files to return").optional(),
+});
+
+export type googleOauthSearchDriveByKeywordsParamsType = z.infer<typeof googleOauthSearchDriveByKeywordsParamsSchema>;
+
+export const googleOauthSearchDriveByKeywordsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the search was successful"),
+  files: z
+    .array(
+      z.object({
+        id: z.string().describe("The file ID"),
+        name: z.string().describe("The file name"),
+        mimeType: z.string().describe("The MIME type of the file"),
+        url: z.string().describe("The web link to view the file"),
+      }),
+    )
+    .describe("List of files matching the search")
+    .optional(),
+  error: z.string().describe("Error message if search failed").optional(),
+});
+
+export type googleOauthSearchDriveByKeywordsOutputType = z.infer<typeof googleOauthSearchDriveByKeywordsOutputSchema>;
+export type googleOauthSearchDriveByKeywordsFunction = ActionFunction<
+  googleOauthSearchDriveByKeywordsParamsType,
+  AuthParamsType,
+  googleOauthSearchDriveByKeywordsOutputType
+>;
+
+export const googleOauthSearchDriveByQueryParamsSchema = z.object({
+  query: z.string().describe("The query to search for in file contents."),
+  limit: z.number().describe("The maximum number of files to return").optional(),
+  searchDriveByDrive: z.boolean().describe("Whether we should search drive by drive or run a general search"),
+  orderByQuery: z
+    .string()
+    .describe(
+      "The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'",
+    )
+    .optional(),
+});
+
+export type googleOauthSearchDriveByQueryParamsType = z.infer<typeof googleOauthSearchDriveByQueryParamsSchema>;
+
+export const googleOauthSearchDriveByQueryOutputSchema = z.object({
+  success: z.boolean().describe("Whether the search was successful"),
+  files: z
+    .array(
+      z.object({
+        id: z.string().describe("The file ID"),
+        name: z.string().describe("The file name"),
+        mimeType: z.string().describe("The MIME type of the file"),
+        url: z.string().describe("The web link to view the file"),
+      }),
+    )
+    .describe("List of files matching the search")
+    .optional(),
+  error: z.string().describe("Error message if search failed").optional(),
+});
+
+export type googleOauthSearchDriveByQueryOutputType = z.infer<typeof googleOauthSearchDriveByQueryOutputSchema>;
+export type googleOauthSearchDriveByQueryFunction = ActionFunction<
+  googleOauthSearchDriveByQueryParamsType,
+  AuthParamsType,
+  googleOauthSearchDriveByQueryOutputType
+>;
+
+export const googleOauthSearchDriveByQueryAndGetFileContentParamsSchema = z.object({
+  query: z.string().describe("The query to search for in file contents."),
+  limit: z.number().describe("The maximum number of files to return").optional(),
+  fileSizeLimit: z.number().describe("The maximum length of a file in characters").optional(),
+  searchDriveByDrive: z.boolean().describe("Whether we should search drive by drive or run a general search"),
+  orderByQuery: z
+    .string()
+    .describe(
+      "The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'",
+    )
+    .optional(),
+});
+
+export type googleOauthSearchDriveByQueryAndGetFileContentParamsType = z.infer<
+  typeof googleOauthSearchDriveByQueryAndGetFileContentParamsSchema
+>;
+
+export const googleOauthSearchDriveByQueryAndGetFileContentOutputSchema = z.object({
+  success: z.boolean().describe("Whether the search was successful"),
+  files: z
+    .array(
+      z.object({
+        id: z.string().describe("The file ID"),
+        name: z.string().describe("The file name"),
+        mimeType: z.string().describe("The MIME type of the file"),
+        url: z.string().describe("The web link to view the file"),
+        content: z.string().describe("The data returned from the file limited by fileLimit").optional(),
+      }),
+    )
+    .describe("List of files matching the search")
+    .optional(),
+  error: z.string().describe("Error message if search failed").optional(),
+});
+
+export type googleOauthSearchDriveByQueryAndGetFileContentOutputType = z.infer<
+  typeof googleOauthSearchDriveByQueryAndGetFileContentOutputSchema
+>;
+export type googleOauthSearchDriveByQueryAndGetFileContentFunction = ActionFunction<
+  googleOauthSearchDriveByQueryAndGetFileContentParamsType,
+  AuthParamsType,
+  googleOauthSearchDriveByQueryAndGetFileContentOutputType
+>;
+
+export const googleOauthGetDriveFileContentByIdParamsSchema = z.object({
+  fileId: z.string().describe("The ID of the file to get content from"),
+  limit: z.number().describe("The character limit for the file content"),
+  timeoutLimit: z
+    .number()
+    .describe("The timeout limit for the file content retrieval (default of 15 seconds)")
+    .optional(),
+  fileSizeLimit: z.number().describe("Max file size (in MB) to retrieve content from (default of 30MB)").optional(),
+});
+
+export type googleOauthGetDriveFileContentByIdParamsType = z.infer<
+  typeof googleOauthGetDriveFileContentByIdParamsSchema
+>;
+
+export const googleOauthGetDriveFileContentByIdOutputSchema = z.object({
+  success: z.boolean().describe("Whether the file content was retrieved successfully"),
+  content: z.string().describe("The content of the file").optional(),
+  fileName: z.string().describe("The name of the file").optional(),
+  fileLength: z.number().describe("The length of the file content prior to truncating").optional(),
+  error: z.string().describe("Error message if file content retrieval failed").optional(),
+});
+
+export type googleOauthGetDriveFileContentByIdOutputType = z.infer<
+  typeof googleOauthGetDriveFileContentByIdOutputSchema
+>;
+export type googleOauthGetDriveFileContentByIdFunction = ActionFunction<
+  googleOauthGetDriveFileContentByIdParamsType,
+  AuthParamsType,
+  googleOauthGetDriveFileContentByIdOutputType
+>;
+
+export const googleOauthListGroupsParamsSchema = z.object({
+  maxResults: z.number().describe("The maximum number of groups to return (max allowed is 200)").optional(),
+});
+
+export type googleOauthListGroupsParamsType = z.infer<typeof googleOauthListGroupsParamsSchema>;
+
+export const googleOauthListGroupsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the groups were listed successfully"),
+  groups: z
+    .array(
+      z.object({
+        id: z.string().describe("The unique ID of the group"),
+        email: z.string().describe("The email address of the group"),
+        name: z.string().describe("The name of the group"),
+        description: z.string().describe("The description of the group").optional(),
+      }),
+    )
+    .describe("The list of Google Groups"),
+  error: z.string().describe("The error that occurred if the groups could not be listed").optional(),
+});
+
+export type googleOauthListGroupsOutputType = z.infer<typeof googleOauthListGroupsOutputSchema>;
+export type googleOauthListGroupsFunction = ActionFunction<
+  googleOauthListGroupsParamsType,
+  AuthParamsType,
+  googleOauthListGroupsOutputType
+>;
+
+export const googleOauthGetGroupParamsSchema = z.object({
+  groupKey: z.string().describe("The group's email address or unique group ID"),
+});
+
+export type googleOauthGetGroupParamsType = z.infer<typeof googleOauthGetGroupParamsSchema>;
+
+export const googleOauthGetGroupOutputSchema = z.object({
+  success: z.boolean().describe("Whether the group was retrieved successfully"),
+  group: z.object({
+    id: z.string().describe("The unique ID of the group"),
+    email: z.string().describe("The email address of the group"),
+    name: z.string().describe("The name of the group"),
+    description: z.string().describe("The description of the group").optional(),
+  }),
+  error: z.string().describe("The error that occurred if the group could not be retrieved").optional(),
+});
+
+export type googleOauthGetGroupOutputType = z.infer<typeof googleOauthGetGroupOutputSchema>;
+export type googleOauthGetGroupFunction = ActionFunction<
+  googleOauthGetGroupParamsType,
+  AuthParamsType,
+  googleOauthGetGroupOutputType
+>;
+
+export const googleOauthListGroupMembersParamsSchema = z.object({
+  groupKey: z.string().describe("The group's email address or unique group ID"),
+  maxResults: z.number().describe("The maximum number of members to return (max allowed is 200)").optional(),
+});
+
+export type googleOauthListGroupMembersParamsType = z.infer<typeof googleOauthListGroupMembersParamsSchema>;
+
+export const googleOauthListGroupMembersOutputSchema = z.object({
+  success: z.boolean().describe("Whether the members were listed successfully"),
+  members: z
+    .array(
+      z.object({
+        id: z.string().describe("The unique ID of the member"),
+        email: z.string().describe("The email address of the member"),
+        role: z.string().describe("The role of the member in the group (OWNER, MANAGER, MEMBER)"),
+        type: z.string().describe("The type of the member (USER, GROUP)"),
+      }),
+    )
+    .describe("The list of group members"),
+  error: z.string().describe("The error that occurred if the members could not be listed").optional(),
+});
+
+export type googleOauthListGroupMembersOutputType = z.infer<typeof googleOauthListGroupMembersOutputSchema>;
+export type googleOauthListGroupMembersFunction = ActionFunction<
+  googleOauthListGroupMembersParamsType,
+  AuthParamsType,
+  googleOauthListGroupMembersOutputType
+>;
+
+export const googleOauthHasGroupMemberParamsSchema = z.object({
+  groupKey: z.string().describe("The group's email address or unique group ID"),
+  memberKey: z.string().describe("The member's email address or unique member ID"),
+});
+
+export type googleOauthHasGroupMemberParamsType = z.infer<typeof googleOauthHasGroupMemberParamsSchema>;
+
+export const googleOauthHasGroupMemberOutputSchema = z.object({
+  success: z.boolean().describe("Whether the check was performed successfully"),
+  isMember: z.boolean().describe("Whether the user is a member of the group"),
+  error: z.string().describe("The error that occurred if the check could not be performed").optional(),
+});
+
+export type googleOauthHasGroupMemberOutputType = z.infer<typeof googleOauthHasGroupMemberOutputSchema>;
+export type googleOauthHasGroupMemberFunction = ActionFunction<
+  googleOauthHasGroupMemberParamsType,
+  AuthParamsType,
+  googleOauthHasGroupMemberOutputType
+>;
+
+export const googleOauthAddGroupMemberParamsSchema = z.object({
+  groupKey: z.string().describe("The group's email address or unique group ID"),
+  email: z.string().describe("The email address of the user to add"),
+});
+
+export type googleOauthAddGroupMemberParamsType = z.infer<typeof googleOauthAddGroupMemberParamsSchema>;
+
+export const googleOauthAddGroupMemberOutputSchema = z.object({
+  success: z.boolean().describe("Whether the member was added successfully"),
+  memberID: z.string().describe("The unique ID of the member"),
+  error: z.string().describe("The error that occurred if the member could not be added").optional(),
+});
+
+export type googleOauthAddGroupMemberOutputType = z.infer<typeof googleOauthAddGroupMemberOutputSchema>;
+export type googleOauthAddGroupMemberFunction = ActionFunction<
+  googleOauthAddGroupMemberParamsType,
+  AuthParamsType,
+  googleOauthAddGroupMemberOutputType
+>;
+
+export const googleOauthDeleteGroupMemberParamsSchema = z.object({
+  groupKey: z.string().describe("The group's email address or unique group ID"),
+  memberKey: z.string().describe("The member's email address or unique member ID"),
+});
+
+export type googleOauthDeleteGroupMemberParamsType = z.infer<typeof googleOauthDeleteGroupMemberParamsSchema>;
+
+export const googleOauthDeleteGroupMemberOutputSchema = z.object({
+  success: z.boolean().describe("Whether the member was removed successfully"),
+  error: z.string().describe("The error that occurred if the member could not be removed").optional(),
+});
+
+export type googleOauthDeleteGroupMemberOutputType = z.infer<typeof googleOauthDeleteGroupMemberOutputSchema>;
+export type googleOauthDeleteGroupMemberFunction = ActionFunction<
+  googleOauthDeleteGroupMemberParamsType,
+  AuthParamsType,
+  googleOauthDeleteGroupMemberOutputType
+>;
+
+export const googleOauthQueryGoogleBigQueryParamsSchema = z.object({
+  query: z.string().describe("The SQL query to execute in BigQuery"),
+  projectId: z.string().describe("The Google Cloud Project ID. If not provided, will use the default project"),
+  maxResults: z.number().describe("Maximum number of results to return. Defaults to 1000").optional(),
+  timeoutMs: z.number().describe("Timeout for the query in milliseconds. Defaults to 30000").optional(),
+  maximumBytesProcessed: z
+    .string()
+    .describe("Maximum bytes to process for the query. Defaults to 500000000 (500MB). Use -1 for no limit")
+    .optional(),
+});
+
+export type googleOauthQueryGoogleBigQueryParamsType = z.infer<typeof googleOauthQueryGoogleBigQueryParamsSchema>;
+
+export const googleOauthQueryGoogleBigQueryOutputSchema = z.object({
+  success: z.boolean().describe("Whether the query was executed successfully"),
+  data: z
+    .array(z.object({}).catchall(z.any()).describe("A row of data from the query result"))
+    .describe("The query results as an array of objects")
+    .optional(),
+  totalRows: z.string().describe("Total number of rows in the result set").optional(),
+  schema: z
+    .array(
+      z.object({
+        name: z.string().describe("Column name").optional(),
+        type: z.string().describe("Column data type").optional(),
+        mode: z.string().describe("Column mode (NULLABLE, REQUIRED, REPEATED)").optional(),
+      }),
+    )
+    .describe("Schema information for the result columns")
+    .optional(),
+  error: z.string().describe("Error message if query failed").optional(),
+});
+
+export type googleOauthQueryGoogleBigQueryOutputType = z.infer<typeof googleOauthQueryGoogleBigQueryOutputSchema>;
+export type googleOauthQueryGoogleBigQueryFunction = ActionFunction<
+  googleOauthQueryGoogleBigQueryParamsType,
+  AuthParamsType,
+  googleOauthQueryGoogleBigQueryOutputType
+>;
+
+export const googlemailSearchGmailMessagesParamsSchema = z.object({
+  query: z.string().describe('Gmail search query (e.g. "from:alice subject:urgent")'),
+  maxResults: z.number().describe("Maximum number of messages to return (optional)").optional(),
+});
+
+export type googlemailSearchGmailMessagesParamsType = z.infer<typeof googlemailSearchGmailMessagesParamsSchema>;
+
+export const googlemailSearchGmailMessagesOutputSchema = z.object({
+  success: z.boolean(),
+  messages: z
+    .array(
+      z.object({
+        id: z.string().describe("The message ID"),
+        threadId: z.string().describe("The thread ID"),
+        snippet: z.string().describe("A short part of the message text").optional(),
+        labelIds: z.array(z.string()).describe("Labels on the message").optional(),
+        internalDate: z.string().describe("Internal timestamp of the message").optional(),
+        emailBody: z.string().describe("The body of the message").optional(),
+      }),
+    )
+    .describe("List of matching Gmail messages"),
+  error: z.string().describe("Error message if search failed").optional(),
+});
+
+export type googlemailSearchGmailMessagesOutputType = z.infer<typeof googlemailSearchGmailMessagesOutputSchema>;
+export type googlemailSearchGmailMessagesFunction = ActionFunction<
+  googlemailSearchGmailMessagesParamsType,
+  AuthParamsType,
+  googlemailSearchGmailMessagesOutputType
+>;
+
+export const googlemailListGmailThreadsParamsSchema = z.object({
+  query: z.string().describe('Gmail search query (e.g. "from:alice subject:project")'),
+  maxResults: z.number().describe("Maximum number of threads to return").optional(),
+});
+
+export type googlemailListGmailThreadsParamsType = z.infer<typeof googlemailListGmailThreadsParamsSchema>;
+
+export const googlemailListGmailThreadsOutputSchema = z.object({
+  success: z.boolean(),
+  threads: z
+    .array(
+      z.object({
+        id: z.string().describe("The thread ID"),
+        historyId: z.string().describe("The thread history ID"),
+        messages: z
+          .array(
+            z.object({
+              id: z.string(),
+              threadId: z.string(),
+              snippet: z.string(),
+              labelIds: z.array(z.string()),
+              internalDate: z.string(),
+              emailBody: z.string(),
+            }),
+          )
+          .describe("The messages in the thread"),
+      }),
+    )
+    .describe("List of matching Gmail threads"),
+  error: z.string().describe("Error message if search failed").optional(),
+});
+
+export type googlemailListGmailThreadsOutputType = z.infer<typeof googlemailListGmailThreadsOutputSchema>;
+export type googlemailListGmailThreadsFunction = ActionFunction<
+  googlemailListGmailThreadsParamsType,
+  AuthParamsType,
+  googlemailListGmailThreadsOutputType
+>;
+
+export const googlemailSendGmailParamsSchema = z.object({
+  to: z.array(z.string()).describe("List of recipient email addresses"),
+  cc: z.array(z.string()).describe("List of CC recipient email addresses (optional)").optional(),
+  bcc: z.array(z.string()).describe("List of BCC recipient email addresses (optional)").optional(),
+  subject: z.string().describe("Email subject line"),
+  content: z.string().describe("Email body content in HTML format"),
+  threadId: z.string().describe("Optional thread ID to reply to an existing email thread").optional(),
+});
+
+export type googlemailSendGmailParamsType = z.infer<typeof googlemailSendGmailParamsSchema>;
+
+export const googlemailSendGmailOutputSchema = z.object({
+  success: z.boolean().describe("Whether the email was sent successfully"),
+  messageId: z.string().describe("The ID of the sent message").optional(),
+  error: z.string().describe("Error message if sending failed").optional(),
+});
+
+export type googlemailSendGmailOutputType = z.infer<typeof googlemailSendGmailOutputSchema>;
+export type googlemailSendGmailFunction = ActionFunction<
+  googlemailSendGmailParamsType,
+  AuthParamsType,
+  googlemailSendGmailOutputType
+>;
+
+export const oktaGetOktaUserParamsSchema = z.object({ userId: z.string().describe("The ID of the user to retrieve.") });
+
+export type oktaGetOktaUserParamsType = z.infer<typeof oktaGetOktaUserParamsSchema>;
+
+export const oktaGetOktaUserOutputSchema = z.object({
+  success: z.boolean().describe("Whether the user details were successfully retrieved."),
+  user: z
+    .object({
+      id: z.string().describe("The user's Okta ID"),
+      status: z.string().describe("The user's status").optional(),
+      created: z.string().describe("The timestamp when the user was created").optional(),
+      activated: z.string().describe("The timestamp when the user was activated").optional(),
+      statusChanged: z.string().describe("The timestamp when the user's status changed").optional(),
+      lastLogin: z.string().describe("The timestamp of the user's last login").optional(),
+      lastUpdated: z.string().describe("The timestamp of the user's last update").optional(),
+      passwordChanged: z.string().describe("The timestamp when the user's password was last changed").optional(),
+      profile: z
+        .object({
+          login: z.string().describe("The user's login").optional(),
+          firstName: z.string().describe("The user's first name").optional(),
+          lastName: z.string().describe("The user's last name").optional(),
+          nickName: z.string().describe("The user's nickname").optional(),
+          displayName: z.string().describe("The user's display name").optional(),
+          email: z.string().describe("The user's email address").optional(),
+          secondEmail: z.string().describe("The user's secondary email address").optional(),
+          profileUrl: z.string().describe("The URL to the user's profile").optional(),
+          preferredLanguage: z.string().describe("The user's preferred language").optional(),
+          userType: z.string().describe("The user's type").optional(),
+          organization: z.string().describe("The user's organization").optional(),
+          title: z.string().describe("The user's title").optional(),
+          division: z.string().describe("The user's division").optional(),
+          department: z.string().describe("The user's department").optional(),
+          costCenter: z.string().describe("The user's cost center").optional(),
+          employeeNumber: z.string().describe("The user's employee number").optional(),
+          mobilePhone: z.string().describe("The user's mobile phone number").optional(),
+          primaryPhone: z.string().describe("The user's primary phone number").optional(),
+          streetAddress: z.string().describe("The user's street address").optional(),
+          city: z.string().describe("The user's city").optional(),
+          state: z.string().describe("The user's state").optional(),
+          zipCode: z.string().describe("The user's zip code").optional(),
+          countryCode: z.string().describe("The user's country code").optional(),
+        })
+        .describe("The user's profile information")
+        .optional(),
+      credentials: z.object({}).catchall(z.any()).describe("The user's credentials").optional(),
+      _links: z.object({}).catchall(z.any()).describe("Links related to the user").optional(),
+    })
+    .optional(),
+  error: z.string().describe("Error message if retrieval failed.").optional(),
+});
+
+export type oktaGetOktaUserOutputType = z.infer<typeof oktaGetOktaUserOutputSchema>;
+export type oktaGetOktaUserFunction = ActionFunction<
+  oktaGetOktaUserParamsType,
+  AuthParamsType,
+  oktaGetOktaUserOutputType
+>;
+
+export const oktaListOktaUserGroupsParamsSchema = z.object({
+  userId: z.string().describe("The ID of the user whose groups are to be listed."),
+  maxResults: z.number().gte(1).describe("The maximum number of results to return.").optional(),
+});
+
+export type oktaListOktaUserGroupsParamsType = z.infer<typeof oktaListOktaUserGroupsParamsSchema>;
+
+export const oktaListOktaUserGroupsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the groups were successfully retrieved."),
+  groups: z
+    .array(
+      z.object({
+        id: z.string().describe("The group's ID."),
+        profile: z.object({
+          name: z.string().describe("The group's name."),
+          description: z.string().describe("The group's description."),
+        }),
+      }),
+    )
+    .describe("List of groups the user belongs to.")
+    .optional(),
+  error: z.string().describe("Error message if retrieval failed.").optional(),
+});
+
+export type oktaListOktaUserGroupsOutputType = z.infer<typeof oktaListOktaUserGroupsOutputSchema>;
+export type oktaListOktaUserGroupsFunction = ActionFunction<
+  oktaListOktaUserGroupsParamsType,
+  AuthParamsType,
+  oktaListOktaUserGroupsOutputType
+>;
+
+export const oktaListOktaGroupsParamsSchema = z.object({
+  searchQuery: z
+    .string()
+    .describe(
+      "Optional search query to filter groups.\nThis field corresponds to the `search` query parameter in the Okta API's List Groups operation.\nFor detailed information on constructing search queries and available filter expressions, refer to the Okta API documentation:\nhttps://developer.okta.com/docs/api/openapi/okta-management/management/tag/Group/#tag/Group/operation/listGroups!in=query&path=search&t=request\nExample: 'profile.name eq \"My Group\"'\n",
+    )
+    .optional(),
+  maxResults: z.number().gte(1).describe("The maximum number of results to return.").optional(),
+});
+
+export type oktaListOktaGroupsParamsType = z.infer<typeof oktaListOktaGroupsParamsSchema>;
+
+export const oktaListOktaGroupsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the groups were successfully retrieved."),
+  groups: z
+    .array(
+      z.object({
+        id: z.string().describe("The group's ID."),
+        profile: z.object({
+          name: z.string().describe("The group's name."),
+          description: z.string().describe("The group's description."),
+        }),
+      }),
+    )
+    .describe("List of Okta groups.")
+    .optional(),
+  error: z.string().describe("Error message if retrieval failed.").optional(),
+});
+
+export type oktaListOktaGroupsOutputType = z.infer<typeof oktaListOktaGroupsOutputSchema>;
+export type oktaListOktaGroupsFunction = ActionFunction<
+  oktaListOktaGroupsParamsType,
+  AuthParamsType,
+  oktaListOktaGroupsOutputType
+>;
+
+export const oktaGetOktaGroupParamsSchema = z.object({
+  groupId: z.string().describe("The ID of the group to retrieve."),
+});
+
+export type oktaGetOktaGroupParamsType = z.infer<typeof oktaGetOktaGroupParamsSchema>;
+
+export const oktaGetOktaGroupOutputSchema = z.object({
+  success: z.boolean().describe("Whether the group details were successfully retrieved."),
+  group: z
+    .object({
+      id: z.string().describe("The unique identifier for the Okta group"),
+      created: z.string().datetime({ offset: true }).describe("The timestamp when the group was created").optional(),
+      lastUpdated: z
+        .string()
+        .datetime({ offset: true })
+        .describe("The timestamp when the group was last updated")
+        .optional(),
+      lastMembershipUpdated: z
+        .string()
+        .datetime({ offset: true })
+        .describe("The timestamp when the group's membership was last updated")
+        .optional(),
+      objectClass: z.array(z.string()).describe("The object class of the group").optional(),
+      type: z.string().describe("The type of the group (e.g., OKTA_GROUP)").optional(),
+      profile: z.object({
+        name: z.string().describe("The name of the group"),
+        description: z.string().describe("The description of the group"),
+      }),
+      _links: z
+        .object({
+          logo: z.array(z.object({}).catchall(z.any())).describe("Links to the group's logo").optional(),
+          users: z
+            .object({ href: z.string().describe("The URL to retrieve users in the group").optional() })
+            .optional(),
+          apps: z
+            .object({ href: z.string().describe("The URL to retrieve apps associated with the group").optional() })
+            .optional(),
+        })
+        .optional(),
+    })
+    .describe("Schema for an Okta group object")
+    .optional(),
+  error: z.string().describe("Error message if retrieval failed.").optional(),
+});
+
+export type oktaGetOktaGroupOutputType = z.infer<typeof oktaGetOktaGroupOutputSchema>;
+export type oktaGetOktaGroupFunction = ActionFunction<
+  oktaGetOktaGroupParamsType,
+  AuthParamsType,
+  oktaGetOktaGroupOutputType
+>;
+
+export const oktaListOktaGroupMembersParamsSchema = z.object({
+  groupId: z.string().describe("The ID of the group whose members are to be listed."),
+  maxResults: z.number().gte(1).describe("The maximum number of results to return.").optional(),
+});
+
+export type oktaListOktaGroupMembersParamsType = z.infer<typeof oktaListOktaGroupMembersParamsSchema>;
+
+export const oktaListOktaGroupMembersOutputSchema = z.object({
+  success: z.boolean().describe("Whether the members were successfully retrieved."),
+  members: z
+    .array(
+      z.object({
+        id: z.string().describe("The user's ID.").optional(),
+        status: z.string().describe("The user's status.").optional(),
+        created: z.string().datetime({ offset: true }).describe("The timestamp when the user was created.").optional(),
+        activated: z
+          .string()
+          .datetime({ offset: true })
+          .nullable()
+          .describe("The timestamp when the user was activated.")
+          .optional(),
+        statusChanged: z
+          .string()
+          .datetime({ offset: true })
+          .nullable()
+          .describe("The timestamp when the user's status changed.")
+          .optional(),
+        lastLogin: z
+          .string()
+          .datetime({ offset: true })
+          .nullable()
+          .describe("The timestamp of the user's last login.")
+          .optional(),
+        lastUpdated: z
+          .string()
+          .datetime({ offset: true })
+          .describe("The timestamp of the user's last update.")
+          .optional(),
+        passwordChanged: z
+          .string()
+          .datetime({ offset: true })
+          .describe("The timestamp when the user's password was last changed.")
+          .optional(),
+        type: z.object({ id: z.string().describe("The type ID of the user.").optional() }).optional(),
+        profile: z
+          .object({
+            firstName: z.string().describe("The user's first name.").optional(),
+            lastName: z.string().describe("The user's last name.").optional(),
+            mobilePhone: z.string().nullable().describe("The user's mobile phone number.").optional(),
+            secondEmail: z.string().nullable().describe("The user's secondary email address.").optional(),
+            login: z.string().describe("The user's login.").optional(),
+            email: z.string().describe("The user's email address.").optional(),
+          })
+          .describe("The user's profile information.")
+          .optional(),
+      }),
+    )
+    .describe("List of members in the group.")
+    .optional(),
+  error: z.string().describe("Error message if retrieval failed.").optional(),
+});
+
+export type oktaListOktaGroupMembersOutputType = z.infer<typeof oktaListOktaGroupMembersOutputSchema>;
+export type oktaListOktaGroupMembersFunction = ActionFunction<
+  oktaListOktaGroupMembersParamsType,
+  AuthParamsType,
+  oktaListOktaGroupMembersOutputType
+>;
+
+export const oktaAddUserToGroupParamsSchema = z.object({
+  groupId: z.string().describe("The ID of the group to add the user to."),
+  userId: z.string().describe("The ID of the user to add to the group."),
+});
+
+export type oktaAddUserToGroupParamsType = z.infer<typeof oktaAddUserToGroupParamsSchema>;
+
+export const oktaAddUserToGroupOutputSchema = z.object({
+  success: z.boolean().describe("Whether the user was successfully added to the group."),
+  error: z.string().describe("Error message if the operation failed.").optional(),
+});
+
+export type oktaAddUserToGroupOutputType = z.infer<typeof oktaAddUserToGroupOutputSchema>;
+export type oktaAddUserToGroupFunction = ActionFunction<
+  oktaAddUserToGroupParamsType,
+  AuthParamsType,
+  oktaAddUserToGroupOutputType
+>;
+
+export const oktaRemoveUserFromGroupParamsSchema = z.object({
+  groupId: z.string().describe("The ID of the group to remove the user from."),
+  userId: z.string().describe("The ID of the user to remove from the group."),
+});
+
+export type oktaRemoveUserFromGroupParamsType = z.infer<typeof oktaRemoveUserFromGroupParamsSchema>;
+
+export const oktaRemoveUserFromGroupOutputSchema = z.object({
+  success: z.boolean().describe("Whether the user was successfully removed from the group."),
+  error: z.string().describe("Error message if the operation failed.").optional(),
+});
+
+export type oktaRemoveUserFromGroupOutputType = z.infer<typeof oktaRemoveUserFromGroupOutputSchema>;
+export type oktaRemoveUserFromGroupFunction = ActionFunction<
+  oktaRemoveUserFromGroupParamsType,
+  AuthParamsType,
+  oktaRemoveUserFromGroupOutputType
+>;
+
+export const oktaListOktaUsersParamsSchema = z.object({
+  searchQuery: z
+    .string()
+    .describe(
+      "Optional search query to filter users.\nThis field corresponds to the `search` query parameter in the Okta API's List Users operation.\nFor detailed information on constructing search queries and available filter expressions, refer to the Okta API documentation:\nhttps://developer.okta.com/docs/api/openapi/okta-management/management/tag/User/#tag/User/operation/listUsers!in=query&path=search&t=request\nExample: 'profile.email eq \"my_user@example.com\"'\n",
+    )
+    .optional(),
+  maxResults: z.number().gte(1).describe("The maximum number of results to return.").optional(),
+});
+
+export type oktaListOktaUsersParamsType = z.infer<typeof oktaListOktaUsersParamsSchema>;
+
+export const oktaListOktaUsersOutputSchema = z.object({
+  success: z.boolean().describe("Whether the user list was successfully retrieved"),
+  users: z
+    .array(
+      z.object({
+        id: z.string().describe("The user's Okta ID"),
+        status: z.string().describe("The user's status").optional(),
+        created: z.string().describe("The timestamp when the user was created").optional(),
+        activated: z.string().nullable().describe("The timestamp when the user was activated").optional(),
+        statusChanged: z.string().nullable().describe("The timestamp when the user's status changed").optional(),
+        lastLogin: z.string().nullable().describe("The timestamp of the user's last login").optional(),
+        lastUpdated: z.string().describe("The timestamp of the user's last update").optional(),
+        passwordChanged: z.string().describe("The timestamp when the user's password was last changed").optional(),
+        type: z.object({ id: z.string().describe("The type ID of the user").optional() }).optional(),
+        profile: z.object({
+          firstName: z.string().describe("The user's first name").optional(),
+          lastName: z.string().describe("The user's last name").optional(),
+          mobilePhone: z.string().nullable().describe("The user's mobile phone number").optional(),
+          secondEmail: z.string().nullable().describe("The user's secondary email address").optional(),
+          login: z.string().describe("The user's login").optional(),
+          email: z.string().describe("The user's email address").optional(),
+        }),
+        realmId: z.string().describe("The realm ID of the user").optional(),
+      }),
+    )
+    .describe("List of Okta users matching the query")
+    .optional(),
+  error: z.string().describe("Error message if user retrieval failed").optional(),
+});
+
+export type oktaListOktaUsersOutputType = z.infer<typeof oktaListOktaUsersOutputSchema>;
+export type oktaListOktaUsersFunction = ActionFunction<
+  oktaListOktaUsersParamsType,
+  AuthParamsType,
+  oktaListOktaUsersOutputType
+>;
+
+export const oktaResetMFAParamsSchema = z.object({
+  userId: z.string().describe("The ID of the user whose MFA needs to be reset."),
+  factorId: z
+    .string()
+    .describe("Optional. The ID of the specific factor to reset. If not provided, all factors will be reset.")
+    .optional(),
+});
+
+export type oktaResetMFAParamsType = z.infer<typeof oktaResetMFAParamsSchema>;
+
+export const oktaResetMFAOutputSchema = z.object({
+  success: z.boolean().describe("Whether the MFA reset was successful."),
+  error: z.string().describe("Error message if the MFA reset failed.").optional(),
+});
+
+export type oktaResetMFAOutputType = z.infer<typeof oktaResetMFAOutputSchema>;
+export type oktaResetMFAFunction = ActionFunction<oktaResetMFAParamsType, AuthParamsType, oktaResetMFAOutputType>;
+
+export const oktaListMFAParamsSchema = z.object({
+  userId: z.string().describe("The ID of the user whose MFA factors need to be listed."),
+});
+
+export type oktaListMFAParamsType = z.infer<typeof oktaListMFAParamsSchema>;
+
+export const oktaListMFAOutputSchema = z.object({
+  success: z.boolean().describe("Whether the MFA factors were successfully retrieved."),
+  factors: z
+    .array(
+      z.object({
+        id: z.string().describe("The ID of the MFA factor."),
+        factorType: z
+          .string()
+          .describe("The type of the MFA factor (e.g., question, sms, token:software:totp).")
+          .optional(),
+        provider: z.string().describe("The provider of the MFA factor (e.g., OKTA).").optional(),
+        vendorName: z.string().describe("The vendor name of the MFA factor.").optional(),
+        status: z.string().describe("The status of the MFA factor (e.g., ACTIVE, PENDING_ACTIVATION).").optional(),
+        created: z.string().describe("The timestamp when the MFA factor was created.").optional(),
+        lastUpdated: z.string().describe("The timestamp when the MFA factor was last updated.").optional(),
+        profile: z
+          .object({})
+          .catchall(z.any())
+          .describe("Additional profile information for the MFA factor.")
+          .optional(),
+        _links: z.object({}).catchall(z.any()).describe("Links related to the MFA factor.").optional(),
+        _embedded: z
+          .object({})
+          .catchall(z.any())
+          .describe("Embedded data for the MFA factor (e.g., activation details).")
+          .optional(),
+      }),
+    )
+    .describe("List of MFA factors for the user.")
+    .optional(),
+  error: z.string().describe("Error message if the MFA factors could not be retrieved.").optional(),
+});
+
+export type oktaListMFAOutputType = z.infer<typeof oktaListMFAOutputSchema>;
+export type oktaListMFAFunction = ActionFunction<oktaListMFAParamsType, AuthParamsType, oktaListMFAOutputType>;
+
+export const oktaResetPasswordParamsSchema = z.object({
+  userId: z.string().describe("The ID of the user whose password needs to be reset."),
+  sendEmail: z.boolean().describe("Whether to send a password reset email to the user."),
+  revokeSessions: z
+    .boolean()
+    .describe("Whether to revoke all active sessions for the user after the password reset.")
+    .optional(),
+});
+
+export type oktaResetPasswordParamsType = z.infer<typeof oktaResetPasswordParamsSchema>;
+
+export const oktaResetPasswordOutputSchema = z.object({
+  success: z.boolean().describe("Whether the password reset was successful."),
+  error: z.string().describe("Error message if the password reset failed.").optional(),
+  resetPasswordUrl: z.string().describe("The URL for resetting the password manually.").optional(),
+});
+
+export type oktaResetPasswordOutputType = z.infer<typeof oktaResetPasswordOutputSchema>;
+export type oktaResetPasswordFunction = ActionFunction<
+  oktaResetPasswordParamsType,
+  AuthParamsType,
+  oktaResetPasswordOutputType
+>;
+
+export const oktaTriggerOktaWorkflowParamsSchema = z.object({
+  workflowId: z.string().describe("The unique ID of the workflow"),
+  workflowParameters: z
+    .record(z.string())
+    .describe("A key,value pair where the keys are the input variables the values are the values of those fields.")
+    .optional(),
+});
+
+export type oktaTriggerOktaWorkflowParamsType = z.infer<typeof oktaTriggerOktaWorkflowParamsSchema>;
+
+export const oktaTriggerOktaWorkflowOutputSchema = z.object({
+  success: z.boolean().describe("Whether the workflow was successfully triggered."),
+  output: z.object({}).catchall(z.any()).describe("The output of the triggered workflow, if applicable.").optional(),
+  error: z.string().describe("Error message if the workflow trigger failed.").optional(),
+});
+
+export type oktaTriggerOktaWorkflowOutputType = z.infer<typeof oktaTriggerOktaWorkflowOutputSchema>;
+export type oktaTriggerOktaWorkflowFunction = ActionFunction<
+  oktaTriggerOktaWorkflowParamsType,
+  AuthParamsType,
+  oktaTriggerOktaWorkflowOutputType
+>;
+
+export const gongGetGongTranscriptsParamsSchema = z.object({
+  userRole: z.string().describe("The role of users whose transcripts are being fetched"),
+  trackers: z
+    .array(z.string().describe("The names of the trackers to fetch transcripts for"))
+    .describe("The trackers to fetch transcripts for")
+    .optional(),
+  company: z.string().describe("The company to get calls with").optional(),
+  startDate: z.string().describe("The start date of the transcripts to fetch in ISO 8601 format").optional(),
+  endDate: z.string().describe("The end date of the transcripts to fetch in ISO 8601 format").optional(),
+});
+
+export type gongGetGongTranscriptsParamsType = z.infer<typeof gongGetGongTranscriptsParamsSchema>;
+
+export const gongGetGongTranscriptsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the transcripts were fetched successfully"),
+  callTranscripts: z
+    .array(
+      z
+        .object({
+          callId: z.string().describe("The ID of the call").optional(),
+          callName: z.string().describe("The name of the call").optional(),
+          startTime: z.string().describe("The start time of the call in ISO 8601 format").optional(),
+          transcript: z
+            .array(
+              z
+                .object({
+                  speakerName: z.string().describe("The name of the speaker").optional(),
+                  speakerEmail: z.string().describe("The email of the speaker").optional(),
+                  topic: z.string().nullable().describe("The topic of the transcript").optional(),
+                  sentences: z
+                    .array(
+                      z
+                        .object({
+                          start: z.number().describe("The start time of the sentence in seconds").optional(),
+                          end: z.number().describe("The end time of the sentence in seconds").optional(),
+                          text: z.string().describe("The text of the sentence").optional(),
+                        })
+                        .describe("A sentence"),
+                    )
+                    .describe("The sentences in the transcript")
+                    .optional(),
+                })
+                .describe("A transcript"),
+            )
+            .describe("The transcript")
+            .optional(),
+        })
+        .describe("A transcript"),
+    )
+    .describe("The transcripts fetched")
+    .optional(),
+  error: z.string().describe("The error that occurred if the transcripts weren't fetched successfully").optional(),
+});
+
+export type gongGetGongTranscriptsOutputType = z.infer<typeof gongGetGongTranscriptsOutputSchema>;
+export type gongGetGongTranscriptsFunction = ActionFunction<
+  gongGetGongTranscriptsParamsType,
+  AuthParamsType,
+  gongGetGongTranscriptsOutputType
 >;
 
 export const finnhubSymbolLookupParamsSchema = z.object({
@@ -2775,7 +4732,11 @@ export type ashbyUpdateCandidateFunction = ActionFunction<
 export const salesforceUpdateRecordParamsSchema = z.object({
   objectType: z.string().describe("The Salesforce object type to update (e.g., Lead, Account, Contact)"),
   recordId: z.string().describe("The ID of the record to update"),
-  fieldsToUpdate: z.record(z.string()).describe("The fields to update on the record"),
+  fieldsToUpdate: z
+    .record(z.string())
+    .describe(
+      "A key,value pair where the keys are the fields to update on the record and the values are the new values of those fields.",
+    ),
 });
 
 export type salesforceUpdateRecordParamsType = z.infer<typeof salesforceUpdateRecordParamsSchema>;
@@ -2790,6 +4751,26 @@ export type salesforceUpdateRecordFunction = ActionFunction<
   salesforceUpdateRecordParamsType,
   AuthParamsType,
   salesforceUpdateRecordOutputType
+>;
+
+export const salesforceCreateRecordParamsSchema = z.object({
+  objectType: z.string().describe("The Salesforce object type to create (e.g., Lead, Account, Contact)"),
+  fieldsToCreate: z.record(z.string()).describe("The fields to create on the record").optional(),
+});
+
+export type salesforceCreateRecordParamsType = z.infer<typeof salesforceCreateRecordParamsSchema>;
+
+export const salesforceCreateRecordOutputSchema = z.object({
+  success: z.boolean().describe("Whether the record was successfully created"),
+  recordId: z.string().describe("The ID of the created object").optional(),
+  error: z.string().describe("The error that occurred if the record was not successfully created").optional(),
+});
+
+export type salesforceCreateRecordOutputType = z.infer<typeof salesforceCreateRecordOutputSchema>;
+export type salesforceCreateRecordFunction = ActionFunction<
+  salesforceCreateRecordParamsType,
+  AuthParamsType,
+  salesforceCreateRecordOutputType
 >;
 
 export const salesforceCreateCaseParamsSchema = z.object({
@@ -2842,6 +4823,45 @@ export type salesforceGenerateSalesReportFunction = ActionFunction<
   salesforceGenerateSalesReportOutputType
 >;
 
+export const salesforceSearchSalesforceRecordsParamsSchema = z.object({
+  keyword: z.string().describe("The keyword to search for"),
+  recordType: z.string().describe("The type of record to search for"),
+  fieldsToSearch: z.array(z.string()).describe("The fields to search for the keyword"),
+  limit: z.number().describe("The maximum number of records to return").optional(),
+});
+
+export type salesforceSearchSalesforceRecordsParamsType = z.infer<typeof salesforceSearchSalesforceRecordsParamsSchema>;
+
+export const salesforceSearchSalesforceRecordsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the records were successfully retrieved"),
+  searchRecords: z
+    .array(
+      z
+        .object({
+          id: z.string().describe("The Salesforce record ID").optional(),
+          attributes: z
+            .object({
+              type: z.string().describe("The Salesforce object type"),
+              url: z.string().describe("The Salesforce record URL"),
+            })
+            .catchall(z.any())
+            .describe("Metadata about the Salesforce record")
+            .optional(),
+        })
+        .describe("A record from Salesforce"),
+    )
+    .describe("The records that match the search")
+    .optional(),
+  error: z.string().describe("The error that occurred if the records were not successfully retrieved").optional(),
+});
+
+export type salesforceSearchSalesforceRecordsOutputType = z.infer<typeof salesforceSearchSalesforceRecordsOutputSchema>;
+export type salesforceSearchSalesforceRecordsFunction = ActionFunction<
+  salesforceSearchSalesforceRecordsParamsType,
+  AuthParamsType,
+  salesforceSearchSalesforceRecordsOutputType
+>;
+
 export const salesforceGetSalesforceRecordsByQueryParamsSchema = z.object({
   query: z.string().describe("The SOQL query to execute"),
   limit: z.number().describe("The maximum number of records to retrieve").optional(),
@@ -2889,6 +4909,96 @@ export type salesforceGetRecordFunction = ActionFunction<
   salesforceGetRecordOutputType
 >;
 
+export const salesforceFetchSalesforceSchemaByObjectParamsSchema = z.object({
+  objectType: z.string().describe("The Salesforce object type to fetch the schema for (e.g., Lead, Account, Contact)"),
+});
+
+export type salesforceFetchSalesforceSchemaByObjectParamsType = z.infer<
+  typeof salesforceFetchSalesforceSchemaByObjectParamsSchema
+>;
+
+export const salesforceFetchSalesforceSchemaByObjectOutputSchema = z.object({
+  success: z.boolean().describe("Whether the schema was successfully retrieved"),
+  schema: z.record(z.string()).describe("The retrieved schema data").optional(),
+  error: z.string().describe("The error that occurred if the schema was not successfully retrieved").optional(),
+});
+
+export type salesforceFetchSalesforceSchemaByObjectOutputType = z.infer<
+  typeof salesforceFetchSalesforceSchemaByObjectOutputSchema
+>;
+export type salesforceFetchSalesforceSchemaByObjectFunction = ActionFunction<
+  salesforceFetchSalesforceSchemaByObjectParamsType,
+  AuthParamsType,
+  salesforceFetchSalesforceSchemaByObjectOutputType
+>;
+
+export const microsoftCreateDocumentParamsSchema = z.object({
+  siteId: z.string().describe("The ID of the site where the document will be created").optional(),
+  name: z.string().describe("The name of the new document (include extension like .docx or .xlsx)"),
+  content: z.string().describe("The content to add to the new document"),
+  folderId: z.string().describe("The ID of the folder to create the document in (optional)").optional(),
+});
+
+export type microsoftCreateDocumentParamsType = z.infer<typeof microsoftCreateDocumentParamsSchema>;
+
+export const microsoftCreateDocumentOutputSchema = z.object({
+  documentId: z.string().describe("The ID of the created document").optional(),
+  documentUrl: z.string().describe("The URL to access the created document").optional(),
+  fileName: z.string().describe("The name of the created document (could be sanitized version of the name)").optional(),
+  success: z.boolean().describe("Whether the document was created successfully"),
+  error: z.string().describe("The error that occurred if the document was not created successfully").optional(),
+});
+
+export type microsoftCreateDocumentOutputType = z.infer<typeof microsoftCreateDocumentOutputSchema>;
+export type microsoftCreateDocumentFunction = ActionFunction<
+  microsoftCreateDocumentParamsType,
+  AuthParamsType,
+  microsoftCreateDocumentOutputType
+>;
+
+export const microsoftUpdateDocumentParamsSchema = z.object({
+  siteId: z.string().describe("The ID of the site where the document is located").optional(),
+  documentId: z.string().describe("The ID of the document"),
+  content: z.string().describe("The new content to update in the document"),
+});
+
+export type microsoftUpdateDocumentParamsType = z.infer<typeof microsoftUpdateDocumentParamsSchema>;
+
+export const microsoftUpdateDocumentOutputSchema = z.object({
+  success: z.boolean().describe("Whether the document was updated successfully"),
+  error: z.string().describe("The error that occurred if the update was not successful").optional(),
+  documentUrl: z.string().describe("The URL to access the updated document").optional(),
+});
+
+export type microsoftUpdateDocumentOutputType = z.infer<typeof microsoftUpdateDocumentOutputSchema>;
+export type microsoftUpdateDocumentFunction = ActionFunction<
+  microsoftUpdateDocumentParamsType,
+  AuthParamsType,
+  microsoftUpdateDocumentOutputType
+>;
+
+export const microsoftUpdateSpreadsheetParamsSchema = z.object({
+  spreadsheetId: z.string().describe("The ID of the spreadsheet to update"),
+  range: z.string().describe('The range of cells to update (e.g., "Sheet1!A1:B2")'),
+  values: z.array(z.array(z.string())).describe("The values to update in the specified range"),
+  siteId: z.string().describe("The ID of the site where the spreadsheet is located").optional(),
+});
+
+export type microsoftUpdateSpreadsheetParamsType = z.infer<typeof microsoftUpdateSpreadsheetParamsSchema>;
+
+export const microsoftUpdateSpreadsheetOutputSchema = z.object({
+  success: z.boolean().describe("Whether the spreadsheet was updated successfully"),
+  error: z.string().describe("The error that occurred if the update was not successful").optional(),
+  updatedRange: z.string().describe("The range that was updated in the spreadsheet").optional(),
+});
+
+export type microsoftUpdateSpreadsheetOutputType = z.infer<typeof microsoftUpdateSpreadsheetOutputSchema>;
+export type microsoftUpdateSpreadsheetFunction = ActionFunction<
+  microsoftUpdateSpreadsheetParamsType,
+  AuthParamsType,
+  microsoftUpdateSpreadsheetOutputType
+>;
+
 export const microsoftMessageTeamsChatParamsSchema = z.object({
   chatId: z.string().describe("The chat ID of the Microsoft Teams chat"),
   message: z.string().describe("The text to be messaged to the chat"),
@@ -2928,6 +5038,26 @@ export type microsoftMessageTeamsChannelFunction = ActionFunction<
   microsoftMessageTeamsChannelParamsType,
   AuthParamsType,
   microsoftMessageTeamsChannelOutputType
+>;
+
+export const microsoftGetDocumentParamsSchema = z.object({
+  siteId: z.string().describe("The ID of the site where the document is located (optional for OneDrive)").optional(),
+  documentId: z.string().describe("The ID of the document to retrieve"),
+});
+
+export type microsoftGetDocumentParamsType = z.infer<typeof microsoftGetDocumentParamsSchema>;
+
+export const microsoftGetDocumentOutputSchema = z.object({
+  success: z.boolean().describe("Whether the document was successfully retrieved"),
+  content: z.string().describe("The content of the document").optional(),
+  error: z.string().describe("The error that occurred if the document was not successfully retrieved").optional(),
+});
+
+export type microsoftGetDocumentOutputType = z.infer<typeof microsoftGetDocumentOutputSchema>;
+export type microsoftGetDocumentFunction = ActionFunction<
+  microsoftGetDocumentParamsType,
+  AuthParamsType,
+  microsoftGetDocumentOutputType
 >;
 
 export const githubCreateOrUpdateFileParamsSchema = z.object({
@@ -3004,4 +5134,1101 @@ export type githubCreatePullRequestFunction = ActionFunction<
   githubCreatePullRequestParamsType,
   AuthParamsType,
   githubCreatePullRequestOutputType
+>;
+
+export const githubListPullRequestsParamsSchema = z.object({
+  repositoryOwner: z.string().describe("The owner of the repository"),
+  repositoryName: z.string().describe("The name of the repository"),
+  state: z.string().describe("The state of the pull requests to list (e.g., open, closed)").optional(),
+});
+
+export type githubListPullRequestsParamsType = z.infer<typeof githubListPullRequestsParamsSchema>;
+
+export const githubListPullRequestsOutputSchema = z.object({
+  pullRequests: z
+    .array(
+      z.object({
+        number: z.number().describe("The number of the pull request").optional(),
+        title: z.string().describe("The title of the pull request").optional(),
+        state: z.string().describe("The state of the pull request (e.g., open, closed)").optional(),
+        url: z.string().describe("The URL of the pull request").optional(),
+        createdAt: z.string().describe("The date and time when the pull request was created").optional(),
+        updatedAt: z.string().describe("The date and time when the pull request was last updated").optional(),
+        user: z
+          .object({ login: z.string().describe("The username of the user who created the pull request").optional() })
+          .optional(),
+        description: z.string().describe("The description of the pull request").optional(),
+      }),
+    )
+    .describe("A list of pull requests in the repository"),
+});
+
+export type githubListPullRequestsOutputType = z.infer<typeof githubListPullRequestsOutputSchema>;
+export type githubListPullRequestsFunction = ActionFunction<
+  githubListPullRequestsParamsType,
+  AuthParamsType,
+  githubListPullRequestsOutputType
+>;
+
+export const githubGetFileContentParamsSchema = z.object({
+  organization: z.string().describe("The organization that owns the repository"),
+  repository: z.string().describe("The repository name"),
+  path: z.string().describe("The file path to get content from"),
+});
+
+export type githubGetFileContentParamsType = z.infer<typeof githubGetFileContentParamsSchema>;
+
+export const githubGetFileContentOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("The error that occurred if the operation was not successful").optional(),
+  content: z.string().describe("The decoded file content as a string").optional(),
+  size: z.number().describe("The size of the file in bytes").optional(),
+  name: z.string().describe("The name of the file").optional(),
+  htmlUrl: z.string().describe("The URL of the file in the Github UI").optional(),
+});
+
+export type githubGetFileContentOutputType = z.infer<typeof githubGetFileContentOutputSchema>;
+export type githubGetFileContentFunction = ActionFunction<
+  githubGetFileContentParamsType,
+  AuthParamsType,
+  githubGetFileContentOutputType
+>;
+
+export const githubListDirectoryParamsSchema = z.object({
+  organization: z.string().describe("The organization that owns the repository"),
+  repository: z.string().describe("The repository name"),
+  path: z.string().describe("The path to list directory contents from"),
+});
+
+export type githubListDirectoryParamsType = z.infer<typeof githubListDirectoryParamsSchema>;
+
+export const githubListDirectoryOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  content: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the file"),
+        path: z.string().describe("The path of the file"),
+        type: z.string().describe("The type of the file"),
+        size: z.number().describe("The size of the file in bytes"),
+        htmlUrl: z.string().describe("The URL of the file in the Github UI"),
+      }),
+    )
+    .describe("Array of directory contents")
+    .optional(),
+});
+
+export type githubListDirectoryOutputType = z.infer<typeof githubListDirectoryOutputSchema>;
+export type githubListDirectoryFunction = ActionFunction<
+  githubListDirectoryParamsType,
+  AuthParamsType,
+  githubListDirectoryOutputType
+>;
+
+export const githubSearchRepositoryParamsSchema = z.object({
+  organization: z.string().describe("The organization to search for data in"),
+  repository: z.string().describe("The repository to search for data in"),
+  query: z.string().describe("The query to search for in the repository"),
+});
+
+export type githubSearchRepositoryParamsType = z.infer<typeof githubSearchRepositoryParamsSchema>;
+
+export const githubSearchRepositoryOutputSchema = z.object({
+  code: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the file that had a match"),
+        path: z.string().describe("The path of the file that had a match"),
+        sha: z.string().describe("The SHA of the commit that had a match"),
+        url: z.string().describe("The URL of the file that had a match"),
+        score: z.number().describe("The similarity score of the match"),
+        textMatches: z
+          .array(
+            z.object({
+              object_url: z.string().describe("The URL of the object that had a match").optional(),
+              object_type: z.string().describe("The type of the object that had a match").optional(),
+              fragment: z.string().describe("The fragment of the text that had a match").optional(),
+              matches: z
+                .array(
+                  z.object({
+                    text: z.string().describe("The text that had a match").optional(),
+                    indices: z.array(z.number()).describe("The indices of the text that had a match").optional(),
+                  }),
+                )
+                .describe("A list of matches that match the query"),
+            }),
+          )
+          .describe("A list of text matches that match the query"),
+      }),
+    )
+    .describe("A list of code results that match the query"),
+  commits: z
+    .array(
+      z.object({
+        sha: z.string().describe("The SHA of the commit that had a match"),
+        url: z.string().describe("The URL of the commit that had a match"),
+        commit: z
+          .object({
+            author: z.object({
+              name: z.string().describe("The name of the author"),
+              email: z.string().describe("The email of the author"),
+              date: z.string().describe("The date of the commit"),
+            }),
+            message: z.string().describe("The message of the commit"),
+          })
+          .optional(),
+      }),
+    )
+    .describe("A list of commits that match the query"),
+  issuesAndPullRequests: z
+    .array(
+      z.object({
+        number: z.number().describe("The number of the issue or pull request").optional(),
+        title: z.string().describe("The title of the issue or pull request"),
+        html_url: z.string().describe("The URL of the issue or pull request").optional(),
+        state: z.enum(["open", "closed"]).describe("The state of the issue or pull request"),
+        isPullRequest: z.boolean().describe("Whether the issue or pull request is a pull request").optional(),
+        body: z.string().describe("The body of the issue or pull request").optional(),
+        score: z.number().describe("The score of the issue or pull request").optional(),
+        files: z
+          .array(
+            z.object({
+              filename: z.string().describe("The filename of the file"),
+              status: z.string().describe("The status of the file"),
+              patch: z.string().describe("The patch of the file").optional(),
+            }),
+          )
+          .describe("A list of files that match the query")
+          .optional(),
+      }),
+    )
+    .describe("A list of issues and pull requests that match the query"),
+});
+
+export type githubSearchRepositoryOutputType = z.infer<typeof githubSearchRepositoryOutputSchema>;
+export type githubSearchRepositoryFunction = ActionFunction<
+  githubSearchRepositoryParamsType,
+  AuthParamsType,
+  githubSearchRepositoryOutputType
+>;
+
+export const githubSearchOrganizationParamsSchema = z.object({
+  organization: z.string().describe("The organization to search for data in"),
+  query: z.string().describe("The query to search for within the organization"),
+  repository: z.string().describe("The repository to search for data in").optional(),
+});
+
+export type githubSearchOrganizationParamsType = z.infer<typeof githubSearchOrganizationParamsSchema>;
+
+export const githubSearchOrganizationOutputSchema = z.object({
+  code: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the file that had a match"),
+        path: z.string().describe("The path of the file that had a match"),
+        sha: z.string().describe("The SHA of the commit that had a match"),
+        url: z.string().describe("The URL of the file that had a match"),
+        score: z.number().describe("The similarity score of the match"),
+        textMatches: z
+          .array(
+            z.object({
+              object_url: z.string().describe("The URL of the object that had a match").optional(),
+              object_type: z.string().describe("The type of the object that had a match").optional(),
+              fragment: z.string().describe("The fragment of the text that had a match").optional(),
+              matches: z
+                .array(
+                  z.object({
+                    text: z.string().describe("The text that had a match").optional(),
+                    indices: z.array(z.number()).describe("The indices of the text that had a match").optional(),
+                  }),
+                )
+                .describe("A list of matches that match the query"),
+            }),
+          )
+          .describe("A list of text matches that match the query"),
+      }),
+    )
+    .describe("A list of code results that match the query"),
+  commits: z
+    .array(
+      z.object({
+        sha: z.string().describe("The SHA of the commit that had a match"),
+        url: z.string().describe("The URL of the commit that had a match"),
+        commit: z
+          .object({
+            author: z.object({
+              name: z.string().describe("The name of the author"),
+              email: z.string().describe("The email of the author"),
+              date: z.string().describe("The date of the commit"),
+            }),
+            message: z.string().describe("The message of the commit"),
+          })
+          .optional(),
+      }),
+    )
+    .describe("A list of commits that match the query"),
+  issuesAndPullRequests: z
+    .array(
+      z.object({
+        number: z.number().describe("The number of the issue or pull request").optional(),
+        title: z.string().describe("The title of the issue or pull request"),
+        html_url: z.string().describe("The URL of the issue or pull request").optional(),
+        state: z.enum(["open", "closed"]).describe("The state of the issue or pull request"),
+        isPullRequest: z.boolean().describe("Whether the issue or pull request is a pull request").optional(),
+        body: z.string().describe("The body of the issue or pull request").optional(),
+        score: z.number().describe("The score of the issue or pull request").optional(),
+        files: z
+          .array(
+            z.object({
+              filename: z.string().describe("The filename of the file"),
+              status: z.string().describe("The status of the file"),
+              patch: z.string().describe("The patch of the file").optional(),
+            }),
+          )
+          .describe("A list of files that match the query")
+          .optional(),
+      }),
+    )
+    .describe("A list of issues and pull requests that match the query"),
+});
+
+export type githubSearchOrganizationOutputType = z.infer<typeof githubSearchOrganizationOutputSchema>;
+export type githubSearchOrganizationFunction = ActionFunction<
+  githubSearchOrganizationParamsType,
+  AuthParamsType,
+  githubSearchOrganizationOutputType
+>;
+
+export const notionSearchByTitleParamsSchema = z.object({
+  query: z.string().describe("The query to search for in Notion titles"),
+});
+
+export type notionSearchByTitleParamsType = z.infer<typeof notionSearchByTitleParamsSchema>;
+
+export const notionSearchByTitleOutputSchema = z.object({
+  success: z.boolean().describe("Whether the search was successful"),
+  results: z
+    .array(
+      z.object({
+        id: z.string().describe("The Notion page ID"),
+        title: z.string().nullable().describe("The page title").optional(),
+        url: z.string().describe("The URL to the Notion page"),
+      }),
+    )
+    .describe("List of matching Notion pages")
+    .optional(),
+  error: z.string().describe("Error message if search failed").optional(),
+});
+
+export type notionSearchByTitleOutputType = z.infer<typeof notionSearchByTitleOutputSchema>;
+export type notionSearchByTitleFunction = ActionFunction<
+  notionSearchByTitleParamsType,
+  AuthParamsType,
+  notionSearchByTitleOutputType
+>;
+
+export const jamfGetJamfFileVaultRecoveryKeyParamsSchema = z.object({
+  computerId: z.string().describe("The computerId of the device to get the FileVault2 recovery key for"),
+});
+
+export type jamfGetJamfFileVaultRecoveryKeyParamsType = z.infer<typeof jamfGetJamfFileVaultRecoveryKeyParamsSchema>;
+
+export const jamfGetJamfFileVaultRecoveryKeyOutputSchema = z.object({
+  success: z.boolean().describe("Whether the request was successful"),
+  data: z.string().describe("The FileVault2 recovery key data").optional(),
+  error: z.string().describe("Error message if the request failed").optional(),
+});
+
+export type jamfGetJamfFileVaultRecoveryKeyOutputType = z.infer<typeof jamfGetJamfFileVaultRecoveryKeyOutputSchema>;
+export type jamfGetJamfFileVaultRecoveryKeyFunction = ActionFunction<
+  jamfGetJamfFileVaultRecoveryKeyParamsType,
+  AuthParamsType,
+  jamfGetJamfFileVaultRecoveryKeyOutputType
+>;
+
+export const jamfGetJamfComputerInventoryParamsSchema = z.object({
+  section: z.string().describe("Optional section parameter to filter inventory data").optional(),
+});
+
+export type jamfGetJamfComputerInventoryParamsType = z.infer<typeof jamfGetJamfComputerInventoryParamsSchema>;
+
+export const jamfGetJamfComputerInventoryOutputSchema = z.object({
+  success: z.boolean().describe("Whether the request was successful"),
+  data: z.array(z.any()).describe("The computer inventory data").optional(),
+  error: z.string().describe("Error message if the request failed").optional(),
+});
+
+export type jamfGetJamfComputerInventoryOutputType = z.infer<typeof jamfGetJamfComputerInventoryOutputSchema>;
+export type jamfGetJamfComputerInventoryFunction = ActionFunction<
+  jamfGetJamfComputerInventoryParamsType,
+  AuthParamsType,
+  jamfGetJamfComputerInventoryOutputType
+>;
+
+export const jamfGetJamfUserComputerIdParamsSchema = z.object({
+  userEmail: z.string().describe("The email of the Jamf user to retrieve the computer ID for"),
+});
+
+export type jamfGetJamfUserComputerIdParamsType = z.infer<typeof jamfGetJamfUserComputerIdParamsSchema>;
+
+export const jamfGetJamfUserComputerIdOutputSchema = z.object({
+  success: z.boolean().describe("Whether the request was successful"),
+  computerId: z.string().describe("The computer ID associated with the user").optional(),
+  error: z.string().describe("Error message if the request failed").optional(),
+});
+
+export type jamfGetJamfUserComputerIdOutputType = z.infer<typeof jamfGetJamfUserComputerIdOutputSchema>;
+export type jamfGetJamfUserComputerIdFunction = ActionFunction<
+  jamfGetJamfUserComputerIdParamsType,
+  AuthParamsType,
+  jamfGetJamfUserComputerIdOutputType
+>;
+
+export const jamfLockJamfComputerByIdParamsSchema = z.object({
+  computerId: z.string().describe("The computer ID of the device to lock"),
+  passcode: z.string().describe("Six digit passcode to unlock the computer afterwards"),
+});
+
+export type jamfLockJamfComputerByIdParamsType = z.infer<typeof jamfLockJamfComputerByIdParamsSchema>;
+
+export const jamfLockJamfComputerByIdOutputSchema = z.object({
+  success: z.boolean().describe("Whether the lock command was successful"),
+  error: z.string().describe("Error message if the lock command failed").optional(),
+});
+
+export type jamfLockJamfComputerByIdOutputType = z.infer<typeof jamfLockJamfComputerByIdOutputSchema>;
+export type jamfLockJamfComputerByIdFunction = ActionFunction<
+  jamfLockJamfComputerByIdParamsType,
+  AuthParamsType,
+  jamfLockJamfComputerByIdOutputType
+>;
+
+export const gitlabSearchGroupParamsSchema = z.object({
+  query: z.string().describe("The query that will be used to search gitlab blobs and merge requests"),
+  groupId: z.string().describe("The group ID of the project to search in"),
+  project: z.string().describe("The name of the project to search in").optional(),
+});
+
+export type gitlabSearchGroupParamsType = z.infer<typeof gitlabSearchGroupParamsSchema>;
+
+export const gitlabSearchGroupOutputSchema = z.object({
+  mergeRequests: z
+    .array(
+      z.object({
+        metadata: z
+          .object({
+            id: z.number().describe("The ID of the merge request"),
+            iid: z.number().describe("The internal ID of the merge request"),
+            project_id: z.number().describe("The ID of the project the merge request belongs to"),
+            title: z.string().describe("The title of the merge request"),
+            web_url: z.string().describe("The URL of the merge request"),
+            description: z.string().describe("The description of the merge request").optional(),
+            author: z
+              .object({ name: z.string().describe("The name of the author").optional() })
+              .describe("The author of the merge request")
+              .optional(),
+            merged_at: z.string().describe("The date and time the merge request was merged").optional(),
+          })
+          .describe("The metadata of the merge request"),
+        diffs: z
+          .array(
+            z.object({
+              old_path: z.string().describe("The old path of the diff"),
+              new_path: z.string().describe("The new path of the diff"),
+              diff: z.string().describe("The contents of the diff"),
+              new_file: z.boolean().describe("Whether the diff is a new file"),
+              renamed_file: z.boolean().describe("Whether the diff is a renamed file"),
+              deleted_file: z.boolean().describe("Whether the diff is a deleted file"),
+              too_large: z.boolean().describe("Whether the diff is too large").optional(),
+            }),
+          )
+          .describe("A list of diffs that match the query"),
+      }),
+    )
+    .describe("A list of merge requests that match the query"),
+  blobs: z
+    .array(
+      z.object({
+        metadata: z.object({
+          path: z.string().describe("The path of the blob"),
+          basename: z.string().describe("The basename of the blob"),
+          data: z.string().describe("The data of the blob"),
+          project_id: z.number().describe("The ID of the project the blob belongs to"),
+          ref: z.string().describe("The ref of the blob"),
+          startline: z.number().describe("The start line of the blob"),
+          filename: z.string().describe("The filename of the blob"),
+          web_url: z.string().describe("The URL of the blob"),
+        }),
+        matchedMergeRequests: z
+          .array(
+            z.object({
+              title: z.string().describe("The title of the merge request"),
+              web_url: z.string().describe("The URL of the merge request"),
+              author: z.object({}).catchall(z.any()).describe("The author of the merge request").optional(),
+              merged_at: z.string().describe("The date and time the merge request was merged").optional(),
+            }),
+          )
+          .describe("A list of merge requests that match the blob")
+          .optional(),
+      }),
+    )
+    .describe("A list of blobs that match the query"),
+  commits: z
+    .array(
+      z.object({
+        sha: z.string().describe("The commit SHA"),
+        web_url: z.string().describe("The URL to view the commit in GitLab"),
+        message: z.string().describe("The full commit message"),
+        author: z.object({
+          name: z.string().describe("The name of the commit author"),
+          email: z.string().describe("The email of the commit author"),
+        }),
+        created_at: z.string().describe("The date/time the commit was created"),
+        files: z
+          .array(
+            z.object({
+              old_path: z.string().describe("The old path of the file"),
+              new_path: z.string().describe("The new path of the file"),
+              diff: z.string().describe("The diff contents for the file"),
+            }),
+          )
+          .describe("A list of files changed in the commit"),
+      }),
+    )
+    .describe("A list of commits that match the query")
+    .optional(),
+});
+
+export type gitlabSearchGroupOutputType = z.infer<typeof gitlabSearchGroupOutputSchema>;
+export type gitlabSearchGroupFunction = ActionFunction<
+  gitlabSearchGroupParamsType,
+  AuthParamsType,
+  gitlabSearchGroupOutputType
+>;
+
+export const gitlabGetFileContentParamsSchema = z.object({
+  project_id: z.number().int().describe("Numeric project ID in GitLab (unique per project)"),
+  path: z.string().describe("The file path to get content from (e.g., src/index.js)"),
+  ref: z
+    .string()
+    .describe("Branch, tag, or commit to get the file from (defaults to HEAD, the repo’s default branch)")
+    .optional(),
+});
+
+export type gitlabGetFileContentParamsType = z.infer<typeof gitlabGetFileContentParamsSchema>;
+
+export const gitlabGetFileContentOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("The error that occurred if the operation was not successful").optional(),
+  content: z.string().describe("The decoded file content as a string").optional(),
+  size: z.number().describe("The size of the file in bytes").optional(),
+  name: z.string().describe("The name of the file").optional(),
+  htmlUrl: z.string().describe("The URL of the file in the GitLab UI").optional(),
+});
+
+export type gitlabGetFileContentOutputType = z.infer<typeof gitlabGetFileContentOutputSchema>;
+export type gitlabGetFileContentFunction = ActionFunction<
+  gitlabGetFileContentParamsType,
+  AuthParamsType,
+  gitlabGetFileContentOutputType
+>;
+
+export const gitlabListDirectoryParamsSchema = z.object({
+  group: z.string().describe('The group or namespace that owns the project (e.g., "my-group" or "org/subgroup")'),
+  project: z.string().describe('The name of the GitLab project (e.g., "my-repo")'),
+  path: z.string().describe("The path to list directory contents from (empty string for root)"),
+  ref: z.string().describe('The branch, tag, or commit (defaults to "main")').optional(),
+});
+
+export type gitlabListDirectoryParamsType = z.infer<typeof gitlabListDirectoryParamsSchema>;
+
+export const gitlabListDirectoryOutputSchema = z.object({
+  content: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the file or directory"),
+        path: z.string().describe("The path of the file or directory"),
+        type: z.string().describe('The type of the entry (either "blob" for file or "tree" for directory)'),
+        size: z.number().describe("The size of the file in bytes (only for blobs; omitted or 0 for trees)").optional(),
+        htmlUrl: z.string().describe("The URL of the file or folder in the GitLab UI"),
+      }),
+    )
+    .describe("Array of directory contents"),
+});
+
+export type gitlabListDirectoryOutputType = z.infer<typeof gitlabListDirectoryOutputSchema>;
+export type gitlabListDirectoryFunction = ActionFunction<
+  gitlabListDirectoryParamsType,
+  AuthParamsType,
+  gitlabListDirectoryOutputType
+>;
+
+export const linearGetIssuesParamsSchema = z.object({
+  query: z.string().describe("Optional query string to filter issues").optional(),
+  maxResults: z.number().describe("Optional limit to number of results").optional(),
+});
+
+export type linearGetIssuesParamsType = z.infer<typeof linearGetIssuesParamsSchema>;
+
+export const linearGetIssuesOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  issues: z
+    .array(
+      z.object({
+        id: z.string().describe("The issue ID").optional(),
+        title: z.string().describe("The issue title").optional(),
+        labels: z.array(z.string()).describe("The issue labels").optional(),
+        state: z.string().describe("The issue state").optional(),
+        assignee: z
+          .object({
+            id: z.string().describe("The assignee ID").optional(),
+            name: z.string().describe("The assignee name").optional(),
+          })
+          .describe("The issue assignee")
+          .optional(),
+        due_date: z.string().describe("The issue due date").optional(),
+        project: z
+          .object({
+            id: z.string().describe("The project ID").optional(),
+            name: z.string().describe("The project name").optional(),
+          })
+          .describe("The project the issue belongs to")
+          .optional(),
+        team: z
+          .object({
+            id: z.string().describe("The team ID").optional(),
+            name: z.string().describe("The team name").optional(),
+          })
+          .describe("The team the issue belongs to")
+          .optional(),
+        url: z.string().describe("The issue URL").optional(),
+        comments: z
+          .array(
+            z.object({
+              author_name: z.string().describe("The comment author name").optional(),
+              comment: z.string().describe("The comment content").optional(),
+            }),
+          )
+          .describe("The issue comments")
+          .optional(),
+      }),
+    )
+    .describe("List of issues matching the query")
+    .optional(),
+});
+
+export type linearGetIssuesOutputType = z.infer<typeof linearGetIssuesOutputSchema>;
+export type linearGetIssuesFunction = ActionFunction<
+  linearGetIssuesParamsType,
+  AuthParamsType,
+  linearGetIssuesOutputType
+>;
+
+export const linearGetIssueDetailsParamsSchema = z.object({
+  issueId: z.string().describe("The ID of the Linear issue to retrieve"),
+});
+
+export type linearGetIssueDetailsParamsType = z.infer<typeof linearGetIssueDetailsParamsSchema>;
+
+export const linearGetIssueDetailsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  issue: z
+    .object({
+      id: z.string().describe("The issue ID").optional(),
+      title: z.string().describe("The issue title").optional(),
+      description: z.string().describe("The issue description").optional(),
+      state: z.string().describe("The issue state").optional(),
+      assignee: z
+        .object({
+          id: z.string().describe("The assignee ID").optional(),
+          name: z.string().describe("The assignee name").optional(),
+        })
+        .describe("The issue assignee")
+        .optional(),
+      creator: z
+        .object({
+          id: z.string().describe("The creator ID").optional(),
+          name: z.string().describe("The creator name").optional(),
+        })
+        .describe("The issue creator")
+        .optional(),
+      team: z
+        .object({
+          id: z.string().describe("The team ID").optional(),
+          name: z.string().describe("The team name").optional(),
+        })
+        .describe("The team the issue belongs to")
+        .optional(),
+      project: z
+        .object({
+          id: z.string().describe("The project ID").optional(),
+          name: z.string().describe("The project name").optional(),
+        })
+        .describe("The project the issue belongs to")
+        .optional(),
+      priority: z.number().describe("The issue priority (0-4)").optional(),
+      estimate: z.number().describe("The issue estimate in story points").optional(),
+      dueDate: z.string().describe("The issue due date").optional(),
+      createdAt: z.string().describe("When the issue was created").optional(),
+      updatedAt: z.string().describe("When the issue was last updated").optional(),
+      labels: z.array(z.string()).describe("The issue labels").optional(),
+      url: z.string().describe("The issue URL").optional(),
+      comments: z
+        .array(
+          z.object({
+            author_name: z.string().describe("The comment author name").optional(),
+            comment: z.string().describe("The comment content").optional(),
+          }),
+        )
+        .describe("The issue comments")
+        .optional(),
+      content: z.string().describe("The issue content").optional(),
+    })
+    .describe("The issue details")
+    .optional(),
+});
+
+export type linearGetIssueDetailsOutputType = z.infer<typeof linearGetIssueDetailsOutputSchema>;
+export type linearGetIssueDetailsFunction = ActionFunction<
+  linearGetIssueDetailsParamsType,
+  AuthParamsType,
+  linearGetIssueDetailsOutputType
+>;
+
+export const linearGetProjectsParamsSchema = z.object({});
+
+export type linearGetProjectsParamsType = z.infer<typeof linearGetProjectsParamsSchema>;
+
+export const linearGetProjectsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  projects: z
+    .array(
+      z.object({
+        id: z.string().describe("The project ID").optional(),
+        name: z.string().describe("The project name").optional(),
+        status: z.string().describe("The project status").optional(),
+        labels: z.array(z.string()).describe("The project labels").optional(),
+        content: z.string().describe("The project content").optional(),
+        description: z.string().describe("The project description").optional(),
+        creator: z
+          .object({
+            id: z.string().describe("The creator ID").optional(),
+            name: z.string().describe("The creator name").optional(),
+          })
+          .describe("The project creator")
+          .optional(),
+        lead: z
+          .object({
+            id: z.string().describe("The lead ID").optional(),
+            name: z.string().describe("The lead name").optional(),
+          })
+          .describe("The project lead")
+          .optional(),
+        progress: z.number().describe("The project progress percentage").optional(),
+        url: z.string().describe("The project URL").optional(),
+      }),
+    )
+    .describe("List of all projects")
+    .optional(),
+});
+
+export type linearGetProjectsOutputType = z.infer<typeof linearGetProjectsOutputSchema>;
+export type linearGetProjectsFunction = ActionFunction<
+  linearGetProjectsParamsType,
+  AuthParamsType,
+  linearGetProjectsOutputType
+>;
+
+export const linearGetProjectDetailsParamsSchema = z.object({
+  projectId: z.string().describe("The ID of the Linear project to retrieve"),
+});
+
+export type linearGetProjectDetailsParamsType = z.infer<typeof linearGetProjectDetailsParamsSchema>;
+
+export const linearGetProjectDetailsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  project: z
+    .object({
+      id: z.string().describe("The project ID").optional(),
+      name: z.string().describe("The project name").optional(),
+      description: z.string().describe("The project description").optional(),
+      state: z.string().describe("The project state").optional(),
+      progress: z.number().describe("The project progress percentage").optional(),
+      targetDate: z.string().describe("The project target date").optional(),
+      createdAt: z.string().describe("When the project was created").optional(),
+      updatedAt: z.string().describe("When the project was last updated").optional(),
+      lead: z
+        .object({
+          id: z.string().describe("The lead ID").optional(),
+          name: z.string().describe("The lead name").optional(),
+        })
+        .describe("The project lead")
+        .optional(),
+      team: z
+        .object({
+          id: z.string().describe("The team ID").optional(),
+          name: z.string().describe("The team name").optional(),
+        })
+        .describe("The team the project belongs to")
+        .optional(),
+      issues: z
+        .array(
+          z.object({
+            id: z.string().describe("The issue ID").optional(),
+            name: z.string().describe("The issue name").optional(),
+          }),
+        )
+        .describe("The issues in the project")
+        .optional(),
+      url: z.string().describe("The project URL").optional(),
+      updates: z
+        .array(
+          z.object({
+            id: z.string().describe("The update ID").optional(),
+            content: z.string().describe("The update content").optional(),
+            author_name: z.string().describe("The update author name").optional(),
+            created_at: z.string().describe("When the update was created").optional(),
+          }),
+        )
+        .describe("The project updates")
+        .optional(),
+      content: z.string().describe("The project content").optional(),
+    })
+    .describe("The project details")
+    .optional(),
+});
+
+export type linearGetProjectDetailsOutputType = z.infer<typeof linearGetProjectDetailsOutputSchema>;
+export type linearGetProjectDetailsFunction = ActionFunction<
+  linearGetProjectDetailsParamsType,
+  AuthParamsType,
+  linearGetProjectDetailsOutputType
+>;
+
+export const linearGetTeamDetailsParamsSchema = z.object({
+  teamId: z.string().describe("The ID of the Linear team to retrieve"),
+});
+
+export type linearGetTeamDetailsParamsType = z.infer<typeof linearGetTeamDetailsParamsSchema>;
+
+export const linearGetTeamDetailsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  team: z
+    .object({
+      id: z.string().describe("The team ID").optional(),
+      name: z.string().describe("The team name").optional(),
+      identifier: z.string().describe("Used to identify issues from this team").optional(),
+      members: z
+        .array(z.object({ id: z.string().optional(), name: z.string().optional(), email: z.string().optional() }))
+        .describe("The team members")
+        .optional(),
+    })
+    .describe("The team details")
+    .optional(),
+});
+
+export type linearGetTeamDetailsOutputType = z.infer<typeof linearGetTeamDetailsOutputSchema>;
+export type linearGetTeamDetailsFunction = ActionFunction<
+  linearGetTeamDetailsParamsType,
+  AuthParamsType,
+  linearGetTeamDetailsOutputType
+>;
+
+export const linearGetTeamsParamsSchema = z.object({});
+
+export type linearGetTeamsParamsType = z.infer<typeof linearGetTeamsParamsSchema>;
+
+export const linearGetTeamsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  teams: z
+    .array(
+      z.object({
+        id: z.string().describe("The team ID").optional(),
+        name: z.string().describe("The team name").optional(),
+      }),
+    )
+    .describe("List of all teams")
+    .optional(),
+});
+
+export type linearGetTeamsOutputType = z.infer<typeof linearGetTeamsOutputSchema>;
+export type linearGetTeamsFunction = ActionFunction<linearGetTeamsParamsType, AuthParamsType, linearGetTeamsOutputType>;
+
+export const hubspotGetContactsParamsSchema = z.object({
+  query: z.string().describe("Optional search query to filter contacts by name, email, or other properties").optional(),
+  limit: z.number().describe("Maximum number of contacts to return (default 100, max 100)").optional(),
+});
+
+export type hubspotGetContactsParamsType = z.infer<typeof hubspotGetContactsParamsSchema>;
+
+export const hubspotGetContactsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  contacts: z
+    .array(
+      z.object({
+        id: z.string().describe("The contact ID").optional(),
+        email: z.string().describe("Contact email address").optional(),
+        firstname: z.string().describe("Contact first name").optional(),
+        lastname: z.string().describe("Contact last name").optional(),
+        createdate: z.string().describe("When the contact was created").optional(),
+      }),
+    )
+    .describe("List of contacts matching the search criteria")
+    .optional(),
+});
+
+export type hubspotGetContactsOutputType = z.infer<typeof hubspotGetContactsOutputSchema>;
+export type hubspotGetContactsFunction = ActionFunction<
+  hubspotGetContactsParamsType,
+  AuthParamsType,
+  hubspotGetContactsOutputType
+>;
+
+export const hubspotGetContactDetailsParamsSchema = z.object({
+  contactId: z.string().describe("The ID of the HubSpot contact to retrieve"),
+});
+
+export type hubspotGetContactDetailsParamsType = z.infer<typeof hubspotGetContactDetailsParamsSchema>;
+
+export const hubspotGetContactDetailsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  contact: z
+    .object({
+      id: z.string().describe("The contact ID").optional(),
+      email: z.string().describe("Contact email address").optional(),
+      firstname: z.string().describe("Contact first name").optional(),
+      lastname: z.string().describe("Contact last name").optional(),
+      company: z.string().describe("Contact company").optional(),
+      phone: z.string().describe("Contact phone number").optional(),
+      address: z.string().describe("Contact address").optional(),
+      city: z.string().describe("Contact city").optional(),
+      state: z.string().describe("Contact state").optional(),
+      zip: z.string().describe("Contact zip code").optional(),
+      country: z.string().describe("Contact country").optional(),
+      lifecyclestage: z.string().describe("Contact lifecycle stage").optional(),
+      leadstatus: z.string().describe("Contact lead status").optional(),
+      createdAt: z.string().describe("When the contact was created").optional(),
+      updatedAt: z.string().describe("When the contact was last updated").optional(),
+      archived: z.boolean().describe("Whether the contact is archived").optional(),
+    })
+    .describe("The contact details")
+    .optional(),
+});
+
+export type hubspotGetContactDetailsOutputType = z.infer<typeof hubspotGetContactDetailsOutputSchema>;
+export type hubspotGetContactDetailsFunction = ActionFunction<
+  hubspotGetContactDetailsParamsType,
+  AuthParamsType,
+  hubspotGetContactDetailsOutputType
+>;
+
+export const hubspotGetCompaniesParamsSchema = z.object({
+  query: z
+    .string()
+    .describe("Optional search query to filter companies by name, domain, or other properties")
+    .optional(),
+  limit: z.number().describe("Maximum number of companies to return (default 100, max 100)").optional(),
+});
+
+export type hubspotGetCompaniesParamsType = z.infer<typeof hubspotGetCompaniesParamsSchema>;
+
+export const hubspotGetCompaniesOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  companies: z
+    .array(
+      z.object({
+        id: z.string().describe("The company ID").optional(),
+        name: z.string().describe("Company name").optional(),
+        domain: z.string().describe("Company domain").optional(),
+        createdAt: z.string().describe("When the company was created").optional(),
+      }),
+    )
+    .describe("List of companies matching the search criteria")
+    .optional(),
+});
+
+export type hubspotGetCompaniesOutputType = z.infer<typeof hubspotGetCompaniesOutputSchema>;
+export type hubspotGetCompaniesFunction = ActionFunction<
+  hubspotGetCompaniesParamsType,
+  AuthParamsType,
+  hubspotGetCompaniesOutputType
+>;
+
+export const hubspotGetCompanyDetailsParamsSchema = z.object({
+  companyId: z.string().describe("The ID of the HubSpot company to retrieve"),
+});
+
+export type hubspotGetCompanyDetailsParamsType = z.infer<typeof hubspotGetCompanyDetailsParamsSchema>;
+
+export const hubspotGetCompanyDetailsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  company: z
+    .object({
+      id: z.string().describe("The company ID").optional(),
+      name: z.string().describe("Company name").optional(),
+      domain: z.string().describe("Company domain").optional(),
+      industry: z.string().describe("Company industry").optional(),
+      phone: z.string().describe("Company phone number").optional(),
+      address: z.string().describe("Company address").optional(),
+      city: z.string().describe("Company city").optional(),
+      state: z.string().describe("Company state").optional(),
+      zip: z.string().describe("Company zip code").optional(),
+      country: z.string().describe("Company country").optional(),
+      website: z.string().describe("Company website").optional(),
+      createdAt: z.string().describe("When the company was created").optional(),
+      updatedAt: z.string().describe("When the company was last updated").optional(),
+      archived: z.boolean().describe("Whether the company is archived").optional(),
+    })
+    .describe("The company details")
+    .optional(),
+});
+
+export type hubspotGetCompanyDetailsOutputType = z.infer<typeof hubspotGetCompanyDetailsOutputSchema>;
+export type hubspotGetCompanyDetailsFunction = ActionFunction<
+  hubspotGetCompanyDetailsParamsType,
+  AuthParamsType,
+  hubspotGetCompanyDetailsOutputType
+>;
+
+export const hubspotGetDealsParamsSchema = z.object({
+  query: z.string().describe("Optional search query to filter deals by name, stage, or other properties").optional(),
+  limit: z.number().describe("Maximum number of deals to return (default 100, max 100)").optional(),
+});
+
+export type hubspotGetDealsParamsType = z.infer<typeof hubspotGetDealsParamsSchema>;
+
+export const hubspotGetDealsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  deals: z
+    .array(
+      z.object({
+        id: z.string().describe("The deal ID").optional(),
+        dealname: z.string().describe("Deal name").optional(),
+        amount: z.string().describe("Deal amount").optional(),
+        dealstage: z.string().describe("Deal stage").optional(),
+        createdAt: z.string().describe("When the deal was created").optional(),
+      }),
+    )
+    .describe("List of deals matching the search criteria")
+    .optional(),
+});
+
+export type hubspotGetDealsOutputType = z.infer<typeof hubspotGetDealsOutputSchema>;
+export type hubspotGetDealsFunction = ActionFunction<
+  hubspotGetDealsParamsType,
+  AuthParamsType,
+  hubspotGetDealsOutputType
+>;
+
+export const hubspotGetDealDetailsParamsSchema = z.object({
+  dealId: z.string().describe("The ID of the HubSpot deal to retrieve"),
+});
+
+export type hubspotGetDealDetailsParamsType = z.infer<typeof hubspotGetDealDetailsParamsSchema>;
+
+export const hubspotGetDealDetailsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  deal: z
+    .object({
+      id: z.string().describe("The deal ID").optional(),
+      dealname: z.string().describe("Deal name").optional(),
+      description: z.string().describe("Description of deal").optional(),
+      amount: z.string().describe("Deal amount").optional(),
+      dealstage: z.string().describe("Deal stage").optional(),
+      pipeline: z.string().describe("Pipeline").optional(),
+      dealtype: z.string().describe("Deal type").optional(),
+      closedate: z.string().describe("Close date").optional(),
+      createdAt: z.string().describe("When the deal was created").optional(),
+      updatedAt: z.string().describe("When the deal was last updated").optional(),
+      ownerId: z.string().describe("Deal owner ID").optional(),
+      archived: z.boolean().describe("Whether the deal is archived").optional(),
+    })
+    .describe("The deal details")
+    .optional(),
+});
+
+export type hubspotGetDealDetailsOutputType = z.infer<typeof hubspotGetDealDetailsOutputSchema>;
+export type hubspotGetDealDetailsFunction = ActionFunction<
+  hubspotGetDealDetailsParamsType,
+  AuthParamsType,
+  hubspotGetDealDetailsOutputType
+>;
+
+export const hubspotGetTicketsParamsSchema = z.object({
+  query: z
+    .string()
+    .describe("Optional search query to filter tickets by subject, status, or other properties")
+    .optional(),
+  limit: z.number().describe("Maximum number of tickets to return (default 100, max 100)").optional(),
+});
+
+export type hubspotGetTicketsParamsType = z.infer<typeof hubspotGetTicketsParamsSchema>;
+
+export const hubspotGetTicketsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  tickets: z
+    .array(
+      z.object({
+        id: z.string().describe("The ticket ID").optional(),
+        subject: z.string().describe("Ticket subject").optional(),
+        status: z.string().describe("Ticket status").optional(),
+        createdAt: z.string().describe("When the ticket was created").optional(),
+      }),
+    )
+    .describe("List of tickets matching the search criteria")
+    .optional(),
+});
+
+export type hubspotGetTicketsOutputType = z.infer<typeof hubspotGetTicketsOutputSchema>;
+export type hubspotGetTicketsFunction = ActionFunction<
+  hubspotGetTicketsParamsType,
+  AuthParamsType,
+  hubspotGetTicketsOutputType
+>;
+
+export const hubspotGetTicketDetailsParamsSchema = z.object({
+  ticketId: z.string().describe("The ID of the HubSpot ticket to retrieve"),
+});
+
+export type hubspotGetTicketDetailsParamsType = z.infer<typeof hubspotGetTicketDetailsParamsSchema>;
+
+export const hubspotGetTicketDetailsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  ticket: z
+    .object({
+      id: z.string().describe("The ticket ID").optional(),
+      subject: z.string().describe("Ticket subject").optional(),
+      content: z.string().describe("Ticket content/description").optional(),
+      pipeline: z.string().describe("Pipeline").optional(),
+      status: z.string().describe("Ticket status").optional(),
+      priority: z.string().describe("Ticket priority").optional(),
+      createdAt: z.string().describe("When the ticket was created").optional(),
+      updatedAt: z.string().describe("When the ticket was last updated").optional(),
+      ownerId: z.string().describe("Ticket owner id").optional(),
+      archived: z.boolean().describe("Whether the ticket is archived").optional(),
+    })
+    .describe("The ticket details")
+    .optional(),
+});
+
+export type hubspotGetTicketDetailsOutputType = z.infer<typeof hubspotGetTicketDetailsOutputSchema>;
+export type hubspotGetTicketDetailsFunction = ActionFunction<
+  hubspotGetTicketDetailsParamsType,
+  AuthParamsType,
+  hubspotGetTicketDetailsOutputType
 >;

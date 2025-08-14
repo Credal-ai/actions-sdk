@@ -1,11 +1,12 @@
 import { v4 } from "uuid";
-import {
+import type {
   AuthParamsType,
   googleOauthScheduleCalendarMeetingFunction,
   googleOauthScheduleCalendarMeetingOutputType,
   googleOauthScheduleCalendarMeetingParamsType,
-} from "../../autogen/types";
-import { axiosClient } from "../../util/axiosClient";
+} from "../../autogen/types.js";
+import { axiosClient } from "../../util/axiosClient.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 /**
  * Generates a recurrence rule (RRULE) based on the recurrence parameters
@@ -58,9 +59,9 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
   authParams: AuthParamsType;
 }): Promise<googleOauthScheduleCalendarMeetingOutputType> => {
   if (!authParams.authToken) {
-    throw new Error("authToken is required for Google Calendar API");
+    throw new Error(MISSING_AUTH_TOKEN);
   }
-  const { calendarId, name, start, end, description, attendees, useGoogleMeet, recurrence } = params;
+  const { calendarId, name, start, end, description, attendees, useGoogleMeet, timeZone, recurrence } = params;
   // https://developers.google.com/calendar/api/v3/reference/events/insert
   let createEventApiUrl = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`;
 
@@ -86,11 +87,11 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
     summary: name,
     start: {
       dateTime: start,
-      timeZone: "UTC",
+      ...(timeZone ? { timeZone } : { timeZone: "UTC" }),
     },
     end: {
       dateTime: end,
-      timeZone: "UTC",
+      ...(timeZone ? { timeZone } : { timeZone: "UTC" }),
     },
   };
 

@@ -1,10 +1,11 @@
-import {
+import type {
   AuthParamsType,
   zendeskCreateZendeskTicketFunction,
   zendeskCreateZendeskTicketOutputType,
   zendeskCreateZendeskTicketParamsType,
-} from "../../autogen/types";
-import { axiosClient } from "../../util/axiosClient";
+} from "../../autogen/types.js";
+import { axiosClient } from "../../util/axiosClient.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 const createZendeskTicket: zendeskCreateZendeskTicketFunction = async ({
   params,
@@ -13,7 +14,7 @@ const createZendeskTicket: zendeskCreateZendeskTicketFunction = async ({
   params: zendeskCreateZendeskTicketParamsType;
   authParams: AuthParamsType;
 }): Promise<zendeskCreateZendeskTicketOutputType> => {
-  const { apiKey, username } = authParams;
+  const { authToken } = authParams;
   const { subdomain, subject, body } = params;
   const url = `https://${subdomain}.zendesk.com/api/v2/tickets.json`;
   const payload = {
@@ -25,17 +26,14 @@ const createZendeskTicket: zendeskCreateZendeskTicketFunction = async ({
     },
   };
 
-  if (!apiKey) {
-    throw new Error("API key is required");
+  if (!authToken) {
+    throw new Error(MISSING_AUTH_TOKEN);
   }
 
   const response = await axiosClient.post(url, payload, {
-    auth: {
-      username: `${username}/token`,
-      password: apiKey,
-    },
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
     },
   });
   return {

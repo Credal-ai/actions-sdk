@@ -1,10 +1,11 @@
-import {
+import type {
   AuthParamsType,
   googleOauthUpdateSpreadsheetFunction,
   googleOauthUpdateSpreadsheetOutputType,
   googleOauthUpdateSpreadsheetParamsType,
-} from "../../autogen/types";
-import { axiosClient } from "../../util/axiosClient";
+} from "../../autogen/types.js";
+import { axiosClient } from "../../util/axiosClient.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 /**
  *  Update a Google Spreadsheet using OAuth authentication
@@ -18,7 +19,7 @@ const updateSpreadsheet: googleOauthUpdateSpreadsheetFunction = async ({
   authParams: AuthParamsType;
 }): Promise<googleOauthUpdateSpreadsheetOutputType> => {
   if (!authParams.authToken) {
-    throw new Error("authToken is required for Google Spreadsheets API");
+    throw new Error(MISSING_AUTH_TOKEN);
   }
   const { spreadsheetId, requests } = params;
   const batchUpdateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`;

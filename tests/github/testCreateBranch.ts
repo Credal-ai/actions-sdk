@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { runAction } from "../../src/app";
+import { runAction } from "../../src/app.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -18,7 +18,7 @@ async function runTest() {
       repositoryName: "actions-sdk",
       branchName: `test-branch-${Date.now()}`,
       baseRefOrHash: "heads/main",
-    }
+    },
   );
 
   console.log(JSON.stringify(result, null, 2));

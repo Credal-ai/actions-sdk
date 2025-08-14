@@ -9,4 +9,9 @@ export default [
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
   { ignores: ["src/actions/autogen/**"] },
+  {
+    rules: {
+      "@typescript-eslint/consistent-type-imports": "error",
+    },
+  },
 ];
