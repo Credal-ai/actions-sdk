@@ -4,8 +4,6 @@ import {
   githubCreateBranchOutputType,
   githubCreateBranchParamsType,
 } from "../../autogen/types";
-import { Octokit } from "@octokit/rest";
-import { RequestError } from "@octokit/request-error";
 
 /**
  * Creates a new branch in a GitHub repository
@@ -23,6 +21,8 @@ const createBranch: githubCreateBranchFunction = async ({
 
   const { repositoryOwner, repositoryName, branchName, baseRefOrHash } = params;
 
+  const { Octokit } = await import("@octokit/rest");
+  const { RequestError } = await import("@octokit/request-error");
   const octokit = new Octokit({ auth: authParams.authToken });
 
   try {

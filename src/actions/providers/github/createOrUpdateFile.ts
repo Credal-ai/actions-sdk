@@ -4,8 +4,6 @@ import {
   githubCreateOrUpdateFileOutputType,
   githubCreateOrUpdateFileParamsType,
 } from "../../autogen/types";
-import { Octokit } from "@octokit/rest";
-import { RequestError } from "@octokit/request-error";
 import { z } from "zod";
 
 /**
@@ -24,6 +22,8 @@ const createOrUpdateFile: githubCreateOrUpdateFileFunction = async ({
 
   const { repositoryOwner, repositoryName, filePath, branch, fileContent, commitMessage } = params;
 
+  const { Octokit } = await import("@octokit/rest");
+  const { RequestError } = await import("@octokit/request-error");
   const octokit = new Octokit({ auth: authParams.authToken });
 
   let fileSha = undefined;

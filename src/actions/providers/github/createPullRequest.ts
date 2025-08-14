@@ -4,8 +4,6 @@ import {
   githubCreatePullRequestOutputType,
   githubCreatePullRequestParamsType,
 } from "../../autogen/types";
-import { Octokit } from "@octokit/rest";
-import { RequestError } from "@octokit/request-error";
 
 /**
  * Creates a pull request in a GitHub repository
@@ -23,6 +21,8 @@ const createPullRequest: githubCreatePullRequestFunction = async ({
 
   const { repositoryOwner, repositoryName, head, base, title, description } = params;
 
+  const { Octokit } = await import("@octokit/rest");
+  const { RequestError } = await import("@octokit/request-error");
   const octokit = new Octokit({ auth: authParams.authToken });
 
   try {

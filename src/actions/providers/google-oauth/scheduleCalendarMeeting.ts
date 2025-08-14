@@ -62,15 +62,17 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
   }
   const { calendarId, name, start, end, description, attendees, useGoogleMeet, recurrence } = params;
   // https://developers.google.com/calendar/api/v3/reference/events/insert
-  let createEventApiUrl = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`;
+  let createEventApiUrl = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`;
 
   const data: {
     summary: string;
     start: {
       dateTime: string;
+      timeZone?: string;
     };
     end: {
       dateTime: string;
+      timeZone?: string;
     };
     description?: string;
     attendees?: { email: string }[];
@@ -84,9 +86,11 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
     summary: name,
     start: {
       dateTime: start,
+      timeZone: "UTC",
     },
     end: {
       dateTime: end,
+      timeZone: "UTC",
     },
   };
 
