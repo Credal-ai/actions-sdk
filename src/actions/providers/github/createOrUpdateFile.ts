@@ -24,6 +24,7 @@ const createOrUpdateFile: githubCreateOrUpdateFileFunction = async ({
 
   const octokit = await getOctokit(authParams.authToken);
   const { RequestError } = await import("@octokit/request-error");
+
   const { repositoryOwner, repositoryName, filePath, branch, fileContent, commitMessage } = params;
 
   let fileSha = undefined;

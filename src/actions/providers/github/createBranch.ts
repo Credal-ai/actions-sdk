@@ -24,6 +24,7 @@ const createBranch: githubCreateBranchFunction = async ({
   const octokit = await getOctokit(authParams.authToken);
   const { RequestError } = await import("@octokit/request-error");
   const { repositoryOwner, repositoryName, branchName, baseRefOrHash } = params;
+
   try {
     // Get the reference or commit SHA for the base branch or tag
     const { data: baseRefData } = await octokit.rest.git
