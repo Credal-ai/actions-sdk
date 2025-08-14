@@ -2300,6 +2300,23 @@ export const googleOauthScheduleCalendarMeetingParamsSchema = z.object({
     .string()
     .describe("The time zone for the meeting, IANA Time Zone identifier (e.g., 'America/New_York')")
     .optional(),
+  recurrence: z
+    .object({
+      frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]).describe("How often the meeting repeats").optional(),
+      interval: z.number().int().gte(1).describe("The interval between recurrences (e.g., every 2 weeks)").optional(),
+      count: z.number().int().gte(1).describe("Number of occurrences after which to stop the recurrence").optional(),
+      until: z.string().describe("End date for the recurrence in RFC3339 format (YYYY-MM-DDTHH:MM:SSZ)").optional(),
+      byDay: z
+        .array(z.enum(["MO", "TU", "WE", "TH", "FR", "SA", "SU"]))
+        .describe("Days of the week when the meeting occurs (for WEEKLY frequency)")
+        .optional(),
+      byMonthDay: z
+        .array(z.number().int().gte(1).lte(31))
+        .describe("Days of the month when the meeting occurs (for MONTHLY frequency)")
+        .optional(),
+    })
+    .describe("Recurring meeting configuration. If not provided, creates a one-time meeting.")
+    .optional(),
 });
 
 export type googleOauthScheduleCalendarMeetingParamsType = z.infer<

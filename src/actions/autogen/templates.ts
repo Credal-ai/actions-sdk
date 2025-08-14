@@ -4399,7 +4399,8 @@ export const googleOauthUpdateDocDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
-  description: "Schedule a meeting on google calendar using OAuth authentication",
+  description:
+    "Schedule a meeting on google calendar using OAuth authentication. Supports both one-time and recurring meetings.",
   scopes: [],
   parameters: {
     type: "object",
@@ -4440,6 +4441,48 @@ export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
       timeZone: {
         type: "string",
         description: "The time zone for the meeting, IANA Time Zone identifier (e.g., 'America/New_York')",
+      },
+      recurrence: {
+        type: "object",
+        description: "Recurring meeting configuration. If not provided, creates a one-time meeting.",
+        properties: {
+          frequency: {
+            type: "string",
+            enum: ["DAILY", "WEEKLY", "MONTHLY", "YEARLY"],
+            description: "How often the meeting repeats",
+          },
+          interval: {
+            type: "integer",
+            minimum: 1,
+            description: "The interval between recurrences (e.g., every 2 weeks)",
+          },
+          count: {
+            type: "integer",
+            minimum: 1,
+            description: "Number of occurrences after which to stop the recurrence",
+          },
+          until: {
+            type: "string",
+            description: "End date for the recurrence in RFC3339 format (YYYY-MM-DDTHH:MM:SSZ)",
+          },
+          byDay: {
+            type: "array",
+            description: "Days of the week when the meeting occurs (for WEEKLY frequency)",
+            items: {
+              type: "string",
+              enum: ["MO", "TU", "WE", "TH", "FR", "SA", "SU"],
+            },
+          },
+          byMonthDay: {
+            type: "array",
+            description: "Days of the month when the meeting occurs (for MONTHLY frequency)",
+            items: {
+              type: "integer",
+              minimum: 1,
+              maximum: 31,
+            },
+          },
+        },
       },
     },
   },
