@@ -8,7 +8,47 @@ import {
 import { axiosClient } from "../../util/axiosClient";
 
 /**
+ * Generates a recurrence rule (RRULE) based on the recurrence parameters
+ */
+function generateRecurrenceRule(
+  recurrence: NonNullable<googleOauthScheduleCalendarMeetingParamsType["recurrence"]>,
+): string {
+  let rrule = `RRULE:FREQ=${recurrence.frequency}`;
+
+  if (recurrence.interval) {
+    rrule += `;INTERVAL=${recurrence.interval}`;
+  }
+
+  if (recurrence.count) {
+    rrule += `;COUNT=${recurrence.count}`;
+  }
+
+  if (recurrence.until) {
+    // Convert RFC3339 to RRULE format (YYYYMMDDTHHMMSSZ)
+    const date = new Date(recurrence.until);
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    const hour = String(date.getUTCHours()).padStart(2, "0");
+    const minute = String(date.getUTCMinutes()).padStart(2, "0");
+    const second = String(date.getUTCSeconds()).padStart(2, "0");
+    rrule += `;UNTIL=${year}${month}${day}T${hour}${minute}${second}Z`;
+  }
+
+  if (recurrence.byDay && recurrence.byDay.length > 0) {
+    rrule += `;BYDAY=${recurrence.byDay.join(",")}`;
+  }
+
+  if (recurrence.byMonthDay && recurrence.byMonthDay.length > 0) {
+    rrule += `;BYMONTHDAY=${recurrence.byMonthDay.join(",")}`;
+  }
+
+  return rrule;
+}
+
+/**
  * Creates a new Google calendar event using OAuth authentication
+ * Supports both one-time and recurring meetings
  */
 const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = async ({
   params,
@@ -20,7 +60,7 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
   if (!authParams.authToken) {
     throw new Error("authToken is required for Google Calendar API");
   }
-  const { calendarId, name, start, end, description, attendees, useGoogleMeet } = params;
+  const { calendarId, name, start, end, description, attendees, useGoogleMeet, recurrence } = params;
   // https://developers.google.com/calendar/api/v3/reference/events/insert
   let createEventApiUrl = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`;
 
@@ -39,6 +79,7 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
         requestId: string;
       };
     };
+    recurrence?: string[];
   } = {
     summary: name,
     start: {
@@ -64,6 +105,20 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
         requestId: v4(),
       },
     };
+  }
+
+  // Add recurrence rule if specified
+  if (recurrence) {
+    try {
+      const rrule = generateRecurrenceRule(recurrence);
+      data.recurrence = [rrule];
+    } catch (error) {
+      console.error("Error generating recurrence rule", error);
+      return {
+        success: false,
+        error: "Invalid recurrence configuration: " + (error instanceof Error ? error.message : "Unknown error"),
+      };
+    }
   }
 
   try {
