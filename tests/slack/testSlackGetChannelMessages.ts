@@ -6,7 +6,7 @@ dotenv.config();
 
 async function runTest() {
   const params = {
-    channelName: "chatter",
+    channelName: process.env.SLACK_TEST_CHANNEL_NAME,
     oldest: "1723996800",
   };
   const authParams = {
