@@ -7057,6 +7057,184 @@ actions:
                       patch:
                         type: string
                         description: The patch of the file
+    getBranch:
+      description: Get a branch in a GitHub repository
+      scopes: []
+      parameters:
+        type: object
+        required: [repositoryOwner, repositoryName, branchName]
+        properties:
+          repositoryOwner:
+            type: string
+            description: The owner of the repository
+          repositoryName:
+            type: string
+            description: The name of the repository
+          branchName:
+            type: string
+            description: The name of the branch to retrieve
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the operation was successful
+          error:
+            type: string
+            description: The error that occurred if the operation was not successful
+          branch:
+            type: object
+            description: The branch information
+            properties:
+              name:
+                type: string
+                description: The name of the branch
+              commit:
+                type: object
+                description: The commit information
+                properties:
+                  sha:
+                    type: string
+                    description: The SHA of the commit
+                  node_id:
+                    type: string
+                    description: The node ID of the commit
+                  url:
+                    type: string
+                    description: The API URL of the commit
+                  html_url:
+                    type: string
+                    description: The HTML URL of the commit
+                  comments_url:
+                    type: string
+                    description: The URL for commit comments
+                  commit:
+                    type: object
+                    description: The git commit object
+                    properties:
+                      author:
+                        type: object
+                        nullable: true
+                        description: The commit author
+                        properties:
+                          name:
+                            type: string
+                          email:
+                            type: string
+                          date:
+                            type: string
+                      committer:
+                        type: object
+                        nullable: true
+                        description: The commit committer
+                        properties:
+                          name:
+                            type: string
+                          email:
+                            type: string
+                          date:
+                            type: string
+                      message:
+                        type: string
+                        description: The commit message
+                      tree:
+                        type: object
+                        description: The commit tree
+                        properties:
+                          sha:
+                            type: string
+                          url:
+                            type: string
+                      url:
+                        type: string
+                        description: The commit URL
+                      comment_count:
+                        type: integer
+                        description: Number of comments on the commit
+                  author:
+                    type: object
+                    nullable: true
+                    description: The commit author user
+                    properties:
+                      login:
+                        type: string
+                      id:
+                        type: integer
+                      node_id:
+                        type: string
+                      avatar_url:
+                        type: string
+                      html_url:
+                        type: string
+                      type:
+                        type: string
+                  committer:
+                    type: object
+                    nullable: true
+                    description: The commit committer user
+                    properties:
+                      login:
+                        type: string
+                      id:
+                        type: integer
+                      node_id:
+                        type: string
+                      avatar_url:
+                        type: string
+                      html_url:
+                        type: string
+                      type:
+                        type: string
+                  parents:
+                    type: array
+                    description: The commit parents
+                    items:
+                      type: object
+                      properties:
+                        sha:
+                          type: string
+                        url:
+                          type: string
+                        html_url:
+                          type: string
+              _links:
+                type: object
+                description: Links related to the branch
+                properties:
+                  html:
+                    type: string
+                    description: The HTML URL of the branch
+                  self:
+                    type: string
+                    description: The API URL of the branch
+              protected:
+                type: boolean
+                description: Whether the branch is protected
+              protection:
+                type: object
+                nullable: true
+                description: Branch protection details
+                properties:
+                  enabled:
+                    type: boolean
+                    description: Whether protection is enabled
+                  required_status_checks:
+                    type: object
+                    nullable: true
+                    description: Required status checks
+                    properties:
+                      enforcement_level:
+                        type: string
+                      contexts:
+                        type: array
+                        items:
+                          type: string
+                      strict:
+                        type: boolean
+              protection_url:
+                type: string
+                description: The URL of the branch protection settings
 
   notion:
     searchByTitle:

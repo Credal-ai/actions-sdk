@@ -5383,6 +5383,119 @@ export type githubSearchOrganizationFunction = ActionFunction<
   githubSearchOrganizationOutputType
 >;
 
+export const githubGetBranchParamsSchema = z.object({
+  repositoryOwner: z.string().describe("The owner of the repository"),
+  repositoryName: z.string().describe("The name of the repository"),
+  branchName: z.string().describe("The name of the branch to retrieve"),
+});
+
+export type githubGetBranchParamsType = z.infer<typeof githubGetBranchParamsSchema>;
+
+export const githubGetBranchOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("The error that occurred if the operation was not successful").optional(),
+  branch: z
+    .object({
+      name: z.string().describe("The name of the branch").optional(),
+      commit: z
+        .object({
+          sha: z.string().describe("The SHA of the commit").optional(),
+          node_id: z.string().describe("The node ID of the commit").optional(),
+          url: z.string().describe("The API URL of the commit").optional(),
+          html_url: z.string().describe("The HTML URL of the commit").optional(),
+          comments_url: z.string().describe("The URL for commit comments").optional(),
+          commit: z
+            .object({
+              author: z
+                .object({ name: z.string().optional(), email: z.string().optional(), date: z.string().optional() })
+                .nullable()
+                .describe("The commit author")
+                .optional(),
+              committer: z
+                .object({ name: z.string().optional(), email: z.string().optional(), date: z.string().optional() })
+                .nullable()
+                .describe("The commit committer")
+                .optional(),
+              message: z.string().describe("The commit message").optional(),
+              tree: z
+                .object({ sha: z.string().optional(), url: z.string().optional() })
+                .describe("The commit tree")
+                .optional(),
+              url: z.string().describe("The commit URL").optional(),
+              comment_count: z.number().int().describe("Number of comments on the commit").optional(),
+            })
+            .describe("The git commit object")
+            .optional(),
+          author: z
+            .object({
+              login: z.string().optional(),
+              id: z.number().int().optional(),
+              node_id: z.string().optional(),
+              avatar_url: z.string().optional(),
+              html_url: z.string().optional(),
+              type: z.string().optional(),
+            })
+            .nullable()
+            .describe("The commit author user")
+            .optional(),
+          committer: z
+            .object({
+              login: z.string().optional(),
+              id: z.number().int().optional(),
+              node_id: z.string().optional(),
+              avatar_url: z.string().optional(),
+              html_url: z.string().optional(),
+              type: z.string().optional(),
+            })
+            .nullable()
+            .describe("The commit committer user")
+            .optional(),
+          parents: z
+            .array(
+              z.object({ sha: z.string().optional(), url: z.string().optional(), html_url: z.string().optional() }),
+            )
+            .describe("The commit parents")
+            .optional(),
+        })
+        .describe("The commit information")
+        .optional(),
+      _links: z
+        .object({
+          html: z.string().describe("The HTML URL of the branch").optional(),
+          self: z.string().describe("The API URL of the branch").optional(),
+        })
+        .describe("Links related to the branch")
+        .optional(),
+      protected: z.boolean().describe("Whether the branch is protected").optional(),
+      protection: z
+        .object({
+          enabled: z.boolean().describe("Whether protection is enabled").optional(),
+          required_status_checks: z
+            .object({
+              enforcement_level: z.string().optional(),
+              contexts: z.array(z.string()).optional(),
+              strict: z.boolean().optional(),
+            })
+            .nullable()
+            .describe("Required status checks")
+            .optional(),
+        })
+        .nullable()
+        .describe("Branch protection details")
+        .optional(),
+      protection_url: z.string().describe("The URL of the branch protection settings").optional(),
+    })
+    .describe("The branch information")
+    .optional(),
+});
+
+export type githubGetBranchOutputType = z.infer<typeof githubGetBranchOutputSchema>;
+export type githubGetBranchFunction = ActionFunction<
+  githubGetBranchParamsType,
+  AuthParamsType,
+  githubGetBranchOutputType
+>;
+
 export const notionSearchByTitleParamsSchema = z.object({
   query: z.string().describe("The query to search for in Notion titles"),
 });
