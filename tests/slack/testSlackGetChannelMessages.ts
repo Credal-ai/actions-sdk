@@ -6,8 +6,8 @@ dotenv.config();
 
 async function runTest() {
   const params = {
-    channelName: "insert-channel-name",
-    oldest: "insert-oldest-timestamp",
+    channelName: process.env.SLACK_TEST_CHANNEL_NAME,
+    oldest: "1723996800",
   };
   const authParams = {
     authToken: process.env.SLACK_AUTH_TOKEN,

@@ -6,15 +6,15 @@ dotenv.config();
 
 async function runTest() {
   const result = await runAction(
-    "archiveChannel",
+    "sendMessage",
     "slack",
     { authToken: process.env.SLACK_AUTH_TOKEN },
-    { channelName: process.env.SLACK_TEST_CHANNEL_NAME },
+    { channelName: process.env.SLACK_TEST_CHANNEL_NAME, message: "Hello world" },
   );
   assert(result, "Response should not be null");
-  assert(result.success, "Channel archiving should be successful");
+  assert(result.success, "Message sending should be successful");
   console.log(
-    "Archive Channel Test Response: " + JSON.stringify(result, null, 2),
+    "Send Message Test Response: " + JSON.stringify(result, null, 2),
   );
 }
 

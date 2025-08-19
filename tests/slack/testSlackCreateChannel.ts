@@ -5,12 +5,14 @@ import dotenv from "dotenv";
 dotenv.config();
 
 async function runTest() {
+  const channelName = "test-channel-" + Math.floor(Math.random() * 10000);
+  console.log("Creating channel: " + channelName);
   const result = await runAction(
     "createChannel",
     "slack",
-    { authToken: process.env.SLACK_BOT_TOKEN },
+    { authToken: process.env.SLACK_AUTH_TOKEN },
     {
-      channelName: "test-channel-" + Math.floor(Math.random() * 10000),
+      channelName,
       isPrivate: false,
     },
   );
