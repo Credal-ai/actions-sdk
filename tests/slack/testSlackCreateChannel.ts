@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 async function runTest() {
-  const publicChannelName = "test-channel-123";
+  const publicChannelName = `test-channel-123-${Date.now()}`;
   const privateChannelName = "test-private-channel-123";
   
   console.log("Creating public channel: " + publicChannelName);
