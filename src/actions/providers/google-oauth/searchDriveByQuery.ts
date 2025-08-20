@@ -60,7 +60,7 @@ const searchDriveByQuery: googleOauthSearchDriveByQueryFunction = async ({
   const { query, limit, searchDriveByDrive, orderByQuery } = params;
 
   // Can't use orderBy on quereis that include fullText
-  const safeOrderBy = query.includes("fullText") ? undefined : orderByQuery;
+  const safeOrderBy = query.includes("fullText") ? undefined : orderByQuery ?? "modifiedTime desc";
 
   try {
     if (searchDriveByDrive) {
@@ -85,10 +85,9 @@ const searchAllDrivesAtOnce = async (
   limit?: number,
   orderByQuery?: string,
 ): Promise<googleOauthSearchDriveByQueryOutputType> => {
-  const orderBy = orderByQuery || "modifiedTime desc";
   const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
     query,
-  )}&fields=files(id,name,mimeType,webViewLink)&supportsAllDrives=true&includeItemsFromAllDrives=true&corpora=allDrives&pageSize=1000&orderBy=${encodeURIComponent(orderBy)}`;
+  )}&fields=files(id,name,mimeType,webViewLink)&supportsAllDrives=true&includeItemsFromAllDrives=true&corpora=allDrives&pageSize=1000${orderByQuery ? `&orderBy=${encodeURIComponent(orderByQuery)}` : ""}`;
 
   const res = await axiosClient.get(url, {
     headers: {
@@ -186,7 +185,6 @@ const searchSingleDrive = async (
   orderByQuery?: string,
 ): Promise<Array<DriveFile>> => {
   const files: Array<DriveFile> = [];
-  const orderBy = orderByQuery || "modifiedTime desc";
 
   let nextPageToken: string | undefined;
 
@@ -197,14 +195,14 @@ const searchSingleDrive = async (
       // Search in user's personal drive
       url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
         query,
-      )}&fields=files(id,name,mimeType,webViewLink),nextPageToken&pageSize=1000&orderBy=${encodeURIComponent(orderBy)}${
+      )}&fields=files(id,name,mimeType,webViewLink),nextPageToken&pageSize=1000${orderByQuery ? `&orderBy=${encodeURIComponent(orderByQuery)}` : ""}${
         nextPageToken ? `&pageToken=${nextPageToken}` : ""
       }`;
     } else {
       // Search in specific shared drive
       url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
         `${query} and parents in '${driveId}'`,
-      )}&fields=files(id,name,mimeType,webViewLink),nextPageToken&supportsAllDrives=true&includeItemsFromAllDrives=true&corpora=drive&driveId=${driveId}&pageSize=1000&orderBy=${encodeURIComponent(orderBy)}${
+      )}&fields=files(id,name,mimeType,webViewLink),nextPageToken&supportsAllDrives=true&includeItemsFromAllDrives=true&corpora=drive&driveId=${driveId}&pageSize=1000${orderByQuery ? `&orderBy=${encodeURIComponent(orderByQuery)}` : ""}${
         nextPageToken ? `&pageToken=${nextPageToken}` : ""
       }`;
     }
