@@ -60,7 +60,7 @@ const searchDriveByQuery: googleOauthSearchDriveByQueryFunction = async ({
   const { query, limit, searchDriveByDrive, orderByQuery } = params;
 
   // Can't use orderBy on quereis that include fullText
-  const safeOrderBy = query.includes("fullText") ? undefined : orderByQuery ?? "modifiedTime desc";
+  const safeOrderBy = query.includes("fullText") ? undefined : (orderByQuery ?? "modifiedTime desc");
 
   try {
     if (searchDriveByDrive) {

@@ -114,11 +114,7 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
           }`,
         };
       }
-    } else if (
-      mimeType === "text/plain" ||
-      mimeType === "text/html" ||
-      mimeType === "application/rtf"
-    ) {
+    } else if (mimeType === "text/plain" || mimeType === "text/html" || mimeType === "application/rtf") {
       const downloadUrl = `${BASE_URL}${encodeURIComponent(params.fileId)}?alt=media${sharedDriveParam}`;
       const downloadRes = await axiosClient.get(downloadUrl, {
         headers,
@@ -130,7 +126,10 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
     }
 
     // 5) normalize whitespace + apply content limit
-    content = (content ?? "").trim().replace(/\r?\n+/g, " ").replace(/ +/g, " ");
+    content = (content ?? "")
+      .trim()
+      .replace(/\r?\n+/g, " ")
+      .replace(/ +/g, " ");
     const originalLength = content.length;
     if (limit && content.length > limit) {
       content = content.slice(0, limit);
