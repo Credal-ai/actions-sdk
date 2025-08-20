@@ -26,8 +26,11 @@ const archiveChannel: slackArchiveChannelFunction = async ({
       throw Error("Either channelId or channelName must be provided");
     }
 
-    const allChannels = await getSlackChannels(client);
-    const channelId = inputChannelId ?? allChannels.find(channel => channel.name == channelName)?.id;
+    let channelId = inputChannelId;
+    if (!channelId) {
+      const allChannels = await getSlackChannels(client);
+      channelId = allChannels.find(channel => channel.name == channelName)?.id;
+    }
 
     if (!channelId) {
       throw Error(`Channel with name ${channelName} not found`);
