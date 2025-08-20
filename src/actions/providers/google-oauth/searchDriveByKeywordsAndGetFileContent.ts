@@ -23,10 +23,7 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
   const { keywords, limit, searchDriveByDrive, orderByQuery, fileSizeLimit } = params;
 
   // First, perform the search
-  const searchResult = await searchDriveByQuery({
-    params: { keywords, limit, searchDriveByDrive, orderByQuery },
-    authParams,
-  });
+  // TODO
 
   // If search failed, return error
   if (!searchResult.success) {

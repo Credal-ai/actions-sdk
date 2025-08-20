@@ -9,15 +9,7 @@ import type {
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import { extractTextFromPdf } from "../../../utils/pdf.js";
 import { getGoogleDocContent, getGoogleSheetContent, getGoogleSlidesContent } from "../../../utils/google.js";
-
-type DriveFileMetadata = {
-  name?: string;
-  mimeType?: string;
-  size?: string;
-  driveId?: string;
-  parents?: string[];
-  shortcutDetails?: { targetId?: string; targetMimeType?: string };
-};
+import type { DriveFileMetadata } from "./common.js";
 
 const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = async ({
   params,
