@@ -36,3 +36,6 @@ const result = await runAction(
 ```
 npm run test tests/testRunMathAction.ts
 ```
+
+    aws_access_key_id = "AKIAIOSFODNN7EXAMPLE"
+    aws_secret_access_key = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
