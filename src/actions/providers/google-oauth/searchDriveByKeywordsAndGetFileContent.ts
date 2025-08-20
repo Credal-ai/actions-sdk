@@ -25,7 +25,8 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
   // First, perform the search
   const query = searchQuery
     .split(" ")
-    .map(kw => `fullText contains '${kw.replace(/'/g, "\\'")}'`)
+    .map(kw => kw.replace(/'/g, "\\'"))
+    .map(kw => `fullText contains '${kw}' or name contains '${kw}'`)
     .join(" or ");
   const searchResult = await searchDriveByQuery({
     params: { query, limit, searchDriveByDrive, orderByQuery },
