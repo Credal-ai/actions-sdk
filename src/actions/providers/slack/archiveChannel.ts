@@ -21,18 +21,21 @@ const archiveChannel: slackArchiveChannelFunction = async ({
 
   try {
     const client = new WebClient(authParams.authToken);
-    const { channelName } = params;
+    const { channelId: inputChannelId, channelName } = params;
+    if (!inputChannelId && !channelName) {
+      throw Error("Either channelId or channelName must be provided");
+    }
 
     const allChannels = await getSlackChannels(client);
-    const channel = allChannels.find(channel => channel.name == channelName);
+    const channelId = inputChannelId ?? allChannels.find(channel => channel.name == channelName)?.id;
 
-    if (!channel || !channel.id) {
+    if (!channelId) {
       throw Error(`Channel with name ${channelName} not found`);
     }
 
-    await client.conversations.join({ channel: channel.id });
+    await client.conversations.join({ channel: channelId });
 
-    const result = await client.conversations.archive({ channel: channel.id });
+    const result = await client.conversations.archive({ channel: channelId });
     if (!result.ok) {
       return {
         success: false,

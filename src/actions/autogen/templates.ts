@@ -551,8 +551,12 @@ export const slackArchiveChannelDefinition: ActionTemplate = {
   scopes: ["channels:manage"],
   parameters: {
     type: "object",
-    required: ["channelName"],
+    required: [],
     properties: {
+      channelId: {
+        type: "string",
+        description: "The ID of the channel to archive",
+      },
       channelName: {
         type: "string",
         description: "The name of the channel to archive",
@@ -581,8 +585,12 @@ export const slackSendMessageDefinition: ActionTemplate = {
   scopes: ["chat:write"],
   parameters: {
     type: "object",
-    required: ["channelName", "message"],
+    required: ["message"],
     properties: {
+      channelId: {
+        type: "string",
+        description: "The ID of the channel to send the message to",
+      },
       channelName: {
         type: "string",
         description: "The name of the Slack channel to send the message to (e.g. general, alerts)",

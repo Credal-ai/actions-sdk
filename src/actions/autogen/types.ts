@@ -325,7 +325,8 @@ export type slackCreateChannelFunction = ActionFunction<
 >;
 
 export const slackArchiveChannelParamsSchema = z.object({
-  channelName: z.string().describe("The name of the channel to archive"),
+  channelId: z.string().describe("The ID of the channel to archive").optional(),
+  channelName: z.string().describe("The name of the channel to archive").optional(),
 });
 
 export type slackArchiveChannelParamsType = z.infer<typeof slackArchiveChannelParamsSchema>;
@@ -343,7 +344,11 @@ export type slackArchiveChannelFunction = ActionFunction<
 >;
 
 export const slackSendMessageParamsSchema = z.object({
-  channelName: z.string().describe("The name of the Slack channel to send the message to (e.g. general, alerts)"),
+  channelId: z.string().describe("The ID of the channel to send the message to").optional(),
+  channelName: z
+    .string()
+    .describe("The name of the Slack channel to send the message to (e.g. general, alerts)")
+    .optional(),
   message: z.string().describe("The message content to send to Slack. Can include markdown formatting."),
 });
 

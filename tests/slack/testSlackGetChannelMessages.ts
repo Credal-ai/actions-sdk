@@ -5,26 +5,36 @@ import dotenv from "dotenv";
 dotenv.config();
 
 async function runTest() {
-  const params = {
-    channelName: process.env.SLACK_TEST_CHANNEL_NAME,
-    oldest: "1723996800",
-  };
+  const channelName = process.env.SLACK_TEST_CHANNEL_NAME;
+  const channelId = process.env.SLACK_TEST_CHANNEL_ID;
+  const oldest = "1723996800";
   const authParams = {
     authToken: process.env.SLACK_AUTH_TOKEN,
   };
 
   try {
-    const result = await runAction(
+    const result1 = await runAction(
       "getChannelMessages",
       "slack",
       authParams,
-      params,
+      { channelId, oldest },
+    );
+    const result2 = await runAction(
+      "getChannelMessages",
+      "slack",
+      authParams,
+      { channelName, oldest },
     );
 
-    assert(result, "Response should not be null");
-    assert(result.messages, "Response should contain messages");
+    assert(result1, "Response should not be null");
+    assert(result1.messages, "Response should contain messages");
+    assert(result2, "Response should not be null");
+    assert(result2.messages, "Response should contain messages");
     console.log(
-      "Test passed! with messages: " + JSON.stringify(result.messages, null, 2),
+      "Test passed! with messages: " + JSON.stringify(result1.messages, null, 2),
+    );
+    console.log(
+      "Test passed! with messages: " + JSON.stringify(result2.messages, null, 2),
     );
   } catch (error) {
     console.error("Test failed:", error);

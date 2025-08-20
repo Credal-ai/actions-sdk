@@ -5,16 +5,27 @@ import dotenv from "dotenv";
 dotenv.config();
 
 async function runTest() {
-  const result = await runAction(
+  const result1 = await runAction(
     "archiveChannel",
     "slack",
     { authToken: process.env.SLACK_AUTH_TOKEN },
     { channelName: process.env.SLACK_TEST_CHANNEL_NAME },
   );
-  assert(result, "Response should not be null");
-  assert(result.success, "Channel archiving should be successful");
+  const result2 = await runAction(
+    "archiveChannel",
+    "slack",
+    { authToken: process.env.SLACK_AUTH_TOKEN },
+    { channelId: process.env.SLACK_TEST_CHANNEL_ID },
+  );
+  assert(result1, "Response should not be null");
+  assert(result1.success, "Channel archiving should be successful");
   console.log(
-    "Archive Channel Test Response: " + JSON.stringify(result, null, 2),
+    "Archive Channel Test Response 1: " + JSON.stringify(result1, null, 2),
+  );
+  assert(result2, "Response should not be null");
+  assert(result2.success, "Channel archiving should be successful");
+  console.log(
+    "Archive Channel Test Response 2: " + JSON.stringify(result2, null, 2),
   );
 }
 
