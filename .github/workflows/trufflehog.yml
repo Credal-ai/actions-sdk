@@ -21,24 +21,31 @@ jobs:
         echo "🔍 Running TruffleHog to scan for secrets..."
         echo "============================================="
         
-        # Run TruffleHog and capture JSON output
-        trufflehog git file://. --since-commit=${{ github.event.pull_request.base.ref }} --branch=HEAD --json --no-verification > trufflehog-results.json || true
+        # Run TruffleHog and capture all output
+        trufflehog git file://. --since-commit=${{ github.event.pull_request.base.ref }} --branch=HEAD --json --no-verification > trufflehog-full-output.json 2>&1 || true
         
-        # Check if any secrets were found
-        if [ -s trufflehog-results.json ]; then
+        # Extract only the actual findings (lines with "Found":true)
+        grep '"Found":true' trufflehog-full-output.json > trufflehog-findings.json 2>/dev/null || true
+        
+        # Check if any actual secret findings exist
+        if [ -s trufflehog-findings.json ]; then
           echo ""
           echo "⚠️  SECRETS DETECTED! Here are the details:"
           echo "==========================================="
           
-          # Parse and display results with location details
-          jq -r 'select(.Found == true) | 
-            "📄 File: " + (.SourceMetadata.Data.Filesystem.file // .SourceMetadata.Data.Git.file // "Unknown") + 
-            "\n📍 Line: " + (.SourceMetadata.Data.Filesystem.line // .SourceMetadata.Data.Git.line // "Unknown" | tostring) + 
-            "\n🔑 Detector: " + .DetectorName + 
-            "\n🎯 Secret Type: " + (.DetectorType // "Unknown") +
-            "\n🔗 Commit: " + (.SourceMetadata.Data.Git.commit // "Current")[0:8] +
-            "\n" + ("=" * 50) + "\n"' trufflehog-results.json
+          # Parse and display each finding with location details
+          while IFS= read -r line; do
+            echo "$line" | jq -r '
+              "📄 File: " + (.SourceMetadata.Data.Filesystem.file // .SourceMetadata.Data.Git.file // "Unknown") + 
+              "\n📍 Line: " + (.SourceMetadata.Data.Filesystem.line // .SourceMetadata.Data.Git.line // "Unknown" | tostring) + 
+              "\n🔑 Detector: " + .DetectorName + 
+              "\n🎯 Secret Type: " + (.DetectorType // "Unknown") +
+              "\n💾 Raw Secret (first 50 chars): " + (.Raw[0:50] // "Unknown") + "..." +
+              "\n🔗 Commit: " + (.SourceMetadata.Data.Git.commit // "Current")[0:8] +
+              "\n" + ("=" * 50)'
+          done < trufflehog-findings.json
           
+          echo ""
           echo "❌ Build failed due to detected secrets. Please remove or exclude them."
           exit 1
         else
