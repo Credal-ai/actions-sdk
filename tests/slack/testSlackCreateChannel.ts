@@ -5,24 +5,46 @@ import dotenv from "dotenv";
 dotenv.config();
 
 async function runTest() {
-  const channelName = "test-channel-" + Math.floor(Math.random() * 10000);
-  console.log("Creating channel: " + channelName);
-  const result = await runAction(
+  const publicChannelName = "test-channel-123";
+  const privateChannelName = "test-private-channel-123";
+  
+  console.log("Creating public channel: " + publicChannelName);
+  const result1 = await runAction(
     "createChannel",
     "slack",
     { authToken: process.env.SLACK_AUTH_TOKEN },
     {
-      channelName,
+      channelName: publicChannelName,
       isPrivate: false,
     },
   );
 
-  assert(result, "Response should not be null");
-  assert(result.success, "Channel creation should be successful");
-  assert(result.channelId, "Response should contain channelId");
-  assert(result.channelUrl, "Response should contain channelUrl");
+  console.log("Creating private channel: " + privateChannelName);
+  const result2 = await runAction(
+    "createChannel",
+    "slack",
+    { authToken: process.env.SLACK_AUTH_TOKEN },
+    {
+      channelName: privateChannelName,
+      isPrivate: true,
+    },
+  );
+
+  assert(result1, "Public channel response should not be null");
+  assert(result1.success, "Public channel creation should be successful");
+  assert(result1.channelId, "Public channel response should contain channelId");
+  assert(result1.channelUrl, "Public channel response should contain channelUrl");
+  
+  assert(result2, "Private channel response should not be null");
+  assert(result2.success, "Private channel creation should be successful");
+  assert(result2.channelId, "Private channel response should contain channelId");
+  assert(result2.channelUrl, "Private channel response should contain channelUrl");
+  
   console.log(
-    "Create channel test response: " + JSON.stringify(result, null, 2),
+    "Create public channel test response: " + JSON.stringify(result1, null, 2),
+  );
+  console.log(
+    "Create private channel test response: " + JSON.stringify(result2, null, 2),
   );
 }
 
