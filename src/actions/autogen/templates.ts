@@ -6863,7 +6863,7 @@ export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTem
     properties: {
       query: {
         type: "string",
-        description: "The query to search for in file contents.",
+        description: "Google Drive API search syntax, eg \"fullText contains 'Valentine\\'s Day'\"",
       },
       limit: {
         type: "number",
@@ -6875,7 +6875,7 @@ export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTem
       },
       searchDriveByDrive: {
         type: "boolean",
-        description: "Whether we should search drive by drive or run a general search",
+        description: "Search drive by drive or run a general search",
       },
       orderByQuery: {
         type: "string",

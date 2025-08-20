@@ -1524,8 +1524,8 @@ actions:
           accountName:
             type: string
             description: The name of the Snowflake account
-          username: 
-            type: string 
+          username:
+            type: string
             description: The username of the Snowflake Credential (optional)
           outputFormat:
             type: string
@@ -2807,7 +2807,7 @@ actions:
                 updated:
                   type: string
                   description: Last modification time of the event (RFC3339 timestamp)
-          timezone: 
+          timezone:
             type: string
             description: Timezone the user is currently based out of, given by their calender, follows the IANA Time Zone Database format, defaults to UTC if not defined
           error:
@@ -4345,7 +4345,7 @@ actions:
         properties:
           query:
             type: string
-            description: The query to search for in file contents.
+            description: Google Drive API search syntax, eg "fullText contains 'Valentine\'s Day'"
           limit:
             type: number
             description: The maximum number of files to return
@@ -4354,7 +4354,7 @@ actions:
             description: The maximum length of a file in characters
           searchDriveByDrive:
             type: boolean
-            description: Whether we should search drive by drive or run a general search
+            description: Search drive by drive or run a general search
           orderByQuery:
             type: string
             description: The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'
