@@ -17,6 +17,7 @@ const createChannel: slackCreateChannelFunction = async ({
   if (!authParams.authToken) {
     throw new Error(MISSING_AUTH_TOKEN);
   }
+  const userEmail = authParams.userEmail;
 
   try {
     const client = new WebClient(authParams.authToken);
@@ -33,6 +34,25 @@ const createChannel: slackCreateChannelFunction = async ({
         error: error || "Unknown error creating channel",
       };
     }
+
+    if (!userEmail) {
+      return {
+        success: false,
+        error: "userEmail must be provided in authParams to invite user to private channel",
+      };
+    }
+    const userID = await client.users.lookupByEmail({ email: userEmail });
+    if (!userID.user?.id) {
+      return {
+        success: false,
+        error: `Could not find user with email ${userEmail}`,
+      };
+    }
+    // Add the user who asked to create the channel to the channel
+    await client.conversations.invite({
+      channel: channel.id,
+      users: userID.user.id,
+    });
 
     return {
       success: true,
