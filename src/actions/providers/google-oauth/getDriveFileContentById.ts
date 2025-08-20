@@ -10,6 +10,15 @@ import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import { extractTextFromPdf } from "../../../utils/pdf.js";
 import { getGoogleDocContent, getGoogleSheetContent, getGoogleSlidesContent } from "../../../utils/google.js";
 
+type DriveFileMetadata = {
+  name?: string;
+  mimeType?: string;
+  size?: string;
+  driveId?: string;
+  parents?: string[];
+  shortcutDetails?: { targetId?: string; targetMimeType?: string };
+};
+
 const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = async ({
   params,
   authParams,
@@ -36,15 +45,8 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
       `?fields=name,mimeType,size,driveId,parents,` +
       `shortcutDetails(targetId,targetMimeType)` +
       `&supportsAllDrives=true`;
-    const res = await axiosClient.get(metaUrl, { headers });
-    return res.data as {
-      name?: string;
-      mimeType?: string;
-      size?: string;
-      driveId?: string;
-      parents?: string[];
-      shortcutDetails?: { targetId?: string; targetMimeType?: string };
-    };
+    const res = await axiosClient.get<DriveFileMetadata>(metaUrl, { headers });
+    return res.data;
   };
 
   try {
