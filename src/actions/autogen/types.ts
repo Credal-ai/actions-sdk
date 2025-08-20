@@ -3552,6 +3552,53 @@ export type googleOauthSearchDriveByQueryFunction = ActionFunction<
   googleOauthSearchDriveByQueryOutputType
 >;
 
+export const googleOauthSearchDriveByKeywordsAndGetFileContentParamsSchema = z.object({
+  keywords: z
+    .array(z.string())
+    .describe(
+      'List of searches, eg ["compliance policy", "encryption"]. More separate searches will help find more results!',
+    ),
+  limit: z.number().describe("The maximum number of files to return").optional(),
+  fileSizeLimit: z.number().describe("The maximum length of a file in characters").optional(),
+  searchDriveByDrive: z.boolean().describe("Search drive by drive or run a general search"),
+  orderByQuery: z
+    .string()
+    .describe(
+      "The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'",
+    )
+    .optional(),
+});
+
+export type googleOauthSearchDriveByKeywordsAndGetFileContentParamsType = z.infer<
+  typeof googleOauthSearchDriveByKeywordsAndGetFileContentParamsSchema
+>;
+
+export const googleOauthSearchDriveByKeywordsAndGetFileContentOutputSchema = z.object({
+  success: z.boolean().describe("Whether the search was successful"),
+  files: z
+    .array(
+      z.object({
+        id: z.string().describe("The file ID"),
+        name: z.string().describe("The file name"),
+        mimeType: z.string().describe("The MIME type of the file"),
+        url: z.string().describe("The web link to view the file"),
+        content: z.string().describe("The data returned from the file, subject to fileSizeLimit").optional(),
+      }),
+    )
+    .describe("List of files matching the search")
+    .optional(),
+  error: z.string().describe("Error message if search failed").optional(),
+});
+
+export type googleOauthSearchDriveByKeywordsAndGetFileContentOutputType = z.infer<
+  typeof googleOauthSearchDriveByKeywordsAndGetFileContentOutputSchema
+>;
+export type googleOauthSearchDriveByKeywordsAndGetFileContentFunction = ActionFunction<
+  googleOauthSearchDriveByKeywordsAndGetFileContentParamsType,
+  AuthParamsType,
+  googleOauthSearchDriveByKeywordsAndGetFileContentOutputType
+>;
+
 export const googleOauthSearchDriveByQueryAndGetFileContentParamsSchema = z.object({
   query: z.string().describe("Google Drive API search syntax, eg \"fullText contains 'Valentine\\'s Day'\""),
   limit: z.number().describe("The maximum number of files to return").optional(),
@@ -3578,7 +3625,7 @@ export const googleOauthSearchDriveByQueryAndGetFileContentOutputSchema = z.obje
         name: z.string().describe("The file name"),
         mimeType: z.string().describe("The MIME type of the file"),
         url: z.string().describe("The web link to view the file"),
-        content: z.string().describe("The data returned from the file limited by fileLimit").optional(),
+        content: z.string().describe("The data returned from the file, subject to fileSizeLimit").optional(),
       }),
     )
     .describe("List of files matching the search")

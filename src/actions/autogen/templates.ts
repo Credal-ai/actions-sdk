@@ -6854,8 +6854,89 @@ export const googleOauthSearchDriveByQueryDefinition: ActionTemplate = {
   name: "searchDriveByQuery",
   provider: "googleOauth",
 };
+export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: ActionTemplate = {
+  description: "Search Google Drive with keywords and get resulting content",
+  scopes: ["drive.readonly"],
+  parameters: {
+    type: "object",
+    required: ["keywords", "searchDriveByDrive"],
+    properties: {
+      keywords: {
+        type: "array",
+        description:
+          'List of searches, eg ["compliance policy", "encryption"]. More separate searches will help find more results!',
+        items: {
+          type: "string",
+        },
+      },
+      limit: {
+        type: "number",
+        description: "The maximum number of files to return",
+      },
+      fileSizeLimit: {
+        type: "number",
+        description: "The maximum length of a file in characters",
+      },
+      searchDriveByDrive: {
+        type: "boolean",
+        description: "Search drive by drive or run a general search",
+      },
+      orderByQuery: {
+        type: "string",
+        description:
+          "The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the search was successful",
+      },
+      files: {
+        type: "array",
+        description: "List of files matching the search",
+        items: {
+          type: "object",
+          required: ["id", "name", "mimeType", "url"],
+          properties: {
+            id: {
+              type: "string",
+              description: "The file ID",
+            },
+            name: {
+              type: "string",
+              description: "The file name",
+            },
+            mimeType: {
+              type: "string",
+              description: "The MIME type of the file",
+            },
+            url: {
+              type: "string",
+              description: "The web link to view the file",
+            },
+            content: {
+              type: "string",
+              description: "The data returned from the file, subject to fileSizeLimit",
+            },
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "Error message if search failed",
+      },
+    },
+  },
+  name: "searchDriveByKeywordsAndGetFileContent",
+  provider: "googleOauth",
+};
 export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTemplate = {
-  description: "Search Google Drive files based on a google drive query provided and get content for each file",
+  description: "Search Google Drive with Google Drive query syntax and get resulting content",
   scopes: ["drive.readonly"],
   parameters: {
     type: "object",
@@ -6917,7 +6998,7 @@ export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTem
             },
             content: {
               type: "string",
-              description: "The data returned from the file limited by fileLimit",
+              description: "The data returned from the file, subject to fileSizeLimit",
             },
           },
         },
