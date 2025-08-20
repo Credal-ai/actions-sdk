@@ -9,6 +9,7 @@ import { getOctokit } from "./utils.js";
 
 /**
  * Get a branch in a GitHub repository
+ * https://docs.github.com/en/rest/branches/branches?apiVersion=2022-11-28#get-a-branch
  */
 const getBranch: githubGetBranchFunction = async ({
   params,
