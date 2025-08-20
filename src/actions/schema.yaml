@@ -377,30 +377,6 @@ actions:
           error:
             type: string
             description: The error that occurred if the channel was not created successfully
-    archiveChannel:
-      description: Archives a Slack channel using a bot token, joins the channel to archive if not already a member
-      scopes:
-        - channels:manage
-      parameters:
-        type: object
-        required: []
-        properties:
-          channelId:
-            type: string
-            description: The ID of the channel to archive
-          channelName:
-            type: string
-            description: The name of the channel to archive
-      output:
-        type: object
-        required: [success]
-        properties:
-          success:
-            type: boolean
-            description: Whether the channel was archived successfully
-          error:
-            type: string
-            description: The error that occurred if the channel was not archived successfully
     sendMessage:
       description: Sends a message to a Slack channel
       scopes:

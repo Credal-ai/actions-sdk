@@ -17,8 +17,6 @@ import {
   slackSendMessageParamsSchema,
   slackGetChannelMessagesOutputSchema,
   slackGetChannelMessagesParamsSchema,
-  slackArchiveChannelParamsSchema,
-  slackArchiveChannelOutputSchema,
   slackCreateChannelParamsSchema,
   slackCreateChannelOutputSchema,
   snowflakeGetRowByFieldValueOutputSchema,
@@ -399,7 +397,6 @@ import resetPassword from "./providers/okta/resetPassword.js";
 import resetMFA from "./providers/okta/resetMFA.js";
 import listMFA from "./providers/okta/listMFA.js";
 import createChannel from "./providers/slack/createChannel.js";
-import archiveChannel from "./providers/slack/archiveChannel.js";
 import getJamfUserComputerId from "./providers/jamf/getJamfUserComputerId.js";
 import lockJamfComputerById from "./providers/jamf/lockJamfComputerById.js";
 import triggerOktaWorkflow from "./providers/okta/triggerOktaWorkflow.js";
@@ -585,11 +582,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: createChannel,
       paramsSchema: slackCreateChannelParamsSchema,
       outputSchema: slackCreateChannelOutputSchema,
-    },
-    archiveChannel: {
-      fn: archiveChannel,
-      paramsSchema: slackArchiveChannelParamsSchema,
-      outputSchema: slackArchiveChannelOutputSchema,
     },
   },
   confluence: {
