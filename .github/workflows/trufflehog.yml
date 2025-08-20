@@ -18,4 +18,15 @@ jobs:
         path: ./
         base: ${{ github.event.pull_request.base.ref }}
         head: HEAD
-        extra_args: --debug
+        extra_args: --debug --format=json --output=trufflehog-results.json
+    
+    - name: Display TruffleHog Results
+      if: failure()
+      run: |
+        if [ -f trufflehog-results.json ]; then
+          echo "🔍 TruffleHog found the following secrets:"
+          echo "================================================"
+          jq -r '.[] | "📄 File: \(.SourceMetadata.Data.Filesystem.file // "N/A")\n📍 Line: \(.SourceMetadata.Data.Filesystem.line // "N/A")\n🔑 Detector: \(.DetectorName)\n🎯 Secret: \(.Raw[:50])...\n🔗 Commit: \(.SourceMetadata.Data.Git.commit // "N/A")\n" + ("=" * 48)' trufflehog-results.json
+        else
+          echo "No TruffleHog results file found"
+        fi
