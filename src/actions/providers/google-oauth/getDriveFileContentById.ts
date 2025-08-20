@@ -63,7 +63,7 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
     const size = meta.size ? parseInt(meta.size, 10) : undefined;
     const driveId = meta.driveId;
 
-    // 3) size gate (same as before)
+    // Check if file is too large (50MB limit for safety)
     const maxMegabytes = params.fileSizeLimit && params.fileSizeLimit > 0 ? params.fileSizeLimit : 50;
     const maxFileSize = maxMegabytes * 1024 * 1024;
     if (size !== undefined && size > maxFileSize) {
@@ -73,7 +73,7 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
     let content = "";
     const sharedDriveParam = driveId ? "&supportsAllDrives=true" : "";
 
-    // 4) content by type (same behavior you had)
+    // Google Docs - use Google Docs API instead of Drive export
     if (mimeType === "application/vnd.google-apps.document") {
       content = await getGoogleDocContent(params.fileId, authParams.authToken!, axiosClient, sharedDriveParam);
     } else if (mimeType === "application/vnd.google-apps.spreadsheet") {
@@ -117,17 +117,14 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
     } else if (
       mimeType === "text/plain" ||
       mimeType === "text/html" ||
-      mimeType === "application/rtf" ||
-      mimeType.startsWith("text/")
+      mimeType === "application/rtf"
     ) {
-      // Optional optimization: if limit is small, use Range to avoid full download.
       const downloadUrl = `${BASE_URL}${encodeURIComponent(params.fileId)}?alt=media${sharedDriveParam}`;
-      const useRange = typeof limit === "number" && limit > 0 && limit <= 1_000_000;
       const downloadRes = await axiosClient.get(downloadUrl, {
-        headers: useRange ? { ...headers, Range: `bytes=0-${Math.max(0, limit - 1)}` } : headers,
+        headers,
         responseType: "text",
       });
-      content = downloadRes.data ?? "";
+      content = downloadRes.data;
     } else {
       return { success: false, error: `Unsupported file type: ${mimeType}` };
     }
