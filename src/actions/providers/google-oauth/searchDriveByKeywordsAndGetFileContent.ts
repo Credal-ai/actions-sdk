@@ -20,10 +20,17 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
     return { success: false, error: MISSING_AUTH_TOKEN, files: [] };
   }
 
-  const { keywords, limit, searchDriveByDrive, orderByQuery, fileSizeLimit } = params;
+  const { searchQuery, limit, searchDriveByDrive, orderByQuery, fileSizeLimit } = params;
 
   // First, perform the search
-  // TODO
+  const query = searchQuery
+    .split(" ")
+    .map(kw => `fullText contains '${kw.replace(/'/g, "\\'")}'`)
+    .join(" or ");
+  const searchResult = await searchDriveByQuery({
+    params: { query, limit, searchDriveByDrive, orderByQuery },
+    authParams,
+  });
 
   // If search failed, return error
   if (!searchResult.success) {

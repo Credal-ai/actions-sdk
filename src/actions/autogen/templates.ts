@@ -6859,15 +6859,12 @@ export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: Action
   scopes: ["drive.readonly"],
   parameters: {
     type: "object",
-    required: ["keywords", "searchDriveByDrive"],
+    required: ["searchQuery", "searchDriveByDrive"],
     properties: {
-      keywords: {
-        type: "array",
+      searchQuery: {
+        type: "string",
         description:
-          'List of searches, eg ["compliance policy", "encryption"]. More separate searches will help find more results!',
-        items: {
-          type: "string",
-        },
+          "The query to search for in file contents, eg 'compliance policy' or 'data encryption'. The more relevant words the better.",
       },
       limit: {
         type: "number",
