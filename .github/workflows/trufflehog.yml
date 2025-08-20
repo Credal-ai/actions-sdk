@@ -20,12 +20,38 @@ jobs:
       run: |
         echo "🔍 Running TruffleHog to scan for secrets..."
         echo "============================================="
+        echo "Base commit: ${{ github.event.pull_request.base.ref }}"
+        echo "Head commit: ${{ github.sha }}"
         
-        # Run TruffleHog and capture all output
-        trufflehog git file://. --since-commit=${{ github.event.pull_request.base.ref }} --branch=HEAD --json --no-verification > trufflehog-full-output.json 2>&1 || true
+        # Debug: Show what TruffleHog is scanning
+        echo ""
+        echo "🔧 Debug: Running TruffleHog with verbose output..."
+        trufflehog git file://. --since-commit=${{ github.event.pull_request.base.ref }} --branch=HEAD --json --no-verification --debug > trufflehog-full-output.json 2>&1 || true
         
-        # Extract only the actual findings (lines with "Found":true)
+        echo ""
+        echo "📄 Full TruffleHog output:"
+        cat trufflehog-full-output.json
+        echo ""
+        
+        # Extract only the actual findings (lines with "Found":true or "Found":false for debugging)
+        echo "🔍 Looking for findings..."
+        grep '"Found"' trufflehog-full-output.json > trufflehog-all-results.json 2>/dev/null || true
         grep '"Found":true' trufflehog-full-output.json > trufflehog-findings.json 2>/dev/null || true
+        
+        echo "📊 All results (including false positives):"
+        if [ -s trufflehog-all-results.json ]; then
+          cat trufflehog-all-results.json
+        else
+          echo "No results found at all"
+        fi
+        
+        echo ""
+        echo "🎯 True findings only:"
+        if [ -s trufflehog-findings.json ]; then
+          cat trufflehog-findings.json
+        else
+          echo "No true findings"
+        fi
         
         # Check if any actual secret findings exist
         if [ -s trufflehog-findings.json ]; then
