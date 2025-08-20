@@ -6,8 +6,8 @@ dotenv.config();
 
 async function runTest() {
   const publicChannelName = `test-channel-123-${Date.now()}`;
-  const privateChannelName = "test-private-channel-123";
-  
+  const privateChannelName = `test-private-channel-123-${Date.now()}`;
+
   console.log("Creating public channel: " + publicChannelName);
   const result1 = await runAction(
     "createChannel",
