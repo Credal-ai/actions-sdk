@@ -43,7 +43,7 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
   const contentPromises = files.map(async file => {
     try {
       const contentResult = await getDriveFileContentById({
-        params: { fileId: file.id, limit: fileSizeLimit ?? 1000 },
+        params: { fileId: file.id, limit: fileSizeLimit ?? 100 },
         authParams,
       });
       return {
