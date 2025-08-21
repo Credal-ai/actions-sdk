@@ -12,11 +12,11 @@ async function runTest() {
     "searchDriveByKeywordsAndGetFileContent",
     "googleOauth",
     {
-      authToken: "insert-access-token", // Use a valid OAuth token with Drive readonly scope
+      authToken: process.env.GOOGLE_ACTIONS_ACCESS_TOKEN!,
     },
     {
-      searchQuery: "replace-me with-keywords",
-    } as googleOauthSearchDriveByKeywordsAndGetFileContentParamsType,
+      searchQuery: "akul engineering",
+    } as googleOauthSearchDriveByKeywordsAndGetFileContentParamsType
   );
 
   // Validate the result
