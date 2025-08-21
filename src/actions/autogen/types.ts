@@ -3644,7 +3644,7 @@ export type googleOauthSearchDriveByQueryAndGetFileContentFunction = ActionFunct
 
 export const googleOauthGetDriveFileContentByIdParamsSchema = z.object({
   fileId: z.string().describe("The ID of the file to get content from"),
-  limit: z.number().describe("The character limit for the file content"),
+  limit: z.number().describe("The character limit for the file content").optional(),
   timeoutLimit: z
     .number()
     .describe("The timeout limit for the file content retrieval (default of 15 seconds)")

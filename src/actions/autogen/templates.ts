@@ -7014,7 +7014,7 @@ export const googleOauthGetDriveFileContentByIdDefinition: ActionTemplate = {
   scopes: ["drive.readonly"],
   parameters: {
     type: "object",
-    required: ["fileId", "limit"],
+    required: ["fileId"],
     properties: {
       fileId: {
         type: "string",

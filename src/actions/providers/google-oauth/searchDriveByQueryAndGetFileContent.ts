@@ -20,7 +20,7 @@ const searchDriveByQueryAndGetFileContent: googleOauthSearchDriveByQueryAndGetFi
     return { success: false, error: MISSING_AUTH_TOKEN, files: [] };
   }
 
-  const { query, limit, searchDriveByDrive, orderByQuery, fileSizeLimit } = params;
+  const { query, limit, searchDriveByDrive, orderByQuery, fileSizeLimit: maxChars } = params;
 
   // First, perform the search
   const searchResult = await searchDriveByQuery({
@@ -38,7 +38,7 @@ const searchDriveByQueryAndGetFileContent: googleOauthSearchDriveByQueryAndGetFi
   const contentPromises = files.map(async file => {
     try {
       const contentResult = await getDriveFileContentById({
-        params: { fileId: file.id, limit: fileSizeLimit ?? 100 },
+        params: { fileId: file.id, limit: maxChars },
         authParams,
       });
       return {
