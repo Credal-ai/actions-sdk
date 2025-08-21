@@ -3241,6 +3241,10 @@ export const googleOauthCreateNewGoogleDocDefinition: ActionTemplate = {
         type: "string",
         description: "The content to add to the new Google Doc",
       },
+      usesHtml: {
+        type: "boolean",
+        description: "Whether to interpret the content as HTML",
+      },
     },
   },
   output: {

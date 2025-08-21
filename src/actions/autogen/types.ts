@@ -1706,6 +1706,7 @@ export type resendSendEmailHtmlFunction = ActionFunction<
 export const googleOauthCreateNewGoogleDocParamsSchema = z.object({
   title: z.string().describe("The title of the new Google Doc"),
   content: z.string().describe("The content to add to the new Google Doc").optional(),
+  usesHtml: z.boolean().describe("Whether to interpret the content as HTML").optional(),
 });
 
 export type googleOauthCreateNewGoogleDocParamsType = z.infer<typeof googleOauthCreateNewGoogleDocParamsSchema>;
