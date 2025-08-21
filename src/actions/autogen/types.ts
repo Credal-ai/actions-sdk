@@ -3553,11 +3553,7 @@ export type googleOauthSearchDriveByQueryFunction = ActionFunction<
 >;
 
 export const googleOauthSearchDriveByKeywordsAndGetFileContentParamsSchema = z.object({
-  searchQuery: z
-    .string()
-    .describe(
-      "The query to search for in file contents, eg 'compliance policy' or 'data encryption'. The more relevant words the better.",
-    ),
+  searchQuery: z.string().describe("The query input to Google Drive search"),
   limit: z.number().describe("The maximum number of files to return").optional(),
   fileSizeLimit: z.number().describe("The maximum length of a file in characters").optional(),
   searchDriveByDrive: z.boolean().describe("Search drive by drive or run a general search"),

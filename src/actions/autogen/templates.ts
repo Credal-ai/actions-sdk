@@ -6863,8 +6863,7 @@ export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: Action
     properties: {
       searchQuery: {
         type: "string",
-        description:
-          "The query to search for in file contents, eg 'compliance policy' or 'data encryption'. The more relevant words the better.",
+        description: "The query input to Google Drive search",
       },
       limit: {
         type: "number",
