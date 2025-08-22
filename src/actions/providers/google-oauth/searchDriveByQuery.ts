@@ -79,18 +79,33 @@ const searchAllDrivesAtOnce = async (
   limit?: number,
   orderByQuery?: string,
 ): Promise<googleOauthSearchDriveByQueryOutputType> => {
-  const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
+  const allDrivesUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
     query,
   )}&fields=files(id,name,mimeType,webViewLink)&supportsAllDrives=true&includeItemsFromAllDrives=true&corpora=allDrives&pageSize=1000${orderByQuery ? `&orderBy=${encodeURIComponent(orderByQuery)}` : ""}`;
 
-  const res = await axiosClient.get(url, {
+  const allDrivesRes = axiosClient.get(allDrivesUrl, {
     headers: {
       Authorization: `Bearer ${authToken}`,
     },
   });
 
+  // need to search domain wide separately because the allDrives search doesn't include domain wide files
+  const orgWideUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
+    query,
+  )}&fields=files(id,name,mimeType,webViewLink)&corpora=domain&pageSize=1000${
+    orderByQuery ? `&orderBy=${encodeURIComponent(orderByQuery)}` : ""
+  }`;
+
+  const orgWideRes = axiosClient.get(orgWideUrl, {
+    headers: {
+      Authorization: `Bearer ${authToken}`,
+    },
+  });
+
+  const results = await Promise.all([allDrivesRes, orgWideRes]);
+  const relevantResults = results.map(result => result.data.files).flat();
   const files =
-    res.data.files?.map((file: { id?: string; name?: string; mimeType?: string; webViewLink?: string }) => ({
+    relevantResults.map((file: { id?: string; name?: string; mimeType?: string; webViewLink?: string }) => ({
       id: file.id || "",
       name: file.name || "",
       mimeType: file.mimeType || "",
@@ -116,22 +131,41 @@ const searchAllDrivesIndividually = async (
   const drives = await getAllDrives(authToken);
   let allFiles: Array<DriveFile> = [];
 
-  // Search each drive individually
-  for (const drive of drives) {
-    try {
-      const driveFiles = await searchSingleDrive(query, drive.id, authToken, orderByQuery);
-      // Filter out images and folders before adding to results
-      const readableDriveFiles = filterReadableFiles(driveFiles);
-      allFiles = allFiles.concat(readableDriveFiles);
+  const domainUrl =
+    `https://www.googleapis.com/drive/v3/files?` +
+    `q=${encodeURIComponent(query)}&` +
+    `fields=files(id,name,mimeType,webViewLink),nextPageToken&` +
+    `corpora=domain&` +
+    `pageSize=1000${orderByQuery ? `&orderBy=${encodeURIComponent(orderByQuery)}` : ""}`;
 
-      // If we have a limit and we've reached it, break early
-      if (limit && allFiles.length >= limit) {
-        break;
+  const domainDriveFunction = async () => {
+    const domainRes = await axiosClient.get(domainUrl, {
+      headers: { Authorization: `Bearer ${authToken}` },
+    });
+    const domainFiles =
+      domainRes.data.files?.map((file: { id?: string; name?: string; mimeType?: string; webViewLink?: string }) => ({
+        id: file.id || "",
+        name: file.name || "",
+        mimeType: file.mimeType || "",
+        url: file.webViewLink || "",
+      })) ?? [];
+    allFiles = allFiles.concat(domainFiles.slice(0, limit));
+  };
+
+  // Search each drive individually
+  await Promise.allSettled([
+    domainDriveFunction(),
+    ...drives.map(async drive => {
+      try {
+        const driveFiles = await searchSingleDrive(query, drive.id, authToken, orderByQuery);
+        // Filter out images and folders before adding to results
+        const readableDriveFiles = filterReadableFiles(driveFiles);
+        allFiles = allFiles.concat(readableDriveFiles.slice(0, limit));
+      } catch (error) {
+        console.error(`Error searching drive ${drive.name} (${drive.id}):`, error);
       }
-    } catch (error) {
-      console.error(`Error searching drive ${drive.name} (${drive.id}):`, error);
-    }
-  }
+    }),
+  ]);
 
   return {
     success: true,

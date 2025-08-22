@@ -1,6 +1,8 @@
 import type { googleOauthSearchDriveByKeywordsAndGetFileContentParamsType } from "../../src/actions/autogen/types.js";
 import { runAction } from "../../src/app.js";
 import assert from "node:assert";
+import dotenv from "dotenv";
+dotenv.config();
 
 /**
  * Test for searching Google Drive by keywords and getting file content
@@ -15,7 +17,8 @@ async function runTest() {
       authToken: process.env.GOOGLE_ACTIONS_ACCESS_TOKEN!,
     },
     {
-      searchQuery: "akul engineering",
+      searchQuery: "Neon pigeons",
+      searchDriveByDrive: false,
     } as googleOauthSearchDriveByKeywordsAndGetFileContentParamsType
   );
 
