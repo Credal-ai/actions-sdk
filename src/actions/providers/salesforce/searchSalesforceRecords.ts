@@ -18,30 +18,23 @@ const searchSalesforceRecords: salesforceSearchSalesforceRecordsFunction = async
   const searchFields = Array.from(new Set([...fieldsToSearch, "Id"]));
 
   if (!authToken || !baseUrl) {
-    return {
-      success: false,
-      error: "authToken and baseUrl are required for Salesforce API",
-    };
+    return { success: false, error: "authToken and baseUrl are required for Salesforce API" };
   }
-  
+
   const maxLimit = 25;
   const dateFieldExists = searchFields.includes("CreatedDate");
-  
+
   // Escape special characters for SOSL search
   const escapedKeyword = keyword
-    .replace(/"/g, '\\"')    // Escape quotes
-    .replace(/-/g, '\\-');   // Escape dashes
-  
+    .replace(/"/g, '\\"') // Escape quotes
+    .replace(/-/g, "\\-"); // Escape dashes
+
   const url = `${baseUrl}/services/data/v64.0/search/?q=${encodeURIComponent(
     `FIND {${escapedKeyword}} RETURNING ${recordType} (${searchFields.join(", ") + (dateFieldExists ? " ORDER BY CreatedDate DESC" : "")}) LIMIT ${params.limit && params.limit <= maxLimit ? params.limit : maxLimit}`,
   )}`;
 
   try {
-    const response = await axiosClient.get(url, {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
-    });
+    const response = await axiosClient.get(url, { headers: { Authorization: `Bearer ${authToken}` } });
 
     if (recordType === "Knowledge__kav") {
       for (const record of response.data.searchRecords) {
@@ -65,16 +58,10 @@ const searchSalesforceRecords: salesforceSearchSalesforceRecordsFunction = async
     const recordsWithUrl = response.data.searchRecords.map((record: any) => {
       const recordId = record.Id;
       const webUrl = recordId ? `${baseUrl}/lightning/r/${recordId}/view` : undefined;
-      return {
-        ...record,
-        webUrl,
-      };
+      return { ...record, webUrl };
     });
 
-    return {
-      success: true,
-      searchRecords: recordsWithUrl,
-    };
+    return { success: true, searchRecords: recordsWithUrl };
   } catch (error) {
     console.error("Error retrieving Salesforce record:", error);
     return {
