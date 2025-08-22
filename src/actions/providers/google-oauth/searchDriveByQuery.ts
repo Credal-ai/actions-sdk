@@ -145,34 +145,37 @@ const searchAllDrivesIndividually = async (
     const domainRes = await axiosClient.get(domainUrl, {
       headers: { Authorization: `Bearer ${authToken}` },
     });
-    const domainFiles =
-      domainRes.data.files?.map((file: { id?: string; name?: string; mimeType?: string; webViewLink?: string }) => ({
+    return domainRes.data.files?.map((file: { id?: string; name?: string; mimeType?: string; webViewLink?: string }) => ({
         id: file.id || "",
         name: file.name || "",
         mimeType: file.mimeType || "",
         url: file.webViewLink || "",
       })) ?? [];
-    allFiles = allFiles.concat(domainFiles.slice(0, limit));
   };
 
   // Search each drive individually
-  await Promise.allSettled([
+  const results = await Promise.allSettled([
     domainDriveFunction(),
     ...drives.map(async drive => {
       try {
         const driveFiles = await searchSingleDrive(query, drive.id, authToken, orderByQuery);
         // Filter out images and folders before adding to results
-        const readableDriveFiles = filterReadableFiles(driveFiles);
-        allFiles = allFiles.concat(readableDriveFiles.slice(0, limit));
+        return filterReadableFiles(driveFiles);
       } catch (error) {
         console.error(`Error searching drive ${drive.name} (${drive.id}):`, error);
       }
     }),
   ]);
 
+  for (const result of results) {
+    if (result.status === "fulfilled") {
+      allFiles = allFiles.concat(result.value.slice(0, limit));
+    }
+  }
+
   return {
     success: true,
-    files: limit ? allFiles.slice(0, limit) : allFiles,
+    files: allFiles,
   };
 };
 
