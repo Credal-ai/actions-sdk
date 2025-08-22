@@ -145,12 +145,14 @@ const searchAllDrivesIndividually = async (
     const domainRes = await axiosClient.get(domainUrl, {
       headers: { Authorization: `Bearer ${authToken}` },
     });
-    return domainRes.data.files?.map((file: { id?: string; name?: string; mimeType?: string; webViewLink?: string }) => ({
+    return (
+      domainRes.data.files?.map((file: { id?: string; name?: string; mimeType?: string; webViewLink?: string }) => ({
         id: file.id || "",
         name: file.name || "",
         mimeType: file.mimeType || "",
         url: file.webViewLink || "",
-      })) ?? [];
+      })) ?? []
+    );
   };
 
   // Search each drive individually
