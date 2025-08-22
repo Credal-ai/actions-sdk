@@ -15,7 +15,7 @@ const searchSalesforceRecords: salesforceSearchSalesforceRecordsFunction = async
 }): Promise<salesforceSearchSalesforceRecordsOutputType> => {
   const { authToken, baseUrl } = authParams;
   const { keyword, recordType, fieldsToSearch } = params;
-  const searchFields = Array.from(new Set([...fieldsToSearch, "Id"]));
+  const searchFields = Array.from(new Set([...fieldsToSearch, "Id", "CaseNumber"]));
 
   if (!authToken || !baseUrl) {
     return {
