@@ -101,7 +101,7 @@ function parseHtmlContent(html: string): TextWithFormatting[] {
 
   // Simple regex-based parsing for basic HTML tags
   const segments = html.split(/(<[^>]+>)/);
-  let currentFormatting: TextStyle = {};
+  const currentFormatting: TextStyle = {};
 
   for (let i = 0; i < segments.length; i++) {
     const segment = segments[i];

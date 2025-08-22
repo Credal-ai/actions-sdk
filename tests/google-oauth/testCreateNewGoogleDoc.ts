@@ -7,8 +7,8 @@ import assert from "node:assert";
 async function runTest() {
   console.log("Running test for Google OAuth createNewGoogleDoc");
 
-  const authToken = "insert-token-here"; // Test with token from: https://developers.google.com/oauthplayground/
-
+  const authToken = "insert-token-here";
+  
   const result1 = await runAction(
     "createNewGoogleDoc",
     "googleOauth",
