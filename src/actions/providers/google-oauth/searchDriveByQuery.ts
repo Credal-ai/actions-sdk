@@ -103,12 +103,12 @@ const searchAllDrivesAtOnce = async (
   });
 
   const results = await Promise.all([allDrivesRes, orgWideRes]);
-  const relevantResults = results
-    .map(result => result.data.files)
-    .flat()
-    .filter(Boolean);
+  const relevantResults = results.map(result => result.data.files).filter(Boolean);
+
+  const relevantResultsFlat = relevantResults.map(result => (limit ? result.slice(0, limit) : result)).flat();
+
   const files =
-    relevantResults.map((file: { id?: string; name?: string; mimeType?: string; webViewLink?: string }) => ({
+    relevantResultsFlat.map((file: { id?: string; name?: string; mimeType?: string; webViewLink?: string }) => ({
       id: file.id || "",
       name: file.name || "",
       mimeType: file.mimeType || "",
@@ -120,7 +120,7 @@ const searchAllDrivesAtOnce = async (
 
   return {
     success: true,
-    files: limit ? readableFiles.slice(0, limit) : readableFiles,
+    files: readableFiles,
   };
 };
 
