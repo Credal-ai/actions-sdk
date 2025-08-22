@@ -103,7 +103,10 @@ const searchAllDrivesAtOnce = async (
   });
 
   const results = await Promise.all([allDrivesRes, orgWideRes]);
-  const relevantResults = results.map(result => result.data.files).flat();
+  const relevantResults = results
+    .map(result => result.data.files)
+    .flat()
+    .filter(Boolean);
   const files =
     relevantResults.map((file: { id?: string; name?: string; mimeType?: string; webViewLink?: string }) => ({
       id: file.id || "",
