@@ -28,12 +28,35 @@ const getSalesforceRecordsByQuery: salesforceGetSalesforceRecordsByQueryFunction
   // with parts of other words.
   const aggregateFunction = [" COUNT(", " SUM(", " AVG(", " MIN(", " MAX("];
   const containsAggregateFunction = aggregateFunction.some(func => query.toUpperCase().includes(func));
-  // The API limits the maximum number of records returned to 2000, the limit lets the user set a smaller custom limit
-  const url = `${baseUrl}/services/data/v56.0/queryAll?q=${encodeURIComponent(
-    containsAggregateFunction
-      ? query
-      : query + " LIMIT " + (limit != undefined && limit <= MAX_RECORDS_LIMIT ? limit : MAX_RECORDS_LIMIT),
-  )}`;
+  
+  // Check if query already has a LIMIT clause with a number
+  const limitRegex = /\bLIMIT\s+(\d+)\b/i;
+  const existingLimitMatch = query.match(limitRegex);
+  
+  let finalQuery = query;
+  if (containsAggregateFunction) {
+    // Don't add LIMIT for aggregate functions
+    finalQuery = query;
+  } else if (existingLimitMatch) {
+    if (limit != undefined) {
+      // If limit parameter is provided, remove existing LIMIT and use the parameter
+      const effectiveLimit = limit <= MAX_RECORDS_LIMIT ? limit : MAX_RECORDS_LIMIT;
+      finalQuery = query.replace(limitRegex, '').trim() + " LIMIT " + effectiveLimit;
+    } else {
+      // No limit parameter provided, use existing LIMIT if valid and < 2000, otherwise replace
+      const existingLimit = parseInt(existingLimitMatch[1], 10);
+      if (isNaN(existingLimit) || existingLimit >= MAX_RECORDS_LIMIT) {
+        finalQuery = query.replace(limitRegex, `LIMIT ${MAX_RECORDS_LIMIT}`);
+      }
+      // If existing limit is valid and < 2000, keep the query as is
+    }
+  } else {
+    // No existing LIMIT clause, add one
+    const effectiveLimit = limit != undefined && limit <= MAX_RECORDS_LIMIT ? limit : MAX_RECORDS_LIMIT;
+    finalQuery = query + " LIMIT " + effectiveLimit;
+  }
+  
+  const url = `${baseUrl}/services/data/v56.0/queryAll?q=${encodeURIComponent(finalQuery)}`;
 
   try {
     const response = await axiosClient.get(url, {
