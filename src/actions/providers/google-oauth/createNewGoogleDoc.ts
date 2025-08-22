@@ -4,14 +4,58 @@ import type {
   googleOauthCreateNewGoogleDocOutputType,
   googleOauthCreateNewGoogleDocParamsType,
 } from "../../autogen/types.js";
+
+// Google Docs API types
+interface Location {
+  index: number;
+}
+
+interface Range {
+  startIndex: number;
+  endIndex: number;
+}
+
+interface Dimension {
+  magnitude: number;
+  unit: string;
+}
+
+interface TextStyle {
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  fontSize?: Dimension;
+}
+
+interface InsertTextRequest {
+  insertText: {
+    location: Location;
+    text: string;
+  };
+}
+
+interface UpdateTextStyleRequest {
+  updateTextStyle: {
+    range: Range;
+    textStyle: TextStyle;
+    fields: string;
+  };
+}
+
+type BatchUpdateRequest = InsertTextRequest | UpdateTextStyleRequest;
+
+interface TextWithFormatting {
+  text: string;
+  formatting?: TextStyle;
+}
 import { axiosClient } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 /**
  * Parses HTML content and converts it to Google Docs API batch update requests
  */
-function parseHtmlToDocRequests(htmlContent: string): any[] {
-  const requests: any[] = [];
+function parseHtmlToDocRequests(htmlContent: string): BatchUpdateRequest[] {
+  const requests: BatchUpdateRequest[] = [];
   let currentIndex = 1;
 
   // Strip HTML tags and extract text with basic formatting
@@ -47,8 +91,8 @@ function parseHtmlToDocRequests(htmlContent: string): any[] {
 /**
  * Basic HTML parser that extracts text and formatting
  */
-function parseHtmlContent(html: string): Array<{ text: string; formatting?: any }> {
-  const result: Array<{ text: string; formatting?: any }> = [];
+function parseHtmlContent(html: string): TextWithFormatting[] {
+  const result: TextWithFormatting[] = [];
 
   // Handle line breaks
   html = html.replace(/<br\s*\/?>/gi, "\n");
@@ -57,7 +101,7 @@ function parseHtmlContent(html: string): Array<{ text: string; formatting?: any 
 
   // Simple regex-based parsing for basic HTML tags
   const segments = html.split(/(<[^>]+>)/);
-  let currentFormatting: any = {};
+  let currentFormatting: TextStyle = {};
 
   for (let i = 0; i < segments.length; i++) {
     const segment = segments[i];
