@@ -37,8 +37,10 @@ const sendMessage: slackSendMessageFunction = async ({
   }
 
   try {
+    // First try sending as Markdown blocks (mrkdwn)
     await client.chat.postMessage({
       channel: channelId,
+      text: message, // Fallback text for notifications/clients that don't render blocks
       blocks: [
         {
           type: "section",
@@ -52,11 +54,20 @@ const sendMessage: slackSendMessageFunction = async ({
     return slackSendMessageOutputSchema.parse({
       success: true,
     });
-  } catch (error) {
-    return slackSendMessageOutputSchema.parse({
-      success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+  } catch {
+    // On any error, retry once with plain text only (no blocks)
+    try {
+      await client.chat.postMessage({
+        channel: channelId,
+        text: message,
+      });
+      return slackSendMessageOutputSchema.parse({ success: true });
+    } catch (retryError) {
+      return slackSendMessageOutputSchema.parse({
+        success: false,
+        error: retryError instanceof Error ? retryError.message : "Unknown error after retrying sending as plain text",
+      });
+    }
   }
 };
 
