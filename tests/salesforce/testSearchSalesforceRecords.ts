@@ -27,6 +27,24 @@ async function runTest() {
   assert.strictEqual(regularQueryResult.success, true);
   assert.equal(salesforceSearchSalesforceRecordsOutputSchema.safeParse(regularQueryResult).success, true);
   assert.equal(regularQueryResult.searchRecords.length, 1);
+
+  const dashKeywordResult = await runAction(
+    "searchSalesforceRecords",
+    "salesforce",
+    {
+      authToken,
+      baseUrl,
+    },
+    {
+      keyword: "health-company",
+      recordType: "Account",
+      fieldsToSearch: ["Name"],
+      limit: 1
+    }
+  );
+  assert.strictEqual(dashKeywordResult.success, true);
+  assert.equal(salesforceSearchSalesforceRecordsOutputSchema.safeParse(dashKeywordResult).success, true);
+  
   console.log("All tests passed!");
 }
 
