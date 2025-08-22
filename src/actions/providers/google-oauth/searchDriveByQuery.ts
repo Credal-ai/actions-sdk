@@ -165,6 +165,7 @@ const searchAllDrivesIndividually = async (
         return filterReadableFiles(driveFiles);
       } catch (error) {
         console.error(`Error searching drive ${drive.name} (${drive.id}):`, error);
+        return [];
       }
     }),
   ]);
