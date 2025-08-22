@@ -48,8 +48,8 @@ const searchDriveByKeywords: googleOauthSearchDriveByKeywordsFunction = async ({
     const results = await Promise.all([allDrivesRes, orgWideRes]);
     const relevantResults = results
       .map(result => result.data.files)
-      .flat()
-      .filter(Boolean);
+      .filter(Boolean)
+      .map(files => limit ? files.slice(0, limit) : files).flat();
 
     const files =
       relevantResults.map((file: { id?: string; name?: string; mimeType?: string; webViewLink?: string }) => ({
@@ -59,7 +59,7 @@ const searchDriveByKeywords: googleOauthSearchDriveByKeywordsFunction = async ({
         url: file.webViewLink || "",
       })) || [];
 
-    return { success: true, files: limit ? files.splice(0, limit) : files };
+    return { success: true, files };
   } catch (error) {
     console.error("Error searching Google Drive", error);
     return {
