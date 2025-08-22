@@ -30,17 +30,17 @@ const getSalesforceRecordsByQuery: salesforceGetSalesforceRecordsByQueryFunction
   const containsAggregateFunction = aggregateFunction.some(func => query.toUpperCase().includes(func));
   
   let finalQuery = query;
-  
+
   if (!containsAggregateFunction) {
     // Strip out existing LIMIT clause if it exists
     const limitRegex = /\bLIMIT\s+(\d+)\b/i;
     const existingLimitMatch = query.match(limitRegex);
     const queryLimit = existingLimitMatch ? parseInt(existingLimitMatch[1], 10) : null;
     const queryWithoutLimit = query.replace(limitRegex, '').trim();
-    
+
     // Recompute final limit
     const finalLimit = Math.min(limit ?? queryLimit ?? MAX_RECORDS_LIMIT, MAX_RECORDS_LIMIT);
-    
+
     // Add limit back to final query
     finalQuery = queryWithoutLimit + " LIMIT " + finalLimit;
   }
