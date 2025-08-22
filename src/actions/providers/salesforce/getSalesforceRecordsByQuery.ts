@@ -29,31 +29,20 @@ const getSalesforceRecordsByQuery: salesforceGetSalesforceRecordsByQueryFunction
   const aggregateFunction = [" COUNT(", " SUM(", " AVG(", " MIN(", " MAX("];
   const containsAggregateFunction = aggregateFunction.some(func => query.toUpperCase().includes(func));
   
-  // Check if query already has a LIMIT clause with a number
-  const limitRegex = /\bLIMIT\s+(\d+)\b/i;
-  const existingLimitMatch = query.match(limitRegex);
-  
   let finalQuery = query;
-  if (containsAggregateFunction) {
-    // Don't add LIMIT for aggregate functions
-    finalQuery = query;
-  } else if (existingLimitMatch) {
-    if (limit != undefined) {
-      // If limit parameter is provided, remove existing LIMIT and use the parameter
-      const effectiveLimit = limit <= MAX_RECORDS_LIMIT ? limit : MAX_RECORDS_LIMIT;
-      finalQuery = query.replace(limitRegex, '').trim() + " LIMIT " + effectiveLimit;
-    } else {
-      // No limit parameter provided, use existing LIMIT if valid and < 2000, otherwise replace
-      const existingLimit = parseInt(existingLimitMatch[1], 10);
-      if (isNaN(existingLimit) || existingLimit >= MAX_RECORDS_LIMIT) {
-        finalQuery = query.replace(limitRegex, `LIMIT ${MAX_RECORDS_LIMIT}`);
-      }
-      // If existing limit is valid and < 2000, keep the query as is
-    }
-  } else {
-    // No existing LIMIT clause, add one
-    const effectiveLimit = limit != undefined && limit <= MAX_RECORDS_LIMIT ? limit : MAX_RECORDS_LIMIT;
-    finalQuery = query + " LIMIT " + effectiveLimit;
+  
+  if (!containsAggregateFunction) {
+    // Strip out existing LIMIT clause if it exists
+    const limitRegex = /\bLIMIT\s+(\d+)\b/i;
+    const existingLimitMatch = query.match(limitRegex);
+    const queryLimit = existingLimitMatch ? parseInt(existingLimitMatch[1], 10) : null;
+    const queryWithoutLimit = query.replace(limitRegex, '').trim();
+    
+    // Recompute final limit
+    const finalLimit = Math.min(limit ?? queryLimit ?? MAX_RECORDS_LIMIT, MAX_RECORDS_LIMIT);
+    
+    // Add limit back to final query
+    finalQuery = queryWithoutLimit + " LIMIT " + finalLimit;
   }
   
   const url = `${baseUrl}/services/data/v56.0/queryAll?q=${encodeURIComponent(finalQuery)}`;
