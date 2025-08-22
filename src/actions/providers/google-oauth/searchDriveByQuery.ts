@@ -6,13 +6,7 @@ import type {
   googleOauthSearchDriveByQueryOutputType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
-
-interface DriveInfo {
-  id: string;
-  name: string;
-}
-
-type DriveFile = { id: string; name: string; mimeType: string; url: string };
+import type { DriveFile, DriveInfo } from "./common.js";
 
 // Helper function to check if a file should be excluded (images and folders)
 const shouldExcludeFile = (file: DriveFile): boolean => {
