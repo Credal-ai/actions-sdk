@@ -49,7 +49,8 @@ const searchDriveByKeywords: googleOauthSearchDriveByKeywordsFunction = async ({
     const relevantResults = results
       .map(result => result.data.files)
       .filter(Boolean)
-      .map(files => limit ? files.slice(0, limit) : files).flat();
+      .map(files => (limit ? files.slice(0, limit) : files))
+      .flat();
 
     const files =
       relevantResults.map((file: { id?: string; name?: string; mimeType?: string; webViewLink?: string }) => ({
