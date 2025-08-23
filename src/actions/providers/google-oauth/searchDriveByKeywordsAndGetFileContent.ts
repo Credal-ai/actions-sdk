@@ -27,7 +27,6 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
     .map(kw => kw.replace(/'/g, "\\'"))
     .map(kw => `fullText contains '${kw}' or name contains '${kw}'`)
     .join(" or ");
-  console.log("Query: " + query);
   const searchResult = await searchDriveByQuery({
     params: { query, limit, searchDriveByDrive, orderByQuery },
     authParams,
@@ -37,8 +36,6 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
   if (!searchResult.success) {
     return { success: false, error: searchResult.error, files: [] };
   }
-
-  return searchResult;
 
   // For each file, fetch its content in parallel
   const files = searchResult.files ?? [];
