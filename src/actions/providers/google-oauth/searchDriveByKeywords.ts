@@ -21,8 +21,7 @@ const searchDriveByKeywords: googleOauthSearchDriveByKeywordsFunction = async ({
 
   const { keywords, limit } = params;
 
-  // Build the query: fullText contains 'keyword1' or fullText contains 'keyword2' ...
-  const query = buildQuery(keywords.join(" "));
+  const query = keywords.map(kw => `fullText contains '${kw.replace(/'/g, "\\'")}'`).join(" or ");
 
   try {
     const allDrivesUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
@@ -74,20 +73,5 @@ const searchDriveByKeywords: googleOauthSearchDriveByKeywordsFunction = async ({
     };
   }
 };
-
-function buildQuery(raw: string): string {
-  const terms = raw
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    // escape single quotes
-    .map(t => t.replace(/\\/g, "\\\\").replace(/'/g, "\\'"));
-
-  if (terms.length === 0) return "trashed = false";
-
-  const groups = terms.map(kw => `(name contains '${kw}' or fullText contains '${kw}')`);
-
-  return `trashed = false and (${groups.join(" and ")})`;
-}
 
 export default searchDriveByKeywords;
