@@ -6,6 +6,7 @@ import type {
   googleOauthSearchDriveByKeywordsParamsType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { dedupeByIdKeepFirst, filterReadableFiles } from "./utils.js";
 
 const searchDriveByKeywords: googleOauthSearchDriveByKeywordsFunction = async ({
   params,
@@ -21,7 +22,7 @@ const searchDriveByKeywords: googleOauthSearchDriveByKeywordsFunction = async ({
   const { keywords, limit } = params;
 
   // Build the query: fullText contains 'keyword1' or fullText contains 'keyword2' ...
-  const query = keywords.map(kw => `fullText contains '${kw.replace(/'/g, "\\'")}'`).join(" or ");
+  const query = buildQuery(keywords.join(" "));
 
   try {
     const allDrivesUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
@@ -49,6 +50,7 @@ const searchDriveByKeywords: googleOauthSearchDriveByKeywordsFunction = async ({
     const relevantResults = results
       .map(result => result.data.files)
       .filter(Boolean)
+      .map(files => filterReadableFiles(files))
       .map(files => (limit ? files.slice(0, limit) : files))
       .flat();
 
@@ -60,7 +62,9 @@ const searchDriveByKeywords: googleOauthSearchDriveByKeywordsFunction = async ({
         url: file.webViewLink || "",
       })) || [];
 
-    return { success: true, files };
+    const dedupedFiles = dedupeByIdKeepFirst(files);
+
+    return { success: true, files: dedupedFiles };
   } catch (error) {
     console.error("Error searching Google Drive", error);
     return {
@@ -70,5 +74,20 @@ const searchDriveByKeywords: googleOauthSearchDriveByKeywordsFunction = async ({
     };
   }
 };
+
+function buildQuery(raw: string): string {
+  const terms = raw
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    // escape single quotes
+    .map(t => t.replace(/\\/g, "\\\\").replace(/'/g, "\\'"));
+
+  if (terms.length === 0) return "trashed = false";
+
+  const groups = terms.map(kw => `(name contains '${kw}' or fullText contains '${kw}')`);
+
+  return `trashed = false and (${groups.join(" and ")})`;
+}
 
 export default searchDriveByKeywords;

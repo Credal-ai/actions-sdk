@@ -7,38 +7,7 @@ import type {
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import type { DriveFile, DriveInfo } from "./common.js";
-
-// Helper function to check if a file should be excluded (images and folders)
-const shouldExcludeFile = (file: DriveFile): boolean => {
-  const mimeType = file.mimeType.toLowerCase();
-
-  // Exclude folders
-  if (mimeType === "application/vnd.google-apps.folder") {
-    return true;
-  }
-
-  // Exclude common image formats
-  const imageTypes = [
-    "image/jpeg",
-    "image/jpg",
-    "image/png",
-    "image/gif",
-    "image/bmp",
-    "image/svg+xml",
-    "image/webp",
-    "image/tiff",
-    "image/ico",
-    "image/heic",
-    "image/heif",
-  ];
-
-  return imageTypes.includes(mimeType);
-};
-
-// Helper function to filter files
-const filterReadableFiles = (files: DriveFile[]): DriveFile[] => {
-  return files.filter(file => !shouldExcludeFile(file));
-};
+import { dedupeByIdKeepFirst, filterReadableFiles } from "./utils.js";
 
 const searchDriveByQuery: googleOauthSearchDriveByQueryFunction = async ({
   params,
@@ -103,8 +72,11 @@ const searchAllDrivesAtOnce = async (
   });
 
   const results = await Promise.all([allDrivesRes, orgWideRes]);
-  const relevantResults = results.map(result => result.data.files).filter(Boolean);
 
+  const relevantResults = results
+    .map(result => result.data.files)
+    .filter(Boolean)
+    .map(files => filterReadableFiles(files));
   const relevantResultsFlat = relevantResults.map(result => (limit ? result.slice(0, limit) : result)).flat();
 
   const files =
@@ -115,12 +87,11 @@ const searchAllDrivesAtOnce = async (
       url: file.webViewLink || "",
     })) || [];
 
-  // Filter out images and folders
-  const readableFiles = filterReadableFiles(files);
+  const dedupedFiles = dedupeByIdKeepFirst(files);
 
   return {
     success: true,
-    files: readableFiles,
+    files: dedupedFiles,
   };
 };
 
@@ -145,13 +116,13 @@ const searchAllDrivesIndividually = async (
     const domainRes = await axiosClient.get(domainUrl, {
       headers: { Authorization: `Bearer ${authToken}` },
     });
-    return (
+    return filterReadableFiles(
       domainRes.data.files?.map((file: { id?: string; name?: string; mimeType?: string; webViewLink?: string }) => ({
         id: file.id || "",
         name: file.name || "",
         mimeType: file.mimeType || "",
         url: file.webViewLink || "",
-      })) ?? []
+      })) ?? [],
     );
   };
 
@@ -176,9 +147,11 @@ const searchAllDrivesIndividually = async (
     }
   }
 
+  const dedupedFiles = dedupeByIdKeepFirst(allFiles);
+
   return {
     success: true,
-    files: allFiles,
+    files: dedupedFiles,
   };
 };
 

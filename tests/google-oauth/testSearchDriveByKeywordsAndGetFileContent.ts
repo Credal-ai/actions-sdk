@@ -17,10 +17,12 @@ async function runTest() {
       authToken: process.env.GOOGLE_ACTIONS_ACCESS_TOKEN!,
     },
     {
-      searchQuery: "Neon pigeons",
+      searchQuery: "Japan travel expense",
       searchDriveByDrive: false,
     } as googleOauthSearchDriveByKeywordsAndGetFileContentParamsType
   );
+
+  console.log("Found files with content:", result.files);
 
   // Validate the result
   assert.strictEqual(result.success, true, "Search should be successful");
@@ -34,8 +36,6 @@ async function runTest() {
     assert(firstFile.url, "First file should have a url");
     assert(firstFile.content, "First file should have content");
   }
-
-  console.log("Found files with content:", result.files);
 }
 
 // Run the test
