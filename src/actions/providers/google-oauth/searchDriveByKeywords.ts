@@ -21,6 +21,7 @@ const searchDriveByKeywords: googleOauthSearchDriveByKeywordsFunction = async ({
 
   const { keywords, limit } = params;
 
+  // Build the query: fullText contains 'keyword1' or fullText contains 'keyword2'
   const query = keywords.map(kw => `fullText contains '${kw.replace(/'/g, "\\'")}'`).join(" or ");
 
   try {

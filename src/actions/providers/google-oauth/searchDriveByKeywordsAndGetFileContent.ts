@@ -22,8 +22,11 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
 
   const { searchQuery, limit, searchDriveByDrive, orderByQuery, fileSizeLimit: maxChars } = params;
 
-  const searchQueryCleaned = searchQuery.replace(/'/g, "\\'");
-  const query = `fullText contains '${searchQueryCleaned}' or name contains '${searchQueryCleaned}'`;
+  const query = searchQuery
+    .split(" ")
+    .map(kw => kw.replace(/'/g, "\\'"))
+    .map(kw => `fullText contains '${kw}' or name contains '${kw}'`)
+    .join(" or ");
   console.log("Query: " + query);
   const searchResult = await searchDriveByQuery({
     params: { query, limit, searchDriveByDrive, orderByQuery },
