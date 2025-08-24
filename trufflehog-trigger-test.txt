@@ -1,0 +1,5 @@
+# TruffleHog trigger test file
+
+# Fake (non-functional) AWS-style credentials
+AWS_ACCESS_KEY_ID=AKIA1234567890TEST
+AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYTESTKEY1
