@@ -303,11 +303,9 @@ export function parseGoogleSlidesFromRawContentToPlainText(snapshotRawContent: G
   const slideContents: string[] = [];
 
   // Helper function to extract text from textElements
-  const extractTextFromElements = (textElements?: Array<{textRun?: {content?: string}}>): string[] => {
+  const extractTextFromElements = (textElements?: Array<{ textRun?: { content?: string } }>): string[] => {
     if (!textElements) return [];
-    return textElements
-      .map(el => el.textRun?.content?.trim())
-      .filter((content): content is string => Boolean(content));
+    return textElements.map(el => el.textRun?.content?.trim()).filter((content): content is string => Boolean(content));
   };
 
   for (const slide of snapshotRawContent.slides) {
