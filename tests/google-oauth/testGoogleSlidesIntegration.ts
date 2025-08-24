@@ -41,12 +41,7 @@ async function runTest() {
   assert.strictEqual(result.success, true, "Search should be successful");
   assert(Array.isArray(result.files), "Files should be an array");
 
-  // // find the gslides file(s)
-  // const gslidesFiles = result.files.filter(
-  //   (f) => f["mimeType"] === "application/vnd.google-apps.presentation"
-  // );
-  // assert(gslidesFiles.length > 0, "Should have found Google Slides files");
-
+  //TODO find the returned presentation files, confirm they have content
   console.log("\n🎉 All Google Slides integration tests passed!");
 }
 
