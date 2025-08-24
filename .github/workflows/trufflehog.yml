@@ -5,17 +5,16 @@ on:
 
 jobs:
   TruffleHog:
+    # Run only when there is at least one changed file (skip empty PRs)
+    if: ${{ github.event.pull_request.changed_files > 0 }}
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    
-    - name: TruffleHog OSS
-      uses: trufflesecurity/trufflehog@v3.89.2
-      with:
-        path: ./
-        base: ${{ github.event.pull_request.base.ref }}
-        head: HEAD
-        extra_args: --debug
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: TruffleHog OSS (fail on any detected secret)
+        uses: trufflesecurity/trufflehog@v3.89.2
+        with:
+          path: ./
+          extra_args: --fail --debug
