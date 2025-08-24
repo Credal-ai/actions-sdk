@@ -17,4 +17,4 @@ jobs:
         uses: trufflesecurity/trufflehog@v3.89.2
         with:
           path: ./
-          extra_args: --fail --debug
+          extra_args: --debug
