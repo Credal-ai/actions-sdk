@@ -6,6 +6,39 @@ import type {
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { z } from "zod";
+
+// Zod schemas for Google Slides API response structure
+const TextRunSchema = z.object({
+  content: z.string().optional(),
+}).passthrough();
+
+const TextElementSchema = z.object({
+  textRun: TextRunSchema.optional(),
+}).passthrough();
+
+const TextSchema = z.object({
+  textElements: z.array(TextElementSchema).optional(),
+}).passthrough();
+
+const ShapeSchema = z.object({
+  text: TextSchema.optional(),
+}).passthrough();
+
+const PageElementSchema = z.object({
+  objectId: z.string().optional(),
+  shape: ShapeSchema.optional(),
+}).passthrough();
+
+const SlideSchema = z.object({
+  objectId: z.string().optional(),
+  pageElements: z.array(PageElementSchema).optional(),
+}).passthrough();
+
+const GoogleSlidesResponseSchema = z.object({
+  title: z.string().optional(),
+  slides: z.array(SlideSchema).optional(),
+}).passthrough();
 
 /**
  * Gets a Google Slides presentation by ID using OAuth authentication
@@ -39,21 +72,24 @@ const getPresentation: googleOauthGetPresentationFunction = async ({
       };
     }
 
+    // Validate and parse the Google Slides API response
+    const parsedData = GoogleSlidesResponseSchema.parse(response.data);
+    
     const presentation = {
-      title: response.data.title,
+      title: parsedData.title,
       slides:
-        response.data.slides?.map((slide: any) => ({
+        parsedData.slides?.map((slide) => ({
           objectId: slide.objectId,
           pageElements:
             slide.pageElements
-              ?.map((element: any) => ({
+              ?.map((element) => ({
                 objectId: element.objectId,
                 text:
                   element.shape?.text?.textElements
-                    ?.map((textElement: any) => textElement.textRun?.content || "")
+                    ?.map((textElement) => textElement.textRun?.content || "")
                     .join("") || "",
               }))
-              .filter((element: any) => element.text) || [],
+              .filter((element) => element.text) || [],
         })) || [],
     };
 
