@@ -14,14 +14,14 @@ const searchSalesforceRecords: salesforceSearchSalesforceRecordsFunction = async
   authParams: AuthParamsType;
 }): Promise<salesforceSearchSalesforceRecordsOutputType> => {
   const { authToken, baseUrl } = authParams;
-  const { keyword, recordType, fieldsToSearch } = params;
+  const { keyword, recordType, fieldsToSearch, maxLimit } = params;
   const searchFields = Array.from(new Set([...fieldsToSearch, "Id"]));
 
   if (!authToken || !baseUrl) {
     return { success: false, error: "authToken and baseUrl are required for Salesforce API" };
   }
 
-  const maxLimit = 25;
+  const maxLimitValue = maxLimit || 25;
   const dateFieldExists = searchFields.includes("CreatedDate");
 
   // Escape special characters for SOSL search
@@ -30,7 +30,7 @@ const searchSalesforceRecords: salesforceSearchSalesforceRecordsFunction = async
     .replace(/-/g, "\\-"); // Escape dashes
 
   const url = `${baseUrl}/services/data/v64.0/search/?q=${encodeURIComponent(
-    `FIND {${escapedKeyword}} RETURNING ${recordType} (${searchFields.join(", ") + (dateFieldExists ? " ORDER BY CreatedDate DESC" : "")}) LIMIT ${params.limit && params.limit <= maxLimit ? params.limit : maxLimit}`,
+    `FIND {${escapedKeyword}} RETURNING ${recordType} (${searchFields.join(", ") + (dateFieldExists ? " ORDER BY CreatedDate DESC" : "")}) LIMIT ${params.limit && params.limit <= maxLimitValue ? params.limit : maxLimitValue}`,
   )}`;
 
   try {

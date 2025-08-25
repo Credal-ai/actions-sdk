@@ -4861,6 +4861,7 @@ export const salesforceSearchSalesforceRecordsParamsSchema = z.object({
   recordType: z.string().describe("The type of record to search for"),
   fieldsToSearch: z.array(z.string()).describe("The fields to search for the keyword"),
   limit: z.number().describe("The maximum number of records to return").optional(),
+  maxLimit: z.number().describe("The absolute maximum limit for records that can be returned").optional(),
 });
 
 export type salesforceSearchSalesforceRecordsParamsType = z.infer<typeof salesforceSearchSalesforceRecordsParamsSchema>;
