@@ -3486,6 +3486,25 @@ export type googleOauthUpdatePresentationFunction = ActionFunction<
   googleOauthUpdatePresentationOutputType
 >;
 
+export const googleOauthGetPresentationParamsSchema = z.object({
+  presentationId: z.string().describe("The ID of the presentation to retrieve"),
+});
+
+export type googleOauthGetPresentationParamsType = z.infer<typeof googleOauthGetPresentationParamsSchema>;
+
+export const googleOauthGetPresentationOutputSchema = z.object({
+  success: z.boolean().describe("Whether the presentation was retrieved successfully"),
+  error: z.string().describe("The error that occurred if the presentation was not retrieved successfully").optional(),
+  presentation: z.any().optional(),
+});
+
+export type googleOauthGetPresentationOutputType = z.infer<typeof googleOauthGetPresentationOutputSchema>;
+export type googleOauthGetPresentationFunction = ActionFunction<
+  googleOauthGetPresentationParamsType,
+  AuthParamsType,
+  googleOauthGetPresentationOutputType
+>;
+
 export const googleOauthSearchDriveByKeywordsParamsSchema = z.object({
   keywords: z.array(z.string()).describe("List of keywords to search for in file contents."),
   limit: z.number().describe("The maximum number of files to return").optional(),

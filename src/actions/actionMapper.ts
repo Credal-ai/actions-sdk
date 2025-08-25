@@ -103,6 +103,8 @@ import {
   googleOauthCreatePresentationOutputSchema,
   googleOauthUpdatePresentationParamsSchema,
   googleOauthUpdatePresentationOutputSchema,
+  googleOauthGetPresentationParamsSchema,
+  googleOauthGetPresentationOutputSchema,
   googleOauthSearchDriveByKeywordsParamsSchema,
   googleOauthSearchDriveByKeywordsOutputSchema,
   googleOauthListGroupsOutputSchema,
@@ -344,6 +346,7 @@ import createSpreadsheet from "./providers/google-oauth/createSpreadsheet.js";
 import updateSpreadsheet from "./providers/google-oauth/updateSpreadsheet.js";
 import createPresentation from "./providers/google-oauth/createPresentation.js";
 import updatePresentation from "./providers/google-oauth/updatePresentation.js";
+import getPresentation from "./providers/google-oauth/getPresentation.js";
 import createNote from "./providers/ashby/createNote.js";
 import getCandidateInfo from "./providers/ashby/getCandidateInfo.js";
 import updateRecord from "./providers/salesforce/updateRecord.js";
@@ -778,6 +781,11 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: updatePresentation,
       paramsSchema: googleOauthUpdatePresentationParamsSchema,
       outputSchema: googleOauthUpdatePresentationOutputSchema,
+    },
+    getPresentation: {
+      fn: getPresentation,
+      paramsSchema: googleOauthGetPresentationParamsSchema,
+      outputSchema: googleOauthGetPresentationOutputSchema,
     },
     searchDriveByKeywords: {
       fn: searchDriveByKeywords,

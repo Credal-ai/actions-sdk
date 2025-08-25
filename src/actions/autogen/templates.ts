@@ -6726,6 +6726,61 @@ export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
   name: "updatePresentation",
   provider: "googleOauth",
 };
+export const googleOauthGetPresentationDefinition: ActionTemplate = {
+  description: "Get a presentation by ID",
+  scopes: ["slides.readonly"],
+  parameters: {
+    type: "object",
+    required: ["presentationId"],
+    properties: {
+      presentationId: {
+        type: "string",
+        description: "The ID of the presentation to retrieve",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the presentation was retrieved successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the presentation was not retrieved successfully",
+      },
+      presentation: {
+        title: "string",
+        slides: {
+          type: "array",
+          description: "The slides in the presentation",
+          items: {
+            type: "object",
+            required: ["objectId", "pageElements"],
+            properties: {
+              objectId: "string",
+              pageElements: {
+                type: "array",
+                items: {
+                  type: "object",
+                  required: ["objectId", "shape"],
+                  properties: {
+                    objectId: "string",
+                    text: "string",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  name: "getPresentation",
+  provider: "googleOauth",
+};
 export const googleOauthSearchDriveByKeywordsDefinition: ActionTemplate = {
   description: "Search Google Drive files that contain one or more keywords in their full text.",
   scopes: ["drive.readonly"],
