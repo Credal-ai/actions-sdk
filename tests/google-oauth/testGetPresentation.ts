@@ -40,6 +40,27 @@ async function runTest() {
   
   if (result.presentation.slides && Array.isArray(result.presentation.slides)) {
     console.log("Number of slides:", result.presentation.slides.length);
+    
+    // Check if styling exists in slides
+    let stylingFound = false;
+    for (const slide of result.presentation.slides) {
+      if (slide.pageElements && Array.isArray(slide.pageElements)) {
+        for (const element of slide.pageElements) {
+          if (element.styling && element.styling.length > 0) {
+            console.log("Found styling:", element.styling);
+            stylingFound = true;
+            break;
+          }
+        }
+        if (stylingFound) break;
+      }
+    }
+    
+    if (stylingFound) {
+      console.log("Styling information found in presentation");
+    } else {
+      console.log("No styling information found in presentation elements");
+    }
   }
 
   console.log("Test passed! Successfully retrieved presentation data");

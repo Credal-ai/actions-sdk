@@ -6769,6 +6769,7 @@ export const googleOauthGetPresentationDefinition: ActionTemplate = {
                   properties: {
                     objectId: "string",
                     text: "string",
+                    styling: "string",
                   },
                 },
               },

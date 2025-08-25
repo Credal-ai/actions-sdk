@@ -337,8 +337,8 @@ export const slackSendMessageParamsSchema = z.object({
 export type slackSendMessageParamsType = z.infer<typeof slackSendMessageParamsSchema>;
 
 export const slackSendMessageOutputSchema = z.object({
-  success: z.boolean().describe("Whether the message was sent successfully"),
-  error: z.string().describe("The error that occurred if the message was not sent successfully").optional(),
+  success: z.boolean().describe("Whether the email was sent successfully"),
+  error: z.string().describe("The error that occurred if the email was not sent successfully").optional(),
   messageId: z.string().describe("The ID of the message that was sent").optional(),
 });
 

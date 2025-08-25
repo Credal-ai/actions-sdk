@@ -9,9 +9,38 @@ import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import { z } from "zod";
 
 // Zod schemas for Google Slides API response structure
+const TextStyleSchema = z
+  .object({
+    fontSize: z
+      .object({
+        magnitude: z.number().optional(),
+        unit: z.string().optional(),
+      })
+      .optional(),
+    foregroundColor: z
+      .object({
+        opaqueColor: z
+          .object({
+            rgbColor: z
+              .object({
+                red: z.number().optional(),
+                green: z.number().optional(),
+                blue: z.number().optional(),
+              })
+              .optional(),
+          })
+          .optional(),
+      })
+      .optional(),
+    fontFamily: z.string().optional(),
+    bold: z.boolean().optional(),
+  })
+  .passthrough();
+
 const TextRunSchema = z
   .object({
     content: z.string().optional(),
+    style: TextStyleSchema.optional(),
   })
   .passthrough();
 
@@ -55,6 +84,42 @@ const GoogleSlidesResponseSchema = z
   .passthrough();
 
 /**
+ * Formats text styling information into a concatenated string
+ */
+const formatStyling = (textStyle?: any): string => {
+  if (!textStyle) return "";
+
+  const parts: string[] = [];
+  if (textStyle.fontSize?.magnitude && textStyle.fontSize?.unit) {
+    parts.push(`size: ${textStyle.fontSize.magnitude}${textStyle.fontSize.unit}`);
+  }
+
+  if (textStyle.foregroundColor?.opaqueColor?.rgbColor) {
+    const { red = 0, green = 0, blue = 0 } = textStyle.foregroundColor.opaqueColor.rgbColor;
+    const hexColor =
+      "#" +
+      [red, green, blue]
+        .map(c =>
+          Math.round(c * 255)
+            .toString(16)
+            .padStart(2, "0"),
+        )
+        .join("");
+    parts.push(`color: ${hexColor}`);
+  }
+
+  if (textStyle.fontFamily) {
+    parts.push(`family: ${textStyle.fontFamily}`);
+  }
+
+  if (textStyle.bold) {
+    parts.push(`bold`);
+  }
+
+  return parts.join(", ");
+};
+
+/**
  * Gets a Google Slides presentation by ID using OAuth authentication
  */
 const getPresentation: googleOauthGetPresentationFunction = async ({
@@ -96,13 +161,22 @@ const getPresentation: googleOauthGetPresentationFunction = async ({
           objectId: slide.objectId,
           pageElements:
             slide.pageElements
-              ?.map(element => ({
-                objectId: element.objectId,
-                text:
-                  element.shape?.text?.textElements?.map(textElement => textElement.textRun?.content || "").join("") ||
-                  "",
-              }))
-              .filter(element => element.text) || [],
+              ?.flatMap(element => {
+                const textElements = element.shape?.text?.textElements || [];
+                return textElements
+                  .map(textElement => {
+                    const content = textElement.textRun?.content || "";
+                    const styling = formatStyling(textElement.textRun?.style);
+
+                    return {
+                      objectId: `${element.objectId}`,
+                      text: content,
+                      styling,
+                    };
+                  })
+                  .filter(textRun => textRun.text.trim());
+              })
+              .filter(Boolean) || [],
         })) || [],
     };
 
