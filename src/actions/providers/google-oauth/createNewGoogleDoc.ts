@@ -50,6 +50,7 @@ interface TextWithFormatting {
 }
 import { axiosClient } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import * as fs from "fs";
 
 /**
  * Parses HTML content and converts it to Google Docs API batch update requests
@@ -158,6 +159,9 @@ const createNewGoogleDoc: googleOauthCreateNewGoogleDocFunction = async ({
   params: googleOauthCreateNewGoogleDocParamsType;
   authParams: AuthParamsType;
 }): Promise<googleOauthCreateNewGoogleDocOutputType> => {
+  // No-op Node.js filesystem operation to test build compatibility
+  fs.constants.F_OK;
+  
   if (!authParams.authToken) {
     throw new Error(MISSING_AUTH_TOKEN);
   }
