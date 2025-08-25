@@ -86,7 +86,7 @@ const GoogleSlidesResponseSchema = z
 /**
  * Formats text styling information into a concatenated string
  */
-const formatStyling = (textStyle?: any): string => {
+const formatStyling = (textStyle?: z.infer<typeof TextStyleSchema>): string => {
   if (!textStyle) return "";
 
   const parts: string[] = [];
