@@ -250,6 +250,8 @@ import {
   githubGetFileContentOutputSchema,
   githubListDirectoryOutputSchema,
   githubListDirectoryParamsSchema,
+  githubGetBranchParamsSchema,
+  githubGetBranchOutputSchema,
   linearGetIssuesParamsSchema,
   linearGetIssuesOutputSchema,
   linearGetIssueDetailsParamsSchema,
@@ -417,6 +419,7 @@ import searchDriveByQueryAndGetFileContent from "./providers/google-oauth/search
 import queryGoogleBigQuery from "./providers/google-oauth/queryGoogleBigQuery.js";
 import getFileContent from "./providers/github/getFileContent.js";
 import listDirectory from "./providers/github/listDirectory.js";
+import getBranch from "./providers/github/getBranch.js";
 import getIssueDetails from "./providers/linear/getIssueDetails.js";
 import getIssues from "./providers/linear/getIssues.js";
 import getProjectDetails from "./providers/linear/getProjectDetails.js";
@@ -1079,6 +1082,11 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: listDirectory,
       paramsSchema: githubListDirectoryParamsSchema,
       outputSchema: githubListDirectoryOutputSchema,
+    },
+    getBranch: {
+      fn: getBranch,
+      paramsSchema: githubGetBranchParamsSchema,
+      outputSchema: githubGetBranchOutputSchema,
     },
   },
   notion: {
