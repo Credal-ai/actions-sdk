@@ -77,7 +77,7 @@ const searchAllDrivesAtOnce = async (
     .map(result => result.data.files)
     .filter(Boolean)
     .map(files => filterReadableFiles(files));
-  const relevantResultsFlat = relevantResults.map(result => (limit ? result.slice(0, limit) : result)).flat();
+  const relevantResultsFlat = relevantResults.flat();
 
   const files =
     relevantResultsFlat.map((file: { id?: string; name?: string; mimeType?: string; webViewLink?: string }) => ({
@@ -91,7 +91,7 @@ const searchAllDrivesAtOnce = async (
 
   return {
     success: true,
-    files: dedupedFiles,
+    files: limit ? dedupedFiles.slice(0, limit) : dedupedFiles,
   };
 };
 
@@ -151,7 +151,7 @@ const searchAllDrivesIndividually = async (
 
   return {
     success: true,
-    files: dedupedFiles,
+    files: limit ? dedupedFiles.slice(0, limit) : dedupedFiles,
   };
 };
 
