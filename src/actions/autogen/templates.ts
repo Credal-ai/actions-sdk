@@ -9455,10 +9455,6 @@ export const salesforceSearchSalesforceRecordsDefinition: ActionTemplate = {
         type: "number",
         description: "The maximum number of records to return",
       },
-      maxLimit: {
-        type: "number",
-        description: "The absolute maximum limit for records that can be returned",
-      },
     },
   },
   output: {
