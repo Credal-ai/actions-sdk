@@ -128,13 +128,21 @@ const searchOrganization: githubSearchOrganizationFunction = async ({
       : [],
   }));
 
-  const commitDetails = await Promise.all(
+  console.log("asfasgasasgasgasg");
+  const commitDetailsWithErrors = await Promise.all(
     commitResults.data.items.slice(0, MAX_COMMITS).map(item => {
       // Get the repo details from the commit search result
       const { owner, name } = item.repository;
-      return octokit.rest.repos.getCommit({ owner: owner.login, repo: name, ref: item.sha });
+      try {
+        return octokit.rest.repos.getCommit({ owner: owner.login, repo: name, ref: item.sha });
+      } catch (error) {
+        console.error(`Error fetching commit ${item.sha} in ${owner.login}/${name}:`, error);
+        return null;
+      }
     }),
   );
+
+  const commitDetails = commitDetailsWithErrors.filter(c => c !== null);
 
   const enrichedCommits: SearchCommitResult[] = commitResults.data.items.slice(0, MAX_COMMITS).map(item => {
     const full = commitDetails.find(c => c.data.sha === item.sha);
