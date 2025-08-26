@@ -128,7 +128,6 @@ const searchOrganization: githubSearchOrganizationFunction = async ({
       : [],
   }));
 
-  console.log("asfasgasasgasgasg");
   const commitDetailsWithErrors = await Promise.all(
     commitResults.data.items.slice(0, MAX_COMMITS).map(item => {
       // Get the repo details from the commit search result
