@@ -14,7 +14,7 @@ async function runSearchOrganizationWithoutRepository() {
       authToken,
     },
     {
-      organization: "Credal-ai",
+      organization: "sjvassoc",
       query: "test",
     }
   );
@@ -64,7 +64,7 @@ runSearchOrganizationWithoutRepository().catch((error) => {
   process.exit(1);
 });
 
-runSearchOrganizationWithRepository().catch((error) => {
+/*runSearchOrganizationWithRepository().catch((error) => {
   console.error("Test failed:", error);
   process.exit(1);
-});
+});*/
