@@ -370,8 +370,8 @@ export const slackSendMessageParamsSchema = z.object({
 export type slackSendMessageParamsType = z.infer<typeof slackSendMessageParamsSchema>;
 
 export const slackSendMessageOutputSchema = z.object({
-  success: z.boolean().describe("Whether the email was sent successfully"),
-  error: z.string().describe("The error that occurred if the email was not sent successfully").optional(),
+  success: z.boolean().describe("Whether the message was sent successfully"),
+  error: z.string().describe("The error that occurred if the message was not sent successfully").optional(),
   messageId: z.string().describe("The ID of the message that was sent").optional(),
 });
 
@@ -1739,6 +1739,7 @@ export type resendSendEmailHtmlFunction = ActionFunction<
 export const googleOauthCreateNewGoogleDocParamsSchema = z.object({
   title: z.string().describe("The title of the new Google Doc"),
   content: z.string().describe("The content to add to the new Google Doc").optional(),
+  usesHtml: z.boolean().describe("Whether to interpret the content as HTML").optional(),
 });
 
 export type googleOauthCreateNewGoogleDocParamsType = z.infer<typeof googleOauthCreateNewGoogleDocParamsSchema>;
@@ -3518,6 +3519,25 @@ export type googleOauthUpdatePresentationFunction = ActionFunction<
   googleOauthUpdatePresentationOutputType
 >;
 
+export const googleOauthGetPresentationParamsSchema = z.object({
+  presentationId: z.string().describe("The ID of the presentation to retrieve"),
+});
+
+export type googleOauthGetPresentationParamsType = z.infer<typeof googleOauthGetPresentationParamsSchema>;
+
+export const googleOauthGetPresentationOutputSchema = z.object({
+  success: z.boolean().describe("Whether the presentation was retrieved successfully"),
+  error: z.string().describe("The error that occurred if the presentation was not retrieved successfully").optional(),
+  presentation: z.any().optional(),
+});
+
+export type googleOauthGetPresentationOutputType = z.infer<typeof googleOauthGetPresentationOutputSchema>;
+export type googleOauthGetPresentationFunction = ActionFunction<
+  googleOauthGetPresentationParamsType,
+  AuthParamsType,
+  googleOauthGetPresentationOutputType
+>;
+
 export const googleOauthSearchDriveByKeywordsParamsSchema = z.object({
   keywords: z.array(z.string()).describe("List of keywords to search for in file contents."),
   limit: z.number().describe("The maximum number of files to return").optional(),
@@ -4874,6 +4894,7 @@ export const salesforceSearchSalesforceRecordsParamsSchema = z.object({
   recordType: z.string().describe("The type of record to search for"),
   fieldsToSearch: z.array(z.string()).describe("The fields to search for the keyword"),
   limit: z.number().describe("The maximum number of records to return").optional(),
+  maxLimit: z.number().describe("The absolute maximum limit for records that can be returned").optional(),
 });
 
 export type salesforceSearchSalesforceRecordsParamsType = z.infer<typeof salesforceSearchSalesforceRecordsParamsSchema>;

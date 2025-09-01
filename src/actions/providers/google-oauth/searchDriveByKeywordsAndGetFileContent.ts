@@ -22,7 +22,6 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
 
   const { searchQuery, limit, searchDriveByDrive, orderByQuery, fileSizeLimit: maxChars } = params;
 
-  // First, perform the search
   const query = searchQuery
     .split(" ")
     .map(kw => kw.replace(/'/g, "\\'"))

@@ -654,11 +654,11 @@ export const slackSendMessageDefinition: ActionTemplate = {
     properties: {
       success: {
         type: "boolean",
-        description: "Whether the email was sent successfully",
+        description: "Whether the message was sent successfully",
       },
       error: {
         type: "string",
-        description: "The error that occurred if the email was not sent successfully",
+        description: "The error that occurred if the message was not sent successfully",
       },
       messageId: {
         type: "string",
@@ -3321,6 +3321,10 @@ export const googleOauthCreateNewGoogleDocDefinition: ActionTemplate = {
       content: {
         type: "string",
         description: "The content to add to the new Google Doc",
+      },
+      usesHtml: {
+        type: "boolean",
+        description: "Whether to interpret the content as HTML",
       },
     },
   },
@@ -6803,6 +6807,62 @@ export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
   name: "updatePresentation",
   provider: "googleOauth",
 };
+export const googleOauthGetPresentationDefinition: ActionTemplate = {
+  description: "Get a presentation by ID",
+  scopes: ["slides.readonly"],
+  parameters: {
+    type: "object",
+    required: ["presentationId"],
+    properties: {
+      presentationId: {
+        type: "string",
+        description: "The ID of the presentation to retrieve",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the presentation was retrieved successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the presentation was not retrieved successfully",
+      },
+      presentation: {
+        title: "string",
+        slides: {
+          type: "array",
+          description: "The slides in the presentation",
+          items: {
+            type: "object",
+            required: ["objectId", "pageElements"],
+            properties: {
+              objectId: "string",
+              pageElements: {
+                type: "array",
+                items: {
+                  type: "object",
+                  required: ["objectId", "shape"],
+                  properties: {
+                    objectId: "string",
+                    text: "string",
+                    styling: "string",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  name: "getPresentation",
+  provider: "googleOauth",
+};
 export const googleOauthSearchDriveByKeywordsDefinition: ActionTemplate = {
   description: "Search Google Drive files that contain one or more keywords in their full text.",
   scopes: ["drive.readonly"],
@@ -9475,6 +9535,10 @@ export const salesforceSearchSalesforceRecordsDefinition: ActionTemplate = {
       limit: {
         type: "number",
         description: "The maximum number of records to return",
+      },
+      maxLimit: {
+        type: "number",
+        description: "The absolute maximum limit for records that can be returned",
       },
     },
   },

@@ -36,3 +36,11 @@ const result = await runAction(
 ```
 npm run test tests/testRunMathAction.ts
 ```
+## Secret Scanning (TruffleHog)
+
+We run TruffleHog on every pull request that actually changes at least one file.
+
+- Empty / metadata-only PRs are automatically skipped to avoid noisy false alarms.
+- Any real change is scanned if a secret-like credential is detected the job fails fast (so we can fix it before merging).
+
+The workflow lives at `.github/workflows/trufflehog.yml` and is intentionally minimal: skip empty PRs, scan everything else and fail on hits.

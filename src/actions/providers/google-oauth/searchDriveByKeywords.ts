@@ -6,6 +6,7 @@ import type {
   googleOauthSearchDriveByKeywordsParamsType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { dedupeByIdKeepFirst, filterReadableFiles } from "./utils.js";
 
 const searchDriveByKeywords: googleOauthSearchDriveByKeywordsFunction = async ({
   params,
@@ -20,29 +21,50 @@ const searchDriveByKeywords: googleOauthSearchDriveByKeywordsFunction = async ({
 
   const { keywords, limit } = params;
 
-  // Build the query: fullText contains 'keyword1' or fullText contains 'keyword2' ...
+  // Build the query: fullText contains 'keyword1' or fullText contains 'keyword2'
   const query = keywords.map(kw => `fullText contains '${kw.replace(/'/g, "\\'")}'`).join(" or ");
 
-  const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
-    query,
-  )}&fields=files(id,name,mimeType,webViewLink)&supportsAllDrives=true&includeItemsFromAllDrives=true&corpora=allDrives`;
-
   try {
-    const res = await axiosClient.get(url, {
+    const allDrivesUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
+      query,
+    )}&fields=files(id,name,mimeType,webViewLink)&supportsAllDrives=true&includeItemsFromAllDrives=true&corpora=allDrives&pageSize=1000`;
+
+    const allDrivesRes = axiosClient.get(allDrivesUrl, {
       headers: {
         Authorization: `Bearer ${authParams.authToken}`,
       },
     });
 
+    // need to search domain wide separately because the allDrives search doesn't include domain wide files
+    const orgWideUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
+      query,
+    )}&fields=files(id,name,mimeType,webViewLink)&corpora=domain&pageSize=1000`;
+
+    const orgWideRes = axiosClient.get(orgWideUrl, {
+      headers: {
+        Authorization: `Bearer ${authParams.authToken}`,
+      },
+    });
+
+    const results = await Promise.all([allDrivesRes, orgWideRes]);
+    const relevantResults = results
+      .map(result => result.data.files)
+      .filter(Boolean)
+      .map(files => filterReadableFiles(files))
+      .map(files => (limit ? files.slice(0, limit) : files))
+      .flat();
+
     const files =
-      res.data.files?.map((file: { id?: string; name?: string; mimeType?: string; webViewLink?: string }) => ({
+      relevantResults.map((file: { id?: string; name?: string; mimeType?: string; webViewLink?: string }) => ({
         id: file.id || "",
         name: file.name || "",
         mimeType: file.mimeType || "",
         url: file.webViewLink || "",
       })) || [];
 
-    return { success: true, files: limit ? files.splice(0, limit) : files };
+    const dedupedFiles = dedupeByIdKeepFirst(files);
+
+    return { success: true, files: dedupedFiles };
   } catch (error) {
     console.error("Error searching Google Drive", error);
     return {

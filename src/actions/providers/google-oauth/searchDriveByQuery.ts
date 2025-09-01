@@ -7,38 +7,7 @@ import type {
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import type { DriveFile, DriveInfo } from "./common.js";
-
-// Helper function to check if a file should be excluded (images and folders)
-const shouldExcludeFile = (file: DriveFile): boolean => {
-  const mimeType = file.mimeType.toLowerCase();
-
-  // Exclude folders
-  if (mimeType === "application/vnd.google-apps.folder") {
-    return true;
-  }
-
-  // Exclude common image formats
-  const imageTypes = [
-    "image/jpeg",
-    "image/jpg",
-    "image/png",
-    "image/gif",
-    "image/bmp",
-    "image/svg+xml",
-    "image/webp",
-    "image/tiff",
-    "image/ico",
-    "image/heic",
-    "image/heif",
-  ];
-
-  return imageTypes.includes(mimeType);
-};
-
-// Helper function to filter files
-const filterReadableFiles = (files: DriveFile[]): DriveFile[] => {
-  return files.filter(file => !shouldExcludeFile(file));
-};
+import { dedupeByIdKeepFirst, filterReadableFiles } from "./utils.js";
 
 const searchDriveByQuery: googleOauthSearchDriveByQueryFunction = async ({
   params,
@@ -79,30 +48,50 @@ const searchAllDrivesAtOnce = async (
   limit?: number,
   orderByQuery?: string,
 ): Promise<googleOauthSearchDriveByQueryOutputType> => {
-  const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
+  const allDrivesUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
     query,
   )}&fields=files(id,name,mimeType,webViewLink)&supportsAllDrives=true&includeItemsFromAllDrives=true&corpora=allDrives&pageSize=1000${orderByQuery ? `&orderBy=${encodeURIComponent(orderByQuery)}` : ""}`;
 
-  const res = await axiosClient.get(url, {
+  const allDrivesRes = axiosClient.get(allDrivesUrl, {
     headers: {
       Authorization: `Bearer ${authToken}`,
     },
   });
 
+  // need to search domain wide separately because the allDrives search doesn't include domain wide files
+  const orgWideUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
+    query,
+  )}&fields=files(id,name,mimeType,webViewLink)&corpora=domain&pageSize=1000${
+    orderByQuery ? `&orderBy=${encodeURIComponent(orderByQuery)}` : ""
+  }`;
+
+  const orgWideRes = axiosClient.get(orgWideUrl, {
+    headers: {
+      Authorization: `Bearer ${authToken}`,
+    },
+  });
+
+  const results = await Promise.all([allDrivesRes, orgWideRes]);
+
+  const relevantResults = results
+    .map(result => result.data.files)
+    .filter(Boolean)
+    .map(files => filterReadableFiles(files));
+  const relevantResultsFlat = relevantResults.flat();
+
   const files =
-    res.data.files?.map((file: { id?: string; name?: string; mimeType?: string; webViewLink?: string }) => ({
+    relevantResultsFlat.map((file: { id?: string; name?: string; mimeType?: string; webViewLink?: string }) => ({
       id: file.id || "",
       name: file.name || "",
       mimeType: file.mimeType || "",
       url: file.webViewLink || "",
     })) || [];
 
-  // Filter out images and folders
-  const readableFiles = filterReadableFiles(files);
+  const dedupedFiles = dedupeByIdKeepFirst(files);
 
   return {
     success: true,
-    files: limit ? readableFiles.slice(0, limit) : readableFiles,
+    files: limit ? dedupedFiles.slice(0, limit) : dedupedFiles,
   };
 };
 
@@ -116,26 +105,53 @@ const searchAllDrivesIndividually = async (
   const drives = await getAllDrives(authToken);
   let allFiles: Array<DriveFile> = [];
 
-  // Search each drive individually
-  for (const drive of drives) {
-    try {
-      const driveFiles = await searchSingleDrive(query, drive.id, authToken, orderByQuery);
-      // Filter out images and folders before adding to results
-      const readableDriveFiles = filterReadableFiles(driveFiles);
-      allFiles = allFiles.concat(readableDriveFiles);
+  const domainUrl =
+    `https://www.googleapis.com/drive/v3/files?` +
+    `q=${encodeURIComponent(query)}&` +
+    `fields=files(id,name,mimeType,webViewLink),nextPageToken&` +
+    `corpora=domain&` +
+    `pageSize=1000${orderByQuery ? `&orderBy=${encodeURIComponent(orderByQuery)}` : ""}`;
 
-      // If we have a limit and we've reached it, break early
-      if (limit && allFiles.length >= limit) {
-        break;
+  const domainDriveFunction = async () => {
+    const domainRes = await axiosClient.get(domainUrl, {
+      headers: { Authorization: `Bearer ${authToken}` },
+    });
+    return filterReadableFiles(
+      domainRes.data.files?.map((file: { id?: string; name?: string; mimeType?: string; webViewLink?: string }) => ({
+        id: file.id || "",
+        name: file.name || "",
+        mimeType: file.mimeType || "",
+        url: file.webViewLink || "",
+      })) ?? [],
+    );
+  };
+
+  // Search each drive individually
+  const results = await Promise.allSettled([
+    domainDriveFunction(),
+    ...drives.map(async drive => {
+      try {
+        const driveFiles = await searchSingleDrive(query, drive.id, authToken, orderByQuery);
+        // Filter out images and folders before adding to results
+        return filterReadableFiles(driveFiles);
+      } catch (error) {
+        console.error(`Error searching drive ${drive.name} (${drive.id}):`, error);
+        return [];
       }
-    } catch (error) {
-      console.error(`Error searching drive ${drive.name} (${drive.id}):`, error);
+    }),
+  ]);
+
+  for (const result of results) {
+    if (result.status === "fulfilled") {
+      allFiles = allFiles.concat(result.value.slice(0, limit));
     }
   }
 
+  const dedupedFiles = dedupeByIdKeepFirst(allFiles);
+
   return {
     success: true,
-    files: limit ? allFiles.slice(0, limit) : allFiles,
+    files: limit ? dedupedFiles.slice(0, limit) : dedupedFiles,
   };
 };
 
