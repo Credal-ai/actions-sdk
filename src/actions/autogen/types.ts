@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export enum ProviderName {
   GENERIC = "generic",
+  PERPLEXITY = "perplexity",
   ASANA = "asana",
   SLACK = "slack",
   MATH = "math",
@@ -78,6 +79,38 @@ export type genericFillTemplateFunction = ActionFunction<
   genericFillTemplateParamsType,
   AuthParamsType,
   genericFillTemplateOutputType
+>;
+
+export const perplexityPerplexityDeepResearchParamsSchema = z.object({
+  query: z.string().describe("The research query/question"),
+  reasoningEffort: z
+    .string()
+    .describe('Optional reasoning effort level ("low", "medium", "high"). Defaults to "medium".')
+    .optional(),
+});
+
+export type perplexityPerplexityDeepResearchParamsType = z.infer<typeof perplexityPerplexityDeepResearchParamsSchema>;
+
+export const perplexityPerplexityDeepResearchOutputSchema = z.object({
+  error: z.string().describe("Error if comment was unsuccessful").optional(),
+  success: z.boolean().describe("Whether comment was successfully made"),
+  result: z
+    .object({
+      content: z.string().describe("The main research response/analysis").optional(),
+      sources: z
+        .array(z.object({ title: z.string().optional(), url: z.string().optional() }))
+        .describe("Array of source citations")
+        .optional(),
+    })
+    .describe("The main research response/analysis")
+    .optional(),
+});
+
+export type perplexityPerplexityDeepResearchOutputType = z.infer<typeof perplexityPerplexityDeepResearchOutputSchema>;
+export type perplexityPerplexityDeepResearchFunction = ActionFunction<
+  perplexityPerplexityDeepResearchParamsType,
+  AuthParamsType,
+  perplexityPerplexityDeepResearchOutputType
 >;
 
 export const asanaCommentTaskParamsSchema = z.object({

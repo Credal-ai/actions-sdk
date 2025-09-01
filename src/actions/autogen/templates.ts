@@ -26,6 +26,87 @@ export const genericFillTemplateDefinition: ActionTemplate = {
   name: "fillTemplate",
   provider: "generic",
 };
+export const perplexityPerplexityDeepResearchDefinition: ActionTemplate = {
+  description: "Performs deep research using Perplexity AI",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["query"],
+    properties: {
+      query: {
+        type: "string",
+        description: "The research query/question",
+      },
+      reasoningEffort: {
+        type: "string",
+        description: 'Optional reasoning effort level ("low", "medium", "high"). Defaults to "medium".',
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      error: {
+        type: "string",
+        description: "Error if comment was unsuccessful",
+      },
+      success: {
+        type: "boolean",
+        description: "Whether comment was successfully made",
+      },
+      result: {
+        type: "object",
+        description: "The main research response/analysis",
+        properties: {
+          content: {
+            type: "string",
+            description: "The main research response/analysis",
+          },
+          sources: {
+            type: "array",
+            description: "Array of source citations",
+            items: {
+              type: "object",
+              properties: {
+                title: {
+                  type: "string",
+                },
+                url: {
+                  type: "string",
+                },
+              },
+            },
+            snippet: {
+              type: "string",
+              nullable: true,
+            },
+          },
+        },
+        usage: {
+          type: "object",
+          description: "Token usage metrics",
+          properties: {
+            input_tokens: {
+              type: "number",
+            },
+          },
+          output_tokens: {
+            type: "number",
+          },
+          reasoning_tokens: {
+            type: "number",
+          },
+          search_queries: {
+            type: "number",
+          },
+        },
+      },
+    },
+  },
+  name: "perplexityDeepResearch",
+  provider: "perplexity",
+};
 export const asanaCommentTaskDefinition: ActionTemplate = {
   description: "Comments on an Asana task with specified content",
   scopes: [],
