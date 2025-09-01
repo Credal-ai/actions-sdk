@@ -6,6 +6,29 @@ import type {
 } from "../../autogen/types.js";
 import { perplexityPerplexityDeepResearchOutputSchema } from "../../autogen/types.js";
 
+interface PerplexitySearchResult {
+  title: string;
+  url: string;
+  snippet: string;
+}
+
+interface PerplexityUsage {
+  prompt_tokens?: number;
+  completion_tokens?: number;
+  reasoning_tokens?: number;
+  search_queries?: number;
+}
+
+interface PerplexityApiResponse {
+  choices?: Array<{
+    message?: {
+      content?: string;
+    };
+  }>;
+  search_results?: PerplexitySearchResult[];
+  usage?: PerplexityUsage;
+}
+
 const perplexityDeepResearch: perplexityPerplexityDeepResearchFunction = async ({
   params,
   authParams,
@@ -35,11 +58,11 @@ const perplexityDeepResearch: perplexityPerplexityDeepResearchFunction = async (
         error: `Perplexity API error: ${response.status} ${response.statusText}`,
       });
     }
-    const result = await response.json();
+    const result: PerplexityApiResponse = await response.json();
 
     const content = result.choices?.[0]?.message?.content || "";
     const sources =
-      result.search_results?.map((source: any) => ({
+      result.search_results?.map((source: PerplexitySearchResult) => ({
         title: source.title,
         url: source.url,
         snippet: source.snippet,
