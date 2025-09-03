@@ -44,7 +44,23 @@ const listCommits: githubListCommitsFunction = async ({
       requestParams.author = author;
     }
 
-    const response = await axios.get(url, {
+    interface GitHubCommit {
+      sha: string;
+      url: string;
+      html_url: string;
+      commit: {
+        message: string;
+        author: { name: string; email: string; date: string };
+        committer: { name: string; email: string; date: string };
+        tree: { sha: string; url: string };
+        comment_count?: number;
+      };
+      author?: { login: string; id: number; avatar_url: string; html_url: string } | null;
+      committer?: { login: string; id: number; avatar_url: string; html_url: string } | null;
+      parents: Array<{ sha: string; url: string; html_url: string }>;
+    }
+
+    const response = await axios.get<GitHubCommit[]>(url, {
       headers: {
         Authorization: `Bearer ${authToken}`,
         Accept: "application/vnd.github+json",
@@ -55,67 +71,33 @@ const listCommits: githubListCommitsFunction = async ({
 
     const commits = response.data;
 
-    // Transform the GitHub API response to match our schema
-    const transformedCommits = commits.map(
-      (commit: {
-        sha: string;
-        url: string;
-        html_url: string;
-        commit: {
-          message: string;
-          author: { name: string; email: string; date: string };
-          committer: { name: string; email: string; date: string };
-          tree: { sha: string; url: string };
-          comment_count?: number;
-        };
-        author?: { login: string; id: number; avatar_url: string; html_url: string } | null;
-        committer?: { login: string; id: number; avatar_url: string; html_url: string } | null;
-        parents: Array<{ sha: string; url: string; html_url: string }>;
-      }) => ({
-        sha: commit.sha,
-        url: commit.url,
-        htmlUrl: commit.html_url,
-        commit: {
-          message: commit.commit.message,
-          author: {
-            name: commit.commit.author.name,
-            email: commit.commit.author.email,
-            date: commit.commit.author.date,
-          },
-          committer: {
-            name: commit.commit.committer.name,
-            email: commit.commit.committer.email,
-            date: commit.commit.committer.date,
-          },
-          tree: {
-            sha: commit.commit.tree.sha,
-            url: commit.commit.tree.url,
-          },
-          commentCount: commit.commit.comment_count || 0,
-        },
-        author: commit.author
-          ? {
-              login: commit.author.login,
-              id: commit.author.id,
-              avatarUrl: commit.author.avatar_url,
-              htmlUrl: commit.author.html_url,
-            }
-          : null,
-        committer: commit.committer
-          ? {
-              login: commit.committer.login,
-              id: commit.committer.id,
-              avatarUrl: commit.committer.avatar_url,
-              htmlUrl: commit.committer.html_url,
-            }
-          : null,
-        parents: commit.parents.map((parent: { sha: string; url: string; html_url: string }) => ({
-          sha: parent.sha,
-          url: parent.url,
-          htmlUrl: parent.html_url,
-        })),
-      }),
-    );
+    // Transform only the field names that differ between GitHub API and our schema
+    const transformedCommits = commits.map(commit => ({
+      ...commit,
+      htmlUrl: commit.html_url,
+      commit: {
+        ...commit.commit,
+        commentCount: commit.commit.comment_count || 0,
+      },
+      author: commit.author
+        ? {
+            ...commit.author,
+            avatarUrl: commit.author.avatar_url,
+            htmlUrl: commit.author.html_url,
+          }
+        : null,
+      committer: commit.committer
+        ? {
+            ...commit.committer,
+            avatarUrl: commit.committer.avatar_url,
+            htmlUrl: commit.committer.html_url,
+          }
+        : null,
+      parents: commit.parents.map(parent => ({
+        ...parent,
+        htmlUrl: parent.html_url,
+      })),
+    }));
 
     // Check if there are more pages by looking at the Link header
     const linkHeader = response.headers.link;

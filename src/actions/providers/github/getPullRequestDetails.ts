@@ -26,7 +26,75 @@ const getPullRequestDetails: githubGetPullRequestDetailsFunction = async ({
   try {
     const url = `https://api.github.com/repos/${repositoryOwner}/${repositoryName}/pulls/${pullRequestNumber}`;
 
-    const response = await axios.get(url, {
+    interface GitHubPullRequest {
+      number: number;
+      title: string;
+      body: string | null;
+      state: string;
+      draft: boolean;
+      url: string;
+      html_url: string;
+      created_at: string;
+      updated_at: string;
+      closed_at: string | null;
+      merged_at: string | null;
+      merged: boolean;
+      user: {
+        login: string;
+        id: number;
+        avatar_url: string;
+        html_url: string;
+      } | null;
+      assignees: Array<{
+        login: string;
+        id: number;
+        avatar_url: string;
+        html_url: string;
+      }>;
+      requested_reviewers: Array<{
+        login: string;
+        id: number;
+        avatar_url: string;
+        html_url: string;
+      }>;
+      labels: Array<{
+        name: string;
+        color: string;
+        description?: string;
+      }>;
+      head: {
+        ref: string;
+        sha: string;
+        repo: {
+          name: string;
+          full_name: string;
+          owner: { login: string };
+        } | null;
+      };
+      base: {
+        ref: string;
+        sha: string;
+        repo: {
+          name: string;
+          full_name: string;
+          owner: { login: string };
+        } | null;
+      };
+      mergeable: boolean | null;
+      mergeable_state: string | null;
+      commits: number;
+      additions: number;
+      deletions: number;
+      changed_files: number;
+      milestone: {
+        title: string;
+        description: string | null;
+        state: string;
+        due_on: string | null;
+      } | null;
+    }
+
+    const response = await axios.get<GitHubPullRequest>(url, {
       headers: {
         Authorization: `Bearer ${authToken}`,
         Accept: "application/vnd.github+json",
@@ -36,14 +104,11 @@ const getPullRequestDetails: githubGetPullRequestDetailsFunction = async ({
 
     const pr = response.data;
 
-    // Transform the GitHub API response to match our schema
+    // Transform only the field names that differ between GitHub API and our schema
     const transformedPR = {
-      number: pr.number,
-      title: pr.title,
+      ...pr,
       description: pr.body,
       state: pr.state === "closed" && pr.merged_at ? "merged" : pr.state,
-      draft: pr.draft,
-      url: pr.url,
       htmlUrl: pr.html_url,
       createdAt: pr.created_at,
       updatedAt: pr.updated_at,
@@ -51,72 +116,53 @@ const getPullRequestDetails: githubGetPullRequestDetailsFunction = async ({
       mergedAt: pr.merged_at,
       author: pr.user
         ? {
-            login: pr.user.login,
-            id: pr.user.id,
+            ...pr.user,
             avatarUrl: pr.user.avatar_url,
             htmlUrl: pr.user.html_url,
           }
         : null,
       assignees:
-        pr.assignees?.map((assignee: { login: string; id: number; avatar_url: string; html_url: string }) => ({
-          login: assignee.login,
-          id: assignee.id,
+        pr.assignees?.map(assignee => ({
+          ...assignee,
           avatarUrl: assignee.avatar_url,
           htmlUrl: assignee.html_url,
         })) || [],
       reviewers:
-        pr.requested_reviewers?.map(
-          (reviewer: { login: string; id: number; avatar_url: string; html_url: string }) => ({
-            login: reviewer.login,
-            id: reviewer.id,
-            avatarUrl: reviewer.avatar_url,
-            htmlUrl: reviewer.html_url,
-          }),
-        ) || [],
+        pr.requested_reviewers?.map(reviewer => ({
+          ...reviewer,
+          avatarUrl: reviewer.avatar_url,
+          htmlUrl: reviewer.html_url,
+        })) || [],
       labels:
-        pr.labels?.map((label: { name: string; color: string; description?: string }) => ({
-          name: label.name,
-          color: label.color,
+        pr.labels?.map(label => ({
+          ...label,
           description: label.description || null,
         })) || [],
       head: {
-        ref: pr.head.ref,
-        sha: pr.head.sha,
+        ...pr.head,
         repo: pr.head.repo
           ? {
               name: pr.head.repo.name,
               fullName: pr.head.repo.full_name,
-              owner: {
-                login: pr.head.repo.owner.login,
-              },
+              owner: pr.head.repo.owner,
             }
           : null,
       },
       base: {
-        ref: pr.base.ref,
-        sha: pr.base.sha,
+        ...pr.base,
         repo: pr.base.repo
           ? {
               name: pr.base.repo.name,
               fullName: pr.base.repo.full_name,
-              owner: {
-                login: pr.base.repo.owner.login,
-              },
+              owner: pr.base.repo.owner,
             }
           : null,
       },
-      mergeable: pr.mergeable,
       mergeableState: pr.mergeable_state,
-      merged: pr.merged,
-      commits: pr.commits,
-      additions: pr.additions,
-      deletions: pr.deletions,
       changedFiles: pr.changed_files,
       milestone: pr.milestone
         ? {
-            title: pr.milestone.title,
-            description: pr.milestone.description,
-            state: pr.milestone.state,
+            ...pr.milestone,
             dueOn: pr.milestone.due_on,
           }
         : null,
