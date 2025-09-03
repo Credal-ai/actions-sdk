@@ -34,7 +34,7 @@ const result = await runAction(
 ## Running a basic test for `runAction`
 
 ```
-npm run test tests/testRunMathAction.ts
+npm run test tests/math/testRunMathAction.ts
 ```
 ## Secret Scanning (TruffleHog)
 
