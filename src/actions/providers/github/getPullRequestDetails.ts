@@ -8,6 +8,65 @@ import {
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
+interface GitHubPullRequest {
+  number: number;
+  title: string;
+  body: string | null;
+  state: string;
+  draft: boolean;
+  url: string;
+  html_url: string;
+  created_at: string;
+  updated_at: string;
+  closed_at: string | null;
+  merged_at: string | null;
+  merged: boolean;
+  user: {
+    login: string;
+  } | null;
+  assignees: Array<{
+    login: string;
+  }>;
+  requested_reviewers: Array<{
+    login: string;
+  }>;
+  labels: Array<{
+    name: string;
+    color: string;
+    description?: string;
+  }>;
+  head: {
+    ref: string;
+    sha: string;
+    repo: {
+      name: string;
+      full_name: string;
+      owner: { login: string };
+    } | null;
+  };
+  base: {
+    ref: string;
+    sha: string;
+    repo: {
+      name: string;
+      full_name: string;
+      owner: { login: string };
+    } | null;
+  };
+  mergeable: boolean | null;
+  mergeable_state: string | null;
+  commits: number;
+  additions: number;
+  deletions: number;
+  changed_files: number;
+  milestone: {
+    title: string;
+    description: string | null;
+    state: string;
+    due_on: string | null;
+  } | null;
+}
+
 const getPullRequestDetails: githubGetPullRequestDetailsFunction = async ({
   params,
   authParams,
@@ -25,65 +84,6 @@ const getPullRequestDetails: githubGetPullRequestDetailsFunction = async ({
 
   try {
     const url = `https://api.github.com/repos/${repositoryOwner}/${repositoryName}/pulls/${pullRequestNumber}`;
-
-    interface GitHubPullRequest {
-      number: number;
-      title: string;
-      body: string | null;
-      state: string;
-      draft: boolean;
-      url: string;
-      html_url: string;
-      created_at: string;
-      updated_at: string;
-      closed_at: string | null;
-      merged_at: string | null;
-      merged: boolean;
-      user: {
-        login: string;
-      } | null;
-      assignees: Array<{
-        login: string;
-      }>;
-      requested_reviewers: Array<{
-        login: string;
-      }>;
-      labels: Array<{
-        name: string;
-        color: string;
-        description?: string;
-      }>;
-      head: {
-        ref: string;
-        sha: string;
-        repo: {
-          name: string;
-          full_name: string;
-          owner: { login: string };
-        } | null;
-      };
-      base: {
-        ref: string;
-        sha: string;
-        repo: {
-          name: string;
-          full_name: string;
-          owner: { login: string };
-        } | null;
-      };
-      mergeable: boolean | null;
-      mergeable_state: string | null;
-      commits: number;
-      additions: number;
-      deletions: number;
-      changed_files: number;
-      milestone: {
-        title: string;
-        description: string | null;
-        state: string;
-        due_on: string | null;
-      } | null;
-    }
 
     const response = await axios.get<GitHubPullRequest>(url, {
       headers: {

@@ -8,6 +8,21 @@ import {
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
+interface GitHubCommit {
+  sha: string;
+  url: string;
+  html_url: string;
+  commit: {
+    message: string;
+    author: { name: string; email: string; date: string };
+    committer: { name: string; email: string; date: string };
+    tree: { sha: string; url: string };
+    comment_count?: number;
+  };
+  author?: { login: string } | null;
+  parents: Array<{ sha: string; url: string; html_url: string }>;
+}
+
 const listCommits: githubListCommitsFunction = async ({
   params,
   authParams,
@@ -42,21 +57,6 @@ const listCommits: githubListCommitsFunction = async ({
     }
     if (author) {
       requestParams.author = author;
-    }
-
-    interface GitHubCommit {
-      sha: string;
-      url: string;
-      html_url: string;
-      commit: {
-        message: string;
-        author: { name: string; email: string; date: string };
-        committer: { name: string; email: string; date: string };
-        tree: { sha: string; url: string };
-        comment_count?: number;
-      };
-      author?: { login: string } | null;
-      parents: Array<{ sha: string; url: string; html_url: string }>;
     }
 
     const response = await axios.get<GitHubCommit[]>(url, {
