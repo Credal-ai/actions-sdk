@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export enum ProviderName {
   GENERIC = "generic",
+  PERPLEXITY = "perplexity",
   ASANA = "asana",
   SLACK = "slack",
   MATH = "math",
@@ -58,6 +59,7 @@ export const AuthParamsSchema = z.object({
   tenantId: z.string().optional(),
   refreshToken: z.string().optional(),
   redirectUri: z.string().optional(),
+  userEmail: z.string().optional(),
 });
 
 export type AuthParamsType = z.infer<typeof AuthParamsSchema>;
@@ -77,6 +79,38 @@ export type genericFillTemplateFunction = ActionFunction<
   genericFillTemplateParamsType,
   AuthParamsType,
   genericFillTemplateOutputType
+>;
+
+export const perplexityPerplexityDeepResearchParamsSchema = z.object({
+  query: z.string().describe("The research query/question"),
+  reasoningEffort: z
+    .string()
+    .describe('Optional reasoning effort level ("low", "medium", "high"). Defaults to "medium".')
+    .optional(),
+});
+
+export type perplexityPerplexityDeepResearchParamsType = z.infer<typeof perplexityPerplexityDeepResearchParamsSchema>;
+
+export const perplexityPerplexityDeepResearchOutputSchema = z.object({
+  error: z.string().describe("Error if comment was unsuccessful").optional(),
+  success: z.boolean().describe("Whether comment was successfully made"),
+  result: z
+    .object({
+      content: z.string().describe("The main research response/analysis").optional(),
+      sources: z
+        .array(z.object({ title: z.string().optional(), url: z.string().optional() }))
+        .describe("Array of source citations")
+        .optional(),
+    })
+    .describe("The main research response/analysis")
+    .optional(),
+});
+
+export type perplexityPerplexityDeepResearchOutputType = z.infer<typeof perplexityPerplexityDeepResearchOutputSchema>;
+export type perplexityPerplexityDeepResearchFunction = ActionFunction<
+  perplexityPerplexityDeepResearchParamsType,
+  AuthParamsType,
+  perplexityPerplexityDeepResearchOutputType
 >;
 
 export const asanaCommentTaskParamsSchema = z.object({
@@ -324,34 +358,20 @@ export type slackCreateChannelFunction = ActionFunction<
   slackCreateChannelOutputType
 >;
 
-export const slackArchiveChannelParamsSchema = z.object({
-  channelName: z.string().describe("The name of the channel to archive"),
-});
-
-export type slackArchiveChannelParamsType = z.infer<typeof slackArchiveChannelParamsSchema>;
-
-export const slackArchiveChannelOutputSchema = z.object({
-  success: z.boolean().describe("Whether the channel was archived successfully"),
-  error: z.string().describe("The error that occurred if the channel was not archived successfully").optional(),
-});
-
-export type slackArchiveChannelOutputType = z.infer<typeof slackArchiveChannelOutputSchema>;
-export type slackArchiveChannelFunction = ActionFunction<
-  slackArchiveChannelParamsType,
-  AuthParamsType,
-  slackArchiveChannelOutputType
->;
-
 export const slackSendMessageParamsSchema = z.object({
-  channelName: z.string().describe("The name of the Slack channel to send the message to (e.g. general, alerts)"),
+  channelId: z.string().describe("The ID of the channel to send the message to").optional(),
+  channelName: z
+    .string()
+    .describe("The name of the Slack channel to send the message to (e.g. general, alerts)")
+    .optional(),
   message: z.string().describe("The message content to send to Slack. Can include markdown formatting."),
 });
 
 export type slackSendMessageParamsType = z.infer<typeof slackSendMessageParamsSchema>;
 
 export const slackSendMessageOutputSchema = z.object({
-  success: z.boolean().describe("Whether the email was sent successfully"),
-  error: z.string().describe("The error that occurred if the email was not sent successfully").optional(),
+  success: z.boolean().describe("Whether the message was sent successfully"),
+  error: z.string().describe("The error that occurred if the message was not sent successfully").optional(),
   messageId: z.string().describe("The ID of the message that was sent").optional(),
 });
 
@@ -1719,6 +1739,7 @@ export type resendSendEmailHtmlFunction = ActionFunction<
 export const googleOauthCreateNewGoogleDocParamsSchema = z.object({
   title: z.string().describe("The title of the new Google Doc"),
   content: z.string().describe("The content to add to the new Google Doc").optional(),
+  usesHtml: z.boolean().describe("Whether to interpret the content as HTML").optional(),
 });
 
 export type googleOauthCreateNewGoogleDocParamsType = z.infer<typeof googleOauthCreateNewGoogleDocParamsSchema>;
@@ -3515,6 +3536,25 @@ export type googleOauthUpdatePresentationFunction = ActionFunction<
   googleOauthUpdatePresentationOutputType
 >;
 
+export const googleOauthGetPresentationParamsSchema = z.object({
+  presentationId: z.string().describe("The ID of the presentation to retrieve"),
+});
+
+export type googleOauthGetPresentationParamsType = z.infer<typeof googleOauthGetPresentationParamsSchema>;
+
+export const googleOauthGetPresentationOutputSchema = z.object({
+  success: z.boolean().describe("Whether the presentation was retrieved successfully"),
+  error: z.string().describe("The error that occurred if the presentation was not retrieved successfully").optional(),
+  presentation: z.any().optional(),
+});
+
+export type googleOauthGetPresentationOutputType = z.infer<typeof googleOauthGetPresentationOutputSchema>;
+export type googleOauthGetPresentationFunction = ActionFunction<
+  googleOauthGetPresentationParamsType,
+  AuthParamsType,
+  googleOauthGetPresentationOutputType
+>;
+
 export const googleOauthSearchDriveByKeywordsParamsSchema = z.object({
   keywords: z.array(z.string()).describe("List of keywords to search for in file contents."),
   limit: z.number().describe("The maximum number of files to return").optional(),
@@ -3582,11 +3622,54 @@ export type googleOauthSearchDriveByQueryFunction = ActionFunction<
   googleOauthSearchDriveByQueryOutputType
 >;
 
-export const googleOauthSearchDriveByQueryAndGetFileContentParamsSchema = z.object({
-  query: z.string().describe("The query to search for in file contents."),
+export const googleOauthSearchDriveByKeywordsAndGetFileContentParamsSchema = z.object({
+  searchQuery: z.string().describe("The query input to Google Drive search"),
   limit: z.number().describe("The maximum number of files to return").optional(),
   fileSizeLimit: z.number().describe("The maximum length of a file in characters").optional(),
-  searchDriveByDrive: z.boolean().describe("Whether we should search drive by drive or run a general search"),
+  searchDriveByDrive: z.boolean().describe("Search drive by drive or run a general search"),
+  orderByQuery: z
+    .string()
+    .describe(
+      "The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'",
+    )
+    .optional(),
+});
+
+export type googleOauthSearchDriveByKeywordsAndGetFileContentParamsType = z.infer<
+  typeof googleOauthSearchDriveByKeywordsAndGetFileContentParamsSchema
+>;
+
+export const googleOauthSearchDriveByKeywordsAndGetFileContentOutputSchema = z.object({
+  success: z.boolean().describe("Whether the search was successful"),
+  files: z
+    .array(
+      z.object({
+        id: z.string().describe("The file ID"),
+        name: z.string().describe("The file name"),
+        mimeType: z.string().describe("The MIME type of the file"),
+        url: z.string().describe("The web link to view the file"),
+        content: z.string().describe("The data returned from the file, subject to fileSizeLimit").optional(),
+      }),
+    )
+    .describe("List of files matching the search")
+    .optional(),
+  error: z.string().describe("Error message if search failed").optional(),
+});
+
+export type googleOauthSearchDriveByKeywordsAndGetFileContentOutputType = z.infer<
+  typeof googleOauthSearchDriveByKeywordsAndGetFileContentOutputSchema
+>;
+export type googleOauthSearchDriveByKeywordsAndGetFileContentFunction = ActionFunction<
+  googleOauthSearchDriveByKeywordsAndGetFileContentParamsType,
+  AuthParamsType,
+  googleOauthSearchDriveByKeywordsAndGetFileContentOutputType
+>;
+
+export const googleOauthSearchDriveByQueryAndGetFileContentParamsSchema = z.object({
+  query: z.string().describe("Google Drive API search syntax, eg \"fullText contains 'Valentine\\'s Day'\""),
+  limit: z.number().describe("The maximum number of files to return").optional(),
+  fileSizeLimit: z.number().describe("The maximum length of a file in characters").optional(),
+  searchDriveByDrive: z.boolean().describe("Search drive by drive or run a general search"),
   orderByQuery: z
     .string()
     .describe(
@@ -3608,7 +3691,7 @@ export const googleOauthSearchDriveByQueryAndGetFileContentOutputSchema = z.obje
         name: z.string().describe("The file name"),
         mimeType: z.string().describe("The MIME type of the file"),
         url: z.string().describe("The web link to view the file"),
-        content: z.string().describe("The data returned from the file limited by fileLimit").optional(),
+        content: z.string().describe("The data returned from the file, subject to fileSizeLimit").optional(),
       }),
     )
     .describe("List of files matching the search")
@@ -3627,7 +3710,7 @@ export type googleOauthSearchDriveByQueryAndGetFileContentFunction = ActionFunct
 
 export const googleOauthGetDriveFileContentByIdParamsSchema = z.object({
   fileId: z.string().describe("The ID of the file to get content from"),
-  limit: z.number().describe("The character limit for the file content"),
+  limit: z.number().describe("The character limit for the file content").optional(),
   timeoutLimit: z
     .number()
     .describe("The timeout limit for the file content retrieval (default of 15 seconds)")
@@ -4828,6 +4911,7 @@ export const salesforceSearchSalesforceRecordsParamsSchema = z.object({
   recordType: z.string().describe("The type of record to search for"),
   fieldsToSearch: z.array(z.string()).describe("The fields to search for the keyword"),
   limit: z.number().describe("The maximum number of records to return").optional(),
+  maxLimit: z.number().describe("The absolute maximum limit for records that can be returned").optional(),
 });
 
 export type salesforceSearchSalesforceRecordsParamsType = z.infer<typeof salesforceSearchSalesforceRecordsParamsSchema>;
@@ -5170,6 +5254,113 @@ export type githubListPullRequestsFunction = ActionFunction<
   githubListPullRequestsOutputType
 >;
 
+export const githubGetPullRequestDetailsParamsSchema = z.object({
+  repositoryOwner: z.string().describe("The owner of the repository"),
+  repositoryName: z.string().describe("The name of the repository"),
+  pullRequestNumber: z.number().describe("The number of the pull request to get details for"),
+});
+
+export type githubGetPullRequestDetailsParamsType = z.infer<typeof githubGetPullRequestDetailsParamsSchema>;
+
+export const githubGetPullRequestDetailsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("The error that occurred if the operation was not successful").optional(),
+  pullRequest: z
+    .object({
+      number: z.number().describe("The number of the pull request").optional(),
+      title: z.string().describe("The title of the pull request").optional(),
+      description: z.string().nullable().describe("The body/description of the pull request").optional(),
+      state: z.enum(["open", "closed", "merged"]).describe("The state of the pull request").optional(),
+      draft: z.boolean().describe("Whether the pull request is a draft").optional(),
+      url: z.string().describe("The API URL of the pull request").optional(),
+      htmlUrl: z.string().describe("The web URL of the pull request").optional(),
+      createdAt: z.string().describe("The date and time when the pull request was created").optional(),
+      updatedAt: z.string().describe("The date and time when the pull request was last updated").optional(),
+      closedAt: z.string().nullable().describe("The date and time when the pull request was closed").optional(),
+      mergedAt: z.string().nullable().describe("The date and time when the pull request was merged").optional(),
+      author: z
+        .object({ login: z.string().describe("The username of the pull request author").optional() })
+        .describe("The user who created the pull request")
+        .optional(),
+      assignees: z
+        .array(z.object({ login: z.string().describe("The username of the assignee").optional() }))
+        .describe("Users assigned to the pull request")
+        .optional(),
+      reviewers: z
+        .array(z.object({ login: z.string().describe("The username of the reviewer").optional() }))
+        .describe("Users requested to review the pull request")
+        .optional(),
+      labels: z
+        .array(
+          z.object({
+            name: z.string().describe("The name of the label").optional(),
+            color: z.string().describe("The color of the label").optional(),
+            description: z.string().nullable().describe("The description of the label").optional(),
+          }),
+        )
+        .describe("Labels applied to the pull request")
+        .optional(),
+      head: z
+        .object({
+          ref: z.string().describe("The name of the head branch").optional(),
+          sha: z.string().describe("The SHA of the head commit").optional(),
+          repo: z
+            .object({
+              name: z.string().describe("The name of the head repository").optional(),
+              fullName: z.string().describe("The full name of the head repository").optional(),
+              owner: z
+                .object({ login: z.string().describe("The username of the head repository owner").optional() })
+                .optional(),
+            })
+            .optional(),
+        })
+        .describe("The head branch of the pull request")
+        .optional(),
+      base: z
+        .object({
+          ref: z.string().describe("The name of the base branch").optional(),
+          sha: z.string().describe("The SHA of the base commit").optional(),
+          repo: z
+            .object({
+              name: z.string().describe("The name of the base repository").optional(),
+              fullName: z.string().describe("The full name of the base repository").optional(),
+              owner: z
+                .object({ login: z.string().describe("The username of the base repository owner").optional() })
+                .optional(),
+            })
+            .optional(),
+        })
+        .describe("The base branch of the pull request")
+        .optional(),
+      mergeable: z.boolean().nullable().describe("Whether the pull request can be merged").optional(),
+      mergeableState: z.string().nullable().describe("The mergeable state of the pull request").optional(),
+      merged: z.boolean().describe("Whether the pull request has been merged").optional(),
+      commits: z.number().describe("The number of commits in the pull request").optional(),
+      additions: z.number().describe("The number of additions in the pull request").optional(),
+      deletions: z.number().describe("The number of deletions in the pull request").optional(),
+      changedFiles: z.number().describe("The number of files changed in the pull request").optional(),
+      milestone: z
+        .object({
+          title: z.string().describe("The title of the milestone").optional(),
+          description: z.string().nullable().describe("The description of the milestone").optional(),
+          state: z.string().describe("The state of the milestone").optional(),
+          dueOn: z.string().nullable().describe("The due date of the milestone").optional(),
+        })
+        .nullable()
+        .describe("The milestone associated with the pull request")
+        .optional(),
+    })
+    .describe("Detailed information about the pull request")
+    .optional(),
+});
+
+export type githubGetPullRequestDetailsOutputType = z.infer<typeof githubGetPullRequestDetailsOutputSchema>;
+export type githubGetPullRequestDetailsFunction = ActionFunction<
+  githubGetPullRequestDetailsParamsType,
+  AuthParamsType,
+  githubGetPullRequestDetailsOutputType
+>;
+
 export const githubGetFileContentParamsSchema = z.object({
   organization: z.string().describe("The organization that owns the repository"),
   repository: z.string().describe("The repository name"),
@@ -5398,6 +5589,80 @@ export type githubSearchOrganizationFunction = ActionFunction<
   githubSearchOrganizationParamsType,
   AuthParamsType,
   githubSearchOrganizationOutputType
+>;
+
+export const githubListCommitsParamsSchema = z.object({
+  repositoryOwner: z.string().describe("The owner of the repository"),
+  repositoryName: z.string().describe("The name of the repository"),
+  branch: z.string().describe("The branch to list commits from (defaults to default branch)").optional(),
+  since: z
+    .string()
+    .describe("Only show commits after this date (ISO 8601 format, e.g., 2023-01-01T00:00:00Z)")
+    .optional(),
+  until: z
+    .string()
+    .describe("Only show commits before this date (ISO 8601 format, e.g., 2023-12-31T23:59:59Z)")
+    .optional(),
+  author: z.string().describe("Filter commits by author (GitHub username or email)").optional(),
+  perPage: z.number().describe("Number of commits to return per page (default 30, max 100)").optional(),
+  page: z.number().describe("Page number for pagination (default 1)").optional(),
+});
+
+export type githubListCommitsParamsType = z.infer<typeof githubListCommitsParamsSchema>;
+
+export const githubListCommitsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("The error that occurred if the operation was not successful").optional(),
+  commits: z
+    .array(
+      z.object({
+        sha: z.string().describe("The SHA hash of the commit"),
+        url: z.string().describe("The API URL of the commit"),
+        htmlUrl: z.string().describe("The web URL of the commit"),
+        commit: z.object({
+          message: z.string().describe("The commit message"),
+          author: z.object({
+            name: z.string().describe("The name of the commit author"),
+            email: z.string().describe("The email of the commit author"),
+            date: z.string().describe("The date when the commit was authored (ISO 8601 format)"),
+          }),
+          committer: z.object({
+            name: z.string().describe("The name of the commit committer"),
+            email: z.string().describe("The email of the commit committer"),
+            date: z.string().describe("The date when the commit was committed (ISO 8601 format)"),
+          }),
+          tree: z.object({
+            sha: z.string().describe("The SHA of the tree object"),
+            url: z.string().describe("The API URL of the tree object"),
+          }),
+          commentCount: z.number().describe("The number of comments on the commit").optional(),
+        }),
+        author: z
+          .object({ login: z.string().describe("The GitHub username of the commit author").optional() })
+          .nullable(),
+        parents: z
+          .array(
+            z.object({
+              sha: z.string().describe("The SHA of the parent commit"),
+              url: z.string().describe("The API URL of the parent commit"),
+              htmlUrl: z.string().describe("The web URL of the parent commit"),
+            }),
+          )
+          .describe("The parent commits")
+          .optional(),
+      }),
+    )
+    .describe("List of commits in the repository")
+    .optional(),
+  totalCount: z.number().describe("Total number of commits (if available)").optional(),
+  hasMore: z.boolean().describe("Whether there are more commits available on subsequent pages").optional(),
+});
+
+export type githubListCommitsOutputType = z.infer<typeof githubListCommitsOutputSchema>;
+export type githubListCommitsFunction = ActionFunction<
+  githubListCommitsParamsType,
+  AuthParamsType,
+  githubListCommitsOutputType
 >;
 
 export const notionSearchByTitleParamsSchema = z.object({

@@ -82,8 +82,55 @@ interface GoogleSlidesPresentation {
           }>;
         };
       };
+      table?: {
+        tableRows?: Array<{
+          tableCells?: Array<{
+            text?: {
+              textElements?: Array<{
+                textRun?: {
+                  content?: string;
+                };
+              }>;
+            };
+          }>;
+        }>;
+      };
+      line?: {
+        text?: {
+          textElements?: Array<{
+            textRun?: {
+              content?: string;
+            };
+          }>;
+        };
+      };
+      wordArt?: {
+        text?: {
+          textElements?: Array<{
+            textRun?: {
+              content?: string;
+            };
+          }>;
+        };
+      };
     }>;
+    notesProperties?: {
+      speakerNotesObjectId?: string;
+    };
   }>;
+  notesMaster?: {
+    pageElements?: Array<{
+      shape?: {
+        text?: {
+          textElements?: Array<{
+            textRun?: {
+              content?: string;
+            };
+          }>;
+        };
+      };
+    }>;
+  };
 }
 
 type DocSection = {
@@ -255,23 +302,66 @@ export function parseGoogleSlidesFromRawContentToPlainText(snapshotRawContent: G
 
   const slideContents: string[] = [];
 
+  // Helper function to extract text from textElements
+  const extractTextFromElements = (textElements?: Array<{ textRun?: { content?: string } }>): string[] => {
+    if (!textElements) return [];
+    return textElements.map(el => el.textRun?.content?.trim()).filter((content): content is string => Boolean(content));
+  };
+
   for (const slide of snapshotRawContent.slides) {
     if (!slide.pageElements) continue;
 
     const slideTexts: string[] = [];
 
     for (const pageElement of slide.pageElements) {
-      if (!pageElement.shape?.text?.textElements) continue;
+      // Extract text from shapes
+      if (pageElement.shape?.text?.textElements) {
+        const shapeTexts = extractTextFromElements(pageElement.shape.text.textElements);
+        slideTexts.push(...shapeTexts);
+      }
 
-      for (const textElement of pageElement.shape.text.textElements) {
-        if (textElement.textRun?.content) {
-          slideTexts.push(textElement.textRun.content.trim());
+      // Extract text from tables
+      if (pageElement.table?.tableRows) {
+        for (const row of pageElement.table.tableRows) {
+          if (!row.tableCells) continue;
+          for (const cell of row.tableCells) {
+            if (cell.text?.textElements) {
+              const cellTexts = extractTextFromElements(cell.text.textElements);
+              slideTexts.push(...cellTexts);
+            }
+          }
         }
+      }
+
+      // Extract text from lines
+      if (pageElement.line?.text?.textElements) {
+        const lineTexts = extractTextFromElements(pageElement.line.text.textElements);
+        slideTexts.push(...lineTexts);
+      }
+
+      // Extract text from wordArt
+      if (pageElement.wordArt?.text?.textElements) {
+        const wordArtTexts = extractTextFromElements(pageElement.wordArt.text.textElements);
+        slideTexts.push(...wordArtTexts);
       }
     }
 
     if (slideTexts.length > 0) {
       slideContents.push(slideTexts.join(" "));
+    }
+  }
+
+  // Also extract text from notes master if available
+  if (snapshotRawContent.notesMaster?.pageElements) {
+    const notesTexts: string[] = [];
+    for (const pageElement of snapshotRawContent.notesMaster.pageElements) {
+      if (pageElement.shape?.text?.textElements) {
+        const shapeTexts = extractTextFromElements(pageElement.shape.text.textElements);
+        notesTexts.push(...shapeTexts);
+      }
+    }
+    if (notesTexts.length > 0) {
+      slideContents.push(`Notes: ${notesTexts.join(" ")}`);
     }
   }
 

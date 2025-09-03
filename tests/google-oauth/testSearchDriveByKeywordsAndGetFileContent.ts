@@ -1,43 +1,41 @@
-import type { googleOauthSearchDriveByQueryParamsType } from "../../src/actions/autogen/types.js";
+import type { googleOauthSearchDriveByKeywordsAndGetFileContentParamsType } from "../../src/actions/autogen/types.js";
 import { runAction } from "../../src/app.js";
 import assert from "node:assert";
 import dotenv from "dotenv";
-
 dotenv.config();
 
 /**
- * Test for searching Google Drive by keywords
+ * Test for searching Google Drive by keywords and getting file content
  */
 async function runTest() {
-  console.log("Running test searchDriveByKeywords");
+  console.log("Running test searchDriveByKeywordsAndGetFileContent");
 
   const result = await runAction(
-    "searchDriveByQuery",
+    "searchDriveByKeywordsAndGetFileContent",
     "googleOauth",
     {
-      authToken: process.env.GOOGLE_OAUTH_TOKEN, // Use a valid OAuth token with Drive readonly scope,
+      authToken: process.env.GOOGLE_ACTIONS_ACCESS_TOKEN!,
     },
     {
-      query: "fullText contains 'Pokemon'", // Replace with your own query
+      searchQuery: "Japan travel expense",
       searchDriveByDrive: false,
-      orderByQuery: "modifiedTime asc", // Order by modified time descending (newest first)
-      limit: 5,
-    } as googleOauthSearchDriveByQueryParamsType
+    } as googleOauthSearchDriveByKeywordsAndGetFileContentParamsType
   );
+
+  console.log("Found files with content:", result.files);
 
   // Validate the result
   assert.strictEqual(result.success, true, "Search should be successful");
   assert(Array.isArray(result.files), "Files should be an array");
-  assert(result.files.length <= 5, "There should be at most 5 files");
+
   if (result.files.length > 0) {
     const firstFile = result.files[0];
     assert(firstFile.id, "First file should have an id");
     assert(firstFile.name, "First file should have a name");
     assert(firstFile.mimeType, "First file should have a mimeType");
     assert(firstFile.url, "First file should have a url");
+    assert(firstFile.content, "First file should have content");
   }
-
-  console.log("Found files:", result.files);
 }
 
 // Run the test

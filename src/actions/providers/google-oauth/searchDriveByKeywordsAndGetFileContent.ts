@@ -1,28 +1,32 @@
 // axiosClient not needed in this wrapper
 import type {
   AuthParamsType,
-  googleOauthSearchDriveByQueryAndGetFileContentFunction,
-  googleOauthSearchDriveByQueryAndGetFileContentParamsType,
-  googleOauthSearchDriveByQueryAndGetFileContentOutputType,
+  googleOauthSearchDriveByKeywordsAndGetFileContentFunction,
+  googleOauthSearchDriveByKeywordsAndGetFileContentParamsType,
+  googleOauthSearchDriveByKeywordsAndGetFileContentOutputType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import searchDriveByQuery from "./searchDriveByQuery.js";
 import getDriveFileContentById from "./getDriveFileContentById.js";
 
-const searchDriveByQueryAndGetFileContent: googleOauthSearchDriveByQueryAndGetFileContentFunction = async ({
+const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAndGetFileContentFunction = async ({
   params,
   authParams,
 }: {
-  params: googleOauthSearchDriveByQueryAndGetFileContentParamsType;
+  params: googleOauthSearchDriveByKeywordsAndGetFileContentParamsType;
   authParams: AuthParamsType;
-}): Promise<googleOauthSearchDriveByQueryAndGetFileContentOutputType> => {
+}): Promise<googleOauthSearchDriveByKeywordsAndGetFileContentOutputType> => {
   if (!authParams.authToken) {
     return { success: false, error: MISSING_AUTH_TOKEN, files: [] };
   }
 
-  const { query, limit, searchDriveByDrive, orderByQuery, fileSizeLimit: maxChars } = params;
+  const { searchQuery, limit, searchDriveByDrive, orderByQuery, fileSizeLimit: maxChars } = params;
 
-  // First, perform the search
+  const query = searchQuery
+    .split(" ")
+    .map(kw => kw.replace(/'/g, "\\'"))
+    .map(kw => `fullText contains '${kw}' or name contains '${kw}'`)
+    .join(" or ");
   const searchResult = await searchDriveByQuery({
     params: { query, limit, searchDriveByDrive, orderByQuery },
     authParams,
@@ -65,4 +69,4 @@ const searchDriveByQueryAndGetFileContent: googleOauthSearchDriveByQueryAndGetFi
   return { success: true, files: filesWithContent };
 };
 
-export default searchDriveByQueryAndGetFileContent;
+export default searchDriveByKeywordsAndGetFileContent;

@@ -17,8 +17,6 @@ import {
   slackSendMessageParamsSchema,
   slackGetChannelMessagesOutputSchema,
   slackGetChannelMessagesParamsSchema,
-  slackArchiveChannelParamsSchema,
-  slackArchiveChannelOutputSchema,
   slackCreateChannelParamsSchema,
   slackCreateChannelOutputSchema,
   snowflakeGetRowByFieldValueOutputSchema,
@@ -105,6 +103,8 @@ import {
   googleOauthCreatePresentationOutputSchema,
   googleOauthUpdatePresentationParamsSchema,
   googleOauthUpdatePresentationOutputSchema,
+  googleOauthGetPresentationParamsSchema,
+  googleOauthGetPresentationOutputSchema,
   googleOauthSearchDriveByKeywordsParamsSchema,
   googleOauthSearchDriveByKeywordsOutputSchema,
   googleOauthListGroupsOutputSchema,
@@ -250,6 +250,10 @@ import {
   githubGetFileContentOutputSchema,
   githubListDirectoryOutputSchema,
   githubListDirectoryParamsSchema,
+  githubListCommitsParamsSchema,
+  githubListCommitsOutputSchema,
+  githubGetPullRequestDetailsParamsSchema,
+  githubGetPullRequestDetailsOutputSchema,
   linearGetIssuesParamsSchema,
   linearGetIssuesOutputSchema,
   linearGetIssueDetailsParamsSchema,
@@ -290,6 +294,10 @@ import {
   firecrawlSearchAndScrapeParamsSchema,
   firecrawlGetTopNSearchResultUrlsParamsSchema,
   firecrawlGetTopNSearchResultUrlsOutputSchema,
+  googleOauthSearchDriveByKeywordsAndGetFileContentParamsSchema,
+  googleOauthSearchDriveByKeywordsAndGetFileContentOutputSchema,
+  perplexityPerplexityDeepResearchParamsSchema,
+  perplexityPerplexityDeepResearchOutputSchema,
 } from "./autogen/types.js";
 import validateAddress from "./providers/googlemaps/validateAddress.js";
 import add from "./providers/math/add.js";
@@ -344,6 +352,7 @@ import createSpreadsheet from "./providers/google-oauth/createSpreadsheet.js";
 import updateSpreadsheet from "./providers/google-oauth/updateSpreadsheet.js";
 import createPresentation from "./providers/google-oauth/createPresentation.js";
 import updatePresentation from "./providers/google-oauth/updatePresentation.js";
+import getPresentation from "./providers/google-oauth/getPresentation.js";
 import createNote from "./providers/ashby/createNote.js";
 import getCandidateInfo from "./providers/ashby/getCandidateInfo.js";
 import updateRecord from "./providers/salesforce/updateRecord.js";
@@ -399,7 +408,6 @@ import resetPassword from "./providers/okta/resetPassword.js";
 import resetMFA from "./providers/okta/resetMFA.js";
 import listMFA from "./providers/okta/listMFA.js";
 import createChannel from "./providers/slack/createChannel.js";
-import archiveChannel from "./providers/slack/archiveChannel.js";
 import getJamfUserComputerId from "./providers/jamf/getJamfUserComputerId.js";
 import lockJamfComputerById from "./providers/jamf/lockJamfComputerById.js";
 import triggerOktaWorkflow from "./providers/okta/triggerOktaWorkflow.js";
@@ -415,6 +423,8 @@ import searchDriveByQueryAndGetFileContent from "./providers/google-oauth/search
 import queryGoogleBigQuery from "./providers/google-oauth/queryGoogleBigQuery.js";
 import getFileContent from "./providers/github/getFileContent.js";
 import listDirectory from "./providers/github/listDirectory.js";
+import listCommits from "./providers/github/listCommits.js";
+import getPullRequestDetails from "./providers/github/getPullRequestDetails.js";
 import getIssueDetails from "./providers/linear/getIssueDetails.js";
 import getIssues from "./providers/linear/getIssues.js";
 import getProjectDetails from "./providers/linear/getProjectDetails.js";
@@ -435,6 +445,8 @@ import publicCommentOnServiceDeskRequest from "./providers/jira/publicCommentOnS
 import sendGmail from "./providers/googlemail/sendGmail.js";
 import searchAndScrape from "./providers/firecrawl/searchAndScrape.js";
 import firecrawlGetTopNSearchResultUrls from "./providers/firecrawl/getTopNSearchResultUrls.js";
+import searchDriveByKeywordsAndGetFileContent from "./providers/google-oauth/searchDriveByKeywordsAndGetFileContent.js";
+import perplexityDeepResearch from "./providers/perplexity/perplexityDeepResearch.js";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -507,6 +519,13 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: fillTemplate,
       paramsSchema: genericFillTemplateParamsSchema,
       outputSchema: genericFillTemplateOutputSchema,
+    },
+  },
+  perplexity: {
+    perplexityDeepResearch: {
+      fn: perplexityDeepResearch,
+      paramsSchema: perplexityPerplexityDeepResearchParamsSchema,
+      outputSchema: perplexityPerplexityDeepResearchOutputSchema,
     },
   },
   asana: {
@@ -585,11 +604,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: createChannel,
       paramsSchema: slackCreateChannelParamsSchema,
       outputSchema: slackCreateChannelOutputSchema,
-    },
-    archiveChannel: {
-      fn: archiveChannel,
-      paramsSchema: slackArchiveChannelParamsSchema,
-      outputSchema: slackArchiveChannelOutputSchema,
     },
   },
   confluence: {
@@ -784,10 +798,20 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       paramsSchema: googleOauthUpdatePresentationParamsSchema,
       outputSchema: googleOauthUpdatePresentationOutputSchema,
     },
+    getPresentation: {
+      fn: getPresentation,
+      paramsSchema: googleOauthGetPresentationParamsSchema,
+      outputSchema: googleOauthGetPresentationOutputSchema,
+    },
     searchDriveByKeywords: {
       fn: searchDriveByKeywords,
       paramsSchema: googleOauthSearchDriveByKeywordsParamsSchema,
       outputSchema: googleOauthSearchDriveByKeywordsOutputSchema,
+    },
+    searchDriveByKeywordsAndGetFileContent: {
+      fn: searchDriveByKeywordsAndGetFileContent,
+      paramsSchema: googleOauthSearchDriveByKeywordsAndGetFileContentParamsSchema,
+      outputSchema: googleOauthSearchDriveByKeywordsAndGetFileContentOutputSchema,
     },
     searchDriveByQuery: {
       fn: searchDriveByQuery,
@@ -1071,6 +1095,16 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: listDirectory,
       paramsSchema: githubListDirectoryParamsSchema,
       outputSchema: githubListDirectoryOutputSchema,
+    },
+    listCommits: {
+      fn: listCommits,
+      paramsSchema: githubListCommitsParamsSchema,
+      outputSchema: githubListCommitsOutputSchema,
+    },
+    getPullRequestDetails: {
+      fn: getPullRequestDetails,
+      paramsSchema: githubGetPullRequestDetailsParamsSchema,
+      outputSchema: githubGetPullRequestDetailsOutputSchema,
     },
   },
   notion: {
