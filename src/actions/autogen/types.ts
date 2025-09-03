@@ -5237,6 +5237,132 @@ export type githubListPullRequestsFunction = ActionFunction<
   githubListPullRequestsOutputType
 >;
 
+export const githubGetPullRequestDetailsParamsSchema = z.object({
+  repositoryOwner: z.string().describe("The owner of the repository"),
+  repositoryName: z.string().describe("The name of the repository"),
+  pullRequestNumber: z.number().describe("The number of the pull request to get details for"),
+});
+
+export type githubGetPullRequestDetailsParamsType = z.infer<typeof githubGetPullRequestDetailsParamsSchema>;
+
+export const githubGetPullRequestDetailsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("The error that occurred if the operation was not successful").optional(),
+  pullRequest: z
+    .object({
+      number: z.number().describe("The number of the pull request").optional(),
+      title: z.string().describe("The title of the pull request").optional(),
+      description: z.string().nullable().describe("The body/description of the pull request").optional(),
+      state: z.enum(["open", "closed", "merged"]).describe("The state of the pull request").optional(),
+      draft: z.boolean().describe("Whether the pull request is a draft").optional(),
+      url: z.string().describe("The API URL of the pull request").optional(),
+      htmlUrl: z.string().describe("The web URL of the pull request").optional(),
+      createdAt: z.string().describe("The date and time when the pull request was created").optional(),
+      updatedAt: z.string().describe("The date and time when the pull request was last updated").optional(),
+      closedAt: z.string().nullable().describe("The date and time when the pull request was closed").optional(),
+      mergedAt: z.string().nullable().describe("The date and time when the pull request was merged").optional(),
+      author: z
+        .object({
+          login: z.string().describe("The username of the pull request author").optional(),
+          id: z.number().describe("The user ID of the pull request author").optional(),
+          avatarUrl: z.string().describe("The avatar URL of the pull request author").optional(),
+          htmlUrl: z.string().describe("The profile URL of the pull request author").optional(),
+        })
+        .describe("The user who created the pull request")
+        .optional(),
+      assignees: z
+        .array(
+          z.object({
+            login: z.string().describe("The username of the assignee").optional(),
+            id: z.number().describe("The user ID of the assignee").optional(),
+            avatarUrl: z.string().describe("The avatar URL of the assignee").optional(),
+            htmlUrl: z.string().describe("The profile URL of the assignee").optional(),
+          }),
+        )
+        .describe("Users assigned to the pull request")
+        .optional(),
+      reviewers: z
+        .array(
+          z.object({
+            login: z.string().describe("The username of the reviewer").optional(),
+            id: z.number().describe("The user ID of the reviewer").optional(),
+            avatarUrl: z.string().describe("The avatar URL of the reviewer").optional(),
+            htmlUrl: z.string().describe("The profile URL of the reviewer").optional(),
+          }),
+        )
+        .describe("Users requested to review the pull request")
+        .optional(),
+      labels: z
+        .array(
+          z.object({
+            name: z.string().describe("The name of the label").optional(),
+            color: z.string().describe("The color of the label").optional(),
+            description: z.string().nullable().describe("The description of the label").optional(),
+          }),
+        )
+        .describe("Labels applied to the pull request")
+        .optional(),
+      head: z
+        .object({
+          ref: z.string().describe("The name of the head branch").optional(),
+          sha: z.string().describe("The SHA of the head commit").optional(),
+          repo: z
+            .object({
+              name: z.string().describe("The name of the head repository").optional(),
+              fullName: z.string().describe("The full name of the head repository").optional(),
+              owner: z
+                .object({ login: z.string().describe("The username of the head repository owner").optional() })
+                .optional(),
+            })
+            .optional(),
+        })
+        .describe("The head branch of the pull request")
+        .optional(),
+      base: z
+        .object({
+          ref: z.string().describe("The name of the base branch").optional(),
+          sha: z.string().describe("The SHA of the base commit").optional(),
+          repo: z
+            .object({
+              name: z.string().describe("The name of the base repository").optional(),
+              fullName: z.string().describe("The full name of the base repository").optional(),
+              owner: z
+                .object({ login: z.string().describe("The username of the base repository owner").optional() })
+                .optional(),
+            })
+            .optional(),
+        })
+        .describe("The base branch of the pull request")
+        .optional(),
+      mergeable: z.boolean().nullable().describe("Whether the pull request can be merged").optional(),
+      mergeableState: z.string().nullable().describe("The mergeable state of the pull request").optional(),
+      merged: z.boolean().describe("Whether the pull request has been merged").optional(),
+      commits: z.number().describe("The number of commits in the pull request").optional(),
+      additions: z.number().describe("The number of additions in the pull request").optional(),
+      deletions: z.number().describe("The number of deletions in the pull request").optional(),
+      changedFiles: z.number().describe("The number of files changed in the pull request").optional(),
+      milestone: z
+        .object({
+          title: z.string().describe("The title of the milestone").optional(),
+          description: z.string().nullable().describe("The description of the milestone").optional(),
+          state: z.string().describe("The state of the milestone").optional(),
+          dueOn: z.string().nullable().describe("The due date of the milestone").optional(),
+        })
+        .nullable()
+        .describe("The milestone associated with the pull request")
+        .optional(),
+    })
+    .describe("Detailed information about the pull request")
+    .optional(),
+});
+
+export type githubGetPullRequestDetailsOutputType = z.infer<typeof githubGetPullRequestDetailsOutputSchema>;
+export type githubGetPullRequestDetailsFunction = ActionFunction<
+  githubGetPullRequestDetailsParamsType,
+  AuthParamsType,
+  githubGetPullRequestDetailsOutputType
+>;
+
 export const githubGetFileContentParamsSchema = z.object({
   organization: z.string().describe("The organization that owns the repository"),
   repository: z.string().describe("The repository name"),

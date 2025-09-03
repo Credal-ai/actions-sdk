@@ -10218,6 +10218,320 @@ export const githubListPullRequestsDefinition: ActionTemplate = {
   name: "listPullRequests",
   provider: "github",
 };
+export const githubGetPullRequestDetailsDefinition: ActionTemplate = {
+  description:
+    "Get detailed information about a specific pull request including description, files, reviews, and status",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["repositoryOwner", "repositoryName", "pullRequestNumber"],
+    properties: {
+      repositoryOwner: {
+        type: "string",
+        description: "The owner of the repository",
+      },
+      repositoryName: {
+        type: "string",
+        description: "The name of the repository",
+      },
+      pullRequestNumber: {
+        type: "number",
+        description: "The number of the pull request to get details for",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the operation was successful",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the operation was not successful",
+      },
+      pullRequest: {
+        type: "object",
+        description: "Detailed information about the pull request",
+        properties: {
+          number: {
+            type: "number",
+            description: "The number of the pull request",
+          },
+          title: {
+            type: "string",
+            description: "The title of the pull request",
+          },
+          description: {
+            type: "string",
+            description: "The body/description of the pull request",
+            nullable: true,
+          },
+          state: {
+            type: "string",
+            description: "The state of the pull request",
+            enum: ["open", "closed", "merged"],
+          },
+          draft: {
+            type: "boolean",
+            description: "Whether the pull request is a draft",
+          },
+          url: {
+            type: "string",
+            description: "The API URL of the pull request",
+          },
+          htmlUrl: {
+            type: "string",
+            description: "The web URL of the pull request",
+          },
+          createdAt: {
+            type: "string",
+            description: "The date and time when the pull request was created",
+          },
+          updatedAt: {
+            type: "string",
+            description: "The date and time when the pull request was last updated",
+          },
+          closedAt: {
+            type: "string",
+            description: "The date and time when the pull request was closed",
+            nullable: true,
+          },
+          mergedAt: {
+            type: "string",
+            description: "The date and time when the pull request was merged",
+            nullable: true,
+          },
+          author: {
+            type: "object",
+            description: "The user who created the pull request",
+            properties: {
+              login: {
+                type: "string",
+                description: "The username of the pull request author",
+              },
+              id: {
+                type: "number",
+                description: "The user ID of the pull request author",
+              },
+              avatarUrl: {
+                type: "string",
+                description: "The avatar URL of the pull request author",
+              },
+              htmlUrl: {
+                type: "string",
+                description: "The profile URL of the pull request author",
+              },
+            },
+          },
+          assignees: {
+            type: "array",
+            description: "Users assigned to the pull request",
+            items: {
+              type: "object",
+              properties: {
+                login: {
+                  type: "string",
+                  description: "The username of the assignee",
+                },
+                id: {
+                  type: "number",
+                  description: "The user ID of the assignee",
+                },
+                avatarUrl: {
+                  type: "string",
+                  description: "The avatar URL of the assignee",
+                },
+                htmlUrl: {
+                  type: "string",
+                  description: "The profile URL of the assignee",
+                },
+              },
+            },
+          },
+          reviewers: {
+            type: "array",
+            description: "Users requested to review the pull request",
+            items: {
+              type: "object",
+              properties: {
+                login: {
+                  type: "string",
+                  description: "The username of the reviewer",
+                },
+                id: {
+                  type: "number",
+                  description: "The user ID of the reviewer",
+                },
+                avatarUrl: {
+                  type: "string",
+                  description: "The avatar URL of the reviewer",
+                },
+                htmlUrl: {
+                  type: "string",
+                  description: "The profile URL of the reviewer",
+                },
+              },
+            },
+          },
+          labels: {
+            type: "array",
+            description: "Labels applied to the pull request",
+            items: {
+              type: "object",
+              properties: {
+                name: {
+                  type: "string",
+                  description: "The name of the label",
+                },
+                color: {
+                  type: "string",
+                  description: "The color of the label",
+                },
+                description: {
+                  type: "string",
+                  description: "The description of the label",
+                  nullable: true,
+                },
+              },
+            },
+          },
+          head: {
+            type: "object",
+            description: "The head branch of the pull request",
+            properties: {
+              ref: {
+                type: "string",
+                description: "The name of the head branch",
+              },
+              sha: {
+                type: "string",
+                description: "The SHA of the head commit",
+              },
+              repo: {
+                type: "object",
+                properties: {
+                  name: {
+                    type: "string",
+                    description: "The name of the head repository",
+                  },
+                  fullName: {
+                    type: "string",
+                    description: "The full name of the head repository",
+                  },
+                  owner: {
+                    type: "object",
+                    properties: {
+                      login: {
+                        type: "string",
+                        description: "The username of the head repository owner",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          base: {
+            type: "object",
+            description: "The base branch of the pull request",
+            properties: {
+              ref: {
+                type: "string",
+                description: "The name of the base branch",
+              },
+              sha: {
+                type: "string",
+                description: "The SHA of the base commit",
+              },
+              repo: {
+                type: "object",
+                properties: {
+                  name: {
+                    type: "string",
+                    description: "The name of the base repository",
+                  },
+                  fullName: {
+                    type: "string",
+                    description: "The full name of the base repository",
+                  },
+                  owner: {
+                    type: "object",
+                    properties: {
+                      login: {
+                        type: "string",
+                        description: "The username of the base repository owner",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          mergeable: {
+            type: "boolean",
+            description: "Whether the pull request can be merged",
+            nullable: true,
+          },
+          mergeableState: {
+            type: "string",
+            description: "The mergeable state of the pull request",
+            nullable: true,
+          },
+          merged: {
+            type: "boolean",
+            description: "Whether the pull request has been merged",
+          },
+          commits: {
+            type: "number",
+            description: "The number of commits in the pull request",
+          },
+          additions: {
+            type: "number",
+            description: "The number of additions in the pull request",
+          },
+          deletions: {
+            type: "number",
+            description: "The number of deletions in the pull request",
+          },
+          changedFiles: {
+            type: "number",
+            description: "The number of files changed in the pull request",
+          },
+          milestone: {
+            type: "object",
+            description: "The milestone associated with the pull request",
+            nullable: true,
+            properties: {
+              title: {
+                type: "string",
+                description: "The title of the milestone",
+              },
+              description: {
+                type: "string",
+                description: "The description of the milestone",
+                nullable: true,
+              },
+              state: {
+                type: "string",
+                description: "The state of the milestone",
+              },
+              dueOn: {
+                type: "string",
+                description: "The due date of the milestone",
+                nullable: true,
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  name: "getPullRequestDetails",
+  provider: "github",
+};
 export const githubGetFileContentDefinition: ActionTemplate = {
   description: "Get specified file content from a GitHub repository",
   scopes: [],
