@@ -26,6 +26,87 @@ export const genericFillTemplateDefinition: ActionTemplate = {
   name: "fillTemplate",
   provider: "generic",
 };
+export const perplexityPerplexityDeepResearchDefinition: ActionTemplate = {
+  description: "Performs deep research using Perplexity AI",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["query"],
+    properties: {
+      query: {
+        type: "string",
+        description: "The research query/question",
+      },
+      reasoningEffort: {
+        type: "string",
+        description: 'Optional reasoning effort level ("low", "medium", "high"). Defaults to "medium".',
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      error: {
+        type: "string",
+        description: "Error if comment was unsuccessful",
+      },
+      success: {
+        type: "boolean",
+        description: "Whether comment was successfully made",
+      },
+      result: {
+        type: "object",
+        description: "The main research response/analysis",
+        properties: {
+          content: {
+            type: "string",
+            description: "The main research response/analysis",
+          },
+          sources: {
+            type: "array",
+            description: "Array of source citations",
+            items: {
+              type: "object",
+              properties: {
+                title: {
+                  type: "string",
+                },
+                url: {
+                  type: "string",
+                },
+              },
+            },
+            snippet: {
+              type: "string",
+              nullable: true,
+            },
+          },
+        },
+        usage: {
+          type: "object",
+          description: "Token usage metrics",
+          properties: {
+            input_tokens: {
+              type: "number",
+            },
+          },
+          output_tokens: {
+            type: "number",
+          },
+          reasoning_tokens: {
+            type: "number",
+          },
+          search_queries: {
+            type: "number",
+          },
+        },
+      },
+    },
+  },
+  name: "perplexityDeepResearch",
+  provider: "perplexity",
+};
 export const asanaCommentTaskDefinition: ActionTemplate = {
   description: "Comments on an Asana task with specified content",
   scopes: [],
@@ -546,43 +627,17 @@ export const slackCreateChannelDefinition: ActionTemplate = {
   name: "createChannel",
   provider: "slack",
 };
-export const slackArchiveChannelDefinition: ActionTemplate = {
-  description: "Archives a Slack channel using a bot token, joins the channel to archive if not already a member",
-  scopes: ["channels:manage"],
-  parameters: {
-    type: "object",
-    required: ["channelName"],
-    properties: {
-      channelName: {
-        type: "string",
-        description: "The name of the channel to archive",
-      },
-    },
-  },
-  output: {
-    type: "object",
-    required: ["success"],
-    properties: {
-      success: {
-        type: "boolean",
-        description: "Whether the channel was archived successfully",
-      },
-      error: {
-        type: "string",
-        description: "The error that occurred if the channel was not archived successfully",
-      },
-    },
-  },
-  name: "archiveChannel",
-  provider: "slack",
-};
 export const slackSendMessageDefinition: ActionTemplate = {
   description: "Sends a message to a Slack channel",
   scopes: ["chat:write"],
   parameters: {
     type: "object",
-    required: ["channelName", "message"],
+    required: ["message"],
     properties: {
+      channelId: {
+        type: "string",
+        description: "The ID of the channel to send the message to",
+      },
       channelName: {
         type: "string",
         description: "The name of the Slack channel to send the message to (e.g. general, alerts)",
@@ -599,11 +654,11 @@ export const slackSendMessageDefinition: ActionTemplate = {
     properties: {
       success: {
         type: "boolean",
-        description: "Whether the email was sent successfully",
+        description: "Whether the message was sent successfully",
       },
       error: {
         type: "string",
-        description: "The error that occurred if the email was not sent successfully",
+        description: "The error that occurred if the message was not sent successfully",
       },
       messageId: {
         type: "string",
@@ -3266,6 +3321,10 @@ export const googleOauthCreateNewGoogleDocDefinition: ActionTemplate = {
       content: {
         type: "string",
         description: "The content to add to the new Google Doc",
+      },
+      usesHtml: {
+        type: "boolean",
+        description: "Whether to interpret the content as HTML",
       },
     },
   },
@@ -6748,6 +6807,62 @@ export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
   name: "updatePresentation",
   provider: "googleOauth",
 };
+export const googleOauthGetPresentationDefinition: ActionTemplate = {
+  description: "Get a presentation by ID",
+  scopes: ["slides.readonly"],
+  parameters: {
+    type: "object",
+    required: ["presentationId"],
+    properties: {
+      presentationId: {
+        type: "string",
+        description: "The ID of the presentation to retrieve",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the presentation was retrieved successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the presentation was not retrieved successfully",
+      },
+      presentation: {
+        title: "string",
+        slides: {
+          type: "array",
+          description: "The slides in the presentation",
+          items: {
+            type: "object",
+            required: ["objectId", "pageElements"],
+            properties: {
+              objectId: "string",
+              pageElements: {
+                type: "array",
+                items: {
+                  type: "object",
+                  required: ["objectId", "shape"],
+                  properties: {
+                    objectId: "string",
+                    text: "string",
+                    styling: "string",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  name: "getPresentation",
+  provider: "googleOauth",
+};
 export const googleOauthSearchDriveByKeywordsDefinition: ActionTemplate = {
   description: "Search Google Drive files that contain one or more keywords in their full text.",
   scopes: ["drive.readonly"],
@@ -6880,16 +6995,16 @@ export const googleOauthSearchDriveByQueryDefinition: ActionTemplate = {
   name: "searchDriveByQuery",
   provider: "googleOauth",
 };
-export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTemplate = {
-  description: "Search Google Drive files based on a google drive query provided and get content for each file",
+export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: ActionTemplate = {
+  description: "Search Google Drive with keywords and get resulting content",
   scopes: ["drive.readonly"],
   parameters: {
     type: "object",
-    required: ["query", "searchDriveByDrive"],
+    required: ["searchQuery", "searchDriveByDrive"],
     properties: {
-      query: {
+      searchQuery: {
         type: "string",
-        description: "The query to search for in file contents.",
+        description: "The query input to Google Drive search",
       },
       limit: {
         type: "number",
@@ -6901,7 +7016,7 @@ export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTem
       },
       searchDriveByDrive: {
         type: "boolean",
-        description: "Whether we should search drive by drive or run a general search",
+        description: "Search drive by drive or run a general search",
       },
       orderByQuery: {
         type: "string",
@@ -6943,7 +7058,84 @@ export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTem
             },
             content: {
               type: "string",
-              description: "The data returned from the file limited by fileLimit",
+              description: "The data returned from the file, subject to fileSizeLimit",
+            },
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "Error message if search failed",
+      },
+    },
+  },
+  name: "searchDriveByKeywordsAndGetFileContent",
+  provider: "googleOauth",
+};
+export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTemplate = {
+  description: "Search Google Drive with Google Drive query syntax and get resulting content",
+  scopes: ["drive.readonly"],
+  parameters: {
+    type: "object",
+    required: ["query", "searchDriveByDrive"],
+    properties: {
+      query: {
+        type: "string",
+        description: "Google Drive API search syntax, eg \"fullText contains 'Valentine\\'s Day'\"",
+      },
+      limit: {
+        type: "number",
+        description: "The maximum number of files to return",
+      },
+      fileSizeLimit: {
+        type: "number",
+        description: "The maximum length of a file in characters",
+      },
+      searchDriveByDrive: {
+        type: "boolean",
+        description: "Search drive by drive or run a general search",
+      },
+      orderByQuery: {
+        type: "string",
+        description:
+          "The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the search was successful",
+      },
+      files: {
+        type: "array",
+        description: "List of files matching the search",
+        items: {
+          type: "object",
+          required: ["id", "name", "mimeType", "url"],
+          properties: {
+            id: {
+              type: "string",
+              description: "The file ID",
+            },
+            name: {
+              type: "string",
+              description: "The file name",
+            },
+            mimeType: {
+              type: "string",
+              description: "The MIME type of the file",
+            },
+            url: {
+              type: "string",
+              description: "The web link to view the file",
+            },
+            content: {
+              type: "string",
+              description: "The data returned from the file, subject to fileSizeLimit",
             },
           },
         },
@@ -6962,7 +7154,7 @@ export const googleOauthGetDriveFileContentByIdDefinition: ActionTemplate = {
   scopes: ["drive.readonly"],
   parameters: {
     type: "object",
-    required: ["fileId", "limit"],
+    required: ["fileId"],
     properties: {
       fileId: {
         type: "string",
@@ -9344,6 +9536,10 @@ export const salesforceSearchSalesforceRecordsDefinition: ActionTemplate = {
         type: "number",
         description: "The maximum number of records to return",
       },
+      maxLimit: {
+        type: "number",
+        description: "The absolute maximum limit for records that can be returned",
+      },
     },
   },
   output: {
@@ -10020,6 +10216,284 @@ export const githubListPullRequestsDefinition: ActionTemplate = {
     },
   },
   name: "listPullRequests",
+  provider: "github",
+};
+export const githubGetPullRequestDetailsDefinition: ActionTemplate = {
+  description:
+    "Get detailed information about a specific pull request including description, files, reviews, and status",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["repositoryOwner", "repositoryName", "pullRequestNumber"],
+    properties: {
+      repositoryOwner: {
+        type: "string",
+        description: "The owner of the repository",
+      },
+      repositoryName: {
+        type: "string",
+        description: "The name of the repository",
+      },
+      pullRequestNumber: {
+        type: "number",
+        description: "The number of the pull request to get details for",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the operation was successful",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the operation was not successful",
+      },
+      pullRequest: {
+        type: "object",
+        description: "Detailed information about the pull request",
+        properties: {
+          number: {
+            type: "number",
+            description: "The number of the pull request",
+          },
+          title: {
+            type: "string",
+            description: "The title of the pull request",
+          },
+          description: {
+            type: "string",
+            description: "The body/description of the pull request",
+            nullable: true,
+          },
+          state: {
+            type: "string",
+            description: "The state of the pull request",
+            enum: ["open", "closed", "merged"],
+          },
+          draft: {
+            type: "boolean",
+            description: "Whether the pull request is a draft",
+          },
+          url: {
+            type: "string",
+            description: "The API URL of the pull request",
+          },
+          htmlUrl: {
+            type: "string",
+            description: "The web URL of the pull request",
+          },
+          createdAt: {
+            type: "string",
+            description: "The date and time when the pull request was created",
+          },
+          updatedAt: {
+            type: "string",
+            description: "The date and time when the pull request was last updated",
+          },
+          closedAt: {
+            type: "string",
+            description: "The date and time when the pull request was closed",
+            nullable: true,
+          },
+          mergedAt: {
+            type: "string",
+            description: "The date and time when the pull request was merged",
+            nullable: true,
+          },
+          author: {
+            type: "object",
+            description: "The user who created the pull request",
+            properties: {
+              login: {
+                type: "string",
+                description: "The username of the pull request author",
+              },
+            },
+          },
+          assignees: {
+            type: "array",
+            description: "Users assigned to the pull request",
+            items: {
+              type: "object",
+              properties: {
+                login: {
+                  type: "string",
+                  description: "The username of the assignee",
+                },
+              },
+            },
+          },
+          reviewers: {
+            type: "array",
+            description: "Users requested to review the pull request",
+            items: {
+              type: "object",
+              properties: {
+                login: {
+                  type: "string",
+                  description: "The username of the reviewer",
+                },
+              },
+            },
+          },
+          labels: {
+            type: "array",
+            description: "Labels applied to the pull request",
+            items: {
+              type: "object",
+              properties: {
+                name: {
+                  type: "string",
+                  description: "The name of the label",
+                },
+                color: {
+                  type: "string",
+                  description: "The color of the label",
+                },
+                description: {
+                  type: "string",
+                  description: "The description of the label",
+                  nullable: true,
+                },
+              },
+            },
+          },
+          head: {
+            type: "object",
+            description: "The head branch of the pull request",
+            properties: {
+              ref: {
+                type: "string",
+                description: "The name of the head branch",
+              },
+              sha: {
+                type: "string",
+                description: "The SHA of the head commit",
+              },
+              repo: {
+                type: "object",
+                properties: {
+                  name: {
+                    type: "string",
+                    description: "The name of the head repository",
+                  },
+                  fullName: {
+                    type: "string",
+                    description: "The full name of the head repository",
+                  },
+                  owner: {
+                    type: "object",
+                    properties: {
+                      login: {
+                        type: "string",
+                        description: "The username of the head repository owner",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          base: {
+            type: "object",
+            description: "The base branch of the pull request",
+            properties: {
+              ref: {
+                type: "string",
+                description: "The name of the base branch",
+              },
+              sha: {
+                type: "string",
+                description: "The SHA of the base commit",
+              },
+              repo: {
+                type: "object",
+                properties: {
+                  name: {
+                    type: "string",
+                    description: "The name of the base repository",
+                  },
+                  fullName: {
+                    type: "string",
+                    description: "The full name of the base repository",
+                  },
+                  owner: {
+                    type: "object",
+                    properties: {
+                      login: {
+                        type: "string",
+                        description: "The username of the base repository owner",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          mergeable: {
+            type: "boolean",
+            description: "Whether the pull request can be merged",
+            nullable: true,
+          },
+          mergeableState: {
+            type: "string",
+            description: "The mergeable state of the pull request",
+            nullable: true,
+          },
+          merged: {
+            type: "boolean",
+            description: "Whether the pull request has been merged",
+          },
+          commits: {
+            type: "number",
+            description: "The number of commits in the pull request",
+          },
+          additions: {
+            type: "number",
+            description: "The number of additions in the pull request",
+          },
+          deletions: {
+            type: "number",
+            description: "The number of deletions in the pull request",
+          },
+          changedFiles: {
+            type: "number",
+            description: "The number of files changed in the pull request",
+          },
+          milestone: {
+            type: "object",
+            description: "The milestone associated with the pull request",
+            nullable: true,
+            properties: {
+              title: {
+                type: "string",
+                description: "The title of the milestone",
+              },
+              description: {
+                type: "string",
+                description: "The description of the milestone",
+                nullable: true,
+              },
+              state: {
+                type: "string",
+                description: "The state of the milestone",
+              },
+              dueOn: {
+                type: "string",
+                description: "The due date of the milestone",
+                nullable: true,
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  name: "getPullRequestDetails",
   provider: "github",
 };
 export const githubGetFileContentDefinition: ActionTemplate = {
@@ -10868,6 +11342,190 @@ export const githubGetBranchDefinition: ActionTemplate = {
     },
   },
   name: "getBranch",
+  provider: "github",
+};
+export const githubListCommitsDefinition: ActionTemplate = {
+  description: "List commits in a GitHub repository with optional date filtering and pagination",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["repositoryOwner", "repositoryName"],
+    properties: {
+      repositoryOwner: {
+        type: "string",
+        description: "The owner of the repository",
+      },
+      repositoryName: {
+        type: "string",
+        description: "The name of the repository",
+      },
+      branch: {
+        type: "string",
+        description: "The branch to list commits from (defaults to default branch)",
+      },
+      since: {
+        type: "string",
+        description: "Only show commits after this date (ISO 8601 format, e.g., 2023-01-01T00:00:00Z)",
+      },
+      until: {
+        type: "string",
+        description: "Only show commits before this date (ISO 8601 format, e.g., 2023-12-31T23:59:59Z)",
+      },
+      author: {
+        type: "string",
+        description: "Filter commits by author (GitHub username or email)",
+      },
+      perPage: {
+        type: "number",
+        description: "Number of commits to return per page (default 30, max 100)",
+      },
+      page: {
+        type: "number",
+        description: "Page number for pagination (default 1)",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the operation was successful",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the operation was not successful",
+      },
+      commits: {
+        type: "array",
+        description: "List of commits in the repository",
+        items: {
+          type: "object",
+          required: ["sha", "commit", "author", "committer", "url", "htmlUrl"],
+          properties: {
+            sha: {
+              type: "string",
+              description: "The SHA hash of the commit",
+            },
+            url: {
+              type: "string",
+              description: "The API URL of the commit",
+            },
+            htmlUrl: {
+              type: "string",
+              description: "The web URL of the commit",
+            },
+            commit: {
+              type: "object",
+              required: ["message", "author", "committer", "tree"],
+              properties: {
+                message: {
+                  type: "string",
+                  description: "The commit message",
+                },
+                author: {
+                  type: "object",
+                  required: ["name", "email", "date"],
+                  properties: {
+                    name: {
+                      type: "string",
+                      description: "The name of the commit author",
+                    },
+                    email: {
+                      type: "string",
+                      description: "The email of the commit author",
+                    },
+                    date: {
+                      type: "string",
+                      description: "The date when the commit was authored (ISO 8601 format)",
+                    },
+                  },
+                },
+                committer: {
+                  type: "object",
+                  required: ["name", "email", "date"],
+                  properties: {
+                    name: {
+                      type: "string",
+                      description: "The name of the commit committer",
+                    },
+                    email: {
+                      type: "string",
+                      description: "The email of the commit committer",
+                    },
+                    date: {
+                      type: "string",
+                      description: "The date when the commit was committed (ISO 8601 format)",
+                    },
+                  },
+                },
+                tree: {
+                  type: "object",
+                  required: ["sha", "url"],
+                  properties: {
+                    sha: {
+                      type: "string",
+                      description: "The SHA of the tree object",
+                    },
+                    url: {
+                      type: "string",
+                      description: "The API URL of the tree object",
+                    },
+                  },
+                },
+                commentCount: {
+                  type: "number",
+                  description: "The number of comments on the commit",
+                },
+              },
+            },
+            author: {
+              type: "object",
+              nullable: true,
+              properties: {
+                login: {
+                  type: "string",
+                  description: "The GitHub username of the commit author",
+                },
+              },
+            },
+            parents: {
+              type: "array",
+              description: "The parent commits",
+              items: {
+                type: "object",
+                required: ["sha", "url", "htmlUrl"],
+                properties: {
+                  sha: {
+                    type: "string",
+                    description: "The SHA of the parent commit",
+                  },
+                  url: {
+                    type: "string",
+                    description: "The API URL of the parent commit",
+                  },
+                  htmlUrl: {
+                    type: "string",
+                    description: "The web URL of the parent commit",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      totalCount: {
+        type: "number",
+        description: "Total number of commits (if available)",
+      },
+      hasMore: {
+        type: "boolean",
+        description: "Whether there are more commits available on subsequent pages",
+      },
+    },
+  },
+  name: "listCommits",
   provider: "github",
 };
 export const notionSearchByTitleDefinition: ActionTemplate = {

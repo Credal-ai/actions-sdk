@@ -19,38 +19,40 @@ const getSalesforceRecordsByQuery: salesforceGetSalesforceRecordsByQueryFunction
   const { query, limit } = params;
 
   if (!authToken || !baseUrl) {
-    return {
-      success: false,
-      error: "authToken and baseUrl are required for Salesforce API",
-    };
+    return { success: false, error: "authToken and baseUrl are required for Salesforce API" };
   }
   // Included a prepended space and an opening bracket to make sure these terms don't get confused
   // with parts of other words.
   const aggregateFunction = [" COUNT(", " SUM(", " AVG(", " MIN(", " MAX("];
   const containsAggregateFunction = aggregateFunction.some(func => query.toUpperCase().includes(func));
-  // The API limits the maximum number of records returned to 2000, the limit lets the user set a smaller custom limit
-  const url = `${baseUrl}/services/data/v56.0/queryAll?q=${encodeURIComponent(
-    containsAggregateFunction
-      ? query
-      : query + " LIMIT " + (limit != undefined && limit <= MAX_RECORDS_LIMIT ? limit : MAX_RECORDS_LIMIT),
-  )}`;
+
+  let finalQuery = query;
+
+  if (!containsAggregateFunction) {
+    // Strip out existing LIMIT clause if it exists
+    const limitRegex = /\bLIMIT\s+(\d+)\b/i;
+    const existingLimitMatch = query.match(limitRegex);
+    const queryLimit = existingLimitMatch ? parseInt(existingLimitMatch[1], 10) : null;
+    const queryWithoutLimit = query.replace(limitRegex, "").trim();
+
+    // Recompute final limit
+    const finalLimit = Math.min(limit ?? queryLimit ?? MAX_RECORDS_LIMIT, MAX_RECORDS_LIMIT);
+
+    // Add limit back to final query
+    finalQuery = queryWithoutLimit + " LIMIT " + finalLimit;
+  }
+
+  const url = `${baseUrl}/services/data/v56.0/queryAll?q=${encodeURIComponent(finalQuery)}`;
 
   try {
-    const response = await axiosClient.get(url, {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
-    });
+    const response = await axiosClient.get(url, { headers: { Authorization: `Bearer ${authToken}` } });
 
     // Salesforce record types are confusing and non standard
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const recordsWithUrl = response.data.records?.map((record: any) => {
       const recordId = record.Id;
       const webUrl = recordId ? `${baseUrl}/lightning/r/${recordId}/view` : undefined;
-      return {
-        ...record,
-        webUrl,
-      };
+      return { ...record, webUrl };
     });
 
     return {

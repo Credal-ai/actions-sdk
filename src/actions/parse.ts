@@ -58,6 +58,7 @@ z.object({
     tenantId: z.string().optional(),
     refreshToken: z.string().optional(),
     redirectUri: z.string().optional(),
+    userEmail: z.string().optional(),
 })
 `;
 
