@@ -38,8 +38,11 @@ async function runTest() {
   // Validate the result
   assert(result.eventId, "Result should be successful");
   assert(result.success, "Result should contain an eventId");
+  assert(result.eventDayOfWeek, "Result should contain eventDayOfWeek");
+  assert(typeof result.eventDayOfWeek === "string", "eventDayOfWeek should be a string");
 
   console.log("Link to Google Calendar Event: ", result.eventUrl);
+  console.log("Event Day of Week: ", result.eventDayOfWeek);
 
   return result;
 }

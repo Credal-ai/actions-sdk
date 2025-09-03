@@ -26,7 +26,9 @@ async function runTest() {
   assert(result.success, "Success should be true");
   assert(typeof result.eventId === "string" && result.eventId.length > 0, "Should return eventId");
   assert(typeof result.eventUrl === "string" && result.eventUrl.length > 0, "Should return eventUrl");
+  assert(typeof result.eventDayOfWeek === "string", "Should return eventDayOfWeek");
   console.log(`Successfully edited event: ${result.eventId}`);
+  console.log("Event Day of Week: ", result.eventDayOfWeek);
   console.log("Response: ", result);
 }
 

@@ -30,7 +30,9 @@ async function runTest() {
     assert(typeof first.status === "string", "Event should have a status");
     assert(typeof first.url === "string", "Event should have a url");
     assert(typeof first.start === "string", "Event should have a start");
+    assert(typeof first.startDayOfWeek === "string", "Event should have a startDayOfWeek");
     assert(typeof first.end === "string", "Event should have an end");
+    assert(typeof first.endDayOfWeek === "string", "Event should have an endDayOfWeek");
   }
 
   console.log(`Successfully found ${result.events.length} events`);

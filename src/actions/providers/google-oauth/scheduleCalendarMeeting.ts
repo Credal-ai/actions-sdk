@@ -7,6 +7,7 @@ import type {
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { getDayOfWeek } from "../../../utils/datetime.js";
 
 /**
  * Creates a new Google calendar event using OAuth authentication
@@ -90,6 +91,7 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
       success: true,
       eventId: response.data.id,
       eventUrl: response.data.htmlLink,
+      eventDayOfWeek: getDayOfWeek(start),
     };
   } catch (error) {
     console.error("Error scheduling calendar meeting", error);

@@ -11,3 +11,10 @@ export function isBetweenDatetime(isoDatetime: string, isoStart: string, isoEnd:
 export function isValidIsoDatestring(isoDatetime: string): boolean {
   return isValid(parseISO(isoDatetime));
 }
+
+export const getDayOfWeek = (dateString: string): string => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  return days[date.getDay()];
+};

@@ -4518,6 +4518,10 @@ export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
         type: "string",
         description: "The URL to access the scheduled event",
       },
+      eventDayOfWeek: {
+        type: "string",
+        description: "The day of the week when the event is scheduled (e.g., Monday, Tuesday, etc.)",
+      },
       error: {
         type: "string",
         description: "The error that occurred if the meeting was not scheduled successfully",
@@ -4649,9 +4653,17 @@ export const googleOauthListCalendarEventsDefinition: ActionTemplate = {
               type: "string",
               description: "Start date/time (for timed events, RFC3339 timestamp)",
             },
+            startDayOfWeek: {
+              type: "string",
+              description: "The day of the week when the event starts (e.g., Monday, Tuesday, etc.)",
+            },
             end: {
               type: "string",
               description: "End date/time (for timed events, RFC3339 timestamp)",
+            },
+            endDayOfWeek: {
+              type: "string",
+              description: "The day of the week when the event ends (e.g., Monday, Tuesday, etc.)",
             },
             attendees: {
               type: "array",
@@ -4897,6 +4909,10 @@ export const googleOauthEditAGoogleCalendarEventDefinition: ActionTemplate = {
       eventUrl: {
         type: "string",
         description: "The URL to access the edited event",
+      },
+      eventDayOfWeek: {
+        type: "string",
+        description: "The day of the week when the edited event occurs (e.g., Monday, Tuesday, etc.)",
       },
       error: {
         type: "string",

@@ -2331,6 +2331,10 @@ export const googleOauthScheduleCalendarMeetingOutputSchema = z.object({
   success: z.boolean().describe("Whether the meeting was scheduled successfully"),
   eventId: z.string().describe("The ID of the event that was scheduled").optional(),
   eventUrl: z.string().describe("The URL to access the scheduled event").optional(),
+  eventDayOfWeek: z
+    .string()
+    .describe("The day of the week when the event is scheduled (e.g., Monday, Tuesday, etc.)")
+    .optional(),
   error: z.string().describe("The error that occurred if the meeting was not scheduled successfully").optional(),
 });
 
@@ -2397,7 +2401,15 @@ export const googleOauthListCalendarEventsOutputSchema = z.object({
           description: z.string().describe("Description of the event").optional(),
           location: z.string().describe("Geographic location of the event as free-form text").optional(),
           start: z.string().describe("Start date/time (for timed events, RFC3339 timestamp)").optional(),
+          startDayOfWeek: z
+            .string()
+            .describe("The day of the week when the event starts (e.g., Monday, Tuesday, etc.)")
+            .optional(),
           end: z.string().describe("End date/time (for timed events, RFC3339 timestamp)").optional(),
+          endDayOfWeek: z
+            .string()
+            .describe("The day of the week when the event ends (e.g., Monday, Tuesday, etc.)")
+            .optional(),
           attendees: z
             .array(
               z.object({
@@ -2522,6 +2534,10 @@ export const googleOauthEditAGoogleCalendarEventOutputSchema = z.object({
   success: z.boolean().describe("Whether the event was edited successfully"),
   eventId: z.string().describe("The ID of the edited event").optional(),
   eventUrl: z.string().describe("The URL to access the edited event").optional(),
+  eventDayOfWeek: z
+    .string()
+    .describe("The day of the week when the edited event occurs (e.g., Monday, Tuesday, etc.)")
+    .optional(),
   error: z.string().describe("The error that occurred if the event was not edited successfully").optional(),
 });
 

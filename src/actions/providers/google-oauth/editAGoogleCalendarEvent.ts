@@ -7,6 +7,7 @@ import type {
   googleOauthEditAGoogleCalendarEventParamsType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { getDayOfWeek } from "../../../utils/datetime.js";
 
 const editAGoogleCalendarEvent: googleOauthEditAGoogleCalendarEventFunction = async ({
   params,
@@ -16,7 +17,7 @@ const editAGoogleCalendarEvent: googleOauthEditAGoogleCalendarEventFunction = as
   authParams: AuthParamsType;
 }): Promise<googleOauthEditAGoogleCalendarEventOutputType> => {
   if (!authParams.authToken) {
-    return { success: false, error: MISSING_AUTH_TOKEN, eventId: "", eventUrl: "" };
+    return { success: false, error: MISSING_AUTH_TOKEN, eventId: "", eventUrl: "", eventDayOfWeek: "" };
   }
 
   const { calendarId, eventId, title, description, start, end, location, attendees, status, organizer, timeZone } =
@@ -51,10 +52,15 @@ const editAGoogleCalendarEvent: googleOauthEditAGoogleCalendarEventFunction = as
     });
 
     const { id, htmlLink } = res.data;
+    // Get the event day of week from the start time (use provided start or fetch from response)
+    const eventDayOfWeek = start
+      ? getDayOfWeek(start)
+      : getDayOfWeek(res.data.start?.dateTime || res.data.start?.date || "");
     return {
       success: true,
       eventId: id,
       eventUrl: htmlLink,
+      eventDayOfWeek,
     };
   } catch (error) {
     return {
@@ -62,6 +68,7 @@ const editAGoogleCalendarEvent: googleOauthEditAGoogleCalendarEventFunction = as
       error: error instanceof Error ? error.message : "Unknown error editing event",
       eventId: "",
       eventUrl: "",
+      eventDayOfWeek: "",
     };
   }
 };
