@@ -41,21 +41,12 @@ const getPullRequestDetails: githubGetPullRequestDetailsFunction = async ({
       merged: boolean;
       user: {
         login: string;
-        id: number;
-        avatar_url: string;
-        html_url: string;
       } | null;
       assignees: Array<{
         login: string;
-        id: number;
-        avatar_url: string;
-        html_url: string;
       }>;
       requested_reviewers: Array<{
         login: string;
-        id: number;
-        avatar_url: string;
-        html_url: string;
       }>;
       labels: Array<{
         name: string;
@@ -114,25 +105,9 @@ const getPullRequestDetails: githubGetPullRequestDetailsFunction = async ({
       updatedAt: pr.updated_at,
       closedAt: pr.closed_at,
       mergedAt: pr.merged_at,
-      author: pr.user
-        ? {
-            ...pr.user,
-            avatarUrl: pr.user.avatar_url,
-            htmlUrl: pr.user.html_url,
-          }
-        : null,
-      assignees:
-        pr.assignees?.map(assignee => ({
-          ...assignee,
-          avatarUrl: assignee.avatar_url,
-          htmlUrl: assignee.html_url,
-        })) || [],
-      reviewers:
-        pr.requested_reviewers?.map(reviewer => ({
-          ...reviewer,
-          avatarUrl: reviewer.avatar_url,
-          htmlUrl: reviewer.html_url,
-        })) || [],
+      author: pr.user,
+      assignees: pr.assignees || [],
+      reviewers: pr.requested_reviewers || [],
       labels:
         pr.labels?.map(label => ({
           ...label,

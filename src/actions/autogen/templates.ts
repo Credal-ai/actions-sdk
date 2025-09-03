@@ -10312,18 +10312,6 @@ export const githubGetPullRequestDetailsDefinition: ActionTemplate = {
                 type: "string",
                 description: "The username of the pull request author",
               },
-              id: {
-                type: "number",
-                description: "The user ID of the pull request author",
-              },
-              avatarUrl: {
-                type: "string",
-                description: "The avatar URL of the pull request author",
-              },
-              htmlUrl: {
-                type: "string",
-                description: "The profile URL of the pull request author",
-              },
             },
           },
           assignees: {
@@ -10335,18 +10323,6 @@ export const githubGetPullRequestDetailsDefinition: ActionTemplate = {
                 login: {
                   type: "string",
                   description: "The username of the assignee",
-                },
-                id: {
-                  type: "number",
-                  description: "The user ID of the assignee",
-                },
-                avatarUrl: {
-                  type: "string",
-                  description: "The avatar URL of the assignee",
-                },
-                htmlUrl: {
-                  type: "string",
-                  description: "The profile URL of the assignee",
                 },
               },
             },
@@ -10360,18 +10336,6 @@ export const githubGetPullRequestDetailsDefinition: ActionTemplate = {
                 login: {
                   type: "string",
                   description: "The username of the reviewer",
-                },
-                id: {
-                  type: "number",
-                  description: "The user ID of the reviewer",
-                },
-                avatarUrl: {
-                  type: "string",
-                  description: "The avatar URL of the reviewer",
-                },
-                htmlUrl: {
-                  type: "string",
-                  description: "The profile URL of the reviewer",
                 },
               },
             },
@@ -11268,18 +11232,6 @@ export const githubListCommitsDefinition: ActionTemplate = {
                   type: "string",
                   description: "The GitHub username of the commit author",
                 },
-                id: {
-                  type: "number",
-                  description: "The GitHub user ID of the commit author",
-                },
-                avatarUrl: {
-                  type: "string",
-                  description: "The avatar URL of the commit author",
-                },
-                htmlUrl: {
-                  type: "string",
-                  description: "The profile URL of the commit author",
-                },
               },
             },
             committer: {
@@ -11289,18 +11241,6 @@ export const githubListCommitsDefinition: ActionTemplate = {
                 login: {
                   type: "string",
                   description: "The GitHub username of the commit committer",
-                },
-                id: {
-                  type: "number",
-                  description: "The GitHub user ID of the commit committer",
-                },
-                avatarUrl: {
-                  type: "string",
-                  description: "The avatar URL of the commit committer",
-                },
-                htmlUrl: {
-                  type: "string",
-                  description: "The profile URL of the commit committer",
                 },
               },
             },

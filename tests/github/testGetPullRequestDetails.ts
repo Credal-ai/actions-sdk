@@ -51,15 +51,6 @@ async function runTest() {
     // Validate author information
     if (pr.author) {
       assert(typeof pr.author.login === "string", "Author should have login");
-      assert(typeof pr.author.id === "number", "Author should have ID");
-      assert(
-        typeof pr.author.avatarUrl === "string",
-        "Author should have avatar URL"
-      );
-      assert(
-        typeof pr.author.htmlUrl === "string",
-        "Author should have HTML URL"
-      );
     }
 
     // Validate head and base branch information

@@ -5262,34 +5262,15 @@ export const githubGetPullRequestDetailsOutputSchema = z.object({
       closedAt: z.string().nullable().describe("The date and time when the pull request was closed").optional(),
       mergedAt: z.string().nullable().describe("The date and time when the pull request was merged").optional(),
       author: z
-        .object({
-          login: z.string().describe("The username of the pull request author").optional(),
-          id: z.number().describe("The user ID of the pull request author").optional(),
-          avatarUrl: z.string().describe("The avatar URL of the pull request author").optional(),
-          htmlUrl: z.string().describe("The profile URL of the pull request author").optional(),
-        })
+        .object({ login: z.string().describe("The username of the pull request author").optional() })
         .describe("The user who created the pull request")
         .optional(),
       assignees: z
-        .array(
-          z.object({
-            login: z.string().describe("The username of the assignee").optional(),
-            id: z.number().describe("The user ID of the assignee").optional(),
-            avatarUrl: z.string().describe("The avatar URL of the assignee").optional(),
-            htmlUrl: z.string().describe("The profile URL of the assignee").optional(),
-          }),
-        )
+        .array(z.object({ login: z.string().describe("The username of the assignee").optional() }))
         .describe("Users assigned to the pull request")
         .optional(),
       reviewers: z
-        .array(
-          z.object({
-            login: z.string().describe("The username of the reviewer").optional(),
-            id: z.number().describe("The user ID of the reviewer").optional(),
-            avatarUrl: z.string().describe("The avatar URL of the reviewer").optional(),
-            htmlUrl: z.string().describe("The profile URL of the reviewer").optional(),
-          }),
-        )
+        .array(z.object({ login: z.string().describe("The username of the reviewer").optional() }))
         .describe("Users requested to review the pull request")
         .optional(),
       labels: z
@@ -5640,20 +5621,10 @@ export const githubListCommitsOutputSchema = z.object({
           commentCount: z.number().describe("The number of comments on the commit").optional(),
         }),
         author: z
-          .object({
-            login: z.string().describe("The GitHub username of the commit author").optional(),
-            id: z.number().describe("The GitHub user ID of the commit author").optional(),
-            avatarUrl: z.string().describe("The avatar URL of the commit author").optional(),
-            htmlUrl: z.string().describe("The profile URL of the commit author").optional(),
-          })
+          .object({ login: z.string().describe("The GitHub username of the commit author").optional() })
           .nullable(),
         committer: z
-          .object({
-            login: z.string().describe("The GitHub username of the commit committer").optional(),
-            id: z.number().describe("The GitHub user ID of the commit committer").optional(),
-            avatarUrl: z.string().describe("The avatar URL of the commit committer").optional(),
-            htmlUrl: z.string().describe("The profile URL of the commit committer").optional(),
-          })
+          .object({ login: z.string().describe("The GitHub username of the commit committer").optional() })
           .nullable(),
         parents: z
           .array(

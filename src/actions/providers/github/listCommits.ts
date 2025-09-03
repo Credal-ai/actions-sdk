@@ -55,8 +55,8 @@ const listCommits: githubListCommitsFunction = async ({
         tree: { sha: string; url: string };
         comment_count?: number;
       };
-      author?: { login: string; id: number; avatar_url: string; html_url: string } | null;
-      committer?: { login: string; id: number; avatar_url: string; html_url: string } | null;
+      author?: { login: string } | null;
+      committer?: { login: string } | null;
       parents: Array<{ sha: string; url: string; html_url: string }>;
     }
 
@@ -79,20 +79,8 @@ const listCommits: githubListCommitsFunction = async ({
         ...commit.commit,
         commentCount: commit.commit.comment_count || 0,
       },
-      author: commit.author
-        ? {
-            ...commit.author,
-            avatarUrl: commit.author.avatar_url,
-            htmlUrl: commit.author.html_url,
-          }
-        : null,
-      committer: commit.committer
-        ? {
-            ...commit.committer,
-            avatarUrl: commit.committer.avatar_url,
-            htmlUrl: commit.committer.html_url,
-          }
-        : null,
+      author: commit.author,
+      committer: commit.committer,
       parents: commit.parents.map(parent => ({
         ...parent,
         htmlUrl: parent.html_url,
