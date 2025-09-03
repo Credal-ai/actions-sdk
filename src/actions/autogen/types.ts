@@ -5623,9 +5623,6 @@ export const githubListCommitsOutputSchema = z.object({
         author: z
           .object({ login: z.string().describe("The GitHub username of the commit author").optional() })
           .nullable(),
-        committer: z
-          .object({ login: z.string().describe("The GitHub username of the commit committer").optional() })
-          .nullable(),
         parents: z
           .array(
             z.object({

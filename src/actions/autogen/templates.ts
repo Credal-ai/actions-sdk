@@ -11234,16 +11234,6 @@ export const githubListCommitsDefinition: ActionTemplate = {
                 },
               },
             },
-            committer: {
-              type: "object",
-              nullable: true,
-              properties: {
-                login: {
-                  type: "string",
-                  description: "The GitHub username of the commit committer",
-                },
-              },
-            },
             parents: {
               type: "array",
               description: "The parent commits",
