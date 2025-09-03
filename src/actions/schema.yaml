@@ -7195,6 +7195,163 @@ actions:
                       patch:
                         type: string
                         description: The patch of the file
+    listCommits:
+      description: List commits in a GitHub repository with optional date filtering and pagination
+      scopes: []
+      parameters:
+        type: object
+        required: [repositoryOwner, repositoryName]
+        properties:
+          repositoryOwner:
+            type: string
+            description: The owner of the repository
+          repositoryName:
+            type: string
+            description: The name of the repository
+          branch:
+            type: string
+            description: The branch to list commits from (defaults to default branch)
+          since:
+            type: string
+            description: Only show commits after this date (ISO 8601 format, e.g., 2023-01-01T00:00:00Z)
+          until:
+            type: string
+            description: Only show commits before this date (ISO 8601 format, e.g., 2023-12-31T23:59:59Z)
+          author:
+            type: string
+            description: Filter commits by author (GitHub username or email)
+          perPage:
+            type: number
+            description: Number of commits to return per page (default 30, max 100)
+          page:
+            type: number
+            description: Page number for pagination (default 1)
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the operation was successful
+          error:
+            type: string
+            description: The error that occurred if the operation was not successful
+          commits:
+            type: array
+            description: List of commits in the repository
+            items:
+              type: object
+              required: [sha, commit, author, committer, url, htmlUrl]
+              properties:
+                sha:
+                  type: string
+                  description: The SHA hash of the commit
+                url:
+                  type: string
+                  description: The API URL of the commit
+                htmlUrl:
+                  type: string
+                  description: The web URL of the commit
+                commit:
+                  type: object
+                  required: [message, author, committer, tree]
+                  properties:
+                    message:
+                      type: string
+                      description: The commit message
+                    author:
+                      type: object
+                      required: [name, email, date]
+                      properties:
+                        name:
+                          type: string
+                          description: The name of the commit author
+                        email:
+                          type: string
+                          description: The email of the commit author
+                        date:
+                          type: string
+                          description: The date when the commit was authored (ISO 8601 format)
+                    committer:
+                      type: object
+                      required: [name, email, date]
+                      properties:
+                        name:
+                          type: string
+                          description: The name of the commit committer
+                        email:
+                          type: string
+                          description: The email of the commit committer
+                        date:
+                          type: string
+                          description: The date when the commit was committed (ISO 8601 format)
+                    tree:
+                      type: object
+                      required: [sha, url]
+                      properties:
+                        sha:
+                          type: string
+                          description: The SHA of the tree object
+                        url:
+                          type: string
+                          description: The API URL of the tree object
+                    commentCount:
+                      type: number
+                      description: The number of comments on the commit
+                author:
+                  type: object
+                  nullable: true
+                  properties:
+                    login:
+                      type: string
+                      description: The GitHub username of the commit author
+                    id:
+                      type: number
+                      description: The GitHub user ID of the commit author
+                    avatarUrl:
+                      type: string
+                      description: The avatar URL of the commit author
+                    htmlUrl:
+                      type: string
+                      description: The profile URL of the commit author
+                committer:
+                  type: object
+                  nullable: true
+                  properties:
+                    login:
+                      type: string
+                      description: The GitHub username of the commit committer
+                    id:
+                      type: number
+                      description: The GitHub user ID of the commit committer
+                    avatarUrl:
+                      type: string
+                      description: The avatar URL of the commit committer
+                    htmlUrl:
+                      type: string
+                      description: The profile URL of the commit committer
+                parents:
+                  type: array
+                  description: The parent commits
+                  items:
+                    type: object
+                    required: [sha, url, htmlUrl]
+                    properties:
+                      sha:
+                        type: string
+                        description: The SHA of the parent commit
+                      url:
+                        type: string
+                        description: The API URL of the parent commit
+                      htmlUrl:
+                        type: string
+                        description: The web URL of the parent commit
+          totalCount:
+            type: number
+            description: Total number of commits (if available)
+          hasMore:
+            type: boolean
+            description: Whether there are more commits available on subsequent pages
 
   notion:
     searchByTitle:

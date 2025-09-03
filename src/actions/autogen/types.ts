@@ -5467,6 +5467,93 @@ export type githubSearchOrganizationFunction = ActionFunction<
   githubSearchOrganizationOutputType
 >;
 
+export const githubListCommitsParamsSchema = z.object({
+  repositoryOwner: z.string().describe("The owner of the repository"),
+  repositoryName: z.string().describe("The name of the repository"),
+  branch: z.string().describe("The branch to list commits from (defaults to default branch)").optional(),
+  since: z
+    .string()
+    .describe("Only show commits after this date (ISO 8601 format, e.g., 2023-01-01T00:00:00Z)")
+    .optional(),
+  until: z
+    .string()
+    .describe("Only show commits before this date (ISO 8601 format, e.g., 2023-12-31T23:59:59Z)")
+    .optional(),
+  author: z.string().describe("Filter commits by author (GitHub username or email)").optional(),
+  perPage: z.number().describe("Number of commits to return per page (default 30, max 100)").optional(),
+  page: z.number().describe("Page number for pagination (default 1)").optional(),
+});
+
+export type githubListCommitsParamsType = z.infer<typeof githubListCommitsParamsSchema>;
+
+export const githubListCommitsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("The error that occurred if the operation was not successful").optional(),
+  commits: z
+    .array(
+      z.object({
+        sha: z.string().describe("The SHA hash of the commit"),
+        url: z.string().describe("The API URL of the commit"),
+        htmlUrl: z.string().describe("The web URL of the commit"),
+        commit: z.object({
+          message: z.string().describe("The commit message"),
+          author: z.object({
+            name: z.string().describe("The name of the commit author"),
+            email: z.string().describe("The email of the commit author"),
+            date: z.string().describe("The date when the commit was authored (ISO 8601 format)"),
+          }),
+          committer: z.object({
+            name: z.string().describe("The name of the commit committer"),
+            email: z.string().describe("The email of the commit committer"),
+            date: z.string().describe("The date when the commit was committed (ISO 8601 format)"),
+          }),
+          tree: z.object({
+            sha: z.string().describe("The SHA of the tree object"),
+            url: z.string().describe("The API URL of the tree object"),
+          }),
+          commentCount: z.number().describe("The number of comments on the commit").optional(),
+        }),
+        author: z
+          .object({
+            login: z.string().describe("The GitHub username of the commit author").optional(),
+            id: z.number().describe("The GitHub user ID of the commit author").optional(),
+            avatarUrl: z.string().describe("The avatar URL of the commit author").optional(),
+            htmlUrl: z.string().describe("The profile URL of the commit author").optional(),
+          })
+          .nullable(),
+        committer: z
+          .object({
+            login: z.string().describe("The GitHub username of the commit committer").optional(),
+            id: z.number().describe("The GitHub user ID of the commit committer").optional(),
+            avatarUrl: z.string().describe("The avatar URL of the commit committer").optional(),
+            htmlUrl: z.string().describe("The profile URL of the commit committer").optional(),
+          })
+          .nullable(),
+        parents: z
+          .array(
+            z.object({
+              sha: z.string().describe("The SHA of the parent commit"),
+              url: z.string().describe("The API URL of the parent commit"),
+              htmlUrl: z.string().describe("The web URL of the parent commit"),
+            }),
+          )
+          .describe("The parent commits")
+          .optional(),
+      }),
+    )
+    .describe("List of commits in the repository")
+    .optional(),
+  totalCount: z.number().describe("Total number of commits (if available)").optional(),
+  hasMore: z.boolean().describe("Whether there are more commits available on subsequent pages").optional(),
+});
+
+export type githubListCommitsOutputType = z.infer<typeof githubListCommitsOutputSchema>;
+export type githubListCommitsFunction = ActionFunction<
+  githubListCommitsParamsType,
+  AuthParamsType,
+  githubListCommitsOutputType
+>;
+
 export const notionSearchByTitleParamsSchema = z.object({
   query: z.string().describe("The query to search for in Notion titles"),
 });
