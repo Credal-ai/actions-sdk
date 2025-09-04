@@ -48,7 +48,7 @@
   },
   "dependencies": {
     "@credal/sdk": "^0.0.21",
-    "@mendable/firecrawl-js": "^1.24.0",
+    "@mendable/firecrawl-js": "^4.3.3",
     "@microsoft/microsoft-graph-client": "^3.0.7",
     "@octokit/core": "^6.1.6",
     "@octokit/plugin-rest-endpoint-methods": "^16.0.0",
