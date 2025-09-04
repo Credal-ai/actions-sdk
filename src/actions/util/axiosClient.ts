@@ -71,20 +71,22 @@ export function createAxiosClientWithTimeout(timeout: number): AxiosInstance {
   return createAxiosClient(timeout);
 }
 
-function createAxiosClientWithRetries(timeout?: number): AxiosInstance {
+export function createAxiosClientWithRetries(args: { timeout: number; retryCount: number }): AxiosInstance {
+  const { timeout, retryCount } = args;
   const instance = createAxiosClient(timeout);
 
   axiosRetry(instance, {
-    retries: 3,
+    retries: retryCount,
     retryDelay: axiosRetry.exponentialDelay,
     retryCondition: error => {
       if (axiosRetry.isNetworkError(error) || !error.response) return true;
       const status = error.response.status;
       return status === 408 || status === 429 || status >= 500;
     },
+    onRetry: (retryCount, error) => {
+      console.log(`Retry ${retryCount}: ${error.response?.status || "Network Error"} - ${error.config?.url}`);
+    },
   });
 
   return instance;
 }
-
-export const axiosClientWithRetries = createAxiosClientWithRetries();
