@@ -723,6 +723,123 @@ export const slackGetChannelMessagesDefinition: ActionTemplate = {
   name: "getChannelMessages",
   provider: "slack",
 };
+export const slackUserSearchSlackDefinition: ActionTemplate = {
+  description:
+    "Search Slack (DM/MPIM by emails or channel) with optional topic/time filter. Automatically hydrates each hit (full thread if threaded, otherwise a small surrounding context).",
+  scopes: [
+    "search:read",
+    "channels:read",
+    "groups:read",
+    "im:read",
+    "mpim:read",
+    "channels:history",
+    "groups:history",
+    "im:history",
+    "mpim:history",
+    "users:read.email",
+  ],
+  parameters: {
+    type: "object",
+    required: [],
+    properties: {
+      emails: {
+        type: "array",
+        description: "Participants identified strictly by email (one email = 1:1 DM, multiple = MPIM).",
+        items: {
+          type: "string",
+          format: "email",
+        },
+      },
+      channel: {
+        type: "string",
+        description: 'Channel name or ID. Examples - "#eng-updates", "eng-updates", "C01234567".',
+      },
+      topic: {
+        type: "string",
+        description: 'Keyword(s) to search for (e.g., "jogging decision").',
+      },
+      timeRange: {
+        type: "string",
+        description: "Optional time filter applied to the search.",
+        enum: ["latest", "today", "yesterday", "last_7d", "last_30d", "all"],
+        default: "latest",
+      },
+      limit: {
+        type: "integer",
+        description:
+          "Max matches to request (passed to Slack search; results are then hydrated and sorted newest-first).",
+        minimum: 1,
+        maximum: 100,
+        default: 50,
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["query", "results"],
+    properties: {
+      query: {
+        type: "string",
+        description: "The exact query string sent to Slack’s search API after resolving inputs.",
+      },
+      results: {
+        type: "array",
+        description: "Hydrated search results (threads or small context windows), sorted by ts desc.",
+        items: {
+          type: "object",
+          required: ["channelId", "ts"],
+          properties: {
+            channelId: {
+              type: "string",
+              description: "Slack channel/conversation ID (C…/G…/D… or name).",
+            },
+            ts: {
+              type: "string",
+              description: "Slack message timestamp of the hit (or thread root when hydrated as thread).",
+            },
+            text: {
+              type: "string",
+              description: "Message text of the anchor (hit or thread root).",
+            },
+            userId: {
+              type: "string",
+              description: "User ID of the anchor message’s author (if available).",
+            },
+            permalink: {
+              type: "string",
+              description: "A Slack permalink to the anchor (message or thread root), if resolvable.",
+            },
+            context: {
+              type: "array",
+              description:
+                "When a hit is in a thread, this is the full thread (root first). Otherwise, a small surrounding context window (~3 before, 5 after).",
+              items: {
+                type: "object",
+                required: ["ts"],
+                properties: {
+                  ts: {
+                    type: "string",
+                    description: "Timestamp of the contextual message.",
+                  },
+                  text: {
+                    type: "string",
+                    description: "Text of the contextual message.",
+                  },
+                  userId: {
+                    type: "string",
+                    description: "Author user ID of the contextual message.",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  name: "searchSlack",
+  provider: "slackUser",
+};
 export const mathAddDefinition: ActionTemplate = {
   description: "Adds two numbers together",
   scopes: [],
@@ -4458,8 +4575,7 @@ export const googleOauthUpdateDocDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
-  description:
-    "Schedule a meeting on google calendar using OAuth authentication. Supports both one-time and recurring meetings.",
+  description: "Schedule a meeting on google calendar using OAuth authentication",
   scopes: [],
   parameters: {
     type: "object",
@@ -4522,7 +4638,7 @@ export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
           },
           until: {
             type: "string",
-            description: "End date for the recurrence in RFC3339 format (YYYY-MM-DDTHH:MM:SSZ)",
+            description: "End date for the recurrence in RFC3339 format (YYYY-MM-DD)",
           },
           byDay: {
             type: "array",

@@ -5,6 +5,7 @@ export enum ProviderName {
   PERPLEXITY = "perplexity",
   ASANA = "asana",
   SLACK = "slack",
+  SLACKUSER = "slackUser",
   MATH = "math",
   CONFLUENCE = "confluence",
   JIRA = "jira",
@@ -415,6 +416,65 @@ export type slackGetChannelMessagesFunction = ActionFunction<
   slackGetChannelMessagesParamsType,
   AuthParamsType,
   slackGetChannelMessagesOutputType
+>;
+
+export const slackUserSearchSlackParamsSchema = z.object({
+  emails: z
+    .array(z.string().email())
+    .describe("Participants identified strictly by email (one email = 1:1 DM, multiple = MPIM).")
+    .optional(),
+  channel: z.string().describe('Channel name or ID. Examples - "#eng-updates", "eng-updates", "C01234567".').optional(),
+  topic: z.string().describe('Keyword(s) to search for (e.g., "jogging decision").').optional(),
+  timeRange: z
+    .enum(["latest", "today", "yesterday", "last_7d", "last_30d", "all"])
+    .describe("Optional time filter applied to the search.")
+    .default("latest"),
+  limit: z
+    .number()
+    .int()
+    .gte(1)
+    .lte(100)
+    .describe("Max matches to request (passed to Slack search; results are then hydrated and sorted newest-first).")
+    .default(50),
+});
+
+export type slackUserSearchSlackParamsType = z.infer<typeof slackUserSearchSlackParamsSchema>;
+
+export const slackUserSearchSlackOutputSchema = z.object({
+  query: z.string().describe("The exact query string sent to Slack’s search API after resolving inputs."),
+  results: z
+    .array(
+      z.object({
+        channelId: z.string().describe("Slack channel/conversation ID (C…/G…/D… or name)."),
+        ts: z.string().describe("Slack message timestamp of the hit (or thread root when hydrated as thread)."),
+        text: z.string().describe("Message text of the anchor (hit or thread root).").optional(),
+        userId: z.string().describe("User ID of the anchor message’s author (if available).").optional(),
+        permalink: z
+          .string()
+          .describe("A Slack permalink to the anchor (message or thread root), if resolvable.")
+          .optional(),
+        context: z
+          .array(
+            z.object({
+              ts: z.string().describe("Timestamp of the contextual message."),
+              text: z.string().describe("Text of the contextual message.").optional(),
+              userId: z.string().describe("Author user ID of the contextual message.").optional(),
+            }),
+          )
+          .describe(
+            "When a hit is in a thread, this is the full thread (root first). Otherwise, a small surrounding context window (~3 before, 5 after).",
+          )
+          .optional(),
+      }),
+    )
+    .describe("Hydrated search results (threads or small context windows), sorted by ts desc."),
+});
+
+export type slackUserSearchSlackOutputType = z.infer<typeof slackUserSearchSlackOutputSchema>;
+export type slackUserSearchSlackFunction = ActionFunction<
+  slackUserSearchSlackParamsType,
+  AuthParamsType,
+  slackUserSearchSlackOutputType
 >;
 
 export const mathAddParamsSchema = z.object({
@@ -2326,7 +2386,7 @@ export const googleOauthScheduleCalendarMeetingParamsSchema = z.object({
       frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]).describe("How often the meeting repeats").optional(),
       interval: z.number().int().gte(1).describe("The interval between recurrences (e.g., every 2 weeks)").optional(),
       count: z.number().int().gte(1).describe("Number of occurrences after which to stop the recurrence").optional(),
-      until: z.string().describe("End date for the recurrence in RFC3339 format (YYYY-MM-DDTHH:MM:SSZ)").optional(),
+      until: z.string().describe("End date for the recurrence in RFC3339 format (YYYY-MM-DD)").optional(),
       byDay: z
         .array(z.enum(["MO", "TU", "WE", "TH", "FR", "SA", "SU"]))
         .describe("Days of the week when the meeting occurs (for WEEKLY frequency)")
