@@ -1,4 +1,4 @@
-import FirecrawlApp from "@mendable/firecrawl-js";
+import Firecrawl from "@mendable/firecrawl-js";
 import type {
   AuthParamsType,
   firecrawlDeepResearchFunction,
@@ -15,7 +15,7 @@ const deepResearch: firecrawlDeepResearchFunction = async ({
   authParams: AuthParamsType;
 }): Promise<firecrawlDeepResearchOutputType> => {
   const { query, maxDepth, maxUrls, timeLimit } = params;
-  const firecrawl = new FirecrawlApp({
+  const firecrawl = new Firecrawl({
     apiKey: authParams.apiKey,
   });
 
@@ -25,10 +25,10 @@ const deepResearch: firecrawlDeepResearchFunction = async ({
     timeLimit,
   });
 
-  if (result.success && result.data) {
+  if (result && result.finalAnalysis) {
     return firecrawlDeepResearchOutputSchema.parse({
-      finalAnalysis: result.data.finalAnalysis,
-      sources: result.data.sources,
+      finalAnalysis: result.finalAnalysis,
+      sources: result.sources || [],
     });
   }
 

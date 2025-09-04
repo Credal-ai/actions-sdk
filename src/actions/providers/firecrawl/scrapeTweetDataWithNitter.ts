@@ -1,4 +1,4 @@
-import FirecrawlApp from "@mendable/firecrawl-js";
+import Firecrawl from "@mendable/firecrawl-js";
 import type {
   AuthParamsType,
   firecrawlScrapeTweetDataWithNitterFunction,
@@ -31,17 +31,13 @@ const scrapeTweetDataWithNitter: firecrawlScrapeTweetDataWithNitterFunction = as
     throw new Error(MISSING_API_KEY);
   }
 
-  const firecrawl = new FirecrawlApp({
+  const firecrawl = new Firecrawl({
     apiKey: authParams.apiKey,
   });
 
   try {
     // Scrape the Nitter URL
-    const result = await firecrawl.scrapeUrl(nitterUrl);
-
-    if (!result.success) {
-      throw new Error(`Failed to scrape tweet: ${result.error || "Unknown error"}`);
-    }
+    const result = await firecrawl.scrape(nitterUrl);
 
     // Extract the tweet text from the scraped content - simple approach - in practice, you might need more robust parsing based on nitter html structure
     const tweetContent = result.markdown;

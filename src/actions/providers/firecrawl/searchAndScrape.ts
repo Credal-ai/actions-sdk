@@ -1,4 +1,4 @@
-import FirecrawlApp from "@mendable/firecrawl-js";
+import Firecrawl from "@mendable/firecrawl-js";
 import type {
   firecrawlSearchAndScrapeOutputType,
   firecrawlSearchAndScrapeParamsType,
@@ -16,7 +16,7 @@ const searchAndScrape: firecrawlSearchAndScrapeFunction = async ({
   const { apiKey } = authParams;
   if (!apiKey) throw new Error("Missing Firecrawl API key");
 
-  const app = new FirecrawlApp({ apiKey });
+  const app = new Firecrawl({ apiKey });
 
   const { query, count = 5, site } = params;
   const searchQuery = `${query}${site ? ` site:${site}` : ""}`;
@@ -29,11 +29,11 @@ const searchAndScrape: firecrawlSearchAndScrapeFunction = async ({
     },
   });
 
-  if (!searchRes?.success) {
+  if (!searchRes || !Array.isArray(searchRes)) {
     return { results: [] };
   }
 
-  const results = searchRes.data
+  const results = searchRes
     .map(r => {
       const url = r.url;
       const contents = r.markdown;

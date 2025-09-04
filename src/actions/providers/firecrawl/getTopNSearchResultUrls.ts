@@ -1,4 +1,4 @@
-import FirecrawlApp from "@mendable/firecrawl-js";
+import Firecrawl from "@mendable/firecrawl-js";
 import type {
   AuthParamsType,
   firecrawlGetTopNSearchResultUrlsFunction,
@@ -25,17 +25,17 @@ const getTopNSearchResultUrls: firecrawlGetTopNSearchResultUrlsFunction = async 
   const searchQuery = `${query}${site ? ` site:${site}` : ""}`;
 
   try {
-    const app = new FirecrawlApp({ apiKey });
+    const app = new Firecrawl({ apiKey });
 
     // Firecrawl search (no scraping needed for URL list)
     const res = await app.search(searchQuery, { limit: count });
 
-    if (!res?.success) {
-      throw new Error(`Firecrawl search failed: ${res?.error ?? "unknown error"}`);
+    if (!res || !Array.isArray(res)) {
+      throw new Error(`Firecrawl search failed: no data returned`);
     }
 
     // Map Firecrawl results into a Bing-like shape your schema expects
-    const results = res.data
+    const results = res
       .filter(r => r?.url)
       .map(r => ({
         name: r.title ?? r.metadata?.title ?? r.url,
