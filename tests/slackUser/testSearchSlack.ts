@@ -4,20 +4,23 @@ import dotenv from "dotenv";
 dotenv.config();
 
 async function runTest() {
+  // Single person DM
   const result1 = await runAction(
-    "searchSlack",
-    "slackUser",
-    { authToken: process.env.SLACK_AUTH_TOKEN },
-    { emails: ["jack@credal.ai", "ravin@credal.ai"], limit: 1, topic: "good to know" },
-  );
-
-  const result2 = await runAction(
     "searchSlack",
     "slackUser",
     { authToken: process.env.SLACK_AUTH_TOKEN },
     { emails: ["jack@credal.ai"], limit: 1, topic: "flatiron" },
   );
 
+  // Multiple person DM
+  const result2 = await runAction(
+    "searchSlack",
+    "slackUser",
+    { authToken: process.env.SLACK_AUTH_TOKEN },
+    { emails: ["jack@credal.ai", "ravin@credal.ai"], limit: 1, topic: "good to know" },
+  );
+
+  // Channel
   const result3 = await runAction(
     "searchSlack",
     "slackUser",
