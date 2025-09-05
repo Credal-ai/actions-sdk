@@ -148,11 +148,17 @@ const searchSlack: slackUserSearchSlackFunction = async ({
 
   if (emails?.length) {
     const userIds = await lookupUserIdsByEmail(client, emails);
-    if (userIds.length === 0) throw new Error("No users resolved from emails.");
-    if (userIds.length == 1) {
-      parts.push(`in:<@${userIds[0]}>`);
+    const {user_id: myUserId } = await client.auth.test();
+
+    if (!myUserId) throw new Error("Failed to get my user ID.");
+
+    const userIdsWithoutMe = userIds.filter(id => id !== myUserId);
+
+    if (userIdsWithoutMe.length === 0) throw new Error("No users resolved from emails.");
+    if (userIdsWithoutMe.length == 1) {
+      parts.push(`in:<@${userIdsWithoutMe[0]}>`);
     } else {
-      const convoName = await getMPIMName(client, userIds);
+      const convoName = await getMPIMName(client, userIdsWithoutMe);
       parts.push(`in:${convoName}`);
     }
   } else if (channel) {
