@@ -1,6 +1,6 @@
 {
   "name": "@credal/actions",
-  "version": "0.2.112",
+  "version": "0.2.113",
   "type": "module",
   "description": "AI Actions by Credal AI",
   "sideEffects": false,
@@ -72,6 +72,6 @@
     "snowflake-sdk": "^2.0.2",
     "ts-node": "^10.9.2",
     "uuid": "^11.1.0",
-    "zod": "^3.24.1"
+    "zod": "^3.25.0"
   }
 }
