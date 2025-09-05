@@ -30,17 +30,26 @@ const getTopNSearchResultUrls: firecrawlGetTopNSearchResultUrlsFunction = async 
     // Firecrawl search (no scraping needed for URL list)
     const res = await app.search(searchQuery, { limit: count });
 
-    if (!res || !Array.isArray(res)) {
-      throw new Error(`Firecrawl search failed: no data returned`);
+    if (!res.web) {
+      throw new Error(`Firecrawl search failed: no web results returned`);
     }
 
     // Map Firecrawl results into a Bing-like shape your schema expects
-    const results = res
-      .filter(r => r?.url)
-      .map(r => ({
-        name: r.title ?? r.metadata?.title ?? r.url,
-        url: r.url,
-      }));
+    const results = res.web
+      .filter(r => {
+        // Handle both SearchResultWeb (has url) and Document (has sourceURL)
+        return ("url" in r && r.url) || ("sourceURL" in r && r.sourceURL);
+      })
+      .map(r => {
+        // Extract URL from either type
+        const url = ("url" in r && r.url) || ("sourceURL" in r && r.sourceURL) || "";
+        const title = r.title ?? ("metadata" in r && r.metadata?.title) ?? url;
+
+        return {
+          name: title as string,
+          url: url as string,
+        };
+      });
 
     return { results };
   } catch (error) {
