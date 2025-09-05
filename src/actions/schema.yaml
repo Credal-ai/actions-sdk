@@ -576,9 +576,12 @@ actions:
                 text:
                   type: string
                   description: Message text of the anchor (hit or thread root).
-                userId:
+                userEmail:
                   type: string
-                  description: User ID of the anchor message’s author (if available).
+                  description: User email of the anchor message’s author (if available).
+                userName:
+                  type: string
+                  description: User name of the anchor message’s author (if available).
                 permalink:
                   type: string
                   description: A Slack permalink to the anchor (message or thread root), if resolvable.
@@ -596,9 +599,12 @@ actions:
                       text:
                         type: string
                         description: Text of the contextual message.
-                      userId:
+                      userEmail:
                         type: string
-                        description: Author user ID of the contextual message.
+                        description: Author user email of the contextual message.
+                      userName:
+                        type: string
+                        description: Author user name of the contextual message.
   math:
     add:
       description: Adds two numbers together

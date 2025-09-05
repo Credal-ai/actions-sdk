@@ -15,14 +15,40 @@ const limitHit = pLimit(HIT_ENRICH_POOL);
 
 export type TimeRange = "latest" | "today" | "yesterday" | "last_7d" | "last_30d" | "all";
 
+class SlackUserCache {
+  private cache: Map<string, { email: string; name: string }>;
+  constructor(private client: WebClient) {
+    this.cache = new Map<string, { email: string; name: string }>();
+    this.client = client;
+  }
+  async get(id: string): Promise<{ email: string; name: string } | undefined> {
+    const result = this.cache.get(id);
+    if (result) return result;
+    const res = await this.client.users.info({ user: id });
+    const u = {
+      name: res.user?.profile?.display_name ?? res.user?.real_name ?? "",
+      email: res.user?.profile?.email ?? "",
+    };
+    if (res.user && id && res.user.name) {
+      this.cache.set(id, u);
+      return u;
+    }
+    return undefined;
+  }
+
+  set(id: string, { email, name }: { email: string; name: string }) {
+    this.cache.set(id, { email, name });
+  }
+}
+
 export interface SlackSearchMessage {
   channelId: string;
   ts: string;
   text?: string;
-  userId?: string;
+  userEmail?: string;
   permalink?: string;
   /** If thread: full thread (root first). If not thread: small context window around the hit. */
-  context?: Array<{ ts: string; text?: string; userId?: string }>;
+  context?: Array<{ ts: string; text?: string; userEmail?: string; userName?: string }>;
 }
 
 /* ===================== Minimal Slack Shapes ===================== */
@@ -57,13 +83,22 @@ function timeFilter(range?: TimeRange): string {
   }
 }
 
-async function lookupUserIdsByEmail(client: WebClient, emails: string[]): Promise<string[]> {
+async function lookupUserIdsByEmail(
+  client: WebClient,
+  emails: string[],
+  slackUserCache: SlackUserCache,
+): Promise<string[]> {
   const ids: string[] = [];
   const tasks = emails.map(async raw => {
     const email = raw.trim();
     if (!email) return null;
     const res = await client.users.lookupByEmail({ email });
     const id = res.user?.id;
+
+    if (res.user && id && res.user.name) {
+      slackUserCache.set(id, { email, name: res.user.name });
+    }
+
     if (id) return id;
     return null;
   });
@@ -149,12 +184,13 @@ const searchSlack: slackUserSearchSlackFunction = async ({
   }
 
   const client = new WebClient(authParams.authToken);
+  const slackUserCache = new SlackUserCache(client);
   const { emails, channel, topic, timeRange, limit } = params;
 
   const parts: string[] = [];
 
   if (emails?.length) {
-    const userIds = await lookupUserIdsByEmail(client, emails);
+    const userIds = await lookupUserIdsByEmail(client, emails, slackUserCache);
     const { user_id: myUserId } = await client.auth.test();
 
     if (!myUserId) throw new Error("Failed to get my user ID.");
@@ -183,12 +219,18 @@ const searchSlack: slackUserSearchSlackFunction = async ({
   const searchRes = await client.search.messages({ query, count, highlight: true });
   const matches = searchRes.messages?.matches ?? [];
 
-  const hits = matches.slice(0, limit).map(m => ({
-    channelId: m.channel?.id || m.channel?.name || "",
-    ts: m.ts,
-    text: m.text,
-    userId: m.user,
-  }));
+  const hitsPromises = matches.slice(0, limit).map(async m => {
+    const user = m.user ? await slackUserCache.get(m.user) : undefined;
+    return {
+      channelId: m.channel?.id || m.channel?.name || "",
+      ts: m.ts,
+      text: m.text,
+      userEmail: user?.email ?? undefined,
+      userName: user?.name ?? undefined,
+    };
+  });
+
+  const hits = await Promise.all(hitsPromises);
 
   const tasks = hits.map(h =>
     limitHit(async () => {
@@ -204,13 +246,28 @@ const searchSlack: slackUserSearchSlackFunction = async ({
             fetchThread(client, h.channelId, rootTs),
             getPermalink(client, h.channelId, rootTs),
           ]);
-          const context = thread.filter(t => t.ts).map(t => ({ ts: t.ts!, text: t.text, userId: t.user }));
+          const contextPromises = thread
+            .filter(t => t.ts)
+            .map(async t => {
+              const user = t.user ? await slackUserCache.get(t.user) : undefined;
+              return {
+                ts: t.ts!,
+                text: t.text,
+                userEmail: user?.email ?? undefined,
+                userName: user?.name ?? undefined,
+              };
+            });
+
+          const context = await Promise.all(contextPromises);
+
+          const user = anchor.user ? await slackUserCache.get(anchor.user) : undefined;
 
           return {
             channelId: h.channelId,
             ts: rootTs,
             text: anchor.text ?? h.text,
-            userId: anchor.user ?? h.userId,
+            userEmail: user?.email ?? h.userEmail,
+            userName: user?.name ?? h.userName,
             context,
             permalink,
           };
@@ -220,13 +277,27 @@ const searchSlack: slackUserSearchSlackFunction = async ({
             fetchContextWindow(client, h.channelId, h.ts),
             getPermalink(client, h.channelId, h.ts),
           ]);
-          const context = ctx.filter(t => t.ts).map(t => ({ ts: t.ts!, text: t.text, userId: t.user }));
+          const contextPromises = ctx
+            .filter(t => t.ts)
+            .map(async t => {
+              const user = t.user ? await slackUserCache.get(t.user) : undefined;
+              return {
+                ts: t.ts!,
+                text: t.text,
+                userEmail: user?.email ?? undefined,
+                userName: user?.name ?? undefined,
+              };
+            });
+          const context = await Promise.all(contextPromises);
+
+          const user = anchor?.user ? await slackUserCache.get(anchor.user) : undefined;
 
           return {
             channelId: h.channelId,
             ts: h.ts,
             text: anchor?.text ?? h.text,
-            userId: anchor?.user ?? h.userId,
+            userEmail: user?.email ?? h.userEmail,
+            userName: user?.name ?? h.userName,
             context,
             permalink,
           };
@@ -237,7 +308,8 @@ const searchSlack: slackUserSearchSlackFunction = async ({
           channelId: h.channelId,
           ts: h.ts,
           text: h.text,
-          userId: h.userId,
+          userEmail: h.userEmail,
+          userName: h.userName,
           permalink: await getPermalink(client, h.channelId, h.ts),
         };
       }
