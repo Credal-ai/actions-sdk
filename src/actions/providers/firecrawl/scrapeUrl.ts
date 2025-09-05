@@ -1,4 +1,4 @@
-import FirecrawlApp from "@mendable/firecrawl-js";
+import Firecrawl from "@mendable/firecrawl-js";
 import type {
   firecrawlScrapeUrlFunction,
   firecrawlScrapeUrlParamsType,
@@ -14,14 +14,14 @@ const scrapeUrl: firecrawlScrapeUrlFunction = async ({
   params: firecrawlScrapeUrlParamsType;
   authParams: AuthParamsType;
 }): Promise<firecrawlScrapeUrlOutputType> => {
-  const firecrawl = new FirecrawlApp({
+  const firecrawl = new Firecrawl({
     apiKey: authParams.apiKey,
   });
 
-  const result = await firecrawl.scrapeUrl(params.url);
+  const result = await firecrawl.scrape(params.url);
 
   return firecrawlScrapeUrlOutputSchema.parse({
-    content: result.success ? result.markdown : "",
+    content: result.markdown || "",
   });
 };
 
