@@ -6,6 +6,10 @@ import {
   type AuthParamsType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import pLimit from "p-limit";
+
+const HIT_ENRICH_POOL = 10;
+const limitHit = pLimit(HIT_ENRICH_POOL);
 
 /* ===================== Public Types ===================== */
 
@@ -55,13 +59,16 @@ function timeFilter(range?: TimeRange): string {
 
 async function lookupUserIdsByEmail(client: WebClient, emails: string[]): Promise<string[]> {
   const ids: string[] = [];
-  for (const raw of emails) {
+  const tasks = emails.map(async raw => {
     const email = raw.trim();
-    if (!email) continue;
+    if (!email) return null;
     const res = await client.users.lookupByEmail({ email });
     const id = res.user?.id;
-    if (id) ids.push(id);
-  }
+    if (id) return id;
+    return null;
+  });
+  const settled = await Promise.allSettled(tasks);
+  for (const r of settled) if (r.status === "fulfilled" && r.value) ids.push(r.value);
   return ids;
 }
 
@@ -148,7 +155,7 @@ const searchSlack: slackUserSearchSlackFunction = async ({
 
   if (emails?.length) {
     const userIds = await lookupUserIdsByEmail(client, emails);
-    const {user_id: myUserId } = await client.auth.test();
+    const { user_id: myUserId } = await client.auth.test();
 
     if (!myUserId) throw new Error("Failed to get my user ID.");
 
@@ -183,54 +190,64 @@ const searchSlack: slackUserSearchSlackFunction = async ({
     userId: m.user,
   }));
 
-  const results: SlackSearchMessage[] = [];
-  for (const h of hits) {
-    if (!h.ts) continue;
-    try {
-      const anchor = await fetchOneMessage(client, h.channelId, h.ts);
-      const rootTs = anchor?.thread_ts || h.ts;
+  const tasks = hits.map(h =>
+    limitHit(async () => {
+      if (!h.ts) return null;
 
-      if (anchor?.thread_ts) {
-        const thread = await fetchThread(client, h.channelId, rootTs);
-        const normalizedThreads = [];
-        for (const t of thread) {
-          if (!t.ts) continue;
-          normalizedThreads.push({ ts: t.ts, text: t.text, userId: t.user });
+      try {
+        const anchor = await fetchOneMessage(client, h.channelId, h.ts);
+        const rootTs = anchor?.thread_ts || h.ts;
+
+        if (anchor?.thread_ts) {
+          // thread: fetch thread + permalink concurrently
+          const [thread, permalink] = await Promise.all([
+            fetchThread(client, h.channelId, rootTs),
+            getPermalink(client, h.channelId, rootTs),
+          ]);
+          const context = thread.filter(t => t.ts).map(t => ({ ts: t.ts!, text: t.text, userId: t.user }));
+
+          return {
+            channelId: h.channelId,
+            ts: rootTs,
+            text: anchor.text ?? h.text,
+            userId: anchor.user ?? h.userId,
+            context,
+            permalink,
+          };
+        } else {
+          // not a thread: fetch context window + permalink concurrently
+          const [ctx, permalink] = await Promise.all([
+            fetchContextWindow(client, h.channelId, h.ts),
+            getPermalink(client, h.channelId, h.ts),
+          ]);
+          const context = ctx.filter(t => t.ts).map(t => ({ ts: t.ts!, text: t.text, userId: t.user }));
+
+          return {
+            channelId: h.channelId,
+            ts: h.ts,
+            text: anchor?.text ?? h.text,
+            userId: anchor?.user ?? h.userId,
+            context,
+            permalink,
+          };
         }
-        results.push({
-          channelId: h.channelId,
-          ts: rootTs,
-          text: anchor.text ?? h.text,
-          userId: anchor.user ?? h.userId,
-          context: normalizedThreads,
-          permalink: await getPermalink(client, h.channelId, rootTs),
-        });
-      } else {
-        const ctx = await fetchContextWindow(client, h.channelId, h.ts);
-        const normalizedThreads = [];
-        for (const t of ctx) {
-          if (!t.ts) continue;
-          normalizedThreads.push({ ts: t.ts, text: t.text, userId: t.user });
-        }
-        results.push({
+      } catch {
+        // fallback minimal object; still in parallel
+        return {
           channelId: h.channelId,
           ts: h.ts,
-          text: anchor?.text ?? h.text,
-          userId: anchor?.user ?? h.userId,
-          context: normalizedThreads,
+          text: h.text,
+          userId: h.userId,
           permalink: await getPermalink(client, h.channelId, h.ts),
-        });
+        };
       }
-    } catch {
-      results.push({
-        channelId: h.channelId,
-        ts: h.ts,
-        text: h.text,
-        userId: h.userId,
-        permalink: await getPermalink(client, h.channelId, h.ts),
-      });
-    }
-  }
+    }),
+  );
+
+  const settled = await Promise.allSettled(tasks);
+
+  const results: SlackSearchMessage[] = [];
+  for (const r of settled) if (r.status === "fulfilled" && r.value) results.push(r.value);
 
   results.sort((a, b) => Number(b.ts) - Number(a.ts));
   return { query, results };

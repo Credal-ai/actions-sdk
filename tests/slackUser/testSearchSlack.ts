@@ -9,7 +9,7 @@ async function runTest() {
     "searchSlack",
     "slackUser",
     { authToken: process.env.SLACK_AUTH_TOKEN },
-    { emails: ["jack@credal.ai"], limit: 1, topic: "flatiron" },
+    { emails: ["jack@credal.ai"], limit: 10, topic: "flatiron" },
   );
 
   // Multiple person DM
