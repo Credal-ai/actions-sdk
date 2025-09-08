@@ -34,7 +34,7 @@ export async function runAction(
  */
 
 export function getActions(): ActionTemplate[] {
-  return Object.values(templates) as ActionTemplate[];
+  return Object.values(templates);
 }
 
 export function getActionByProviderAndName(provider: string, name: string): ActionTemplate | undefined {
