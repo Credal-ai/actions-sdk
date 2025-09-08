@@ -5864,6 +5864,49 @@ actions:
           error:
             type: string
             description: Error message if the workflow trigger failed.
+  oktaOrg:
+    getOktaUserByName:
+      description: Retrieve details of a specific Okta user by their name.
+      scopes:
+        - okta.users.read
+      parameters:
+        type: object
+        required:
+          - name
+        properties:
+          name:
+            type: string
+            description: The ID of the user to retrieve.
+      output:
+        type: object
+        required:
+          - success
+        properties:
+          success:
+            type: boolean
+            description: Whether the user details were successfully retrieved.
+          user:
+            type: object
+            required: [id, email]
+            properties:
+              id:
+                type: string
+                description: The user's Okta ID
+              email:
+                type: string
+                description: The user's email address
+              title:
+                type: string
+                description: The user's title
+              division:
+                type: string
+                description: The user's division
+              department:
+                type: string
+                description: The user's department
+          error:
+            type: string
+            description: Error message if retrieval failed.
 
   gong:
     getGongTranscripts:

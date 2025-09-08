@@ -25,6 +25,7 @@ export enum ProviderName {
   GOOGLEOAUTH = "googleOauth",
   GOOGLEMAIL = "googlemail",
   OKTA = "okta",
+  OKTAORG = "oktaOrg",
   GONG = "gong",
   FINNHUB = "finnhub",
   LOOKER = "looker",
@@ -448,7 +449,8 @@ export const slackUserSearchSlackOutputSchema = z.object({
         channelId: z.string().describe("Slack channel/conversation ID (C…/G…/D… or name)."),
         ts: z.string().describe("Slack message timestamp of the hit (or thread root when hydrated as thread)."),
         text: z.string().describe("Message text of the anchor (hit or thread root).").optional(),
-        userId: z.string().describe("User ID of the anchor message’s author (if available).").optional(),
+        userEmail: z.string().describe("User email of the anchor message’s author (if available).").optional(),
+        userName: z.string().describe("User name of the anchor message’s author (if available).").optional(),
         permalink: z
           .string()
           .describe("A Slack permalink to the anchor (message or thread root), if resolvable.")
@@ -458,7 +460,8 @@ export const slackUserSearchSlackOutputSchema = z.object({
             z.object({
               ts: z.string().describe("Timestamp of the contextual message."),
               text: z.string().describe("Text of the contextual message.").optional(),
-              userId: z.string().describe("Author user ID of the contextual message.").optional(),
+              userEmail: z.string().describe("Author user email of the contextual message.").optional(),
+              userName: z.string().describe("Author user name of the contextual message.").optional(),
             }),
           )
           .describe(
@@ -4527,6 +4530,33 @@ export type oktaTriggerOktaWorkflowFunction = ActionFunction<
   oktaTriggerOktaWorkflowParamsType,
   AuthParamsType,
   oktaTriggerOktaWorkflowOutputType
+>;
+
+export const oktaOrgGetOktaUserByNameParamsSchema = z.object({
+  name: z.string().describe("The ID of the user to retrieve."),
+});
+
+export type oktaOrgGetOktaUserByNameParamsType = z.infer<typeof oktaOrgGetOktaUserByNameParamsSchema>;
+
+export const oktaOrgGetOktaUserByNameOutputSchema = z.object({
+  success: z.boolean().describe("Whether the user details were successfully retrieved."),
+  user: z
+    .object({
+      id: z.string().describe("The user's Okta ID"),
+      email: z.string().describe("The user's email address"),
+      title: z.string().describe("The user's title").optional(),
+      division: z.string().describe("The user's division").optional(),
+      department: z.string().describe("The user's department").optional(),
+    })
+    .optional(),
+  error: z.string().describe("Error message if retrieval failed.").optional(),
+});
+
+export type oktaOrgGetOktaUserByNameOutputType = z.infer<typeof oktaOrgGetOktaUserByNameOutputSchema>;
+export type oktaOrgGetOktaUserByNameFunction = ActionFunction<
+  oktaOrgGetOktaUserByNameParamsType,
+  AuthParamsType,
+  oktaOrgGetOktaUserByNameOutputType
 >;
 
 export const gongGetGongTranscriptsParamsSchema = z.object({

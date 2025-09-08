@@ -302,6 +302,8 @@ import {
   perplexityPerplexityDeepResearchOutputSchema,
   slackUserSearchSlackParamsSchema,
   slackUserSearchSlackOutputSchema,
+  oktaOrgGetOktaUserByNameParamsSchema,
+  oktaOrgGetOktaUserByNameOutputSchema,
 } from "./autogen/types.js";
 import validateAddress from "./providers/googlemaps/validateAddress.js";
 import add from "./providers/math/add.js";
@@ -453,6 +455,7 @@ import firecrawlGetTopNSearchResultUrls from "./providers/firecrawl/getTopNSearc
 import searchDriveByKeywordsAndGetFileContent from "./providers/google-oauth/searchDriveByKeywordsAndGetFileContent.js";
 import perplexityDeepResearch from "./providers/perplexity/perplexityDeepResearch.js";
 import searchSlack from "./providers/slackUser/searchSlack.js";
+import getOktaUserByName from "./providers/oktaOrg/getOktaUserByName.js";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -1192,6 +1195,13 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: triggerOktaWorkflow,
       paramsSchema: oktaTriggerOktaWorkflowParamsSchema,
       outputSchema: oktaTriggerOktaWorkflowOutputSchema,
+    },
+  },
+  oktaOrg: {
+    getOktaUserByName: {
+      fn: getOktaUserByName,
+      paramsSchema: oktaOrgGetOktaUserByNameParamsSchema,
+      outputSchema: oktaOrgGetOktaUserByNameOutputSchema,
     },
   },
   gitlab: {

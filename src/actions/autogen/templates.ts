@@ -801,9 +801,13 @@ export const slackUserSearchSlackDefinition: ActionTemplate = {
               type: "string",
               description: "Message text of the anchor (hit or thread root).",
             },
-            userId: {
+            userEmail: {
               type: "string",
-              description: "User ID of the anchor message’s author (if available).",
+              description: "User email of the anchor message’s author (if available).",
+            },
+            userName: {
+              type: "string",
+              description: "User name of the anchor message’s author (if available).",
             },
             permalink: {
               type: "string",
@@ -825,9 +829,13 @@ export const slackUserSearchSlackDefinition: ActionTemplate = {
                     type: "string",
                     description: "Text of the contextual message.",
                   },
-                  userId: {
+                  userEmail: {
                     type: "string",
-                    description: "Author user ID of the contextual message.",
+                    description: "Author user email of the contextual message.",
+                  },
+                  userName: {
+                    type: "string",
+                    description: "Author user name of the contextual message.",
                   },
                 },
               },
@@ -8881,6 +8889,62 @@ export const oktaTriggerOktaWorkflowDefinition: ActionTemplate = {
   },
   name: "triggerOktaWorkflow",
   provider: "okta",
+};
+export const oktaOrgGetOktaUserByNameDefinition: ActionTemplate = {
+  description: "Retrieve details of a specific Okta user by their name.",
+  scopes: ["okta.users.read"],
+  parameters: {
+    type: "object",
+    required: ["name"],
+    properties: {
+      name: {
+        type: "string",
+        description: "The ID of the user to retrieve.",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the user details were successfully retrieved.",
+      },
+      user: {
+        type: "object",
+        required: ["id", "email"],
+        properties: {
+          id: {
+            type: "string",
+            description: "The user's Okta ID",
+          },
+          email: {
+            type: "string",
+            description: "The user's email address",
+          },
+          title: {
+            type: "string",
+            description: "The user's title",
+          },
+          division: {
+            type: "string",
+            description: "The user's division",
+          },
+          department: {
+            type: "string",
+            description: "The user's department",
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "Error message if retrieval failed.",
+      },
+    },
+  },
+  name: "getOktaUserByName",
+  provider: "oktaOrg",
 };
 export const gongGetGongTranscriptsDefinition: ActionTemplate = {
   description: "Get sales call transcripts from Gong",
