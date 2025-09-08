@@ -39,9 +39,7 @@ export function getActions(): ActionTemplate[] {
 
 export function getActionByProviderAndName(provider: string, name: string): ActionTemplate | undefined {
   const allActions = getActions();
-  const actionTemplate = allActions.find(
-    x => x.name == name && x.provider == provider,
-  ) as ActionTemplate;
+  const actionTemplate = allActions.find(x => x.name == name && x.provider == provider) as ActionTemplate;
 
   return actionTemplate;
 }
