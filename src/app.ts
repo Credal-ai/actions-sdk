@@ -14,9 +14,9 @@ export async function runAction(
     throw Error("Missing params");
   }
 
-  const actionTemplate = await getActionByProviderAndName(provider, name);
+  const actionTemplate = getActionByProviderAndName(provider, name);
   if (!actionTemplate) {
-    throw Error(`Action with name ${name} does not exist`);
+    throw Error(`Action template with name ${name} does not exist`);
   }
 
   const result = await invokeAction({
@@ -37,14 +37,11 @@ export function getActions(): ActionTemplate[] {
   return Object.values(templates) as ActionTemplate[];
 }
 
-export function getActionByProviderAndName(provider: string, name: string): ActionTemplate {
+export function getActionByProviderAndName(provider: string, name: string): ActionTemplate | undefined {
   const allActions = getActions();
   const actionTemplate = allActions.find(
-    x => (x as ActionTemplate).name == name && (x as ActionTemplate).provider == provider,
+    x => x.name == name && x.provider == provider,
   ) as ActionTemplate;
-  if (!actionTemplate) {
-    throw Error(`Action with name ${name} does not exist`);
-  }
 
   return actionTemplate;
 }
