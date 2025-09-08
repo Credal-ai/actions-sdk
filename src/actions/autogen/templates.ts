@@ -8899,7 +8899,7 @@ export const oktaOrgGetOktaUserByNameDefinition: ActionTemplate = {
     properties: {
       name: {
         type: "string",
-        description: "The ID of the user to retrieve.",
+        description: "The name of the user to retrieve.",
       },
     },
   },

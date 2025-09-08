@@ -4533,7 +4533,7 @@ export type oktaTriggerOktaWorkflowFunction = ActionFunction<
 >;
 
 export const oktaOrgGetOktaUserByNameParamsSchema = z.object({
-  name: z.string().describe("The ID of the user to retrieve."),
+  name: z.string().describe("The name of the user to retrieve."),
 });
 
 export type oktaOrgGetOktaUserByNameParamsType = z.infer<typeof oktaOrgGetOktaUserByNameParamsSchema>;
