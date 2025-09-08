@@ -18,7 +18,11 @@ const scrapeUrl: firecrawlScrapeUrlFunction = async ({
     apiKey: authParams.apiKey,
   });
 
-  const result = await firecrawl.scrapeUrl(params.url);
+  const result = await firecrawl.scrapeUrl(params.url, {
+    ...(params.waitMs !== undefined && {
+      actions: [{ type: "wait", milliseconds: params.waitMs }],
+    }),
+  });
 
   return firecrawlScrapeUrlOutputSchema.parse({
     content: result.success ? result.markdown : "",

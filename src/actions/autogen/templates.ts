@@ -3214,6 +3214,11 @@ export const firecrawlScrapeUrlDefinition: ActionTemplate = {
         type: "string",
         description: "The URL to scrape",
       },
+      waitMs: {
+        type: "number",
+        description: "Optional wait time in milliseconds before scraping the page",
+        minimum: 0,
+      },
     },
   },
   output: {

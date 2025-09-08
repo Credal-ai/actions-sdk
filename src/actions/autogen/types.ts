@@ -1662,7 +1662,10 @@ export type firecrawlDeepResearchFunction = ActionFunction<
   firecrawlDeepResearchOutputType
 >;
 
-export const firecrawlScrapeUrlParamsSchema = z.object({ url: z.string().describe("The URL to scrape") });
+export const firecrawlScrapeUrlParamsSchema = z.object({
+  url: z.string().describe("The URL to scrape"),
+  waitMs: z.number().gte(0).describe("Optional wait time in milliseconds before scraping the page").optional(),
+});
 
 export type firecrawlScrapeUrlParamsType = z.infer<typeof firecrawlScrapeUrlParamsSchema>;
 

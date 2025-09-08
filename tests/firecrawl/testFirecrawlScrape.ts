@@ -11,6 +11,7 @@ async function runTest() {
     { apiKey: process.env.FIRECRAWL_API_KEY }, // authParams
     {
       url: "https://carbonenewyork.com",
+      waitMs: 2000, // Wait 2 seconds before scraping
     },
   );
   console.log(result);
