@@ -10,12 +10,13 @@ async function runTest() {
     "firecrawl",
     { apiKey: process.env.FIRECRAWL_API_KEY }, // authParams
     {
-      url: "https://carbonenewyork.com",
+      url: "credal.ai",
       waitMs: 2000, // Wait 2 seconds before scraping
+      onlyMainContent: true, // Test the new optional parameter
+      formats: [], // Test the new optional parameter
     },
   );
   console.log(result);
   assert(result.content.length > 0, "No content found");
 }
-
 runTest().catch(console.error);

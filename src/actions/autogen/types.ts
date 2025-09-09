@@ -1665,6 +1665,27 @@ export type firecrawlDeepResearchFunction = ActionFunction<
 export const firecrawlScrapeUrlParamsSchema = z.object({
   url: z.string().describe("The URL to scrape"),
   waitMs: z.number().gte(0).describe("Optional wait time in milliseconds before scraping the page").optional(),
+  onlyMainContent: z
+    .boolean()
+    .describe("Extract only the main content of the page, excluding headers, footers, and navigation")
+    .optional(),
+  formats: z
+    .array(
+      z.enum([
+        "content",
+        "json",
+        "html",
+        "screenshot",
+        "markdown",
+        "rawHtml",
+        "links",
+        "screenshot@fullPage",
+        "extract",
+        "changeTracking",
+      ]),
+    )
+    .describe("Array of formats to return")
+    .optional(),
 });
 
 export type firecrawlScrapeUrlParamsType = z.infer<typeof firecrawlScrapeUrlParamsSchema>;

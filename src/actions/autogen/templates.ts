@@ -3219,6 +3219,29 @@ export const firecrawlScrapeUrlDefinition: ActionTemplate = {
         description: "Optional wait time in milliseconds before scraping the page",
         minimum: 0,
       },
+      onlyMainContent: {
+        type: "boolean",
+        description: "Extract only the main content of the page, excluding headers, footers, and navigation",
+      },
+      formats: {
+        type: "array",
+        description: "Array of formats to return",
+        items: {
+          type: "string",
+          enum: [
+            "content",
+            "json",
+            "html",
+            "screenshot",
+            "markdown",
+            "rawHtml",
+            "links",
+            "screenshot@fullPage",
+            "extract",
+            "changeTracking",
+          ],
+        },
+      },
     },
   },
   output: {
