@@ -31,7 +31,8 @@ const searchAndScrape: firecrawlSearchAndScrapeFunction = async ({
 
   const webResults = (searchRes.web ?? []) as Document[];
 
-  const results = webResults.map(r => {
+  const results = webResults
+    .map(r => {
       const url = r.metadata?.url as string;
       const contents = r.markdown;
       const title = r.metadata?.title ?? null;

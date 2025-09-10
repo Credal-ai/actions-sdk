@@ -20,7 +20,7 @@ type FirecrawlPollResponse = {
   error?: string;
 };
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
 const deepResearch: firecrawlDeepResearchFunction = async ({
   params,
@@ -76,9 +76,7 @@ const deepResearch: firecrawlDeepResearchFunction = async ({
     }
 
     if (data.status === "failed" || data.status === "cancelled") {
-      throw new Error(
-        `Deep research ${data.status}. ${data.error ? `Reason: ${data.error}` : ""}`.trim(),
-      );
+      throw new Error(`Deep research ${data.status}. ${data.error ? `Reason: ${data.error}` : ""}`.trim());
     }
 
     // queued | running

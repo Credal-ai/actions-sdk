@@ -33,7 +33,8 @@ const getTopNSearchResultUrls: firecrawlGetTopNSearchResultUrlsFunction = async 
     // Map Firecrawl results into a Bing-like shape your schema expects
 
     const webResults = (res.web ?? []) as Document[];
-    const results = webResults.filter(r => r?.metadata?.url)
+    const results = webResults
+      .filter(r => r?.metadata?.url)
       .map(r => ({
         name: r.metadata?.title ?? (r.metadata?.url as string),
         url: r.metadata?.url as string,
