@@ -38,21 +38,31 @@ const getOktaUserByName: oktaOrgGetOktaUserByNameFunction = async ({
     const endpointUrl = new URL(`/api/v1/users`, baseUrl).toString();
     const response = await axiosClient.get(endpointUrl, requestConfig);
 
-    if (response.status === 200 && response.data && response.data.length > 0) {
-      const user = response.data[0];
+    if (response.status !== 200) {
       return {
-        success: true,
-        user: {
-          id: user.id,
-          email: user.profile.email,
-          title: user.profile.title,
-          division: user.profile.division,
-          department: user.profile.department,
-        },
+        success: false,
+        error: `Failed to retrieve user details: ${response.data}`,
       };
-    } else {
-      return { success: false, error: "Failed to retrieve user details" };
     }
+
+    if (response.data.length === 0) {
+      return {
+        success: false,
+        error: `No user found with name: ${params.name}`,
+      };
+    }
+
+    const user = response.data[0];
+    return {
+      success: true,
+      user: {
+        id: user.id,
+        email: user.profile.email,
+        title: user.profile.title,
+        division: user.profile.division,
+        department: user.profile.department,
+      },
+    };
   } catch (error) {
     console.error("Error retrieving user details:", error);
     return { success: false, error: error instanceof Error ? error.message : "Unknown error occurred" };
