@@ -1,4 +1,4 @@
-import FirecrawlApp from "@mendable/firecrawl-js";
+import FirecrawlApp, { type Document } from "@mendable/firecrawl-js";
 import type {
   firecrawlSearchAndScrapeOutputType,
   firecrawlSearchAndScrapeParamsType,
@@ -29,15 +29,12 @@ const searchAndScrape: firecrawlSearchAndScrapeFunction = async ({
     },
   });
 
-  if (!searchRes?.success) {
-    return { results: [] };
-  }
+  const webResults = (searchRes.web ?? []) as Document[];
 
-  const results = searchRes.data
-    .map(r => {
-      const url = r.url;
+  const results = webResults.map(r => {
+      const url = r.metadata?.url as string;
       const contents = r.markdown;
-      const title = r.title ?? r.metadata?.title ?? null;
+      const title = r.metadata?.title ?? null;
       if (!url || !contents || !title) return undefined;
       return { url, title, contents };
     })
