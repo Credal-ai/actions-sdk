@@ -1670,20 +1670,7 @@ export const firecrawlScrapeUrlParamsSchema = z.object({
     .describe("Extract only the main content of the page, excluding headers, footers, and navigation")
     .optional(),
   formats: z
-    .array(
-      z.enum([
-        "content",
-        "json",
-        "html",
-        "screenshot",
-        "markdown",
-        "rawHtml",
-        "links",
-        "screenshot@fullPage",
-        "extract",
-        "changeTracking",
-      ]),
-    )
+    .array(z.enum(["json", "html", "screenshot", "markdown", "rawHtml", "links", "changeTracking"]))
     .describe("Array of formats to return")
     .optional(),
 });

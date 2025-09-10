@@ -1848,7 +1848,7 @@ actions:
             description: Array of formats to return
             items:
               type: string
-              enum: ["json", "html", "screenshot", "markdown", "rawHtml", "links", "screenshot@fullPage", "extract", "changeTracking"]
+              enum: ["json", "html", "screenshot", "markdown", "rawHtml", "links", "changeTracking"]
       output:
         type: object
         required: [content]

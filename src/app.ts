@@ -10,15 +10,18 @@ export async function runAction(
   // eslint-disable-next-line
   parameters: Record<string, any>,
 ) {
+  console.log("Running action: ", name, provider, parameters, authentication);
   if (!parameters || !name || !provider) {
     throw Error("Missing params");
   }
 
+  console.log("Running action: ", name, provider, parameters, authentication);
   const actionTemplate = getActionByProviderAndName(provider, name);
+  console.log("Action template: ", actionTemplate);
   if (!actionTemplate) {
     throw Error(`Action template with name ${name} does not exist`);
   }
-
+  console.log("Invoking action: ", actionTemplate.name, actionTemplate.provider, parameters, authentication);
   const result = await invokeAction({
     provider: actionTemplate.provider,
     name: actionTemplate.name,
