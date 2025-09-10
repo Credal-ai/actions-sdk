@@ -17,9 +17,4 @@ async function runTest() {
   console.log(result);
 }
 
-runTest().catch((err) => {
-  console.error("ERROR TYPE:", typeof err);
-  console.error("ERROR KEYS:", Object.keys(err));
-  console.error("ERROR FULL:", JSON.stringify(err, null, 2));
-  console.error("RAW ERROR:", err);
-});
+runTest().catch(console.error);
