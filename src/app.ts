@@ -10,7 +10,6 @@ export async function runAction(
   // eslint-disable-next-line
   parameters: Record<string, any>,
 ) {
-  console.log("Running action: ", name, provider, parameters, authentication);
   if (!parameters || !name || !provider) {
     throw Error("Missing params");
   }
