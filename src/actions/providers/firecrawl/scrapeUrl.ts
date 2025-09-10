@@ -29,6 +29,7 @@ const scrapeUrl: firecrawlScrapeUrlFunction = async ({
       params.formats.length > 0 && {
         formats: params.formats,
       }),
+    zeroDataRetention: true,
   });
 
   console.log("Result is: ", result);

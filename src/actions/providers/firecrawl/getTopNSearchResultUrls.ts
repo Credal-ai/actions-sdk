@@ -1,4 +1,4 @@
-import FirecrawlApp, { type Document } from "@mendable/firecrawl-js";
+import FirecrawlApp, { type SearchResultWeb } from "@mendable/firecrawl-js";
 import type {
   AuthParamsType,
   firecrawlGetTopNSearchResultUrlsFunction,
@@ -32,13 +32,11 @@ const getTopNSearchResultUrls: firecrawlGetTopNSearchResultUrlsFunction = async 
 
     // Map Firecrawl results into a Bing-like shape your schema expects
 
-    const webResults = (res.web ?? []) as Document[];
-    const results = webResults
-      .filter(r => r?.metadata?.url)
-      .map(r => ({
-        name: r.metadata?.title ?? (r.metadata?.url as string),
-        url: r.metadata?.url as string,
-      }));
+    const webResults = (res.web ?? []) as SearchResultWeb[];
+    const results = webResults.map(r => ({
+      name: r.title ?? r.url,
+      url: r.url,
+    }));
 
     return { results };
   } catch (error) {
