@@ -10,5 +10,8 @@ export async function extractTextFromPdf(buffer: ArrayBuffer | Uint8Array | Buff
   const nodeBuf = toNodeBuffer(buffer);
   const { text } = await pdf(nodeBuf);
   // pdf-parse separates pages with form feed (\f)
-  return text.split("\f").map(page => page.trim()).join("\n\n");
+  return text
+    .split("\f")
+    .map(page => page.trim())
+    .join("\n\n");
 }
