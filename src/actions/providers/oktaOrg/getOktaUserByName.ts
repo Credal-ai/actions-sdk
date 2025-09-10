@@ -23,15 +23,29 @@ const getOktaUserByName: oktaOrgGetOktaUserByNameFunction = async ({
     };
   }
 
+  let searchExpression: string;
+  const tokens = params.name.trim().split(/\s+/);
+  if (tokens.length === 1) {
+    // Search first OR last name starts with token
+    const t = tokens[0].replace(/"/g, '\\"');
+    console.log("Filter is: ", `profile.firstName sw "${t}" or profile.lastName sw "${t}"`);
+    searchExpression = `profile.firstName sw "${t}" or profile.lastName sw "${t}"`;
+  } else {
+    // Use first and last tokens; ignore middles
+    const first = tokens[0].replace(/"/g, '\\"');
+    const last = tokens[tokens.length - 1].replace(/"/g, '\\"');
+    // choose sw (startsWith) or eq (exact) as you prefer
+    searchExpression = `profile.firstName sw "${first}" and profile.lastName sw "${last}"`;
+  }
+
   try {
     const requestConfig: AxiosRequestConfig = {
       headers: {
         Authorization: `Bearer ${authToken}`,
         Accept: "application/json",
-        "Content-Type": "application/json",
       },
       params: {
-        q: params.name,
+        search: searchExpression,
       },
     };
 
@@ -44,6 +58,8 @@ const getOktaUserByName: oktaOrgGetOktaUserByNameFunction = async ({
         error: `Failed to retrieve user details: ${response.data}`,
       };
     }
+
+    console.log("Response is: ", response.data);
 
     if (response.data.length === 0) {
       return {
