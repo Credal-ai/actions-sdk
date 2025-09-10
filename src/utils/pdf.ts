@@ -1,4 +1,3 @@
-// npm i pdf-parse
 import pdf from "pdf-parse";
 
 function toNodeBuffer(input: ArrayBuffer | Uint8Array | Buffer): Buffer {
