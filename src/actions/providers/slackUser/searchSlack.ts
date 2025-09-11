@@ -220,7 +220,6 @@ const searchSlack: slackUserSearchSlackFunction = async ({
   const count = Math.max(1, Math.min(100, limit));
   const searchRes = await client.search.messages({ query, count, highlight: true });
   const matches = searchRes.messages?.matches ?? [];
-  console.log("Matches are: ", matches);
 
   const hitsPromises = matches.slice(0, limit).map(async m => {
     const user = m.user ? await slackUserCache.get(m.user) : undefined;
