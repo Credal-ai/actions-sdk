@@ -11,8 +11,6 @@ import pLimit from "p-limit";
 const HIT_ENRICH_POOL = 5;
 const limitHit = pLimit(HIT_ENRICH_POOL);
 
-let apiCallCount = 0;
-
 /* ===================== Public Types ===================== */
 
 export type TimeRange = "latest" | "today" | "yesterday" | "last_7d" | "last_30d" | "all";
@@ -136,8 +134,6 @@ async function fetchOneMessage(client: WebClient, channel: string, ts: string): 
     inclusive: true,
     limit: 1,
   });
-  apiCallCount++;
-  console.log("API call count: ", apiCallCount);
   return (r.messages && r.messages[0]) || undefined;
 }
 
@@ -161,8 +157,6 @@ async function fetchContextWindow(client: WebClient, channel: string, ts: string
     inclusive: false,
     limit: 4,
   });
-  apiCallCount++;
-  console.log("API call count: ", apiCallCount);
   out.push(...(beforeRes.messages ?? []).reverse());
 
   out.push(anchor);
@@ -173,8 +167,6 @@ async function fetchContextWindow(client: WebClient, channel: string, ts: string
     inclusive: false,
     limit: 5,
   });
-  apiCallCount++;
-  console.log("API call count: ", apiCallCount);
   out.push(...(afterRes.messages ?? []));
 
   return out;
