@@ -68,7 +68,6 @@ function normalizeChannelOperand(ch: string): string {
   return s.replace(/^#/, "");
 }
 
-
 function fmtDaysAgo(n: number) {
   const d = new Date();
   d.setDate(d.getDate() - n);
@@ -77,11 +76,16 @@ function fmtDaysAgo(n: number) {
 
 function timeFilter(range?: TimeRange) {
   switch (range) {
-    case "today": return "on:today";
-    case "yesterday": return "on:yesterday";
-    case "last_7d": return `after:${fmtDaysAgo(7)}`;
-    case "last_30d": return `after:${fmtDaysAgo(30)}`;
-    default: return "";
+    case "today":
+      return "on:today";
+    case "yesterday":
+      return "on:yesterday";
+    case "last_7d":
+      return `after:${fmtDaysAgo(7)}`;
+    case "last_30d":
+      return `after:${fmtDaysAgo(30)}`;
+    default:
+      return "";
   }
 }
 
