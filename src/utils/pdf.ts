@@ -1,17 +1,27 @@
-import pdf from "pdf-parse";
+// npm i pdfjs-dist
+import { getDocument } from "pdfjs-dist";
 
-function toNodeBuffer(input: ArrayBuffer | Uint8Array | Buffer): Buffer {
-  if (Buffer.isBuffer(input)) return input;
-  if (input instanceof Uint8Array) return Buffer.from(input);
-  return Buffer.from(new Uint8Array(input));
-}
+export async function extractTextFromPdf(input: ArrayBuffer | Uint8Array): Promise<string> {
+  const data = input instanceof Uint8Array ? input : new Uint8Array(input);
 
-export async function extractTextFromPdf(buffer: ArrayBuffer | Uint8Array | Buffer): Promise<string> {
-  const nodeBuf = toNodeBuffer(buffer);
-  const { text } = await pdf(nodeBuf);
-  // pdf-parse separates pages with form feed (\f)
-  return text
-    .split("\f")
-    .map(page => page.trim())
-    .join("\n\n");
+  // Load PDF
+  const loadingTask = getDocument({ data });
+  const pdf = await loadingTask.promise;
+
+  const pages: string[] = [];
+
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+
+    // content.items is typed as TextItem | TextMarkedContent
+    const strings = content.items
+      .map((item) => ("str" in item ? item.str : ""))
+      .join(" ");
+
+    pages.push(strings.trim());
+  }
+
+  await pdf.destroy();
+  return pages.join("\n\n");
 }
