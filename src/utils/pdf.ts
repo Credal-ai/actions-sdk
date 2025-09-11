@@ -15,9 +15,7 @@ export async function extractTextFromPdf(input: ArrayBuffer | Uint8Array): Promi
     const content = await page.getTextContent();
 
     // content.items is typed as TextItem | TextMarkedContent
-    const strings = content.items
-      .map((item) => ("str" in item ? item.str : ""))
-      .join(" ");
+    const strings = content.items.map(item => ("str" in item ? item.str : "")).join(" ");
 
     pages.push(strings.trim());
   }
