@@ -8,8 +8,10 @@ import {
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import pLimit from "p-limit";
 
-const HIT_ENRICH_POOL = 10;
+const HIT_ENRICH_POOL = 5;
 const limitHit = pLimit(HIT_ENRICH_POOL);
+
+let apiCallCount = 0;
 
 /* ===================== Public Types ===================== */
 
@@ -68,18 +70,20 @@ function normalizeChannelOperand(ch: string): string {
   return s.replace(/^#/, "");
 }
 
-function timeFilter(range?: TimeRange): string {
+
+function fmtDaysAgo(n: number) {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.toISOString().slice(0, 10); // YYYY-MM-DD
+}
+
+function timeFilter(range?: TimeRange) {
   switch (range) {
-    case "today":
-      return "after:today";
-    case "yesterday":
-      return "after:yesterday";
-    case "last_7d":
-      return "after:7 days ago";
-    case "last_30d":
-      return "after:30 days ago";
-    default:
-      return "";
+    case "today": return "on:today";
+    case "yesterday": return "on:yesterday";
+    case "last_7d": return `after:${fmtDaysAgo(7)}`;
+    case "last_30d": return `after:${fmtDaysAgo(30)}`;
+    default: return "";
   }
 }
 
@@ -132,6 +136,8 @@ async function fetchOneMessage(client: WebClient, channel: string, ts: string): 
     inclusive: true,
     limit: 1,
   });
+  apiCallCount++;
+  console.log("API call count: ", apiCallCount);
   return (r.messages && r.messages[0]) || undefined;
 }
 
@@ -155,6 +161,8 @@ async function fetchContextWindow(client: WebClient, channel: string, ts: string
     inclusive: false,
     limit: 4,
   });
+  apiCallCount++;
+  console.log("API call count: ", apiCallCount);
   out.push(...(beforeRes.messages ?? []).reverse());
 
   out.push(anchor);
@@ -165,6 +173,8 @@ async function fetchContextWindow(client: WebClient, channel: string, ts: string
     inclusive: false,
     limit: 5,
   });
+  apiCallCount++;
+  console.log("API call count: ", apiCallCount);
   out.push(...(afterRes.messages ?? []));
 
   return out;
@@ -218,6 +228,7 @@ const searchSlack: slackUserSearchSlackFunction = async ({
   const count = Math.max(1, Math.min(100, limit));
   const searchRes = await client.search.messages({ query, count, highlight: true });
   const matches = searchRes.messages?.matches ?? [];
+  console.log("Matches are: ", matches);
 
   const hitsPromises = matches.slice(0, limit).map(async m => {
     const user = m.user ? await slackUserCache.get(m.user) : undefined;
