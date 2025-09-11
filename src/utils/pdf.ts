@@ -1,5 +1,5 @@
 // npm i pdfjs-dist
-import { getDocument } from "pdfjs-dist";
+import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 
 export async function extractTextFromPdf(input: ArrayBuffer | Uint8Array): Promise<string> {
   const data = input instanceof Uint8Array ? input : new Uint8Array(input);
