@@ -5,12 +5,14 @@ import type {
 import { runAction } from "../../src/app.js";
 import assert from "node:assert";
 
+// Note: Google Custom Search API uses API key authentication (not OAuth tokens)
+// This is different from other Google APIs that require OAuth 2.0 tokens
 // Configuration
 const apiKey = "insert-api-key"; // generate from https://developers.google.com/custom-search/v1/overview
-const customSearchEngineId = "insert-document-id"; // generate from https://developers.google.com/custom-search/v1/overview
+const customSearchEngineId = "insert-custom-search-engine-id"; // create a new custom search engine https://programmablesearchengine.google.com/controlpanel/create
 
 /**
- * Test for Google Custom Search API
+ * Test for Google Custom Search API using API key authentication
  */
 async function runTest() {
   console.log("Running test customSearch");
@@ -19,7 +21,7 @@ async function runTest() {
     "customSearch",
     "googleOauth",
     {
-      authToken: apiKey,
+      authToken: apiKey, // Use API key instead of OAuth token
     },
     {
       q: "OpenAI GPT", // Search query
@@ -79,11 +81,11 @@ async function runMinimalTest() {
     "customSearch",
     "googleOauth",
     {
-      authToken: process.env.GOOGLE_OAUTH_TOKEN,
+      authToken: apiKey,
     },
     {
       q: "test",
-      cx: process.env.GOOGLE_CUSTOM_SEARCH_ENGINE_ID,
+      cx: customSearchEngineId,
     } as googleOauthCustomSearchParamsType
   );
 
@@ -105,11 +107,11 @@ async function runImageSearchTest() {
     "customSearch",
     "googleOauth",
     {
-      authToken: process.env.GOOGLE_OAUTH_TOKEN,
+      authToken: apiKey,
     },
     {
       q: "cats",
-      cx: process.env.GOOGLE_CUSTOM_SEARCH_ENGINE_ID,
+      cx: customSearchEngineId,
       searchType: "image",
       imgSize: "medium",
       imgType: "photo",

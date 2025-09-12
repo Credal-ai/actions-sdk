@@ -8,6 +8,7 @@ import type {
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
+// https://developers.google.com/custom-search/v1/reference/rest/v1/cse/list#request
 const customSearch: googleOauthCustomSearchFunction = async ({
   params,
   authParams,
@@ -25,10 +26,10 @@ const customSearch: googleOauthCustomSearchFunction = async ({
     // Filter out undefined values from params
     const queryParams = Object.fromEntries(Object.entries(params).filter(([, value]) => value !== undefined));
 
+    // Add API key to query parameters
+    queryParams.key = authParams.authToken;
+
     const res: AxiosResponse = await axiosClient.get(url, {
-      headers: {
-        Authorization: `Bearer ${authParams.authToken}`,
-      },
       params: queryParams,
     });
 
