@@ -35,8 +35,8 @@ const customSearch: googleOauthCustomSearchFunction = async ({
       params: {
         q: query,
         cx: customSearchEngineId,
-        filter: "1",
-        safe: "active",
+        filter: "1", // filter out duplicate content
+        safe: "active", // safe search
         ...filteredParams,
       },
     });
@@ -44,12 +44,14 @@ const customSearch: googleOauthCustomSearchFunction = async ({
     const { items = [], searchInformation } = res.data;
 
     // Transform the response to match our schema
-    const results = items.map((item: { title?: string; link?: string; snippet?: string; displayLink?: string }) => ({
-      title: item.title ?? "",
-      link: item.link ?? "",
-      snippet: item.snippet ?? "",
-      displayLink: item.displayLink ?? "",
-    }));
+    const results = items
+      .map((item: { title?: string; link?: string; snippet?: string; displayLink?: string }) => ({
+        title: item.title ?? "",
+        link: item.link ?? "",
+        snippet: item.snippet ?? "",
+        displayLink: item.displayLink ?? "",
+      }))
+      .filter((item: { link: string | undefined }) => item.link !== undefined);
 
     return {
       success: true,
