@@ -765,7 +765,7 @@ export const slackUserSearchSlackDefinition: ActionTemplate = {
         default: "latest",
       },
       limit: {
-        type: "integer",
+        type: "number",
         description:
           "Max matches to request (passed to Slack search; results are then hydrated and sorted newest-first).",
         minimum: 1,
@@ -4652,12 +4652,12 @@ export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
             description: "How often the meeting repeats",
           },
           interval: {
-            type: "integer",
+            type: "number",
             minimum: 1,
             description: "The interval between recurrences (e.g., every 2 weeks)",
           },
           count: {
-            type: "integer",
+            type: "number",
             minimum: 1,
             description: "Number of occurrences after which to stop the recurrence",
           },
@@ -4677,7 +4677,7 @@ export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
             type: "array",
             description: "Days of the month when the meeting occurs (for MONTHLY frequency)",
             items: {
-              type: "integer",
+              type: "number",
               minimum: 1,
               maximum: 31,
             },
@@ -11466,7 +11466,7 @@ export const githubGetBranchDefinition: ActionTemplate = {
                     description: "The commit URL",
                   },
                   comment_count: {
-                    type: "integer",
+                    type: "number",
                     description: "Number of comments on the commit",
                   },
                 },
@@ -11480,7 +11480,7 @@ export const githubGetBranchDefinition: ActionTemplate = {
                     type: "string",
                   },
                   id: {
-                    type: "integer",
+                    type: "number",
                   },
                   node_id: {
                     type: "string",
@@ -11505,7 +11505,7 @@ export const githubGetBranchDefinition: ActionTemplate = {
                     type: "string",
                   },
                   id: {
-                    type: "integer",
+                    type: "number",
                   },
                   node_id: {
                     type: "string",
@@ -12241,7 +12241,7 @@ export const gitlabGetFileContentDefinition: ActionTemplate = {
     required: ["project_id", "path"],
     properties: {
       project_id: {
-        type: "integer",
+        type: "number",
         description: "Numeric project ID in GitLab (unique per project)",
       },
       path: {

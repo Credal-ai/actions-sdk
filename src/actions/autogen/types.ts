@@ -432,7 +432,6 @@ export const slackUserSearchSlackParamsSchema = z.object({
     .default("latest"),
   limit: z
     .number()
-    .int()
     .gte(1)
     .lte(100)
     .describe("Max matches to request (passed to Slack search; results are then hydrated and sorted newest-first).")
@@ -2398,15 +2397,15 @@ export const googleOauthScheduleCalendarMeetingParamsSchema = z.object({
   recurrence: z
     .object({
       frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]).describe("How often the meeting repeats").optional(),
-      interval: z.number().int().gte(1).describe("The interval between recurrences (e.g., every 2 weeks)").optional(),
-      count: z.number().int().gte(1).describe("Number of occurrences after which to stop the recurrence").optional(),
+      interval: z.number().gte(1).describe("The interval between recurrences (e.g., every 2 weeks)").optional(),
+      count: z.number().gte(1).describe("Number of occurrences after which to stop the recurrence").optional(),
       until: z.string().describe("End date for the recurrence in RFC3339 format (YYYY-MM-DD)").optional(),
       byDay: z
         .array(z.enum(["MO", "TU", "WE", "TH", "FR", "SA", "SU"]))
         .describe("Days of the week when the meeting occurs (for WEEKLY frequency)")
         .optional(),
       byMonthDay: z
-        .array(z.number().int().gte(1).lte(31))
+        .array(z.number().gte(1).lte(31))
         .describe("Days of the month when the meeting occurs (for MONTHLY frequency)")
         .optional(),
     })
@@ -5747,14 +5746,14 @@ export const githubGetBranchOutputSchema = z.object({
                 .describe("The commit tree")
                 .optional(),
               url: z.string().describe("The commit URL").optional(),
-              comment_count: z.number().int().describe("Number of comments on the commit").optional(),
+              comment_count: z.number().describe("Number of comments on the commit").optional(),
             })
             .describe("The git commit object")
             .optional(),
           author: z
             .object({
               login: z.string().optional(),
-              id: z.number().int().optional(),
+              id: z.number().optional(),
               node_id: z.string().optional(),
               avatar_url: z.string().optional(),
               html_url: z.string().optional(),
@@ -5766,7 +5765,7 @@ export const githubGetBranchOutputSchema = z.object({
           committer: z
             .object({
               login: z.string().optional(),
-              id: z.number().int().optional(),
+              id: z.number().optional(),
               node_id: z.string().optional(),
               avatar_url: z.string().optional(),
               html_url: z.string().optional(),
@@ -6103,7 +6102,7 @@ export type gitlabSearchGroupFunction = ActionFunction<
 >;
 
 export const gitlabGetFileContentParamsSchema = z.object({
-  project_id: z.number().int().describe("Numeric project ID in GitLab (unique per project)"),
+  project_id: z.number().describe("Numeric project ID in GitLab (unique per project)"),
   path: z.string().describe("The file path to get content from (e.g., src/index.js)"),
   ref: z
     .string()
