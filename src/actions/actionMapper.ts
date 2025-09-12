@@ -304,6 +304,8 @@ import {
   slackUserSearchSlackOutputSchema,
   oktaOrgGetOktaUserByNameParamsSchema,
   oktaOrgGetOktaUserByNameOutputSchema,
+  googleOauthCustomSearchParamsSchema,
+  googleOauthCustomSearchOutputSchema,
 } from "./autogen/types.js";
 import validateAddress from "./providers/googlemaps/validateAddress.js";
 import add from "./providers/math/add.js";
@@ -456,6 +458,7 @@ import searchDriveByKeywordsAndGetFileContent from "./providers/google-oauth/sea
 import perplexityDeepResearch from "./providers/perplexity/perplexityDeepResearch.js";
 import searchSlack from "./providers/slackUser/searchSlack.js";
 import getOktaUserByName from "./providers/oktaOrg/getOktaUserByName.js";
+import customSearch from "./providers/google-oauth/customSearch.js";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -903,6 +906,11 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: queryGoogleBigQuery,
       paramsSchema: googleOauthQueryGoogleBigQueryParamsSchema,
       outputSchema: googleOauthQueryGoogleBigQueryOutputSchema,
+    },
+    customSearch: {
+      fn: customSearch,
+      paramsSchema: googleOauthCustomSearchParamsSchema,
+      outputSchema: googleOauthCustomSearchOutputSchema,
     },
   },
   googlemail: {

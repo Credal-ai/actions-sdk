@@ -7760,6 +7760,240 @@ export const googleOauthQueryGoogleBigQueryDefinition: ActionTemplate = {
   name: "queryGoogleBigQuery",
   provider: "googleOauth",
 };
+export const googleOauthCustomSearchDefinition: ActionTemplate = {
+  description: "Search for information using the Google Custom Search API",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["q", "cx"],
+    properties: {
+      c2coff: {
+        type: "string",
+        enum: ["0", "1"],
+        description: "Enables or disables Simplified and Traditional Chinese Search (0=enabled, 1=disabled)",
+      },
+      cr: {
+        type: "string",
+        description: "Restricts search results to documents originating in a particular country",
+      },
+      cx: {
+        type: "string",
+        description: "The Programmable Search Engine ID to use for this request",
+      },
+      dateRestrict: {
+        type: "string",
+        description: "Restricts results to URLs based on date (e.g., d[number], w[number], m[number], y[number])",
+      },
+      exactTerms: {
+        type: "string",
+        description: "Identifies a phrase that all documents in the search results must contain",
+      },
+      excludeTerms: {
+        type: "string",
+        description: "Identifies a word or phrase that should not appear in any documents in the search results",
+      },
+      fileType: {
+        type: "string",
+        description: "Restricts results to files of a specified extension",
+      },
+      filter: {
+        type: "string",
+        enum: ["0", "1"],
+        description: "Controls turning on or off the duplicate content filter (0=off, 1=on)",
+      },
+      gl: {
+        type: "string",
+        description: "Geolocation of end user (two-letter country code)",
+      },
+      highRange: {
+        type: "string",
+        description: "Specifies the ending value for a search range",
+      },
+      hl: {
+        type: "string",
+        description: "Sets the user interface language",
+      },
+      hq: {
+        type: "string",
+        description:
+          "Appends the specified query terms to the query, as if they were combined with a logical AND operator",
+      },
+      imgColorType: {
+        type: "string",
+        enum: ["color", "gray", "mono", "trans"],
+        description: "Returns black and white, grayscale, transparent, or color images",
+      },
+      imgDominantColor: {
+        type: "string",
+        enum: ["black", "blue", "brown", "gray", "green", "orange", "pink", "purple", "red", "teal", "white", "yellow"],
+        description: "Returns images of a specific dominant color",
+      },
+      imgSize: {
+        type: "string",
+        enum: ["huge", "icon", "large", "medium", "small", "xlarge", "xxlarge"],
+        description: "Returns images of a specified size",
+      },
+      imgType: {
+        type: "string",
+        enum: ["clipart", "face", "lineart", "stock", "photo", "animated"],
+        description: "Returns images of a type",
+      },
+      linkSite: {
+        type: "string",
+        description: "Specifies that all search results should contain a link to a particular URL",
+      },
+      lowRange: {
+        type: "string",
+        description: "Specifies the starting value for a search range",
+      },
+      lr: {
+        type: "string",
+        enum: [
+          "lang_ar",
+          "lang_bg",
+          "lang_ca",
+          "lang_cs",
+          "lang_da",
+          "lang_de",
+          "lang_el",
+          "lang_en",
+          "lang_es",
+          "lang_et",
+          "lang_fi",
+          "lang_fr",
+          "lang_hr",
+          "lang_hu",
+          "lang_id",
+          "lang_is",
+          "lang_it",
+          "lang_iw",
+          "lang_ja",
+          "lang_ko",
+          "lang_lt",
+          "lang_lv",
+          "lang_nl",
+          "lang_no",
+          "lang_pl",
+          "lang_pt",
+          "lang_ro",
+          "lang_ru",
+          "lang_sk",
+          "lang_sl",
+          "lang_sr",
+          "lang_sv",
+          "lang_tr",
+          "lang_zh-CN",
+          "lang_zh-TW",
+        ],
+        description: "Restricts the search to documents written in a particular language",
+      },
+      num: {
+        type: "integer",
+        minimum: 1,
+        maximum: 10,
+        description: "Number of search results to return (1-10)",
+      },
+      orTerms: {
+        type: "string",
+        description: "Provides additional search terms to check for in a document",
+      },
+      q: {
+        type: "string",
+        description: "Query string to search for",
+      },
+      rights: {
+        type: "string",
+        description:
+          "Filters based on licensing (e.g., cc_publicdomain, cc_attribute, cc_sharealike, cc_noncommercial, cc_nonderived)",
+      },
+      safe: {
+        type: "string",
+        enum: ["active", "off"],
+        description: "Search safety level (active=SafeSearch enabled, off=SafeSearch disabled)",
+      },
+      searchType: {
+        type: "string",
+        enum: ["image"],
+        description: "Specifies the search type (image for custom image search)",
+      },
+      siteSearch: {
+        type: "string",
+        description: "Specifies a given site which should always be included or excluded from results",
+      },
+      siteSearchFilter: {
+        type: "string",
+        enum: ["e", "i"],
+        description:
+          "Controls whether to include or exclude results from the site named in siteSearch (e=exclude, i=include)",
+      },
+      sort: {
+        type: "string",
+        description: "The sort expression to apply to the results",
+      },
+      start: {
+        type: "integer",
+        minimum: 1,
+        maximum: 100,
+        description: "The index of the first result to return",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the search was successful",
+      },
+      items: {
+        type: "array",
+        description: "Array of search result items",
+        items: {
+          type: "object",
+          properties: {
+            title: {
+              type: "string",
+              description: "The title of the search result",
+            },
+            link: {
+              type: "string",
+              description: "The URL of the search result",
+            },
+            snippet: {
+              type: "string",
+              description: "A snippet of text from the search result",
+            },
+            displayLink: {
+              type: "string",
+              description: "The displayed URL",
+            },
+          },
+        },
+      },
+      searchInformation: {
+        type: "object",
+        description: "Metadata about the search",
+        properties: {
+          searchTime: {
+            type: "number",
+            description: "Time taken to perform the search",
+          },
+          totalResults: {
+            type: "string",
+            description: "Total number of search results available",
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "Error message if search failed",
+      },
+    },
+  },
+  name: "customSearch",
+  provider: "googleOauth",
+};
 export const googlemailSearchGmailMessagesDefinition: ActionTemplate = {
   description: "Search Gmail messages in a user's inbox using a query string.",
   scopes: ["https://www.googleapis.com/auth/gmail.readonly"],

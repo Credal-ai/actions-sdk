@@ -4009,6 +4009,156 @@ export type googleOauthQueryGoogleBigQueryFunction = ActionFunction<
   googleOauthQueryGoogleBigQueryOutputType
 >;
 
+export const googleOauthCustomSearchParamsSchema = z.object({
+  c2coff: z
+    .enum(["0", "1"])
+    .describe("Enables or disables Simplified and Traditional Chinese Search (0=enabled, 1=disabled)")
+    .optional(),
+  cr: z.string().describe("Restricts search results to documents originating in a particular country").optional(),
+  cx: z.string().describe("The Programmable Search Engine ID to use for this request"),
+  dateRestrict: z
+    .string()
+    .describe("Restricts results to URLs based on date (e.g., d[number], w[number], m[number], y[number])")
+    .optional(),
+  exactTerms: z
+    .string()
+    .describe("Identifies a phrase that all documents in the search results must contain")
+    .optional(),
+  excludeTerms: z
+    .string()
+    .describe("Identifies a word or phrase that should not appear in any documents in the search results")
+    .optional(),
+  fileType: z.string().describe("Restricts results to files of a specified extension").optional(),
+  filter: z
+    .enum(["0", "1"])
+    .describe("Controls turning on or off the duplicate content filter (0=off, 1=on)")
+    .optional(),
+  gl: z.string().describe("Geolocation of end user (two-letter country code)").optional(),
+  highRange: z.string().describe("Specifies the ending value for a search range").optional(),
+  hl: z.string().describe("Sets the user interface language").optional(),
+  hq: z
+    .string()
+    .describe("Appends the specified query terms to the query, as if they were combined with a logical AND operator")
+    .optional(),
+  imgColorType: z
+    .enum(["color", "gray", "mono", "trans"])
+    .describe("Returns black and white, grayscale, transparent, or color images")
+    .optional(),
+  imgDominantColor: z
+    .enum(["black", "blue", "brown", "gray", "green", "orange", "pink", "purple", "red", "teal", "white", "yellow"])
+    .describe("Returns images of a specific dominant color")
+    .optional(),
+  imgSize: z
+    .enum(["huge", "icon", "large", "medium", "small", "xlarge", "xxlarge"])
+    .describe("Returns images of a specified size")
+    .optional(),
+  imgType: z
+    .enum(["clipart", "face", "lineart", "stock", "photo", "animated"])
+    .describe("Returns images of a type")
+    .optional(),
+  linkSite: z
+    .string()
+    .describe("Specifies that all search results should contain a link to a particular URL")
+    .optional(),
+  lowRange: z.string().describe("Specifies the starting value for a search range").optional(),
+  lr: z
+    .enum([
+      "lang_ar",
+      "lang_bg",
+      "lang_ca",
+      "lang_cs",
+      "lang_da",
+      "lang_de",
+      "lang_el",
+      "lang_en",
+      "lang_es",
+      "lang_et",
+      "lang_fi",
+      "lang_fr",
+      "lang_hr",
+      "lang_hu",
+      "lang_id",
+      "lang_is",
+      "lang_it",
+      "lang_iw",
+      "lang_ja",
+      "lang_ko",
+      "lang_lt",
+      "lang_lv",
+      "lang_nl",
+      "lang_no",
+      "lang_pl",
+      "lang_pt",
+      "lang_ro",
+      "lang_ru",
+      "lang_sk",
+      "lang_sl",
+      "lang_sr",
+      "lang_sv",
+      "lang_tr",
+      "lang_zh-CN",
+      "lang_zh-TW",
+    ])
+    .describe("Restricts the search to documents written in a particular language")
+    .optional(),
+  num: z.number().int().gte(1).lte(10).describe("Number of search results to return (1-10)").optional(),
+  orTerms: z.string().describe("Provides additional search terms to check for in a document").optional(),
+  q: z.string().describe("Query string to search for"),
+  rights: z
+    .string()
+    .describe(
+      "Filters based on licensing (e.g., cc_publicdomain, cc_attribute, cc_sharealike, cc_noncommercial, cc_nonderived)",
+    )
+    .optional(),
+  safe: z
+    .enum(["active", "off"])
+    .describe("Search safety level (active=SafeSearch enabled, off=SafeSearch disabled)")
+    .optional(),
+  searchType: z.literal("image").describe("Specifies the search type (image for custom image search)").optional(),
+  siteSearch: z
+    .string()
+    .describe("Specifies a given site which should always be included or excluded from results")
+    .optional(),
+  siteSearchFilter: z
+    .enum(["e", "i"])
+    .describe("Controls whether to include or exclude results from the site named in siteSearch (e=exclude, i=include)")
+    .optional(),
+  sort: z.string().describe("The sort expression to apply to the results").optional(),
+  start: z.number().int().gte(1).lte(100).describe("The index of the first result to return").optional(),
+});
+
+export type googleOauthCustomSearchParamsType = z.infer<typeof googleOauthCustomSearchParamsSchema>;
+
+export const googleOauthCustomSearchOutputSchema = z.object({
+  success: z.boolean().describe("Whether the search was successful"),
+  items: z
+    .array(
+      z.object({
+        title: z.string().describe("The title of the search result").optional(),
+        link: z.string().describe("The URL of the search result").optional(),
+        snippet: z.string().describe("A snippet of text from the search result").optional(),
+        displayLink: z.string().describe("The displayed URL").optional(),
+      }),
+    )
+    .describe("Array of search result items")
+    .optional(),
+  searchInformation: z
+    .object({
+      searchTime: z.number().describe("Time taken to perform the search").optional(),
+      totalResults: z.string().describe("Total number of search results available").optional(),
+    })
+    .describe("Metadata about the search")
+    .optional(),
+  error: z.string().describe("Error message if search failed").optional(),
+});
+
+export type googleOauthCustomSearchOutputType = z.infer<typeof googleOauthCustomSearchOutputSchema>;
+export type googleOauthCustomSearchFunction = ActionFunction<
+  googleOauthCustomSearchParamsType,
+  AuthParamsType,
+  googleOauthCustomSearchOutputType
+>;
+
 export const googlemailSearchGmailMessagesParamsSchema = z.object({
   query: z.string().describe('Gmail search query (e.g. "from:alice subject:urgent")'),
   maxResults: z.number().describe("Maximum number of messages to return (optional)").optional(),
