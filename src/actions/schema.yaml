@@ -4996,7 +4996,7 @@ actions:
                   description: Column mode (NULLABLE, REQUIRED, REPEATED)
           error:
             type: string
-            description: Error message if query failed      
+            description: Error message if query failed 
   googlemail:
     searchGmailMessages:
       description: Search Gmail messages in a user's inbox using a query string.
