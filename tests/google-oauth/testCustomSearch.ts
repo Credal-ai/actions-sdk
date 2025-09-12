@@ -1,6 +1,6 @@
 import type {
-  googleOauthCustomSearchOutputType,
-  googleOauthCustomSearchParamsType,
+  googleSearchCustomSearchOutputType,
+  googleSearchCustomSearchParamsType,
 } from "../../src/actions/autogen/types.js";
 import { runAction } from "../../src/app.js";
 import assert from "node:assert";
@@ -27,8 +27,8 @@ async function runTest() {
       query: "OpenAI GPT",
       customSearchEngineId,
       num: 5,
-    } as googleOauthCustomSearchParamsType
-  )) as googleOauthCustomSearchOutputType;
+    } as googleSearchCustomSearchParamsType
+  )) as googleSearchCustomSearchOutputType;
 
   // Validate the result
   assert.strictEqual(result.success, true, "Search should be successful");
@@ -84,7 +84,7 @@ async function runMinimalTest() {
     {
       query: "test",
       customSearchEngineId,
-    } as googleOauthCustomSearchParamsType
+    } as googleSearchCustomSearchParamsType
   );
 
   assert.strictEqual(

@@ -24,6 +24,7 @@ export enum ProviderName {
   RESEND = "resend",
   GOOGLEOAUTH = "googleOauth",
   GOOGLEMAIL = "googlemail",
+  GOOGLESEARCH = "googleSearch",
   OKTA = "okta",
   OKTAORG = "oktaOrg",
   GONG = "gong",
@@ -4009,65 +4010,6 @@ export type googleOauthQueryGoogleBigQueryFunction = ActionFunction<
   googleOauthQueryGoogleBigQueryOutputType
 >;
 
-export const googleOauthCustomSearchParamsSchema = z.object({
-  query: z.string().describe("Query string to search for"),
-  customSearchEngineId: z.string().describe("The Programmable Search Engine ID to use for this request"),
-  dateRestrict: z
-    .string()
-    .describe("Restricts results to URLs based on date (e.g., d[number], w[number], m[number], y[number])")
-    .optional(),
-  exactTerms: z
-    .string()
-    .describe("Identifies a phrase that all documents in the search results must contain")
-    .optional(),
-  excludeTerms: z
-    .string()
-    .describe("Identifies a word or phrase that should not appear in any documents in the search results")
-    .optional(),
-  num: z.number().int().gte(1).lte(10).describe("Number of search results to return (1-10)").optional(),
-  siteSearch: z
-    .string()
-    .describe("Specifies a given site which should always be included or excluded from results")
-    .optional(),
-  siteSearchFilter: z
-    .enum(["e", "i"])
-    .describe("Controls whether to include or exclude results from the site named in siteSearch (e=exclude, i=include)")
-    .optional(),
-  start: z.number().int().gte(1).lte(100).describe("The index of the first result to return").optional(),
-});
-
-export type googleOauthCustomSearchParamsType = z.infer<typeof googleOauthCustomSearchParamsSchema>;
-
-export const googleOauthCustomSearchOutputSchema = z.object({
-  success: z.boolean().describe("Whether the search was successful"),
-  items: z
-    .array(
-      z.object({
-        title: z.string().describe("The title of the search result").optional(),
-        link: z.string().describe("The URL of the search result").optional(),
-        snippet: z.string().describe("A snippet of text from the search result").optional(),
-        displayLink: z.string().describe("The displayed URL").optional(),
-      }),
-    )
-    .describe("Array of search result items")
-    .optional(),
-  searchInformation: z
-    .object({
-      searchTime: z.number().describe("Time taken to perform the search").optional(),
-      totalResults: z.string().describe("Total number of search results available").optional(),
-    })
-    .describe("Metadata about the search")
-    .optional(),
-  error: z.string().describe("Error message if search failed").optional(),
-});
-
-export type googleOauthCustomSearchOutputType = z.infer<typeof googleOauthCustomSearchOutputSchema>;
-export type googleOauthCustomSearchFunction = ActionFunction<
-  googleOauthCustomSearchParamsType,
-  AuthParamsType,
-  googleOauthCustomSearchOutputType
->;
-
 export const googlemailSearchGmailMessagesParamsSchema = z.object({
   query: z.string().describe('Gmail search query (e.g. "from:alice subject:urgent")'),
   maxResults: z.number().describe("Maximum number of messages to return (optional)").optional(),
@@ -4160,6 +4102,65 @@ export type googlemailSendGmailFunction = ActionFunction<
   googlemailSendGmailParamsType,
   AuthParamsType,
   googlemailSendGmailOutputType
+>;
+
+export const googleSearchCustomSearchParamsSchema = z.object({
+  query: z.string().describe("Query string to search for"),
+  customSearchEngineId: z.string().describe("The Programmable Search Engine ID to use for this request"),
+  dateRestrict: z
+    .string()
+    .describe("Restricts results to URLs based on date (e.g., d[number], w[number], m[number], y[number])")
+    .optional(),
+  exactTerms: z
+    .string()
+    .describe("Identifies a phrase that all documents in the search results must contain")
+    .optional(),
+  excludeTerms: z
+    .string()
+    .describe("Identifies a word or phrase that should not appear in any documents in the search results")
+    .optional(),
+  num: z.number().int().gte(1).lte(10).describe("Number of search results to return (1-10)").optional(),
+  siteSearch: z
+    .string()
+    .describe("Specifies a given site which should always be included or excluded from results")
+    .optional(),
+  siteSearchFilter: z
+    .enum(["e", "i"])
+    .describe("Controls whether to include or exclude results from the site named in siteSearch (e=exclude, i=include)")
+    .optional(),
+  start: z.number().int().gte(1).lte(100).describe("The index of the first result to return").optional(),
+});
+
+export type googleSearchCustomSearchParamsType = z.infer<typeof googleSearchCustomSearchParamsSchema>;
+
+export const googleSearchCustomSearchOutputSchema = z.object({
+  success: z.boolean().describe("Whether the search was successful"),
+  items: z
+    .array(
+      z.object({
+        title: z.string().describe("The title of the search result").optional(),
+        link: z.string().describe("The URL of the search result").optional(),
+        snippet: z.string().describe("A snippet of text from the search result").optional(),
+        displayLink: z.string().describe("The displayed URL").optional(),
+      }),
+    )
+    .describe("Array of search result items")
+    .optional(),
+  searchInformation: z
+    .object({
+      searchTime: z.number().describe("Time taken to perform the search").optional(),
+      totalResults: z.string().describe("Total number of search results available").optional(),
+    })
+    .describe("Metadata about the search")
+    .optional(),
+  error: z.string().describe("Error message if search failed").optional(),
+});
+
+export type googleSearchCustomSearchOutputType = z.infer<typeof googleSearchCustomSearchOutputSchema>;
+export type googleSearchCustomSearchFunction = ActionFunction<
+  googleSearchCustomSearchParamsType,
+  AuthParamsType,
+  googleSearchCustomSearchOutputType
 >;
 
 export const oktaGetOktaUserParamsSchema = z.object({ userId: z.string().describe("The ID of the user to retrieve.") });

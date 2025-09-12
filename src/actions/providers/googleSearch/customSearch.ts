@@ -2,20 +2,20 @@ import { axiosClient } from "../../util/axiosClient.js";
 import type { AxiosResponse } from "axios";
 import type {
   AuthParamsType,
-  googleOauthCustomSearchFunction,
-  googleOauthCustomSearchOutputType,
-  googleOauthCustomSearchParamsType,
+  googleSearchCustomSearchFunction,
+  googleSearchCustomSearchOutputType,
+  googleSearchCustomSearchParamsType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 // https://developers.google.com/custom-search/v1/reference/rest/v1/cse/list#request
-const customSearch: googleOauthCustomSearchFunction = async ({
+const customSearch: googleSearchCustomSearchFunction = async ({
   params,
   authParams,
 }: {
-  params: googleOauthCustomSearchParamsType;
+  params: googleSearchCustomSearchParamsType;
   authParams: AuthParamsType;
-}): Promise<googleOauthCustomSearchOutputType> => {
+}): Promise<googleSearchCustomSearchOutputType> => {
   if (!authParams.authToken) {
     return { success: false, error: MISSING_AUTH_TOKEN };
   }
