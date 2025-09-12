@@ -29,10 +29,15 @@ const customSearch: googleOauthCustomSearchFunction = async ({
     // Add API key to query parameters
     queryParams.key = authParams.authToken;
 
+    const { query, customSearchEngineId, ...filteredParams } = queryParams;
+
     const res: AxiosResponse = await axiosClient.get(url, {
       params: {
-        ...queryParams,
+        q: query,
+        cx: customSearchEngineId,
         filter: "1",
+        safe: "active",
+        ...filteredParams,
       },
     });
 

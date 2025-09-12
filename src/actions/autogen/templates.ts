@@ -7765,13 +7765,13 @@ export const googleOauthCustomSearchDefinition: ActionTemplate = {
   scopes: [],
   parameters: {
     type: "object",
-    required: ["q", "cx"],
+    required: ["query", "customSearchEngineId"],
     properties: {
-      cr: {
+      query: {
         type: "string",
-        description: "Restricts search results to documents originating in a particular country",
+        description: "Query string to search for",
       },
-      cx: {
+      customSearchEngineId: {
         type: "string",
         description: "The Programmable Search Engine ID to use for this request",
       },
@@ -7787,43 +7787,11 @@ export const googleOauthCustomSearchDefinition: ActionTemplate = {
         type: "string",
         description: "Identifies a word or phrase that should not appear in any documents in the search results",
       },
-      fileType: {
-        type: "string",
-        description: "Restricts results to files of a specified extension",
-      },
-      hq: {
-        type: "string",
-        description:
-          "Appends the specified query terms to the query, as if they were combined with a logical AND operator",
-      },
-      imgType: {
-        type: "string",
-        enum: ["clipart", "face", "lineart", "stock", "photo", "animated"],
-        description: "Returns images of a type",
-      },
-      linkSite: {
-        type: "string",
-        description: "Specifies that all search results should contain a link to a particular URL",
-      },
       num: {
         type: "integer",
         minimum: 1,
         maximum: 10,
         description: "Number of search results to return (1-10)",
-      },
-      q: {
-        type: "string",
-        description: "Query string to search for",
-      },
-      safe: {
-        type: "string",
-        enum: ["active", "off"],
-        description: "Search safety level (active=SafeSearch enabled, off=SafeSearch disabled)",
-      },
-      searchType: {
-        type: "string",
-        enum: ["image"],
-        description: "Specifies the search type (image for custom image search)",
       },
       siteSearch: {
         type: "string",
@@ -7834,10 +7802,6 @@ export const googleOauthCustomSearchDefinition: ActionTemplate = {
         enum: ["e", "i"],
         description:
           "Controls whether to include or exclude results from the site named in siteSearch (e=exclude, i=include)",
-      },
-      sort: {
-        type: "string",
-        description: "The sort expression to apply to the results",
       },
       start: {
         type: "integer",

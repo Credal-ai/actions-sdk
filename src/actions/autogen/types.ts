@@ -4010,8 +4010,8 @@ export type googleOauthQueryGoogleBigQueryFunction = ActionFunction<
 >;
 
 export const googleOauthCustomSearchParamsSchema = z.object({
-  cr: z.string().describe("Restricts search results to documents originating in a particular country").optional(),
-  cx: z.string().describe("The Programmable Search Engine ID to use for this request"),
+  query: z.string().describe("Query string to search for"),
+  customSearchEngineId: z.string().describe("The Programmable Search Engine ID to use for this request"),
   dateRestrict: z
     .string()
     .describe("Restricts results to URLs based on date (e.g., d[number], w[number], m[number], y[number])")
@@ -4024,26 +4024,7 @@ export const googleOauthCustomSearchParamsSchema = z.object({
     .string()
     .describe("Identifies a word or phrase that should not appear in any documents in the search results")
     .optional(),
-  fileType: z.string().describe("Restricts results to files of a specified extension").optional(),
-  hq: z
-    .string()
-    .describe("Appends the specified query terms to the query, as if they were combined with a logical AND operator")
-    .optional(),
-  imgType: z
-    .enum(["clipart", "face", "lineart", "stock", "photo", "animated"])
-    .describe("Returns images of a type")
-    .optional(),
-  linkSite: z
-    .string()
-    .describe("Specifies that all search results should contain a link to a particular URL")
-    .optional(),
   num: z.number().int().gte(1).lte(10).describe("Number of search results to return (1-10)").optional(),
-  q: z.string().describe("Query string to search for"),
-  safe: z
-    .enum(["active", "off"])
-    .describe("Search safety level (active=SafeSearch enabled, off=SafeSearch disabled)")
-    .optional(),
-  searchType: z.literal("image").describe("Specifies the search type (image for custom image search)").optional(),
   siteSearch: z
     .string()
     .describe("Specifies a given site which should always be included or excluded from results")
@@ -4052,7 +4033,6 @@ export const googleOauthCustomSearchParamsSchema = z.object({
     .enum(["e", "i"])
     .describe("Controls whether to include or exclude results from the site named in siteSearch (e=exclude, i=include)")
     .optional(),
-  sort: z.string().describe("The sort expression to apply to the results").optional(),
   start: z.number().int().gte(1).lte(100).describe("The index of the first result to return").optional(),
 });
 

@@ -24,10 +24,9 @@ async function runTest() {
       authToken: apiKey, // Use API key instead of OAuth token
     },
     {
-      q: "OpenAI GPT", // Search query
-      cx: customSearchEngineId, // Custom Search Engine ID from environment
+      query: "OpenAI GPT", // Search query
+      customSearchEngineId, // Custom Search Engine ID from environment
       num: 5, // Number of results to return
-      safe: "active", // SafeSearch enabled
     } as googleOauthCustomSearchParamsType
   )) as googleOauthCustomSearchOutputType;
 
@@ -83,8 +82,8 @@ async function runMinimalTest() {
       authToken: apiKey,
     },
     {
-      q: "test",
-      cx: customSearchEngineId,
+      query: "test",
+      customSearchEngineId,
     } as googleOauthCustomSearchParamsType
   );
 
@@ -98,37 +97,11 @@ async function runMinimalTest() {
   console.log(`Minimal search found ${result.items.length} results`);
 }
 
-// Test with image search
-async function runImageSearchTest() {
-  console.log("Running image search test");
-
-  const result = await runAction(
-    "customSearch",
-    "googleOauth",
-    {
-      authToken: apiKey,
-    },
-    {
-      q: "cats",
-      cx: customSearchEngineId,
-      searchType: "image",
-      imgType: "photo",
-      num: 3,
-    } as googleOauthCustomSearchParamsType
-  );
-
-  assert.strictEqual(result.success, true, "Image search should be successful");
-  assert(Array.isArray(result.items), "Items should be an array");
-
-  console.log(`Image search found ${result.items.length} results`);
-}
-
 // Run all tests
 async function runAllTests() {
   try {
     await runTest();
     await runMinimalTest();
-    await runImageSearchTest();
     console.log("All customSearch tests passed!");
   } catch (error) {
     console.error("Test failed:", error);
