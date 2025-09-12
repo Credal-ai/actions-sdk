@@ -30,7 +30,10 @@ const customSearch: googleOauthCustomSearchFunction = async ({
     queryParams.key = authParams.authToken;
 
     const res: AxiosResponse = await axiosClient.get(url, {
-      params: queryParams,
+      params: {
+        ...queryParams,
+        filter: "1",
+      },
     });
 
     const { items = [], searchInformation } = res.data;
