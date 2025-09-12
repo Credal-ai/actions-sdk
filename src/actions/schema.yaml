@@ -5004,10 +5004,6 @@ actions:
         type: object
         required: [q, cx]
         properties:
-          c2coff:
-            type: string
-            enum: ["0", "1"]
-            description: Enables or disables Simplified and Traditional Chinese Search (0=enabled, 1=disabled)
           cr:
             type: string
             description: Restricts search results to documents originating in a particular country
@@ -5026,34 +5022,9 @@ actions:
           fileType:
             type: string
             description: Restricts results to files of a specified extension
-          filter:
-            type: string
-            enum: ["0", "1"]
-            description: Controls turning on or off the duplicate content filter (0=off, 1=on)
-          gl:
-            type: string
-            description: Geolocation of end user (two-letter country code)
-          highRange:
-            type: string
-            description: Specifies the ending value for a search range
-          hl:
-            type: string
-            description: Sets the user interface language
           hq:
             type: string
             description: Appends the specified query terms to the query, as if they were combined with a logical AND operator
-          imgColorType:
-            type: string
-            enum: ["color", "gray", "mono", "trans"]
-            description: Returns black and white, grayscale, transparent, or color images
-          imgDominantColor:
-            type: string
-            enum: ["black", "blue", "brown", "gray", "green", "orange", "pink", "purple", "red", "teal", "white", "yellow"]
-            description: Returns images of a specific dominant color
-          imgSize:
-            type: string
-            enum: ["huge", "icon", "large", "medium", "small", "xlarge", "xxlarge"]
-            description: Returns images of a specified size
           imgType:
             type: string
             enum: ["clipart", "face", "lineart", "stock", "photo", "animated"]
@@ -5061,27 +5032,14 @@ actions:
           linkSite:
             type: string
             description: Specifies that all search results should contain a link to a particular URL
-          lowRange:
-            type: string
-            description: Specifies the starting value for a search range
-          lr:
-            type: string
-            enum: ["lang_ar", "lang_bg", "lang_ca", "lang_cs", "lang_da", "lang_de", "lang_el", "lang_en", "lang_es", "lang_et", "lang_fi", "lang_fr", "lang_hr", "lang_hu", "lang_id", "lang_is", "lang_it", "lang_iw", "lang_ja", "lang_ko", "lang_lt", "lang_lv", "lang_nl", "lang_no", "lang_pl", "lang_pt", "lang_ro", "lang_ru", "lang_sk", "lang_sl", "lang_sr", "lang_sv", "lang_tr", "lang_zh-CN", "lang_zh-TW"]
-            description: Restricts the search to documents written in a particular language
           num:
             type: integer
             minimum: 1
             maximum: 10
             description: Number of search results to return (1-10)
-          orTerms:
-            type: string
-            description: Provides additional search terms to check for in a document
           q:
             type: string
             description: Query string to search for
-          rights:
-            type: string
-            description: "Filters based on licensing (e.g., cc_publicdomain, cc_attribute, cc_sharealike, cc_noncommercial, cc_nonderived)"
           safe:
             type: string
             enum: ["active", "off"]

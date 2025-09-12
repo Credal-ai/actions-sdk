@@ -4010,10 +4010,6 @@ export type googleOauthQueryGoogleBigQueryFunction = ActionFunction<
 >;
 
 export const googleOauthCustomSearchParamsSchema = z.object({
-  c2coff: z
-    .enum(["0", "1"])
-    .describe("Enables or disables Simplified and Traditional Chinese Search (0=enabled, 1=disabled)")
-    .optional(),
   cr: z.string().describe("Restricts search results to documents originating in a particular country").optional(),
   cx: z.string().describe("The Programmable Search Engine ID to use for this request"),
   dateRestrict: z
@@ -4029,28 +4025,9 @@ export const googleOauthCustomSearchParamsSchema = z.object({
     .describe("Identifies a word or phrase that should not appear in any documents in the search results")
     .optional(),
   fileType: z.string().describe("Restricts results to files of a specified extension").optional(),
-  filter: z
-    .enum(["0", "1"])
-    .describe("Controls turning on or off the duplicate content filter (0=off, 1=on)")
-    .optional(),
-  gl: z.string().describe("Geolocation of end user (two-letter country code)").optional(),
-  highRange: z.string().describe("Specifies the ending value for a search range").optional(),
-  hl: z.string().describe("Sets the user interface language").optional(),
   hq: z
     .string()
     .describe("Appends the specified query terms to the query, as if they were combined with a logical AND operator")
-    .optional(),
-  imgColorType: z
-    .enum(["color", "gray", "mono", "trans"])
-    .describe("Returns black and white, grayscale, transparent, or color images")
-    .optional(),
-  imgDominantColor: z
-    .enum(["black", "blue", "brown", "gray", "green", "orange", "pink", "purple", "red", "teal", "white", "yellow"])
-    .describe("Returns images of a specific dominant color")
-    .optional(),
-  imgSize: z
-    .enum(["huge", "icon", "large", "medium", "small", "xlarge", "xxlarge"])
-    .describe("Returns images of a specified size")
     .optional(),
   imgType: z
     .enum(["clipart", "face", "lineart", "stock", "photo", "animated"])
@@ -4060,56 +4037,8 @@ export const googleOauthCustomSearchParamsSchema = z.object({
     .string()
     .describe("Specifies that all search results should contain a link to a particular URL")
     .optional(),
-  lowRange: z.string().describe("Specifies the starting value for a search range").optional(),
-  lr: z
-    .enum([
-      "lang_ar",
-      "lang_bg",
-      "lang_ca",
-      "lang_cs",
-      "lang_da",
-      "lang_de",
-      "lang_el",
-      "lang_en",
-      "lang_es",
-      "lang_et",
-      "lang_fi",
-      "lang_fr",
-      "lang_hr",
-      "lang_hu",
-      "lang_id",
-      "lang_is",
-      "lang_it",
-      "lang_iw",
-      "lang_ja",
-      "lang_ko",
-      "lang_lt",
-      "lang_lv",
-      "lang_nl",
-      "lang_no",
-      "lang_pl",
-      "lang_pt",
-      "lang_ro",
-      "lang_ru",
-      "lang_sk",
-      "lang_sl",
-      "lang_sr",
-      "lang_sv",
-      "lang_tr",
-      "lang_zh-CN",
-      "lang_zh-TW",
-    ])
-    .describe("Restricts the search to documents written in a particular language")
-    .optional(),
   num: z.number().int().gte(1).lte(10).describe("Number of search results to return (1-10)").optional(),
-  orTerms: z.string().describe("Provides additional search terms to check for in a document").optional(),
   q: z.string().describe("Query string to search for"),
-  rights: z
-    .string()
-    .describe(
-      "Filters based on licensing (e.g., cc_publicdomain, cc_attribute, cc_sharealike, cc_noncommercial, cc_nonderived)",
-    )
-    .optional(),
   safe: z
     .enum(["active", "off"])
     .describe("Search safety level (active=SafeSearch enabled, off=SafeSearch disabled)")

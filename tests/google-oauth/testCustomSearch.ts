@@ -28,7 +28,6 @@ async function runTest() {
       cx: customSearchEngineId, // Custom Search Engine ID from environment
       num: 5, // Number of results to return
       safe: "active", // SafeSearch enabled
-      hl: "en", // Interface language
     } as googleOauthCustomSearchParamsType
   )) as googleOauthCustomSearchOutputType;
 
@@ -113,7 +112,6 @@ async function runImageSearchTest() {
       q: "cats",
       cx: customSearchEngineId,
       searchType: "image",
-      imgSize: "medium",
       imgType: "photo",
       num: 3,
     } as googleOauthCustomSearchParamsType
