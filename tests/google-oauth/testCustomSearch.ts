@@ -21,12 +21,12 @@ async function runTest() {
     "customSearch",
     "googleOauth",
     {
-      authToken: apiKey, // Use API key instead of OAuth token
+      authToken: apiKey,
     },
     {
-      query: "OpenAI GPT", // Search query
-      customSearchEngineId, // Custom Search Engine ID from environment
-      num: 5, // Number of results to return
+      query: "OpenAI GPT",
+      customSearchEngineId,
+      num: 5,
     } as googleOauthCustomSearchParamsType
   )) as googleOauthCustomSearchOutputType;
 
