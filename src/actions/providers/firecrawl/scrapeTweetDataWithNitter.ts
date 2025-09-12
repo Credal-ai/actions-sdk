@@ -37,11 +37,8 @@ const scrapeTweetDataWithNitter: firecrawlScrapeTweetDataWithNitterFunction = as
 
   try {
     // Scrape the Nitter URL
-    const result = await firecrawl.scrapeUrl(nitterUrl);
-
-    if (!result.success) {
-      throw new Error(`Failed to scrape tweet: ${result.error || "Unknown error"}`);
-    }
+    // @ts-expect-error zeroDataRetention is not specified in the firecrawl types
+    const result = await firecrawl.scrape(nitterUrl, { zeroDataRetention: true });
 
     // Extract the tweet text from the scraped content - simple approach - in practice, you might need more robust parsing based on nitter html structure
     const tweetContent = result.markdown;

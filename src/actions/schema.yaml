@@ -501,6 +501,110 @@ actions:
                 ts:
                   type: string
                   description: The timestamp of the message
+  slackUser:
+    searchSlack:
+      description: Search Slack (DM/MPIM by emails or channel) with optional topic/time filter. Automatically hydrates each hit (full thread if threaded, otherwise a small surrounding context).
+      scopes:
+        - search:read
+        - channels:read
+        - groups:read
+        - im:read
+        - mpim:read
+        - channels:history
+        - groups:history
+        - im:history
+        - mpim:history
+        - users:read.email
+      parameters:
+        type: object
+        description: Provide at least one of emails, channel, or topic. If both emails and channel are provided, the DM/MPIM (emails) takes precedence.
+        required: []
+        properties:
+          emails:
+            type: array
+            description: Participants identified strictly by email (one email = 1:1 DM, multiple = MPIM).
+            items:
+              type: string
+              format: email
+          channel:
+            type: string
+            description: Channel name or ID. Examples - "#eng-updates", "eng-updates", "C01234567".
+          topic:
+            type: string
+            description: Keyword(s) to search for (e.g., "jogging decision").
+          timeRange:
+            type: string
+            description: Optional time filter applied to the search.
+            enum:
+              - latest
+              - today
+              - yesterday
+              - last_7d
+              - last_30d
+              - all
+            default: latest
+          limit:
+            type: integer
+            description: Max matches to request (passed to Slack search; results are then hydrated and sorted newest-first).
+            minimum: 1
+            maximum: 100
+            default: 50
+      output:
+        type: object
+        required:
+          - query
+          - results
+        properties:
+          query:
+            type: string
+            description: The exact query string sent to Slack’s search API after resolving inputs.
+          results:
+            type: array
+            description: Hydrated search results (threads or small context windows), sorted by ts desc.
+            items:
+              type: object
+              required:
+                - channelId
+                - ts
+              properties:
+                channelId:
+                  type: string
+                  description: Slack channel/conversation ID (C…/G…/D… or name).
+                ts:
+                  type: string
+                  description: Slack message timestamp of the hit (or thread root when hydrated as thread).
+                text:
+                  type: string
+                  description: Message text of the anchor (hit or thread root).
+                userEmail:
+                  type: string
+                  description: User email of the anchor message’s author (if available).
+                userName:
+                  type: string
+                  description: User name of the anchor message’s author (if available).
+                permalink:
+                  type: string
+                  description: A Slack permalink to the anchor (message or thread root), if resolvable.
+                context:
+                  type: array
+                  description: When a hit is in a thread, this is the full thread (root first). Otherwise, a small surrounding context window (~3 before, 5 after).
+                  items:
+                    type: object
+                    required:
+                      - ts
+                    properties:
+                      ts:
+                        type: string
+                        description: Timestamp of the contextual message.
+                      text:
+                        type: string
+                        description: Text of the contextual message.
+                      userEmail:
+                        type: string
+                        description: Author user email of the contextual message.
+                      userName:
+                        type: string
+                        description: Author user name of the contextual message.
   math:
     add:
       description: Adds two numbers together
@@ -1732,6 +1836,19 @@ actions:
           url:
             type: string
             description: The URL to scrape
+          waitMs:
+            type: number
+            description: Optional wait time in milliseconds before scraping the page
+            minimum: 0
+          onlyMainContent:
+            type: boolean
+            description: Extract only the main content of the page, excluding headers, footers, and navigation
+          formats:
+            type: array
+            description: Array of formats to return
+            items:
+              type: string
+              enum: ["json", "html", "screenshot", "markdown", "rawHtml", "links", "changeTracking"]
       output:
         type: object
         required: [content]
@@ -2723,6 +2840,38 @@ actions:
           timeZone:
             type: string
             description: The time zone for the meeting, IANA Time Zone identifier (e.g., 'America/New_York')
+          recurrence:
+            type: object
+            description: Recurring meeting configuration. If not provided, creates a one-time meeting.
+            properties:
+              frequency:
+                type: string
+                enum: [DAILY, WEEKLY, MONTHLY, YEARLY]
+                description: How often the meeting repeats
+              interval:
+                type: integer
+                minimum: 1
+                description: The interval between recurrences (e.g., every 2 weeks)
+              count:
+                type: integer
+                minimum: 1
+                description: Number of occurrences after which to stop the recurrence
+              until:
+                type: string
+                description: End date for the recurrence in RFC3339 format (YYYY-MM-DD)
+              byDay:
+                type: array
+                description: Days of the week when the meeting occurs (for WEEKLY frequency)
+                items:
+                  type: string
+                  enum: [MO, TU, WE, TH, FR, SA, SU]
+              byMonthDay:
+                type: array
+                description: Days of the month when the meeting occurs (for MONTHLY frequency)
+                items:
+                  type: integer
+                  minimum: 1
+                  maximum: 31
       output:
         type: object
         required: [success]
@@ -2736,6 +2885,9 @@ actions:
           eventUrl:
             type: string
             description: The URL to access the scheduled event
+          eventDayOfWeek:
+            type: string
+            description: The day of the week when the event is scheduled (e.g., Monday, Tuesday, etc.)
           error:
             type: string
             description: The error that occurred if the meeting was not scheduled successfully
@@ -2829,9 +2981,15 @@ actions:
                 start:
                   type: string
                   description: Start date/time (for timed events, RFC3339 timestamp)
+                startDayOfWeek:
+                  type: string
+                  description: The day of the week when the event starts (e.g., Monday, Tuesday, etc.)
                 end:
                   type: string
                   description: End date/time (for timed events, RFC3339 timestamp)
+                endDayOfWeek:
+                  type: string
+                  description: The day of the week when the event ends (e.g., Monday, Tuesday, etc.)
                 attendees:
                   type: array
                   description: List of attendees
@@ -3005,6 +3163,9 @@ actions:
           eventUrl:
             type: string
             description: The URL to access the edited event
+          eventDayOfWeek:
+            type: string
+            description: The day of the week when the edited event occurs (e.g., Monday, Tuesday, etc.)
           error:
             type: string
             description: The error that occurred if the event was not edited successfully
@@ -5863,6 +6024,49 @@ actions:
           error:
             type: string
             description: Error message if the workflow trigger failed.
+  oktaOrg:
+    getOktaUserByName:
+      description: Retrieve details of a specific Okta user by their name.
+      scopes:
+        - okta.users.read
+      parameters:
+        type: object
+        required:
+          - name
+        properties:
+          name:
+            type: string
+            description: The name of the user to retrieve.
+      output:
+        type: object
+        required:
+          - success
+        properties:
+          success:
+            type: boolean
+            description: Whether the user details were successfully retrieved.
+          user:
+            type: object
+            required: [id, email]
+            properties:
+              id:
+                type: string
+                description: The user's Okta ID
+              email:
+                type: string
+                description: The user's email address
+              title:
+                type: string
+                description: The user's title
+              division:
+                type: string
+                description: The user's division
+              department:
+                type: string
+                description: The user's department
+          error:
+            type: string
+            description: Error message if retrieval failed.
 
   gong:
     getGongTranscripts:
@@ -7542,6 +7746,184 @@ actions:
                       patch:
                         type: string
                         description: The patch of the file
+    getBranch:
+      description: Get a branch in a GitHub repository
+      scopes: []
+      parameters:
+        type: object
+        required: [repositoryOwner, repositoryName, branchName]
+        properties:
+          repositoryOwner:
+            type: string
+            description: The owner of the repository
+          repositoryName:
+            type: string
+            description: The name of the repository
+          branchName:
+            type: string
+            description: The name of the branch to retrieve
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the operation was successful
+          error:
+            type: string
+            description: The error that occurred if the operation was not successful
+          branch:
+            type: object
+            description: The branch information
+            properties:
+              name:
+                type: string
+                description: The name of the branch
+              commit:
+                type: object
+                description: The commit information
+                properties:
+                  sha:
+                    type: string
+                    description: The SHA of the commit
+                  node_id:
+                    type: string
+                    description: The node ID of the commit
+                  url:
+                    type: string
+                    description: The API URL of the commit
+                  html_url:
+                    type: string
+                    description: The HTML URL of the commit
+                  comments_url:
+                    type: string
+                    description: The URL for commit comments
+                  commit:
+                    type: object
+                    description: The git commit object
+                    properties:
+                      author:
+                        type: object
+                        nullable: true
+                        description: The commit author
+                        properties:
+                          name:
+                            type: string
+                          email:
+                            type: string
+                          date:
+                            type: string
+                      committer:
+                        type: object
+                        nullable: true
+                        description: The commit committer
+                        properties:
+                          name:
+                            type: string
+                          email:
+                            type: string
+                          date:
+                            type: string
+                      message:
+                        type: string
+                        description: The commit message
+                      tree:
+                        type: object
+                        description: The commit tree
+                        properties:
+                          sha:
+                            type: string
+                          url:
+                            type: string
+                      url:
+                        type: string
+                        description: The commit URL
+                      comment_count:
+                        type: integer
+                        description: Number of comments on the commit
+                  author:
+                    type: object
+                    nullable: true
+                    description: The commit author user
+                    properties:
+                      login:
+                        type: string
+                      id:
+                        type: integer
+                      node_id:
+                        type: string
+                      avatar_url:
+                        type: string
+                      html_url:
+                        type: string
+                      type:
+                        type: string
+                  committer:
+                    type: object
+                    nullable: true
+                    description: The commit committer user
+                    properties:
+                      login:
+                        type: string
+                      id:
+                        type: integer
+                      node_id:
+                        type: string
+                      avatar_url:
+                        type: string
+                      html_url:
+                        type: string
+                      type:
+                        type: string
+                  parents:
+                    type: array
+                    description: The commit parents
+                    items:
+                      type: object
+                      properties:
+                        sha:
+                          type: string
+                        url:
+                          type: string
+                        html_url:
+                          type: string
+              _links:
+                type: object
+                description: Links related to the branch
+                properties:
+                  html:
+                    type: string
+                    description: The HTML URL of the branch
+                  self:
+                    type: string
+                    description: The API URL of the branch
+              protected:
+                type: boolean
+                description: Whether the branch is protected
+              protection:
+                type: object
+                nullable: true
+                description: Branch protection details
+                properties:
+                  enabled:
+                    type: boolean
+                    description: Whether protection is enabled
+                  required_status_checks:
+                    type: object
+                    nullable: true
+                    description: Required status checks
+                    properties:
+                      enforcement_level:
+                        type: string
+                      contexts:
+                        type: array
+                        items:
+                          type: string
+                      strict:
+                        type: boolean
+              protection_url:
+                type: string
+                description: The URL of the branch protection settings
     listCommits:
       description: List commits in a GitHub repository with optional date filtering and pagination
       scopes: []

@@ -5,6 +5,7 @@ export enum ProviderName {
   PERPLEXITY = "perplexity",
   ASANA = "asana",
   SLACK = "slack",
+  SLACKUSER = "slackUser",
   MATH = "math",
   CONFLUENCE = "confluence",
   JIRA = "jira",
@@ -24,6 +25,7 @@ export enum ProviderName {
   GOOGLEOAUTH = "googleOauth",
   GOOGLEMAIL = "googlemail",
   OKTA = "okta",
+  OKTAORG = "oktaOrg",
   GONG = "gong",
   FINNHUB = "finnhub",
   LOOKER = "looker",
@@ -415,6 +417,67 @@ export type slackGetChannelMessagesFunction = ActionFunction<
   slackGetChannelMessagesParamsType,
   AuthParamsType,
   slackGetChannelMessagesOutputType
+>;
+
+export const slackUserSearchSlackParamsSchema = z.object({
+  emails: z
+    .array(z.string().email())
+    .describe("Participants identified strictly by email (one email = 1:1 DM, multiple = MPIM).")
+    .optional(),
+  channel: z.string().describe('Channel name or ID. Examples - "#eng-updates", "eng-updates", "C01234567".').optional(),
+  topic: z.string().describe('Keyword(s) to search for (e.g., "jogging decision").').optional(),
+  timeRange: z
+    .enum(["latest", "today", "yesterday", "last_7d", "last_30d", "all"])
+    .describe("Optional time filter applied to the search.")
+    .default("latest"),
+  limit: z
+    .number()
+    .int()
+    .gte(1)
+    .lte(100)
+    .describe("Max matches to request (passed to Slack search; results are then hydrated and sorted newest-first).")
+    .default(50),
+});
+
+export type slackUserSearchSlackParamsType = z.infer<typeof slackUserSearchSlackParamsSchema>;
+
+export const slackUserSearchSlackOutputSchema = z.object({
+  query: z.string().describe("The exact query string sent to Slack’s search API after resolving inputs."),
+  results: z
+    .array(
+      z.object({
+        channelId: z.string().describe("Slack channel/conversation ID (C…/G…/D… or name)."),
+        ts: z.string().describe("Slack message timestamp of the hit (or thread root when hydrated as thread)."),
+        text: z.string().describe("Message text of the anchor (hit or thread root).").optional(),
+        userEmail: z.string().describe("User email of the anchor message’s author (if available).").optional(),
+        userName: z.string().describe("User name of the anchor message’s author (if available).").optional(),
+        permalink: z
+          .string()
+          .describe("A Slack permalink to the anchor (message or thread root), if resolvable.")
+          .optional(),
+        context: z
+          .array(
+            z.object({
+              ts: z.string().describe("Timestamp of the contextual message."),
+              text: z.string().describe("Text of the contextual message.").optional(),
+              userEmail: z.string().describe("Author user email of the contextual message.").optional(),
+              userName: z.string().describe("Author user name of the contextual message.").optional(),
+            }),
+          )
+          .describe(
+            "When a hit is in a thread, this is the full thread (root first). Otherwise, a small surrounding context window (~3 before, 5 after).",
+          )
+          .optional(),
+      }),
+    )
+    .describe("Hydrated search results (threads or small context windows), sorted by ts desc."),
+});
+
+export type slackUserSearchSlackOutputType = z.infer<typeof slackUserSearchSlackOutputSchema>;
+export type slackUserSearchSlackFunction = ActionFunction<
+  slackUserSearchSlackParamsType,
+  AuthParamsType,
+  slackUserSearchSlackOutputType
 >;
 
 export const mathAddParamsSchema = z.object({
@@ -1599,7 +1662,18 @@ export type firecrawlDeepResearchFunction = ActionFunction<
   firecrawlDeepResearchOutputType
 >;
 
-export const firecrawlScrapeUrlParamsSchema = z.object({ url: z.string().describe("The URL to scrape") });
+export const firecrawlScrapeUrlParamsSchema = z.object({
+  url: z.string().describe("The URL to scrape"),
+  waitMs: z.number().gte(0).describe("Optional wait time in milliseconds before scraping the page").optional(),
+  onlyMainContent: z
+    .boolean()
+    .describe("Extract only the main content of the page, excluding headers, footers, and navigation")
+    .optional(),
+  formats: z
+    .array(z.enum(["json", "html", "screenshot", "markdown", "rawHtml", "links", "changeTracking"]))
+    .describe("Array of formats to return")
+    .optional(),
+});
 
 export type firecrawlScrapeUrlParamsType = z.infer<typeof firecrawlScrapeUrlParamsSchema>;
 
@@ -2321,6 +2395,23 @@ export const googleOauthScheduleCalendarMeetingParamsSchema = z.object({
     .string()
     .describe("The time zone for the meeting, IANA Time Zone identifier (e.g., 'America/New_York')")
     .optional(),
+  recurrence: z
+    .object({
+      frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]).describe("How often the meeting repeats").optional(),
+      interval: z.number().int().gte(1).describe("The interval between recurrences (e.g., every 2 weeks)").optional(),
+      count: z.number().int().gte(1).describe("Number of occurrences after which to stop the recurrence").optional(),
+      until: z.string().describe("End date for the recurrence in RFC3339 format (YYYY-MM-DD)").optional(),
+      byDay: z
+        .array(z.enum(["MO", "TU", "WE", "TH", "FR", "SA", "SU"]))
+        .describe("Days of the week when the meeting occurs (for WEEKLY frequency)")
+        .optional(),
+      byMonthDay: z
+        .array(z.number().int().gte(1).lte(31))
+        .describe("Days of the month when the meeting occurs (for MONTHLY frequency)")
+        .optional(),
+    })
+    .describe("Recurring meeting configuration. If not provided, creates a one-time meeting.")
+    .optional(),
 });
 
 export type googleOauthScheduleCalendarMeetingParamsType = z.infer<
@@ -2331,6 +2422,10 @@ export const googleOauthScheduleCalendarMeetingOutputSchema = z.object({
   success: z.boolean().describe("Whether the meeting was scheduled successfully"),
   eventId: z.string().describe("The ID of the event that was scheduled").optional(),
   eventUrl: z.string().describe("The URL to access the scheduled event").optional(),
+  eventDayOfWeek: z
+    .string()
+    .describe("The day of the week when the event is scheduled (e.g., Monday, Tuesday, etc.)")
+    .optional(),
   error: z.string().describe("The error that occurred if the meeting was not scheduled successfully").optional(),
 });
 
@@ -2397,7 +2492,15 @@ export const googleOauthListCalendarEventsOutputSchema = z.object({
           description: z.string().describe("Description of the event").optional(),
           location: z.string().describe("Geographic location of the event as free-form text").optional(),
           start: z.string().describe("Start date/time (for timed events, RFC3339 timestamp)").optional(),
+          startDayOfWeek: z
+            .string()
+            .describe("The day of the week when the event starts (e.g., Monday, Tuesday, etc.)")
+            .optional(),
           end: z.string().describe("End date/time (for timed events, RFC3339 timestamp)").optional(),
+          endDayOfWeek: z
+            .string()
+            .describe("The day of the week when the event ends (e.g., Monday, Tuesday, etc.)")
+            .optional(),
           attendees: z
             .array(
               z.object({
@@ -2522,6 +2625,10 @@ export const googleOauthEditAGoogleCalendarEventOutputSchema = z.object({
   success: z.boolean().describe("Whether the event was edited successfully"),
   eventId: z.string().describe("The ID of the edited event").optional(),
   eventUrl: z.string().describe("The URL to access the edited event").optional(),
+  eventDayOfWeek: z
+    .string()
+    .describe("The day of the week when the edited event occurs (e.g., Monday, Tuesday, etc.)")
+    .optional(),
   error: z.string().describe("The error that occurred if the event was not edited successfully").optional(),
 });
 
@@ -4436,6 +4543,33 @@ export type oktaTriggerOktaWorkflowFunction = ActionFunction<
   oktaTriggerOktaWorkflowOutputType
 >;
 
+export const oktaOrgGetOktaUserByNameParamsSchema = z.object({
+  name: z.string().describe("The name of the user to retrieve."),
+});
+
+export type oktaOrgGetOktaUserByNameParamsType = z.infer<typeof oktaOrgGetOktaUserByNameParamsSchema>;
+
+export const oktaOrgGetOktaUserByNameOutputSchema = z.object({
+  success: z.boolean().describe("Whether the user details were successfully retrieved."),
+  user: z
+    .object({
+      id: z.string().describe("The user's Okta ID"),
+      email: z.string().describe("The user's email address"),
+      title: z.string().describe("The user's title").optional(),
+      division: z.string().describe("The user's division").optional(),
+      department: z.string().describe("The user's department").optional(),
+    })
+    .optional(),
+  error: z.string().describe("Error message if retrieval failed.").optional(),
+});
+
+export type oktaOrgGetOktaUserByNameOutputType = z.infer<typeof oktaOrgGetOktaUserByNameOutputSchema>;
+export type oktaOrgGetOktaUserByNameFunction = ActionFunction<
+  oktaOrgGetOktaUserByNameParamsType,
+  AuthParamsType,
+  oktaOrgGetOktaUserByNameOutputType
+>;
+
 export const gongGetGongTranscriptsParamsSchema = z.object({
   userRole: z.string().describe("The role of users whose transcripts are being fetched"),
   trackers: z
@@ -5572,6 +5706,119 @@ export type githubSearchOrganizationFunction = ActionFunction<
   githubSearchOrganizationParamsType,
   AuthParamsType,
   githubSearchOrganizationOutputType
+>;
+
+export const githubGetBranchParamsSchema = z.object({
+  repositoryOwner: z.string().describe("The owner of the repository"),
+  repositoryName: z.string().describe("The name of the repository"),
+  branchName: z.string().describe("The name of the branch to retrieve"),
+});
+
+export type githubGetBranchParamsType = z.infer<typeof githubGetBranchParamsSchema>;
+
+export const githubGetBranchOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("The error that occurred if the operation was not successful").optional(),
+  branch: z
+    .object({
+      name: z.string().describe("The name of the branch").optional(),
+      commit: z
+        .object({
+          sha: z.string().describe("The SHA of the commit").optional(),
+          node_id: z.string().describe("The node ID of the commit").optional(),
+          url: z.string().describe("The API URL of the commit").optional(),
+          html_url: z.string().describe("The HTML URL of the commit").optional(),
+          comments_url: z.string().describe("The URL for commit comments").optional(),
+          commit: z
+            .object({
+              author: z
+                .object({ name: z.string().optional(), email: z.string().optional(), date: z.string().optional() })
+                .nullable()
+                .describe("The commit author")
+                .optional(),
+              committer: z
+                .object({ name: z.string().optional(), email: z.string().optional(), date: z.string().optional() })
+                .nullable()
+                .describe("The commit committer")
+                .optional(),
+              message: z.string().describe("The commit message").optional(),
+              tree: z
+                .object({ sha: z.string().optional(), url: z.string().optional() })
+                .describe("The commit tree")
+                .optional(),
+              url: z.string().describe("The commit URL").optional(),
+              comment_count: z.number().int().describe("Number of comments on the commit").optional(),
+            })
+            .describe("The git commit object")
+            .optional(),
+          author: z
+            .object({
+              login: z.string().optional(),
+              id: z.number().int().optional(),
+              node_id: z.string().optional(),
+              avatar_url: z.string().optional(),
+              html_url: z.string().optional(),
+              type: z.string().optional(),
+            })
+            .nullable()
+            .describe("The commit author user")
+            .optional(),
+          committer: z
+            .object({
+              login: z.string().optional(),
+              id: z.number().int().optional(),
+              node_id: z.string().optional(),
+              avatar_url: z.string().optional(),
+              html_url: z.string().optional(),
+              type: z.string().optional(),
+            })
+            .nullable()
+            .describe("The commit committer user")
+            .optional(),
+          parents: z
+            .array(
+              z.object({ sha: z.string().optional(), url: z.string().optional(), html_url: z.string().optional() }),
+            )
+            .describe("The commit parents")
+            .optional(),
+        })
+        .describe("The commit information")
+        .optional(),
+      _links: z
+        .object({
+          html: z.string().describe("The HTML URL of the branch").optional(),
+          self: z.string().describe("The API URL of the branch").optional(),
+        })
+        .describe("Links related to the branch")
+        .optional(),
+      protected: z.boolean().describe("Whether the branch is protected").optional(),
+      protection: z
+        .object({
+          enabled: z.boolean().describe("Whether protection is enabled").optional(),
+          required_status_checks: z
+            .object({
+              enforcement_level: z.string().optional(),
+              contexts: z.array(z.string()).optional(),
+              strict: z.boolean().optional(),
+            })
+            .nullable()
+            .describe("Required status checks")
+            .optional(),
+        })
+        .nullable()
+        .describe("Branch protection details")
+        .optional(),
+      protection_url: z.string().describe("The URL of the branch protection settings").optional(),
+    })
+    .describe("The branch information")
+    .optional(),
+});
+
+export type githubGetBranchOutputType = z.infer<typeof githubGetBranchOutputSchema>;
+export type githubGetBranchFunction = ActionFunction<
+  githubGetBranchParamsType,
+  AuthParamsType,
+  githubGetBranchOutputType
 >;
 
 export const githubListCommitsParamsSchema = z.object({

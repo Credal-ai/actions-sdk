@@ -4,7 +4,7 @@ import type {
   zendeskAssignTicketOutputType,
   zendeskAssignTicketParamsType,
 } from "../../autogen/types.js";
-import { axiosClient } from "../../util/axiosClient.js";
+import { createAxiosClientWithRetries } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 const updateTicketStatus: zendeskAssignTicketFunction = async ({
@@ -21,6 +21,7 @@ const updateTicketStatus: zendeskAssignTicketFunction = async ({
   if (!authToken) {
     throw new Error(MISSING_AUTH_TOKEN);
   }
+  const axiosClient = createAxiosClientWithRetries({ timeout: 10000, retryCount: 4 });
 
   await axiosClient.request({
     url: url,

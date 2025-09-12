@@ -7,6 +7,7 @@ import type {
   googleOauthListCalendarEventsParamsType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { getDayOfWeek } from "../../../utils/datetime.js";
 
 const listCalendarEvents: googleOauthListCalendarEventsFunction = async ({
   params,
@@ -85,7 +86,9 @@ const listCalendarEvents: googleOauthListCalendarEventsFunction = async ({
             description,
             location,
             start: start?.dateTime || start?.date || "",
+            startDayOfWeek: getDayOfWeek(start?.dateTime || start?.date || ""),
             end: end?.dateTime || end?.date || "",
+            endDayOfWeek: getDayOfWeek(end?.dateTime || end?.date || ""),
             attendees: Array.isArray(attendees)
               ? attendees.map(({ email, displayName, responseStatus }) => ({
                   email,

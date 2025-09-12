@@ -14,14 +14,10 @@ export async function runAction(
     throw Error("Missing params");
   }
 
-  const allActions = await getActions();
-  const actionTemplate = allActions.find(
-    x => (x as ActionTemplate).name == name && (x as ActionTemplate).provider == provider,
-  ) as ActionTemplate;
+  const actionTemplate = getActionByProviderAndName(provider, name);
   if (!actionTemplate) {
-    throw Error(`Action with name ${name} does not exist`);
+    throw Error(`Action template with name ${name} does not exist`);
   }
-
   const result = await invokeAction({
     provider: actionTemplate.provider,
     name: actionTemplate.name,
@@ -36,8 +32,15 @@ export async function runAction(
  * HELPER FUNCTIONS
  */
 
-export async function getActions(): Promise<ActionTemplate[]> {
-  return Object.values(templates) as ActionTemplate[];
+export function getActions(): ActionTemplate[] {
+  return Object.values(templates);
+}
+
+export function getActionByProviderAndName(provider: string, name: string): ActionTemplate | undefined {
+  const allActions = getActions();
+  const actionTemplate = allActions.find(x => x.name == name && x.provider == provider);
+
+  return actionTemplate;
 }
 
 export type ActionGroupsReturn = { name: string; description: string; actions: ActionTemplate[] }[];

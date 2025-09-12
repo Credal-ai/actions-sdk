@@ -250,6 +250,8 @@ import {
   githubGetFileContentOutputSchema,
   githubListDirectoryOutputSchema,
   githubListDirectoryParamsSchema,
+  githubGetBranchParamsSchema,
+  githubGetBranchOutputSchema,
   githubListCommitsParamsSchema,
   githubListCommitsOutputSchema,
   githubGetPullRequestDetailsParamsSchema,
@@ -298,6 +300,10 @@ import {
   googleOauthSearchDriveByKeywordsAndGetFileContentOutputSchema,
   perplexityPerplexityDeepResearchParamsSchema,
   perplexityPerplexityDeepResearchOutputSchema,
+  slackUserSearchSlackParamsSchema,
+  slackUserSearchSlackOutputSchema,
+  oktaOrgGetOktaUserByNameParamsSchema,
+  oktaOrgGetOktaUserByNameOutputSchema,
 } from "./autogen/types.js";
 import validateAddress from "./providers/googlemaps/validateAddress.js";
 import add from "./providers/math/add.js";
@@ -423,6 +429,7 @@ import searchDriveByQueryAndGetFileContent from "./providers/google-oauth/search
 import queryGoogleBigQuery from "./providers/google-oauth/queryGoogleBigQuery.js";
 import getFileContent from "./providers/github/getFileContent.js";
 import listDirectory from "./providers/github/listDirectory.js";
+import getBranch from "./providers/github/getBranch.js";
 import listCommits from "./providers/github/listCommits.js";
 import getPullRequestDetails from "./providers/github/getPullRequestDetails.js";
 import getIssueDetails from "./providers/linear/getIssueDetails.js";
@@ -447,6 +454,8 @@ import searchAndScrape from "./providers/firecrawl/searchAndScrape.js";
 import firecrawlGetTopNSearchResultUrls from "./providers/firecrawl/getTopNSearchResultUrls.js";
 import searchDriveByKeywordsAndGetFileContent from "./providers/google-oauth/searchDriveByKeywordsAndGetFileContent.js";
 import perplexityDeepResearch from "./providers/perplexity/perplexityDeepResearch.js";
+import searchSlack from "./providers/slackUser/searchSlack.js";
+import getOktaUserByName from "./providers/oktaOrg/getOktaUserByName.js";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -604,6 +613,13 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: createChannel,
       paramsSchema: slackCreateChannelParamsSchema,
       outputSchema: slackCreateChannelOutputSchema,
+    },
+  },
+  slackUser: {
+    searchSlack: {
+      fn: searchSlack,
+      paramsSchema: slackUserSearchSlackParamsSchema,
+      outputSchema: slackUserSearchSlackOutputSchema,
     },
   },
   confluence: {
@@ -1096,6 +1112,11 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       paramsSchema: githubListDirectoryParamsSchema,
       outputSchema: githubListDirectoryOutputSchema,
     },
+    getBranch: {
+      fn: getBranch,
+      paramsSchema: githubGetBranchParamsSchema,
+      outputSchema: githubGetBranchOutputSchema,
+    },
     listCommits: {
       fn: listCommits,
       paramsSchema: githubListCommitsParamsSchema,
@@ -1174,6 +1195,13 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: triggerOktaWorkflow,
       paramsSchema: oktaTriggerOktaWorkflowParamsSchema,
       outputSchema: oktaTriggerOktaWorkflowOutputSchema,
+    },
+  },
+  oktaOrg: {
+    getOktaUserByName: {
+      fn: getOktaUserByName,
+      paramsSchema: oktaOrgGetOktaUserByNameParamsSchema,
+      outputSchema: oktaOrgGetOktaUserByNameOutputSchema,
     },
   },
   gitlab: {

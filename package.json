@@ -1,6 +1,6 @@
 {
   "name": "@credal/actions",
-  "version": "0.2.107",
+  "version": "0.2.124",
   "type": "module",
   "description": "AI Actions by Credal AI",
   "sideEffects": false,
@@ -48,7 +48,7 @@
   },
   "dependencies": {
     "@credal/sdk": "^0.0.21",
-    "@mendable/firecrawl-js": "^1.24.0",
+    "@mendable/firecrawl-js": "^4.3.4",
     "@microsoft/microsoft-graph-client": "^3.0.7",
     "@octokit/core": "^6.1.6",
     "@octokit/plugin-rest-endpoint-methods": "^16.0.0",
@@ -66,11 +66,12 @@
     "mammoth": "^1.4.27",
     "mongodb": "^6.13.1",
     "node-forge": "^1.3.1",
+    "p-limit": "^7.1.1",
     "pdf2json": "^3.1.6",
     "resend": "^4.7.0",
     "snowflake-sdk": "^2.0.2",
     "ts-node": "^10.9.2",
     "uuid": "^11.1.0",
-    "zod": "^3.24.1"
+    "zod": "^3.25.0"
   }
 }
