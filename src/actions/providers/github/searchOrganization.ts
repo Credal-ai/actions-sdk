@@ -120,11 +120,11 @@ const searchOrganization: githubSearchOrganizationFunction = async ({
     score: item.score,
     textMatches: item.text_matches
       ? item.text_matches.map(match => ({
-          object_url: match.object_url ?? undefined,
-          object_type: match.object_type ?? undefined,
-          fragment: match.fragment?.split("\n").slice(0, MAX_FRAGMENT_LINES).join("\n"),
-          matches: match.matches ?? [],
-        }))
+        object_url: match.object_url ?? undefined,
+        object_type: match.object_type ?? undefined,
+        fragment: match.fragment?.split("\n").slice(0, MAX_FRAGMENT_LINES).join("\n"),
+        matches: match.matches ?? [],
+      }))
       : [],
   }));
 
@@ -188,10 +188,10 @@ const searchOrganization: githubSearchOrganizationFunction = async ({
       const files =
         isPR && prIndex !== -1
           ? prFiles[prIndex].data.slice(0, MAX_FILES_PER_PR).map(f => ({
-              filename: f.filename,
-              status: f.status,
-              patch: f.patch?.split("\n").slice(0, MAX_PATCH_LINES).join("\n"),
-            }))
+            filename: f.filename,
+            status: f.status,
+            patch: f.patch?.split("\n").slice(0, MAX_PATCH_LINES).join("\n"),
+          }))
           : undefined;
 
       return {
