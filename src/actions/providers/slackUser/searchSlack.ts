@@ -5,6 +5,7 @@ import {
   type slackUserSearchSlackParamsType,
   type AuthParamsType,
 } from "../../autogen/types.js";
+import { SearchSlackOutputContent } from "./types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import pLimit from "p-limit";
 
@@ -46,6 +47,7 @@ export interface SlackSearchMessage {
   ts: string;
   text?: string;
   userEmail?: string;
+  userName?: string;
   permalink?: string;
   /** If thread: full thread (root first). If not thread: small context window around the hit. */
   context?: Array<{ ts: string; text?: string; userEmail?: string; userName?: string }>;
@@ -185,150 +187,183 @@ const searchSlack: slackUserSearchSlackFunction = async ({
   params: slackUserSearchSlackParamsType;
   authParams: AuthParamsType;
 }): Promise<slackUserSearchSlackOutputType> => {
-  if (!authParams.authToken) {
-    throw new Error(MISSING_AUTH_TOKEN);
-  }
-
-  const client = new WebClient(authParams.authToken);
-  const slackUserCache = new SlackUserCache(client);
-  const { emails, channel, topic, timeRange, limit } = params;
-
-  const parts: string[] = [];
-
-  if (emails?.length) {
-    const userIds = await lookupUserIdsByEmail(client, emails, slackUserCache);
-    const { user_id: myUserId } = await client.auth.test();
-
-    if (!myUserId) throw new Error("Failed to get my user ID.");
-
-    const userIdsWithoutMe = userIds.filter(id => id !== myUserId);
-
-    if (userIdsWithoutMe.length === 0) throw new Error("No users resolved from emails.");
-    if (userIdsWithoutMe.length == 1) {
-      parts.push(`in:<@${userIdsWithoutMe[0]}>`);
-    } else {
-      const convoName = await getMPIMName(client, userIdsWithoutMe);
-      parts.push(`in:${convoName}`);
+  try {
+    if (!authParams.authToken) {
+      throw new Error(MISSING_AUTH_TOKEN);
     }
-  } else if (channel) {
-    parts.push(`in:${normalizeChannelOperand(channel)}`);
-  }
 
-  if (topic && topic.trim()) parts.push(topic.trim());
-  const tf = timeFilter(timeRange);
-  if (tf) parts.push(tf);
+    const client = new WebClient(authParams.authToken);
+    const slackUserCache = new SlackUserCache(client);
+    const { emails, channel, topic, timeRange, limit } = params;
 
-  const query = parts.join(" ").trim();
-  if (!query) throw new Error("No query built — provide emails, channel, or topic.");
+    const parts: string[] = [];
 
-  const count = Math.max(1, Math.min(100, limit));
-  const searchRes = await client.search.messages({ query, count, highlight: true });
-  const matches = searchRes.messages?.matches ?? [];
+    if (emails?.length) {
+      const userIds = await lookupUserIdsByEmail(client, emails, slackUserCache);
+      const { user_id: myUserId } = await client.auth.test();
 
-  const hitsPromises = matches.slice(0, limit).map(async m => {
-    const user = m.user ? await slackUserCache.get(m.user) : undefined;
-    return {
-      channelId: m.channel?.id || m.channel?.name || "",
-      ts: m.ts,
-      text: m.text,
-      userEmail: user?.email ?? undefined,
-      userName: user?.name ?? undefined,
-    };
-  });
+      if (!myUserId) throw new Error("Failed to get my user ID.");
 
-  const hits = await Promise.all(hitsPromises);
+      const userIdsWithoutMe = userIds.filter(id => id !== myUserId);
 
-  const tasks = hits.map(h =>
-    limitHit(async () => {
-      if (!h.ts) return null;
+      if (userIdsWithoutMe.length === 0) throw new Error("No users resolved from emails.");
+      if (userIdsWithoutMe.length == 1) {
+        parts.push(`in:<@${userIdsWithoutMe[0]}>`);
+      } else {
+        const convoName = await getMPIMName(client, userIdsWithoutMe);
+        parts.push(`in:${convoName}`);
+      }
+    } else if (channel) {
+      parts.push(`in:${normalizeChannelOperand(channel)}`);
+    }
 
-      try {
-        const anchor = await fetchOneMessage(client, h.channelId, h.ts);
-        const rootTs = anchor?.thread_ts || h.ts;
+    if (topic && topic.trim()) parts.push(topic.trim());
+    const tf = timeFilter(timeRange);
+    if (tf) parts.push(tf);
 
-        if (anchor?.thread_ts) {
-          // thread: fetch thread + permalink concurrently
-          const [thread, permalink] = await Promise.all([
-            fetchThread(client, h.channelId, rootTs),
-            getPermalink(client, h.channelId, rootTs),
-          ]);
-          const contextPromises = thread
-            .filter(t => t.ts)
-            .map(async t => {
-              const user = t.user ? await slackUserCache.get(t.user) : undefined;
-              return {
-                ts: t.ts!,
-                text: t.text,
-                userEmail: user?.email ?? undefined,
-                userName: user?.name ?? undefined,
-              };
-            });
+    const query = parts.join(" ").trim();
+    if (!query) throw new Error("No query built — provide emails, channel, or topic.");
 
-          const context = await Promise.all(contextPromises);
+    const count = Math.max(1, Math.min(100, limit));
+    const searchRes = await client.search.messages({ query, count, highlight: true });
+    const matches = searchRes.messages?.matches ?? [];
 
-          const user = anchor.user ? await slackUserCache.get(anchor.user) : undefined;
+    const hitsPromises = matches.slice(0, limit).map(async m => {
+      const user = m.user ? await slackUserCache.get(m.user) : undefined;
+      return {
+        channelId: m.channel?.id || m.channel?.name || "",
+        ts: m.ts,
+        text: m.text,
+        userEmail: user?.email ?? undefined,
+        userName: user?.name ?? undefined,
+      };
+    });
 
-          return {
-            channelId: h.channelId,
-            ts: rootTs,
-            text: anchor.text ?? h.text,
-            userEmail: user?.email ?? h.userEmail,
-            userName: user?.name ?? h.userName,
-            context,
-            permalink,
-          };
-        } else {
-          // not a thread: fetch context window + permalink concurrently
-          const [ctx, permalink] = await Promise.all([
-            fetchContextWindow(client, h.channelId, h.ts),
-            getPermalink(client, h.channelId, h.ts),
-          ]);
-          const contextPromises = ctx
-            .filter(t => t.ts)
-            .map(async t => {
-              const user = t.user ? await slackUserCache.get(t.user) : undefined;
-              return {
-                ts: t.ts!,
-                text: t.text,
-                userEmail: user?.email ?? undefined,
-                userName: user?.name ?? undefined,
-              };
-            });
-          const context = await Promise.all(contextPromises);
+    const hits = await Promise.all(hitsPromises);
 
-          const user = anchor?.user ? await slackUserCache.get(anchor.user) : undefined;
+    const tasks = hits.map(h =>
+      limitHit(async () => {
+        if (!h.ts) return null;
 
+        try {
+          const anchor = await fetchOneMessage(client, h.channelId, h.ts);
+          const rootTs = anchor?.thread_ts || h.ts;
+
+          if (anchor?.thread_ts) {
+            // thread: fetch thread + permalink concurrently
+            const [thread, permalink] = await Promise.all([
+              fetchThread(client, h.channelId, rootTs),
+              getPermalink(client, h.channelId, rootTs),
+            ]);
+            const contextPromises = thread
+              .filter(t => t.ts)
+              .map(async t => {
+                const user = t.user ? await slackUserCache.get(t.user) : undefined;
+                return {
+                  ts: t.ts!,
+                  text: t.text,
+                  userEmail: user?.email ?? undefined,
+                  userName: user?.name ?? undefined,
+                };
+              });
+
+            const context = await Promise.all(contextPromises);
+
+            const user = anchor.user ? await slackUserCache.get(anchor.user) : undefined;
+
+            return {
+              channelId: h.channelId,
+              ts: rootTs,
+              text: anchor.text ?? h.text,
+              userEmail: user?.email ?? h.userEmail,
+              userName: user?.name ?? h.userName,
+              context,
+              permalink,
+            };
+          } else {
+            // not a thread: fetch context window + permalink concurrently
+            const [ctx, permalink] = await Promise.all([
+              fetchContextWindow(client, h.channelId, h.ts),
+              getPermalink(client, h.channelId, h.ts),
+            ]);
+            const contextPromises = ctx
+              .filter(t => t.ts)
+              .map(async t => {
+                const user = t.user ? await slackUserCache.get(t.user) : undefined;
+                return {
+                  ts: t.ts!,
+                  text: t.text,
+                  userEmail: user?.email ?? undefined,
+                  userName: user?.name ?? undefined,
+                };
+              });
+            const context = await Promise.all(contextPromises);
+
+            const user = anchor?.user ? await slackUserCache.get(anchor.user) : undefined;
+
+            return {
+              channelId: h.channelId,
+              ts: h.ts,
+              text: anchor?.text ?? h.text,
+              userEmail: user?.email ?? h.userEmail,
+              userName: user?.name ?? h.userName,
+              context,
+              permalink,
+            };
+          }
+        } catch {
+          // fallback minimal object; still in parallel
           return {
             channelId: h.channelId,
             ts: h.ts,
-            text: anchor?.text ?? h.text,
-            userEmail: user?.email ?? h.userEmail,
-            userName: user?.name ?? h.userName,
-            context,
-            permalink,
+            text: h.text,
+            userEmail: h.userEmail,
+            userName: h.userName,
+            permalink: await getPermalink(client, h.channelId, h.ts),
           };
         }
-      } catch {
-        // fallback minimal object; still in parallel
-        return {
-          channelId: h.channelId,
-          ts: h.ts,
-          text: h.text,
-          userEmail: h.userEmail,
-          userName: h.userName,
-          permalink: await getPermalink(client, h.channelId, h.ts),
-        };
-      }
-    }),
-  );
+      }),
+    );
 
-  const settled = await Promise.allSettled(tasks);
+    const settled = await Promise.allSettled(tasks);
 
-  const results: SlackSearchMessage[] = [];
-  for (const r of settled) if (r.status === "fulfilled" && r.value) results.push(r.value);
+    const slackMessages: SlackSearchMessage[] = [];
+    for (const r of settled) if (r.status === "fulfilled" && r.value) slackMessages.push(r.value);
 
-  results.sort((a, b) => Number(b.ts) - Number(a.ts));
-  return { query, results };
+    slackMessages.sort((a, b) => Number(b.ts) - Number(a.ts));
+
+    // Transform to new schema format
+    const results = slackMessages.map(msg => {
+      // Create content object matching SearchSlackOutputContent type
+      const content: SearchSlackOutputContent = {
+        channelId: msg.channelId,
+        ts: msg.ts,
+        text: msg.text,
+        userEmail: msg.userEmail,
+        userName: msg.userName,
+        permalink: msg.permalink,
+        context: msg.context,
+      };
+
+      return {
+        external_resource_id: msg.ts,
+        name: msg.userName || msg.userEmail || `Channel ${msg.channelId}`,
+        url: msg.permalink || `https://slack.com/archives/${msg.channelId}/p${msg.ts.replace('.', '')}`,
+        content: JSON.stringify(content),
+      };
+    });
+
+    return {
+      success: true,
+      results,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      results: [],
+      error: error instanceof Error ? error.message : "Unknown error occurred",
+    };
+  }
 };
 
 export default searchSlack;
