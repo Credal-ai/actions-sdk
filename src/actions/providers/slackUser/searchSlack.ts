@@ -348,7 +348,7 @@ const searchSlack: slackUserSearchSlackFunction = async ({
       return {
         external_resource_id: msg.ts,
         name: msg.userName || msg.userEmail || `Channel ${msg.channelId}`,
-        url: msg.permalink || `https://slack.com/archives/${msg.channelId}/p${msg.ts.replace('.', '')}`,
+        url: msg.permalink || `https://slack.com/archives/${msg.channelId}/p${msg.ts.replace(".", "")}`,
         content: JSON.stringify(content),
       };
     });
