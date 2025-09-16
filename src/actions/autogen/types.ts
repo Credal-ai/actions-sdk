@@ -816,11 +816,13 @@ export type jiraGetJiraIssuesByQueryParamsType = z.infer<typeof jiraGetJiraIssue
 
 export const jiraGetJiraIssuesByQueryOutputSchema = z.object({
   success: z.boolean().describe("Whether the records were successfully retrieved"),
-  records: z
-    .object({
-      issues: z
-        .array(
-          z.object({
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the result"),
+        url: z.string().describe("The URL of the result"),
+        contents: z
+          .object({
             id: z.string().describe("Internal Jira issue ID"),
             key: z.string().describe("Human-readable issue key (e.g. SSPR-123)"),
             summary: z.string().describe("Summary of the issue"),
@@ -840,12 +842,11 @@ export const jiraGetJiraIssuesByQueryOutputSchema = z.object({
             updated: z.string().datetime({ offset: true }),
             resolution: z.string().nullable().optional(),
             dueDate: z.string().date().nullable().optional(),
-          }),
-        )
-        .describe("The retrieved Jira issues")
-        .optional(),
-    })
-    .describe("The result object containing issues")
+          })
+          .describe("The result object containing issues"),
+      }),
+    )
+    .describe("The results of the Jira issues")
     .optional(),
   error: z.string().describe("The error that occurred if the records were not successfully retrieved").optional(),
 });
@@ -1132,11 +1133,13 @@ export type jiraOrgGetJiraIssuesByQueryParamsType = z.infer<typeof jiraOrgGetJir
 
 export const jiraOrgGetJiraIssuesByQueryOutputSchema = z.object({
   success: z.boolean().describe("Whether the records were successfully retrieved"),
-  records: z
-    .object({
-      issues: z
-        .array(
-          z.object({
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the result"),
+        url: z.string().describe("The URL of the result"),
+        contents: z
+          .object({
             id: z.string().describe("Internal Jira issue ID"),
             key: z.string().describe("Human-readable issue key (e.g. SSPR-123)"),
             summary: z.string().describe("Summary of the issue"),
@@ -1156,12 +1159,11 @@ export const jiraOrgGetJiraIssuesByQueryOutputSchema = z.object({
             updated: z.string().datetime({ offset: true }),
             resolution: z.string().nullable().optional(),
             dueDate: z.string().date().nullable().optional(),
-          }),
-        )
-        .describe("The retrieved Jira issues")
-        .optional(),
-    })
-    .describe("The result object containing issues")
+          })
+          .describe("The result object containing issues"),
+      }),
+    )
+    .describe("The results of the Jira issues")
     .optional(),
   error: z.string().describe("The error that occurred if the records were not successfully retrieved").optional(),
 });

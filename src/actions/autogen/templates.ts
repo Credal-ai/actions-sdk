@@ -1509,15 +1509,24 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
         type: "boolean",
         description: "Whether the records were successfully retrieved",
       },
-      records: {
-        type: "object",
-        description: "The result object containing issues",
-        properties: {
-          issues: {
-            type: "array",
-            description: "The retrieved Jira issues",
-            items: {
+      results: {
+        type: "array",
+        description: "The results of the Jira issues",
+        items: {
+          type: "object",
+          required: ["name", "url", "contents"],
+          properties: {
+            name: {
+              type: "string",
+              description: "The name of the result",
+            },
+            url: {
+              type: "string",
+              description: "The URL of the result",
+            },
+            contents: {
               type: "object",
+              description: "The result object containing issues",
               required: [
                 "id",
                 "key",
@@ -2168,15 +2177,24 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
         type: "boolean",
         description: "Whether the records were successfully retrieved",
       },
-      records: {
-        type: "object",
-        description: "The result object containing issues",
-        properties: {
-          issues: {
-            type: "array",
-            description: "The retrieved Jira issues",
-            items: {
+      results: {
+        type: "array",
+        description: "The results of the Jira issues",
+        items: {
+          type: "object",
+          required: ["name", "url", "contents"],
+          properties: {
+            name: {
+              type: "string",
+              description: "The name of the result",
+            },
+            url: {
+              type: "string",
+              description: "The URL of the result",
+            },
+            contents: {
               type: "object",
+              description: "The result object containing issues",
               required: [
                 "id",
                 "key",

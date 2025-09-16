@@ -112,8 +112,10 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
 
     return {
       success: true,
-      records: {
-        issues: response.data.issues.map(issue => ({
+      results: response.data.issues.map(issue => ({
+        name: issue.key,
+        url: `${baseUrl}/browse/${issue.key}`,
+        contents: {
           id: issue.id,
           key: issue.key,
           summary: issue.fields.summary,
@@ -140,8 +142,8 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
           resolution: issue.fields.resolution?.name || null,
           dueDate: issue.fields.duedate || null,
           url: `${baseUrl}/browse/${issue.key}`,
-        })),
-      },
+        },
+      })),
     };
   } catch (error) {
     console.error("Error retrieving Jira issues:", error);
