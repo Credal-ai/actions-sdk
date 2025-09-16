@@ -50,7 +50,7 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
         name: file.name,
         mimeType: file.mimeType,
         url: file.url,
-        content: contentResult.success ? contentResult.content : undefined,
+        content: contentResult.success ? contentResult.results?.[0]?.contents?.content : undefined,
       };
     } catch (error) {
       console.error(`Error fetching content for file ${file.id}:`, error);
