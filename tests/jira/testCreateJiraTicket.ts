@@ -3,7 +3,7 @@ import { runAction } from "../../src/app.js";
 import { jiraConfig, provider } from "./utils.js";
 
 async function runTest() {
-  const { authToken, cloudId, baseUrl, projectKey } = jiraConfig;
+  const { authToken, cloudId, baseUrl, projectKey, requestTypeId } = jiraConfig;
 
   const result = await runAction(
     "createJiraTicket",
@@ -21,7 +21,7 @@ async function runTest() {
       reporter: "", // Optional - (defaults to the authenticated user related to the oauth token)
       assignee: "", // Optional
       // customFields: { customfield_10100: "High" }, // Example of custom fields setting
-      requestTypeId: "5",
+      requestTypeId, // JSM request type from environment
     },
   );
 

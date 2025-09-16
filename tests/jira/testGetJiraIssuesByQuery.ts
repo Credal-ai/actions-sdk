@@ -1,13 +1,10 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app.js";
-import dotenv from "dotenv";
 import { jiraGetJiraIssuesByQueryOutputSchema } from "../../src/actions/autogen/types.js";
-
-dotenv.config();
+import { jiraConfig } from "./utils.js";
 
 async function runTest() {
-  const authToken = process.env.JIRA_AUTH_TOKEN;
-  const cloudId = process.env.JIRA_CLOUD_ID;
+  const { authToken, cloudId, projectKey } = jiraConfig;
 
   const result = await runAction(
     "getJiraIssuesByQuery",
@@ -17,7 +14,7 @@ async function runTest() {
       cloudId,
     },
     {
-      query: `project = CTP`,
+      query: `project = ${projectKey}`,
       limit: 10
     }
   );

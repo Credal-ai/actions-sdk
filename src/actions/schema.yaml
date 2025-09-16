@@ -544,7 +544,7 @@ actions:
               - all
             default: latest
           limit:
-            type: integer
+            type: number
             description: Max matches to request (passed to Slack search; results are then hydrated and sorted newest-first).
             minimum: 1
             maximum: 100
@@ -816,6 +816,9 @@ actions:
           assignee:
             type: string
             description: The assignee for the new ticket creation
+          requestTypeId:
+            type: string
+            description: The request type ID for Jira Service Management tickets
           customFields:
             type: object
             description: Custom fields to be set on the create ticket request
@@ -1012,6 +1015,9 @@ actions:
           issueType:
             type: string
             description: The updated issue type
+          requestTypeId:
+            type: string
+            description: The request type ID for Jira Service Management tickets
           customFields:
             type: object
             description: Custom fields to be set on the update ticket request
@@ -1864,7 +1870,7 @@ actions:
             description: Array of formats to return
             items:
               type: string
-              enum: ["json", "html", "screenshot", "markdown", "rawHtml", "links", "changeTracking"]
+              enum: ["html", "screenshot", "markdown", "rawHtml", "links", "changeTracking"]
       output:
         type: object
         required: [content]
@@ -2865,11 +2871,11 @@ actions:
                 enum: [DAILY, WEEKLY, MONTHLY, YEARLY]
                 description: How often the meeting repeats
               interval:
-                type: integer
+                type: number
                 minimum: 1
                 description: The interval between recurrences (e.g., every 2 weeks)
               count:
-                type: integer
+                type: number
                 minimum: 1
                 description: Number of occurrences after which to stop the recurrence
               until:
@@ -2885,7 +2891,7 @@ actions:
                 type: array
                 description: Days of the month when the meeting occurs (for MONTHLY frequency)
                 items:
-                  type: integer
+                  type: number
                   minimum: 1
                   maximum: 31
       output:
@@ -5012,7 +5018,7 @@ actions:
                   description: Column mode (NULLABLE, REQUIRED, REPEATED)
           error:
             type: string
-            description: Error message if query failed
+            description: Error message if query failed 
   googlemail:
     searchGmailMessages:
       description: Search Gmail messages in a user's inbox using a query string.
@@ -5166,6 +5172,85 @@ actions:
           error:
             type: string
             description: Error message if sending failed
+  googleSearch:
+    customSearch:
+      description: Search for information using the Google Custom Search API
+      scopes: []
+      parameters:
+        type: object
+        required: [query, customSearchEngineId]
+        properties:
+          query:
+            type: string
+            description: Query string to search for
+          customSearchEngineId:
+            type: string
+            description: The Programmable Search Engine ID to use for this request
+          dateRestrict:
+            type: string
+            description: Restricts results to URLs based on date (e.g., d[number], w[number], m[number], y[number])
+          exactTerms:
+            type: string
+            description: Identifies a phrase that all documents in the search results must contain
+          excludeTerms:
+            type: string
+            description: Identifies a word or phrase that should not appear in any documents in the search results
+          num:
+            type: integer
+            minimum: 1
+            maximum: 10
+            description: Number of search results to return (1-10)
+          siteSearch:
+            type: string
+            description: Specifies a given site which should always be included or excluded from results
+          siteSearchFilter:
+            type: string
+            enum: ["e", "i"]
+            description: Controls whether to include or exclude results from the site named in siteSearch (e=exclude, i=include)
+          start:
+            type: integer
+            minimum: 1
+            maximum: 100
+            description: The index of the first result to return
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the search was successful
+          items:
+            type: array
+            description: Array of search result items
+            items:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: The title of the search result
+                link:
+                  type: string
+                  description: The URL of the search result
+                snippet:
+                  type: string
+                  description: A snippet of text from the search result
+                displayLink:
+                  type: string
+                  description: The displayed URL
+          searchInformation:
+            type: object
+            description: Metadata about the search
+            properties:
+              searchTime:
+                type: number
+                description: Time taken to perform the search
+              totalResults:
+                type: string
+                description: Total number of search results available
+          error:
+            type: string
+            description: Error message if search failed
+
   okta:
     getOktaUser:
       description: Retrieve details of a specific Okta user by their ID.
@@ -7708,7 +7793,7 @@ actions:
                         type: string
                         description: The commit URL
                       comment_count:
-                        type: integer
+                        type: number
                         description: Number of comments on the commit
                   author:
                     type: object
@@ -7718,7 +7803,7 @@ actions:
                       login:
                         type: string
                       id:
-                        type: integer
+                        type: number
                       node_id:
                         type: string
                       avatar_url:
@@ -7735,7 +7820,7 @@ actions:
                       login:
                         type: string
                       id:
-                        type: integer
+                        type: number
                       node_id:
                         type: string
                       avatar_url:
@@ -8253,7 +8338,7 @@ actions:
         required: [project_id, path]
         properties:
           project_id:
-            type: integer
+            type: number
             description: Numeric project ID in GitLab (unique per project)
           path:
             type: string

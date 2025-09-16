@@ -24,6 +24,7 @@ export enum ProviderName {
   RESEND = "resend",
   GOOGLEOAUTH = "googleOauth",
   GOOGLEMAIL = "googlemail",
+  GOOGLESEARCH = "googleSearch",
   OKTA = "okta",
   OKTAORG = "oktaOrg",
   GONG = "gong",
@@ -432,7 +433,6 @@ export const slackUserSearchSlackParamsSchema = z.object({
     .default("latest"),
   limit: z
     .number()
-    .int()
     .gte(1)
     .lte(100)
     .describe("Max matches to request (passed to Slack search; results are then hydrated and sorted newest-first).")
@@ -620,6 +620,7 @@ export const jiraCreateJiraTicketParamsSchema = z.object({
   issueType: z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."),
   reporter: z.string().describe("The reporter for the new ticket creation").optional(),
   assignee: z.string().describe("The assignee for the new ticket creation").optional(),
+  requestTypeId: z.string().describe("The request type ID for Jira Service Management tickets").optional(),
   customFields: z
     .object({})
     .catchall(z.any())
@@ -760,6 +761,7 @@ export const jiraUpdateJiraTicketDetailsParamsSchema = z.object({
   summary: z.string().describe("The updated summary").optional(),
   description: z.string().describe("The updated description").optional(),
   issueType: z.string().describe("The updated issue type").optional(),
+  requestTypeId: z.string().describe("The request type ID for Jira Service Management tickets").optional(),
   customFields: z
     .object({})
     .catchall(z.any())
@@ -927,6 +929,7 @@ export const jiraOrgCreateJiraTicketParamsSchema = z.object({
   issueType: z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."),
   reporter: z.string().describe("The reporter for the new ticket creation").optional(),
   assignee: z.string().describe("The assignee for the new ticket creation").optional(),
+  requestTypeId: z.string().describe("The request type ID for Jira Service Management tickets").optional(),
   customFields: z
     .object({})
     .catchall(z.any())
@@ -1067,6 +1070,7 @@ export const jiraOrgUpdateJiraTicketDetailsParamsSchema = z.object({
   summary: z.string().describe("The updated summary").optional(),
   description: z.string().describe("The updated description").optional(),
   issueType: z.string().describe("The updated issue type").optional(),
+  requestTypeId: z.string().describe("The request type ID for Jira Service Management tickets").optional(),
   customFields: z
     .object({})
     .catchall(z.any())
@@ -1677,7 +1681,7 @@ export const firecrawlScrapeUrlParamsSchema = z.object({
     .describe("Extract only the main content of the page, excluding headers, footers, and navigation")
     .optional(),
   formats: z
-    .array(z.enum(["json", "html", "screenshot", "markdown", "rawHtml", "links", "changeTracking"]))
+    .array(z.enum(["html", "screenshot", "markdown", "rawHtml", "links", "changeTracking"]))
     .describe("Array of formats to return")
     .optional(),
 });
@@ -2405,15 +2409,15 @@ export const googleOauthScheduleCalendarMeetingParamsSchema = z.object({
   recurrence: z
     .object({
       frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]).describe("How often the meeting repeats").optional(),
-      interval: z.number().int().gte(1).describe("The interval between recurrences (e.g., every 2 weeks)").optional(),
-      count: z.number().int().gte(1).describe("Number of occurrences after which to stop the recurrence").optional(),
+      interval: z.number().gte(1).describe("The interval between recurrences (e.g., every 2 weeks)").optional(),
+      count: z.number().gte(1).describe("Number of occurrences after which to stop the recurrence").optional(),
       until: z.string().describe("End date for the recurrence in RFC3339 format (YYYY-MM-DD)").optional(),
       byDay: z
         .array(z.enum(["MO", "TU", "WE", "TH", "FR", "SA", "SU"]))
         .describe("Days of the week when the meeting occurs (for WEEKLY frequency)")
         .optional(),
       byMonthDay: z
-        .array(z.number().int().gte(1).lte(31))
+        .array(z.number().gte(1).lte(31))
         .describe("Days of the month when the meeting occurs (for MONTHLY frequency)")
         .optional(),
     })
@@ -4110,6 +4114,65 @@ export type googlemailSendGmailFunction = ActionFunction<
   googlemailSendGmailOutputType
 >;
 
+export const googleSearchCustomSearchParamsSchema = z.object({
+  query: z.string().describe("Query string to search for"),
+  customSearchEngineId: z.string().describe("The Programmable Search Engine ID to use for this request"),
+  dateRestrict: z
+    .string()
+    .describe("Restricts results to URLs based on date (e.g., d[number], w[number], m[number], y[number])")
+    .optional(),
+  exactTerms: z
+    .string()
+    .describe("Identifies a phrase that all documents in the search results must contain")
+    .optional(),
+  excludeTerms: z
+    .string()
+    .describe("Identifies a word or phrase that should not appear in any documents in the search results")
+    .optional(),
+  num: z.number().int().gte(1).lte(10).describe("Number of search results to return (1-10)").optional(),
+  siteSearch: z
+    .string()
+    .describe("Specifies a given site which should always be included or excluded from results")
+    .optional(),
+  siteSearchFilter: z
+    .enum(["e", "i"])
+    .describe("Controls whether to include or exclude results from the site named in siteSearch (e=exclude, i=include)")
+    .optional(),
+  start: z.number().int().gte(1).lte(100).describe("The index of the first result to return").optional(),
+});
+
+export type googleSearchCustomSearchParamsType = z.infer<typeof googleSearchCustomSearchParamsSchema>;
+
+export const googleSearchCustomSearchOutputSchema = z.object({
+  success: z.boolean().describe("Whether the search was successful"),
+  items: z
+    .array(
+      z.object({
+        title: z.string().describe("The title of the search result").optional(),
+        link: z.string().describe("The URL of the search result").optional(),
+        snippet: z.string().describe("A snippet of text from the search result").optional(),
+        displayLink: z.string().describe("The displayed URL").optional(),
+      }),
+    )
+    .describe("Array of search result items")
+    .optional(),
+  searchInformation: z
+    .object({
+      searchTime: z.number().describe("Time taken to perform the search").optional(),
+      totalResults: z.string().describe("Total number of search results available").optional(),
+    })
+    .describe("Metadata about the search")
+    .optional(),
+  error: z.string().describe("Error message if search failed").optional(),
+});
+
+export type googleSearchCustomSearchOutputType = z.infer<typeof googleSearchCustomSearchOutputSchema>;
+export type googleSearchCustomSearchFunction = ActionFunction<
+  googleSearchCustomSearchParamsType,
+  AuthParamsType,
+  googleSearchCustomSearchOutputType
+>;
+
 export const oktaGetOktaUserParamsSchema = z.object({ userId: z.string().describe("The ID of the user to retrieve.") });
 
 export type oktaGetOktaUserParamsType = z.infer<typeof oktaGetOktaUserParamsSchema>;
@@ -5754,14 +5817,14 @@ export const githubGetBranchOutputSchema = z.object({
                 .describe("The commit tree")
                 .optional(),
               url: z.string().describe("The commit URL").optional(),
-              comment_count: z.number().int().describe("Number of comments on the commit").optional(),
+              comment_count: z.number().describe("Number of comments on the commit").optional(),
             })
             .describe("The git commit object")
             .optional(),
           author: z
             .object({
               login: z.string().optional(),
-              id: z.number().int().optional(),
+              id: z.number().optional(),
               node_id: z.string().optional(),
               avatar_url: z.string().optional(),
               html_url: z.string().optional(),
@@ -5773,7 +5836,7 @@ export const githubGetBranchOutputSchema = z.object({
           committer: z
             .object({
               login: z.string().optional(),
-              id: z.number().int().optional(),
+              id: z.number().optional(),
               node_id: z.string().optional(),
               avatar_url: z.string().optional(),
               html_url: z.string().optional(),
@@ -6110,7 +6173,7 @@ export type gitlabSearchGroupFunction = ActionFunction<
 >;
 
 export const gitlabGetFileContentParamsSchema = z.object({
-  project_id: z.number().int().describe("Numeric project ID in GitLab (unique per project)"),
+  project_id: z.number().describe("Numeric project ID in GitLab (unique per project)"),
   path: z.string().describe("The file path to get content from (e.g., src/index.js)"),
   ref: z
     .string()
