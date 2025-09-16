@@ -1,25 +1,62 @@
-// npm i pdfjs-dist
-import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
+import PDFParser from "pdf2json";
 
-export async function extractTextFromPdf(input: ArrayBuffer | Uint8Array): Promise<string> {
-  const data = input instanceof Uint8Array ? input : new Uint8Array(input);
+// Define proper types for the PDF data structure
+interface PDFTextRun {
+  T: string;
+  S?: number;
+  TS?: number[];
+}
 
-  // Load PDF
-  const loadingTask = getDocument({ data });
-  const pdf = await loadingTask.promise;
+interface PDFText {
+  R: PDFTextRun[];
+  x: number;
+  y: number;
+}
 
-  const pages: string[] = [];
+interface PDFPage {
+  Texts: PDFText[];
+  Width: number;
+  Height: number;
+}
 
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
+interface PDFData {
+  Pages: PDFPage[];
+  Meta: Record<string, unknown>;
+}
 
-    // content.items is typed as TextItem | TextMarkedContent
-    const strings = content.items.map(item => ("str" in item ? item.str : "")).join(" ");
+// Correct type based on the library's actual interface
+interface PDFParserError {
+  parserError: Error;
+}
 
-    pages.push(strings.trim());
+export async function extractTextFromPdf(buffer: ArrayBuffer): Promise<string> {
+  try {
+    const extractedText = await new Promise<string>((resolve, reject) => {
+      const pdfParser = new PDFParser();
+
+      pdfParser.on("pdfParser_dataError", (errData: PDFParserError) => {
+        reject(errData.parserError || new Error("PDF parsing failed"));
+      });
+
+      pdfParser.on("pdfParser_dataReady", (pdfData: PDFData) => {
+        try {
+          const text = pdfData.Pages.map((page: PDFPage) =>
+            page.Texts.map((textItem: PDFText) => {
+              // Handle cases where R array might be empty or have multiple runs
+              return textItem.R.map((run: PDFTextRun) => decodeURIComponent(run.T)).join("");
+            }).join(""),
+          ).join("\n");
+          resolve(text);
+        } catch (error) {
+          reject(error);
+        }
+      });
+
+      pdfParser.parseBuffer(Buffer.from(buffer));
+    });
+    return extractedText;
+  } catch (error) {
+    console.error("Error extracting PDF text:", error);
+    throw error;
   }
-
-  await pdf.destroy();
-  return pages.join("\n\n");
 }

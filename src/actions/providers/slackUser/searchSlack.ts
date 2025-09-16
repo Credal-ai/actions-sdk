@@ -8,7 +8,7 @@ import {
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import pLimit from "p-limit";
 
-const HIT_ENRICH_POOL = 10;
+const HIT_ENRICH_POOL = 5;
 const limitHit = pLimit(HIT_ENRICH_POOL);
 
 /* ===================== Public Types ===================== */
@@ -68,16 +68,22 @@ function normalizeChannelOperand(ch: string): string {
   return s.replace(/^#/, "");
 }
 
-function timeFilter(range?: TimeRange): string {
+function fmtDaysAgo(n: number) {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.toISOString().slice(0, 10); // YYYY-MM-DD
+}
+
+function timeFilter(range?: TimeRange) {
   switch (range) {
     case "today":
-      return "after:today";
+      return "on:today";
     case "yesterday":
-      return "after:yesterday";
+      return "on:yesterday";
     case "last_7d":
-      return "after:7 days ago";
+      return `after:${fmtDaysAgo(7)}`;
     case "last_30d":
-      return "after:30 days ago";
+      return `after:${fmtDaysAgo(30)}`;
     default:
       return "";
   }

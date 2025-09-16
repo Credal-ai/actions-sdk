@@ -765,7 +765,7 @@ export const slackUserSearchSlackDefinition: ActionTemplate = {
         default: "latest",
       },
       limit: {
-        type: "integer",
+        type: "number",
         description:
           "Max matches to request (passed to Slack search; results are then hydrated and sorted newest-first).",
         minimum: 1,
@@ -4652,12 +4652,12 @@ export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
             description: "How often the meeting repeats",
           },
           interval: {
-            type: "integer",
+            type: "number",
             minimum: 1,
             description: "The interval between recurrences (e.g., every 2 weeks)",
           },
           count: {
-            type: "integer",
+            type: "number",
             minimum: 1,
             description: "Number of occurrences after which to stop the recurrence",
           },
@@ -4677,7 +4677,7 @@ export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
             type: "array",
             description: "Days of the month when the meeting occurs (for MONTHLY frequency)",
             items: {
-              type: "integer",
+              type: "number",
               minimum: 1,
               maximum: 31,
             },
@@ -7974,6 +7974,113 @@ export const googlemailSendGmailDefinition: ActionTemplate = {
   },
   name: "sendGmail",
   provider: "googlemail",
+};
+export const googleSearchCustomSearchDefinition: ActionTemplate = {
+  description: "Search for information using the Google Custom Search API",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["query", "customSearchEngineId"],
+    properties: {
+      query: {
+        type: "string",
+        description: "Query string to search for",
+      },
+      customSearchEngineId: {
+        type: "string",
+        description: "The Programmable Search Engine ID to use for this request",
+      },
+      dateRestrict: {
+        type: "string",
+        description: "Restricts results to URLs based on date (e.g., d[number], w[number], m[number], y[number])",
+      },
+      exactTerms: {
+        type: "string",
+        description: "Identifies a phrase that all documents in the search results must contain",
+      },
+      excludeTerms: {
+        type: "string",
+        description: "Identifies a word or phrase that should not appear in any documents in the search results",
+      },
+      num: {
+        type: "integer",
+        minimum: 1,
+        maximum: 10,
+        description: "Number of search results to return (1-10)",
+      },
+      siteSearch: {
+        type: "string",
+        description: "Specifies a given site which should always be included or excluded from results",
+      },
+      siteSearchFilter: {
+        type: "string",
+        enum: ["e", "i"],
+        description:
+          "Controls whether to include or exclude results from the site named in siteSearch (e=exclude, i=include)",
+      },
+      start: {
+        type: "integer",
+        minimum: 1,
+        maximum: 100,
+        description: "The index of the first result to return",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the search was successful",
+      },
+      items: {
+        type: "array",
+        description: "Array of search result items",
+        items: {
+          type: "object",
+          properties: {
+            title: {
+              type: "string",
+              description: "The title of the search result",
+            },
+            link: {
+              type: "string",
+              description: "The URL of the search result",
+            },
+            snippet: {
+              type: "string",
+              description: "A snippet of text from the search result",
+            },
+            displayLink: {
+              type: "string",
+              description: "The displayed URL",
+            },
+          },
+        },
+      },
+      searchInformation: {
+        type: "object",
+        description: "Metadata about the search",
+        properties: {
+          searchTime: {
+            type: "number",
+            description: "Time taken to perform the search",
+          },
+          totalResults: {
+            type: "string",
+            description: "Total number of search results available",
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "Error message if search failed",
+      },
+    },
+  },
+  name: "customSearch",
+  provider: "googleSearch",
 };
 export const oktaGetOktaUserDefinition: ActionTemplate = {
   description: "Retrieve details of a specific Okta user by their ID.",
@@ -11466,7 +11573,7 @@ export const githubGetBranchDefinition: ActionTemplate = {
                     description: "The commit URL",
                   },
                   comment_count: {
-                    type: "integer",
+                    type: "number",
                     description: "Number of comments on the commit",
                   },
                 },
@@ -11480,7 +11587,7 @@ export const githubGetBranchDefinition: ActionTemplate = {
                     type: "string",
                   },
                   id: {
-                    type: "integer",
+                    type: "number",
                   },
                   node_id: {
                     type: "string",
@@ -11505,7 +11612,7 @@ export const githubGetBranchDefinition: ActionTemplate = {
                     type: "string",
                   },
                   id: {
-                    type: "integer",
+                    type: "number",
                   },
                   node_id: {
                     type: "string",
@@ -12241,7 +12348,7 @@ export const gitlabGetFileContentDefinition: ActionTemplate = {
     required: ["project_id", "path"],
     properties: {
       project_id: {
-        type: "integer",
+        type: "number",
         description: "Numeric project ID in GitLab (unique per project)",
       },
       path: {
