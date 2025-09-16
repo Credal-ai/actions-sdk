@@ -58,9 +58,6 @@ const scrapeUrl: firecrawlScrapeUrlFunction = async ({
             ? result.links.map(link => (typeof link === "string" ? link : JSON.stringify(link))).join("\n")
             : JSON.stringify(result.links);
           break;
-        case "json":
-          formatContent = result.json ? JSON.stringify(result.json, null, 2) : undefined;
-          break;
         case "screenshot":
           formatContent = result.screenshot;
           break;
