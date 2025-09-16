@@ -7309,32 +7309,47 @@ export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: Action
         type: "boolean",
         description: "Whether the search was successful",
       },
-      files: {
+      results: {
         type: "array",
         description: "List of files matching the search",
         items: {
           type: "object",
-          required: ["id", "name", "mimeType", "url"],
+          required: ["name", "url", "contents"],
           properties: {
-            id: {
-              type: "string",
-              description: "The file ID",
-            },
             name: {
               type: "string",
-              description: "The file name",
-            },
-            mimeType: {
-              type: "string",
-              description: "The MIME type of the file",
+              description: "The name of the file",
             },
             url: {
               type: "string",
-              description: "The web link to view the file",
+              description: "The URL of the file",
             },
-            content: {
-              type: "string",
-              description: "The data returned from the file, subject to fileSizeLimit",
+            contents: {
+              type: "object",
+              description: "The contents of the file",
+              required: ["id", "name", "mimeType", "url"],
+              properties: {
+                id: {
+                  type: "string",
+                  description: "The file ID",
+                },
+                name: {
+                  type: "string",
+                  description: "The file name",
+                },
+                mimeType: {
+                  type: "string",
+                  description: "The MIME type of the file",
+                },
+                url: {
+                  type: "string",
+                  description: "The web link to view the file",
+                },
+                content: {
+                  type: "string",
+                  description: "The data returned from the file, subject to fileSizeLimit",
+                },
+              },
             },
           },
         },

@@ -1,4 +1,7 @@
-import type { googleOauthSearchDriveByKeywordsAndGetFileContentParamsType } from "../../src/actions/autogen/types.js";
+import type {
+  googleOauthSearchDriveByKeywordsAndGetFileContentOutputType,
+  googleOauthSearchDriveByKeywordsAndGetFileContentParamsType,
+} from "../../src/actions/autogen/types.js";
 import { runAction } from "../../src/app.js";
 import assert from "node:assert";
 import dotenv from "dotenv";
@@ -10,7 +13,7 @@ dotenv.config();
 async function runTest() {
   console.log("Running test searchDriveByKeywordsAndGetFileContent");
 
-  const result = await runAction(
+  const result = (await runAction(
     "searchDriveByKeywordsAndGetFileContent",
     "googleOauth",
     {
@@ -20,21 +23,21 @@ async function runTest() {
       searchQuery: "Japan travel expense",
       searchDriveByDrive: false,
     } as googleOauthSearchDriveByKeywordsAndGetFileContentParamsType
-  );
+  )) as googleOauthSearchDriveByKeywordsAndGetFileContentOutputType;
 
-  console.log("Found files with content:", result.files);
+  console.log("Found files with content:", result.results);
 
   // Validate the result
   assert.strictEqual(result.success, true, "Search should be successful");
-  assert(Array.isArray(result.files), "Files should be an array");
+  assert(Array.isArray(result.results), "Files should be an array");
 
-  if (result.files.length > 0) {
-    const firstFile = result.files[0];
-    assert(firstFile.id, "First file should have an id");
+  if (result.results.length > 0) {
+    const firstFile = result.results[0];
     assert(firstFile.name, "First file should have a name");
-    assert(firstFile.mimeType, "First file should have a mimeType");
     assert(firstFile.url, "First file should have a url");
-    assert(firstFile.content, "First file should have content");
+    assert(firstFile.contents.id, "First file should have an id");
+    assert(firstFile.contents.mimeType, "First file should have a mimeType");
+    assert(firstFile.contents.content, "First file should have content");
   }
 }
 

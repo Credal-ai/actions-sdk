@@ -3766,14 +3766,20 @@ export type googleOauthSearchDriveByKeywordsAndGetFileContentParamsType = z.infe
 
 export const googleOauthSearchDriveByKeywordsAndGetFileContentOutputSchema = z.object({
   success: z.boolean().describe("Whether the search was successful"),
-  files: z
+  results: z
     .array(
       z.object({
-        id: z.string().describe("The file ID"),
-        name: z.string().describe("The file name"),
-        mimeType: z.string().describe("The MIME type of the file"),
-        url: z.string().describe("The web link to view the file"),
-        content: z.string().describe("The data returned from the file, subject to fileSizeLimit").optional(),
+        name: z.string().describe("The name of the file"),
+        url: z.string().describe("The URL of the file"),
+        contents: z
+          .object({
+            id: z.string().describe("The file ID"),
+            name: z.string().describe("The file name"),
+            mimeType: z.string().describe("The MIME type of the file"),
+            url: z.string().describe("The web link to view the file"),
+            content: z.string().describe("The data returned from the file, subject to fileSizeLimit").optional(),
+          })
+          .describe("The contents of the file"),
       }),
     )
     .describe("List of files matching the search")

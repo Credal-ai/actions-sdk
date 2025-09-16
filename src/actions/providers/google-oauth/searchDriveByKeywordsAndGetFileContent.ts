@@ -17,7 +17,7 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
   authParams: AuthParamsType;
 }): Promise<googleOauthSearchDriveByKeywordsAndGetFileContentOutputType> => {
   if (!authParams.authToken) {
-    return { success: false, error: MISSING_AUTH_TOKEN, files: [] };
+    return { success: false, error: MISSING_AUTH_TOKEN };
   }
 
   const { searchQuery, limit, searchDriveByDrive, orderByQuery, fileSizeLimit: maxChars } = params;
@@ -34,7 +34,7 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
 
   // If search failed, return error
   if (!searchResult.success) {
-    return { success: false, error: searchResult.error, files: [] };
+    return { success: false, error: searchResult.error };
   }
 
   // For each file, fetch its content in parallel
@@ -66,7 +66,14 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
   const filesWithContent = await Promise.all(contentPromises);
 
   // Return combined results
-  return { success: true, files: filesWithContent };
+  return {
+    success: true,
+    results: filesWithContent.map(file => ({
+      name: file.name,
+      url: file.url,
+      contents: file,
+    })),
+  };
 };
 
 export default searchDriveByKeywordsAndGetFileContent;
