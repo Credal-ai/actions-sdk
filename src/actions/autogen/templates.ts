@@ -12561,21 +12561,45 @@ export const gitlabGetFileContentDefinition: ActionTemplate = {
         type: "string",
         description: "The error that occurred if the operation was not successful",
       },
-      content: {
-        type: "string",
-        description: "The decoded file content as a string",
-      },
-      size: {
-        type: "number",
-        description: "The size of the file in bytes",
-      },
-      name: {
-        type: "string",
-        description: "The name of the file",
-      },
-      htmlUrl: {
-        type: "string",
-        description: "The URL of the file in the GitLab UI",
+      results: {
+        type: "array",
+        description: "The results of the file content",
+        items: {
+          type: "object",
+          required: ["name", "url", "content"],
+          properties: {
+            name: {
+              type: "string",
+              description: "The name of the file",
+            },
+            url: {
+              type: "string",
+              description: "The url of the file",
+            },
+            contents: {
+              type: "object",
+              required: ["content", "size", "name", "htmlUrl"],
+              properties: {
+                content: {
+                  type: "string",
+                  description: "The decoded file content as a string",
+                },
+                size: {
+                  type: "number",
+                  description: "The size of the file in bytes",
+                },
+                name: {
+                  type: "string",
+                  description: "The name of the file",
+                },
+                htmlUrl: {
+                  type: "string",
+                  description: "The URL of the file in the GitLab UI",
+                },
+              },
+            },
+          },
+        },
       },
     },
   },

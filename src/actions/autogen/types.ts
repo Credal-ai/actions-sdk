@@ -6283,10 +6283,23 @@ export type gitlabGetFileContentParamsType = z.infer<typeof gitlabGetFileContent
 export const gitlabGetFileContentOutputSchema = z.object({
   success: z.boolean().describe("Whether the operation was successful"),
   error: z.string().describe("The error that occurred if the operation was not successful").optional(),
-  content: z.string().describe("The decoded file content as a string").optional(),
-  size: z.number().describe("The size of the file in bytes").optional(),
-  name: z.string().describe("The name of the file").optional(),
-  htmlUrl: z.string().describe("The URL of the file in the GitLab UI").optional(),
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the file"),
+        url: z.string().describe("The url of the file"),
+        contents: z
+          .object({
+            content: z.string().describe("The decoded file content as a string"),
+            size: z.number().describe("The size of the file in bytes"),
+            name: z.string().describe("The name of the file"),
+            htmlUrl: z.string().describe("The URL of the file in the GitLab UI"),
+          })
+          .optional(),
+      }),
+    )
+    .describe("The results of the file content")
+    .optional(),
 });
 
 export type gitlabGetFileContentOutputType = z.infer<typeof gitlabGetFileContentOutputSchema>;
