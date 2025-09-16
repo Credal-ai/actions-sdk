@@ -3228,7 +3228,7 @@ export const firecrawlScrapeUrlDefinition: ActionTemplate = {
         description: "Array of formats to return",
         items: {
           type: "string",
-          enum: ["json", "html", "screenshot", "markdown", "rawHtml", "links", "changeTracking"],
+          enum: ["html", "screenshot", "markdown", "rawHtml", "links", "changeTracking"],
         },
       },
     },
