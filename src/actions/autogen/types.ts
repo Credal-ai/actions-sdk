@@ -6137,90 +6137,110 @@ export const gitlabSearchGroupParamsSchema = z.object({
 export type gitlabSearchGroupParamsType = z.infer<typeof gitlabSearchGroupParamsSchema>;
 
 export const gitlabSearchGroupOutputSchema = z.object({
-  mergeRequests: z
+  success: z.boolean().describe("Whether the search operation was successful"),
+  error: z.string().describe("Error message if the search operation failed").optional(),
+  results: z
     .array(
       z.object({
-        metadata: z
-          .object({
-            id: z.number().describe("The ID of the merge request"),
-            iid: z.number().describe("The internal ID of the merge request"),
-            project_id: z.number().describe("The ID of the project the merge request belongs to"),
-            title: z.string().describe("The title of the merge request"),
-            web_url: z.string().describe("The URL of the merge request"),
-            description: z.string().describe("The description of the merge request").optional(),
-            author: z
-              .object({ name: z.string().describe("The name of the author").optional() })
-              .describe("The author of the merge request")
-              .optional(),
-            merged_at: z.string().describe("The date and time the merge request was merged").optional(),
-          })
-          .describe("The metadata of the merge request"),
-        diffs: z
-          .array(
-            z.object({
-              old_path: z.string().describe("The old path of the diff"),
-              new_path: z.string().describe("The new path of the diff"),
-              diff: z.string().describe("The contents of the diff"),
-              new_file: z.boolean().describe("Whether the diff is a new file"),
-              renamed_file: z.boolean().describe("Whether the diff is a renamed file"),
-              deleted_file: z.boolean().describe("Whether the diff is a deleted file"),
-              too_large: z.boolean().describe("Whether the diff is too large").optional(),
-            }),
-          )
-          .describe("A list of diffs that match the query"),
-      }),
-    )
-    .describe("A list of merge requests that match the query"),
-  blobs: z
-    .array(
-      z.object({
-        metadata: z.object({
-          path: z.string().describe("The path of the blob"),
-          basename: z.string().describe("The basename of the blob"),
-          data: z.string().describe("The data of the blob"),
-          project_id: z.number().describe("The ID of the project the blob belongs to"),
-          ref: z.string().describe("The ref of the blob"),
-          startline: z.number().describe("The start line of the blob"),
-          filename: z.string().describe("The filename of the blob"),
-          web_url: z.string().describe("The URL of the blob"),
+        name: z.string().describe("The name/title of the search result"),
+        url: z.string().describe("The URL to view the result in GitLab"),
+        type: z.enum(["mergeRequest", "blob", "commit"]).describe("The type of search result"),
+        contents: z.any().superRefine((x, ctx) => {
+          const schemas = [
+            z
+              .object({
+                metadata: z
+                  .object({
+                    id: z.number().describe("The ID of the merge request"),
+                    iid: z.number().describe("The internal ID of the merge request"),
+                    project_id: z.number().describe("The ID of the project the merge request belongs to"),
+                    title: z.string().describe("The title of the merge request"),
+                    web_url: z.string().describe("The URL of the merge request"),
+                    description: z.string().describe("The description of the merge request").optional(),
+                    author: z
+                      .object({ name: z.string().describe("The name of the author").optional() })
+                      .describe("The author of the merge request")
+                      .optional(),
+                    merged_at: z.string().describe("The date and time the merge request was merged").optional(),
+                  })
+                  .describe("The metadata of the merge request"),
+                diffs: z
+                  .array(
+                    z.object({
+                      old_path: z.string().describe("The old path of the diff"),
+                      new_path: z.string().describe("The new path of the diff"),
+                      diff: z.string().describe("The contents of the diff"),
+                      new_file: z.boolean().describe("Whether the diff is a new file"),
+                      renamed_file: z.boolean().describe("Whether the diff is a renamed file"),
+                      deleted_file: z.boolean().describe("Whether the diff is a deleted file"),
+                      too_large: z.boolean().describe("Whether the diff is too large").optional(),
+                    }),
+                  )
+                  .describe("A list of diffs that match the query"),
+              })
+              .describe("Merge request contents"),
+            z
+              .object({
+                metadata: z.object({
+                  path: z.string().describe("The path of the blob"),
+                  basename: z.string().describe("The basename of the blob"),
+                  data: z.string().describe("The data of the blob"),
+                  project_id: z.number().describe("The ID of the project the blob belongs to"),
+                  ref: z.string().describe("The ref of the blob"),
+                  startline: z.number().describe("The start line of the blob"),
+                  filename: z.string().describe("The filename of the blob"),
+                  web_url: z.string().describe("The URL of the blob"),
+                }),
+                matchedMergeRequests: z
+                  .array(
+                    z.object({
+                      title: z.string().describe("The title of the merge request"),
+                      web_url: z.string().describe("The URL of the merge request"),
+                      author: z.object({}).catchall(z.any()).describe("The author of the merge request").optional(),
+                      merged_at: z.string().describe("The date and time the merge request was merged").optional(),
+                    }),
+                  )
+                  .describe("A list of merge requests that match the blob"),
+              })
+              .describe("Blob contents"),
+            z
+              .object({
+                sha: z.string().describe("The commit SHA"),
+                web_url: z.string().describe("The URL to view the commit in GitLab"),
+                message: z.string().describe("The full commit message"),
+                author: z.object({
+                  name: z.string().describe("The name of the commit author"),
+                  email: z.string().describe("The email of the commit author"),
+                }),
+                created_at: z.string().describe("The date/time the commit was created"),
+                files: z
+                  .array(
+                    z.object({
+                      old_path: z.string().describe("The old path of the file"),
+                      new_path: z.string().describe("The new path of the file"),
+                      diff: z.string().describe("The diff contents for the file"),
+                    }),
+                  )
+                  .describe("A list of files changed in the commit"),
+              })
+              .describe("Commit contents"),
+          ];
+          const errors = schemas.reduce<z.ZodError[]>(
+            (errors, schema) => (result => (result.error ? [...errors, result.error] : errors))(schema.safeParse(x)),
+            [],
+          );
+          if (schemas.length - errors.length !== 1) {
+            ctx.addIssue({
+              path: ctx.path,
+              code: "invalid_union",
+              unionErrors: errors,
+              message: "Invalid input: Should pass single schema",
+            });
+          }
         }),
-        matchedMergeRequests: z
-          .array(
-            z.object({
-              title: z.string().describe("The title of the merge request"),
-              web_url: z.string().describe("The URL of the merge request"),
-              author: z.object({}).catchall(z.any()).describe("The author of the merge request").optional(),
-              merged_at: z.string().describe("The date and time the merge request was merged").optional(),
-            }),
-          )
-          .describe("A list of merge requests that match the blob")
-          .optional(),
       }),
     )
-    .describe("A list of blobs that match the query"),
-  commits: z
-    .array(
-      z.object({
-        sha: z.string().describe("The commit SHA"),
-        web_url: z.string().describe("The URL to view the commit in GitLab"),
-        message: z.string().describe("The full commit message"),
-        author: z.object({
-          name: z.string().describe("The name of the commit author"),
-          email: z.string().describe("The email of the commit author"),
-        }),
-        created_at: z.string().describe("The date/time the commit was created"),
-        files: z
-          .array(
-            z.object({
-              old_path: z.string().describe("The old path of the file"),
-              new_path: z.string().describe("The new path of the file"),
-              diff: z.string().describe("The diff contents for the file"),
-            }),
-          )
-          .describe("A list of files changed in the commit"),
-      }),
-    )
-    .describe("A list of commits that match the query")
+    .describe("A list of search results that match the query")
     .optional(),
 });
 

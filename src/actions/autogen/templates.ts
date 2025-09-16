@@ -12230,233 +12230,259 @@ export const gitlabSearchGroupDefinition: ActionTemplate = {
   },
   output: {
     type: "object",
-    required: ["mergeRequests", "blobs"],
+    required: ["success"],
     properties: {
-      mergeRequests: {
+      success: {
+        type: "boolean",
+        description: "Whether the search operation was successful",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the search operation failed",
+      },
+      results: {
         type: "array",
-        description: "A list of merge requests that match the query",
+        description: "A list of search results that match the query",
         items: {
           type: "object",
-          required: ["metadata", "diffs"],
+          required: ["name", "url", "type", "contents"],
           properties: {
-            metadata: {
-              type: "object",
-              required: ["id", "iid", "project_id", "title", "web_url"],
-              description: "The metadata of the merge request",
-              properties: {
-                id: {
-                  type: "number",
-                  description: "The ID of the merge request",
-                },
-                iid: {
-                  type: "number",
-                  description: "The internal ID of the merge request",
-                },
-                project_id: {
-                  type: "number",
-                  description: "The ID of the project the merge request belongs to",
-                },
-                title: {
-                  type: "string",
-                  description: "The title of the merge request",
-                },
-                web_url: {
-                  type: "string",
-                  description: "The URL of the merge request",
-                },
-                description: {
-                  type: "string",
-                  description: "The description of the merge request",
-                },
-                author: {
+            name: {
+              type: "string",
+              description: "The name/title of the search result",
+            },
+            url: {
+              type: "string",
+              description: "The URL to view the result in GitLab",
+            },
+            type: {
+              type: "string",
+              enum: ["mergeRequest", "blob", "commit"],
+              description: "The type of search result",
+            },
+            contents: {
+              oneOf: [
+                {
                   type: "object",
-                  description: "The author of the merge request",
+                  description: "Merge request contents",
+                  required: ["metadata", "diffs"],
                   properties: {
-                    name: {
-                      type: "string",
-                      description: "The name of the author",
+                    metadata: {
+                      type: "object",
+                      required: ["id", "iid", "project_id", "title", "web_url"],
+                      description: "The metadata of the merge request",
+                      properties: {
+                        id: {
+                          type: "number",
+                          description: "The ID of the merge request",
+                        },
+                        iid: {
+                          type: "number",
+                          description: "The internal ID of the merge request",
+                        },
+                        project_id: {
+                          type: "number",
+                          description: "The ID of the project the merge request belongs to",
+                        },
+                        title: {
+                          type: "string",
+                          description: "The title of the merge request",
+                        },
+                        web_url: {
+                          type: "string",
+                          description: "The URL of the merge request",
+                        },
+                        description: {
+                          type: "string",
+                          description: "The description of the merge request",
+                        },
+                        author: {
+                          type: "object",
+                          description: "The author of the merge request",
+                          properties: {
+                            name: {
+                              type: "string",
+                              description: "The name of the author",
+                            },
+                          },
+                        },
+                        merged_at: {
+                          type: "string",
+                          description: "The date and time the merge request was merged",
+                        },
+                      },
+                    },
+                    diffs: {
+                      type: "array",
+                      description: "A list of diffs that match the query",
+                      items: {
+                        type: "object",
+                        required: ["old_path", "new_path", "diff", "new_file", "renamed_file", "deleted_file"],
+                        properties: {
+                          old_path: {
+                            type: "string",
+                            description: "The old path of the diff",
+                          },
+                          new_path: {
+                            type: "string",
+                            description: "The new path of the diff",
+                          },
+                          diff: {
+                            type: "string",
+                            description: "The contents of the diff",
+                          },
+                          new_file: {
+                            type: "boolean",
+                            description: "Whether the diff is a new file",
+                          },
+                          renamed_file: {
+                            type: "boolean",
+                            description: "Whether the diff is a renamed file",
+                          },
+                          deleted_file: {
+                            type: "boolean",
+                            description: "Whether the diff is a deleted file",
+                          },
+                          too_large: {
+                            type: "boolean",
+                            description: "Whether the diff is too large",
+                          },
+                        },
+                      },
                     },
                   },
                 },
-                merged_at: {
-                  type: "string",
-                  description: "The date and time the merge request was merged",
-                },
-              },
-            },
-            diffs: {
-              type: "array",
-              description: "A list of diffs that match the query",
-              items: {
-                type: "object",
-                required: ["old_path", "new_path", "diff", "new_file", "renamed_file", "deleted_file"],
-                properties: {
-                  old_path: {
-                    type: "string",
-                    description: "The old path of the diff",
-                  },
-                  new_path: {
-                    type: "string",
-                    description: "The new path of the diff",
-                  },
-                  diff: {
-                    type: "string",
-                    description: "The contents of the diff",
-                  },
-                  new_file: {
-                    type: "boolean",
-                    description: "Whether the diff is a new file",
-                  },
-                  renamed_file: {
-                    type: "boolean",
-                    description: "Whether the diff is a renamed file",
-                  },
-                  deleted_file: {
-                    type: "boolean",
-                    description: "Whether the diff is a deleted file",
-                  },
-                  too_large: {
-                    type: "boolean",
-                    description: "Whether the diff is too large",
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      blobs: {
-        type: "array",
-        description: "A list of blobs that match the query",
-        items: {
-          type: "object",
-          required: ["metadata", "diffs"],
-          properties: {
-            metadata: {
-              type: "object",
-              required: ["path", "basename", "data", "project_id", "ref", "startline", "filename", "web_url"],
-              properties: {
-                path: {
-                  type: "string",
-                  description: "The path of the blob",
-                },
-                basename: {
-                  type: "string",
-                  description: "The basename of the blob",
-                },
-                data: {
-                  type: "string",
-                  description: "The data of the blob",
-                },
-                project_id: {
-                  type: "number",
-                  description: "The ID of the project the blob belongs to",
-                },
-                ref: {
-                  type: "string",
-                  description: "The ref of the blob",
-                },
-                startline: {
-                  type: "number",
-                  description: "The start line of the blob",
-                },
-                filename: {
-                  type: "string",
-                  description: "The filename of the blob",
-                },
-                web_url: {
-                  type: "string",
-                  description: "The URL of the blob",
-                },
-              },
-            },
-            matchedMergeRequests: {
-              type: "array",
-              description: "A list of merge requests that match the blob",
-              items: {
-                type: "object",
-                required: ["title", "web_url"],
-                properties: {
-                  title: {
-                    type: "string",
-                    description: "The title of the merge request",
-                  },
-                  web_url: {
-                    type: "string",
-                    description: "The URL of the merge request",
-                  },
-                  author: {
-                    type: "object",
-                    description: "The author of the merge request",
-                  },
-                  merged_at: {
-                    type: "string",
-                    description: "The date and time the merge request was merged",
+                {
+                  type: "object",
+                  description: "Blob contents",
+                  required: ["metadata", "matchedMergeRequests"],
+                  properties: {
+                    metadata: {
+                      type: "object",
+                      required: ["path", "basename", "data", "project_id", "ref", "startline", "filename", "web_url"],
+                      properties: {
+                        path: {
+                          type: "string",
+                          description: "The path of the blob",
+                        },
+                        basename: {
+                          type: "string",
+                          description: "The basename of the blob",
+                        },
+                        data: {
+                          type: "string",
+                          description: "The data of the blob",
+                        },
+                        project_id: {
+                          type: "number",
+                          description: "The ID of the project the blob belongs to",
+                        },
+                        ref: {
+                          type: "string",
+                          description: "The ref of the blob",
+                        },
+                        startline: {
+                          type: "number",
+                          description: "The start line of the blob",
+                        },
+                        filename: {
+                          type: "string",
+                          description: "The filename of the blob",
+                        },
+                        web_url: {
+                          type: "string",
+                          description: "The URL of the blob",
+                        },
+                      },
+                    },
+                    matchedMergeRequests: {
+                      type: "array",
+                      description: "A list of merge requests that match the blob",
+                      items: {
+                        type: "object",
+                        required: ["title", "web_url"],
+                        properties: {
+                          title: {
+                            type: "string",
+                            description: "The title of the merge request",
+                          },
+                          web_url: {
+                            type: "string",
+                            description: "The URL of the merge request",
+                          },
+                          author: {
+                            type: "object",
+                            description: "The author of the merge request",
+                          },
+                          merged_at: {
+                            type: "string",
+                            description: "The date and time the merge request was merged",
+                          },
+                        },
+                      },
+                    },
                   },
                 },
-              },
-            },
-          },
-        },
-      },
-      commits: {
-        type: "array",
-        description: "A list of commits that match the query",
-        items: {
-          type: "object",
-          required: ["sha", "web_url", "message", "author", "created_at", "files"],
-          properties: {
-            sha: {
-              type: "string",
-              description: "The commit SHA",
-            },
-            web_url: {
-              type: "string",
-              description: "The URL to view the commit in GitLab",
-            },
-            message: {
-              type: "string",
-              description: "The full commit message",
-            },
-            author: {
-              type: "object",
-              required: ["name", "email"],
-              properties: {
-                name: {
-                  type: "string",
-                  description: "The name of the commit author",
-                },
-                email: {
-                  type: "string",
-                  description: "The email of the commit author",
-                },
-              },
-            },
-            created_at: {
-              type: "string",
-              description: "The date/time the commit was created",
-            },
-            files: {
-              type: "array",
-              description: "A list of files changed in the commit",
-              items: {
-                type: "object",
-                required: ["old_path", "new_path", "diff"],
-                properties: {
-                  old_path: {
-                    type: "string",
-                    description: "The old path of the file",
-                  },
-                  new_path: {
-                    type: "string",
-                    description: "The new path of the file",
-                  },
-                  diff: {
-                    type: "string",
-                    description: "The diff contents for the file",
+                {
+                  type: "object",
+                  description: "Commit contents",
+                  required: ["sha", "web_url", "message", "author", "created_at", "files"],
+                  properties: {
+                    sha: {
+                      type: "string",
+                      description: "The commit SHA",
+                    },
+                    web_url: {
+                      type: "string",
+                      description: "The URL to view the commit in GitLab",
+                    },
+                    message: {
+                      type: "string",
+                      description: "The full commit message",
+                    },
+                    author: {
+                      type: "object",
+                      required: ["name", "email"],
+                      properties: {
+                        name: {
+                          type: "string",
+                          description: "The name of the commit author",
+                        },
+                        email: {
+                          type: "string",
+                          description: "The email of the commit author",
+                        },
+                      },
+                    },
+                    created_at: {
+                      type: "string",
+                      description: "The date/time the commit was created",
+                    },
+                    files: {
+                      type: "array",
+                      description: "A list of files changed in the commit",
+                      items: {
+                        type: "object",
+                        required: ["old_path", "new_path", "diff"],
+                        properties: {
+                          old_path: {
+                            type: "string",
+                            description: "The old path of the file",
+                          },
+                          new_path: {
+                            type: "string",
+                            description: "The new path of the file",
+                          },
+                          diff: {
+                            type: "string",
+                            description: "The diff contents for the file",
+                          },
+                        },
+                      },
+                    },
                   },
                 },
-              },
+              ],
             },
           },
         },

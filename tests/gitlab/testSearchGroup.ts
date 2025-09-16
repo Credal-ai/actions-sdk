@@ -1,4 +1,7 @@
-import type { gitlabSearchGroupParamsType } from "../../src/actions/autogen/types.js";
+import type {
+  gitlabSearchGroupOutputType,
+  gitlabSearchGroupParamsType,
+} from "../../src/actions/autogen/types.js";
 import { runAction } from "../../src/app.js";
 import assert from "node:assert";
 import dotenv from "dotenv";
@@ -13,16 +16,15 @@ async function runSearchGroupWithoutProject() {
     groupId: "credal",
   };
 
-  const result = await runAction(
+  const result = (await runAction(
     "searchGroup",
     "gitlab",
-    { authToken: process.env.GITLAB_ACCESS_TOKEN }, 
-    params,
-  );
+    { authToken: process.env.GITLAB_ACCESS_TOKEN },
+    params
+  )) as gitlabSearchGroupOutputType;
   console.log("Resulting payload:");
   console.dir(result, { depth: 4 });
-  assert(Array.isArray(result.mergeRequests), "Merge requests should be an array");
-  assert(Array.isArray(result.blobs), "Blobs should be an array");
+  assert(Array.isArray(result.results), "Results should be an array");
 }
 
 async function runSearchGroupWithProject() {
@@ -34,16 +36,15 @@ async function runSearchGroupWithProject() {
     project: "test-project",
   };
 
-  const result = await runAction(
+  const result = (await runAction(
     "searchGroup",
     "gitlab",
-    { authToken: process.env.GITLAB_ACCESS_TOKEN }, 
-    params,
-  );
+    { authToken: process.env.GITLAB_ACCESS_TOKEN },
+    params
+  )) as gitlabSearchGroupOutputType;
   console.log("Resulting payload:");
   console.dir(result, { depth: 4 });
-  assert(Array.isArray(result.mergeRequests), "Merge requests should be an array");
-  assert(Array.isArray(result.blobs), "Blobs should be an array");
+  assert(Array.isArray(result.results), "Results should be an array");
 }
 
 runSearchGroupWithoutProject().catch((error) => {
