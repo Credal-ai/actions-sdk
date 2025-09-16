@@ -46,19 +46,17 @@ const listDirectory: githubListDirectoryFunction = async ({
     };
   }
 
-  const content = data.map(item => {
-    return {
-      name: item.name,
-      path: item.path,
-      type: item.type,
-      size: item.size,
-      htmlUrl: item.html_url ?? item.url,
-    };
-  });
-
   return {
     success: true,
-    content,
+    results: data.map(item => ({
+      name: item.name,
+      url: item.html_url ?? item.url,
+      contents: {
+        path: item.path,
+        type: item.type,
+        size: item.size,
+      },
+    })),
   };
 };
 

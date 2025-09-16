@@ -32,9 +32,9 @@ async function runTest() {
   // Validate response
   assert(typedResult, "Response should not be null");
   assert(typedResult.success, "Response should indicate success");
-  assert(Array.isArray(typedResult.content), "Content should be an array");
-  assert(typedResult.content.length > 0, "Content should not be empty");
-  assert(typedResult.content.some((item) => item.name === "app.ts"));
+  assert(Array.isArray(typedResult.results), "Results should be an array");
+  assert(typedResult.results.length > 0, "Results should not be empty");
+  assert(typedResult.results.some((item) => item.name === "app.ts"));
 }
 
 runTest().catch((error) => {

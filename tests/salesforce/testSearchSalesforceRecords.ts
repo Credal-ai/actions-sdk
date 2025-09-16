@@ -1,7 +1,10 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app.js";
 import dotenv from "dotenv";
-import { salesforceSearchSalesforceRecordsOutputSchema } from "../../src/actions/autogen/types.js";
+import {
+  salesforceSearchSalesforceRecordsOutputSchema,
+  type salesforceSearchSalesforceRecordsOutputType,
+} from "../../src/actions/autogen/types.js";
 
 dotenv.config();
 
@@ -10,7 +13,7 @@ async function runTest() {
   const baseUrl = process.env.SALESFORCE_URL;
 
   // Test 1: Regular query with limit
-  const regularQueryResult = await runAction(
+  const regularQueryResult = (await runAction(
     "searchSalesforceRecords",
     "salesforce",
     {
@@ -21,12 +24,16 @@ async function runTest() {
       keyword: "Health",
       recordType: "Account",
       fieldsToSearch: ["Name"],
-      limit: 1
+      limit: 1,
     }
-  );
+  )) as salesforceSearchSalesforceRecordsOutputType;
   assert.strictEqual(regularQueryResult.success, true);
-  assert.equal(salesforceSearchSalesforceRecordsOutputSchema.safeParse(regularQueryResult).success, true);
-  assert.equal(regularQueryResult.searchRecords.length, 1);
+  assert.equal(
+    salesforceSearchSalesforceRecordsOutputSchema.safeParse(regularQueryResult)
+      .success,
+    true
+  );
+  assert.equal(regularQueryResult.results?.length, 1);
 
   const dashKeywordResult = await runAction(
     "searchSalesforceRecords",
@@ -39,12 +46,16 @@ async function runTest() {
       keyword: "health-company",
       recordType: "Account",
       fieldsToSearch: ["Name"],
-      limit: 1
+      limit: 1,
     }
   );
   assert.strictEqual(dashKeywordResult.success, true);
-  assert.equal(salesforceSearchSalesforceRecordsOutputSchema.safeParse(dashKeywordResult).success, true);
-  
+  assert.equal(
+    salesforceSearchSalesforceRecordsOutputSchema.safeParse(dashKeywordResult)
+      .success,
+    true
+  );
+
   console.log("All tests passed!");
 }
 

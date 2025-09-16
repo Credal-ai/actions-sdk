@@ -1677,7 +1677,20 @@ export const firecrawlScrapeUrlParamsSchema = z.object({
 
 export type firecrawlScrapeUrlParamsType = z.infer<typeof firecrawlScrapeUrlParamsSchema>;
 
-export const firecrawlScrapeUrlOutputSchema = z.object({ content: z.string().describe("The content of the URL") });
+export const firecrawlScrapeUrlOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the result"),
+        url: z.string().describe("The URL of the result"),
+        contents: z.string().describe("The content of the URL"),
+      }),
+    )
+    .describe("The results of the scrape")
+    .optional(),
+});
 
 export type firecrawlScrapeUrlOutputType = z.infer<typeof firecrawlScrapeUrlOutputSchema>;
 export type firecrawlScrapeUrlFunction = ActionFunction<
@@ -5094,18 +5107,25 @@ export type salesforceSearchSalesforceRecordsParamsType = z.infer<typeof salesfo
 
 export const salesforceSearchSalesforceRecordsOutputSchema = z.object({
   success: z.boolean().describe("Whether the records were successfully retrieved"),
-  searchRecords: z
+  results: z
     .array(
       z
         .object({
-          id: z.string().describe("The Salesforce record ID").optional(),
-          attributes: z
+          name: z.string().describe("The name of the record").optional(),
+          url: z.string().describe("The URL of the record").optional(),
+          contents: z
             .object({
-              type: z.string().describe("The Salesforce object type"),
-              url: z.string().describe("The Salesforce record URL"),
+              id: z.string().describe("The Salesforce record ID").optional(),
+              attributes: z
+                .object({
+                  type: z.string().describe("The Salesforce object type"),
+                  url: z.string().describe("The Salesforce record URL"),
+                })
+                .catchall(z.any())
+                .describe("Metadata about the Salesforce record")
+                .optional(),
             })
-            .catchall(z.any())
-            .describe("Metadata about the Salesforce record")
+            .describe("The contents of the record")
             .optional(),
         })
         .describe("A record from Salesforce"),
@@ -5133,10 +5153,7 @@ export type salesforceGetSalesforceRecordsByQueryParamsType = z.infer<
 
 export const salesforceGetSalesforceRecordsByQueryOutputSchema = z.object({
   success: z.boolean().describe("Whether the records were successfully retrieved"),
-  records: z
-    .array(z.record(z.string()).describe("A record from Salesforce"))
-    .describe("The retrieved records")
-    .optional(),
+  results: z.array(z.any()).describe("Array of standardized results objects").optional(),
   error: z.string().describe("The error that occurred if the records were not successfully retrieved").optional(),
 });
 
@@ -5405,22 +5422,33 @@ export const githubListPullRequestsParamsSchema = z.object({
 export type githubListPullRequestsParamsType = z.infer<typeof githubListPullRequestsParamsSchema>;
 
 export const githubListPullRequestsOutputSchema = z.object({
-  pullRequests: z
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("The error that occurred if the operation was not successful").optional(),
+  results: z
     .array(
       z.object({
-        number: z.number().describe("The number of the pull request").optional(),
-        title: z.string().describe("The title of the pull request").optional(),
-        state: z.string().describe("The state of the pull request (e.g., open, closed)").optional(),
+        name: z.string().describe("The title of the pull request").optional(),
         url: z.string().describe("The URL of the pull request").optional(),
-        createdAt: z.string().describe("The date and time when the pull request was created").optional(),
-        updatedAt: z.string().describe("The date and time when the pull request was last updated").optional(),
-        user: z
-          .object({ login: z.string().describe("The username of the user who created the pull request").optional() })
+        contents: z
+          .object({
+            number: z.number().describe("The number of the pull request").optional(),
+            title: z.string().describe("The title of the pull request").optional(),
+            state: z.string().describe("The state of the pull request (e.g., open, closed)").optional(),
+            url: z.string().describe("The URL of the pull request").optional(),
+            createdAt: z.string().describe("The date and time when the pull request was created").optional(),
+            updatedAt: z.string().describe("The date and time when the pull request was last updated").optional(),
+            user: z
+              .object({
+                login: z.string().describe("The username of the user who created the pull request").optional(),
+              })
+              .optional(),
+            description: z.string().describe("The description of the pull request").optional(),
+          })
           .optional(),
-        description: z.string().describe("The description of the pull request").optional(),
       }),
     )
-    .describe("A list of pull requests in the repository"),
+    .describe("A list of pull requests in the repository")
+    .optional(),
 });
 
 export type githubListPullRequestsOutputType = z.infer<typeof githubListPullRequestsOutputSchema>;
@@ -5548,10 +5576,23 @@ export type githubGetFileContentParamsType = z.infer<typeof githubGetFileContent
 export const githubGetFileContentOutputSchema = z.object({
   success: z.boolean().describe("Whether the operation was successful"),
   error: z.string().describe("The error that occurred if the operation was not successful").optional(),
-  content: z.string().describe("The decoded file content as a string").optional(),
-  size: z.number().describe("The size of the file in bytes").optional(),
-  name: z.string().describe("The name of the file").optional(),
-  htmlUrl: z.string().describe("The URL of the file in the Github UI").optional(),
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the file").optional(),
+        url: z.string().describe("The URL of the file in the Github UI").optional(),
+        contents: z
+          .object({
+            content: z.string().describe("The decoded file content as a string").optional(),
+            size: z.number().describe("The size of the file in bytes").optional(),
+            name: z.string().describe("The name of the file").optional(),
+            htmlUrl: z.string().describe("The URL of the file in the Github UI").optional(),
+          })
+          .optional(),
+      }),
+    )
+    .describe("A list of Github files")
+    .optional(),
 });
 
 export type githubGetFileContentOutputType = z.infer<typeof githubGetFileContentOutputSchema>;
@@ -5572,14 +5613,18 @@ export type githubListDirectoryParamsType = z.infer<typeof githubListDirectoryPa
 export const githubListDirectoryOutputSchema = z.object({
   success: z.boolean().describe("Whether the operation was successful"),
   error: z.string().describe("Error message if the operation failed").optional(),
-  content: z
+  results: z
     .array(
       z.object({
         name: z.string().describe("The name of the file"),
-        path: z.string().describe("The path of the file"),
-        type: z.string().describe("The type of the file"),
-        size: z.number().describe("The size of the file in bytes"),
-        htmlUrl: z.string().describe("The URL of the file in the Github UI"),
+        url: z.string().describe("The URL of the file in the Github UI"),
+        contents: z
+          .object({
+            path: z.string().describe("The path of the file"),
+            type: z.string().describe("The type of the file"),
+            size: z.number().describe("The size of the file in bytes"),
+          })
+          .describe("The contents of the file"),
       }),
     )
     .describe("Array of directory contents")
@@ -5689,75 +5734,100 @@ export const githubSearchOrganizationParamsSchema = z.object({
 export type githubSearchOrganizationParamsType = z.infer<typeof githubSearchOrganizationParamsSchema>;
 
 export const githubSearchOrganizationOutputSchema = z.object({
-  code: z
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  results: z
     .array(
       z.object({
-        name: z.string().describe("The name of the file that had a match"),
-        path: z.string().describe("The path of the file that had a match"),
-        sha: z.string().describe("The SHA of the commit that had a match"),
-        url: z.string().describe("The URL of the file that had a match"),
-        score: z.number().describe("The similarity score of the match"),
-        textMatches: z
-          .array(
-            z.object({
-              object_url: z.string().describe("The URL of the object that had a match").optional(),
-              object_type: z.string().describe("The type of the object that had a match").optional(),
-              fragment: z.string().describe("The fragment of the text that had a match").optional(),
-              matches: z
-                .array(
-                  z.object({
-                    text: z.string().describe("The text that had a match").optional(),
-                    indices: z.array(z.number()).describe("The indices of the text that had a match").optional(),
-                  }),
-                )
-                .describe("A list of matches that match the query"),
-            }),
-          )
-          .describe("A list of text matches that match the query"),
+        name: z.string().describe("The name of the result (file name, commit SHA, or issue/PR title)"),
+        url: z.string().describe("The URL of the result"),
+        type: z.enum(["code", "commit", "issueOrPullRequest"]).describe("The type of the result"),
+        content: z.any().superRefine((x, ctx) => {
+          const schemas = [
+            z
+              .object({
+                name: z.string().describe("The name of the file that had a match"),
+                path: z.string().describe("The path of the file that had a match"),
+                sha: z.string().describe("The SHA of the commit that had a match"),
+                url: z.string().describe("The URL of the file that had a match"),
+                score: z.number().describe("The similarity score of the match"),
+                textMatches: z
+                  .array(
+                    z.object({
+                      object_url: z.string().describe("The URL of the object that had a match").optional(),
+                      object_type: z.string().describe("The type of the object that had a match").optional(),
+                      fragment: z.string().describe("The fragment of the text that had a match").optional(),
+                      matches: z
+                        .array(
+                          z.object({
+                            text: z.string().describe("The text that had a match").optional(),
+                            indices: z
+                              .array(z.number())
+                              .describe("The indices of the text that had a match")
+                              .optional(),
+                          }),
+                        )
+                        .describe("A list of matches that match the query"),
+                    }),
+                  )
+                  .describe("A list of text matches that match the query"),
+              })
+              .describe("Code result content"),
+            z
+              .object({
+                sha: z.string().describe("The SHA of the commit that had a match"),
+                url: z.string().describe("The URL of the commit that had a match"),
+                commit: z
+                  .object({
+                    author: z.object({
+                      name: z.string().describe("The name of the author"),
+                      email: z.string().describe("The email of the author"),
+                      date: z.string().describe("The date of the commit"),
+                    }),
+                    message: z.string().describe("The message of the commit"),
+                  })
+                  .optional(),
+              })
+              .describe("Commit result content"),
+            z
+              .object({
+                number: z.number().describe("The number of the issue or pull request").optional(),
+                title: z.string().describe("The title of the issue or pull request"),
+                html_url: z.string().describe("The URL of the issue or pull request").optional(),
+                state: z.enum(["open", "closed"]).describe("The state of the issue or pull request"),
+                isPullRequest: z.boolean().describe("Whether the issue or pull request is a pull request").optional(),
+                body: z.string().describe("The body of the issue or pull request").optional(),
+                score: z.number().describe("The score of the issue or pull request").optional(),
+                files: z
+                  .array(
+                    z.object({
+                      filename: z.string().describe("The filename of the file"),
+                      status: z.string().describe("The status of the file"),
+                      patch: z.string().describe("The patch of the file").optional(),
+                    }),
+                  )
+                  .describe("A list of files that match the query")
+                  .optional(),
+              })
+              .describe("Issue or pull request result content"),
+          ];
+          const errors = schemas.reduce<z.ZodError[]>(
+            (errors, schema) => (result => (result.error ? [...errors, result.error] : errors))(schema.safeParse(x)),
+            [],
+          );
+          if (schemas.length - errors.length !== 1) {
+            ctx.addIssue({
+              path: ctx.path,
+              code: "invalid_union",
+              unionErrors: errors,
+              message: "Invalid input: Should pass single schema",
+            });
+          }
+        }),
       }),
     )
-    .describe("A list of code results that match the query"),
-  commits: z
-    .array(
-      z.object({
-        sha: z.string().describe("The SHA of the commit that had a match"),
-        url: z.string().describe("The URL of the commit that had a match"),
-        commit: z
-          .object({
-            author: z.object({
-              name: z.string().describe("The name of the author"),
-              email: z.string().describe("The email of the author"),
-              date: z.string().describe("The date of the commit"),
-            }),
-            message: z.string().describe("The message of the commit"),
-          })
-          .optional(),
-      }),
-    )
-    .describe("A list of commits that match the query"),
-  issuesAndPullRequests: z
-    .array(
-      z.object({
-        number: z.number().describe("The number of the issue or pull request").optional(),
-        title: z.string().describe("The title of the issue or pull request"),
-        html_url: z.string().describe("The URL of the issue or pull request").optional(),
-        state: z.enum(["open", "closed"]).describe("The state of the issue or pull request"),
-        isPullRequest: z.boolean().describe("Whether the issue or pull request is a pull request").optional(),
-        body: z.string().describe("The body of the issue or pull request").optional(),
-        score: z.number().describe("The score of the issue or pull request").optional(),
-        files: z
-          .array(
-            z.object({
-              filename: z.string().describe("The filename of the file"),
-              status: z.string().describe("The status of the file"),
-              patch: z.string().describe("The patch of the file").optional(),
-            }),
-          )
-          .describe("A list of files that match the query")
-          .optional(),
-      }),
-    )
-    .describe("A list of issues and pull requests that match the query"),
+    .describe("Array of search results")
+    .optional(),
 });
 
 export type githubSearchOrganizationOutputType = z.infer<typeof githubSearchOrganizationOutputSchema>;

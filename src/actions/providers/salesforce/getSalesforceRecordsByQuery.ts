@@ -48,16 +48,23 @@ const getSalesforceRecordsByQuery: salesforceGetSalesforceRecordsByQueryFunction
     const response = await axiosClient.get(url, { headers: { Authorization: `Bearer ${authToken}` } });
 
     // Salesforce record types are confusing and non standard
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const recordsWithUrl = response.data.records?.map((record: any) => {
-      const recordId = record.Id;
-      const webUrl = recordId ? `${baseUrl}/lightning/r/${recordId}/view` : undefined;
-      return { ...record, webUrl };
-    });
+    const recordsWithUrl =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      response.data.records?.map((record: any) => {
+        const recordId = record.Id;
+        const webUrl = recordId ? `${baseUrl}/lightning/r/${recordId}/view` : undefined;
+        return { ...record, webUrl };
+      }) || [];
 
     return {
       success: true,
-      records: { ...response.data, records: response.data.records ? recordsWithUrl : undefined },
+      results:
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        recordsWithUrl.map((record: any) => ({
+          name: record.Name,
+          url: record.webUrl,
+          content: record,
+        })) || [],
     };
   } catch (error) {
     console.error("Error retrieving Salesforce record:", error);
