@@ -1316,9 +1316,27 @@ export const jiraGetJiraTicketDetailsDefinition: ActionTemplate = {
         type: "string",
         description: "The error that occurred if the retrieval was unsuccessful",
       },
-      data: {
-        type: "object",
-        description: "The data of the Jira ticket",
+      results: {
+        type: "array",
+        description: "The results of the Jira ticket",
+        items: {
+          type: "object",
+          required: ["name", "url", "contents"],
+          properties: {
+            name: {
+              type: "string",
+              description: "The name of the result",
+            },
+            url: {
+              type: "string",
+              description: "The URL of the result",
+            },
+            contents: {
+              type: "object",
+              description: "The data of the Jira ticket",
+            },
+          },
+        },
       },
     },
   },
@@ -1957,9 +1975,27 @@ export const jiraOrgGetJiraTicketDetailsDefinition: ActionTemplate = {
         type: "string",
         description: "The error that occurred if the retrieval was unsuccessful",
       },
-      data: {
-        type: "object",
-        description: "The data of the Jira ticket",
+      results: {
+        type: "array",
+        description: "The results of the Jira ticket",
+        items: {
+          type: "object",
+          required: ["name", "url", "contents"],
+          properties: {
+            name: {
+              type: "string",
+              description: "The name of the result",
+            },
+            url: {
+              type: "string",
+              description: "The URL of the result",
+            },
+            contents: {
+              type: "object",
+              description: "The data of the Jira ticket",
+            },
+          },
+        },
       },
     },
   },

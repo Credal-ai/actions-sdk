@@ -717,7 +717,16 @@ export type jiraGetJiraTicketDetailsParamsType = z.infer<typeof jiraGetJiraTicke
 export const jiraGetJiraTicketDetailsOutputSchema = z.object({
   success: z.boolean().describe("Whether the status was updated successfully"),
   error: z.string().describe("The error that occurred if the retrieval was unsuccessful").optional(),
-  data: z.object({}).catchall(z.any()).describe("The data of the Jira ticket").optional(),
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the result"),
+        url: z.string().describe("The URL of the result"),
+        contents: z.object({}).catchall(z.any()).describe("The data of the Jira ticket"),
+      }),
+    )
+    .describe("The results of the Jira ticket")
+    .optional(),
 });
 
 export type jiraGetJiraTicketDetailsOutputType = z.infer<typeof jiraGetJiraTicketDetailsOutputSchema>;
@@ -1024,7 +1033,16 @@ export type jiraOrgGetJiraTicketDetailsParamsType = z.infer<typeof jiraOrgGetJir
 export const jiraOrgGetJiraTicketDetailsOutputSchema = z.object({
   success: z.boolean().describe("Whether the status was updated successfully"),
   error: z.string().describe("The error that occurred if the retrieval was unsuccessful").optional(),
-  data: z.object({}).catchall(z.any()).describe("The data of the Jira ticket").optional(),
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the result"),
+        url: z.string().describe("The URL of the result"),
+        contents: z.object({}).catchall(z.any()).describe("The data of the Jira ticket"),
+      }),
+    )
+    .describe("The results of the Jira ticket")
+    .optional(),
 });
 
 export type jiraOrgGetJiraTicketDetailsOutputType = z.infer<typeof jiraOrgGetJiraTicketDetailsOutputSchema>;
