@@ -471,6 +471,13 @@ export const slackUserSearchSlackOutputSchema = z.object({
       }),
     )
     .describe("Hydrated search results (threads or small context windows), sorted by ts desc."),
+  currentUser: z
+    .object({
+      userId: z.string().describe("The ID of the current user"),
+      userName: z.string().describe("The name of the current user").optional(),
+      userEmail: z.string().describe("The email of the current user").optional(),
+    })
+    .describe("The current user who's running the search"),
 });
 
 export type slackUserSearchSlackOutputType = z.infer<typeof slackUserSearchSlackOutputSchema>;

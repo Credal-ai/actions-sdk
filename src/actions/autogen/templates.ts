@@ -776,7 +776,7 @@ export const slackUserSearchSlackDefinition: ActionTemplate = {
   },
   output: {
     type: "object",
-    required: ["query", "results"],
+    required: ["query", "results", "currentUser"],
     properties: {
       query: {
         type: "string",
@@ -840,6 +840,25 @@ export const slackUserSearchSlackDefinition: ActionTemplate = {
                 },
               },
             },
+          },
+        },
+      },
+      currentUser: {
+        type: "object",
+        required: ["userId"],
+        description: "The current user who's running the search",
+        properties: {
+          userId: {
+            type: "string",
+            description: "The ID of the current user",
+          },
+          userName: {
+            type: "string",
+            description: "The name of the current user",
+          },
+          userEmail: {
+            type: "string",
+            description: "The email of the current user",
           },
         },
       },

@@ -11,6 +11,11 @@ import pLimit from "p-limit";
 const HIT_ENRICH_POOL = 5;
 const limitHit = pLimit(HIT_ENRICH_POOL);
 
+const MENTION_USER_RE = /<@([UW][A-Z0-9]+)(?:\|[^>]+)?>/g;
+const MENTION_CHANNEL_RE = /<#(C[A-Z0-9]+)(?:\|[^>]+)?>/g;
+const SPECIAL_RE = /<!(channel|here|everyone)>/g;
+const SUBTEAM_RE = /<!subteam\^([A-Z0-9]+)(?:\|[^>]+)?>/g; // user group
+
 /* ===================== Public Types ===================== */
 
 export type TimeRange = "latest" | "today" | "yesterday" | "last_7d" | "last_30d" | "all";
@@ -194,12 +199,19 @@ const searchSlack: slackUserSearchSlackFunction = async ({
   const { emails, channel, topic, timeRange, limit } = params;
 
   const parts: string[] = [];
+  const { user_id: myUserId } = await client.auth.test();
+
+  if (!myUserId) throw new Error("Failed to get my user ID.");
+
+  const me = await slackUserCache.get(myUserId);
+  const currentUser = {
+    userId: myUserId,
+    userName: me?.name,
+    userEmail: me?.email,
+  };
 
   if (emails?.length) {
     const userIds = await lookupUserIdsByEmail(client, emails, slackUserCache);
-    const { user_id: myUserId } = await client.auth.test();
-
-    if (!myUserId) throw new Error("Failed to get my user ID.");
 
     const userIdsWithoutMe = userIds.filter(id => id !== myUserId);
 
@@ -227,10 +239,12 @@ const searchSlack: slackUserSearchSlackFunction = async ({
 
   const hitsPromises = matches.slice(0, limit).map(async m => {
     const user = m.user ? await slackUserCache.get(m.user) : undefined;
+
+    const prettyText = m.text ? await expandSlackEntities(client, slackUserCache, m.text) : undefined;
     return {
       channelId: m.channel?.id || m.channel?.name || "",
       ts: m.ts,
-      text: m.text,
+      text: prettyText,
       userEmail: user?.email ?? undefined,
       userName: user?.name ?? undefined,
     };
@@ -256,9 +270,10 @@ const searchSlack: slackUserSearchSlackFunction = async ({
             .filter(t => t.ts)
             .map(async t => {
               const user = t.user ? await slackUserCache.get(t.user) : undefined;
+              const prettyText = t.text ? await expandSlackEntities(client, slackUserCache, t.text) : undefined;
               return {
                 ts: t.ts!,
-                text: t.text,
+                text: prettyText,
                 userEmail: user?.email ?? undefined,
                 userName: user?.name ?? undefined,
               };
@@ -267,11 +282,13 @@ const searchSlack: slackUserSearchSlackFunction = async ({
           const context = await Promise.all(contextPromises);
 
           const user = anchor.user ? await slackUserCache.get(anchor.user) : undefined;
+          const textResponse = anchor.text ?? h.text;
+          const prettyText = textResponse ? await expandSlackEntities(client, slackUserCache, textResponse) : undefined;
 
           return {
             channelId: h.channelId,
             ts: rootTs,
-            text: anchor.text ?? h.text,
+            text: prettyText,
             userEmail: user?.email ?? h.userEmail,
             userName: user?.name ?? h.userName,
             context,
@@ -328,7 +345,71 @@ const searchSlack: slackUserSearchSlackFunction = async ({
   for (const r of settled) if (r.status === "fulfilled" && r.value) results.push(r.value);
 
   results.sort((a, b) => Number(b.ts) - Number(a.ts));
-  return { query, results };
+  return { query, results, currentUser };
 };
+
+async function expandSlackEntities(
+  client: WebClient,
+  cache: SlackUserCache,
+  raw: string,
+  { includeEmail = false }: { includeEmail?: boolean } = {},
+): Promise<string> {
+  let text = raw;
+
+  // 1) Users: <@U12345> -> @Name (or @Name <email>)
+  const userIds = new Set<string>();
+  for (const m of raw.matchAll(MENTION_USER_RE)) userIds.add(m[1]);
+
+  const idToUser: Record<string, { name?: string; email?: string }> = {};
+  await Promise.all(
+    [...userIds].map(async id => {
+      try {
+        const u = await cache.get(id);
+        idToUser[id] = { name: u?.name, email: u?.email };
+      } catch {
+        idToUser[id] = {};
+      }
+    }),
+  );
+
+  text = text.replace(MENTION_USER_RE, (_, id: string) => {
+    const u = idToUser[id];
+    if (u?.name) {
+      return includeEmail && u.email ? `@${u.name} <${u.email}>` : `@${u.name}`;
+    }
+    // fallback: keep original token if we can't resolve
+    return `@${id}`;
+  });
+
+  // 2) Channels: <#C12345|name> -> #name (fallback to #C12345)
+  const channelIds = new Set<string>();
+  for (const m of raw.matchAll(MENTION_CHANNEL_RE)) channelIds.add(m[1]);
+
+  const idToChannel: Record<string, string | undefined> = {};
+  await Promise.all(
+    [...channelIds].map(async id => {
+      try {
+        const info = await client.conversations.info({ channel: id });
+        idToChannel[id] = info.channel?.name ?? undefined;
+      } catch {
+        idToChannel[id] = undefined;
+      }
+    }),
+  );
+
+  text = text.replace(MENTION_CHANNEL_RE, (_, id: string) => `#${idToChannel[id] ?? id}`);
+
+  // 3) Special mentions: <!here>, <!channel>, <!everyone>
+  text = text.replace(SPECIAL_RE, (_, kind: string) => `@${kind}`);
+
+  // 4) User groups: <!subteam^S123|@group> -> @group (fallback to @S123)
+  text = text.replace(SUBTEAM_RE, (_m, sid: string) => `@${sid}`);
+
+  // 5) Slack links: <https://x|label> -> label (or the URL)
+  text = text.replace(/<([^>|]+)\|([^>]+)>/g, (_m, _url: string, label: string) => label); // keep label
+  text = text.replace(/<([^>|]+)>/g, (_m, url: string) => url); // bare <https://…>
+
+  return text;
+}
 
 export default searchSlack;
