@@ -328,7 +328,14 @@ const searchSlack: slackUserSearchSlackFunction = async ({
   for (const r of settled) if (r.status === "fulfilled" && r.value) results.push(r.value);
 
   results.sort((a, b) => Number(b.ts) - Number(a.ts));
-  return { query, results };
+  return {
+    query,
+    results: results.map(r => ({
+      name: r.text || "Untitled",
+      url: r.permalink || "",
+      contents: r,
+    })),
+  };
 };
 
 export default searchSlack;

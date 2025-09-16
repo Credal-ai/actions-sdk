@@ -1,3 +1,4 @@
+import type { slackUserSearchSlackOutputType } from "../../src/actions/autogen/types.js";
 import { runAction } from "../../src/app.js";
 import dotenv from "dotenv";
 
@@ -5,39 +6,43 @@ dotenv.config();
 
 async function runTest() {
   // Single person DM
-  const result1 = await runAction(
+  const result1 = (await runAction(
     "searchSlack",
     "slackUser",
     { authToken: process.env.SLACK_AUTH_TOKEN },
-    { emails: ["jack@credal.ai"], limit: 10, topic: "flatiron" },
-  );
+    { emails: ["jack@credal.ai"], limit: 10, topic: "flatiron" }
+  )) as slackUserSearchSlackOutputType;
 
   // Multiple person DM
-  const result2 = await runAction(
+  const result2 = (await runAction(
     "searchSlack",
     "slackUser",
     { authToken: process.env.SLACK_AUTH_TOKEN },
-    { emails: ["jack@credal.ai", "ravin@credal.ai"], limit: 1, topic: "good to know" },
-  );
+    {
+      emails: ["jack@credal.ai", "ravin@credal.ai"],
+      limit: 1,
+      topic: "good to know",
+    }
+  )) as slackUserSearchSlackOutputType;
 
   // Channel
-  const result3 = await runAction(
+  const result3 = (await runAction(
     "searchSlack",
     "slackUser",
     { authToken: process.env.SLACK_AUTH_TOKEN },
-    { channel: "general", limit: 1, topic: "welcome" },
-  );
-  
+    { channel: "general", limit: 1, topic: "welcome" }
+  )) as slackUserSearchSlackOutputType;
+
   console.log(
-    "Send Message Test Response 1: " + JSON.stringify(result1, null, 2),
+    "Send Message Test Response 1: " + JSON.stringify(result1, null, 2)
   );
 
   console.log(
-    "Send Message Test Response 2: " + JSON.stringify(result2, null, 2),
+    "Send Message Test Response 2: " + JSON.stringify(result2, null, 2)
   );
 
   console.log(
-    "Send Message Test Response 3: " + JSON.stringify(result3, null, 2),
+    "Send Message Test Response 3: " + JSON.stringify(result3, null, 2)
   );
 }
 

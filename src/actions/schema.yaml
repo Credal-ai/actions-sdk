@@ -563,48 +563,58 @@ actions:
             description: Hydrated search results (threads or small context windows), sorted by ts desc.
             items:
               type: object
-              required:
-                - channelId
-                - ts
+              required: [name, url, contents]
               properties:
-                channelId:
+                name:
                   type: string
-                  description: Slack channel/conversation ID (C…/G…/D… or name).
-                ts:
+                  description: The name of the result
+                url:
                   type: string
-                  description: Slack message timestamp of the hit (or thread root when hydrated as thread).
-                text:
-                  type: string
-                  description: Message text of the anchor (hit or thread root).
-                userEmail:
-                  type: string
-                  description: User email of the anchor message’s author (if available).
-                userName:
-                  type: string
-                  description: User name of the anchor message’s author (if available).
-                permalink:
-                  type: string
-                  description: A Slack permalink to the anchor (message or thread root), if resolvable.
-                context:
-                  type: array
-                  description: When a hit is in a thread, this is the full thread (root first). Otherwise, a small surrounding context window (~3 before, 5 after).
-                  items:
-                    type: object
-                    required:
-                      - ts
-                    properties:
-                      ts:
-                        type: string
-                        description: Timestamp of the contextual message.
-                      text:
-                        type: string
-                        description: Text of the contextual message.
-                      userEmail:
-                        type: string
-                        description: Author user email of the contextual message.
-                      userName:
-                        type: string
-                        description: Author user name of the contextual message.
+                  description: The URL of the result
+                contents:
+                  type: object
+                  required:
+                    - channelId
+                    - ts
+                  properties:
+                    channelId:
+                      type: string
+                      description: Slack channel/conversation ID (C…/G…/D… or name).
+                    ts:
+                      type: string
+                      description: Slack message timestamp of the hit (or thread root when hydrated as thread).
+                    text:
+                      type: string
+                      description: Message text of the anchor (hit or thread root).
+                    userEmail:
+                      type: string
+                      description: User email of the anchor message’s author (if available).
+                    userName:
+                      type: string
+                      description: User name of the anchor message’s author (if available).
+                    permalink:
+                      type: string
+                      description: A Slack permalink to the anchor (message or thread root), if resolvable.
+                    context:
+                      type: array
+                      description: When a hit is in a thread, this is the full thread (root first). Otherwise, a small surrounding context window (~3 before, 5 after).
+                      items:
+                        type: object
+                        required:
+                          - ts
+                        properties:
+                          ts:
+                            type: string
+                            description: Timestamp of the contextual message.
+                          text:
+                            type: string
+                            description: Text of the contextual message.
+                          userEmail:
+                            type: string
+                            description: Author user email of the contextual message.
+                          userName:
+                            type: string
+                            description: Author user name of the contextual message.
   math:
     add:
       description: Adds two numbers together
