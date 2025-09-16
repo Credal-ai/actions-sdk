@@ -10,7 +10,7 @@ import { jiraConfig } from "./utils.js";
 dotenv.config();
 
 async function runTest() {
-  const { authToken, cloudId, projectKey } = jiraConfig;
+  const { authToken, cloudId, baseUrl, projectKey } = jiraConfig;
 
   const result = (await runAction(
     "getJiraIssuesByQuery",
@@ -18,6 +18,7 @@ async function runTest() {
     {
       authToken,
       cloudId,
+      baseUrl,
     },
     {
       query: `project = ${projectKey}`,

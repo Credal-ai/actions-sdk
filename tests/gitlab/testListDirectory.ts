@@ -22,7 +22,7 @@ async function runTest() {
   );
   console.log("Resulting payload:");
   console.dir(result, { depth: 4 });
-  assert(Array.isArray(result.content), "Content should be an array");
+  assert(Array.isArray(result.results), "Results should be an array");
 }
 
 runTest().catch((error) => {
