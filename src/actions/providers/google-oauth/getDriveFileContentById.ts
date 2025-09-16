@@ -128,7 +128,16 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
       content = content.slice(0, charLimit);
     }
 
-    return { success: true, content, fileName, fileLength: originalLength };
+    return {
+      success: true,
+      results: [
+        {
+          name: fileName,
+          url: `${BASE_URL}${encodeURIComponent(params.fileId)}`,
+          contents: { content, fileName, fileLength: originalLength },
+        },
+      ],
+    };
   } catch (error) {
     console.error("Error getting Google Drive file content", error);
     return {

@@ -7491,17 +7491,41 @@ export const googleOauthGetDriveFileContentByIdDefinition: ActionTemplate = {
         type: "boolean",
         description: "Whether the file content was retrieved successfully",
       },
-      content: {
-        type: "string",
-        description: "The content of the file",
-      },
-      fileName: {
-        type: "string",
-        description: "The name of the file",
-      },
-      fileLength: {
-        type: "number",
-        description: "The length of the file content prior to truncating",
+      results: {
+        type: "array",
+        description: "The results of the file content",
+        items: {
+          type: "object",
+          required: ["name", "url", "contents"],
+          properties: {
+            name: {
+              type: "string",
+              description: "The name of the file",
+            },
+            url: {
+              type: "string",
+              description: "The URL of the file",
+            },
+            contents: {
+              type: "object",
+              description: "The contents of the file",
+              properties: {
+                content: {
+                  type: "string",
+                  description: "The content of the file",
+                },
+                fileName: {
+                  type: "string",
+                  description: "The name of the file",
+                },
+                fileLength: {
+                  type: "number",
+                  description: "The length of the file content prior to truncating",
+                },
+              },
+            },
+          },
+        },
       },
       error: {
         type: "string",

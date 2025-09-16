@@ -3857,9 +3857,22 @@ export type googleOauthGetDriveFileContentByIdParamsType = z.infer<
 
 export const googleOauthGetDriveFileContentByIdOutputSchema = z.object({
   success: z.boolean().describe("Whether the file content was retrieved successfully"),
-  content: z.string().describe("The content of the file").optional(),
-  fileName: z.string().describe("The name of the file").optional(),
-  fileLength: z.number().describe("The length of the file content prior to truncating").optional(),
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the file"),
+        url: z.string().describe("The URL of the file"),
+        contents: z
+          .object({
+            content: z.string().describe("The content of the file").optional(),
+            fileName: z.string().describe("The name of the file").optional(),
+            fileLength: z.number().describe("The length of the file content prior to truncating").optional(),
+          })
+          .describe("The contents of the file"),
+      }),
+    )
+    .describe("The results of the file content")
+    .optional(),
   error: z.string().describe("Error message if file content retrieval failed").optional(),
 });
 

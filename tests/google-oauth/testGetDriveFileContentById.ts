@@ -1,4 +1,7 @@
-import type { googleOauthGetDriveFileContentByIdParamsType } from "../../src/actions/autogen/types.js";
+import type {
+  googleOauthGetDriveFileContentByIdOutputType,
+  googleOauthGetDriveFileContentByIdParamsType,
+} from "../../src/actions/autogen/types.js";
 import { runAction } from "../../src/app.js";
 import assert from "node:assert";
 import dotenv from "dotenv";
@@ -18,41 +21,44 @@ async function runTest() {
   };
 
   const startTime = performance.now();
-  const result = await runAction(
+  const result = (await runAction(
     "getDriveFileContentById", // Ensure this matches the action name defined in schema
     "googleOauth",
     {
       authToken: process.env.GOOGLE_DRIVE_AUTH_TOKEN, // Use a valid OAuth token with Drive readonly scope,
     },
-    params,
-  );
+    params
+  )) as googleOauthGetDriveFileContentByIdOutputType;
   const endTime = performance.now();
   const duration = endTime - startTime;
   console.log(`Time taken: ${duration} milliseconds`);
 
   // Basic assertions
   assert.strictEqual(result.success, true, "Retrieval should be successful");
-  assert(typeof result.content === "string", "Content should be a string");
+  assert(
+    typeof result.results?.[0]?.contents?.content === "string",
+    "Content should be a string"
+  );
 
   // Additional checks when successful
   if (result.success) {
-    assert(result.fileName, "Should include fileName");
+    assert(result.results?.[0]?.name, "Should include fileName");
     assert(
-      typeof result.fileLength === "number",
+      typeof result.results?.[0]?.contents?.fileLength === "number",
       "Should include fileLength as number"
     );
 
     // Ensure truncation logic works when limit is set
     if (params.limit) {
       assert(
-        result.content!.length <= params.limit,
+        result.results?.[0]?.contents?.content?.length <= params.limit,
         "Content should respect the limit"
       );
     }
   }
 
-  console.log("File name:", result.fileName);
-  console.log("Content snippet:", result.content);
+  console.log("File name:", result.results?.[0]?.name);
+  console.log("Content snippet:", result.results?.[0]?.contents?.content);
 }
 
 // Run the test
