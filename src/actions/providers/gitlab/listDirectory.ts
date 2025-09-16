@@ -48,19 +48,23 @@ const listDirectory: gitlabListDirectoryFunction = async ({
 
   const treeItems = await gitlabFetch<{ name: string; path: string; type: string; size?: number }[]>(url, authToken);
 
-  const content = treeItems.map(item => {
+  const results = treeItems.map(item => {
     const isFile = item.type === "blob";
     const htmlUrl = `${gitlabBaseUrl}/${fullPath}/-/blob/${ref}/${item.path}`;
     return {
       name: item.name,
-      path: item.path,
-      type: item.type, // "blob" or "tree"
-      size: isFile ? (item.size ?? 0) : 0, // Size may not be returned; fallback to 0
-      htmlUrl,
+      url: htmlUrl,
+      contents: {
+        name: item.name,
+        path: item.path,
+        type: item.type, // "blob" or "tree"
+        size: isFile ? (item.size ?? 0) : 0, // Size may not be returned; fallback to 0
+        htmlUrl,
+      },
     };
   });
 
-  return { content };
+  return { success: true, results };
 };
 
 export default listDirectory;

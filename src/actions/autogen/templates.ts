@@ -12647,34 +12647,57 @@ export const gitlabListDirectoryDefinition: ActionTemplate = {
   },
   output: {
     type: "object",
-    required: ["content"],
+    required: ["success"],
     properties: {
-      content: {
+      success: {
+        type: "boolean",
+        description: "Whether the operation was successful",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the operation failed",
+      },
+      results: {
         type: "array",
         description: "Array of directory contents",
         items: {
           type: "object",
-          required: ["name", "path", "type", "htmlUrl"],
+          required: ["name", "url", "contents"],
           properties: {
             name: {
               type: "string",
               description: "The name of the file or directory",
             },
-            path: {
+            url: {
               type: "string",
-              description: "The path of the file or directory",
+              description: "The URL of the file or directory",
             },
-            type: {
-              type: "string",
-              description: 'The type of the entry (either "blob" for file or "tree" for directory)',
-            },
-            size: {
-              type: "number",
-              description: "The size of the file in bytes (only for blobs; omitted or 0 for trees)",
-            },
-            htmlUrl: {
-              type: "string",
-              description: "The URL of the file or folder in the GitLab UI",
+            contents: {
+              type: "object",
+              description: "The contents of the directory",
+              required: ["name", "path", "type", "htmlUrl"],
+              properties: {
+                name: {
+                  type: "string",
+                  description: "The name of the file or directory",
+                },
+                path: {
+                  type: "string",
+                  description: "The path of the file or directory",
+                },
+                type: {
+                  type: "string",
+                  description: 'The type of the entry (either "blob" for file or "tree" for directory)',
+                },
+                size: {
+                  type: "number",
+                  description: "The size of the file in bytes (only for blobs; omitted or 0 for trees)",
+                },
+                htmlUrl: {
+                  type: "string",
+                  description: "The URL of the file or folder in the GitLab UI",
+                },
+              },
             },
           },
         },

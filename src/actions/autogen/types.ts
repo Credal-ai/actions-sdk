@@ -6323,17 +6323,29 @@ export const gitlabListDirectoryParamsSchema = z.object({
 export type gitlabListDirectoryParamsType = z.infer<typeof gitlabListDirectoryParamsSchema>;
 
 export const gitlabListDirectoryOutputSchema = z.object({
-  content: z
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  results: z
     .array(
       z.object({
         name: z.string().describe("The name of the file or directory"),
-        path: z.string().describe("The path of the file or directory"),
-        type: z.string().describe('The type of the entry (either "blob" for file or "tree" for directory)'),
-        size: z.number().describe("The size of the file in bytes (only for blobs; omitted or 0 for trees)").optional(),
-        htmlUrl: z.string().describe("The URL of the file or folder in the GitLab UI"),
+        url: z.string().describe("The URL of the file or directory"),
+        contents: z
+          .object({
+            name: z.string().describe("The name of the file or directory"),
+            path: z.string().describe("The path of the file or directory"),
+            type: z.string().describe('The type of the entry (either "blob" for file or "tree" for directory)'),
+            size: z
+              .number()
+              .describe("The size of the file in bytes (only for blobs; omitted or 0 for trees)")
+              .optional(),
+            htmlUrl: z.string().describe("The URL of the file or folder in the GitLab UI"),
+          })
+          .describe("The contents of the directory"),
       }),
     )
-    .describe("Array of directory contents"),
+    .describe("Array of directory contents")
+    .optional(),
 });
 
 export type gitlabListDirectoryOutputType = z.infer<typeof gitlabListDirectoryOutputSchema>;
