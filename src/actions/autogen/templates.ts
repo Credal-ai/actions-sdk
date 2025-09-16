@@ -1130,6 +1130,10 @@ export const jiraCreateJiraTicketDefinition: ActionTemplate = {
         type: "string",
         description: "The assignee for the new ticket creation",
       },
+      requestTypeId: {
+        type: "string",
+        description: "The request type ID for Jira Service Management tickets",
+      },
       customFields: {
         type: "object",
         description: "Custom fields to be set on the create ticket request",
@@ -1421,6 +1425,10 @@ export const jiraUpdateJiraTicketDetailsDefinition: ActionTemplate = {
       issueType: {
         type: "string",
         description: "The updated issue type",
+      },
+      requestTypeId: {
+        type: "string",
+        description: "The request type ID for Jira Service Management tickets",
       },
       customFields: {
         type: "object",
@@ -1798,6 +1806,10 @@ export const jiraOrgCreateJiraTicketDefinition: ActionTemplate = {
         type: "string",
         description: "The assignee for the new ticket creation",
       },
+      requestTypeId: {
+        type: "string",
+        description: "The request type ID for Jira Service Management tickets",
+      },
       customFields: {
         type: "object",
         description: "Custom fields to be set on the create ticket request",
@@ -2089,6 +2101,10 @@ export const jiraOrgUpdateJiraTicketDetailsDefinition: ActionTemplate = {
       issueType: {
         type: "string",
         description: "The updated issue type",
+      },
+      requestTypeId: {
+        type: "string",
+        description: "The request type ID for Jira Service Management tickets",
       },
       customFields: {
         type: "object",
@@ -3296,7 +3312,7 @@ export const firecrawlScrapeUrlDefinition: ActionTemplate = {
         description: "Array of formats to return",
         items: {
           type: "string",
-          enum: ["json", "html", "screenshot", "markdown", "rawHtml", "links", "changeTracking"],
+          enum: ["html", "screenshot", "markdown", "rawHtml", "links", "changeTracking"],
         },
       },
     },

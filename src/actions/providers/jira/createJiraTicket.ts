@@ -5,7 +5,7 @@ import type {
   jiraCreateJiraTicketParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
-import { getUserAccountIdFromEmail } from "./utils.js";
+import { getUserAccountIdFromEmail, getRequestTypeCustomFieldId } from "./utils.js";
 
 const createJiraTicket: jiraCreateJiraTicketFunction = async ({
   params,
@@ -32,6 +32,15 @@ const createJiraTicket: jiraCreateJiraTicketFunction = async ({
   let assigneeId: string | null = null;
   if (params.assignee && typeof params.assignee === "string" && params.assignee.includes("@") && authToken) {
     assigneeId = await getUserAccountIdFromEmail(params.assignee, apiUrl, authToken);
+  }
+
+  // If request type is provided, find the custom field ID and prepare the value
+  const requestTypeField: { [key: string]: string } = {};
+  if (params.requestTypeId && authToken) {
+    const requestTypeFieldId = await getRequestTypeCustomFieldId(params.projectKey, apiUrl, authToken);
+    if (requestTypeFieldId) {
+      requestTypeField[requestTypeFieldId] = params.requestTypeId;
+    }
   }
 
   const description = {
@@ -62,6 +71,7 @@ const createJiraTicket: jiraCreateJiraTicketFunction = async ({
       },
       ...(reporterId ? { reporter: { id: reporterId } } : {}),
       ...(assigneeId ? { assignee: { id: assigneeId } } : {}),
+      ...requestTypeField,
       ...(params.customFields ? params.customFields : {}),
     },
   };

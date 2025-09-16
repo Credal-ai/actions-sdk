@@ -5,6 +5,7 @@ import type {
   jiraUpdateJiraTicketDetailsParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
+import { getRequestTypeCustomFieldId } from "./utils.js";
 
 const updateJiraTicketDetails: jiraUpdateJiraTicketDetailsFunction = async ({
   params,
@@ -14,7 +15,7 @@ const updateJiraTicketDetails: jiraUpdateJiraTicketDetailsFunction = async ({
   authParams: AuthParamsType;
 }): Promise<jiraUpdateJiraTicketDetailsOutputType> => {
   const { authToken, cloudId, baseUrl } = authParams;
-  const { issueId, summary, description, customFields } = params;
+  const { issueId, summary, description, customFields, requestTypeId } = params;
 
   if (!cloudId || !authToken) {
     throw new Error("Valid Cloud ID and auth token are required to comment on Jira ticket");
@@ -40,10 +41,24 @@ const updateJiraTicketDetails: jiraUpdateJiraTicketDetailsFunction = async ({
       }
     : undefined;
 
+  // If request type is provided, find the custom field ID and prepare the value
+  const requestTypeField: { [key: string]: string } = {};
+  if (requestTypeId && authToken) {
+    const requestTypeFieldId = await getRequestTypeCustomFieldId(
+      params.projectKey,
+      `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3`,
+      authToken,
+    );
+    if (requestTypeFieldId) {
+      requestTypeField[requestTypeFieldId] = requestTypeId;
+    }
+  }
+
   const payload = {
     fields: {
       ...(summary && { summary }),
       ...(formattedDescription && { description: formattedDescription }),
+      ...requestTypeField,
       ...(customFields && { ...customFields }),
     },
   };

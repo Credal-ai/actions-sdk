@@ -5,12 +5,12 @@ import {
   jiraGetJiraIssuesByQueryOutputSchema,
   type jiraGetJiraIssuesByQueryOutputType,
 } from "../../src/actions/autogen/types.js";
+import { jiraConfig } from "./utils.js";
 
 dotenv.config();
 
 async function runTest() {
-  const authToken = process.env.JIRA_AUTH_TOKEN;
-  const cloudId = process.env.JIRA_CLOUD_ID;
+  const { authToken, cloudId, projectKey } = jiraConfig;
 
   const result = (await runAction(
     "getJiraIssuesByQuery",
@@ -20,8 +20,8 @@ async function runTest() {
       cloudId,
     },
     {
-      query: `project = CTP`,
-      limit: 10,
+      query: `project = ${projectKey}`,
+      limit: 10
     }
   )) as jiraGetJiraIssuesByQueryOutputType;
   console.dir(result, { depth: 4 });

@@ -27,3 +27,52 @@ export async function getUserAccountIdFromEmail(
     return null;
   }
 }
+
+export async function getRequestTypeCustomFieldId(
+  projectKey: string,
+  apiUrl: string,
+  authToken: string,
+): Promise<string | null> {
+  try {
+    const response = await axiosClient.get(
+      `${apiUrl}/issue/createmeta?projectKeys=${projectKey}&expand=projects.issuetypes.fields`,
+      {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          Accept: "application/json",
+        },
+      },
+    );
+
+    const projects = response.data.projects;
+    if (!projects || projects.length === 0) {
+      return null;
+    }
+
+    const project = projects[0];
+    const issueTypes = project.issuetypes;
+    if (!issueTypes || issueTypes.length === 0) {
+      return null;
+    }
+
+    for (const issueType of issueTypes) {
+      const fields = issueType.fields;
+      if (fields) {
+        for (const [fieldId, fieldData] of Object.entries(fields)) {
+          if (fieldData && typeof fieldData === "object" && "name" in fieldData) {
+            const fieldInfo = fieldData as { name?: string };
+            if (fieldInfo.name === "Request Type") {
+              return fieldId;
+            }
+          }
+        }
+      }
+    }
+
+    return null;
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    console.error("Error finding Request Type custom field:", axiosError.message);
+    return null;
+  }
+}

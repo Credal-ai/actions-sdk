@@ -617,6 +617,7 @@ export const jiraCreateJiraTicketParamsSchema = z.object({
   issueType: z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."),
   reporter: z.string().describe("The reporter for the new ticket creation").optional(),
   assignee: z.string().describe("The assignee for the new ticket creation").optional(),
+  requestTypeId: z.string().describe("The request type ID for Jira Service Management tickets").optional(),
   customFields: z
     .object({})
     .catchall(z.any())
@@ -766,6 +767,7 @@ export const jiraUpdateJiraTicketDetailsParamsSchema = z.object({
   summary: z.string().describe("The updated summary").optional(),
   description: z.string().describe("The updated description").optional(),
   issueType: z.string().describe("The updated issue type").optional(),
+  requestTypeId: z.string().describe("The request type ID for Jira Service Management tickets").optional(),
   customFields: z
     .object({})
     .catchall(z.any())
@@ -934,6 +936,7 @@ export const jiraOrgCreateJiraTicketParamsSchema = z.object({
   issueType: z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."),
   reporter: z.string().describe("The reporter for the new ticket creation").optional(),
   assignee: z.string().describe("The assignee for the new ticket creation").optional(),
+  requestTypeId: z.string().describe("The request type ID for Jira Service Management tickets").optional(),
   customFields: z
     .object({})
     .catchall(z.any())
@@ -1083,6 +1086,7 @@ export const jiraOrgUpdateJiraTicketDetailsParamsSchema = z.object({
   summary: z.string().describe("The updated summary").optional(),
   description: z.string().describe("The updated description").optional(),
   issueType: z.string().describe("The updated issue type").optional(),
+  requestTypeId: z.string().describe("The request type ID for Jira Service Management tickets").optional(),
   customFields: z
     .object({})
     .catchall(z.any())
@@ -1694,7 +1698,7 @@ export const firecrawlScrapeUrlParamsSchema = z.object({
     .describe("Extract only the main content of the page, excluding headers, footers, and navigation")
     .optional(),
   formats: z
-    .array(z.enum(["json", "html", "screenshot", "markdown", "rawHtml", "links", "changeTracking"]))
+    .array(z.enum(["html", "screenshot", "markdown", "rawHtml", "links", "changeTracking"]))
     .describe("Array of formats to return")
     .optional(),
 });

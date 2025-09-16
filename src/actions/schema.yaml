@@ -810,6 +810,9 @@ actions:
           assignee:
             type: string
             description: The assignee for the new ticket creation
+          requestTypeId:
+            type: string
+            description: The request type ID for Jira Service Management tickets
           customFields:
             type: object
             description: Custom fields to be set on the create ticket request
@@ -1019,6 +1022,9 @@ actions:
           issueType:
             type: string
             description: The updated issue type
+          requestTypeId:
+            type: string
+            description: The request type ID for Jira Service Management tickets
           customFields:
             type: object
             description: Custom fields to be set on the update ticket request
@@ -1878,7 +1884,7 @@ actions:
             description: Array of formats to return
             items:
               type: string
-              enum: ["json", "html", "screenshot", "markdown", "rawHtml", "links", "changeTracking"]
+              enum: ["html", "screenshot", "markdown", "rawHtml", "links", "changeTracking"]
       output:
         type: object
         required: [success]

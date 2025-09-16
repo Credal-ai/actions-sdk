@@ -3,7 +3,7 @@ import { runAction } from "../../src/app.js";
 import { jiraConfig, provider } from "./utils.js";
 
 async function runTest() {
-  const { authToken, cloudId, baseUrl, issueId } = jiraConfig;
+  const { authToken, cloudId, baseUrl, issueId, projectKey, requestTypeId } = jiraConfig;
 
   const validResult = await runAction(
     "updateJiraTicketDetails",
@@ -14,12 +14,11 @@ async function runTest() {
       baseUrl,
     },
     {
+      projectKey,
       issueId,
       summary: "Updated Summary",
       description: `Updated description made on ${new Date().toISOString()}`,
-      customFields: {
-        customfield_12345: "Custom Value", // Example custom field, replace with actual
-      },
+      requestTypeId, // JSM request type from environment
     },
   );
 
@@ -41,6 +40,7 @@ async function runTest() {
       baseUrl,
     },
     {
+      projectKey,
       issueId,
       summary: "Partially Updated Summary",
     },
