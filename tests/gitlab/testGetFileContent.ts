@@ -27,10 +27,9 @@ async function runTest() {
   assert(typeof result === "object", "Result should be an object");
   assert("success" in result, "Result should have 'success'");
   if (result.success) {
-    assert(typeof result.content === "string", "Content should be a string");
-    assert(typeof result.size === "number", "Size should be a number");
-    assert(typeof result.name === "string", "Name should be a string");
-    assert(typeof result.htmlUrl === "string", "htmlUrl should be a string");
+    assert(typeof result.results?.[0]?.contents?.content === "string", "Content should be a string");
+    assert(typeof result.results?.[0]?.name === "string", "Name should be a string");
+    assert(typeof result.results?.[0]?.url === "string", "url should be a string");
   } else {
     assert(typeof result.error === "string", "Error should be a string when not successful");
     console.error("Failed to get file content:", result.error);
