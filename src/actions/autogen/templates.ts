@@ -12637,7 +12637,7 @@ export const gitlabGetFileContentDefinition: ActionTemplate = {
         description: "The results of the file content",
         items: {
           type: "object",
-          required: ["name", "url", "content"],
+          required: ["name", "url", "contents"],
           properties: {
             name: {
               type: "string",

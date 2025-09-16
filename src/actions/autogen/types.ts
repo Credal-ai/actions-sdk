@@ -6313,14 +6313,12 @@ export const gitlabGetFileContentOutputSchema = z.object({
       z.object({
         name: z.string().describe("The name of the file"),
         url: z.string().describe("The url of the file"),
-        contents: z
-          .object({
-            content: z.string().describe("The decoded file content as a string"),
-            size: z.number().describe("The size of the file in bytes"),
-            name: z.string().describe("The name of the file"),
-            htmlUrl: z.string().describe("The URL of the file in the GitLab UI"),
-          })
-          .optional(),
+        contents: z.object({
+          content: z.string().describe("The decoded file content as a string"),
+          size: z.number().describe("The size of the file in bytes"),
+          name: z.string().describe("The name of the file"),
+          htmlUrl: z.string().describe("The URL of the file in the GitLab UI"),
+        }),
       }),
     )
     .describe("The results of the file content")
