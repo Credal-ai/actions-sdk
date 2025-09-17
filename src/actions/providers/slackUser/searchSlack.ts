@@ -31,10 +31,11 @@ class SlackUserCache {
     if (result) return result;
     const res = await this.client.users.info({ user: id });
     const u = {
-      name: res.user?.profile?.display_name ?? res.user?.real_name ?? "",
+      name: res.user?.profile?.display_name ?? res.user?.real_name ?? res.user?.name ?? "",
       email: res.user?.profile?.email ?? "",
     };
-    if (res.user && id && res.user.name) {
+
+    if (res.user && id) {
       this.cache.set(id, u);
       return u;
     }
@@ -106,8 +107,13 @@ async function lookupUserIdsByEmail(
     const res = await client.users.lookupByEmail({ email });
     const id = res.user?.id;
 
-    if (res.user && id && res.user.name) {
-      slackUserCache.set(id, { email, name: res.user.name });
+    const u = {
+      name: res.user?.profile?.display_name ?? res.user?.real_name ?? res.user?.name ?? "",
+      email: res.user?.profile?.email ?? "",
+    };
+
+    if (res.user && id) {
+      slackUserCache.set(id, u);
     }
 
     if (id) return id;
@@ -304,9 +310,10 @@ const searchSlack: slackUserSearchSlackFunction = async ({
             .filter(t => t.ts)
             .map(async t => {
               const user = t.user ? await slackUserCache.get(t.user) : undefined;
+              const prettyText = t.text ? await expandSlackEntities(client, slackUserCache, t.text) : undefined;
               return {
                 ts: t.ts!,
-                text: t.text,
+                text: prettyText,
                 userEmail: user?.email ?? undefined,
                 userName: user?.name ?? undefined,
               };
