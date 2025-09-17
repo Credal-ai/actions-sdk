@@ -564,48 +564,58 @@ actions:
             description: Hydrated search results (threads or small context windows), sorted by ts desc.
             items:
               type: object
-              required:
-                - channelId
-                - ts
+              required: [name, url, contents]
               properties:
-                channelId:
+                name:
                   type: string
-                  description: Slack channel/conversation ID (C…/G…/D… or name).
-                ts:
+                  description: The name of the result
+                url:
                   type: string
-                  description: Slack message timestamp of the hit (or thread root when hydrated as thread).
-                text:
-                  type: string
-                  description: Message text of the anchor (hit or thread root).
-                userEmail:
-                  type: string
-                  description: User email of the anchor message’s author (if available).
-                userName:
-                  type: string
-                  description: User name of the anchor message’s author (if available).
-                permalink:
-                  type: string
-                  description: A Slack permalink to the anchor (message or thread root), if resolvable.
-                context:
-                  type: array
-                  description: When a hit is in a thread, this is the full thread (root first). Otherwise, a small surrounding context window (~3 before, 5 after).
-                  items:
-                    type: object
-                    required:
-                      - ts
-                    properties:
-                      ts:
-                        type: string
-                        description: Timestamp of the contextual message.
-                      text:
-                        type: string
-                        description: Text of the contextual message.
-                      userEmail:
-                        type: string
-                        description: Author user email of the contextual message.
-                      userName:
-                        type: string
-                        description: Author user name of the contextual message.
+                  description: The URL of the result
+                contents:
+                  type: object
+                  required:
+                    - channelId
+                    - ts
+                  properties:
+                    channelId:
+                      type: string
+                      description: Slack channel/conversation ID (C…/G…/D… or name).
+                    ts:
+                      type: string
+                      description: Slack message timestamp of the hit (or thread root when hydrated as thread).
+                    text:
+                      type: string
+                      description: Message text of the anchor (hit or thread root).
+                    userEmail:
+                      type: string
+                      description: User email of the anchor message’s author (if available).
+                    userName:
+                      type: string
+                      description: User name of the anchor message’s author (if available).
+                    permalink:
+                      type: string
+                      description: A Slack permalink to the anchor (message or thread root), if resolvable.
+                    context:
+                      type: array
+                      description: When a hit is in a thread, this is the full thread (root first). Otherwise, a small surrounding context window (~3 before, 5 after).
+                      items:
+                        type: object
+                        required:
+                          - ts
+                        properties:
+                          ts:
+                            type: string
+                            description: Timestamp of the contextual message.
+                          text:
+                            type: string
+                            description: Text of the contextual message.
+                          userEmail:
+                            type: string
+                            description: Author user email of the contextual message.
+                          userName:
+                            type: string
+                            description: Author user name of the contextual message.
           currentUser:
             type: object
             required:
@@ -962,9 +972,22 @@ actions:
           error:
             type: string
             description: The error that occurred if the retrieval was unsuccessful
-          data:
-            type: object
-            description: The data of the Jira ticket
+          results:
+            type: array
+            description: The results of the Jira ticket
+            items:
+              type: object
+              required: [name, url, contents]
+              properties:
+                name:
+                  type: string
+                  description: The name of the result
+                url:
+                  type: string
+                  description: The URL of the result
+                contents:
+                  type: object
+                  description: The data of the Jira ticket
     getJiraTicketHistory:
       description: Get ticket history of a ticket in Jira
       scopes:
@@ -1080,15 +1103,22 @@ actions:
           success:
             type: boolean
             description: Whether the records were successfully retrieved
-          records:
-            type: object
-            description: The result object containing issues
-            properties:
-              issues:
-                type: array
-                description: The retrieved Jira issues
-                items:
+          results:
+            type: array
+            description: The results of the Jira issues
+            items:
+              type: object
+              required: [name, url, contents]
+              properties:
+                name:
+                  type: string
+                  description: The name of the result
+                url:
+                  type: string
+                  description: The URL of the result
+                contents:
                   type: object
+                  description: The result object containing issues
                   required:
                     - id
                     - key
@@ -1873,11 +1903,30 @@ actions:
               enum: ["html", "screenshot", "markdown", "rawHtml", "links", "changeTracking"]
       output:
         type: object
-        required: [content]
+        required: [success]
         properties:
-          content:
+          success:
+            type: boolean
+            description: Whether the operation was successful
+          error:
             type: string
-            description: The content of the URL
+            description: Error message if the operation failed
+          results:
+            type: array
+            description: The results of the scrape
+            items:
+              type: object
+              required: [name, url, contents]
+              properties:
+                name:
+                  type: string
+                  description: The name of the result
+                url:
+                  type: string
+                  description: The URL of the result
+                contents:
+                  type: string
+                  description: The content of the URL
     searchAndScrape:
       description: Search and scrape the web using Firecrawl
       scopes: []
@@ -4646,28 +4695,39 @@ actions:
           success:
             type: boolean
             description: Whether the search was successful
-          files:
+          results:
             type: array
             description: List of files matching the search
             items:
               type: object
-              required: [id, name, mimeType, url]
+              required: [name, url, contents]
               properties:
-                id:
-                  type: string
-                  description: The file ID
                 name:
                   type: string
-                  description: The file name
-                mimeType:
-                  type: string
-                  description: The MIME type of the file
+                  description: The name of the file
                 url:
                   type: string
-                  description: The web link to view the file
-                content:
-                  type: string
-                  description: The data returned from the file, subject to fileSizeLimit
+                  description: The URL of the file
+                contents:
+                  type: object
+                  description: The contents of the file
+                  required: [id, name, mimeType, url]
+                  properties:
+                    id:
+                      type: string
+                      description: The file ID
+                    name:
+                      type: string
+                      description: The file name
+                    mimeType:
+                      type: string
+                      description: The MIME type of the file
+                    url:
+                      type: string
+                      description: The web link to view the file
+                    content:
+                      type: string
+                      description: The data returned from the file, subject to fileSizeLimit
           error:
             type: string
             description: Error message if search failed
@@ -4752,15 +4812,32 @@ actions:
           success:
             type: boolean
             description: Whether the file content was retrieved successfully
-          content:
-            type: string
-            description: The content of the file
-          fileName:
-            type: string
-            description: The name of the file
-          fileLength:
-            type: number
-            description: The length of the file content prior to truncating
+          results:
+            type: array
+            description: The results of the file content
+            items:
+              type: object
+              required: [name, url, contents]
+              properties:
+                name:
+                  type: string
+                  description: The name of the file
+                url:
+                  type: string
+                  description: The URL of the file
+                contents:
+                  type: object
+                  description: The contents of the file
+                  properties:
+                    content:
+                      type: string
+                      description: The content of the file
+                    fileName:
+                      type: string
+                      description: The name of the file
+                    fileLength:
+                      type: number
+                      description: The length of the file content prior to truncating
           error:
             type: string
             description: Error message if file content retrieval failed
@@ -6613,28 +6690,38 @@ actions:
           success:
             type: boolean
             description: Whether the records were successfully retrieved
-          searchRecords:
+          results:
             type: array
             description: The records that match the search
             items:
               type: object
               description: A record from Salesforce
               properties:
-                id:
+                name:
                   type: string
-                  description: The Salesforce record ID
-                attributes:
+                  description: The name of the record
+                url:
+                  type: string
+                  description: The URL of the record
+                contents:
                   type: object
-                  description: Metadata about the Salesforce record
+                  description: The contents of the record
                   properties:
-                    type:
+                    id:
                       type: string
-                      description: The Salesforce object type
-                    url:
-                      type: string
-                      description: The Salesforce record URL
-                  required: [type, url]
-                  additionalProperties: true
+                      description: The Salesforce record ID
+                    attributes:
+                      type: object
+                      description: Metadata about the Salesforce record
+                      properties:
+                        type:
+                          type: string
+                          description: The Salesforce object type
+                        url:
+                          type: string
+                          description: The Salesforce record URL
+                      required: [type, url]
+                      additionalProperties: true
           error:
             type: string
             description: The error that occurred if the records were not successfully retrieved
@@ -6658,14 +6745,21 @@ actions:
           success:
             type: boolean
             description: Whether the records were successfully retrieved
-          records:
+          results:
             type: array
-            description: The retrieved records
-            items:
-              type: object
-              description: A record from Salesforce
-              additionalProperties:
+            description: Array of standardized results objects
+            properties:
+              name:
                 type: string
+                description: The name of the record
+              url:
+                type: string
+                description: The url of the record
+              contents:
+                type: object
+                description: A record from Salesforce
+                additionalProperties:
+                  type: string
           error:
             type: string
             description: The error that occurred if the records were not successfully retrieved
@@ -7041,41 +7135,56 @@ actions:
             description: The state of the pull requests to list (e.g., open, closed)
       output:
         type: object
-        required: [pullRequests]
+        required: [success]
         properties:
-          pullRequests:
+          success:
+            type: boolean
+            description: Whether the operation was successful
+          error:
+            type: string
+            description: The error that occurred if the operation was not successful
+          results:
             type: array
             description: A list of pull requests in the repository
             items:
               type: object
               properties:
-                number:
-                  type: number
-                  description: The number of the pull request
-                title:
+                name:
                   type: string
                   description: The title of the pull request
-                state:
-                  type: string
-                  description: The state of the pull request (e.g., open, closed)
                 url:
                   type: string
                   description: The URL of the pull request
-                createdAt:
-                  type: string
-                  description: The date and time when the pull request was created
-                updatedAt:
-                  type: string
-                  description: The date and time when the pull request was last updated
-                user:
+                contents:
                   type: object
                   properties:
-                    login:
+                    number:
+                      type: number
+                      description: The number of the pull request
+                    title:
                       type: string
-                      description: The username of the user who created the pull request
-                description:
-                  type: string
-                  description: The description of the pull request
+                      description: The title of the pull request
+                    state:
+                      type: string
+                      description: The state of the pull request (e.g., open, closed)
+                    url:
+                      type: string
+                      description: The URL of the pull request
+                    createdAt:
+                      type: string
+                      description: The date and time when the pull request was created
+                    updatedAt:
+                      type: string
+                      description: The date and time when the pull request was last updated
+                    user:
+                      type: object
+                      properties:
+                        login:
+                          type: string
+                          description: The username of the user who created the pull request
+                    description:
+                      type: string
+                      description: The description of the pull request
     getPullRequestDetails:
       description: Get detailed information about a specific pull request including description, files, reviews, and status
       scopes: []
@@ -7302,18 +7411,33 @@ actions:
           error:
             type: string
             description: The error that occurred if the operation was not successful
-          content:
-            type: string
-            description: The decoded file content as a string
-          size:
-            type: number
-            description: The size of the file in bytes
-          name:
-            type: string
-            description: The name of the file
-          htmlUrl:
-            type: string
-            description: The URL of the file in the Github UI
+          results:
+            type: array
+            description: A list of Github files
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: The name of the file
+                url:
+                  type: string
+                  description: The URL of the file in the Github UI
+                contents:
+                  type: object
+                  properties:
+                    content:
+                      type: string
+                      description: The decoded file content as a string
+                    size:
+                      type: number
+                      description: The size of the file in bytes
+                    name:
+                      type: string
+                      description: The name of the file
+                    htmlUrl:
+                      type: string
+                      description: The URL of the file in the Github UI
     listDirectory:
       description: List directory contents of a path in a GitHub repository
       scopes: []
@@ -7340,28 +7464,33 @@ actions:
           error:
             type: string
             description: Error message if the operation failed
-          content:
+          results:
             type: array
             description: Array of directory contents
             items:
               type: object
-              required: [name, path, type, size, htmlUrl]
+              required: [name, url, contents]
               properties:
                 name:
                   type: string
                   description: The name of the file
-                path:
-                  type: string
-                  description: The path of the file
-                type:
-                  type: string
-                  description: The type of the file
-                size:
-                  type: number
-                  description: The size of the file in bytes
-                htmlUrl:
+                url:
                   type: string
                   description: The URL of the file in the Github UI
+                contents:
+                  type: object
+                  required: [path, type, size]
+                  description: The contents of the file
+                  properties:
+                    path:
+                      type: string
+                      description: The path of the file
+                    type:
+                      type: string
+                      description: The type of the file
+                    size:
+                      type: number
+                      description: The size of the file in bytes
     searchRepository:
       description: Search for code, issues and pull requests within a repository in a GitHub organization
       scopes: []
@@ -7549,157 +7678,173 @@ actions:
             description: The repository to search for data in
       output:
         type: object
-        required: [code, commits, issuesAndPullRequests]
+        required: [success]
         properties:
-          code:
+          success:
+            type: boolean
+            description: Whether the operation was successful
+          error:
+            type: string
+            description: Error message if the operation failed
+          results:
             type: array
-            description: A list of code results that match the query
+            description: Array of search results
             items:
               type: object
-              required: [name, path, sha, url, score, textMatches]
+              required: [name, url, type, content]
               properties:
                 name:
                   type: string
-                  description: The name of the file that had a match
-                path:
-                  type: string
-                  description: The path of the file that had a match
-                sha:
-                  type: string
-                  description: The SHA of the commit that had a match
+                  description: The name of the result (file name, commit SHA, or issue/PR title)
                 url:
                   type: string
-                  description: The URL of the file that had a match
-                score:
-                  type: number
-                  description: The similarity score of the match
-                textMatches:
-                  type: array
-                  description: A list of text matches that match the query
-                  items:
-                    type: object
-                    required: [matches]
-                    properties:
-                      object_url:
-                        type: string
-                        description: The URL of the object that had a match
-                      object_type:
-                        type: string
-                        description: The type of the object that had a match
-                      fragment:
-                        type: string
-                        description: The fragment of the text that had a match
-                      matches:
-                        type: array
-                        description: A list of matches that match the query
-                        items:
-                          type: object
-                          properties:
-                            text:
-                              type: string
-                              description: The text that had a match
-                            indices:
-                              type: array
-                              description: The indices of the text that had a match
-                              items:
-                                type: number
-          commits:
-            type: array
-            description: A list of commits that match the query
-            items:
-              type: object
-              required: [sha, url, message, author, committer, parents, tree, commitDate]
-              properties:
-                sha:
+                  description: The URL of the result
+                type:
                   type: string
-                  description: The SHA of the commit that had a match
-                url:
-                  type: string
-                  description: The URL of the commit that had a match
-                commit:
-                  type: object
-                  required: [message, author, score, files]
-                  properties:
-                    author:
-                      type: object
-                      required: [name, email, date]
+                  enum: [code, commit, issueOrPullRequest]
+                  description: The type of the result
+                content:
+                  oneOf:
+                    - type: object
+                      description: Code result content
+                      required: [name, path, sha, url, score, textMatches]
                       properties:
                         name:
                           type: string
-                          description: The name of the author
-                        email:
+                          description: The name of the file that had a match
+                        path:
                           type: string
-                          description: The email of the author
-                        date:
+                          description: The path of the file that had a match
+                        sha:
                           type: string
-                          description: The date of the commit
-                    message:
-                      type: string
-                      description: The message of the commit
-                  score:
-                    type: number
-                    description: The score of the commit
-                  files:
-                    type: array
-                    description: A list of files that match the query
-                    items:
-                      type: object
-                      required: [filename, status, patch]
+                          description: The SHA of the commit that had a match
+                        url:
+                          type: string
+                          description: The URL of the file that had a match
+                        score:
+                          type: number
+                          description: The similarity score of the match
+                        textMatches:
+                          type: array
+                          description: A list of text matches that match the query
+                          items:
+                            type: object
+                            required: [matches]
+                            properties:
+                              object_url:
+                                type: string
+                                description: The URL of the object that had a match
+                              object_type:
+                                type: string
+                                description: The type of the object that had a match
+                              fragment:
+                                type: string
+                                description: The fragment of the text that had a match
+                              matches:
+                                type: array
+                                description: A list of matches that match the query
+                                items:
+                                  type: object
+                                  properties:
+                                    text:
+                                      type: string
+                                      description: The text that had a match
+                                    indices:
+                                      type: array
+                                      description: The indices of the text that had a match
+                                      items:
+                                        type: number
+                    - type: object
+                      description: Commit result content
+                      required: [sha, url, message, author, committer, parents, tree, commitDate]
                       properties:
-                        filename:
+                        sha:
                           type: string
-                          description: The filename of the file
-                        status:
+                          description: The SHA of the commit that had a match
+                        url:
                           type: string
-                          description: The status of the file
-                        patch:
+                          description: The URL of the commit that had a match
+                        commit:
+                          type: object
+                          required: [message, author, score, files]
+                          properties:
+                            author:
+                              type: object
+                              required: [name, email, date]
+                              properties:
+                                name:
+                                  type: string
+                                  description: The name of the author
+                                email:
+                                  type: string
+                                  description: The email of the author
+                                date:
+                                  type: string
+                                  description: The date of the commit
+                            message:
+                              type: string
+                              description: The message of the commit
+                          score:
+                            type: number
+                            description: The score of the commit
+                          files:
+                            type: array
+                            description: A list of files that match the query
+                            items:
+                              type: object
+                              required: [filename, status, patch]
+                              properties:
+                                filename:
+                                  type: string
+                                  description: The filename of the file
+                                status:
+                                  type: string
+                                  description: The status of the file
+                                patch:
+                                  type: string
+                                  description: The patch of the file
+                    - type: object
+                      description: Issue or pull request result content
+                      required: [title, url, state, createdAt, updatedAt, user]
+                      properties:
+                        number:
+                          type: number
+                          description: The number of the issue or pull request
+                        title:
                           type: string
-                          description: The patch of the file
-          issuesAndPullRequests:
-            type: array
-            description: A list of issues and pull requests that match the query
-            items:
-              type: object
-              required: [title, url, state, createdAt, updatedAt, user]
-              properties:
-                number:
-                  type: number
-                  description: The number of the issue or pull request
-                title:
-                  type: string
-                  description: The title of the issue or pull request
-                html_url:
-                  type: string
-                  description: The URL of the issue or pull request
-                state:
-                  type: string
-                  description: The state of the issue or pull request
-                  enum: [open, closed]
-                isPullRequest:
-                  type: boolean
-                  description: Whether the issue or pull request is a pull request
-                body:
-                  type: string
-                  description: The body of the issue or pull request
-                score:
-                  type: number
-                  description: The score of the issue or pull request
-                files:
-                  type: array
-                  description: A list of files that match the query
-                  items:
-                    type: object
-                    required: [filename, status]
-                    properties:
-                      filename:
-                        type: string
-                        description: The filename of the file
-                      status:
-                        type: string
-                        description: The status of the file
-                      patch:
-                        type: string
-                        description: The patch of the file
+                          description: The title of the issue or pull request
+                        html_url:
+                          type: string
+                          description: The URL of the issue or pull request
+                        state:
+                          type: string
+                          description: The state of the issue or pull request
+                          enum: [open, closed]
+                        isPullRequest:
+                          type: boolean
+                          description: Whether the issue or pull request is a pull request
+                        body:
+                          type: string
+                          description: The body of the issue or pull request
+                        score:
+                          type: number
+                          description: The score of the issue or pull request
+                        files:
+                          type: array
+                          description: A list of files that match the query
+                          items:
+                            type: object
+                            required: [filename, status]
+                            properties:
+                              filename:
+                                type: string
+                                description: The filename of the file
+                              status:
+                                type: string
+                                description: The status of the file
+                              patch:
+                                type: string
+                                description: The patch of the file
     getBranch:
       description: Get a branch in a GitHub repository
       scopes: []
@@ -8161,175 +8306,191 @@ actions:
             description: The name of the project to search in
       output:
         type: object
-        required: [mergeRequests, blobs]
+        required: [success]
         properties:
-          mergeRequests:
+          success:
+            type: boolean
+            description: Whether the search operation was successful
+          error:
+            type: string
+            description: Error message if the search operation failed
+          results:
             type: array
-            description: A list of merge requests that match the query
+            description: A list of search results that match the query
             items:
               type: object
-              required: [metadata, diffs]
+              required: [name, url, type, contents]
               properties:
-                metadata:
-                  type: object
-                  required: [id, iid, project_id, title, web_url]
-                  description: The metadata of the merge request
-                  properties:
-                    id:
-                      type: number
-                      description: The ID of the merge request
-                    iid:
-                      type: number
-                      description: The internal ID of the merge request
-                    project_id:
-                      type: number
-                      description: The ID of the project the merge request belongs to
-                    title:
-                      type: string
-                      description: The title of the merge request
-                    web_url:
-                      type: string
-                      description: The URL of the merge request
-                    description:
-                      type: string
-                      description: The description of the merge request
-                    author:
-                      type: object
-                      description: The author of the merge request
+                name:
+                  type: string
+                  description: The name/title of the search result
+                url:
+                  type: string
+                  description: The URL to view the result in GitLab
+                type:
+                  type: string
+                  enum: [mergeRequest, blob, commit]
+                  description: The type of search result
+                contents:
+                  oneOf:
+                    - type: object
+                      description: Merge request contents
+                      required: [metadata, diffs]
                       properties:
-                        name:
+                        metadata:
+                          type: object
+                          required: [id, iid, project_id, title, web_url]
+                          description: The metadata of the merge request
+                          properties:
+                            id:
+                              type: number
+                              description: The ID of the merge request
+                            iid:
+                              type: number
+                              description: The internal ID of the merge request
+                            project_id:
+                              type: number
+                              description: The ID of the project the merge request belongs to
+                            title:
+                              type: string
+                              description: The title of the merge request
+                            web_url:
+                              type: string
+                              description: The URL of the merge request
+                            description:
+                              type: string
+                              description: The description of the merge request
+                            author:
+                              type: object
+                              description: The author of the merge request
+                              properties:
+                                name:
+                                  type: string
+                                  description: The name of the author
+                            merged_at:
+                              type: string
+                              description: The date and time the merge request was merged
+                        diffs:
+                          type: array
+                          description: A list of diffs that match the query
+                          items:
+                            type: object
+                            required: [old_path, new_path, diff, new_file, renamed_file, deleted_file]
+                            properties:
+                              old_path:
+                                type: string
+                                description: The old path of the diff
+                              new_path:
+                                type: string
+                                description: The new path of the diff
+                              diff:
+                                type: string
+                                description: The contents of the diff
+                              new_file:
+                                type: boolean
+                                description: Whether the diff is a new file
+                              renamed_file:
+                                type: boolean
+                                description: Whether the diff is a renamed file
+                              deleted_file:
+                                type: boolean
+                                description: Whether the diff is a deleted file
+                              too_large:
+                                type: boolean
+                                description: Whether the diff is too large
+                    - type: object
+                      description: Blob contents
+                      required: [metadata, matchedMergeRequests]
+                      properties:
+                        metadata:
+                          type: object
+                          required: [path, basename, data, project_id, ref, startline, filename, web_url]
+                          properties:
+                            path:
+                              type: string
+                              description: The path of the blob
+                            basename:
+                              type: string
+                              description: The basename of the blob
+                            data:
+                              type: string
+                              description: The data of the blob
+                            project_id:
+                              type: number
+                              description: The ID of the project the blob belongs to
+                            ref:
+                              type: string
+                              description: The ref of the blob
+                            startline:
+                              type: number
+                              description: The start line of the blob
+                            filename:
+                              type: string
+                              description: The filename of the blob
+                            web_url:
+                              type: string
+                              description: The URL of the blob
+                        matchedMergeRequests:
+                          type: array
+                          description: A list of merge requests that match the blob
+                          items:
+                            type: object
+                            required: [title, web_url]
+                            properties:
+                              title:
+                                type: string
+                                description: The title of the merge request
+                              web_url:
+                                type: string
+                                description: The URL of the merge request
+                              author:
+                                type: object
+                                description: The author of the merge request
+                              merged_at:
+                                type: string
+                                description: The date and time the merge request was merged
+                    - type: object
+                      description: Commit contents
+                      required: [sha, web_url, message, author, created_at, files]
+                      properties:
+                        sha:
                           type: string
-                          description: The name of the author
-                    merged_at:
-                      type: string
-                      description: The date and time the merge request was merged
-                diffs:
-                  type: array
-                  description: A list of diffs that match the query
-                  items:
-                    type: object
-                    required: [old_path, new_path, diff, new_file, renamed_file, deleted_file]
-                    properties:
-                      old_path:
-                        type: string
-                        description: The old path of the diff
-                      new_path:
-                        type: string
-                        description: The new path of the diff
-                      diff:
-                        type: string
-                        description: The contents of the diff
-                      new_file:
-                        type: boolean
-                        description: Whether the diff is a new file
-                      renamed_file:
-                        type: boolean
-                        description: Whether the diff is a renamed file
-                      deleted_file:
-                        type: boolean
-                        description: Whether the diff is a deleted file
-                      too_large:
-                        type: boolean
-                        description: Whether the diff is too large
-          blobs:
-            type: array
-            description: A list of blobs that match the query
-            items:
-              type: object
-              required: [metadata, diffs]
-              properties:
-                metadata:
-                  type: object
-                  required: [path, basename, data, project_id, ref, startline, filename, web_url]
-                  properties:
-                    path:
-                      type: string
-                      description: The path of the blob
-                    basename:
-                      type: string
-                      description: The basename of the blob
-                    data:
-                      type: string
-                      description: The data of the blob
-                    project_id:
-                      type: number
-                      description: The ID of the project the blob belongs to
-                    ref:
-                      type: string
-                      description: The ref of the blob
-                    startline:
-                      type: number
-                      description: The start line of the blob
-                    filename:
-                      type: string
-                      description: The filename of the blob
-                    web_url:
-                      type: string
-                      description: The URL of the blob
-                matchedMergeRequests:
-                  type: array
-                  description: A list of merge requests that match the blob
-                  items:
-                    type: object
-                    required: [title, web_url]
-                    properties:
-                      title:
-                        type: string
-                        description: The title of the merge request
-                      web_url:
-                        type: string
-                        description: The URL of the merge request
-                      author:
-                        type: object
-                        description: The author of the merge request
-                      merged_at:
-                        type: string
-                        description: The date and time the merge request was merged
-          commits:
-            type: array
-            description: A list of commits that match the query
-            items:
-              type: object
-              required: [sha, web_url, message, author, created_at, files]
-              properties:
-                sha:
-                  type: string
-                  description: The commit SHA
-                web_url:
-                  type: string
-                  description: The URL to view the commit in GitLab
-                message:
-                  type: string
-                  description: The full commit message
-                author:
-                  type: object
-                  required: [name, email]
-                  properties:
-                    name:
-                      type: string
-                      description: The name of the commit author
-                    email:
-                      type: string
-                      description: The email of the commit author
-                created_at:
-                  type: string
-                  description: The date/time the commit was created
-                files:
-                  type: array
-                  description: A list of files changed in the commit
-                  items:
-                    type: object
-                    required: [old_path, new_path, diff]
-                    properties:
-                      old_path:
-                        type: string
-                        description: The old path of the file
-                      new_path:
-                        type: string
-                        description: The new path of the file
-                      diff:
-                        type: string
-                        description: The diff contents for the file
+                          description: The commit SHA
+                        web_url:
+                          type: string
+                          description: The URL to view the commit in GitLab
+                        message:
+                          type: string
+                          description: The full commit message
+                        author:
+                          type: object
+                          required: [name, email]
+                          properties:
+                            name:
+                              type: string
+                              description: The name of the commit author
+                            email:
+                              type: string
+                              description: The email of the commit author
+                        created_at:
+                          type: string
+                          description: The date/time the commit was created
+                        files:
+                          type: array
+                          description: A list of files changed in the commit
+                          items:
+                            type: object
+                            required: [old_path, new_path, diff]
+                            properties:
+                              old_path:
+                                type: string
+                                description: The old path of the file
+                              new_path:
+                                type: string
+                                description: The new path of the file
+                              diff:
+                                type: string
+                                description: The diff contents for the file
     getFileContent:
       description: Get specified file content from a GitLab repository
       scopes: []
@@ -8356,18 +8517,35 @@ actions:
           error:
             type: string
             description: The error that occurred if the operation was not successful
-          content:
-            type: string
-            description: The decoded file content as a string
-          size:
-            type: number
-            description: The size of the file in bytes
-          name:
-            type: string
-            description: The name of the file
-          htmlUrl:
-            type: string
-            description: The URL of the file in the GitLab UI
+          results:
+            type: array
+            description: The results of the file content
+            items:
+              type: object
+              required: [name, url, contents]
+              properties:
+                name:
+                  type: string
+                  description: The name of the file
+                url:
+                  type: string
+                  description: The url of the file
+                contents:
+                  type: object
+                  required: [content, size, name, htmlUrl]
+                  properties:
+                    content:
+                      type: string
+                      description: The decoded file content as a string
+                    size:
+                      type: number
+                      description: The size of the file in bytes
+                    name:
+                      type: string
+                      description: The name of the file
+                    htmlUrl:
+                      type: string
+                      description: The URL of the file in the GitLab UI
     listDirectory:
       description: List directory contents of a path in a GitLab repository
       scopes: []
@@ -8389,30 +8567,47 @@ actions:
             description: The branch, tag, or commit (defaults to "main")
       output:
         type: object
-        required: [content]
+        required: [success]
         properties:
-          content:
+          success:
+            type: boolean
+            description: Whether the operation was successful
+          error:
+            type: string
+            description: Error message if the operation failed
+          results:
             type: array
             description: Array of directory contents
             items:
               type: object
-              required: [name, path, type, htmlUrl]
+              required: [name, url, contents]
               properties:
                 name:
                   type: string
                   description: The name of the file or directory
-                path:
+                url:
                   type: string
-                  description: The path of the file or directory
-                type:
-                  type: string
-                  description: The type of the entry (either "blob" for file or "tree" for directory)
-                size:
-                  type: number
-                  description: The size of the file in bytes (only for blobs; omitted or 0 for trees)
-                htmlUrl:
-                  type: string
-                  description: The URL of the file or folder in the GitLab UI
+                  description: The URL of the file or directory
+                contents:
+                  type: object
+                  description: The contents of the directory
+                  required: [name, path, type, htmlUrl]
+                  properties:
+                    name:
+                      type: string
+                      description: The name of the file or directory
+                    path:
+                      type: string
+                      description: The path of the file or directory
+                    type:
+                      type: string
+                      description: The type of the entry (either "blob" for file or "tree" for directory)
+                    size:
+                      type: number
+                      description: The size of the file in bytes (only for blobs; omitted or 0 for trees)
+                    htmlUrl:
+                      type: string
+                      description: The URL of the file or folder in the GitLab UI
   linear:
     getIssues:
       description: Get Linear issues with optional query filter

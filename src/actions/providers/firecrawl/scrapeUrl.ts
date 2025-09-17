@@ -5,7 +5,6 @@ import type {
   firecrawlScrapeUrlOutputType,
   AuthParamsType,
 } from "../../autogen/types.js";
-import { firecrawlScrapeUrlOutputSchema } from "../../autogen/types.js";
 
 const scrapeUrl: firecrawlScrapeUrlFunction = async ({
   params,
@@ -78,9 +77,16 @@ const scrapeUrl: firecrawlScrapeUrlFunction = async ({
     content = result.markdown || "";
   }
 
-  return firecrawlScrapeUrlOutputSchema.parse({
-    content,
-  });
+  return {
+    success: true,
+    results: [
+      {
+        name: result.metadata?.title ?? "Untitled",
+        url: params.url,
+        contents: content,
+      },
+    ],
+  };
 };
 
 export default scrapeUrl;

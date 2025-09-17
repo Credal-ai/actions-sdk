@@ -200,91 +200,120 @@ const searchGroup: gitlabSearchGroupFunction = async ({
   params: gitlabSearchGroupParamsType;
   authParams: AuthParamsType;
 }): Promise<gitlabSearchGroupOutputType> => {
-  const { authToken, baseUrl } = authParams;
-  const gitlabBaseUrl = baseUrl ?? GITLAB_API_URL;
-  const gitlabBaseApiUrl = `${gitlabBaseUrl}/api/v4`;
+  try {
+    const { authToken, baseUrl } = authParams;
+    const gitlabBaseUrl = baseUrl ?? GITLAB_API_URL;
+    const gitlabBaseApiUrl = `${gitlabBaseUrl}/api/v4`;
 
-  if (!authToken) throw new Error(MISSING_AUTH_TOKEN);
+    if (!authToken) throw new Error(MISSING_AUTH_TOKEN);
 
-  const { query, groupId, project } = params;
-  const projectPathCache = createProjectPathCache();
+    const { query, groupId, project } = params;
+    const projectPathCache = createProjectPathCache();
 
-  const fullProjectPath = project ? `${groupId}/${project}` : undefined;
-  const encodedGroup = encodeURIComponent(groupId);
+    const fullProjectPath = project ? `${groupId}/${project}` : undefined;
+    const encodedGroup = encodeURIComponent(groupId);
 
-  const fetchSearchResults = async <T>(scope: GitLabSearchScope): Promise<T[]> => {
-    const endpoint = fullProjectPath
-      ? `${gitlabBaseApiUrl}/projects/${encodeURIComponent(fullProjectPath)}/search?scope=${scope}&search=${encodeURIComponent(query)}`
-      : `${gitlabBaseApiUrl}/groups/${encodedGroup}/search?scope=${scope}&search=${encodeURIComponent(query)}`;
-    return gitlabFetch<T[]>(endpoint, authToken);
-  };
+    const fetchSearchResults = async <T>(scope: GitLabSearchScope): Promise<T[]> => {
+      const endpoint = fullProjectPath
+        ? `${gitlabBaseApiUrl}/projects/${encodeURIComponent(fullProjectPath)}/search?scope=${scope}&search=${encodeURIComponent(query)}`
+        : `${gitlabBaseApiUrl}/groups/${encodedGroup}/search?scope=${scope}&search=${encodeURIComponent(query)}`;
+      return gitlabFetch<T[]>(endpoint, authToken);
+    };
 
-  const [mrResults, blobResults, commitResults] = await Promise.all([
-    fetchSearchResults<GitLabMergeRequest>("merge_requests"),
-    fetchSearchResults<GitLabBlob>("blobs"),
-    fetchSearchResults<GitLabCommit>("commits"),
-  ]);
+    const [mrResults, blobResults, commitResults] = await Promise.all([
+      fetchSearchResults<GitLabMergeRequest>("merge_requests"),
+      fetchSearchResults<GitLabBlob>("blobs"),
+      fetchSearchResults<GitLabCommit>("commits"),
+    ]);
 
-  const limitedMRResults = mrResults.slice(0, MAX_ISSUES_OR_PRS);
-  const mergeRequests: MergeRequestWithDiffs[] = await Promise.all(
-    limitedMRResults.map(async metadata => {
-      const endpoint = `${gitlabBaseApiUrl}/projects/${metadata.project_id}/merge_requests/${metadata.iid}/diffs`;
+    const limitedMRResults = mrResults.slice(0, MAX_ISSUES_OR_PRS);
+    const mergeRequests: MergeRequestWithDiffs[] = await Promise.all(
+      limitedMRResults.map(async metadata => {
+        const endpoint = `${gitlabBaseApiUrl}/projects/${metadata.project_id}/merge_requests/${metadata.iid}/diffs`;
 
-      let diffs = await gitlabFetch<MRDiff[]>(endpoint, authToken);
-      diffs = (diffs || []).slice(0, MAX_FILES_PER_PR).map(diff => ({
-        ...diff,
-        diff: diff.diff ? diff.diff.split("\n").slice(0, MAX_PATCH_LINES).join("\n") : diff.diff,
-      }));
+        let diffs = await gitlabFetch<MRDiff[]>(endpoint, authToken);
+        diffs = (diffs || []).slice(0, MAX_FILES_PER_PR).map(diff => ({
+          ...diff,
+          diff: diff.diff ? diff.diff.split("\n").slice(0, MAX_PATCH_LINES).join("\n") : diff.diff,
+        }));
 
-      return { metadata, diffs };
-    }),
-  );
+        return { metadata, diffs };
+      }),
+    );
 
-  const limitedBlobResults = blobResults.slice(0, MAX_CODE_RESULTS);
-  const blobsWithUrls: GitLabBlobWithUrl[] = await Promise.all(
-    limitedBlobResults.map(blob =>
-      enhanceBlobWithUrl(blob, authToken, gitlabBaseApiUrl, gitlabBaseUrl, projectPathCache),
-    ),
-  );
+    const limitedBlobResults = blobResults.slice(0, MAX_CODE_RESULTS);
+    const blobsWithUrls: GitLabBlobWithUrl[] = await Promise.all(
+      limitedBlobResults.map(blob =>
+        enhanceBlobWithUrl(blob, authToken, gitlabBaseApiUrl, gitlabBaseUrl, projectPathCache),
+      ),
+    );
 
-  const blobs: GitLabBlobWithCorrelation[] = blobsWithUrls.map(blob => {
-    const matches = mergeRequests
-      .filter(mr => mr.metadata.project_id === blob.project_id && mr.diffs.some(diff => diff.new_path === blob.path))
-      .map(mr => ({
-        title: mr.metadata.title,
-        web_url: mr.metadata.web_url,
-        author: mr.metadata.author ? { name: mr.metadata.author.name } : undefined,
-        merged_at: mr.metadata.merged_at,
-      }));
+    const blobs: GitLabBlobWithCorrelation[] = blobsWithUrls.map(blob => {
+      const matches = mergeRequests
+        .filter(mr => mr.metadata.project_id === blob.project_id && mr.diffs.some(diff => diff.new_path === blob.path))
+        .map(mr => ({
+          title: mr.metadata.title,
+          web_url: mr.metadata.web_url,
+          author: mr.metadata.author ? { name: mr.metadata.author.name } : undefined,
+          merged_at: mr.metadata.merged_at,
+        }));
+
+      return {
+        metadata: {
+          ...blob,
+          data: blob.data.split("\n").slice(0, MAX_FRAGMENT_LINES).join("\n"),
+        },
+        matchedMergeRequests: matches,
+      };
+    });
+
+    const limitedCommitResults = commitResults.slice(0, MAX_COMMITS);
+    const commits: MinimalGitLabCommit[] = await Promise.all(
+      limitedCommitResults.map(commit =>
+        getCommitDetails({
+          projectId: commit.project_id,
+          sha: commit.id,
+          authToken,
+          baseUrl: gitlabBaseApiUrl,
+          webBaseUrl: gitlabBaseUrl,
+          projectPathCache,
+        }),
+      ),
+    );
+
+    // Transform results into the new standardized format
+    const results = [
+      ...mergeRequests.map(mr => ({
+        name: mr.metadata.title,
+        url: mr.metadata.web_url,
+        type: "mergeRequest" as const,
+        contents: mr,
+      })),
+      ...blobs.map(blob => ({
+        name: blob.metadata.filename,
+        url: blob.metadata.web_url,
+        type: "blob" as const,
+        contents: blob,
+      })),
+      ...commits.map(commit => ({
+        name: commit.message.split("\n")[0], // Use first line of commit message as name
+        url: commit.web_url,
+        type: "commit" as const,
+        contents: commit,
+      })),
+    ];
 
     return {
-      metadata: {
-        ...blob,
-        data: blob.data.split("\n").slice(0, MAX_FRAGMENT_LINES).join("\n"),
-      },
-      matchedMergeRequests: matches,
+      success: true,
+      results,
     };
-  });
-
-  const limitedCommitResults = commitResults.slice(0, MAX_COMMITS);
-  const commits: MinimalGitLabCommit[] = await Promise.all(
-    limitedCommitResults.map(commit =>
-      getCommitDetails({
-        projectId: commit.project_id,
-        sha: commit.id,
-        authToken,
-        baseUrl: gitlabBaseApiUrl,
-        webBaseUrl: gitlabBaseUrl,
-        projectPathCache,
-      }),
-    ),
-  );
-
-  return {
-    mergeRequests,
-    blobs,
-    commits,
-  };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "An unknown error occurred",
+      results: [],
+    };
+  }
 };
 
 export default searchGroup;

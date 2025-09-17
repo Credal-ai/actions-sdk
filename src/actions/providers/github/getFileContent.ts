@@ -59,10 +59,18 @@ const getFileContent: githubGetFileContentFunction = async ({
 
   return {
     success: true,
-    content,
-    size: data.size,
-    name: data.name,
-    htmlUrl: data.html_url ?? data.url,
+    results: [
+      {
+        name: data.name,
+        url: data.html_url ?? data.url,
+        contents: {
+          content,
+          size: data.size,
+          name: data.name,
+          htmlUrl: data.html_url ?? data.url,
+        },
+      },
+    ],
   };
 };
 

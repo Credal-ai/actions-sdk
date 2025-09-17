@@ -57,21 +57,31 @@ const getFileContent: gitlabGetFileContentFunction = async ({
   // The file path must be URL-encoded per GitLab API docs
   const filePath = encodeURIComponent(path);
 
-  const url = `${gitlabBaseUrl}/api/v4/projects/${project_id}/repository/files/${filePath}?ref=${encodeURIComponent(ref)}`;
+  const fetchUrl = `${gitlabBaseUrl}/api/v4/projects/${project_id}/repository/files/${filePath}?ref=${encodeURIComponent(ref)}`;
 
-  const data = await gitlabFetch<GitLabRepositoryFileResponse>(url, authToken);
+  const data = await gitlabFetch<GitLabRepositoryFileResponse>(fetchUrl, authToken);
   if (data.encoding !== "base64" || typeof data.content !== "string") {
     return { success: false, error: `Unexpected response: ${JSON.stringify(data)}` };
   }
 
   const content = Buffer.from(data.content, "base64").toString("utf-8");
 
+  const url = data.web_url || `${gitlabBaseUrl}/${project_id}/-/blob/${ref}/${path}`;
+
   return {
     success: true,
-    content,
-    size: Buffer.byteLength(content),
-    name: data.file_name,
-    htmlUrl: data.web_url || `${gitlabBaseUrl}/${project_id}/-/blob/${ref}/${path}`,
+    results: [
+      {
+        name: data.file_name,
+        url,
+        contents: {
+          content,
+          size: Buffer.byteLength(content),
+          name: data.file_name,
+          htmlUrl: url,
+        },
+      },
+    ],
   };
 };
 

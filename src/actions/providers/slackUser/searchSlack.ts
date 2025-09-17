@@ -330,7 +330,7 @@ const searchSlack: slackUserSearchSlackFunction = async ({
         return {
           channelId: h.channelId,
           ts: h.ts,
-          text: h.text,
+          text: h.text ? await expandSlackEntities(client, slackUserCache, h.text) : undefined,
           userEmail: h.userEmail,
           userName: h.userName,
           permalink: await getPermalink(client, h.channelId, h.ts),
@@ -345,7 +345,15 @@ const searchSlack: slackUserSearchSlackFunction = async ({
   for (const r of settled) if (r.status === "fulfilled" && r.value) results.push(r.value);
 
   results.sort((a, b) => Number(b.ts) - Number(a.ts));
-  return { query, results, currentUser };
+  return {
+    query,
+    results: results.map(r => ({
+      name: r.text || "Untitled",
+      url: r.permalink || "",
+      contents: r,
+    })),
+    currentUser,
+  };
 };
 
 async function expandSlackEntities(

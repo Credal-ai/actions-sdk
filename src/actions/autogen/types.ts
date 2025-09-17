@@ -446,28 +446,32 @@ export const slackUserSearchSlackOutputSchema = z.object({
   results: z
     .array(
       z.object({
-        channelId: z.string().describe("Slack channel/conversation ID (C…/G…/D… or name)."),
-        ts: z.string().describe("Slack message timestamp of the hit (or thread root when hydrated as thread)."),
-        text: z.string().describe("Message text of the anchor (hit or thread root).").optional(),
-        userEmail: z.string().describe("User email of the anchor message’s author (if available).").optional(),
-        userName: z.string().describe("User name of the anchor message’s author (if available).").optional(),
-        permalink: z
-          .string()
-          .describe("A Slack permalink to the anchor (message or thread root), if resolvable.")
-          .optional(),
-        context: z
-          .array(
-            z.object({
-              ts: z.string().describe("Timestamp of the contextual message."),
-              text: z.string().describe("Text of the contextual message.").optional(),
-              userEmail: z.string().describe("Author user email of the contextual message.").optional(),
-              userName: z.string().describe("Author user name of the contextual message.").optional(),
-            }),
-          )
-          .describe(
-            "When a hit is in a thread, this is the full thread (root first). Otherwise, a small surrounding context window (~3 before, 5 after).",
-          )
-          .optional(),
+        name: z.string().describe("The name of the result"),
+        url: z.string().describe("The URL of the result"),
+        contents: z.object({
+          channelId: z.string().describe("Slack channel/conversation ID (C…/G…/D… or name)."),
+          ts: z.string().describe("Slack message timestamp of the hit (or thread root when hydrated as thread)."),
+          text: z.string().describe("Message text of the anchor (hit or thread root).").optional(),
+          userEmail: z.string().describe("User email of the anchor message’s author (if available).").optional(),
+          userName: z.string().describe("User name of the anchor message’s author (if available).").optional(),
+          permalink: z
+            .string()
+            .describe("A Slack permalink to the anchor (message or thread root), if resolvable.")
+            .optional(),
+          context: z
+            .array(
+              z.object({
+                ts: z.string().describe("Timestamp of the contextual message."),
+                text: z.string().describe("Text of the contextual message.").optional(),
+                userEmail: z.string().describe("Author user email of the contextual message.").optional(),
+                userName: z.string().describe("Author user name of the contextual message.").optional(),
+              }),
+            )
+            .describe(
+              "When a hit is in a thread, this is the full thread (root first). Otherwise, a small surrounding context window (~3 before, 5 after).",
+            )
+            .optional(),
+        }),
       }),
     )
     .describe("Hydrated search results (threads or small context windows), sorted by ts desc."),
@@ -725,7 +729,16 @@ export type jiraGetJiraTicketDetailsParamsType = z.infer<typeof jiraGetJiraTicke
 export const jiraGetJiraTicketDetailsOutputSchema = z.object({
   success: z.boolean().describe("Whether the status was updated successfully"),
   error: z.string().describe("The error that occurred if the retrieval was unsuccessful").optional(),
-  data: z.object({}).catchall(z.any()).describe("The data of the Jira ticket").optional(),
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the result"),
+        url: z.string().describe("The URL of the result"),
+        contents: z.object({}).catchall(z.any()).describe("The data of the Jira ticket"),
+      }),
+    )
+    .describe("The results of the Jira ticket")
+    .optional(),
 });
 
 export type jiraGetJiraTicketDetailsOutputType = z.infer<typeof jiraGetJiraTicketDetailsOutputSchema>;
@@ -812,11 +825,13 @@ export type jiraGetJiraIssuesByQueryParamsType = z.infer<typeof jiraGetJiraIssue
 
 export const jiraGetJiraIssuesByQueryOutputSchema = z.object({
   success: z.boolean().describe("Whether the records were successfully retrieved"),
-  records: z
-    .object({
-      issues: z
-        .array(
-          z.object({
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the result"),
+        url: z.string().describe("The URL of the result"),
+        contents: z
+          .object({
             id: z.string().describe("Internal Jira issue ID"),
             key: z.string().describe("Human-readable issue key (e.g. SSPR-123)"),
             summary: z.string().describe("Summary of the issue"),
@@ -836,12 +851,11 @@ export const jiraGetJiraIssuesByQueryOutputSchema = z.object({
             updated: z.string().datetime({ offset: true }),
             resolution: z.string().nullable().optional(),
             dueDate: z.string().date().nullable().optional(),
-          }),
-        )
-        .describe("The retrieved Jira issues")
-        .optional(),
-    })
-    .describe("The result object containing issues")
+          })
+          .describe("The result object containing issues"),
+      }),
+    )
+    .describe("The results of the Jira issues")
     .optional(),
   error: z.string().describe("The error that occurred if the records were not successfully retrieved").optional(),
 });
@@ -1034,7 +1048,16 @@ export type jiraOrgGetJiraTicketDetailsParamsType = z.infer<typeof jiraOrgGetJir
 export const jiraOrgGetJiraTicketDetailsOutputSchema = z.object({
   success: z.boolean().describe("Whether the status was updated successfully"),
   error: z.string().describe("The error that occurred if the retrieval was unsuccessful").optional(),
-  data: z.object({}).catchall(z.any()).describe("The data of the Jira ticket").optional(),
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the result"),
+        url: z.string().describe("The URL of the result"),
+        contents: z.object({}).catchall(z.any()).describe("The data of the Jira ticket"),
+      }),
+    )
+    .describe("The results of the Jira ticket")
+    .optional(),
 });
 
 export type jiraOrgGetJiraTicketDetailsOutputType = z.infer<typeof jiraOrgGetJiraTicketDetailsOutputSchema>;
@@ -1121,11 +1144,13 @@ export type jiraOrgGetJiraIssuesByQueryParamsType = z.infer<typeof jiraOrgGetJir
 
 export const jiraOrgGetJiraIssuesByQueryOutputSchema = z.object({
   success: z.boolean().describe("Whether the records were successfully retrieved"),
-  records: z
-    .object({
-      issues: z
-        .array(
-          z.object({
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the result"),
+        url: z.string().describe("The URL of the result"),
+        contents: z
+          .object({
             id: z.string().describe("Internal Jira issue ID"),
             key: z.string().describe("Human-readable issue key (e.g. SSPR-123)"),
             summary: z.string().describe("Summary of the issue"),
@@ -1145,12 +1170,11 @@ export const jiraOrgGetJiraIssuesByQueryOutputSchema = z.object({
             updated: z.string().datetime({ offset: true }),
             resolution: z.string().nullable().optional(),
             dueDate: z.string().date().nullable().optional(),
-          }),
-        )
-        .describe("The retrieved Jira issues")
-        .optional(),
-    })
-    .describe("The result object containing issues")
+          })
+          .describe("The result object containing issues"),
+      }),
+    )
+    .describe("The results of the Jira issues")
     .optional(),
   error: z.string().describe("The error that occurred if the records were not successfully retrieved").optional(),
 });
@@ -1688,7 +1712,20 @@ export const firecrawlScrapeUrlParamsSchema = z.object({
 
 export type firecrawlScrapeUrlParamsType = z.infer<typeof firecrawlScrapeUrlParamsSchema>;
 
-export const firecrawlScrapeUrlOutputSchema = z.object({ content: z.string().describe("The content of the URL") });
+export const firecrawlScrapeUrlOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the result"),
+        url: z.string().describe("The URL of the result"),
+        contents: z.string().describe("The content of the URL"),
+      }),
+    )
+    .describe("The results of the scrape")
+    .optional(),
+});
 
 export type firecrawlScrapeUrlOutputType = z.infer<typeof firecrawlScrapeUrlOutputSchema>;
 export type firecrawlScrapeUrlFunction = ActionFunction<
@@ -3742,14 +3779,20 @@ export type googleOauthSearchDriveByKeywordsAndGetFileContentParamsType = z.infe
 
 export const googleOauthSearchDriveByKeywordsAndGetFileContentOutputSchema = z.object({
   success: z.boolean().describe("Whether the search was successful"),
-  files: z
+  results: z
     .array(
       z.object({
-        id: z.string().describe("The file ID"),
-        name: z.string().describe("The file name"),
-        mimeType: z.string().describe("The MIME type of the file"),
-        url: z.string().describe("The web link to view the file"),
-        content: z.string().describe("The data returned from the file, subject to fileSizeLimit").optional(),
+        name: z.string().describe("The name of the file"),
+        url: z.string().describe("The URL of the file"),
+        contents: z
+          .object({
+            id: z.string().describe("The file ID"),
+            name: z.string().describe("The file name"),
+            mimeType: z.string().describe("The MIME type of the file"),
+            url: z.string().describe("The web link to view the file"),
+            content: z.string().describe("The data returned from the file, subject to fileSizeLimit").optional(),
+          })
+          .describe("The contents of the file"),
       }),
     )
     .describe("List of files matching the search")
@@ -3825,9 +3868,22 @@ export type googleOauthGetDriveFileContentByIdParamsType = z.infer<
 
 export const googleOauthGetDriveFileContentByIdOutputSchema = z.object({
   success: z.boolean().describe("Whether the file content was retrieved successfully"),
-  content: z.string().describe("The content of the file").optional(),
-  fileName: z.string().describe("The name of the file").optional(),
-  fileLength: z.number().describe("The length of the file content prior to truncating").optional(),
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the file"),
+        url: z.string().describe("The URL of the file"),
+        contents: z
+          .object({
+            content: z.string().describe("The content of the file").optional(),
+            fileName: z.string().describe("The name of the file").optional(),
+            fileLength: z.number().describe("The length of the file content prior to truncating").optional(),
+          })
+          .describe("The contents of the file"),
+      }),
+    )
+    .describe("The results of the file content")
+    .optional(),
   error: z.string().describe("Error message if file content retrieval failed").optional(),
 });
 
@@ -5105,18 +5161,25 @@ export type salesforceSearchSalesforceRecordsParamsType = z.infer<typeof salesfo
 
 export const salesforceSearchSalesforceRecordsOutputSchema = z.object({
   success: z.boolean().describe("Whether the records were successfully retrieved"),
-  searchRecords: z
+  results: z
     .array(
       z
         .object({
-          id: z.string().describe("The Salesforce record ID").optional(),
-          attributes: z
+          name: z.string().describe("The name of the record").optional(),
+          url: z.string().describe("The URL of the record").optional(),
+          contents: z
             .object({
-              type: z.string().describe("The Salesforce object type"),
-              url: z.string().describe("The Salesforce record URL"),
+              id: z.string().describe("The Salesforce record ID").optional(),
+              attributes: z
+                .object({
+                  type: z.string().describe("The Salesforce object type"),
+                  url: z.string().describe("The Salesforce record URL"),
+                })
+                .catchall(z.any())
+                .describe("Metadata about the Salesforce record")
+                .optional(),
             })
-            .catchall(z.any())
-            .describe("Metadata about the Salesforce record")
+            .describe("The contents of the record")
             .optional(),
         })
         .describe("A record from Salesforce"),
@@ -5144,10 +5207,7 @@ export type salesforceGetSalesforceRecordsByQueryParamsType = z.infer<
 
 export const salesforceGetSalesforceRecordsByQueryOutputSchema = z.object({
   success: z.boolean().describe("Whether the records were successfully retrieved"),
-  records: z
-    .array(z.record(z.string()).describe("A record from Salesforce"))
-    .describe("The retrieved records")
-    .optional(),
+  results: z.array(z.any()).describe("Array of standardized results objects").optional(),
   error: z.string().describe("The error that occurred if the records were not successfully retrieved").optional(),
 });
 
@@ -5416,22 +5476,33 @@ export const githubListPullRequestsParamsSchema = z.object({
 export type githubListPullRequestsParamsType = z.infer<typeof githubListPullRequestsParamsSchema>;
 
 export const githubListPullRequestsOutputSchema = z.object({
-  pullRequests: z
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("The error that occurred if the operation was not successful").optional(),
+  results: z
     .array(
       z.object({
-        number: z.number().describe("The number of the pull request").optional(),
-        title: z.string().describe("The title of the pull request").optional(),
-        state: z.string().describe("The state of the pull request (e.g., open, closed)").optional(),
+        name: z.string().describe("The title of the pull request").optional(),
         url: z.string().describe("The URL of the pull request").optional(),
-        createdAt: z.string().describe("The date and time when the pull request was created").optional(),
-        updatedAt: z.string().describe("The date and time when the pull request was last updated").optional(),
-        user: z
-          .object({ login: z.string().describe("The username of the user who created the pull request").optional() })
+        contents: z
+          .object({
+            number: z.number().describe("The number of the pull request").optional(),
+            title: z.string().describe("The title of the pull request").optional(),
+            state: z.string().describe("The state of the pull request (e.g., open, closed)").optional(),
+            url: z.string().describe("The URL of the pull request").optional(),
+            createdAt: z.string().describe("The date and time when the pull request was created").optional(),
+            updatedAt: z.string().describe("The date and time when the pull request was last updated").optional(),
+            user: z
+              .object({
+                login: z.string().describe("The username of the user who created the pull request").optional(),
+              })
+              .optional(),
+            description: z.string().describe("The description of the pull request").optional(),
+          })
           .optional(),
-        description: z.string().describe("The description of the pull request").optional(),
       }),
     )
-    .describe("A list of pull requests in the repository"),
+    .describe("A list of pull requests in the repository")
+    .optional(),
 });
 
 export type githubListPullRequestsOutputType = z.infer<typeof githubListPullRequestsOutputSchema>;
@@ -5559,10 +5630,23 @@ export type githubGetFileContentParamsType = z.infer<typeof githubGetFileContent
 export const githubGetFileContentOutputSchema = z.object({
   success: z.boolean().describe("Whether the operation was successful"),
   error: z.string().describe("The error that occurred if the operation was not successful").optional(),
-  content: z.string().describe("The decoded file content as a string").optional(),
-  size: z.number().describe("The size of the file in bytes").optional(),
-  name: z.string().describe("The name of the file").optional(),
-  htmlUrl: z.string().describe("The URL of the file in the Github UI").optional(),
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the file").optional(),
+        url: z.string().describe("The URL of the file in the Github UI").optional(),
+        contents: z
+          .object({
+            content: z.string().describe("The decoded file content as a string").optional(),
+            size: z.number().describe("The size of the file in bytes").optional(),
+            name: z.string().describe("The name of the file").optional(),
+            htmlUrl: z.string().describe("The URL of the file in the Github UI").optional(),
+          })
+          .optional(),
+      }),
+    )
+    .describe("A list of Github files")
+    .optional(),
 });
 
 export type githubGetFileContentOutputType = z.infer<typeof githubGetFileContentOutputSchema>;
@@ -5583,14 +5667,18 @@ export type githubListDirectoryParamsType = z.infer<typeof githubListDirectoryPa
 export const githubListDirectoryOutputSchema = z.object({
   success: z.boolean().describe("Whether the operation was successful"),
   error: z.string().describe("Error message if the operation failed").optional(),
-  content: z
+  results: z
     .array(
       z.object({
         name: z.string().describe("The name of the file"),
-        path: z.string().describe("The path of the file"),
-        type: z.string().describe("The type of the file"),
-        size: z.number().describe("The size of the file in bytes"),
-        htmlUrl: z.string().describe("The URL of the file in the Github UI"),
+        url: z.string().describe("The URL of the file in the Github UI"),
+        contents: z
+          .object({
+            path: z.string().describe("The path of the file"),
+            type: z.string().describe("The type of the file"),
+            size: z.number().describe("The size of the file in bytes"),
+          })
+          .describe("The contents of the file"),
       }),
     )
     .describe("Array of directory contents")
@@ -5700,75 +5788,100 @@ export const githubSearchOrganizationParamsSchema = z.object({
 export type githubSearchOrganizationParamsType = z.infer<typeof githubSearchOrganizationParamsSchema>;
 
 export const githubSearchOrganizationOutputSchema = z.object({
-  code: z
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  results: z
     .array(
       z.object({
-        name: z.string().describe("The name of the file that had a match"),
-        path: z.string().describe("The path of the file that had a match"),
-        sha: z.string().describe("The SHA of the commit that had a match"),
-        url: z.string().describe("The URL of the file that had a match"),
-        score: z.number().describe("The similarity score of the match"),
-        textMatches: z
-          .array(
-            z.object({
-              object_url: z.string().describe("The URL of the object that had a match").optional(),
-              object_type: z.string().describe("The type of the object that had a match").optional(),
-              fragment: z.string().describe("The fragment of the text that had a match").optional(),
-              matches: z
-                .array(
-                  z.object({
-                    text: z.string().describe("The text that had a match").optional(),
-                    indices: z.array(z.number()).describe("The indices of the text that had a match").optional(),
-                  }),
-                )
-                .describe("A list of matches that match the query"),
-            }),
-          )
-          .describe("A list of text matches that match the query"),
+        name: z.string().describe("The name of the result (file name, commit SHA, or issue/PR title)"),
+        url: z.string().describe("The URL of the result"),
+        type: z.enum(["code", "commit", "issueOrPullRequest"]).describe("The type of the result"),
+        content: z.any().superRefine((x, ctx) => {
+          const schemas = [
+            z
+              .object({
+                name: z.string().describe("The name of the file that had a match"),
+                path: z.string().describe("The path of the file that had a match"),
+                sha: z.string().describe("The SHA of the commit that had a match"),
+                url: z.string().describe("The URL of the file that had a match"),
+                score: z.number().describe("The similarity score of the match"),
+                textMatches: z
+                  .array(
+                    z.object({
+                      object_url: z.string().describe("The URL of the object that had a match").optional(),
+                      object_type: z.string().describe("The type of the object that had a match").optional(),
+                      fragment: z.string().describe("The fragment of the text that had a match").optional(),
+                      matches: z
+                        .array(
+                          z.object({
+                            text: z.string().describe("The text that had a match").optional(),
+                            indices: z
+                              .array(z.number())
+                              .describe("The indices of the text that had a match")
+                              .optional(),
+                          }),
+                        )
+                        .describe("A list of matches that match the query"),
+                    }),
+                  )
+                  .describe("A list of text matches that match the query"),
+              })
+              .describe("Code result content"),
+            z
+              .object({
+                sha: z.string().describe("The SHA of the commit that had a match"),
+                url: z.string().describe("The URL of the commit that had a match"),
+                commit: z
+                  .object({
+                    author: z.object({
+                      name: z.string().describe("The name of the author"),
+                      email: z.string().describe("The email of the author"),
+                      date: z.string().describe("The date of the commit"),
+                    }),
+                    message: z.string().describe("The message of the commit"),
+                  })
+                  .optional(),
+              })
+              .describe("Commit result content"),
+            z
+              .object({
+                number: z.number().describe("The number of the issue or pull request").optional(),
+                title: z.string().describe("The title of the issue or pull request"),
+                html_url: z.string().describe("The URL of the issue or pull request").optional(),
+                state: z.enum(["open", "closed"]).describe("The state of the issue or pull request"),
+                isPullRequest: z.boolean().describe("Whether the issue or pull request is a pull request").optional(),
+                body: z.string().describe("The body of the issue or pull request").optional(),
+                score: z.number().describe("The score of the issue or pull request").optional(),
+                files: z
+                  .array(
+                    z.object({
+                      filename: z.string().describe("The filename of the file"),
+                      status: z.string().describe("The status of the file"),
+                      patch: z.string().describe("The patch of the file").optional(),
+                    }),
+                  )
+                  .describe("A list of files that match the query")
+                  .optional(),
+              })
+              .describe("Issue or pull request result content"),
+          ];
+          const errors = schemas.reduce<z.ZodError[]>(
+            (errors, schema) => (result => (result.error ? [...errors, result.error] : errors))(schema.safeParse(x)),
+            [],
+          );
+          if (schemas.length - errors.length !== 1) {
+            ctx.addIssue({
+              path: ctx.path,
+              code: "invalid_union",
+              unionErrors: errors,
+              message: "Invalid input: Should pass single schema",
+            });
+          }
+        }),
       }),
     )
-    .describe("A list of code results that match the query"),
-  commits: z
-    .array(
-      z.object({
-        sha: z.string().describe("The SHA of the commit that had a match"),
-        url: z.string().describe("The URL of the commit that had a match"),
-        commit: z
-          .object({
-            author: z.object({
-              name: z.string().describe("The name of the author"),
-              email: z.string().describe("The email of the author"),
-              date: z.string().describe("The date of the commit"),
-            }),
-            message: z.string().describe("The message of the commit"),
-          })
-          .optional(),
-      }),
-    )
-    .describe("A list of commits that match the query"),
-  issuesAndPullRequests: z
-    .array(
-      z.object({
-        number: z.number().describe("The number of the issue or pull request").optional(),
-        title: z.string().describe("The title of the issue or pull request"),
-        html_url: z.string().describe("The URL of the issue or pull request").optional(),
-        state: z.enum(["open", "closed"]).describe("The state of the issue or pull request"),
-        isPullRequest: z.boolean().describe("Whether the issue or pull request is a pull request").optional(),
-        body: z.string().describe("The body of the issue or pull request").optional(),
-        score: z.number().describe("The score of the issue or pull request").optional(),
-        files: z
-          .array(
-            z.object({
-              filename: z.string().describe("The filename of the file"),
-              status: z.string().describe("The status of the file"),
-              patch: z.string().describe("The patch of the file").optional(),
-            }),
-          )
-          .describe("A list of files that match the query")
-          .optional(),
-      }),
-    )
-    .describe("A list of issues and pull requests that match the query"),
+    .describe("Array of search results")
+    .optional(),
 });
 
 export type githubSearchOrganizationOutputType = z.infer<typeof githubSearchOrganizationOutputSchema>;
@@ -6078,90 +6191,110 @@ export const gitlabSearchGroupParamsSchema = z.object({
 export type gitlabSearchGroupParamsType = z.infer<typeof gitlabSearchGroupParamsSchema>;
 
 export const gitlabSearchGroupOutputSchema = z.object({
-  mergeRequests: z
+  success: z.boolean().describe("Whether the search operation was successful"),
+  error: z.string().describe("Error message if the search operation failed").optional(),
+  results: z
     .array(
       z.object({
-        metadata: z
-          .object({
-            id: z.number().describe("The ID of the merge request"),
-            iid: z.number().describe("The internal ID of the merge request"),
-            project_id: z.number().describe("The ID of the project the merge request belongs to"),
-            title: z.string().describe("The title of the merge request"),
-            web_url: z.string().describe("The URL of the merge request"),
-            description: z.string().describe("The description of the merge request").optional(),
-            author: z
-              .object({ name: z.string().describe("The name of the author").optional() })
-              .describe("The author of the merge request")
-              .optional(),
-            merged_at: z.string().describe("The date and time the merge request was merged").optional(),
-          })
-          .describe("The metadata of the merge request"),
-        diffs: z
-          .array(
-            z.object({
-              old_path: z.string().describe("The old path of the diff"),
-              new_path: z.string().describe("The new path of the diff"),
-              diff: z.string().describe("The contents of the diff"),
-              new_file: z.boolean().describe("Whether the diff is a new file"),
-              renamed_file: z.boolean().describe("Whether the diff is a renamed file"),
-              deleted_file: z.boolean().describe("Whether the diff is a deleted file"),
-              too_large: z.boolean().describe("Whether the diff is too large").optional(),
-            }),
-          )
-          .describe("A list of diffs that match the query"),
-      }),
-    )
-    .describe("A list of merge requests that match the query"),
-  blobs: z
-    .array(
-      z.object({
-        metadata: z.object({
-          path: z.string().describe("The path of the blob"),
-          basename: z.string().describe("The basename of the blob"),
-          data: z.string().describe("The data of the blob"),
-          project_id: z.number().describe("The ID of the project the blob belongs to"),
-          ref: z.string().describe("The ref of the blob"),
-          startline: z.number().describe("The start line of the blob"),
-          filename: z.string().describe("The filename of the blob"),
-          web_url: z.string().describe("The URL of the blob"),
+        name: z.string().describe("The name/title of the search result"),
+        url: z.string().describe("The URL to view the result in GitLab"),
+        type: z.enum(["mergeRequest", "blob", "commit"]).describe("The type of search result"),
+        contents: z.any().superRefine((x, ctx) => {
+          const schemas = [
+            z
+              .object({
+                metadata: z
+                  .object({
+                    id: z.number().describe("The ID of the merge request"),
+                    iid: z.number().describe("The internal ID of the merge request"),
+                    project_id: z.number().describe("The ID of the project the merge request belongs to"),
+                    title: z.string().describe("The title of the merge request"),
+                    web_url: z.string().describe("The URL of the merge request"),
+                    description: z.string().describe("The description of the merge request").optional(),
+                    author: z
+                      .object({ name: z.string().describe("The name of the author").optional() })
+                      .describe("The author of the merge request")
+                      .optional(),
+                    merged_at: z.string().describe("The date and time the merge request was merged").optional(),
+                  })
+                  .describe("The metadata of the merge request"),
+                diffs: z
+                  .array(
+                    z.object({
+                      old_path: z.string().describe("The old path of the diff"),
+                      new_path: z.string().describe("The new path of the diff"),
+                      diff: z.string().describe("The contents of the diff"),
+                      new_file: z.boolean().describe("Whether the diff is a new file"),
+                      renamed_file: z.boolean().describe("Whether the diff is a renamed file"),
+                      deleted_file: z.boolean().describe("Whether the diff is a deleted file"),
+                      too_large: z.boolean().describe("Whether the diff is too large").optional(),
+                    }),
+                  )
+                  .describe("A list of diffs that match the query"),
+              })
+              .describe("Merge request contents"),
+            z
+              .object({
+                metadata: z.object({
+                  path: z.string().describe("The path of the blob"),
+                  basename: z.string().describe("The basename of the blob"),
+                  data: z.string().describe("The data of the blob"),
+                  project_id: z.number().describe("The ID of the project the blob belongs to"),
+                  ref: z.string().describe("The ref of the blob"),
+                  startline: z.number().describe("The start line of the blob"),
+                  filename: z.string().describe("The filename of the blob"),
+                  web_url: z.string().describe("The URL of the blob"),
+                }),
+                matchedMergeRequests: z
+                  .array(
+                    z.object({
+                      title: z.string().describe("The title of the merge request"),
+                      web_url: z.string().describe("The URL of the merge request"),
+                      author: z.object({}).catchall(z.any()).describe("The author of the merge request").optional(),
+                      merged_at: z.string().describe("The date and time the merge request was merged").optional(),
+                    }),
+                  )
+                  .describe("A list of merge requests that match the blob"),
+              })
+              .describe("Blob contents"),
+            z
+              .object({
+                sha: z.string().describe("The commit SHA"),
+                web_url: z.string().describe("The URL to view the commit in GitLab"),
+                message: z.string().describe("The full commit message"),
+                author: z.object({
+                  name: z.string().describe("The name of the commit author"),
+                  email: z.string().describe("The email of the commit author"),
+                }),
+                created_at: z.string().describe("The date/time the commit was created"),
+                files: z
+                  .array(
+                    z.object({
+                      old_path: z.string().describe("The old path of the file"),
+                      new_path: z.string().describe("The new path of the file"),
+                      diff: z.string().describe("The diff contents for the file"),
+                    }),
+                  )
+                  .describe("A list of files changed in the commit"),
+              })
+              .describe("Commit contents"),
+          ];
+          const errors = schemas.reduce<z.ZodError[]>(
+            (errors, schema) => (result => (result.error ? [...errors, result.error] : errors))(schema.safeParse(x)),
+            [],
+          );
+          if (schemas.length - errors.length !== 1) {
+            ctx.addIssue({
+              path: ctx.path,
+              code: "invalid_union",
+              unionErrors: errors,
+              message: "Invalid input: Should pass single schema",
+            });
+          }
         }),
-        matchedMergeRequests: z
-          .array(
-            z.object({
-              title: z.string().describe("The title of the merge request"),
-              web_url: z.string().describe("The URL of the merge request"),
-              author: z.object({}).catchall(z.any()).describe("The author of the merge request").optional(),
-              merged_at: z.string().describe("The date and time the merge request was merged").optional(),
-            }),
-          )
-          .describe("A list of merge requests that match the blob")
-          .optional(),
       }),
     )
-    .describe("A list of blobs that match the query"),
-  commits: z
-    .array(
-      z.object({
-        sha: z.string().describe("The commit SHA"),
-        web_url: z.string().describe("The URL to view the commit in GitLab"),
-        message: z.string().describe("The full commit message"),
-        author: z.object({
-          name: z.string().describe("The name of the commit author"),
-          email: z.string().describe("The email of the commit author"),
-        }),
-        created_at: z.string().describe("The date/time the commit was created"),
-        files: z
-          .array(
-            z.object({
-              old_path: z.string().describe("The old path of the file"),
-              new_path: z.string().describe("The new path of the file"),
-              diff: z.string().describe("The diff contents for the file"),
-            }),
-          )
-          .describe("A list of files changed in the commit"),
-      }),
-    )
-    .describe("A list of commits that match the query")
+    .describe("A list of search results that match the query")
     .optional(),
 });
 
@@ -6186,10 +6319,21 @@ export type gitlabGetFileContentParamsType = z.infer<typeof gitlabGetFileContent
 export const gitlabGetFileContentOutputSchema = z.object({
   success: z.boolean().describe("Whether the operation was successful"),
   error: z.string().describe("The error that occurred if the operation was not successful").optional(),
-  content: z.string().describe("The decoded file content as a string").optional(),
-  size: z.number().describe("The size of the file in bytes").optional(),
-  name: z.string().describe("The name of the file").optional(),
-  htmlUrl: z.string().describe("The URL of the file in the GitLab UI").optional(),
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the file"),
+        url: z.string().describe("The url of the file"),
+        contents: z.object({
+          content: z.string().describe("The decoded file content as a string"),
+          size: z.number().describe("The size of the file in bytes"),
+          name: z.string().describe("The name of the file"),
+          htmlUrl: z.string().describe("The URL of the file in the GitLab UI"),
+        }),
+      }),
+    )
+    .describe("The results of the file content")
+    .optional(),
 });
 
 export type gitlabGetFileContentOutputType = z.infer<typeof gitlabGetFileContentOutputSchema>;
@@ -6209,17 +6353,29 @@ export const gitlabListDirectoryParamsSchema = z.object({
 export type gitlabListDirectoryParamsType = z.infer<typeof gitlabListDirectoryParamsSchema>;
 
 export const gitlabListDirectoryOutputSchema = z.object({
-  content: z
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  results: z
     .array(
       z.object({
         name: z.string().describe("The name of the file or directory"),
-        path: z.string().describe("The path of the file or directory"),
-        type: z.string().describe('The type of the entry (either "blob" for file or "tree" for directory)'),
-        size: z.number().describe("The size of the file in bytes (only for blobs; omitted or 0 for trees)").optional(),
-        htmlUrl: z.string().describe("The URL of the file or folder in the GitLab UI"),
+        url: z.string().describe("The URL of the file or directory"),
+        contents: z
+          .object({
+            name: z.string().describe("The name of the file or directory"),
+            path: z.string().describe("The path of the file or directory"),
+            type: z.string().describe('The type of the entry (either "blob" for file or "tree" for directory)'),
+            size: z
+              .number()
+              .describe("The size of the file in bytes (only for blobs; omitted or 0 for trees)")
+              .optional(),
+            htmlUrl: z.string().describe("The URL of the file or folder in the GitLab UI"),
+          })
+          .describe("The contents of the directory"),
       }),
     )
-    .describe("Array of directory contents"),
+    .describe("Array of directory contents")
+    .optional(),
 });
 
 export type gitlabListDirectoryOutputType = z.infer<typeof gitlabListDirectoryOutputSchema>;

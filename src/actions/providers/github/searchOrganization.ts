@@ -1,8 +1,9 @@
-import type {
-  AuthParamsType,
-  githubSearchOrganizationFunction,
-  githubSearchOrganizationOutputType,
-  githubSearchOrganizationParamsType,
+import {
+  githubSearchOrganizationOutputSchema,
+  type AuthParamsType,
+  type githubSearchOrganizationFunction,
+  type githubSearchOrganizationOutputType,
+  type githubSearchOrganizationParamsType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import { getOctokit } from "./utils.js";
@@ -83,7 +84,10 @@ const searchOrganization: githubSearchOrganizationFunction = async ({
   authParams: AuthParamsType;
 }): Promise<githubSearchOrganizationOutputType> => {
   if (!authParams.authToken) {
-    throw new Error(MISSING_AUTH_TOKEN);
+    return githubSearchOrganizationOutputSchema.parse({
+      success: false,
+      error: MISSING_AUTH_TOKEN,
+    });
   }
 
   const octokit = await getOctokit(authParams.authToken);
@@ -211,9 +215,27 @@ const searchOrganization: githubSearchOrganizationFunction = async ({
     });
 
   return {
-    code: codeResults,
-    commits: enrichedCommits,
-    issuesAndPullRequests: issuesAndPRs,
+    success: true,
+    results: [
+      ...codeResults.map(result => ({
+        type: "code" as const,
+        name: result.name,
+        url: result.url,
+        content: result,
+      })),
+      ...enrichedCommits.map(result => ({
+        type: "commit" as const,
+        name: result.sha,
+        url: result.url,
+        content: result,
+      })),
+      ...issuesAndPRs.map(result => ({
+        type: "issueOrPullRequest" as const,
+        name: result.title,
+        url: result.html_url,
+        content: result,
+      })),
+    ],
   };
 };
 

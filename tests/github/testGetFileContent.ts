@@ -33,16 +33,16 @@ async function runTest() {
   assert(typedResult, "Response should not be null");
   assert(typedResult.success, "Response should indicate success");
   assert(
-    typedResult.htmlUrl ==
+    typedResult.results?.[0]?.url ==
       "https://github.com/Credal-ai/actions-sdk/blob/main/src/app.ts",
     "Response should contain the correct URL"
   );
   assert(
-    typedResult.name == "app.ts",
+    typedResult.results?.[0]?.name == "app.ts",
     "Response should contain the correct name"
   );
   assert(
-    typedResult.content?.includes("action"),
+    typedResult.results?.[0]?.contents?.content?.includes("action"),
     "Response should contain the correct content"
   );
 }

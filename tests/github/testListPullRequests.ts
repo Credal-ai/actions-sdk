@@ -14,7 +14,7 @@ async function runTest() {
     {
       repositoryOwner: "Credal-ai",
       repositoryName: "app",
-    },
+    }
   );
 
   console.log(JSON.stringify(result, null, 2));

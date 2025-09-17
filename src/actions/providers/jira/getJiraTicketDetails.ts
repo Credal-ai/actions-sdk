@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
 
+// https://developer.atlassian.com/cloud/jira/platform/rest/v2/api-group-issues/#api-rest-api-2-issue-issueidorkey-get
 const getJiraTicketDetails: jiraGetJiraTicketDetailsFunction = async ({
   params,
   authParams,
@@ -32,7 +33,13 @@ const getJiraTicketDetails: jiraGetJiraTicketDetailsFunction = async ({
 
     return {
       success: true,
-      data: response.data,
+      results: [
+        {
+          name: response.data.key,
+          url: response.data.self,
+          contents: response.data,
+        },
+      ],
     };
   } catch (error) {
     console.error("Error retrieving Jira ticket details: ", error);
