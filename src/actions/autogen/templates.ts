@@ -7210,6 +7210,10 @@ export const googleOauthSearchDriveByKeywordsDefinition: ActionTemplate = {
         type: "number",
         description: "The maximum number of files to return",
       },
+      includeTrashed: {
+        type: "boolean",
+        description: "Whether to include trashed files in the search results",
+      },
     },
   },
   output: {

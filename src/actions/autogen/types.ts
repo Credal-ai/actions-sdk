@@ -3696,6 +3696,7 @@ export type googleOauthGetPresentationFunction = ActionFunction<
 export const googleOauthSearchDriveByKeywordsParamsSchema = z.object({
   keywords: z.array(z.string()).describe("List of keywords to search for in file contents."),
   limit: z.number().describe("The maximum number of files to return").optional(),
+  includeTrashed: z.boolean().describe("Whether to include trashed files in the search results").optional(),
 });
 
 export type googleOauthSearchDriveByKeywordsParamsType = z.infer<typeof googleOauthSearchDriveByKeywordsParamsSchema>;

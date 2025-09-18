@@ -19,14 +19,15 @@ const searchDriveByKeywords: googleOauthSearchDriveByKeywordsFunction = async ({
     return { success: false, error: MISSING_AUTH_TOKEN, files: [] };
   }
 
-  const { keywords, limit } = params;
+  const { keywords, limit, includeTrashed = false } = params;
 
   // Build the query: fullText contains 'keyword1' or fullText contains 'keyword2'
   const query = keywords.map(kw => `fullText contains '${kw.replace(/'/g, "\\'")}'`).join(" or ");
+  const finalQuery = includeTrashed ? query : `(${query}) and trashed = false`;
 
   try {
     const allDrivesUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
-      query,
+      finalQuery,
     )}&fields=files(id,name,mimeType,webViewLink)&supportsAllDrives=true&includeItemsFromAllDrives=true&corpora=allDrives&pageSize=1000`;
 
     const allDrivesRes = axiosClient.get(allDrivesUrl, {
@@ -37,7 +38,7 @@ const searchDriveByKeywords: googleOauthSearchDriveByKeywordsFunction = async ({
 
     // need to search domain wide separately because the allDrives search doesn't include domain wide files
     const orgWideUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
-      query,
+      finalQuery,
     )}&fields=files(id,name,mimeType,webViewLink)&corpora=domain&pageSize=1000`;
 
     const orgWideRes = axiosClient.get(orgWideUrl, {
