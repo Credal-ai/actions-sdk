@@ -6660,7 +6660,7 @@ actions:
             type: string
             description: The error that occurred if the sales report was not successfully generated.
     searchAllSalesforceRecords:
-      description: Search for Salesforce records by keyword
+      description: Search for all Salesforce records by keyword
       scopes: []
       parameters:
         type: object

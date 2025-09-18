@@ -10042,7 +10042,7 @@ export const salesforceGenerateSalesReportDefinition: ActionTemplate = {
   provider: "salesforce",
 };
 export const salesforceSearchAllSalesforceRecordsDefinition: ActionTemplate = {
-  description: "Search for Salesforce records by keyword",
+  description: "Search for all Salesforce records by keyword",
   scopes: [],
   parameters: {
     type: "object",
