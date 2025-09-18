@@ -22,6 +22,7 @@ async function runTest() {
       limit: 1
     }
   );
+
   assert.strictEqual(regularQueryResult.success, true);
   assert.equal(salesforceSearchAllSalesforceRecordsOutputSchema.safeParse(regularQueryResult).success, true);
   assert.equal(regularQueryResult.searchRecords.length, 1);
