@@ -20,16 +20,18 @@ const searchDriveByQuery: googleOauthSearchDriveByQueryFunction = async ({
     return { success: false, error: MISSING_AUTH_TOKEN, files: [] };
   }
 
-  const { query, limit, searchDriveByDrive, orderByQuery } = params;
+  const { query, limit, searchDriveByDrive, orderByQuery, includeTrashed = false } = params;
 
   // Can't use orderBy on quereis that include fullText
   const safeOrderBy = query.includes("fullText") ? undefined : (orderByQuery ?? "modifiedTime desc");
 
+  const finalQuery = includeTrashed ? query : `${query} and trashed=false`;
+
   try {
     if (searchDriveByDrive) {
-      return await searchAllDrivesIndividually(query, authParams.authToken, limit, safeOrderBy);
+      return await searchAllDrivesIndividually(finalQuery, authParams.authToken, limit, safeOrderBy);
     } else {
-      return await searchAllDrivesAtOnce(query, authParams.authToken, limit, safeOrderBy);
+      return await searchAllDrivesAtOnce(finalQuery, authParams.authToken, limit, safeOrderBy);
     }
   } catch (error) {
     console.error("Error searching Google Drive", error);

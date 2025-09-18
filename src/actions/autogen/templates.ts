@@ -7279,6 +7279,10 @@ export const googleOauthSearchDriveByQueryDefinition: ActionTemplate = {
         description:
           "The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'",
       },
+      includeTrashed: {
+        type: "boolean",
+        description: "Whether to include trashed files in the search results",
+      },
     },
   },
   output: {

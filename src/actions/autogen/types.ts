@@ -3733,6 +3733,7 @@ export const googleOauthSearchDriveByQueryParamsSchema = z.object({
       "The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'",
     )
     .optional(),
+  includeTrashed: z.boolean().describe("Whether to include trashed files in the search results").optional(),
 });
 
 export type googleOauthSearchDriveByQueryParamsType = z.infer<typeof googleOauthSearchDriveByQueryParamsSchema>;
