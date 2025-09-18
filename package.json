@@ -33,7 +33,6 @@
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.10.1",
     "@types/node-forge": "^1.3.11",
-    "@types/pdfjs-dist": "^2.10.377",
     "@typescript-eslint/eslint-plugin": "^8.18.0",
     "@typescript-eslint/parser": "^8.18.0",
     "eslint": "^9.16.0",
