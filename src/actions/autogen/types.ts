@@ -3773,6 +3773,7 @@ export const googleOauthSearchDriveByKeywordsAndGetFileContentParamsSchema = z.o
       "The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'",
     )
     .optional(),
+  includeTrashed: z.boolean().describe("Whether to include trashed files in the search results").optional(),
 });
 
 export type googleOauthSearchDriveByKeywordsAndGetFileContentParamsType = z.infer<
@@ -3822,6 +3823,7 @@ export const googleOauthSearchDriveByQueryAndGetFileContentParamsSchema = z.obje
       "The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'",
     )
     .optional(),
+  includeTrashed: z.boolean().describe("Whether to include trashed files in the search results").optional(),
 });
 
 export type googleOauthSearchDriveByQueryAndGetFileContentParamsType = z.infer<

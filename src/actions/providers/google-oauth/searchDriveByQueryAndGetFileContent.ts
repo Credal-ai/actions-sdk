@@ -20,11 +20,11 @@ const searchDriveByQueryAndGetFileContent: googleOauthSearchDriveByQueryAndGetFi
     return { success: false, error: MISSING_AUTH_TOKEN, files: [] };
   }
 
-  const { query, limit, searchDriveByDrive, orderByQuery, fileSizeLimit: maxChars } = params;
+  const { query, limit, searchDriveByDrive, orderByQuery, fileSizeLimit: maxChars, includeTrashed = false } = params;
 
   // First, perform the search
   const searchResult = await searchDriveByQuery({
-    params: { query, limit, searchDriveByDrive, orderByQuery },
+    params: { query, limit, searchDriveByDrive, orderByQuery, includeTrashed },
     authParams,
   });
 

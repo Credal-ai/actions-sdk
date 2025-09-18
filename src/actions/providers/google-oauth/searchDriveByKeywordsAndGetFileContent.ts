@@ -20,7 +20,14 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
     return { success: false, error: MISSING_AUTH_TOKEN };
   }
 
-  const { searchQuery, limit, searchDriveByDrive, orderByQuery, fileSizeLimit: maxChars } = params;
+  const {
+    searchQuery,
+    limit,
+    searchDriveByDrive,
+    orderByQuery,
+    fileSizeLimit: maxChars,
+    includeTrashed = false,
+  } = params;
 
   const query = searchQuery
     .split(" ")
@@ -28,7 +35,7 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
     .map(kw => `fullText contains '${kw}' or name contains '${kw}'`)
     .join(" or ");
   const searchResult = await searchDriveByQuery({
-    params: { query, limit, searchDriveByDrive, orderByQuery },
+    params: { query, limit, searchDriveByDrive, orderByQuery, includeTrashed },
     authParams,
   });
 
