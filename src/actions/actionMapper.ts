@@ -306,6 +306,8 @@ import {
   oktaOrgGetOktaUserByNameOutputSchema,
   googleSearchCustomSearchParamsSchema,
   googleSearchCustomSearchOutputSchema,
+  salesforceSearchAllSalesforceRecordsParamsSchema,
+  salesforceSearchAllSalesforceRecordsOutputSchema,
 } from "./autogen/types.js";
 import validateAddress from "./providers/googlemaps/validateAddress.js";
 import add from "./providers/math/add.js";
@@ -459,6 +461,7 @@ import perplexityDeepResearch from "./providers/perplexity/perplexityDeepResearc
 import searchSlack from "./providers/slackUser/searchSlack.js";
 import getOktaUserByName from "./providers/oktaOrg/getOktaUserByName.js";
 import customSearch from "./providers/googleSearch/customSearch.js";
+import searchAllSalesforceRecords from "./providers/salesforce/searchAllSalesforceRecords.js";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
@@ -1037,6 +1040,11 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: searchSalesforceRecords,
       paramsSchema: salesforceSearchSalesforceRecordsParamsSchema,
       outputSchema: salesforceSearchSalesforceRecordsOutputSchema,
+    },
+    searchAllSalesforceRecords: {
+      fn: searchAllSalesforceRecords,
+      paramsSchema: salesforceSearchAllSalesforceRecordsParamsSchema,
+      outputSchema: salesforceSearchAllSalesforceRecordsOutputSchema,
     },
     getSalesforceRecordsByQuery: {
       fn: getSalesforceRecordsByQuery,

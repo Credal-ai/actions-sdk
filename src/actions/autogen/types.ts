@@ -5149,6 +5149,52 @@ export type salesforceGenerateSalesReportFunction = ActionFunction<
   salesforceGenerateSalesReportOutputType
 >;
 
+export const salesforceSearchAllSalesforceRecordsParamsSchema = z.object({
+  keyword: z.string().describe("The keyword to search for"),
+  usesLightningKnowledge: z
+    .boolean()
+    .describe("Whether your Salesforce instance uses lightning knowledge articles")
+    .optional(),
+  limit: z.number().describe("The maximum number of records to return").optional(),
+  maxLimit: z.number().describe("The absolute maximum limit for records that can be returned").optional(),
+});
+
+export type salesforceSearchAllSalesforceRecordsParamsType = z.infer<
+  typeof salesforceSearchAllSalesforceRecordsParamsSchema
+>;
+
+export const salesforceSearchAllSalesforceRecordsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the records were successfully retrieved"),
+  searchRecords: z
+    .array(
+      z
+        .object({
+          id: z.string().describe("The Salesforce record ID").optional(),
+          attributes: z
+            .object({
+              type: z.string().describe("The Salesforce object type"),
+              url: z.string().describe("The Salesforce record URL"),
+            })
+            .catchall(z.any())
+            .describe("Metadata about the Salesforce record")
+            .optional(),
+        })
+        .describe("A record from Salesforce"),
+    )
+    .describe("The records that match the search")
+    .optional(),
+  error: z.string().describe("The error that occurred if the records were not successfully retrieved").optional(),
+});
+
+export type salesforceSearchAllSalesforceRecordsOutputType = z.infer<
+  typeof salesforceSearchAllSalesforceRecordsOutputSchema
+>;
+export type salesforceSearchAllSalesforceRecordsFunction = ActionFunction<
+  salesforceSearchAllSalesforceRecordsParamsType,
+  AuthParamsType,
+  salesforceSearchAllSalesforceRecordsOutputType
+>;
+
 export const salesforceSearchSalesforceRecordsParamsSchema = z.object({
   keyword: z.string().describe("The keyword to search for"),
   recordType: z.string().describe("The type of record to search for"),
