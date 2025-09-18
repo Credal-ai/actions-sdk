@@ -1,62 +1,30 @@
-import PDFParser from "pdf2json";
+import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 
-// Define proper types for the PDF data structure
-interface PDFTextRun {
-  T: string;
-  S?: number;
-  TS?: number[];
-}
+export async function extractTextFromPdf(input: ArrayBuffer | Uint8Array): Promise<string> {
+  // Convert Buffer or ArrayBuffer -> plain Uint8Array
+  const data: Uint8Array =
+    (input instanceof Uint8Array && !(typeof Buffer !== "undefined" && Buffer.isBuffer(input)))
+      ? input
+      : (typeof Buffer !== "undefined" && Buffer.isBuffer(input))
+        ? new Uint8Array(input) // copies bytes out of the Buffer
+        : new Uint8Array(input); // ArrayBuffer case
 
-interface PDFText {
-  R: PDFTextRun[];
-  x: number;
-  y: number;
-}
+  // Load PDF
 
-interface PDFPage {
-  Texts: PDFText[];
-  Width: number;
-  Height: number;
-}
+  const loadingTask = getDocument({ data });
+  const pdf = await loadingTask.promise;
+  const pages: string[] = [];
 
-interface PDFData {
-  Pages: PDFPage[];
-  Meta: Record<string, unknown>;
-}
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
 
-// Correct type based on the library's actual interface
-interface PDFParserError {
-  parserError: Error;
-}
+    // content.items is typed as TextItem | TextMarkedContent
+    const strings = content.items.map(item => ("str" in item ? item.str : "")).join(" ");
 
-export async function extractTextFromPdf(buffer: ArrayBuffer): Promise<string> {
-  try {
-    const extractedText = await new Promise<string>((resolve, reject) => {
-      const pdfParser = new PDFParser();
-
-      pdfParser.on("pdfParser_dataError", (errData: PDFParserError) => {
-        reject(errData.parserError || new Error("PDF parsing failed"));
-      });
-
-      pdfParser.on("pdfParser_dataReady", (pdfData: PDFData) => {
-        try {
-          const text = pdfData.Pages.map((page: PDFPage) =>
-            page.Texts.map((textItem: PDFText) => {
-              // Handle cases where R array might be empty or have multiple runs
-              return textItem.R.map((run: PDFTextRun) => decodeURIComponent(run.T)).join("");
-            }).join(""),
-          ).join("\n");
-          resolve(text);
-        } catch (error) {
-          reject(error);
-        }
-      });
-
-      pdfParser.parseBuffer(Buffer.from(buffer));
-    });
-    return extractedText;
-  } catch (error) {
-    console.error("Error extracting PDF text:", error);
-    throw error;
+    pages.push(strings.trim());
   }
+
+  await pdf.destroy();
+  return pages.join("\n\n");
 }
