@@ -3,9 +3,9 @@ import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 export async function extractTextFromPdf(input: ArrayBuffer | Uint8Array): Promise<string> {
   // Convert Buffer or ArrayBuffer -> plain Uint8Array
   const data: Uint8Array =
-    (input instanceof Uint8Array && !(typeof Buffer !== "undefined" && Buffer.isBuffer(input)))
+    input instanceof Uint8Array && !(typeof Buffer !== "undefined" && Buffer.isBuffer(input))
       ? input
-      : (typeof Buffer !== "undefined" && Buffer.isBuffer(input))
+      : typeof Buffer !== "undefined" && Buffer.isBuffer(input)
         ? new Uint8Array(input) // copies bytes out of the Buffer
         : new Uint8Array(input); // ArrayBuffer case
 
