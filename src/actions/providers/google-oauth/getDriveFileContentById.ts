@@ -78,7 +78,14 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
         headers,
         responseType: "arraybuffer",
       });
-      content = await extractTextFromPdf(downloadRes.data);
+      try {
+        content = await extractTextFromPdf(downloadRes.data);
+      } catch (e) {
+        return {
+          success: false,
+          error: `Failed to parse PDF document: ${e instanceof Error ? e.message : JSON.stringify(e)}`,
+        };
+      }
     } else if (
       mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
       mimeType === "application/msword"
