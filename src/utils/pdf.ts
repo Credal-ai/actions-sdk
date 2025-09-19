@@ -4,9 +4,9 @@ import DOMMatrix from "@thednp/dommatrix";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 global.DOMMatrix = DOMMatrix as any;
 
-import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
-
 export async function extractTextFromPdf(input: ArrayBuffer | Uint8Array): Promise<string> {
+  const { getDocument } = await import("pdfjs-dist/legacy/build/pdf.mjs");
+
   // Convert Buffer or ArrayBuffer -> plain Uint8Array
   const data: Uint8Array =
     input instanceof Uint8Array && !(typeof Buffer !== "undefined" && Buffer.isBuffer(input))
