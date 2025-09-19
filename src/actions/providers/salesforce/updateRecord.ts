@@ -38,9 +38,26 @@ const updateRecord: salesforceUpdateRecordFunction = async ({
     };
   } catch (error) {
     console.error("Error updating Salesforce record:", error);
+
+    // Extract more detailed error information from Salesforce API response
+    let errorMessage = "An unknown error occurred";
+
+    if (error && typeof error === "object" && "data" in error && Array.isArray(error.data)) {
+      // Salesforce API returns detailed error information in the data array
+      const salesforceErrors = error.data
+        .map(
+          (err: { message?: string; errorCode?: string }) =>
+            `${err.message || "Unknown error"} (${err.errorCode || "UNKNOWN_ERROR"})`,
+        )
+        .join("; ");
+      errorMessage = salesforceErrors;
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+
     return {
       success: false,
-      error: error instanceof Error ? error.message : "An unknown error occurred",
+      error: errorMessage,
     };
   }
 };
