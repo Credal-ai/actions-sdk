@@ -114,22 +114,22 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
       });
       content = downloadRes.data;
     } else if (
-    mimeType === "text/plain" ||
-    mimeType === "text/csv" ||
-    mimeType === "text/tab-separated-values" ||
-    mimeType === "application/rtf" ||
-    mimeType === "application/json"
-  ) {
-    const downloadUrl = `${BASE_URL}${encodeURIComponent(params.fileId)}?alt=media${sharedDriveParam}`;
-    const downloadRes = await axiosClient.get(downloadUrl, {
-      headers,
-      responseType: "arraybuffer",
-    });
-    const bufferResults = downloadRes.data as ArrayBuffer;
-    const rawContentBuffer = Buffer.from(bufferResults); // Convert rawContent ArrayBuffer to Buffer
+      mimeType === "text/plain" ||
+      mimeType === "text/csv" ||
+      mimeType === "text/tab-separated-values" ||
+      mimeType === "application/rtf" ||
+      mimeType === "application/json"
+    ) {
+      const downloadUrl = `${BASE_URL}${encodeURIComponent(params.fileId)}?alt=media${sharedDriveParam}`;
+      const downloadRes = await axiosClient.get(downloadUrl, {
+        headers,
+        responseType: "arraybuffer",
+      });
+      const bufferResults = downloadRes.data as ArrayBuffer;
+      const rawContentBuffer = Buffer.from(bufferResults); // Convert rawContent ArrayBuffer to Buffer
 
-  content = rawContentBuffer.toString("utf-8");
-  } else {
+      content = rawContentBuffer.toString("utf-8");
+    } else {
       return { success: false, error: `Unsupported file type: ${mimeType}` };
     }
 

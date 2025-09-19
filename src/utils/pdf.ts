@@ -1,4 +1,4 @@
-import DOMMatrix from '@thednp/dommatrix';
+import DOMMatrix from "@thednp/dommatrix";
 
 // Set global DOMMatrix
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
