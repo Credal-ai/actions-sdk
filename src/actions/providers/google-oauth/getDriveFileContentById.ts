@@ -10,6 +10,7 @@ import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import { extractTextFromPdf } from "../../../utils/pdf.js";
 import { getGoogleDocContent, getGoogleSheetContent, getGoogleSlidesContent } from "../../../utils/google.js";
 import type { DriveFileMetadata } from "./common.js";
+import { read, utils } from "xlsx";
 
 const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = async ({
   params,
@@ -129,6 +130,29 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
       const rawContentBuffer = Buffer.from(bufferResults); // Convert rawContent ArrayBuffer to Buffer
 
       content = rawContentBuffer.toString("utf-8");
+    } else if (
+      mimeType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+      mimeType === "application/vnd.ms-excel"
+    ) {
+      const downloadUrl = `${BASE_URL}${encodeURIComponent(params.fileId)}?alt=media${sharedDriveParam}`;
+      const downloadRes = await axiosClient.get(downloadUrl, {
+        headers,
+        responseType: "arraybuffer",
+      });
+
+      // 1. Read the buffer into a workbook
+      const workbook = read(downloadRes.data, { type: "buffer" });
+
+      // 2. Convert all sheets to plain text (CSV-style)
+      let textOutput = "";
+      workbook.SheetNames.forEach(sheetName => {
+        const sheet = workbook.Sheets[sheetName];
+        const csv = utils.sheet_to_csv(sheet); // or sheet_to_json if you want arrays
+        textOutput += `\n--- Sheet: ${sheetName} ---\n${csv}`;
+      });
+
+      // textOutput now contains all sheet data as text
+      content = textOutput.trim();
     } else {
       return { success: false, error: `Unsupported file type: ${mimeType}` };
     }
