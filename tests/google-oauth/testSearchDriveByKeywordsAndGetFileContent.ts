@@ -22,7 +22,7 @@ async function runTest() {
     {
       searchQuery: "Japan travel expense",
       searchDriveByDrive: false,
-      limit: 20,
+      limit: 5,
     } as googleOauthSearchDriveByKeywordsAndGetFileContentParamsType
   )) as googleOauthSearchDriveByKeywordsAndGetFileContentOutputType;
 
