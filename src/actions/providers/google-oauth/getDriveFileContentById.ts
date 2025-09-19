@@ -11,6 +11,7 @@ import { extractTextFromPdf } from "../../../utils/pdf.js";
 import { getGoogleDocContent, getGoogleSheetContent, getGoogleSlidesContent } from "../../../utils/google.js";
 import type { DriveFileMetadata } from "./common.js";
 import { read, utils } from "xlsx";
+import officeParser from "officeparser";
 
 const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = async ({
   params,
@@ -153,6 +154,25 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
 
       // textOutput now contains all sheet data as text
       content = textOutput.trim();
+    } else if (mimeType === "application/vnd.openxmlformats-officedocument.presentationml.presentation") {
+      // Handle modern PowerPoint files (.pptx only)
+      const downloadUrl = `${BASE_URL}${encodeURIComponent(params.fileId)}?alt=media${sharedDriveParam}`;
+      const downloadRes = await axiosClient.get(downloadUrl, {
+        headers,
+        responseType: "arraybuffer",
+      });
+      try {
+        // officeparser expects a Buffer, so convert the ArrayBuffer
+        const buffer = Buffer.from(downloadRes.data);
+        content = await officeParser.parseOfficeAsync(buffer);
+      } catch (powerpointError) {
+        return {
+          success: false,
+          error: `Failed to parse PowerPoint document: ${
+            powerpointError instanceof Error ? powerpointError.message : "Unknown PowerPoint error"
+          }`,
+        };
+      }
     } else {
       return { success: false, error: `Unsupported file type: ${mimeType}` };
     }
