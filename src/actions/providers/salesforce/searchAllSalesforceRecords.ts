@@ -29,7 +29,10 @@ const searchAllSalesforceRecords: salesforceSearchAllSalesforceRecordsFunction =
 
   let customObject = "";
   if (params.usesLightningKnowledge) {
-    customObject = "Knowledge__kav(Article_Body__c, Title)";
+    customObject = `Knowledge__kav(Article_Body__c, Title),
+      FeedItem(Id, Body, Title, ParentId, Parent.Name, CreatedBy.Name, CreatedDate, CommentCount),
+      FeedComment(Id, CommentBody, FeedItemId, ParentId, CreatedBy.Name, CreatedDate),
+      EmailMessage(Id, Subject, TextBody, FromAddress, ToAddress, ParentId, CreatedDate, Incoming)`;
   }
   const url = `${baseUrl}/services/data/v64.0/search/?q=${encodeURIComponent(
     `FIND {${escapedKeyword}} IN ALL FIELDS RETURNING
@@ -37,6 +40,7 @@ const searchAllSalesforceRecords: salesforceSearchAllSalesforceRecordsFunction =
         Account(Id, Name, Type, Industry, Phone, Website, BillingCity, BillingState, Description, CreatedDate, LastModifiedDate),
         Lead(Id, FirstName, LastName, Email, Company, Status, LeadSource, CreatedDate),
         Opportunity(Id, Name, StageName, Amount, CloseDate, Account.Name, Description, CreatedDate),
+        Task(Id, Subject, Description, Status, WhatId, WhoId, ActivityDate, Account.Name),
         Case(Id, Subject, Status, Priority, Origin, Account.Name, Contact.Name, Description, CreatedDate) ${customObject ? ", " + customObject : ""} LIMIT ${params.limit && params.limit <= maxLimitValue ? params.limit : maxLimitValue}`,
   )}`;
 
