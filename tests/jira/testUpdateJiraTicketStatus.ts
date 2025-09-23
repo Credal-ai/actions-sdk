@@ -1,14 +1,24 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app.js";
-import { jiraConfig, provider } from "./utils.js";
+import type { JiraTestConfig } from "./utils.js";
+import { runJiraTest } from "./testRunner.js";
 
-async function runTest() {
-  const { authToken, cloudId, baseUrl, projectKey, issueId } = jiraConfig;
+async function testUpdateJiraTicketStatus(config: JiraTestConfig) {
+  const { authToken, cloudId, baseUrl, projectKey, issueId, provider } = config;
+
+  const authParams: { authToken: string; baseUrl: string; cloudId?: string } = {
+    authToken,
+    baseUrl,
+  };
+
+  if (cloudId) {
+    authParams.cloudId = cloudId;
+  }
 
   const result = await runAction(
     "updateJiraTicketStatus",
     provider,
-    { authToken, cloudId, baseUrl },
+    authParams,
     {
       projectKey,
       issueId,
@@ -22,14 +32,10 @@ async function runTest() {
   assert(result, "Response should not be null");
   assert(result.success, "Status update should be successful");
   assert(result.ticketUrl, "Response should contain a ticket URL");
-  console.log(`Successfully updated Jira ticket status: ${result.ticketUrl}`);
+  console.log(`✅ Successfully updated Jira ticket status: ${result.ticketUrl}`);
 }
 
-runTest().catch((error) => {
+runJiraTest("Update Jira Ticket Status", testUpdateJiraTicketStatus).catch((error) => {
   console.error("Test failed:", error);
-  if (error.response) {
-    console.error("API response:", error.response.data);
-    console.error("Status code:", error.response.status);
-  }
   process.exit(1);
 });

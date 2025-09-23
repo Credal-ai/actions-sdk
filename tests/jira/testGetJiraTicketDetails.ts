@@ -1,20 +1,33 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app.js";
-import { jiraConfig, provider } from "./utils.js";
+import type { JiraTestConfig } from "./utils.js";
+import { runJiraTest } from "./testRunner.js";
 import type { jiraGetJiraTicketDetailsOutputType } from "../../src/actions/autogen/types";
 
-async function runTest() {
-  const { authToken, cloudId, baseUrl, issueId } = jiraConfig;
+async function testGetJiraTicketDetails(config: JiraTestConfig) {
+  const { authToken, cloudId, baseUrl, issueId, projectKey, provider } = config;
+
+  interface AuthParams {
+    authToken: string;
+    baseUrl: string;
+    cloudId?: string;
+  }
+
+  const authParams: AuthParams = {
+    authToken,
+    baseUrl,
+  };
+
+  if (cloudId) {
+    authParams.cloudId = cloudId;
+  }
 
   const result = (await runAction(
     "getJiraTicketDetails",
     provider,
+    authParams,
     {
-      authToken,
-      cloudId,
-      baseUrl,
-    },
-    {
+      projectKey,
       issueId,
     }
   )) as jiraGetJiraTicketDetailsOutputType;
@@ -32,15 +45,11 @@ async function runTest() {
   );
 
   console.log(
-    `Successfully retrieved Jira ticket details for: ${result.results[0].name}`
+    `✅ Successfully retrieved Jira ticket details for: ${result.results[0].name}`
   );
 }
 
-runTest().catch((error) => {
+runJiraTest("Get Jira Ticket Details", testGetJiraTicketDetails).catch((error) => {
   console.error("Test failed:", error);
-  if (error.response) {
-    console.error("API response:", error.response.data);
-    console.error("Status code:", error.response.status);
-  }
   process.exit(1);
 });

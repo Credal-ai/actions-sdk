@@ -1203,6 +1203,9 @@ actions:
   jiraOrg:
     <<: *jira
 
+  jiraDataCenter:
+    <<: *jira
+
   kandji:
     getFVRecoveryKeyForDevice:
       description: Get the FileVault recovery key for a device

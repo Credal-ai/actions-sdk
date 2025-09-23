@@ -5,7 +5,7 @@ import type {
   jiraCreateJiraTicketParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
-import { getUserAccountIdFromEmail, getRequestTypeCustomFieldId } from "./utils.js";
+import { resolveAccountIdIfEmail, getRequestTypeCustomFieldId, getJiraApiConfig } from "./utils.js";
 
 const createJiraTicket: jiraCreateJiraTicketFunction = async ({
   params,
@@ -14,25 +14,18 @@ const createJiraTicket: jiraCreateJiraTicketFunction = async ({
   params: jiraCreateJiraTicketParamsType;
   authParams: AuthParamsType;
 }): Promise<jiraCreateJiraTicketOutputType> => {
-  const { authToken, cloudId, baseUrl } = authParams;
+  const { authToken } = authParams;
+  const { apiUrl, browseUrl } = getJiraApiConfig(authParams);
 
-  const apiUrl = `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3/`;
-
-  if (!cloudId || !authToken) {
-    throw new Error("Valid Cloud ID and auth token are required to comment on Jira ticket");
+  // authToken is guaranteed to exist after getJiraApiConfig succeeds
+  if (!authToken) {
+    throw new Error("Auth token is required");
   }
 
-  // If assignee is an email, look up the account ID
-  let reporterId: string | null = null;
-  if (params.reporter && typeof params.reporter === "string" && params.reporter.includes("@") && authToken) {
-    reporterId = await getUserAccountIdFromEmail(params.reporter, apiUrl, authToken);
-  }
-
-  // If assignee is an email, look up the account ID
-  let assigneeId: string | null = null;
-  if (params.assignee && typeof params.assignee === "string" && params.assignee.includes("@") && authToken) {
-    assigneeId = await getUserAccountIdFromEmail(params.assignee, apiUrl, authToken);
-  }
+  const [reporterId, assigneeId] = await Promise.all([
+    resolveAccountIdIfEmail(params.reporter, apiUrl, authToken),
+    resolveAccountIdIfEmail(params.assignee, apiUrl, authToken),
+  ]);
 
   // If request type is provided, find the custom field ID and prepare the value
   const requestTypeField: { [key: string]: string } = {};
@@ -84,7 +77,7 @@ const createJiraTicket: jiraCreateJiraTicketFunction = async ({
   });
 
   return {
-    ticketUrl: `${baseUrl}/browse/${response.data.key}`,
+    ticketUrl: `${browseUrl}/browse/${response.data.key}`,
   };
 };
 

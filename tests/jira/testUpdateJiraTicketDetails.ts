@@ -1,18 +1,25 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app.js";
-import { jiraConfig, provider } from "./utils.js";
+import type { JiraTestConfig } from "./utils.js";
+import { runJiraTest } from "./testRunner.js";
 
-async function runTest() {
-  const { authToken, cloudId, baseUrl, issueId, projectKey, requestTypeId } = jiraConfig;
+async function testUpdateJiraTicketDetails(config: JiraTestConfig) {
+  const { authToken, cloudId, baseUrl, issueId, projectKey, requestTypeId, provider } = config;
+
+  // Build auth params - only include cloudId for Cloud provider
+  const authParams: Record<string, unknown> = {
+    authToken,
+    baseUrl,
+  };
+
+  if (cloudId) {
+    authParams.cloudId = cloudId;
+  }
 
   const validResult = await runAction(
     "updateJiraTicketDetails",
     provider,
-    {
-      authToken,
-      cloudId,
-      baseUrl,
-    },
+    authParams,
     {
       projectKey,
       issueId,
@@ -28,17 +35,13 @@ async function runTest() {
     validResult.ticketUrl,
     "Response should contain a URL to the updated ticket",
   );
-  console.log(`Successfully updated Jira ticket: ${validResult.ticketUrl}`);
+  console.log(`✅ Successfully updated Jira ticket: ${validResult.ticketUrl}`);
 
   // Partial update (only summary, no description/custom fields)
   const partialUpdateResult = await runAction(
     "updateJiraTicketDetails",
     provider,
-    {
-      authToken,
-      cloudId,
-      baseUrl,
-    },
+    authParams,
     {
       projectKey,
       issueId,
@@ -53,15 +56,11 @@ async function runTest() {
     "Response should contain a URL to the updated ticket",
   );
   console.log(
-    `Successfully updated Jira ticket with partial update: ${partialUpdateResult.ticketUrl}`,
+    `✅ Successfully updated Jira ticket with partial update: ${partialUpdateResult.ticketUrl}`,
   );
 }
 
-runTest().catch((error) => {
+runJiraTest("Update Jira Ticket Details", testUpdateJiraTicketDetails).catch((error) => {
   console.error("Test failed:", error);
-  if (error.response) {
-    console.error("API response:", error.response.data);
-    console.error("Status code:", error.response.status);
-  }
   process.exit(1);
 });

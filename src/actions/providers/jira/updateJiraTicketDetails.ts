@@ -21,6 +21,11 @@ const updateJiraTicketDetails: jiraUpdateJiraTicketDetailsFunction = async ({
     throw new Error("Valid Cloud ID and auth token are required to comment on Jira ticket");
   }
 
+  // authToken is guaranteed to exist after validation succeeds
+  if (!authToken) {
+    throw new Error("Auth token is required");
+  }
+
   const apiUrl = `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3/issue/${issueId}`;
 
   const formattedDescription = description

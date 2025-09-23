@@ -1,25 +1,29 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app.js";
-import dotenv from "dotenv";
 import {
   jiraGetJiraIssuesByQueryOutputSchema,
   type jiraGetJiraIssuesByQueryOutputType,
 } from "../../src/actions/autogen/types.js";
-import { jiraConfig } from "./utils.js";
+import type { JiraTestConfig } from "./utils.js";
+import { runJiraTest } from "./testRunner.js";
 
-dotenv.config();
+async function testGetJiraIssuesByQuery(config: JiraTestConfig) {
+  const { authToken, cloudId, baseUrl, projectKey, provider } = config;
 
-async function runTest() {
-  const { authToken, cloudId, baseUrl, projectKey } = jiraConfig;
+  // Build auth params - only include cloudId for Cloud provider
+  const authParams: { authToken: string; baseUrl: string; cloudId?: string } = {
+    authToken,
+    baseUrl,
+  };
+
+  if (cloudId) {
+    authParams.cloudId = cloudId;
+  }
 
   const result = (await runAction(
     "getJiraIssuesByQuery",
-    "jira",
-    {
-      authToken,
-      cloudId,
-      baseUrl,
-    },
+    provider,
+    authParams,
     {
       query: `project = ${projectKey}`,
       limit: 10
@@ -31,6 +35,11 @@ async function runTest() {
     jiraGetJiraIssuesByQueryOutputSchema.safeParse(result).success,
     true
   );
+
+  console.log(`✅ Successfully retrieved Jira issues by query for project: ${projectKey}`);
 }
 
-runTest().catch(console.error);
+runJiraTest("Get Jira Issues by Query", testGetJiraIssuesByQuery).catch((error) => {
+  console.error("Test failed:", error);
+  process.exit(1);
+});

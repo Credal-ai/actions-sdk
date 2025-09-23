@@ -6,7 +6,7 @@ import type {
   jiraAssignJiraTicketOutputType,
   jiraAssignJiraTicketParamsType,
 } from "../../autogen/types.js";
-import { getUserAccountIdFromEmail } from "./utils.js";
+import { getUserAccountIdFromEmail, getJiraApiConfig } from "./utils.js";
 
 const assignJiraTicket: jiraAssignJiraTicketFunction = async ({
   params,
@@ -15,17 +15,16 @@ const assignJiraTicket: jiraAssignJiraTicketFunction = async ({
   params: jiraAssignJiraTicketParamsType;
   authParams: AuthParamsType;
 }): Promise<jiraAssignJiraTicketOutputType> => {
-  const { authToken, cloudId, baseUrl } = authParams;
+  const { authToken } = authParams;
+  const { apiUrl, browseUrl } = getJiraApiConfig(authParams);
 
-  const apiUrl = `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3/`;
-
-  if (!cloudId || !authToken) {
-    throw new Error("Valid Cloud ID and auth token are required to assign Jira ticket");
+  if (!authToken) {
+    throw new Error("Auth token is required");
   }
 
   try {
     let assigneeId: string | null = params.assignee;
-    if (assigneeId && assigneeId.includes("@")) {
+    if (assigneeId && assigneeId.includes("@") && authToken) {
       assigneeId = await getUserAccountIdFromEmail(assigneeId, apiUrl, authToken);
     }
 
@@ -47,7 +46,7 @@ const assignJiraTicket: jiraAssignJiraTicketFunction = async ({
 
     return {
       success: true,
-      ticketUrl: `${baseUrl}/browse/${params.issueId}`,
+      ticketUrl: `${browseUrl}/browse/${params.issueId}`,
     };
   } catch (error) {
     const axiosError = error as AxiosError;

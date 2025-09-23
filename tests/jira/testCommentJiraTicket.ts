@@ -1,17 +1,24 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app.js";
-import { jiraConfig, provider } from "./utils.js";
+import type { JiraTestConfig } from "./utils.js";
+import { runJiraTest } from "./testRunner.js";
 
-async function runTest() {
-  const { authToken, cloudId, baseUrl, projectKey, issueId } = jiraConfig;
+async function testCommentJiraTicket(config: JiraTestConfig) {
+  const { authToken, cloudId, baseUrl, projectKey, issueId, provider } = config;
+
+  const authParams: Record<string, unknown> = {
+    authToken,
+    baseUrl,
+  };
+
+  if (cloudId) {
+    authParams.cloudId = cloudId;
+  }
+
   const result = await runAction(
     "commentJiraTicket",
     provider,
-    {
-      authToken,
-      cloudId,
-      baseUrl,
-    },
+    authParams,
     {
       projectKey,
       comment: `Test comment made on ${new Date().toISOString()}`,
@@ -27,14 +34,10 @@ async function runTest() {
     result.commentUrl,
     "Response should contain a url to the created comment",
   );
-  console.log(`Successfully created Jira comment: ${result.commentUrl}`);
+  console.log(`✅ Successfully created Jira comment: ${result.commentUrl}`);
 }
 
-runTest().catch((error) => {
+runJiraTest("Comment Jira Ticket", testCommentJiraTicket).catch((error) => {
   console.error("Test failed:", error);
-  if (error.response) {
-    console.error("API response:", error.response.data);
-    console.error("Status code:", error.response.status);
-  }
   process.exit(1);
 });

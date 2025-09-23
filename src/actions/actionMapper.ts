@@ -731,6 +731,7 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
   },
   jira: jiraActions,
   jiraOrg: jiraActions,
+  jiraDataCenter: jiraActions,
   openstreetmap: {
     getLatitudeLongitudeFromLocation: {
       fn: getLatitudeLongitudeFromLocation,

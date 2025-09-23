@@ -1,6 +1,59 @@
 import type { AxiosError } from "axios";
 import { axiosClient } from "../../util/axiosClient.js";
 
+export interface JiraApiConfig {
+  apiUrl: string;
+  browseUrl: string;
+  isDataCenter: boolean;
+}
+
+export function getJiraApiConfig(authParams: {
+  cloudId?: string;
+  baseUrl?: string;
+  authToken?: string;
+}): JiraApiConfig {
+  const { cloudId, baseUrl, authToken } = authParams;
+
+  if (!authToken) {
+    throw new Error("Valid auth token is required");
+  }
+
+  const isDataCenter = !cloudId && !!baseUrl;
+
+  if (isDataCenter) {
+    if (!baseUrl) {
+      throw new Error("Valid base URL is required for Jira Data Center");
+    }
+    const trimmedUrl = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
+    return {
+      apiUrl: `${trimmedUrl}/rest/api/3/`,
+      browseUrl: trimmedUrl,
+      isDataCenter: true,
+    };
+  } else {
+    if (!cloudId) {
+      throw new Error("Valid Cloud ID is required for Jira Cloud");
+    }
+    return {
+      apiUrl: `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3/`,
+      browseUrl: baseUrl || `https://${cloudId}.atlassian.net`,
+      isDataCenter: false,
+    };
+  }
+}
+
+export function isEmail(value: string | undefined): value is string {
+  return typeof value === "string" && value.includes("@");
+}
+
+export async function resolveAccountIdIfEmail(
+  value: string | undefined,
+  apiUrl: string,
+  authToken: string,
+): Promise<string | null> {
+  return isEmail(value) ? getUserAccountIdFromEmail(value, apiUrl, authToken) : null;
+}
+
 export async function getUserAccountIdFromEmail(
   email: string,
   apiUrl: string,
