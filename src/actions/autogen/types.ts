@@ -4098,6 +4098,9 @@ export const googlemailSearchGmailMessagesOutputSchema = z.object({
         labelIds: z.array(z.string()).describe("Labels on the message").optional(),
         internalDate: z.string().describe("Internal timestamp of the message").optional(),
         emailBody: z.string().describe("The body of the message").optional(),
+        from: z.string().describe("The from header of the message").optional(),
+        to: z.string().describe("The to header of the message").optional(),
+        subject: z.string().describe("The subject header of the message").optional(),
       }),
     )
     .describe("List of matching Gmail messages"),

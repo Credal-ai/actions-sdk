@@ -1,6 +1,11 @@
 import { convert } from "html-to-text";
 
-interface GmailMessage {
+export interface GmailMessage {
+  id: string;
+  threadId: string;
+  snippet: string;
+  labelIds: string[] | undefined;
+  internalDate: string;
   payload: {
     mimeType: string;
     body?: { data?: string; size: number };
@@ -9,6 +14,7 @@ interface GmailMessage {
       body?: { data?: string; size: number };
       parts?: GmailMessagePart[];
     }>;
+    headers: { name: string; value: string }[];
   };
 }
 

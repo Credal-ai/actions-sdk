@@ -1,7 +1,7 @@
 import { RateLimiter } from "limiter";
 import { axiosClient } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
-import { getEmailContent } from "../google-oauth/utils/decodeMessage.js";
+import { getEmailContent, type GmailMessage } from "../google-oauth/utils/decodeMessage.js";
 import type {
   AuthParamsType,
   googlemailSearchGmailMessagesFunction,
@@ -81,18 +81,32 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
           try {
             await limiter.removeTokens(1);
 
-            const msgRes = await axiosClient.get(
+            const msgRes = await axiosClient.get<GmailMessage>(
               `https://gmail.googleapis.com/gmail/v1/users/me/messages/${msg.id}?format=full`,
               {
                 headers: { Authorization: `Bearer ${authParams.authToken}` },
                 validateStatus: () => true,
               },
             );
-            const { id, threadId, snippet, labelIds, internalDate } = msgRes.data;
+            const { id, threadId, snippet, labelIds, internalDate, payload } = msgRes.data;
+            // Find the "From" header
+            const fromHeader = payload.headers.find(h => h.name.toLowerCase() === "from");
+            const toHeader = payload.headers.find(h => h.name.toLowerCase() === "to");
+            const subjectHeader = payload.headers.find(h => h.name.toLowerCase() === "subject");
             const rawBody = getEmailContent(msgRes.data) || "";
             const emailBody = cleanAndTruncateEmail(rawBody);
 
-            return { id, threadId, snippet, labelIds, internalDate, emailBody };
+            return {
+              id,
+              threadId,
+              snippet,
+              labelIds,
+              internalDate,
+              emailBody,
+              from: fromHeader?.value,
+              to: toHeader?.value,
+              subject: subjectHeader?.value,
+            };
           } catch (err) {
             const errorMessage = err instanceof Error ? err.message : "Failed to fetch message details";
             errorMessages.push(errorMessage);
@@ -104,6 +118,9 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
               internalDate: "",
               emailBody: "",
               error: errorMessage,
+              from: "",
+              to: "",
+              subject: "",
             };
           }
         }),

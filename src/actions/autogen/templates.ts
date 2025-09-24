@@ -8002,6 +8002,18 @@ export const googlemailSearchGmailMessagesDefinition: ActionTemplate = {
               type: "string",
               description: "The body of the message",
             },
+            from: {
+              type: "string",
+              description: "The from header of the message",
+            },
+            to: {
+              type: "string",
+              description: "The to header of the message",
+            },
+            subject: {
+              type: "string",
+              description: "The subject header of the message",
+            },
           },
         },
       },
