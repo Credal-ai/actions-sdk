@@ -8014,6 +8014,14 @@ export const googlemailSearchGmailMessagesDefinition: ActionTemplate = {
               type: "string",
               description: "The subject header of the message",
             },
+            cc: {
+              type: "string",
+              description: "The cc header of the message",
+            },
+            bcc: {
+              type: "string",
+              description: "The bcc header of the message",
+            },
           },
         },
       },

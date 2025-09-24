@@ -93,6 +93,8 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
             const fromHeader = payload.headers.find(h => h.name.toLowerCase() === "from");
             const toHeader = payload.headers.find(h => h.name.toLowerCase() === "to");
             const subjectHeader = payload.headers.find(h => h.name.toLowerCase() === "subject");
+            const ccHeader = payload.headers.find(h => h.name.toLowerCase() === "cc");
+            const bccHeader = payload.headers.find(h => h.name.toLowerCase() === "bcc");
             const rawBody = getEmailContent(msgRes.data) || "";
             const emailBody = cleanAndTruncateEmail(rawBody);
 
@@ -106,6 +108,8 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
               from: fromHeader?.value,
               to: toHeader?.value,
               subject: subjectHeader?.value,
+              cc: ccHeader?.value,
+              bcc: bccHeader?.value,
             };
           } catch (err) {
             const errorMessage = err instanceof Error ? err.message : "Failed to fetch message details";
@@ -121,6 +125,8 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
               from: "",
               to: "",
               subject: "",
+              cc: "",
+              bcc: "",
             };
           }
         }),
