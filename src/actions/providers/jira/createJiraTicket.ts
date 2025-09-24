@@ -5,7 +5,13 @@ import type {
   jiraCreateJiraTicketParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
-import { resolveAccountIdIfEmail, getRequestTypeCustomFieldId, getJiraApiConfig } from "./utils.js";
+import {
+  resolveAccountIdIfEmail,
+  getRequestTypeCustomFieldId,
+  getJiraApiConfig,
+  formatTextForJira,
+  createUserAssignmentObject,
+} from "./utils.js";
 
 const createJiraTicket: jiraCreateJiraTicketFunction = async ({
   params,
@@ -15,7 +21,7 @@ const createJiraTicket: jiraCreateJiraTicketFunction = async ({
   authParams: AuthParamsType;
 }): Promise<jiraCreateJiraTicketOutputType> => {
   const { authToken } = authParams;
-  const { apiUrl, browseUrl } = getJiraApiConfig(authParams);
+  const { apiUrl, browseUrl, isDataCenter } = getJiraApiConfig(authParams);
 
   // authToken is guaranteed to exist after getJiraApiConfig succeeds
   if (!authToken) {
@@ -23,34 +29,25 @@ const createJiraTicket: jiraCreateJiraTicketFunction = async ({
   }
 
   const [reporterId, assigneeId] = await Promise.all([
-    resolveAccountIdIfEmail(params.reporter, apiUrl, authToken),
-    resolveAccountIdIfEmail(params.assignee, apiUrl, authToken),
+    resolveAccountIdIfEmail(params.reporter, apiUrl, authToken, isDataCenter),
+    resolveAccountIdIfEmail(params.assignee, apiUrl, authToken, isDataCenter),
   ]);
 
   // If request type is provided, find the custom field ID and prepare the value
   const requestTypeField: { [key: string]: string } = {};
+  let partialUpdateMessage = "";
   if (params.requestTypeId && authToken) {
-    const requestTypeFieldId = await getRequestTypeCustomFieldId(params.projectKey, apiUrl, authToken);
-    if (requestTypeFieldId) {
-      requestTypeField[requestTypeFieldId] = params.requestTypeId;
+    const result = await getRequestTypeCustomFieldId(params.projectKey, apiUrl, authToken);
+    if (result.fieldId) {
+      requestTypeField[result.fieldId] = params.requestTypeId;
+    }
+    if (result.message) {
+      partialUpdateMessage = result.message;
     }
   }
 
-  const description = {
-    type: "doc",
-    version: 1,
-    content: [
-      {
-        type: "paragraph",
-        content: [
-          {
-            type: "text",
-            text: params.description,
-          },
-        ],
-      },
-    ],
-  };
+  // Use different description formats for Data Center (API v2) vs Cloud (API v3)
+  const description = formatTextForJira(params.description, isDataCenter);
 
   const payload = {
     fields: {
@@ -62,23 +59,47 @@ const createJiraTicket: jiraCreateJiraTicketFunction = async ({
       issuetype: {
         name: params.issueType,
       },
-      ...(reporterId ? { reporter: { id: reporterId } } : {}),
-      ...(assigneeId ? { assignee: { id: assigneeId } } : {}),
+      ...(createUserAssignmentObject(reporterId, isDataCenter)
+        ? { reporter: createUserAssignmentObject(reporterId, isDataCenter) }
+        : {}),
+      ...(createUserAssignmentObject(assigneeId, isDataCenter)
+        ? { assignee: createUserAssignmentObject(assigneeId, isDataCenter) }
+        : {}),
       ...requestTypeField,
       ...(params.customFields ? params.customFields : {}),
     },
   };
+  try {
+    const response = await axiosClient.post(`${apiUrl}/issue`, payload, {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+        Accept: "application/json",
+      },
+    });
 
-  const response = await axiosClient.post(`${apiUrl}/issue`, payload, {
-    headers: {
-      Authorization: `Bearer ${authToken}`,
-      Accept: "application/json",
-    },
-  });
+    const ticketKey = response.data.key;
+    if (!ticketKey) {
+      // Check if we got HTML instead of JSON (common when auth fails)
+      if (typeof response.data === "string" && response.data.includes("<!DOCTYPE html>")) {
+        throw new Error(
+          "Received HTML response instead of JSON - this usually indicates authentication failed or the server redirected to a login page",
+        );
+      }
+      console.error("No ticket key in response:", JSON.stringify(response.data, null, 2));
+      throw new Error("Failed to get ticket key from Jira response");
+    }
 
-  return {
-    ticketUrl: `${browseUrl}/browse/${response.data.key}`,
-  };
+    return {
+      success: true,
+      ticketUrl: `${browseUrl}/browse/${ticketKey}`,
+      ...(partialUpdateMessage && { error: partialUpdateMessage }),
+    };
+  } catch (error: unknown) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
 };
 
 export default createJiraTicket;

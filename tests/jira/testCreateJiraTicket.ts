@@ -4,7 +4,7 @@ import type { JiraTestConfig } from "./utils.js";
 import { runJiraTest } from "./testRunner.js";
 
 async function testCreateJiraTicket(config: JiraTestConfig) {
-  const { authToken, cloudId, baseUrl, projectKey, requestTypeId, provider } = config;
+  const { authToken, cloudId, baseUrl, assignee, projectKey, requestTypeId, provider } = config;
 
   const authParams: {
     authToken: string;
@@ -29,8 +29,8 @@ async function testCreateJiraTicket(config: JiraTestConfig) {
       description: `Credal - Test Ticket Description ${new Date().toISOString()}`,
       issueType: "Task", // Adjust based on available issue types in your Jira
       reporter: "", // Optional - (defaults to the authenticated user related to the oauth token)
-      assignee: "", // Optional
-      // customFields: { customfield_10100: "High" }, // Example of custom fields setting
+      assignee: assignee, // Optional
+      //customFields: { customfield_10200: "High" }, // Example of custom fields setting
       requestTypeId, // JSM request type from environment
     },
   );
@@ -58,7 +58,6 @@ async function testCreateJiraTicket(config: JiraTestConfig) {
     );
   }
 
-  console.log(`✅ Successfully created Jira ticket: ${result.ticketUrl}`);
 }
 
 runJiraTest("Create Jira Ticket", testCreateJiraTicket).catch((error) => {

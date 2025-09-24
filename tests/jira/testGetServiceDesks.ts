@@ -32,9 +32,6 @@ async function testGetServiceDesks(config: JiraTestConfig) {
   const validatedResult = jiraGetServiceDesksOutputSchema.safeParse(result);
   assert(validatedResult.success, "Response should be valid");
 
-  console.log(
-    `✅ Successfully retrieved Jira service desks`,
-  );
 }
 
 runJiraTest("Get Service Desks", testGetServiceDesks).catch((error) => {

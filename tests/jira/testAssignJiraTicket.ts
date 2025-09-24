@@ -2,23 +2,15 @@ import assert from "node:assert";
 import { runAction } from "../../src/app.js";
 import type { JiraTestConfig } from "./utils.js";
 import { runJiraTest } from "./testRunner.js";
+import { getAuthParams } from "./utils.js";
 
 async function testAssignJiraTicket(config: JiraTestConfig) {
-  const { authToken, cloudId, baseUrl, issueId, assignee, projectKey, provider } = config;
-
-  const authParams: { authToken: string; baseUrl: string; cloudId?: string } = {
-    authToken,
-    baseUrl,
-  };
-
-  if (cloudId) {
-    authParams.cloudId = cloudId;
-  }
+  const { issueId, assignee, projectKey, provider } = config;
 
   const result = await runAction(
     "assignJiraTicket",
     provider,
-    authParams,
+    getAuthParams(config),
     {
       projectKey,
       issueId: issueId,
@@ -26,7 +18,7 @@ async function testAssignJiraTicket(config: JiraTestConfig) {
     },
   );
 
-  console.log(JSON.stringify(result, null, 2));
+  console.log('Result: ', JSON.stringify(result, null, 2));
 
   // Validate response
   assert(result, "Response should not be null");
@@ -36,8 +28,8 @@ async function testAssignJiraTicket(config: JiraTestConfig) {
   // Validate URL format based on provider type
   if (config.provider === "jiraDataCenter") {
     assert(
-      result.ticketUrl.startsWith(baseUrl),
-      `Data Center ticket URL should start with base URL: ${baseUrl}`,
+      result.ticketUrl.startsWith(config.baseUrl),
+      `Data Center ticket URL should start with base URL: ${config.baseUrl}`,
     );
   } else {
     // For Cloud, it should contain the browse URL
@@ -46,8 +38,6 @@ async function testAssignJiraTicket(config: JiraTestConfig) {
       "Cloud ticket URL should contain /browse/",
     );
   }
-
-  console.log(`✅ Successfully assigned Jira ticket: ${result.ticketUrl}`);
 }
 
 runJiraTest("Assign Jira Ticket", testAssignJiraTicket).catch((error) => {

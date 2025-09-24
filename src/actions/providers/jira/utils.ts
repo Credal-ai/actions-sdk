@@ -7,6 +7,36 @@ export interface JiraApiConfig {
   isDataCenter: boolean;
 }
 
+export interface JiraServiceDeskApiConfig {
+  serviceDeskApiUrl: string;
+  browseUrl: string;
+  isDataCenter: boolean;
+}
+
+export function formatTextForJira(text: string, isDataCenter: boolean): string | object {
+  if (isDataCenter) {
+    // Data Center (API v2) expects plain string
+    return text;
+  } else {
+    // Cloud (API v3) expects ADF format
+    return {
+      type: "doc",
+      version: 1,
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: text,
+            },
+          ],
+        },
+      ],
+    };
+  }
+}
+
 export function getJiraApiConfig(authParams: {
   cloudId?: string;
   baseUrl?: string;
@@ -26,7 +56,7 @@ export function getJiraApiConfig(authParams: {
     }
     const trimmedUrl = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
     return {
-      apiUrl: `${trimmedUrl}/rest/api/3/`,
+      apiUrl: `${trimmedUrl}/rest/api/2`,
       browseUrl: trimmedUrl,
       isDataCenter: true,
     };
@@ -35,7 +65,7 @@ export function getJiraApiConfig(authParams: {
       throw new Error("Valid Cloud ID is required for Jira Cloud");
     }
     return {
-      apiUrl: `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3/`,
+      apiUrl: `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3`,
       browseUrl: baseUrl || `https://${cloudId}.atlassian.net`,
       isDataCenter: false,
     };
@@ -50,28 +80,54 @@ export async function resolveAccountIdIfEmail(
   value: string | undefined,
   apiUrl: string,
   authToken: string,
+  isDataCenter: boolean = false,
 ): Promise<string | null> {
-  return isEmail(value) ? getUserAccountIdFromEmail(value, apiUrl, authToken) : null;
+  return isEmail(value) ? getUserAccountIdFromEmail(value, apiUrl, authToken, isDataCenter) : null;
+}
+
+export function createUserFieldObject(userId: string | null, isDataCenter: boolean): { [key: string]: string } | null {
+  if (!userId) return null;
+  return isDataCenter ? { name: userId } : { accountId: userId };
+}
+
+export function createUserAssignmentObject(
+  userId: string | null,
+  isDataCenter: boolean,
+): { id?: string; name?: string } | null {
+  if (!userId) return null;
+  return isDataCenter ? { name: userId } : { id: userId };
 }
 
 export async function getUserAccountIdFromEmail(
   email: string,
   apiUrl: string,
   authToken: string,
+  isDataCenter: boolean = false,
 ): Promise<string | null> {
   try {
-    const response = await axiosClient.get<Array<{ accountId: string; displayName: string; emailAddress: string }>>(
-      `${apiUrl}/user/search?query=${encodeURIComponent(email)}`,
-      {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          Accept: "application/json",
-        },
+    // Data Center uses 'username' parameter, Cloud uses 'query' parameter
+    const queryParam = isDataCenter ? "username" : "query";
+    const response = await axiosClient.get<
+      Array<{
+        accountId?: string; // Cloud only
+        key?: string; // Data Center
+        name?: string; // Data Center
+        displayName: string;
+        emailAddress: string;
+      }>
+    >(`${apiUrl}/user/search?${queryParam}=${encodeURIComponent(email)}`, {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+        Accept: "application/json",
       },
-    );
+    });
 
     if (response.data && response.data.length > 0) {
-      return response.data[0].accountId;
+      // Data Center uses 'name' or 'key', Cloud uses 'accountId'
+      const user = response.data[0];
+      const userId = isDataCenter ? user.name || user.key : user.accountId;
+      if (!userId) return null;
+      return userId;
     }
     return null;
   } catch (error) {
@@ -85,7 +141,7 @@ export async function getRequestTypeCustomFieldId(
   projectKey: string,
   apiUrl: string,
   authToken: string,
-): Promise<string | null> {
+): Promise<{ fieldId: string | null; message?: string }> {
   try {
     const response = await axiosClient.get(
       `${apiUrl}/issue/createmeta?projectKeys=${projectKey}&expand=projects.issuetypes.fields`,
@@ -99,13 +155,13 @@ export async function getRequestTypeCustomFieldId(
 
     const projects = response.data.projects;
     if (!projects || projects.length === 0) {
-      return null;
+      return { fieldId: null };
     }
 
     const project = projects[0];
     const issueTypes = project.issuetypes;
     if (!issueTypes || issueTypes.length === 0) {
-      return null;
+      return { fieldId: null };
     }
 
     for (const issueType of issueTypes) {
@@ -115,17 +171,20 @@ export async function getRequestTypeCustomFieldId(
           if (fieldData && typeof fieldData === "object" && "name" in fieldData) {
             const fieldInfo = fieldData as { name?: string };
             if (fieldInfo.name === "Request Type") {
-              return fieldId;
+              return { fieldId };
             }
           }
         }
       }
     }
 
-    return null;
+    return { fieldId: null };
   } catch (error) {
     const axiosError = error as AxiosError;
-    console.error("Error finding Request Type custom field:", axiosError.message);
-    return null;
+    if (axiosError.response?.status === 404) {
+      return { fieldId: null, message: "Request Type field not found (optional for Service Desk), skipping..." };
+    } else {
+      return { fieldId: null, message: `Error finding Request Type custom field: ${axiosError.message}` };
+    }
   }
 }

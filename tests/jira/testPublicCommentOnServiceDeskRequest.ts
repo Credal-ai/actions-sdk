@@ -34,7 +34,6 @@ async function testPublicCommentOnServiceDeskRequest(config: JiraTestConfig) {
     result.commentUrl,
     "Response should contain a url to the created comment",
   );
-  console.log(`✅ Successfully created Jira comment: ${result.commentUrl}`);
 }
 
 runJiraTest("Public Comment on Service Desk Request", testPublicCommentOnServiceDeskRequest).catch((error) => {

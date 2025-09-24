@@ -835,11 +835,17 @@ actions:
             additionalProperties: true
       output:
         type: object
-        required: [ticketUrl]
+        required: [success]
         properties:
+          success:
+            type: boolean
+            description: Whether the ticket was successfully created
           ticketUrl:
             type: string
-            description: The url to the created Jira Ticket
+            description: The url to the created Jira Ticket (only present if success is true)
+          error:
+            type: string
+            description: Error message if the ticket creation failed (only present if success is false)
     getServiceDesks:
       description: Get the service desks for a Jira instance
       scopes: []
@@ -1047,11 +1053,17 @@ actions:
             additionalProperties: true
       output:
         type: object
-        required: [ticketUrl]
+        required: [success]
         properties:
+          success:
+            type: boolean
+            description: Whether the ticket was successfully updated
           ticketUrl:
             type: string
-            description: The url to the Jira ticket
+            description: The url to the Jira ticket (only present if success is true)
+          error:
+            type: string
+            description: Error message if the ticket update failed (only present if success is false)
     updateJiraTicketStatus:
       description: Updates the status of Jira ticket with specified status
       scopes:

@@ -4,7 +4,8 @@ import type {
   jiraGetJiraIssuesByQueryOutputType,
   jiraGetJiraIssuesByQueryParamsType,
 } from "../../autogen/types.js";
-import { ApiError, axiosClient } from "../../util/axiosClient.js";
+import { axiosClient } from "../../util/axiosClient.js";
+import { getJiraApiConfig } from "./utils.js";
 
 const DEFAULT_LIMIT = 100;
 
@@ -69,11 +70,12 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
   params: jiraGetJiraIssuesByQueryParamsType;
   authParams: AuthParamsType;
 }): Promise<jiraGetJiraIssuesByQueryOutputType> => {
-  const { authToken, cloudId, baseUrl } = authParams;
+  const { authToken } = authParams;
   const { query, limit } = params;
+  const { apiUrl, browseUrl, isDataCenter } = getJiraApiConfig(authParams);
 
-  if (!cloudId || !authToken || !baseUrl) {
-    throw new Error("Valid Cloud ID, base URL, and auth token are required to comment on Jira ticket");
+  if (!authToken) {
+    throw new Error("Auth token is required");
   }
 
   const queryParams = new URLSearchParams();
@@ -100,10 +102,12 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
   ];
   queryParams.set("fields", fields.join(","));
 
-  const apiUrl = `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3/search/jql?${queryParams.toString()}`;
+  // Data Center uses /search, Cloud uses /search/jql
+  const searchEndpoint = isDataCenter ? "/search" : "/search/jql";
+  const fullApiUrl = `${apiUrl}${searchEndpoint}?${queryParams.toString()}`;
 
   try {
-    const response = await axiosClient.get<JiraSearchResponse>(apiUrl, {
+    const response = await axiosClient.get<JiraSearchResponse>(fullApiUrl, {
       headers: {
         Authorization: `Bearer ${authToken}`,
         Accept: "application/json",
@@ -114,7 +118,7 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
       success: true,
       results: response.data.issues.map(issue => ({
         name: issue.key,
-        url: `${baseUrl}/browse/${issue.key}`,
+        url: `${browseUrl}/browse/${issue.key}`,
         contents: {
           id: issue.id,
           key: issue.key,
@@ -141,20 +145,15 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
           updated: issue.fields.updated,
           resolution: issue.fields.resolution?.name || null,
           dueDate: issue.fields.duedate || null,
-          url: `${baseUrl}/browse/${issue.key}`,
+          url: `${browseUrl}/browse/${issue.key}`,
         },
       })),
     };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error retrieving Jira issues:", error);
     return {
       success: false,
-      error:
-        error instanceof ApiError
-          ? error.data.length > 0
-            ? error.data[0].message
-            : error.message
-          : "An unknown error occurred",
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 };

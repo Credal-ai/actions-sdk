@@ -5,6 +5,7 @@ import type {
   jiraUpdateJiraTicketStatusParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
+import { getJiraApiConfig } from "./utils.js";
 
 const updateJiraTicketStatus: jiraUpdateJiraTicketStatusFunction = async ({
   params,
@@ -13,14 +14,15 @@ const updateJiraTicketStatus: jiraUpdateJiraTicketStatusFunction = async ({
   params: jiraUpdateJiraTicketStatusParamsType;
   authParams: AuthParamsType;
 }): Promise<jiraUpdateJiraTicketStatusOutputType> => {
-  const { authToken, cloudId, baseUrl } = authParams;
+  const { authToken } = authParams;
+  const { apiUrl, browseUrl } = getJiraApiConfig(authParams);
 
-  if (!cloudId || !authToken) {
-    throw new Error("Valid Cloud ID and auth token are required to comment on Jira ticket");
+  if (!authToken) {
+    throw new Error("Auth token is required");
   }
 
   const { issueId, status } = params;
-  const transitionsUrl = `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3/issue/${issueId}/transitions`;
+  const transitionsUrl = `${apiUrl}/issue/${issueId}/transitions`;
 
   try {
     // API takes transition ID, so fetch available transitions the find ID of transition that matches given status name
@@ -58,9 +60,9 @@ const updateJiraTicketStatus: jiraUpdateJiraTicketStatusFunction = async ({
 
     return {
       success: true,
-      ticketUrl: `${baseUrl}/browse/${issueId}`,
+      ticketUrl: `${browseUrl}/browse/${issueId}`,
     };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error updating Jira ticket status: ", error);
     return {
       success: false,

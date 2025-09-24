@@ -6,29 +6,21 @@ import {
 } from "../../src/actions/autogen/types.js";
 import type { JiraTestConfig } from "./utils.js";
 import { runJiraTest } from "./testRunner.js";
+import { getAuthParams } from "./utils.js";
 
 async function testGetJiraIssuesByQuery(config: JiraTestConfig) {
-  const { authToken, cloudId, baseUrl, projectKey, provider } = config;
-
-  // Build auth params - only include cloudId for Cloud provider
-  const authParams: { authToken: string; baseUrl: string; cloudId?: string } = {
-    authToken,
-    baseUrl,
-  };
-
-  if (cloudId) {
-    authParams.cloudId = cloudId;
-  }
+  const { projectKey, provider } = config;
 
   const result = (await runAction(
     "getJiraIssuesByQuery",
     provider,
-    authParams,
+    getAuthParams(config),
     {
       query: `project = ${projectKey}`,
       limit: 10
-    }
+    },
   )) as jiraGetJiraIssuesByQueryOutputType;
+  
   console.dir(result, { depth: 4 });
   assert.strictEqual(result.success, true);
   assert.equal(
@@ -36,7 +28,6 @@ async function testGetJiraIssuesByQuery(config: JiraTestConfig) {
     true
   );
 
-  console.log(`✅ Successfully retrieved Jira issues by query for project: ${projectKey}`);
 }
 
 runJiraTest("Get Jira Issues by Query", testGetJiraIssuesByQuery).catch((error) => {

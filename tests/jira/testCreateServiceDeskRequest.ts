@@ -38,9 +38,6 @@ async function testCreateServiceDeskRequest(config: JiraTestConfig) {
   const validatedResult = jiraCreateServiceDeskRequestOutputSchema.safeParse(result);
   assert(validatedResult.success, "Response should be valid");
 
-  console.log(
-    `✅ Successfully created Jira service desk request`,
-  );
 }
 
 runJiraTest("Create Service Desk Request", testCreateServiceDeskRequest).catch((error) => {

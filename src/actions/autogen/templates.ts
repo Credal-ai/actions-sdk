@@ -1162,11 +1162,19 @@ export const jiraCreateJiraTicketDefinition: ActionTemplate = {
   },
   output: {
     type: "object",
-    required: ["ticketUrl"],
+    required: ["success"],
     properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the ticket was successfully created",
+      },
       ticketUrl: {
         type: "string",
-        description: "The url to the created Jira Ticket",
+        description: "The url to the created Jira Ticket (only present if success is true)",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the ticket creation failed (only present if success is false)",
       },
     },
   },
@@ -1458,11 +1466,19 @@ export const jiraUpdateJiraTicketDetailsDefinition: ActionTemplate = {
   },
   output: {
     type: "object",
-    required: ["ticketUrl"],
+    required: ["success"],
     properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the ticket was successfully updated",
+      },
       ticketUrl: {
         type: "string",
-        description: "The url to the Jira ticket",
+        description: "The url to the Jira ticket (only present if success is true)",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the ticket update failed (only present if success is false)",
       },
     },
   },
@@ -1838,11 +1854,19 @@ export const jiraOrgCreateJiraTicketDefinition: ActionTemplate = {
   },
   output: {
     type: "object",
-    required: ["ticketUrl"],
+    required: ["success"],
     properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the ticket was successfully created",
+      },
       ticketUrl: {
         type: "string",
-        description: "The url to the created Jira Ticket",
+        description: "The url to the created Jira Ticket (only present if success is true)",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the ticket creation failed (only present if success is false)",
       },
     },
   },
@@ -2134,11 +2158,19 @@ export const jiraOrgUpdateJiraTicketDetailsDefinition: ActionTemplate = {
   },
   output: {
     type: "object",
-    required: ["ticketUrl"],
+    required: ["success"],
     properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the ticket was successfully updated",
+      },
       ticketUrl: {
         type: "string",
-        description: "The url to the Jira ticket",
+        description: "The url to the Jira ticket (only present if success is true)",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the ticket update failed (only present if success is false)",
       },
     },
   },
@@ -2514,11 +2546,19 @@ export const jiraDataCenterCreateJiraTicketDefinition: ActionTemplate = {
   },
   output: {
     type: "object",
-    required: ["ticketUrl"],
+    required: ["success"],
     properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the ticket was successfully created",
+      },
       ticketUrl: {
         type: "string",
-        description: "The url to the created Jira Ticket",
+        description: "The url to the created Jira Ticket (only present if success is true)",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the ticket creation failed (only present if success is false)",
       },
     },
   },
@@ -2810,11 +2850,19 @@ export const jiraDataCenterUpdateJiraTicketDetailsDefinition: ActionTemplate = {
   },
   output: {
     type: "object",
-    required: ["ticketUrl"],
+    required: ["success"],
     properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the ticket was successfully updated",
+      },
       ticketUrl: {
         type: "string",
-        description: "The url to the Jira ticket",
+        description: "The url to the Jira ticket (only present if success is true)",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the ticket update failed (only present if success is false)",
       },
     },
   },

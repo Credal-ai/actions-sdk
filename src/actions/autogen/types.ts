@@ -636,7 +636,12 @@ export const jiraCreateJiraTicketParamsSchema = z.object({
 export type jiraCreateJiraTicketParamsType = z.infer<typeof jiraCreateJiraTicketParamsSchema>;
 
 export const jiraCreateJiraTicketOutputSchema = z.object({
-  ticketUrl: z.string().describe("The url to the created Jira Ticket"),
+  success: z.boolean().describe("Whether the ticket was successfully created"),
+  ticketUrl: z.string().describe("The url to the created Jira Ticket (only present if success is true)").optional(),
+  error: z
+    .string()
+    .describe("Error message if the ticket creation failed (only present if success is false)")
+    .optional(),
 });
 
 export type jiraCreateJiraTicketOutputType = z.infer<typeof jiraCreateJiraTicketOutputSchema>;
@@ -786,7 +791,9 @@ export const jiraUpdateJiraTicketDetailsParamsSchema = z.object({
 export type jiraUpdateJiraTicketDetailsParamsType = z.infer<typeof jiraUpdateJiraTicketDetailsParamsSchema>;
 
 export const jiraUpdateJiraTicketDetailsOutputSchema = z.object({
-  ticketUrl: z.string().describe("The url to the Jira ticket"),
+  success: z.boolean().describe("Whether the ticket was successfully updated"),
+  ticketUrl: z.string().describe("The url to the Jira ticket (only present if success is true)").optional(),
+  error: z.string().describe("Error message if the ticket update failed (only present if success is false)").optional(),
 });
 
 export type jiraUpdateJiraTicketDetailsOutputType = z.infer<typeof jiraUpdateJiraTicketDetailsOutputSchema>;
@@ -955,7 +962,12 @@ export const jiraOrgCreateJiraTicketParamsSchema = z.object({
 export type jiraOrgCreateJiraTicketParamsType = z.infer<typeof jiraOrgCreateJiraTicketParamsSchema>;
 
 export const jiraOrgCreateJiraTicketOutputSchema = z.object({
-  ticketUrl: z.string().describe("The url to the created Jira Ticket"),
+  success: z.boolean().describe("Whether the ticket was successfully created"),
+  ticketUrl: z.string().describe("The url to the created Jira Ticket (only present if success is true)").optional(),
+  error: z
+    .string()
+    .describe("Error message if the ticket creation failed (only present if success is false)")
+    .optional(),
 });
 
 export type jiraOrgCreateJiraTicketOutputType = z.infer<typeof jiraOrgCreateJiraTicketOutputSchema>;
@@ -1105,7 +1117,9 @@ export const jiraOrgUpdateJiraTicketDetailsParamsSchema = z.object({
 export type jiraOrgUpdateJiraTicketDetailsParamsType = z.infer<typeof jiraOrgUpdateJiraTicketDetailsParamsSchema>;
 
 export const jiraOrgUpdateJiraTicketDetailsOutputSchema = z.object({
-  ticketUrl: z.string().describe("The url to the Jira ticket"),
+  success: z.boolean().describe("Whether the ticket was successfully updated"),
+  ticketUrl: z.string().describe("The url to the Jira ticket (only present if success is true)").optional(),
+  error: z.string().describe("Error message if the ticket update failed (only present if success is false)").optional(),
 });
 
 export type jiraOrgUpdateJiraTicketDetailsOutputType = z.infer<typeof jiraOrgUpdateJiraTicketDetailsOutputSchema>;
@@ -1274,7 +1288,12 @@ export const jiraDataCenterCreateJiraTicketParamsSchema = z.object({
 export type jiraDataCenterCreateJiraTicketParamsType = z.infer<typeof jiraDataCenterCreateJiraTicketParamsSchema>;
 
 export const jiraDataCenterCreateJiraTicketOutputSchema = z.object({
-  ticketUrl: z.string().describe("The url to the created Jira Ticket"),
+  success: z.boolean().describe("Whether the ticket was successfully created"),
+  ticketUrl: z.string().describe("The url to the created Jira Ticket (only present if success is true)").optional(),
+  error: z
+    .string()
+    .describe("Error message if the ticket creation failed (only present if success is false)")
+    .optional(),
 });
 
 export type jiraDataCenterCreateJiraTicketOutputType = z.infer<typeof jiraDataCenterCreateJiraTicketOutputSchema>;
@@ -1438,7 +1457,9 @@ export type jiraDataCenterUpdateJiraTicketDetailsParamsType = z.infer<
 >;
 
 export const jiraDataCenterUpdateJiraTicketDetailsOutputSchema = z.object({
-  ticketUrl: z.string().describe("The url to the Jira ticket"),
+  success: z.boolean().describe("Whether the ticket was successfully updated"),
+  ticketUrl: z.string().describe("The url to the Jira ticket (only present if success is true)").optional(),
+  error: z.string().describe("Error message if the ticket update failed (only present if success is false)").optional(),
 });
 
 export type jiraDataCenterUpdateJiraTicketDetailsOutputType = z.infer<

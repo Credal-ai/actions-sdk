@@ -10,9 +10,8 @@ interface ErrorWithResponse {
 
 export async function runJiraTest(
   testName: string,
-  testFunction: (config: JiraTestConfig) => Promise<void>
+  testFunction: (config: JiraTestConfig) => Promise<void>,
 ): Promise<void> {
-  // Validate configuration
   if (!validateConfig()) {
     console.log("\n💡 Set environment variables:");
     console.log("   JIRA_PROVIDER=cloud|datacenter (defaults to cloud)");
@@ -27,14 +26,6 @@ export async function runJiraTest(
     return;
   }
 
-  console.log(`🧪 Running ${testName} for ${jiraConfig.name}`);
-  console.log(`📋 Provider: ${jiraConfig.provider}`);
-  console.log(`   Base URL: ${jiraConfig.baseUrl}`);
-  if (jiraConfig.cloudId) {
-    console.log(`   Cloud ID: ${jiraConfig.cloudId}`);
-  }
-  console.log(`   Project: ${jiraConfig.projectKey}\n`);
-
   try {
     await testFunction(jiraConfig);
     console.log(`✅ ${testName} passed for ${jiraConfig.name}`);
@@ -47,6 +38,5 @@ export async function runJiraTest(
       console.error("API response:", err.response.data);
       console.error("Status code:", err.response.status);
     }
-    throw error;
   }
 }

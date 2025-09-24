@@ -26,7 +26,7 @@ async function testCommentJiraTicket(config: JiraTestConfig) {
     },
   );
 
-  console.log(JSON.stringify(result, null, 2));
+  console.log('Response: ', JSON.stringify(result, null, 2));
 
   // Validate response
   assert(result, "Response should not be null");
@@ -34,7 +34,6 @@ async function testCommentJiraTicket(config: JiraTestConfig) {
     result.commentUrl,
     "Response should contain a url to the created comment",
   );
-  console.log(`✅ Successfully created Jira comment: ${result.commentUrl}`);
 }
 
 runJiraTest("Comment Jira Ticket", testCommentJiraTicket).catch((error) => {
