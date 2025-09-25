@@ -5,7 +5,7 @@ import type {
   jiraAssignJiraTicketOutputType,
   jiraAssignJiraTicketParamsType,
 } from "../../autogen/types.js";
-import { getUserAccountIdFromEmail, getJiraApiConfig, createUserFieldObject } from "./utils.js";
+import { getUserAccountIdFromEmail, getJiraApiConfig, createUserFieldObject, getErrorMessage } from "./utils.js";
 
 const assignJiraTicket: jiraAssignJiraTicketFunction = async ({
   params,
@@ -23,7 +23,7 @@ const assignJiraTicket: jiraAssignJiraTicketFunction = async ({
 
   try {
     let assigneeId: string | null = params.assignee;
-    if (assigneeId && assigneeId.includes("@") && authToken) {
+    if (assigneeId && assigneeId.includes("@")) {
       assigneeId = await getUserAccountIdFromEmail(assigneeId, apiUrl, authToken, isDataCenter);
     }
 
@@ -52,7 +52,7 @@ const assignJiraTicket: jiraAssignJiraTicketFunction = async ({
     console.error("Error assigning issue:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: getErrorMessage(error),
     };
   }
 };

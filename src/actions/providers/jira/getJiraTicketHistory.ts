@@ -5,7 +5,7 @@ import type {
   jiraGetJiraTicketHistoryParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
-import { getJiraApiConfig } from "./utils.js";
+import { getJiraApiConfig, getErrorMessage } from "./utils.js";
 
 const getJiraTicketHistory: jiraGetJiraTicketHistoryFunction = async ({
   params,
@@ -48,7 +48,7 @@ const getJiraTicketHistory: jiraGetJiraTicketHistoryFunction = async ({
     console.error("Error retrieving Jira ticket history: ", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: getErrorMessage(error),
     };
   }
 };

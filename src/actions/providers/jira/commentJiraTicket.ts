@@ -5,7 +5,7 @@ import type {
   jiraCommentJiraTicketParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
-import { getJiraApiConfig, formatTextForJira } from "./utils.js";
+import { getJiraApiConfig, formatText, getErrorMessage } from "./utils.js";
 
 const commentJiraTicket: jiraCommentJiraTicketFunction = async ({
   params,
@@ -25,7 +25,7 @@ const commentJiraTicket: jiraCommentJiraTicketFunction = async ({
     const response = await axiosClient.post(
       `${apiUrl}/issue/${params.issueId}/comment`,
       {
-        body: formatTextForJira(params.comment, isDataCenter),
+        body: formatText(params.comment, isDataCenter),
       },
       {
         headers: {
@@ -44,7 +44,7 @@ const commentJiraTicket: jiraCommentJiraTicketFunction = async ({
     console.error("Error commenting on Jira ticket: ", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: getErrorMessage(error),
     };
   }
 };

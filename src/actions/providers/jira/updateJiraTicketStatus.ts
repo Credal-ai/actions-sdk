@@ -5,7 +5,7 @@ import type {
   jiraUpdateJiraTicketStatusParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
-import { getJiraApiConfig } from "./utils.js";
+import { getJiraApiConfig, getErrorMessage } from "./utils.js";
 
 const updateJiraTicketStatus: jiraUpdateJiraTicketStatusFunction = async ({
   params,
@@ -66,7 +66,7 @@ const updateJiraTicketStatus: jiraUpdateJiraTicketStatusFunction = async ({
     console.error("Error updating Jira ticket status: ", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: getErrorMessage(error),
     };
   }
 };

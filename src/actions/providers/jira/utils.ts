@@ -13,7 +13,7 @@ export interface JiraServiceDeskApiConfig {
   isDataCenter: boolean;
 }
 
-export function formatTextForJira(text: string, isDataCenter: boolean): string | object {
+export function formatText(text: string, isDataCenter: boolean): string | object {
   if (isDataCenter) {
     // Data Center (API v2) expects plain string
     return text;
@@ -60,16 +60,17 @@ export function getJiraApiConfig(authParams: {
       browseUrl: trimmedUrl,
       isDataCenter: true,
     };
-  } else {
-    if (!cloudId) {
-      throw new Error("Valid Cloud ID is required for Jira Cloud");
-    }
-    return {
-      apiUrl: `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3`,
-      browseUrl: baseUrl || `https://${cloudId}.atlassian.net`,
-      isDataCenter: false,
-    };
   }
+
+  if (!cloudId) {
+    throw new Error("Valid Cloud ID is required for Jira Cloud");
+  }
+
+  return {
+    apiUrl: `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3`,
+    browseUrl: baseUrl || `https://${cloudId}.atlassian.net`,
+    isDataCenter: false,
+  };
 }
 
 export function isEmail(value: string | undefined): value is string {
@@ -105,8 +106,6 @@ export async function getUserAccountIdFromEmail(
   isDataCenter: boolean = false,
 ): Promise<string | null> {
   try {
-    // Data Center uses 'username' parameter, Cloud uses 'query' parameter
-    const queryParam = isDataCenter ? "username" : "query";
     const response = await axiosClient.get<
       Array<{
         accountId?: string; // Cloud only
@@ -115,7 +114,7 @@ export async function getUserAccountIdFromEmail(
         displayName: string;
         emailAddress: string;
       }>
-    >(`${apiUrl}/user/search?${queryParam}=${encodeURIComponent(email)}`, {
+    >(`${apiUrl}/user/search?${isDataCenter ? "username" : "query"}=${encodeURIComponent(email)}`, {
       headers: {
         Authorization: `Bearer ${authToken}`,
         Accept: "application/json",
@@ -135,6 +134,11 @@ export async function getUserAccountIdFromEmail(
     console.error("Error finding user:", axiosError.message);
     return null;
   }
+}
+
+export function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error);
 }
 
 export async function getRequestTypeCustomFieldId(

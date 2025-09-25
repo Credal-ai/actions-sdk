@@ -5,7 +5,7 @@ import type {
   jiraGetJiraIssuesByQueryParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
-import { getJiraApiConfig } from "./utils.js";
+import { getJiraApiConfig, getErrorMessage } from "./utils.js";
 
 const DEFAULT_LIMIT = 100;
 
@@ -153,7 +153,7 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
     console.error("Error retrieving Jira issues:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: getErrorMessage(error),
     };
   }
 };

@@ -997,7 +997,7 @@ export const confluenceFetchPageContentDefinition: ActionTemplate = {
   provider: "confluence",
 };
 export const jiraAssignJiraTicketDefinition: ActionTemplate = {
-  description: "Assigns/Re-assignes a Jira ticket to a specified user",
+  description: "Assigns/Reassigns a Jira ticket to a specified user",
   scopes: ["write:jira-work", "read:jira-user"],
   parameters: {
     type: "object",
@@ -1689,7 +1689,7 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
   provider: "jira",
 };
 export const jiraOrgAssignJiraTicketDefinition: ActionTemplate = {
-  description: "Assigns/Re-assignes a Jira ticket to a specified user",
+  description: "Assigns/Reassigns a Jira ticket to a specified user",
   scopes: ["write:jira-work", "read:jira-user"],
   parameters: {
     type: "object",
@@ -2381,7 +2381,7 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
   provider: "jiraOrg",
 };
 export const jiraDataCenterAssignJiraTicketDefinition: ActionTemplate = {
-  description: "Assigns/Re-assignes a Jira ticket to a specified user",
+  description: "Assigns/Reassigns a Jira ticket to a specified user",
   scopes: ["write:jira-work", "read:jira-user"],
   parameters: {
     type: "object",

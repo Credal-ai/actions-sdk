@@ -714,7 +714,7 @@ actions:
                 description: The content of the page in storage format (HTML)
   jira: &jira
     assignJiraTicket:
-      description: Assigns/Re-assignes a Jira ticket to a specified user
+      description: Assigns/Reassigns a Jira ticket to a specified user
       scopes:
         - write:jira-work
         - read:jira-user

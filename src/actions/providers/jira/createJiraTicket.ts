@@ -9,8 +9,9 @@ import {
   resolveAccountIdIfEmail,
   getRequestTypeCustomFieldId,
   getJiraApiConfig,
-  formatTextForJira,
+  formatText,
   createUserAssignmentObject,
+  getErrorMessage,
 } from "./utils.js";
 
 const createJiraTicket: jiraCreateJiraTicketFunction = async ({
@@ -47,7 +48,7 @@ const createJiraTicket: jiraCreateJiraTicketFunction = async ({
   }
 
   // Use different description formats for Data Center (API v2) vs Cloud (API v3)
-  const description = formatTextForJira(params.description, isDataCenter);
+  const description = formatText(params.description, isDataCenter);
 
   const payload = {
     fields: {
@@ -97,7 +98,7 @@ const createJiraTicket: jiraCreateJiraTicketFunction = async ({
   } catch (error: unknown) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: getErrorMessage(error),
     };
   }
 };

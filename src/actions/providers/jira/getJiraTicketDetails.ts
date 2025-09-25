@@ -5,7 +5,7 @@ import type {
   jiraGetJiraTicketDetailsParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
-import { getJiraApiConfig } from "./utils.js";
+import { getJiraApiConfig, getErrorMessage } from "./utils.js";
 
 // https://developer.atlassian.com/cloud/jira/platform/rest/v2/api-group-issues/#api-rest-api-2-issue-issueidorkey-get
 const getJiraTicketDetails: jiraGetJiraTicketDetailsFunction = async ({
@@ -47,7 +47,7 @@ const getJiraTicketDetails: jiraGetJiraTicketDetailsFunction = async ({
     console.error("Error retrieving Jira ticket details: ", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: getErrorMessage(error),
     };
   }
 };

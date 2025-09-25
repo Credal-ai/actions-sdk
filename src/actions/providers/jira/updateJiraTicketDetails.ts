@@ -5,7 +5,7 @@ import type {
   jiraUpdateJiraTicketDetailsParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
-import { getRequestTypeCustomFieldId, getJiraApiConfig, formatTextForJira } from "./utils.js";
+import { getRequestTypeCustomFieldId, getJiraApiConfig, formatText, getErrorMessage } from "./utils.js";
 
 const updateJiraTicketDetails: jiraUpdateJiraTicketDetailsFunction = async ({
   params,
@@ -24,7 +24,7 @@ const updateJiraTicketDetails: jiraUpdateJiraTicketDetailsFunction = async ({
 
   const fullApiUrl = `${apiUrl}/issue/${issueId}`;
 
-  const formattedDescription = description ? formatTextForJira(description, isDataCenter) : undefined;
+  const formattedDescription = description ? formatText(description, isDataCenter) : undefined;
 
   // If request type is provided, find the custom field ID and prepare the value
   const requestTypeField: { [key: string]: string } = {};
@@ -64,7 +64,7 @@ const updateJiraTicketDetails: jiraUpdateJiraTicketDetailsFunction = async ({
     console.error("Error updating Jira ticket:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: getErrorMessage(error),
     };
   }
 };
