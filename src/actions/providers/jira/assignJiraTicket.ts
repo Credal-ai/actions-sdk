@@ -5,7 +5,7 @@ import type {
   jiraAssignJiraTicketOutputType,
   jiraAssignJiraTicketParamsType,
 } from "../../autogen/types.js";
-import { getUserAccountIdFromEmail, getJiraApiConfig, createUserFieldObject, getErrorMessage } from "./utils.js";
+import { getUserAccountIdFromEmail, getJiraApiConfig, getErrorMessage } from "./utils.js";
 
 const assignJiraTicket: jiraAssignJiraTicketFunction = async ({
   params,
@@ -15,28 +15,29 @@ const assignJiraTicket: jiraAssignJiraTicketFunction = async ({
   authParams: AuthParamsType;
 }): Promise<jiraAssignJiraTicketOutputType> => {
   const { authToken } = authParams;
-  const { apiUrl, browseUrl, isDataCenter } = getJiraApiConfig(authParams);
+  const { apiUrl, browseUrl, strategy } = getJiraApiConfig(authParams);
+  const { issueId, assignee } = params;
 
   if (!authToken) {
     throw new Error("Auth token is required");
   }
 
   try {
-    let assigneeId: string | null = params.assignee;
+    let assigneeId: string | null = assignee;
     if (assigneeId && assigneeId.includes("@")) {
-      assigneeId = await getUserAccountIdFromEmail(assigneeId, apiUrl, authToken, isDataCenter);
+      assigneeId = await getUserAccountIdFromEmail(assigneeId, apiUrl, authToken, strategy);
     }
 
     if (!assigneeId) {
       throw new Error("Unable to get valid assignee account ID.");
     }
 
-    const assigneePayload = createUserFieldObject(assigneeId, isDataCenter);
+    const assigneePayload = strategy.formatUser(assigneeId);
     if (!assigneePayload) {
       throw new Error("Unable to create assignee payload.");
     }
 
-    await axios.put(`${apiUrl}/issue/${params.issueId}/assignee`, assigneePayload, {
+    await axios.put(`${apiUrl}/issue/${issueId}/assignee`, assigneePayload, {
       headers: {
         Authorization: `Bearer ${authToken}`,
         Accept: "application/json",
@@ -46,7 +47,7 @@ const assignJiraTicket: jiraAssignJiraTicketFunction = async ({
 
     return {
       success: true,
-      ticketUrl: `${browseUrl}/browse/${params.issueId}`,
+      ticketUrl: `${browseUrl}/browse/${issueId}`,
     };
   } catch (error: unknown) {
     console.error("Error assigning issue:", error);

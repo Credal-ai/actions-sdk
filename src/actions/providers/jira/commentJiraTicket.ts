@@ -5,7 +5,7 @@ import type {
   jiraCommentJiraTicketParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
-import { getJiraApiConfig, formatText, getErrorMessage } from "./utils.js";
+import { getJiraApiConfig, getErrorMessage } from "./utils.js";
 
 const commentJiraTicket: jiraCommentJiraTicketFunction = async ({
   params,
@@ -15,7 +15,8 @@ const commentJiraTicket: jiraCommentJiraTicketFunction = async ({
   authParams: AuthParamsType;
 }): Promise<jiraCommentJiraTicketOutputType> => {
   const { authToken } = authParams;
-  const { apiUrl, browseUrl, isDataCenter } = getJiraApiConfig(authParams);
+  const { apiUrl, browseUrl, strategy } = getJiraApiConfig(authParams);
+  const { issueId, comment } = params;
 
   if (!authToken) {
     throw new Error("Auth token is required");
@@ -23,9 +24,9 @@ const commentJiraTicket: jiraCommentJiraTicketFunction = async ({
 
   try {
     const response = await axiosClient.post(
-      `${apiUrl}/issue/${params.issueId}/comment`,
+      `${apiUrl}/issue/${issueId}/comment`,
       {
-        body: formatText(params.comment, isDataCenter),
+        body: strategy.formatText(comment),
       },
       {
         headers: {
@@ -38,7 +39,7 @@ const commentJiraTicket: jiraCommentJiraTicketFunction = async ({
 
     return {
       success: true,
-      commentUrl: `${browseUrl}/browse/${params.issueId}?focusedCommentId=${response.data.id}`,
+      commentUrl: `${browseUrl}/browse/${issueId}?focusedCommentId=${response.data.id}`,
     };
   } catch (error: unknown) {
     console.error("Error commenting on Jira ticket: ", error);

@@ -16,18 +16,13 @@ const getJiraTicketHistory: jiraGetJiraTicketHistoryFunction = async ({
 }): Promise<jiraGetJiraTicketHistoryOutputType> => {
   const { authToken } = authParams;
   const { issueId } = params;
-  const { apiUrl } = getJiraApiConfig(authParams);
+  const { apiUrl, strategy } = getJiraApiConfig(authParams);
 
   if (!authToken) {
     throw new Error("Auth token is required");
   }
 
-  const { isDataCenter } = getJiraApiConfig(authParams);
-
-  // Data Center uses expand parameter, Cloud has dedicated endpoint
-  const fullApiUrl = isDataCenter
-    ? `${apiUrl}/issue/${issueId}?expand=changelog`
-    : `${apiUrl}/issue/${issueId}/changelog`;
+  const fullApiUrl = `${apiUrl}${strategy.getHistoryEndpoint(issueId)}`;
 
   try {
     const response = await axiosClient.get(fullApiUrl, {
@@ -37,8 +32,7 @@ const getJiraTicketHistory: jiraGetJiraTicketHistoryFunction = async ({
       },
     });
 
-    // Data Center returns changelog in different structure when using expand
-    const historyData = isDataCenter ? response?.data?.changelog?.histories : response?.data?.values;
+    const historyData = strategy.parseHistoryResponse(response);
 
     return {
       success: true,

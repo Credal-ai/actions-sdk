@@ -63,31 +63,3 @@ export const jiraConfig = createJiraConfig();
 // For backward compatibility
 export const provider = "jiraOrg";
 
-export function validateConfig(): boolean {
-  if (!process.env.JIRA_AUTH_TOKEN) {
-    console.error("❌ JIRA_AUTH_TOKEN is required");
-    return false;
-  }
-
-  if (!process.env.JIRA_BASE_URL) {
-    console.error("❌ JIRA_BASE_URL is required");
-    return false;
-  }
-
-  if (!process.env.JIRA_PROJECT_KEY) {
-    console.error("❌ JIRA_PROJECT_KEY is required");
-    return false;
-  }
-
-  if (!process.env.JIRA_ISSUE_ID) {
-    console.error("❌ JIRA_ISSUE_ID is required");
-    return false;
-  }
-
-  if (providerType === "cloud" && !process.env.JIRA_CLOUD_ID) {
-    console.error("❌ JIRA_CLOUD_ID is required when JIRA_PROVIDER=cloud");
-    return false;
-  }
-
-  return true;
-}

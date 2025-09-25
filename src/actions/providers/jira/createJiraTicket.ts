@@ -5,14 +5,7 @@ import type {
   jiraCreateJiraTicketParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
-import {
-  resolveAccountIdIfEmail,
-  getRequestTypeCustomFieldId,
-  getJiraApiConfig,
-  formatText,
-  createUserAssignmentObject,
-  getErrorMessage,
-} from "./utils.js";
+import { resolveAccountIdIfEmail, resolveRequestTypeField, getJiraApiConfig, getErrorMessage } from "./utils.js";
 
 const createJiraTicket: jiraCreateJiraTicketFunction = async ({
   params,
@@ -22,7 +15,7 @@ const createJiraTicket: jiraCreateJiraTicketFunction = async ({
   authParams: AuthParamsType;
 }): Promise<jiraCreateJiraTicketOutputType> => {
   const { authToken } = authParams;
-  const { apiUrl, browseUrl, isDataCenter } = getJiraApiConfig(authParams);
+  const { apiUrl, browseUrl, strategy } = getJiraApiConfig(authParams);
 
   // authToken is guaranteed to exist after getJiraApiConfig succeeds
   if (!authToken) {
@@ -30,25 +23,19 @@ const createJiraTicket: jiraCreateJiraTicketFunction = async ({
   }
 
   const [reporterId, assigneeId] = await Promise.all([
-    resolveAccountIdIfEmail(params.reporter, apiUrl, authToken, isDataCenter),
-    resolveAccountIdIfEmail(params.assignee, apiUrl, authToken, isDataCenter),
+    resolveAccountIdIfEmail(params.reporter, apiUrl, authToken, strategy),
+    resolveAccountIdIfEmail(params.assignee, apiUrl, authToken, strategy),
   ]);
 
-  // If request type is provided, find the custom field ID and prepare the value
-  const requestTypeField: { [key: string]: string } = {};
-  let partialUpdateMessage = "";
-  if (params.requestTypeId && authToken) {
-    const result = await getRequestTypeCustomFieldId(params.projectKey, apiUrl, authToken);
-    if (result.fieldId) {
-      requestTypeField[result.fieldId] = params.requestTypeId;
-    }
-    if (result.message) {
-      partialUpdateMessage = result.message;
-    }
-  }
+  const { field: requestTypeField, message: partialUpdateMessage } = await resolveRequestTypeField(
+    params.requestTypeId,
+    params.projectKey,
+    apiUrl,
+    authToken,
+  );
 
-  // Use different description formats for Data Center (API v2) vs Cloud (API v3)
-  const description = formatText(params.description, isDataCenter);
+  const reporterAssignment = strategy.formatUserAssignment(reporterId);
+  const assigneeAssignment = strategy.formatUserAssignment(assigneeId);
 
   const payload = {
     fields: {
@@ -56,18 +43,14 @@ const createJiraTicket: jiraCreateJiraTicketFunction = async ({
         key: params.projectKey,
       },
       summary: params.summary,
-      description: description,
+      description: strategy.formatText(params.description),
       issuetype: {
         name: params.issueType,
       },
-      ...(createUserAssignmentObject(reporterId, isDataCenter)
-        ? { reporter: createUserAssignmentObject(reporterId, isDataCenter) }
-        : {}),
-      ...(createUserAssignmentObject(assigneeId, isDataCenter)
-        ? { assignee: createUserAssignmentObject(assigneeId, isDataCenter) }
-        : {}),
-      ...requestTypeField,
-      ...(params.customFields ? params.customFields : {}),
+      ...(reporterAssignment && { reporter: reporterAssignment }),
+      ...(assigneeAssignment && { assignee: assigneeAssignment }),
+      ...(Object.keys(requestTypeField).length > 0 && requestTypeField),
+      ...(params.customFields && params.customFields),
     },
   };
   try {

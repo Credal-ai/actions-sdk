@@ -5,7 +5,7 @@ import type {
   jiraUpdateJiraTicketDetailsParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
-import { getRequestTypeCustomFieldId, getJiraApiConfig, formatText, getErrorMessage } from "./utils.js";
+import { resolveRequestTypeField, getJiraApiConfig, getErrorMessage } from "./utils.js";
 
 const updateJiraTicketDetails: jiraUpdateJiraTicketDetailsFunction = async ({
   params,
@@ -15,36 +15,29 @@ const updateJiraTicketDetails: jiraUpdateJiraTicketDetailsFunction = async ({
   authParams: AuthParamsType;
 }): Promise<jiraUpdateJiraTicketDetailsOutputType> => {
   const { authToken } = authParams;
-  const { issueId, summary, description, customFields, requestTypeId } = params;
-  const { apiUrl, browseUrl, isDataCenter } = getJiraApiConfig(authParams);
+  const { issueId, summary, description, customFields, requestTypeId, projectKey } = params;
+  const { apiUrl, browseUrl, strategy } = getJiraApiConfig(authParams);
 
   if (!authToken) {
     throw new Error("Auth token is required");
   }
 
   const fullApiUrl = `${apiUrl}/issue/${issueId}`;
+  const formattedDescription = description ? strategy.formatText(description) : undefined;
 
-  const formattedDescription = description ? formatText(description, isDataCenter) : undefined;
-
-  // If request type is provided, find the custom field ID and prepare the value
-  const requestTypeField: { [key: string]: string } = {};
-  let partialUpdateMessage = "";
-  if (requestTypeId && authToken) {
-    const result = await getRequestTypeCustomFieldId(params.projectKey, apiUrl, authToken);
-    if (result.fieldId) {
-      requestTypeField[result.fieldId] = requestTypeId;
-    }
-    if (result.message) {
-      partialUpdateMessage = result.message;
-    }
-  }
+  const { field: requestTypeField, message: partialUpdateMessage } = await resolveRequestTypeField(
+    requestTypeId,
+    projectKey,
+    apiUrl,
+    authToken,
+  );
 
   const payload = {
     fields: {
       ...(summary && { summary }),
       ...(formattedDescription && { description: formattedDescription }),
-      ...requestTypeField,
-      ...(customFields && { ...customFields }),
+      ...(Object.keys(requestTypeField).length > 0 && requestTypeField),
+      ...(customFields && customFields),
     },
   };
 

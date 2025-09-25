@@ -5,6 +5,7 @@ export interface JiraApiConfig {
   apiUrl: string;
   browseUrl: string;
   isDataCenter: boolean;
+  strategy: JiraPlatformStrategy;
 }
 
 export interface JiraServiceDeskApiConfig {
@@ -13,42 +14,95 @@ export interface JiraServiceDeskApiConfig {
   isDataCenter: boolean;
 }
 
-export function formatText(text: string, isDataCenter: boolean): string | object {
-  if (isDataCenter) {
-    // Data Center (API v2) expects plain string
-    return text;
-  } else {
-    // Cloud (API v3) expects ADF format
-    return {
-      type: "doc",
-      version: 1,
-      content: [
-        {
-          type: "paragraph",
-          content: [
-            {
-              type: "text",
-              text: text,
-            },
-          ],
-        },
-      ],
+interface JiraHistoryResponse {
+  data?: {
+    values?: unknown[];
+    changelog?: {
+      histories?: unknown[];
     };
-  }
+  };
+}
+
+export interface JiraPlatformStrategy {
+  formatText(text: string): string | object;
+  formatUser(userId: string | null): { [key: string]: string } | null;
+  formatUserAssignment(userId: string | null): { id?: string; name?: string } | null;
+  getUserSearchParam(): string;
+  getSearchEndpoint(): string;
+  getHistoryEndpoint(issueId: string): string;
+  parseHistoryResponse(response: JiraHistoryResponse): unknown[] | undefined;
+}
+
+const cloudStrategy: JiraPlatformStrategy = {
+  formatText: (text: string) => ({
+    type: "doc",
+    version: 1,
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: text,
+          },
+        ],
+      },
+    ],
+  }),
+
+  formatUser: (userId: string | null) => {
+    if (!userId) return null;
+    return { accountId: userId };
+  },
+
+  formatUserAssignment: (userId: string | null) => {
+    if (!userId) return null;
+    return { id: userId };
+  },
+
+  getUserSearchParam: () => "query",
+  getSearchEndpoint: () => "/search/jql",
+  getHistoryEndpoint: (issueId: string) => `/issue/${issueId}/changelog`,
+  parseHistoryResponse: (response: JiraHistoryResponse) => response?.data?.values,
+};
+
+const dataCenterStrategy: JiraPlatformStrategy = {
+  formatText: (text: string) => text,
+
+  formatUser: (userId: string | null) => {
+    if (!userId) return null;
+    return { name: userId };
+  },
+
+  formatUserAssignment: (userId: string | null) => {
+    if (!userId) return null;
+    return { name: userId };
+  },
+
+  getUserSearchParam: () => "username",
+  getSearchEndpoint: () => "/search",
+  getHistoryEndpoint: (issueId: string) => `/issue/${issueId}?expand=changelog`,
+  parseHistoryResponse: (response: JiraHistoryResponse) => response?.data?.changelog?.histories,
+};
+
+export function getPlatformStrategy(isDataCenter: boolean): JiraPlatformStrategy {
+  return isDataCenter ? dataCenterStrategy : cloudStrategy;
 }
 
 export function getJiraApiConfig(authParams: {
   cloudId?: string;
   baseUrl?: string;
   authToken?: string;
+  provider?: string;
 }): JiraApiConfig {
-  const { cloudId, baseUrl, authToken } = authParams;
+  const { cloudId, baseUrl, authToken, provider } = authParams;
 
   if (!authToken) {
     throw new Error("Valid auth token is required");
   }
 
-  const isDataCenter = !cloudId && !!baseUrl;
+  const isDataCenter = provider === "jiraDataCenter";
+  const strategy = getPlatformStrategy(isDataCenter);
 
   if (isDataCenter) {
     if (!baseUrl) {
@@ -59,6 +113,7 @@ export function getJiraApiConfig(authParams: {
       apiUrl: `${trimmedUrl}/rest/api/2`,
       browseUrl: trimmedUrl,
       isDataCenter: true,
+      strategy,
     };
   }
 
@@ -70,6 +125,7 @@ export function getJiraApiConfig(authParams: {
     apiUrl: `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3`,
     browseUrl: baseUrl || `https://${cloudId}.atlassian.net`,
     isDataCenter: false,
+    strategy,
   };
 }
 
@@ -81,31 +137,19 @@ export async function resolveAccountIdIfEmail(
   value: string | undefined,
   apiUrl: string,
   authToken: string,
-  isDataCenter: boolean = false,
+  strategy: JiraPlatformStrategy,
 ): Promise<string | null> {
-  return isEmail(value) ? getUserAccountIdFromEmail(value, apiUrl, authToken, isDataCenter) : null;
-}
-
-export function createUserFieldObject(userId: string | null, isDataCenter: boolean): { [key: string]: string } | null {
-  if (!userId) return null;
-  return isDataCenter ? { name: userId } : { accountId: userId };
-}
-
-export function createUserAssignmentObject(
-  userId: string | null,
-  isDataCenter: boolean,
-): { id?: string; name?: string } | null {
-  if (!userId) return null;
-  return isDataCenter ? { name: userId } : { id: userId };
+  return isEmail(value) ? getUserAccountIdFromEmail(value, apiUrl, authToken, strategy) : null;
 }
 
 export async function getUserAccountIdFromEmail(
   email: string,
   apiUrl: string,
   authToken: string,
-  isDataCenter: boolean = false,
+  strategy: JiraPlatformStrategy,
 ): Promise<string | null> {
   try {
+    const searchParam = strategy.getUserSearchParam();
     const response = await axiosClient.get<
       Array<{
         accountId?: string; // Cloud only
@@ -114,7 +158,7 @@ export async function getUserAccountIdFromEmail(
         displayName: string;
         emailAddress: string;
       }>
-    >(`${apiUrl}/user/search?${isDataCenter ? "username" : "query"}=${encodeURIComponent(email)}`, {
+    >(`${apiUrl}/user/search?${searchParam}=${encodeURIComponent(email)}`, {
       headers: {
         Authorization: `Bearer ${authToken}`,
         Accept: "application/json",
@@ -122,9 +166,9 @@ export async function getUserAccountIdFromEmail(
     });
 
     if (response.data && response.data.length > 0) {
-      // Data Center uses 'name' or 'key', Cloud uses 'accountId'
       const user = response.data[0];
-      const userId = isDataCenter ? user.name || user.key : user.accountId;
+      // Use strategy to determine which field to use
+      const userId = strategy === dataCenterStrategy ? user.name || user.key : user.accountId;
       if (!userId) return null;
       return userId;
     }
@@ -139,6 +183,29 @@ export async function getUserAccountIdFromEmail(
 export function getErrorMessage(error: unknown): string {
   if (error instanceof Error) return error.message;
   return String(error);
+}
+
+export async function resolveRequestTypeField(
+  requestTypeId: string | undefined,
+  projectKey: string | undefined,
+  apiUrl: string,
+  authToken: string,
+): Promise<{ field: { [key: string]: string }; message?: string }> {
+  if (!requestTypeId || !projectKey) {
+    return { field: {} };
+  }
+
+  const result = await getRequestTypeCustomFieldId(projectKey, apiUrl, authToken);
+  const field: { [key: string]: string } = {};
+
+  if (result.fieldId) {
+    field[result.fieldId] = requestTypeId;
+  }
+
+  return {
+    field,
+    message: result.message,
+  };
 }
 
 export async function getRequestTypeCustomFieldId(
