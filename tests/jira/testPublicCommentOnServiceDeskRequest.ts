@@ -1,25 +1,16 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app.js";
-import type { JiraTestConfig } from "./utils.js";
-import { runJiraTest } from "./testRunner.js";
+import { jiraConfig, provider } from "./utils.js";
 
-async function testPublicCommentOnServiceDeskRequest(config: JiraTestConfig) {
-  const { authToken, cloudId, baseUrl, issueId, provider } = config;
-
-  // Build auth params - only include cloudId for Cloud provider
-  const authParams: Record<string, unknown> = {
-    authToken,
-    baseUrl,
-  };
-
-  if (cloudId) {
-    authParams.cloudId = cloudId;
-  }
-
+async function runTest() {
+  const { authToken, cloudId, issueId } = jiraConfig;
   const result = await runAction(
     "publicCommentOnServiceDeskRequest",
     provider,
-    authParams,
+    {
+      authToken,
+      cloudId,
+    },
     {
       comment: `Test comment made on ${new Date().toISOString()}`,
       issueId: issueId,
@@ -34,9 +25,14 @@ async function testPublicCommentOnServiceDeskRequest(config: JiraTestConfig) {
     result.commentUrl,
     "Response should contain a url to the created comment",
   );
+  console.log(`Successfully created Jira comment: ${result.commentUrl}`);
 }
 
-runJiraTest("Public Comment on Service Desk Request", testPublicCommentOnServiceDeskRequest).catch((error) => {
+runTest().catch((error) => {
   console.error("Test failed:", error);
+  if (error.response) {
+    console.error("API response:", error.response.data);
+    console.error("Status code:", error.response.status);
+  }
   process.exit(1);
 });

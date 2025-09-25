@@ -1,26 +1,19 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app.js";
-import type { JiraTestConfig } from "./utils.js";
-import { runJiraTest } from "./testRunner.js";
+import { jiraConfig } from "./utils.js";
 import { jiraGetServiceDesksOutputSchema } from "../../src/actions/autogen/types.js";
 
-async function testGetServiceDesks(config: JiraTestConfig) {
-  const { authToken, cloudId, baseUrl, provider } = config;
-
-  // Build auth params - only include cloudId for Cloud provider
-  const authParams: Record<string, unknown> = {
-    authToken,
-    baseUrl,
-  };
-
-  if (cloudId) {
-    authParams.cloudId = cloudId;
-  }
+async function runTest() {
+  const { authToken, cloudId, baseUrl } = jiraConfig;
 
   const result = await runAction(
     "getServiceDesks",
-    provider,
-    authParams,
+    "jira",
+    {
+      authToken,
+      cloudId,
+      baseUrl,
+    },
     {},
   );
 
@@ -32,9 +25,16 @@ async function testGetServiceDesks(config: JiraTestConfig) {
   const validatedResult = jiraGetServiceDesksOutputSchema.safeParse(result);
   assert(validatedResult.success, "Response should be valid");
 
+  console.log(
+    `Successfully retrieved Jira service desks`,
+  );
 }
 
-runJiraTest("Get Service Desks", testGetServiceDesks).catch((error) => {
+runTest().catch((error) => {
   console.error("Test failed:", error);
+  if (error.response) {
+    console.error("API response:", error.response.data);
+    console.error("Status code:", error.response.status);
+  }
   process.exit(1);
 });

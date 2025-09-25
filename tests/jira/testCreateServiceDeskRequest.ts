@@ -1,26 +1,19 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app.js";
-import type { JiraTestConfig } from "./utils.js";
-import { runJiraTest } from "./testRunner.js";
+import { jiraConfig } from "./utils.js";
 import { jiraCreateServiceDeskRequestOutputSchema } from "../../src/actions/autogen/types.js";
 
-async function testCreateServiceDeskRequest(config: JiraTestConfig) {
-  const { authToken, cloudId, baseUrl, serviceDeskId, requestTypeId, provider } = config;
-
-  // Build auth params - only include cloudId for Cloud provider
-  const authParams: Record<string, unknown> = {
-    authToken,
-    baseUrl,
-  };
-
-  if (cloudId) {
-    authParams.cloudId = cloudId;
-  }
+async function runTest() {
+  const { authToken, cloudId, baseUrl, serviceDeskId, requestTypeId } = jiraConfig;
 
   const result = await runAction(
     "createServiceDeskRequest",
-    provider,
-    authParams,
+    "jira",
+    {
+      authToken,
+      cloudId,
+      baseUrl,
+    },
     {
       serviceDeskId,
       requestTypeId,
@@ -38,9 +31,16 @@ async function testCreateServiceDeskRequest(config: JiraTestConfig) {
   const validatedResult = jiraCreateServiceDeskRequestOutputSchema.safeParse(result);
   assert(validatedResult.success, "Response should be valid");
 
+  console.log(
+    `Successfully created Jira service desk request`,
+  );
 }
 
-runJiraTest("Create Service Desk Request", testCreateServiceDeskRequest).catch((error) => {
+runTest().catch((error) => {
   console.error("Test failed:", error);
+  if (error.response) {
+    console.error("API response:", error.response.data);
+    console.error("Status code:", error.response.status);
+  }
   process.exit(1);
 });
