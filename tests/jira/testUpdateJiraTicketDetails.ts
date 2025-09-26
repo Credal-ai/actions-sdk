@@ -1,18 +1,16 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app.js";
-import { jiraConfig, provider } from "./utils.js";
+import type { JiraTestConfig } from "./utils.js";
+import { runJiraTest } from "./testRunner.js";
+import { getAuthParams } from "./utils.js";
 
-async function runTest() {
-  const { authToken, cloudId, baseUrl, issueId, projectKey, requestTypeId } = jiraConfig;
+async function testUpdateJiraTicketDetails(config: JiraTestConfig) {
+  const { issueId, projectKey, requestTypeId, provider } = config;
 
   const validResult = await runAction(
     "updateJiraTicketDetails",
     provider,
-    {
-      authToken,
-      cloudId,
-      baseUrl,
-    },
+    getAuthParams(config),
     {
       projectKey,
       issueId,
@@ -22,29 +20,29 @@ async function runTest() {
     },
   );
 
+  console.log("Update result:", JSON.stringify(validResult, null, 2));
+
   // Validate successful response
   assert(validResult, "Response should not be null");
   assert(
     validResult.ticketUrl,
     "Response should contain a URL to the updated ticket",
   );
-  console.log(`Successfully updated Jira ticket: ${validResult.ticketUrl}`);
 
   // Partial update (only summary, no description/custom fields)
   const partialUpdateResult = await runAction(
     "updateJiraTicketDetails",
     provider,
-    {
-      authToken,
-      cloudId,
-      baseUrl,
-    },
+    getAuthParams(config),
     {
       projectKey,
       issueId,
       summary: "Partially Updated Summary",
+      // customFields: { customfield_10200: "High" }, // Example of custom fields setting
     },
   );
+
+  console.log("Partial update result:", JSON.stringify(partialUpdateResult, null, 2));
 
   // Validate successful response
   assert(partialUpdateResult, "Response should not be null");
@@ -52,16 +50,9 @@ async function runTest() {
     partialUpdateResult.ticketUrl,
     "Response should contain a URL to the updated ticket",
   );
-  console.log(
-    `Successfully updated Jira ticket with partial update: ${partialUpdateResult.ticketUrl}`,
-  );
 }
 
-runTest().catch((error) => {
+runJiraTest("Update Jira Ticket Details", testUpdateJiraTicketDetails).catch((error) => {
   console.error("Test failed:", error);
-  if (error.response) {
-    console.error("API response:", error.response.data);
-    console.error("Status code:", error.response.status);
-  }
   process.exit(1);
 });

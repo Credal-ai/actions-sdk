@@ -1,4 +1,3 @@
-import type { AxiosError } from "axios";
 import axios from "axios";
 import type {
   AuthParamsType,
@@ -6,7 +5,7 @@ import type {
   jiraAssignJiraTicketOutputType,
   jiraAssignJiraTicketParamsType,
 } from "../../autogen/types.js";
-import { getUserAccountIdFromEmail } from "./utils.js";
+import { getUserAccountIdFromEmail, getJiraApiConfig, getErrorMessage } from "./utils.js";
 
 const assignJiraTicket: jiraAssignJiraTicketFunction = async ({
   params,
@@ -15,46 +14,46 @@ const assignJiraTicket: jiraAssignJiraTicketFunction = async ({
   params: jiraAssignJiraTicketParamsType;
   authParams: AuthParamsType;
 }): Promise<jiraAssignJiraTicketOutputType> => {
-  const { authToken, cloudId, baseUrl } = authParams;
+  const { authToken } = authParams;
+  const { apiUrl, browseUrl, strategy } = getJiraApiConfig(authParams);
+  const { issueId, assignee } = params;
 
-  const apiUrl = `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3/`;
-
-  if (!cloudId || !authToken) {
-    throw new Error("Valid Cloud ID and auth token are required to assign Jira ticket");
+  if (!authToken) {
+    throw new Error("Auth token is required");
   }
 
   try {
-    let assigneeId: string | null = params.assignee;
+    let assigneeId: string | null = assignee;
     if (assigneeId && assigneeId.includes("@")) {
-      assigneeId = await getUserAccountIdFromEmail(assigneeId, apiUrl, authToken);
+      assigneeId = await getUserAccountIdFromEmail(assigneeId, apiUrl, authToken, strategy);
     }
 
     if (!assigneeId) {
       throw new Error("Unable to get valid assignee account ID.");
     }
 
-    await axios.put(
-      `${apiUrl}issue/${params.issueId}/assignee`,
-      { accountId: assigneeId },
-      {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
+    const assigneePayload = strategy.formatUser(assigneeId);
+    if (!assigneePayload) {
+      throw new Error("Unable to create assignee payload.");
+    }
+
+    await axios.put(`${apiUrl}/issue/${issueId}/assignee`, assigneePayload, {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
       },
-    );
+    });
 
     return {
       success: true,
-      ticketUrl: `${baseUrl}/browse/${params.issueId}`,
+      ticketUrl: `${browseUrl}/browse/${issueId}`,
     };
-  } catch (error) {
-    const axiosError = error as AxiosError;
-    console.error("Error assigning issue:", axiosError);
+  } catch (error: unknown) {
+    console.error("Error assigning issue:", error);
     return {
       success: false,
-      error: axiosError.message,
+      error: getErrorMessage(error),
     };
   }
 };
