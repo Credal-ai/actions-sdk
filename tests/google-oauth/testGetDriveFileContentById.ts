@@ -25,13 +25,15 @@ async function runTest() {
     "getDriveFileContentById", // Ensure this matches the action name defined in schema
     "googleOauth",
     {
-      authToken: process.env.GOOGLE_DRIVE_AUTH_TOKEN, // Use a valid OAuth token with Drive readonly scope,
+      authToken: process.env.GOOGLE_OAUTH_TOKEN, // Use a valid OAuth token with Drive readonly scope,
     },
     params
   )) as googleOauthGetDriveFileContentByIdOutputType;
   const endTime = performance.now();
   const duration = endTime - startTime;
   console.log(`Time taken: ${duration} milliseconds`);
+
+  console.log("Result is: ", result);
 
   // Basic assertions
   assert.strictEqual(result.success, true, "Retrieval should be successful");

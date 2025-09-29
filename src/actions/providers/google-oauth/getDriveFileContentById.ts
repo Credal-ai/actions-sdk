@@ -13,6 +13,9 @@ import type { DriveFileMetadata } from "./common.js";
 import { read, utils } from "xlsx";
 import officeParser from "officeparser";
 
+const BASE_WEB_URL = "https://drive.google.com/file/d/";
+const BASE_API_URL = "https://www.googleapis.com/drive/v3/files/";
+
 const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = async ({
   params,
   authParams,
@@ -24,7 +27,6 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
     return { success: false, error: MISSING_AUTH_TOKEN };
   }
 
-  const BASE_URL = "https://www.googleapis.com/drive/v3/files/";
   const headers = { Authorization: `Bearer ${authParams.authToken}` };
 
   const { limit: charLimit, fileId } = params;
@@ -35,7 +37,7 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
   // helper to fetch drive metadata with fields we need (incl. shortcut details)
   const fetchMeta = async (fid: string) => {
     const metaUrl =
-      `${BASE_URL}${encodeURIComponent(fid)}` +
+      `${BASE_API_URL}${encodeURIComponent(fid)}` +
       `?fields=name,mimeType,size,driveId,parents,` +
       `shortcutDetails(targetId,targetMimeType)` +
       `&supportsAllDrives=true`;
@@ -75,7 +77,7 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
     } else if (mimeType === "application/vnd.google-apps.presentation") {
       content = await getGoogleSlidesContent(params.fileId, authParams.authToken!, axiosClient, sharedDriveParam);
     } else if (mimeType === "application/pdf") {
-      const downloadUrl = `${BASE_URL}${encodeURIComponent(params.fileId)}?alt=media${sharedDriveParam}`;
+      const downloadUrl = `${BASE_API_URL}${encodeURIComponent(params.fileId)}?alt=media${sharedDriveParam}`;
       const downloadRes = await axiosClient.get(downloadUrl, {
         headers,
         responseType: "arraybuffer",
@@ -92,7 +94,7 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
       mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
       mimeType === "application/msword"
     ) {
-      const downloadUrl = `${BASE_URL}${encodeURIComponent(params.fileId)}?alt=media${sharedDriveParam}`;
+      const downloadUrl = `${BASE_API_URL}${encodeURIComponent(params.fileId)}?alt=media${sharedDriveParam}`;
       const downloadRes = await axiosClient.get(downloadUrl, {
         headers,
         responseType: "arraybuffer",
@@ -109,7 +111,7 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
         };
       }
     } else if (mimeType === "text/plain" || mimeType === "text/html" || mimeType === "application/rtf") {
-      const downloadUrl = `${BASE_URL}${encodeURIComponent(params.fileId)}?alt=media${sharedDriveParam}`;
+      const downloadUrl = `${BASE_API_URL}${encodeURIComponent(params.fileId)}?alt=media${sharedDriveParam}`;
       const downloadRes = await axiosClient.get(downloadUrl, {
         headers,
         responseType: "text",
@@ -193,7 +195,7 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
       results: [
         {
           name: fileName,
-          url: `${BASE_URL}${encodeURIComponent(params.fileId)}`,
+          url: `${BASE_WEB_URL}${params.fileId}`,
           contents: { content, fileName, fileLength: originalLength },
         },
       ],

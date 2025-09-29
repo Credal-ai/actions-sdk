@@ -17,7 +17,7 @@ async function runTest() {
     "searchDriveByKeywordsAndGetFileContent",
     "googleOauth",
     {
-      authToken: process.env.GOOGLE_ACTIONS_ACCESS_TOKEN!,
+      authToken: process.env.GOOGLE_OAUTH_TOKEN!,
     },
     {
       searchQuery: "Japan travel expense",
