@@ -430,15 +430,15 @@ export async function getGoogleDocContent(
       throw new Error("Request timed out using Google Docs API");
     } else {
       console.log("Error using Google Docs API", docsError);
-      
+
       // Check if it's a 404 or permission error - don't retry these
-      if (docsError && typeof docsError === 'object' && 'status' in docsError) {
+      if (docsError && typeof docsError === "object" && "status" in docsError) {
         const status = (docsError as any).status;
         if (status === 404 || status === 403) {
           throw new Error(`File not accessible (${status}): ${fileId}`);
         }
       }
-      
+
       try {
         // Fallback to Drive API export if Docs API fails
         const exportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/plain${sharedDriveParams}`;
@@ -475,13 +475,13 @@ export async function getGoogleSheetContent(
       .join("\n");
   } catch (exportError) {
     // Check if it's a 404 or permission error
-    if (exportError && typeof exportError === 'object' && 'status' in exportError) {
+    if (exportError && typeof exportError === "object" && "status" in exportError) {
       const status = (exportError as any).status;
       if (status === 404 || status === 403) {
         throw new Error(`Spreadsheet not accessible (${status}): ${fileId}`);
       }
     }
-    
+
     // If CSV export fails, try the Sheets API as fallback (but this is slower)
     try {
       const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${fileId}?includeGridData=true`;
