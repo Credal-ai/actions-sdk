@@ -433,6 +433,7 @@ export async function getGoogleDocContent(
 
       // Check if it's a 404 or permission error - don't retry these
       if (docsError && typeof docsError === "object" && "status" in docsError) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const status = (docsError as any).status;
         if (status === 404 || status === 403) {
           throw new Error(`File not accessible (${status}): ${fileId}`);
@@ -447,7 +448,7 @@ export async function getGoogleDocContent(
           responseType: "text",
         });
         return exportRes.data;
-      } catch (exportError) {
+      } catch {
         throw new Error(`Unable to access document content: ${fileId}`);
       }
     }
@@ -476,6 +477,7 @@ export async function getGoogleSheetContent(
   } catch (exportError) {
     // Check if it's a 404 or permission error
     if (exportError && typeof exportError === "object" && "status" in exportError) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const status = (exportError as any).status;
       if (status === 404 || status === 403) {
         throw new Error(`Spreadsheet not accessible (${status}): ${fileId}`);

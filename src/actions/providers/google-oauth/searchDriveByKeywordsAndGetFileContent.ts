@@ -106,7 +106,7 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
           url: file.url,
           content: contentResult.success ? contentResult.results?.[0]?.contents?.content : undefined,
         };
-      } catch (error) {
+      } catch {
         return {
           id: file.id,
           name: file.name,
