@@ -5,6 +5,7 @@ import type {
   gitlabGetFileContentParamsType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { getProjectPath } from "./utils.js";
 
 interface GitLabRepositoryFileResponse {
   file_name: string;
@@ -60,13 +61,16 @@ const getFileContent: gitlabGetFileContentFunction = async ({
   const fetchUrl = `${gitlabBaseUrl}/api/v4/projects/${project_id}/repository/files/${filePath}?ref=${encodeURIComponent(ref)}`;
 
   const data = await gitlabFetch<GitLabRepositoryFileResponse>(fetchUrl, authToken);
+
   if (data.encoding !== "base64" || typeof data.content !== "string") {
     return { success: false, error: `Unexpected response: ${JSON.stringify(data)}` };
   }
 
   const content = Buffer.from(data.content, "base64").toString("utf-8");
 
-  const url = data.web_url || `${gitlabBaseUrl}/${project_id}/-/blob/${ref}/${path}`;
+  // Get the project path to construct the correct web URL
+  const projectPath = await getProjectPath(project_id, authToken, `${gitlabBaseUrl}/api/v4`);
+  const url = data.web_url || `${gitlabBaseUrl}/${projectPath}/-/blob/${ref}/${path}`;
 
   return {
     success: true,

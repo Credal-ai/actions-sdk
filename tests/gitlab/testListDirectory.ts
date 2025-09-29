@@ -9,16 +9,16 @@ async function runTest() {
   console.log("Running test gitlab search");
 
   const params: gitlabListDirectoryParamsType = {
-    group: "credal",
-    project: "test-project",
+    group: "eric600-group",
+    project: "solar-lead",
     path: "/",
   };
 
   const result = await runAction(
     "listDirectory",
     "gitlab",
-    { authToken: process.env.GITLAB_ACCESS_TOKEN }, 
-    params,
+    { authToken: process.env.GITLAB_ACCESS_TOKEN },
+    params
   );
   console.log("Resulting payload:");
   console.dir(result, { depth: 4 });

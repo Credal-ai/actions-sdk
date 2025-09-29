@@ -5,6 +5,7 @@ import type {
   gitlabSearchGroupParamsType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { createProjectPathCache, getProjectPath, gitlabFetch } from "./utils.js";
 
 const GITLAB_API_URL = "https://gitlab.com";
 
@@ -95,34 +96,6 @@ interface MinimalGitLabCommit {
   author: { name: string; email: string };
   created_at: string;
   files: { old_path: string; new_path: string; diff: string }[];
-}
-
-function createProjectPathCache() {
-  return new Map<number, string>();
-}
-
-async function gitlabFetch<T = unknown>(endpoint: string, authToken: string): Promise<T> {
-  const res = await fetch(endpoint, { headers: { Authorization: `Bearer ${authToken}` } });
-  if (!res.ok) throw new Error(`GitLab API error: ${res.status} ${res.statusText}`);
-  return res.json();
-}
-
-async function getProjectPath(
-  projectId: number,
-  authToken: string,
-  baseUrl: string,
-  projectPathCache: Map<number, string>,
-): Promise<string> {
-  if (projectPathCache.has(projectId)) return projectPathCache.get(projectId)!;
-  try {
-    const project = await gitlabFetch<{ path_with_namespace: string }>(`${baseUrl}/projects/${projectId}`, authToken);
-    const path = project.path_with_namespace;
-    projectPathCache.set(projectId, path);
-    return path;
-  } catch (error) {
-    console.warn(`Failed to fetch project path for project ${projectId}:`, error);
-    return `project-${projectId}`;
-  }
 }
 
 function constructBlobUrl(input: {
