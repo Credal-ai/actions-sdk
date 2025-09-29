@@ -124,7 +124,7 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
       mimeType === "application/rtf" ||
       mimeType === "application/json"
     ) {
-      const downloadUrl = `${BASE_URL}${encodeURIComponent(params.fileId)}?alt=media${sharedDriveParam}`;
+      const downloadUrl = `${BASE_API_URL}${encodeURIComponent(params.fileId)}?alt=media${sharedDriveParam}`;
       const downloadRes = await axiosClient.get(downloadUrl, {
         headers,
         responseType: "arraybuffer",
@@ -137,7 +137,7 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
       mimeType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
       mimeType === "application/vnd.ms-excel"
     ) {
-      const downloadUrl = `${BASE_URL}${encodeURIComponent(params.fileId)}?alt=media${sharedDriveParam}`;
+      const downloadUrl = `${BASE_API_URL}${encodeURIComponent(params.fileId)}?alt=media${sharedDriveParam}`;
       const downloadRes = await axiosClient.get(downloadUrl, {
         headers,
         responseType: "arraybuffer",
@@ -158,7 +158,7 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
       content = textOutput.trim();
     } else if (mimeType === "application/vnd.openxmlformats-officedocument.presentationml.presentation") {
       // Handle modern PowerPoint files (.pptx only)
-      const downloadUrl = `${BASE_URL}${encodeURIComponent(params.fileId)}?alt=media${sharedDriveParam}`;
+      const downloadUrl = `${BASE_API_URL}${encodeURIComponent(params.fileId)}?alt=media${sharedDriveParam}`;
       const downloadRes = await axiosClient.get(downloadUrl, {
         headers,
         responseType: "arraybuffer",
