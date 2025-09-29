@@ -60,11 +60,23 @@ const getSalesforceRecordsByQuery: salesforceGetSalesforceRecordsByQueryFunction
       success: true,
       results:
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        recordsWithUrl.map((record: any) => ({
-          name: record.Name,
-          url: record.webUrl,
-          content: record,
-        })) || [],
+        recordsWithUrl.map((record: any) => {
+          // Try common name fields in order of preference, using only what's available
+          const displayName =
+            record.Name ||
+            record.Title ||
+            record.Subject ||
+            record.CaseNumber ||
+            record.AccountName ||
+            record.ContactName ||
+            record.Id ||
+            record.webUrl;
+          return {
+            name: displayName,
+            url: record.webUrl,
+            content: record,
+          };
+        }) || [],
     };
   } catch (error) {
     console.error("Error retrieving Salesforce record:", error);

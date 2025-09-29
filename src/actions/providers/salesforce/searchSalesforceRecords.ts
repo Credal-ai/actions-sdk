@@ -60,7 +60,17 @@ const searchSalesforceRecords: salesforceSearchSalesforceRecordsFunction = async
       results: response.data.searchRecords.map((record: any) => {
         const recordId = record.Id;
         const webUrl = recordId ? `${baseUrl}/lightning/r/${recordId}/view` : undefined;
-        return { name: record.Name, url: webUrl, contents: record };
+        // Try common name fields in order of preference, using only what's available
+        const displayName =
+          record.Name ||
+          record.Title ||
+          record.Subject ||
+          record.CaseNumber ||
+          record.AccountName ||
+          record.ContactName ||
+          record.Id ||
+          webUrl;
+        return { name: displayName, url: webUrl, contents: record };
       }),
     };
   } catch (error) {
