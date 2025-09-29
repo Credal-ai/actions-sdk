@@ -52,7 +52,7 @@ const searchAllDrivesAtOnce = async (
 ): Promise<googleOauthSearchDriveByQueryOutputType> => {
   const allDrivesUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
     query,
-  )}&fields=files(id,name,mimeType,webViewLink)&supportsAllDrives=true&includeItemsFromAllDrives=true&corpora=allDrives&pageSize=1000${orderByQuery ? `&orderBy=${encodeURIComponent(orderByQuery)}` : ""}`;
+  )}&fields=files(id,name,mimeType,webViewLink)&supportsAllDrives=true&includeItemsFromAllDrives=true&corpora=allDrives&pageSize=100${orderByQuery ? `&orderBy=${encodeURIComponent(orderByQuery)}` : ""}`;
 
   const allDrivesRes = axiosClient.get(allDrivesUrl, {
     headers: {
@@ -63,7 +63,7 @@ const searchAllDrivesAtOnce = async (
   // need to search domain wide separately because the allDrives search doesn't include domain wide files
   const orgWideUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
     query,
-  )}&fields=files(id,name,mimeType,webViewLink)&corpora=domain&pageSize=1000${
+  )}&fields=files(id,name,mimeType,webViewLink)&corpora=domain&pageSize=100${
     orderByQuery ? `&orderBy=${encodeURIComponent(orderByQuery)}` : ""
   }`;
 
@@ -112,7 +112,7 @@ const searchAllDrivesIndividually = async (
     `q=${encodeURIComponent(query)}&` +
     `fields=files(id,name,mimeType,webViewLink),nextPageToken&` +
     `corpora=domain&` +
-    `pageSize=1000${orderByQuery ? `&orderBy=${encodeURIComponent(orderByQuery)}` : ""}`;
+    `pageSize=100${orderByQuery ? `&orderBy=${encodeURIComponent(orderByQuery)}` : ""}`;
 
   const domainDriveFunction = async () => {
     const domainRes = await axiosClient.get(domainUrl, {
@@ -207,14 +207,14 @@ const searchSingleDrive = async (
       // Search in user's personal drive
       url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
         query,
-      )}&fields=files(id,name,mimeType,webViewLink),nextPageToken&pageSize=1000${orderByQuery ? `&orderBy=${encodeURIComponent(orderByQuery)}` : ""}${
+      )}&fields=files(id,name,mimeType,webViewLink),nextPageToken&pageSize=100${orderByQuery ? `&orderBy=${encodeURIComponent(orderByQuery)}` : ""}${
         nextPageToken ? `&pageToken=${nextPageToken}` : ""
       }`;
     } else {
       // Search in specific shared drive
       url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(
         `${query} and parents in '${driveId}'`,
-      )}&fields=files(id,name,mimeType,webViewLink),nextPageToken&supportsAllDrives=true&includeItemsFromAllDrives=true&corpora=drive&driveId=${driveId}&pageSize=1000${orderByQuery ? `&orderBy=${encodeURIComponent(orderByQuery)}` : ""}${
+      )}&fields=files(id,name,mimeType,webViewLink),nextPageToken&supportsAllDrives=true&includeItemsFromAllDrives=true&corpora=drive&driveId=${driveId}&pageSize=100${orderByQuery ? `&orderBy=${encodeURIComponent(orderByQuery)}` : ""}${
         nextPageToken ? `&pageToken=${nextPageToken}` : ""
       }`;
     }
