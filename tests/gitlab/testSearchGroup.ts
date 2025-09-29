@@ -20,7 +20,7 @@ async function runSearchGroupWithoutProject() {
     "searchGroup",
     "gitlab",
     { authToken: process.env.GITLAB_ACCESS_TOKEN },
-    params
+    params,
   )) as gitlabSearchGroupOutputType;
   console.log("Resulting payload:");
   console.dir(result, { depth: 4 });
@@ -40,7 +40,7 @@ async function runSearchGroupWithProject() {
     "searchGroup",
     "gitlab",
     { authToken: process.env.GITLAB_ACCESS_TOKEN },
-    params
+    params,
   )) as gitlabSearchGroupOutputType;
   console.log("Resulting payload:");
   console.dir(result, { depth: 4 });

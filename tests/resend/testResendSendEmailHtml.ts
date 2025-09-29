@@ -13,7 +13,8 @@ async function runTest() {
     {
       to: "insert-during-testing",
       subject: "Test HTML Email",
-      content: "<h1>This is a test HTML email</h1><p>This email contains <strong>HTML content</strong>.</p>",
+      content:
+        "<h1>This is a test HTML email</h1><p>This email contains <strong>HTML content</strong>.</p>",
     },
   );
   console.log(result);

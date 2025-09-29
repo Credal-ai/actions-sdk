@@ -37,4 +37,4 @@ runTest().catch((error) => {
     console.error("Status code:", error.response.status);
   }
   process.exit(1);
-}); 
+});

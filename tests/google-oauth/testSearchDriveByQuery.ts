@@ -22,7 +22,7 @@ async function runTest() {
       searchDriveByDrive: false,
       orderByQuery: "modifiedTime asc", // Order by modified time descending (newest first)
       limit: 5,
-    } as googleOauthSearchDriveByQueryParamsType
+    } as googleOauthSearchDriveByQueryParamsType,
   );
 
   // Validate the result

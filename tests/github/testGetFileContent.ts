@@ -22,7 +22,7 @@ async function runTest() {
       organization: "Credal-ai",
       repository: "actions-sdk",
       path: "src/app.ts",
-    }
+    },
   );
 
   const typedResult = result as githubGetFileContentOutputType;
@@ -35,15 +35,15 @@ async function runTest() {
   assert(
     typedResult.results?.[0]?.url ==
       "https://github.com/Credal-ai/actions-sdk/blob/main/src/app.ts",
-    "Response should contain the correct URL"
+    "Response should contain the correct URL",
   );
   assert(
     typedResult.results?.[0]?.name == "app.ts",
-    "Response should contain the correct name"
+    "Response should contain the correct name",
   );
   assert(
     typedResult.results?.[0]?.contents?.content?.includes("action"),
-    "Response should contain the correct content"
+    "Response should contain the correct content",
   );
 }
 

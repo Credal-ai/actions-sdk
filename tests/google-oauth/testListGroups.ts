@@ -9,8 +9,8 @@ async function runTests() {
   const result = await runAction(
     "listGroups",
     "googleOauth",
-    { authToken: process.env.GOOGLE_OAUTH_TOKEN! }, 
-    { maxResults: 1 } // Optional: limit the number of results
+    { authToken: process.env.GOOGLE_OAUTH_TOKEN! },
+    { maxResults: 1 }, // Optional: limit the number of results
   );
 
   assert(result, "Should return a result");
@@ -18,11 +18,23 @@ async function runTests() {
   assert(Array.isArray(result.groups), "Should return groups array");
   if (result.groups.length > 0) {
     const { id, email, name, description } = result.groups[0];
-    assert(typeof id === "string" && id.length > 0, "Group should have a valid id");
-    assert(typeof email === "string" && email.length > 0, "Group should have a valid email");
-    assert(typeof name === "string" && name.length > 0, "Group should have a valid name");
+    assert(
+      typeof id === "string" && id.length > 0,
+      "Group should have a valid id",
+    );
+    assert(
+      typeof email === "string" && email.length > 0,
+      "Group should have a valid email",
+    );
+    assert(
+      typeof name === "string" && name.length > 0,
+      "Group should have a valid name",
+    );
     if (description !== undefined) {
-      assert(typeof description === "string", "Group description should be a string if present");
+      assert(
+        typeof description === "string",
+        "Group description should be a string if present",
+      );
     }
   }
   console.log("List Groups Test Response: ", result);

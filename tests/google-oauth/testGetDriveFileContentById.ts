@@ -27,7 +27,7 @@ async function runTest() {
     {
       authToken: process.env.GOOGLE_DRIVE_AUTH_TOKEN, // Use a valid OAuth token with Drive readonly scope,
     },
-    params
+    params,
   )) as googleOauthGetDriveFileContentByIdOutputType;
   const endTime = performance.now();
   const duration = endTime - startTime;
@@ -37,7 +37,7 @@ async function runTest() {
   assert.strictEqual(result.success, true, "Retrieval should be successful");
   assert(
     typeof result.results?.[0]?.contents?.content === "string",
-    "Content should be a string"
+    "Content should be a string",
   );
 
   // Additional checks when successful
@@ -45,14 +45,14 @@ async function runTest() {
     assert(result.results?.[0]?.name, "Should include fileName");
     assert(
       typeof result.results?.[0]?.contents?.fileLength === "number",
-      "Should include fileLength as number"
+      "Should include fileLength as number",
     );
 
     // Ensure truncation logic works when limit is set
     if (params.limit) {
       assert(
         result.results?.[0]?.contents?.content?.length <= params.limit,
-        "Content should respect the limit"
+        "Content should respect the limit",
       );
     }
   }

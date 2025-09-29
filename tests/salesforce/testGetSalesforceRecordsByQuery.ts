@@ -20,7 +20,7 @@ async function runTest() {
     {
       query: "SELECT Id FROM Account",
       limit: 10,
-    }
+    },
   )) as salesforceGetSalesforceRecordsByQueryOutputType;
   assert.strictEqual(regularQueryResult.success, true);
   assert.strictEqual(regularQueryResult.results?.length, 10);
@@ -36,7 +36,7 @@ async function runTest() {
     {
       query: "SELECT COUNT(Id) FROM Account",
       limit: 10,
-    }
+    },
   )) as salesforceGetSalesforceRecordsByQueryOutputType;
   assert.strictEqual(aggregateQueryResult.success, true);
   assert.strictEqual(aggregateQueryResult.results?.length, 1);
@@ -52,7 +52,7 @@ async function runTest() {
     {
       query: "SELECT COUNT(Id), Industry FROM Account GROUP BY Industry",
       limit: 10,
-    }
+    },
   )) as salesforceGetSalesforceRecordsByQueryOutputType;
   assert.strictEqual(groupByQueryResult.success, true);
   assert.ok(groupByQueryResult.results?.length ?? 0 > 0);
@@ -68,7 +68,7 @@ async function runTest() {
     },
     {
       query: "SELECT Id FROM Account LIMIT 5",
-    }
+    },
   )) as salesforceGetSalesforceRecordsByQueryOutputType;
   assert.strictEqual(existingLimitQueryResult.success, true);
   assert.ok(existingLimitQueryResult.results?.length ?? 0 <= 5);
@@ -83,7 +83,7 @@ async function runTest() {
     },
     {
       query: "SELECT Id FROM Account LIMIT 3000",
-    }
+    },
   )) as salesforceGetSalesforceRecordsByQueryOutputType;
   assert.strictEqual(highLimitQueryResult.success, true);
   // Should be capped at 2000 or whatever records exist
@@ -99,7 +99,7 @@ async function runTest() {
     {
       query: "SELECT Id FROM Account LIMIT 100",
       limit: 3,
-    }
+    },
   )) as salesforceGetSalesforceRecordsByQueryOutputType;
   assert.strictEqual(overrideLimitQueryResult.success, true);
   assert.ok(overrideLimitQueryResult.results?.length ?? 0 <= 3);
@@ -115,7 +115,7 @@ async function runTest() {
     {
       query: "SELECT Id FROM Account LIMIT 50",
       limit: 3000,
-    }
+    },
   )) as salesforceGetSalesforceRecordsByQueryOutputType;
   assert.strictEqual(capLimitQueryResult.success, true);
   // Should be capped at 2000
@@ -130,7 +130,7 @@ async function runTest() {
     },
     {
       query: "SELECT Id FROM Account limit 7",
-    }
+    },
   )) as salesforceGetSalesforceRecordsByQueryOutputType;
   assert.strictEqual(caseLimitQueryResult.success, true);
   assert.ok(caseLimitQueryResult.results?.length ?? 0 <= 7);
@@ -146,7 +146,7 @@ async function runTest() {
     {
       query: "SELECT Id FROM Account   LIMIT   15   ",
       limit: 4,
-    }
+    },
   )) as salesforceGetSalesforceRecordsByQueryOutputType;
   assert.strictEqual(whitespaceLimitQueryResult.success, true);
   assert.ok(whitespaceLimitQueryResult.results?.length ?? 0 <= 4);

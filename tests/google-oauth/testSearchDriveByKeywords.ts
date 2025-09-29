@@ -12,10 +12,10 @@ async function runTest() {
     "searchDriveByKeywords",
     "googleOauth",
     {
-      authToken: "insert-access-token" // Use a valid OAuth token with Drive readonly scope,
+      authToken: "insert-access-token", // Use a valid OAuth token with Drive readonly scope,
     },
     {
-      keywords: ["replace-me", "with-keywords", "to-search-for"]
+      keywords: ["replace-me", "with-keywords", "to-search-for"],
     } as googleOauthSearchDriveByKeywordsParamsType,
   );
 
@@ -23,7 +23,7 @@ async function runTest() {
   assert.strictEqual(result.success, true, "Search should be successful");
   assert(Array.isArray(result.files), "Files should be an array");
   if (result.files.length > 0) {
-    const firstFile = result.files[0]
+    const firstFile = result.files[0];
     assert(firstFile.id, "First file should have an id");
     assert(firstFile.name, "First file should have a name");
     assert(firstFile.mimeType, "First file should have a mimeType");

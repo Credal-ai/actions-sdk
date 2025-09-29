@@ -3,7 +3,8 @@ import { runAction } from "../../src/app.js";
 import { jiraConfig, provider } from "./utils.js";
 
 async function runTest() {
-  const { authToken, cloudId, baseUrl, issueId, projectKey, requestTypeId } = jiraConfig;
+  const { authToken, cloudId, baseUrl, issueId, projectKey, requestTypeId } =
+    jiraConfig;
 
   const validResult = await runAction(
     "updateJiraTicketDetails",

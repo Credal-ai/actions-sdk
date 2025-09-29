@@ -3,10 +3,10 @@ import { runAction } from "../../src/app.js";
 
 async function runTest() {
   const result = await runAction(
-    "searchTasks", 
+    "searchTasks",
     "asana",
-    { authToken: "replace-me-with-auth-token" }, 
-    { query: "replace-me-with-search-query", },
+    { authToken: "replace-me-with-auth-token" },
+    { query: "replace-me-with-search-query" },
   );
   assert(result, "Response should not be null");
   assert(result.success, "Success should be true");
@@ -14,7 +14,9 @@ async function runTest() {
 
   console.log(`Found ${result.results.length} matching tasks:`);
   for (const match of result.results) {
-    console.log(`- ${match.name} (ID: ${match.id}) in Workspace ${match.workspaceId}`);
+    console.log(
+      `- ${match.name} (ID: ${match.id}) in Workspace ${match.workspaceId}`,
+    );
   }
 }
 

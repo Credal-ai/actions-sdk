@@ -11,9 +11,9 @@ async function runTests() {
     { authToken: process.env.GOOGLE_OAUTH_TOKEN! },
     {
       groupKey: process.env.GOOGLE_GROUP_KEY!,
-      email: process.env.GOOGLE_GROUP_MEMBER_EMAIL!, 
+      email: process.env.GOOGLE_GROUP_MEMBER_EMAIL!,
       role: "MEMBER", // Set role as needed, e.g., "MEMBER" or "OWNER"
-    }
+    },
   );
   assert(result, "Should return a result");
   assert(result.success, "Should have success boolean");

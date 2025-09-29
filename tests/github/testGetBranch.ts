@@ -22,7 +22,7 @@ async function runTest() {
       repositoryOwner: "Credal-ai",
       repositoryName: "actions-sdk",
       branchName: "main",
-    }
+    },
   );
 
   const typedResult = result as githubGetBranchOutputType;
@@ -34,27 +34,27 @@ async function runTest() {
   assert(typedResult.success, "Response should indicate success");
   assert(
     typedResult.branch?.name === "main",
-    "Response should contain the correct branch name"
+    "Response should contain the correct branch name",
   );
   assert(
     typedResult.branch?.commit?.sha,
-    "Response should contain a commit SHA"
+    "Response should contain a commit SHA",
   );
   assert(
     typedResult.branch?.commit?.url,
-    "Response should contain a commit URL"
+    "Response should contain a commit URL",
   );
   assert(
     typedResult.branch?.commit?.html_url,
-    "Response should contain a commit HTML URL"
+    "Response should contain a commit HTML URL",
   );
   assert(
     typedResult.branch?.commit?.commit?.message,
-    "Response should contain a commit message"
+    "Response should contain a commit message",
   );
   assert(
     typeof typedResult.branch?.protected === "boolean",
-    "Response should indicate if branch is protected"
+    "Response should indicate if branch is protected",
   );
   assert(typedResult.branch?._links?.html, "Response should contain HTML link");
 

@@ -13,25 +13,25 @@ async function runTest() {
     },
     {
       projectId: process.env.ASANA_TEST_PROJECT_ID!,
-    }
+    },
   );
 
   // Validate response
   assert(result, "Response should not be null");
   assert(result.success, "Response should indicate success");
   assert(Array.isArray(result.tasks), "Response should contain tasks array");
-  
+
   if (result.tasks.length > 0) {
     const firstTask = result.tasks[0];
     assert(firstTask.task, "Task should have task details");
     assert(firstTask.task.gid, "Task should have a gid");
     assert(firstTask.task.name, "Task should have a name");
-    
+
     // Validate subtasks (if any)
     if (firstTask.subtasks && firstTask.subtasks.length > 0) {
       assert(firstTask.subtasks[0].gid, "Subtask should have a gid");
     }
-    
+
     // Validate task stories (if any)
     if (firstTask.taskStories && firstTask.taskStories.length > 0) {
       assert(firstTask.taskStories[0].gid, "Task story should have a gid");
@@ -39,7 +39,9 @@ async function runTest() {
     }
   }
 
-  console.log(`Successfully retrieved ${result.tasks.length} tasks from Asana project`);
+  console.log(
+    `Successfully retrieved ${result.tasks.length} tasks from Asana project`,
+  );
   console.log("Test passed successfully!");
 }
 

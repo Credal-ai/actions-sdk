@@ -13,7 +13,7 @@ async function runTest() {
 
   if (!oktaAuthToken || !oktaDomain || !testUserId) {
     console.warn(
-      "OKTA_AUTH_TOKEN, OKTA_DOMAIN, or OKTA_TEST_USER_ID environment variables are not set. Skipping Okta tests."
+      "OKTA_AUTH_TOKEN, OKTA_DOMAIN, or OKTA_TEST_USER_ID environment variables are not set. Skipping Okta tests.",
     );
     return;
   }
@@ -21,21 +21,33 @@ async function runTest() {
   const authParams = { authToken: oktaAuthToken, baseUrl: oktaDomain };
 
   if (testFactorId) {
-    console.log(`Resetting specific MFA factor (${testFactorId}) for the user...`);
-    const resetSpecificResult = await runAction("resetMFA", "okta", authParams, {
-      userId: testUserId,
-      factorId: testFactorId,
-    });
+    console.log(
+      `Resetting specific MFA factor (${testFactorId}) for the user...`,
+    );
+    const resetSpecificResult = await runAction(
+      "resetMFA",
+      "okta",
+      authParams,
+      {
+        userId: testUserId,
+        factorId: testFactorId,
+      },
+    );
 
     assert(resetSpecificResult, "Response should not be null");
 
     if (!resetSpecificResult.success) {
-      console.error(`Failed to reset MFA factor (${testFactorId}):`, resetSpecificResult.error);
+      console.error(
+        `Failed to reset MFA factor (${testFactorId}):`,
+        resetSpecificResult.error,
+      );
       return;
     }
     console.log(`Successfully reset MFA factor (${testFactorId}) for user.`);
   } else {
-    console.warn("No specific factor ID provided for resetMFA test. Skipping specific factor reset.");
+    console.warn(
+      "No specific factor ID provided for resetMFA test. Skipping specific factor reset.",
+    );
   }
 
   console.log("Resetting all MFA factors for the user...");
@@ -50,7 +62,6 @@ async function runTest() {
     return;
   }
   console.log("Successfully reset all MFA factors for user.");
-
 
   console.log("Okta resetMFA tests completed successfully.");
 }

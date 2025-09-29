@@ -25,9 +25,7 @@ async function runTest() {
   const validatedResult = jiraGetServiceDesksOutputSchema.safeParse(result);
   assert(validatedResult.success, "Response should be valid");
 
-  console.log(
-    `Successfully retrieved Jira service desks`,
-  );
+  console.log(`Successfully retrieved Jira service desks`);
 }
 
 runTest().catch((error) => {

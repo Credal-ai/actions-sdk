@@ -12,17 +12,19 @@ async function runTest() {
 
   if (!oktaAuthToken || !oktaDomain || !workflowId) {
     console.warn(
-      "OKTA_AUTH_TOKEN, OKTA_DOMAIN, or OKTA_TEST_HTTP_TRIGGER_CARD environment variables are not set. Skipping Okta workflow trigger test."
+      "OKTA_AUTH_TOKEN, OKTA_DOMAIN, or OKTA_TEST_HTTP_TRIGGER_CARD environment variables are not set. Skipping Okta workflow trigger test.",
     );
     return;
   }
 
   // Extract subdomain from domain URL
-  const subdomain = oktaDomain.replace(/https?:\/\//, '').replace('.okta.com', '');
+  const subdomain = oktaDomain
+    .replace(/https?:\/\//, "")
+    .replace(".okta.com", "");
   const authParams = { authToken: oktaAuthToken, subdomain };
 
   console.log("Running Okta triggerWorkflow test...");
-  
+
   // Test with workflow parameters
   const testParams: oktaTriggerOktaWorkflowParamsType = {
     workflowId,
@@ -32,7 +34,12 @@ async function runTest() {
     },
   };
 
-  const result = await runAction("triggerOktaWorkflow", "okta", authParams, testParams);
+  const result = await runAction(
+    "triggerOktaWorkflow",
+    "okta",
+    authParams,
+    testParams,
+  );
 
   assert(result, "Response should not be null");
 
@@ -42,27 +49,44 @@ async function runTest() {
   assert(result.success, `Action should be successful. Error: ${result.error}`);
   assert(result.output !== undefined, "Response should contain output");
 
-  console.log("Workflow trigger result:", JSON.stringify(result.output, null, 2));
+  console.log(
+    "Workflow trigger result:",
+    JSON.stringify(result.output, null, 2),
+  );
 
   console.log("Okta triggerWorkflow test completed successfully.");
 
   // Test without workflow parameters
   console.log("Running Okta triggerWorkflow test without parameters...");
-  
+
   const testParamsWithoutWorkflowParams: oktaTriggerOktaWorkflowParamsType = {
     workflowId,
   };
 
-  const resultWithoutParams = await runAction("triggerOktaWorkflow", "okta", authParams, testParamsWithoutWorkflowParams);
+  const resultWithoutParams = await runAction(
+    "triggerOktaWorkflow",
+    "okta",
+    authParams,
+    testParamsWithoutWorkflowParams,
+  );
 
   assert(resultWithoutParams, "Response should not be null");
 
   if (!resultWithoutParams.success) {
-    console.error("Okta Workflow Trigger Error (no params):", resultWithoutParams.error);
+    console.error(
+      "Okta Workflow Trigger Error (no params):",
+      resultWithoutParams.error,
+    );
   }
-  assert(resultWithoutParams.success, `Action should be successful. Error: ${resultWithoutParams.error}`);
+  assert(
+    resultWithoutParams.success,
+    `Action should be successful. Error: ${resultWithoutParams.error}`,
+  );
 
-  console.log("Workflow trigger result (no params):", JSON.stringify(resultWithoutParams.output, null, 2));
+  console.log(
+    "Workflow trigger result (no params):",
+    JSON.stringify(resultWithoutParams.output, null, 2),
+  );
 
   console.log("Okta triggerWorkflow test (no params) completed successfully.");
 }
@@ -72,7 +96,7 @@ runTest().catch((error) => {
   if (error.isAxiosError && error.response) {
     console.error(
       "Axios Response Error Data:",
-      JSON.stringify(error.response.data, null, 2)
+      JSON.stringify(error.response.data, null, 2),
     );
     console.error("Axios Response Error Status:", error.response.status);
   } else if (error.stack) {

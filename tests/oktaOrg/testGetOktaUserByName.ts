@@ -11,7 +11,7 @@ async function runTest() {
 
   if (!oktaAuthToken || !oktaDomain || !testUserName) {
     console.warn(
-      "OKTA_AUTH_TOKEN, OKTA_DOMAIN, or OKTA_TEST_USER_NAME environment variables are not set. Skipping Okta tests."
+      "OKTA_AUTH_TOKEN, OKTA_DOMAIN, or OKTA_TEST_USER_NAME environment variables are not set. Skipping Okta tests.",
     );
     return;
   }
@@ -38,7 +38,7 @@ runTest().catch((error) => {
   if (error.isAxiosError && error.response) {
     console.error(
       "Axios Response Error Data:",
-      JSON.stringify(error.response.data, null, 2)
+      JSON.stringify(error.response.data, null, 2),
     );
     console.error("Axios Response Error Status:", error.response.status);
   } else if (error.stack) {

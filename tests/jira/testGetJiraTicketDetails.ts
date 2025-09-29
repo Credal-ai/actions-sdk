@@ -16,7 +16,7 @@ async function runTest() {
     },
     {
       issueId,
-    }
+    },
   )) as jiraGetJiraTicketDetailsOutputType;
 
   console.log(JSON.stringify(result, null, 2));
@@ -28,11 +28,11 @@ async function runTest() {
   assert(result.results[0].contents.key, "Ticket data should include a key");
   assert(
     result.results[0].contents.fields,
-    "Ticket data should include fields"
+    "Ticket data should include fields",
   );
 
   console.log(
-    `Successfully retrieved Jira ticket details for: ${result.results[0].name}`
+    `Successfully retrieved Jira ticket details for: ${result.results[0].name}`,
   );
 }
 

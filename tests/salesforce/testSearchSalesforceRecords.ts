@@ -25,13 +25,13 @@ async function runTest() {
       recordType: "Account",
       fieldsToSearch: ["Name"],
       limit: 1,
-    }
+    },
   )) as salesforceSearchSalesforceRecordsOutputType;
   assert.strictEqual(regularQueryResult.success, true);
   assert.equal(
     salesforceSearchSalesforceRecordsOutputSchema.safeParse(regularQueryResult)
       .success,
-    true
+    true,
   );
   assert.equal(regularQueryResult.results?.length, 1);
 
@@ -47,13 +47,13 @@ async function runTest() {
       recordType: "Account",
       fieldsToSearch: ["Name"],
       limit: 1,
-    }
+    },
   );
   assert.strictEqual(dashKeywordResult.success, true);
   assert.equal(
     salesforceSearchSalesforceRecordsOutputSchema.safeParse(dashKeywordResult)
       .success,
-    true
+    true,
   );
 
   console.log("All tests passed!");

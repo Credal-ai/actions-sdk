@@ -32,15 +32,15 @@ async function runTest() {
   // Validate the result
   assert(result.success, "Result should indicate success");
   assert(result.presentation, "Result should contain presentation data");
-  
+
   // Check basic presentation structure
   if (result.presentation.title) {
     console.log("Presentation title:", result.presentation.title);
   }
-  
+
   if (result.presentation.slides && Array.isArray(result.presentation.slides)) {
     console.log("Number of slides:", result.presentation.slides.length);
-    
+
     // Check if styling exists in slides
     let stylingFound = false;
     for (const slide of result.presentation.slides) {
@@ -55,7 +55,7 @@ async function runTest() {
         if (stylingFound) break;
       }
     }
-    
+
     if (stylingFound) {
       console.log("Styling information found in presentation");
     } else {

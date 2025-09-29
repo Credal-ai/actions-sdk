@@ -16,7 +16,7 @@ async function runTest() {
   const result = await runAction(
     "searchGmailMessages",
     "googlemail",
-    { authToken: process.env.GOOGLE_AUTH_TOKEN }, 
+    { authToken: process.env.GOOGLE_AUTH_TOKEN },
     params,
   );
 
@@ -29,7 +29,10 @@ async function runTest() {
     const firstMsg = result.messages[0];
     assert(firstMsg.id, "First message should have an id");
     assert(firstMsg.threadId, "First message should have a threadId");
-    assert(typeof firstMsg.snippet === "string", "First message should have a snippet");
+    assert(
+      typeof firstMsg.snippet === "string",
+      "First message should have a snippet",
+    );
   }
 }
 

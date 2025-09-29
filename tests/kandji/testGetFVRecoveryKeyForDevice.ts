@@ -30,7 +30,9 @@ async function runTest() {
   assert(result.success, "Response should indicate success");
   assert(result.recoveryKey, "Response should contain the recovery key");
 
-  console.log(`Successfully retrieved FileVault recovery key for device: ${userEmail}`);
+  console.log(
+    `Successfully retrieved FileVault recovery key for device: ${userEmail}`,
+  );
 }
 
 runTest().catch((error) => {

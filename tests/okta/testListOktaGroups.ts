@@ -11,7 +11,7 @@ async function runTest() {
 
   if (!oktaAuthToken || !oktaDomain) {
     console.warn(
-      "OKTA_AUTH_TOKEN or OKTA_DOMAIN environment variables are not set. Skipping Okta tests."
+      "OKTA_AUTH_TOKEN or OKTA_DOMAIN environment variables are not set. Skipping Okta tests.",
     );
     return;
   }
@@ -24,7 +24,7 @@ async function runTest() {
   assert(result.success, `Action should be successful. Error: ${result.error}`);
   assert(
     Array.isArray(result.groups),
-    "Response should contain a groups array"
+    "Response should contain a groups array",
   );
   console.log(`Successfully listed ${result.groups.length} Okta groups.`);
 
@@ -36,19 +36,19 @@ async function runTest() {
   assert(result.success, `Action should be successful. Error: ${result.error}`);
   assert(
     Array.isArray(result.groups),
-    "Response should contain a groups array"
+    "Response should contain a groups array",
   );
   assert(
     result.groups.length <= 201,
-    "Groups array should not exceed maxResults limit"
+    "Groups array should not exceed maxResults limit",
   );
   console.log(
-    `Successfully listed ${result.groups.length} Okta groups with maxResults set to 201.`
+    `Successfully listed ${result.groups.length} Okta groups with maxResults set to 201.`,
   );
 
   if (testGroupName) {
     console.log(
-      `Running Okta listGroups search test for name: ${testGroupName}`
+      `Running Okta listGroups search test for name: ${testGroupName}`,
     );
     const searchResult = await runAction("listOktaGroups", "okta", authParams, {
       searchQuery: `profile.name sw "${testGroupName}"`,
@@ -56,30 +56,30 @@ async function runTest() {
     assert(searchResult, "Search response should not be null");
     assert(
       searchResult.success,
-      `Search action should be successful. Error: ${searchResult.error}`
+      `Search action should be successful. Error: ${searchResult.error}`,
     );
     assert(
       Array.isArray(searchResult.groups),
-      "Search response should contain a groups array"
+      "Search response should contain a groups array",
     );
     assert(
       searchResult.groups.length > 0,
-      `No groups found for name: ${testGroupName}. Ensure the test group exists in Okta.`
+      `No groups found for name: ${testGroupName}. Ensure the test group exists in Okta.`,
     );
     console.log(
-      `Successfully found ${searchResult.groups.length} group(s) for name: ${testGroupName}`
+      `Successfully found ${searchResult.groups.length} group(s) for name: ${testGroupName}`,
     );
     const foundGroup = searchResult.groups[0];
     assert(foundGroup.id, "Found group should have an ID");
     console.log("Found group Name:", foundGroup.profile.name);
     assert(
       foundGroup.profile.name.startsWith(testGroupName),
-      "Found group's name should match the test name"
+      "Found group's name should match the test name",
     );
     console.log("Found group:", JSON.stringify(foundGroup, null, 2));
   } else {
     console.warn(
-      "OKTA_TEST_GROUP_NAME environment variable is not set. Skipping search test."
+      "OKTA_TEST_GROUP_NAME environment variable is not set. Skipping search test.",
     );
   }
 
@@ -91,7 +91,7 @@ runTest().catch((error) => {
   if (error.isAxiosError && error.response) {
     console.error(
       "Axios Response Error Data:",
-      JSON.stringify(error.response.data, null, 2)
+      JSON.stringify(error.response.data, null, 2),
     );
     console.error("Axios Response Error Status:", error.response.status);
   } else if (error.stack) {

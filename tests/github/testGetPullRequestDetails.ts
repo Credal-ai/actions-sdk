@@ -23,7 +23,7 @@ async function runTest() {
       repositoryOwner: "Credal-ai",
       repositoryName: "actions-sdk",
       pullRequestNumber: 1, // Assuming PR #1 exists
-    }
+    },
   );
 
   const typedResult = result as githubGetPullRequestDetailsOutputType;
@@ -73,7 +73,7 @@ async function runTest() {
     assert(typeof pr.deletions === "number", "PR should have deletions count");
     assert(
       typeof pr.changedFiles === "number",
-      "PR should have changed files count"
+      "PR should have changed files count",
     );
 
     console.log(`✅ Pull Request #${pr.number}: "${pr.title}"`);
@@ -82,12 +82,12 @@ async function runTest() {
     console.log(`   Head: ${pr.head.ref} (${pr.head.sha.substring(0, 7)})`);
     console.log(`   Base: ${pr.base.ref} (${pr.base.sha.substring(0, 7)})`);
     console.log(
-      `   Changes: +${pr.additions}/-${pr.deletions} across ${pr.changedFiles} files`
+      `   Changes: +${pr.additions}/-${pr.deletions} across ${pr.changedFiles} files`,
     );
 
     if (pr.description) {
       console.log(
-        `   Description: ${pr.description.substring(0, 100)}${pr.description.length > 100 ? "..." : ""}`
+        `   Description: ${pr.description.substring(0, 100)}${pr.description.length > 100 ? "..." : ""}`,
       );
     }
   }
@@ -106,7 +106,7 @@ async function runTest() {
         repositoryOwner: "Credal-ai",
         repositoryName: "actions-sdk",
         pullRequestNumber: 999999, // Non-existent PR
-      }
+      },
     );
 
     const typedResult2 = result2 as githubGetPullRequestDetailsOutputType;
@@ -114,11 +114,11 @@ async function runTest() {
     // This should fail gracefully
     assert(
       !typedResult2.success,
-      "Non-existent PR should return success: false"
+      "Non-existent PR should return success: false",
     );
     assert(
       typedResult2.error,
-      "Non-existent PR should return an error message"
+      "Non-existent PR should return an error message",
     );
 
     console.log("✅ Error handling test passed");

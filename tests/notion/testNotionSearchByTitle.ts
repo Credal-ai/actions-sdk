@@ -6,7 +6,7 @@ async function runTest() {
     "searchByTitle",
     "notion",
     { authToken: "replace-me-with-token" },
-    { query: "replace-me-withsearch-query" }
+    { query: "replace-me-withsearch-query" },
   );
 
   assert(result, "Response should not be null");
@@ -16,7 +16,7 @@ async function runTest() {
 }
 
 runTest().catch((error) => {
- console.error("Test failed:", error);
+  console.error("Test failed:", error);
   if (error.response) {
     console.error("API response:", error.response.data);
     console.error("Status code:", error.response.status);

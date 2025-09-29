@@ -23,7 +23,7 @@ async function runTest() {
       repositoryOwner: "Credal-ai",
       repositoryName: "actions-sdk",
       perPage: 5, // Limit for testing
-    }
+    },
   );
 
   const typedResult = result as githubListCommitsOutputType;
@@ -36,19 +36,19 @@ async function runTest() {
   assert(typedResult.success, "Response should indicate success");
   assert(
     Array.isArray(typedResult.commits),
-    "Response should contain commits array"
+    "Response should contain commits array",
   );
   assert(
     typedResult.commits.length > 0,
-    "Response should contain at least one commit"
+    "Response should contain at least one commit",
   );
   assert(
     typeof typedResult.totalCount === "number",
-    "Response should contain totalCount"
+    "Response should contain totalCount",
   );
   assert(
     typeof typedResult.hasMore === "boolean",
-    "Response should contain hasMore"
+    "Response should contain hasMore",
   );
 
   // Validate commit structure
@@ -75,7 +75,7 @@ async function runTest() {
       repositoryName: "actions-sdk",
       since: "2024-01-01T00:00:00Z",
       perPage: 3,
-    }
+    },
   );
 
   const typedDateResult = dateFilterResult as githubListCommitsOutputType;
@@ -86,11 +86,11 @@ async function runTest() {
   // Validate date filter response
   assert(
     typedDateResult.success,
-    "Date filter response should indicate success"
+    "Date filter response should indicate success",
   );
   assert(
     Array.isArray(typedDateResult.commits),
-    "Date filter response should contain commits array"
+    "Date filter response should contain commits array",
   );
 
   console.log("✅ Date filtering test passed");
@@ -107,7 +107,7 @@ async function runTest() {
       repositoryName: "actions-sdk",
       perPage: 2,
       page: 2,
-    }
+    },
   );
 
   const typedPaginationResult = paginationResult as githubListCommitsOutputType;
@@ -118,11 +118,11 @@ async function runTest() {
   // Validate pagination response
   assert(
     typedPaginationResult.success,
-    "Pagination response should indicate success"
+    "Pagination response should indicate success",
   );
   assert(
     Array.isArray(typedPaginationResult.commits),
-    "Pagination response should contain commits array"
+    "Pagination response should contain commits array",
   );
 
   console.log("✅ Pagination test passed");

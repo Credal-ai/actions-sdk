@@ -11,7 +11,7 @@ async function runTest() {
 
   if (!oktaAuthToken || !oktaDomain || !testUserId) {
     console.warn(
-      "OKTA_AUTH_TOKEN, OKTA_DOMAIN, or OKTA_TEST_USER_ID environment variables are not set. Skipping Okta tests."
+      "OKTA_AUTH_TOKEN, OKTA_DOMAIN, or OKTA_TEST_USER_ID environment variables are not set. Skipping Okta tests.",
     );
     return;
   }

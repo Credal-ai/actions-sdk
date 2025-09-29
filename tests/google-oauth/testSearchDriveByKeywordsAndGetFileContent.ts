@@ -22,7 +22,7 @@ async function runTest() {
     {
       searchQuery: "Japan travel expense",
       searchDriveByDrive: false,
-    } as googleOauthSearchDriveByKeywordsAndGetFileContentParamsType
+    } as googleOauthSearchDriveByKeywordsAndGetFileContentParamsType,
   )) as googleOauthSearchDriveByKeywordsAndGetFileContentOutputType;
 
   console.log("Found files with content:", result.results);

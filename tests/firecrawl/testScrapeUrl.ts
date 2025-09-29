@@ -10,7 +10,7 @@ dotenv.config();
 
 async function runTest() {
   const apiKey = process.env.FIRECRAWL_API_KEY;
-  
+
   if (!apiKey) {
     throw new Error("FIRECRAWL_API_KEY environment variable is required");
   }
@@ -25,30 +25,42 @@ async function runTest() {
         url: "https://example.com",
         formats: ["markdown"],
         onlyMainContent: true,
-        waitMs: 1000
-      }
+        waitMs: 1000,
+      },
     )) as firecrawlScrapeUrlOutputType;
 
     console.dir(result, { depth: 4 });
-    
+
     // Validate the response structure
     assert.strictEqual(result.success, true);
     assert.equal(
       firecrawlScrapeUrlOutputSchema.safeParse(result).success,
-      true
+      true,
     );
-    
+
     // Validate results array
-    assert(result.results && Array.isArray(result.results), "Results should be an array");
+    assert(
+      result.results && Array.isArray(result.results),
+      "Results should be an array",
+    );
     assert(result.results.length > 0, "Should have at least one result");
-    
+
     // Validate first result
     const firstResult = result.results[0];
-    assert(typeof firstResult.name === "string", "Result name should be a string");
-    assert(typeof firstResult.url === "string", "Result url should be a string");
-    assert(typeof firstResult.contents === "string", "Result contents should be a string");
+    assert(
+      typeof firstResult.name === "string",
+      "Result name should be a string",
+    );
+    assert(
+      typeof firstResult.url === "string",
+      "Result url should be a string",
+    );
+    assert(
+      typeof firstResult.contents === "string",
+      "Result contents should be a string",
+    );
     assert(firstResult.contents.length > 0, "Content should not be empty");
-    
+
     console.log("✅ Basic scraping test passed");
   } catch (error) {
     console.error("❌ Basic scraping test failed:", error);
@@ -58,7 +70,7 @@ async function runTest() {
 
 async function testMultipleFormats() {
   const apiKey = process.env.FIRECRAWL_API_KEY;
-  
+
   if (!apiKey) {
     throw new Error("FIRECRAWL_API_KEY environment variable is required");
   }
@@ -72,18 +84,27 @@ async function testMultipleFormats() {
       {
         url: "https://example.com",
         formats: ["markdown", "html", "links"],
-        onlyMainContent: false
-      }
+        onlyMainContent: false,
+      },
     )) as firecrawlScrapeUrlOutputType;
 
     console.dir(result, { depth: 4 });
-    
+
     assert.strictEqual(result.success, true);
     assert(result.results && result.results.length > 0, "Should have results");
-    assert(result.results[0].contents.includes("=== MARKDOWN ==="), "Should contain markdown section");
-    assert(result.results[0].contents.includes("=== HTML ==="), "Should contain HTML section");
-    assert(result.results[0].contents.includes("=== LINKS ==="), "Should contain links section");
-    
+    assert(
+      result.results[0].contents.includes("=== MARKDOWN ==="),
+      "Should contain markdown section",
+    );
+    assert(
+      result.results[0].contents.includes("=== HTML ==="),
+      "Should contain HTML section",
+    );
+    assert(
+      result.results[0].contents.includes("=== LINKS ==="),
+      "Should contain links section",
+    );
+
     console.log("✅ Multiple formats test passed");
   } catch (error) {
     console.error("❌ Multiple formats test failed:", error);
@@ -93,7 +114,7 @@ async function testMultipleFormats() {
 
 async function testDefaultFormat() {
   const apiKey = process.env.FIRECRAWL_API_KEY;
-  
+
   if (!apiKey) {
     throw new Error("FIRECRAWL_API_KEY environment variable is required");
   }
@@ -105,16 +126,19 @@ async function testDefaultFormat() {
       "firecrawl",
       { apiKey },
       {
-        url: "https://example.com"
-      }
+        url: "https://example.com",
+      },
     )) as firecrawlScrapeUrlOutputType;
 
     console.dir(result, { depth: 4 });
-    
+
     assert.strictEqual(result.success, true);
     assert(result.results && result.results.length > 0, "Should have results");
-    assert(result.results[0].contents.length > 0, "Should have content even without format specified");
-    
+    assert(
+      result.results[0].contents.length > 0,
+      "Should have content even without format specified",
+    );
+
     console.log("✅ Default format test passed");
   } catch (error) {
     console.error("❌ Default format test failed:", error);

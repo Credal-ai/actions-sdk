@@ -9,7 +9,7 @@ async function testGetTeams() {
     "getTeams",
     "linear",
     { authToken: process.env.LINEAR_AUTH_TOKEN! },
-    {}
+    {},
   );
 
   assert(result.success, result.error || "getTeams did not succeed");
@@ -21,4 +21,4 @@ async function testGetTeams() {
   console.log(JSON.stringify(result, null, 2));
 }
 
-testGetTeams(); 
+testGetTeams();

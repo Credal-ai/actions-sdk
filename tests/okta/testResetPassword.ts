@@ -11,7 +11,7 @@ async function runTest() {
 
   if (!oktaAuthToken || !oktaDomain || !testUserId) {
     console.warn(
-      "OKTA_AUTH_TOKEN, OKTA_DOMAIN, or OKTA_TEST_USER_ID environment variables are not set. Skipping Okta tests."
+      "OKTA_AUTH_TOKEN, OKTA_DOMAIN, or OKTA_TEST_USER_ID environment variables are not set. Skipping Okta tests.",
     );
     return;
   }
@@ -31,7 +31,7 @@ async function runTest() {
   }
   assert(result.success, `Action should be successful. Error: ${result.error}`);
   console.log(
-    `Successfully reset password for user ${testUserId} with sendEmail: true.`
+    `Successfully reset password for user ${testUserId} with sendEmail: true.`,
   );
 
   if (result.resetPasswordUrl) {
@@ -51,14 +51,14 @@ async function runTest() {
   }
   assert(result.success, `Action should be successful. Error: ${result.error}`);
   console.log(
-    `Successfully reset password for user ${testUserId} with sendEmail: false.`
+    `Successfully reset password for user ${testUserId} with sendEmail: false.`,
   );
 
   if (result.resetPasswordUrl) {
     console.log(`Reset Password URL: ${result.resetPasswordUrl}`);
   } else {
     console.warn(
-      "Reset Password URL was not provided when sendEmail was set to false."
+      "Reset Password URL was not provided when sendEmail was set to false.",
     );
   }
 
@@ -70,7 +70,7 @@ runTest().catch((error) => {
   if (error.isAxiosError && error.response) {
     console.error(
       "Axios Response Error Data:",
-      JSON.stringify(error.response.data, null, 2)
+      JSON.stringify(error.response.data, null, 2),
     );
     console.error("Axios Response Error Status:", error.response.status);
   } else if (error.stack) {

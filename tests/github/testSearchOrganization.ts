@@ -17,7 +17,7 @@ async function runSearchOrganizationWithoutRepository() {
     {
       organization: "Credal-ai",
       query: "test",
-    }
+    },
   )) as githubSearchOrganizationOutputType;
 
   console.log(JSON.stringify(result, null, 2));
@@ -40,7 +40,7 @@ async function runSearchOrganizationWithRepository() {
       organization: "Credal-ai",
       repository: "app",
       query: "test",
-    }
+    },
   )) as githubSearchOrganizationOutputType;
 
   console.log(JSON.stringify(result, null, 2));

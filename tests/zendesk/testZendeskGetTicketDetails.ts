@@ -14,7 +14,7 @@ async function runTest() {
     {
       ticketId: "40",
       subdomain: "credalai",
-    }
+    },
   );
 
   // Basic assertions

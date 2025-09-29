@@ -15,7 +15,7 @@ async function runTest() {
     },
   );
 
-  console.log(result)
+  console.log(result);
 }
 
 runTest().catch(console.error);

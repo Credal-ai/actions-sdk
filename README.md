@@ -27,7 +27,7 @@ const result = await runAction(
   "listConversations",
   "slack",
   { authToken: "xoxb-..." },
-  {}
+  {},
 );
 ```
 
@@ -36,6 +36,7 @@ const result = await runAction(
 ```
 npm run test tests/math/testRunMathAction.ts
 ```
+
 ## Secret Scanning (TruffleHog)
 
 We run TruffleHog on every pull request that actually changes at least one file.

@@ -11,7 +11,7 @@ async function runTest() {
 
   if (!oktaAuthToken || !oktaDomain || !testUserId) {
     console.warn(
-      "OKTA_AUTH_TOKEN, OKTA_DOMAIN, or OKTA_TEST_USER_ID environment variables are not set. Skipping Okta tests."
+      "OKTA_AUTH_TOKEN, OKTA_DOMAIN, or OKTA_TEST_USER_ID environment variables are not set. Skipping Okta tests.",
     );
     return;
   }
@@ -32,10 +32,10 @@ async function runTest() {
   assert(result.success, `Action should be successful. Error: ${result.error}`);
   assert(
     Array.isArray(result.groups),
-    "Response should contain a groups array"
+    "Response should contain a groups array",
   );
   console.log(
-    `Successfully listed ${result.groups.length} groups for user ${testUserId}.`
+    `Successfully listed ${result.groups.length} groups for user ${testUserId}.`,
   );
   if (result.groups.length > 0) {
     const firstGroup = result.groups[0];
@@ -52,7 +52,7 @@ runTest().catch((error) => {
   if (error.isAxiosError && error.response) {
     console.error(
       "Axios Response Error Data:",
-      JSON.stringify(error.response.data, null, 2)
+      JSON.stringify(error.response.data, null, 2),
     );
     console.error("Axios Response Error Status:", error.response.status);
   } else if (error.stack) {

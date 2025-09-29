@@ -17,8 +17,7 @@ async function runTest() {
       authToken,
       subdomain,
     },
-    {
-    },
+    {},
   );
 
   console.log(JSON.stringify(result, null, 2));

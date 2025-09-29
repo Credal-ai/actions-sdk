@@ -16,7 +16,7 @@ async function runTest() {
   if (!process.env.GOOGLE_ACTIONS_ACCESS_TOKEN) {
     console.log("⚠️  Skipping test - GOOGLE_ACTIONS_ACCESS_TOKEN not found");
     console.log(
-      "To run this test, set GOOGLE_ACTIONS_ACCESS_TOKEN environment variable"
+      "To run this test, set GOOGLE_ACTIONS_ACCESS_TOKEN environment variable",
     );
     return;
   }
@@ -32,7 +32,7 @@ async function runTest() {
       searchQuery: "industry leading security layer",
       searchDriveByDrive: false,
       limit: 10,
-    } as googleOauthSearchDriveByKeywordsAndGetFileContentParamsType
+    } as googleOauthSearchDriveByKeywordsAndGetFileContentParamsType,
   );
 
   console.log("Search result:", result);

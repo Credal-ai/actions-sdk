@@ -27,7 +27,7 @@ async function runTest() {
       query: "OpenAI GPT",
       customSearchEngineId,
       num: 5,
-    } as googleSearchCustomSearchParamsType
+    } as googleSearchCustomSearchParamsType,
   )) as googleSearchCustomSearchOutputType;
 
   // Validate the result
@@ -47,26 +47,26 @@ async function runTest() {
   if (result.searchInformation) {
     assert(
       typeof result.searchInformation.searchTime === "number",
-      "Search time should be a number"
+      "Search time should be a number",
     );
     assert(
       typeof result.searchInformation.totalResults === "string",
-      "Total results should be a string"
+      "Total results should be a string",
     );
   }
 
   console.log(`Found ${result.items.length} search results`);
   console.log(
     "Search results:",
-    result.items.map((item) => ({ title: item.title, link: item.link }))
+    result.items.map((item) => ({ title: item.title, link: item.link })),
   );
 
   if (result.searchInformation) {
     console.log(
-      `Search completed in ${result.searchInformation.searchTime} seconds`
+      `Search completed in ${result.searchInformation.searchTime} seconds`,
     );
     console.log(
-      `Total results available: ${result.searchInformation.totalResults}`
+      `Total results available: ${result.searchInformation.totalResults}`,
     );
   }
 }
@@ -84,13 +84,13 @@ async function runMinimalTest() {
     {
       query: "test",
       customSearchEngineId,
-    } as googleSearchCustomSearchParamsType
+    } as googleSearchCustomSearchParamsType,
   );
 
   assert.strictEqual(
     result.success,
     true,
-    "Minimal search should be successful"
+    "Minimal search should be successful",
   );
   assert(Array.isArray(result.items), "Items should be an array");
 

@@ -11,8 +11,8 @@ async function runTests() {
     { authToken: process.env.GOOGLE_OAUTH_TOKEN! },
     {
       groupKey: process.env.GOOGLE_GROUP_KEY!,
-      memberKey: process.env.GOOGLE_GROUP_MEMBER_KEY!, 
-    }
+      memberKey: process.env.GOOGLE_GROUP_MEMBER_KEY!,
+    },
   );
   assert(result, "Should return a result");
   assert(result.success, "Should be successful");

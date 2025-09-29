@@ -22,14 +22,14 @@ async function runTest() {
     },
     {
       query: `project = ${projectKey}`,
-      limit: 10
-    }
+      limit: 10,
+    },
   )) as jiraGetJiraIssuesByQueryOutputType;
   console.dir(result, { depth: 4 });
   assert.strictEqual(result.success, true);
   assert.equal(
     jiraGetJiraIssuesByQueryOutputSchema.safeParse(result).success,
-    true
+    true,
   );
 }
 

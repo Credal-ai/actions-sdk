@@ -22,8 +22,8 @@ async function runTest() {
       searchDriveByDrive: false,
       orderByQuery: "modifiedTime asc", // Order by modified time descending (newest first)
       limit: 5,
-      fileSizeLimit: 300
-    } as googleOauthSearchDriveByQueryAndGetFileContentParamsType
+      fileSizeLimit: 300,
+    } as googleOauthSearchDriveByQueryAndGetFileContentParamsType,
   );
 
   // Validate the result
@@ -36,7 +36,7 @@ async function runTest() {
     assert(firstFile.name, "First file should have a name");
     assert(firstFile.mimeType, "First file should have a mimeType");
     assert(firstFile.url, "First file should have a url");
-    assert(firstFile.content, "First file has content in it")
+    assert(firstFile.content, "First file has content in it");
   }
 
   console.log("Found files:", result.files);

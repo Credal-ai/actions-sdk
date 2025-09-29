@@ -1,5 +1,5 @@
 import axios from "axios";
-import {describe, expect, jest, beforeEach, it} from '@jest/globals';
+import { describe, expect, jest, beforeEach, it } from "@jest/globals";
 import getGongTranscripts from "../../src/actions/providers/gong/getGongTranscripts";
 import dotenv from "dotenv";
 
@@ -30,8 +30,20 @@ describe("getGongTranscripts", () => {
     mockedAxios.get.mockResolvedValueOnce({
       data: {
         users: [
-          { id: "user1", title: "Sales", firstName: "John", lastName: "Doe", emailAddress: process.env.GONG_USERNAME! },
-          { id: "user2", title: "Sales", firstName: "Jane", lastName: "Doe", emailAddress: "fake@credal.ai" },
+          {
+            id: "user1",
+            title: "Sales",
+            firstName: "John",
+            lastName: "Doe",
+            emailAddress: process.env.GONG_USERNAME!,
+          },
+          {
+            id: "user2",
+            title: "Sales",
+            firstName: "Jane",
+            lastName: "Doe",
+            emailAddress: "fake@credal.ai",
+          },
         ],
         cursor: null,
       },
@@ -42,11 +54,29 @@ describe("getGongTranscripts", () => {
       data: {
         calls: [
           {
-            metaData: { id: "call1", primaryUserId: "user1", started: "2024-01-02T00:00:00.000Z", isPrivate: false, title: "Sales Call"},
+            metaData: {
+              id: "call1",
+              primaryUserId: "user1",
+              started: "2024-01-02T00:00:00.000Z",
+              isPrivate: false,
+              title: "Sales Call",
+            },
             parties: [
-                  {speakerId: "speaker1", name: "Joe Jonas", emailAddress: "joe@credal.ai"},
-                  {speakerId: "user1", name: "John Doe", emailAddress: process.env.GONG_USERNAME!},
-                  {speakerId: "user2", name: "Jane Doe", emailAddress: "fake@credal.ai"},
+              {
+                speakerId: "speaker1",
+                name: "Joe Jonas",
+                emailAddress: "joe@credal.ai",
+              },
+              {
+                speakerId: "user1",
+                name: "John Doe",
+                emailAddress: process.env.GONG_USERNAME!,
+              },
+              {
+                speakerId: "user2",
+                name: "Jane Doe",
+                emailAddress: "fake@credal.ai",
+              },
             ],
             content: {
               trackers: [
@@ -56,11 +86,29 @@ describe("getGongTranscripts", () => {
             },
           },
           {
-            metaData: { id: "call2", primaryUserId: "user2", started: "2024-01-03T00:00:00.000Z", isPrivate: false, title: "Product Demo"},
+            metaData: {
+              id: "call2",
+              primaryUserId: "user2",
+              started: "2024-01-03T00:00:00.000Z",
+              isPrivate: false,
+              title: "Product Demo",
+            },
             parties: [
-                  {speakerId: "speaker1", name: "Joe Jonas", emailAddress: "joe@credal.ai"},
-                  {speakerId: "user1", name: "John Doe", emailAddress: process.env.GONG_USERNAME!},
-                  {speakerId: "user2", name: "Jane Doe", emailAddress: "fake@credal.ai"},
+              {
+                speakerId: "speaker1",
+                name: "Joe Jonas",
+                emailAddress: "joe@credal.ai",
+              },
+              {
+                speakerId: "user1",
+                name: "John Doe",
+                emailAddress: process.env.GONG_USERNAME!,
+              },
+              {
+                speakerId: "user2",
+                name: "Jane Doe",
+                emailAddress: "fake@credal.ai",
+              },
             ],
             content: {
               trackers: [
@@ -68,7 +116,7 @@ describe("getGongTranscripts", () => {
                 { id: "tracker2", name: "Tracker2" },
               ],
             },
-          }
+          },
         ],
         cursor: null,
       },
@@ -80,56 +128,64 @@ describe("getGongTranscripts", () => {
         callTranscripts: [
           {
             callId: "call1",
-            transcript: [{
-              speakerId: "user1",
-              topic: "Sales Call",
-              sentences: [{
-                start: 0,
-                end: 10,
-                text: "Hello",
-              },
+            transcript: [
               {
-                start: 10,
-                end: 20,
-                text: "How are you?",
-              }],
-            }],
+                speakerId: "user1",
+                topic: "Sales Call",
+                sentences: [
+                  {
+                    start: 0,
+                    end: 10,
+                    text: "Hello",
+                  },
+                  {
+                    start: 10,
+                    end: 20,
+                    text: "How are you?",
+                  },
+                ],
+              },
+            ],
           },
           {
             callId: "call2",
-            transcript: [{
-              speakerId: "user2",
-              topic: "Product Demo",
-              sentences: [
-                {
-                start: 0,
-                end: 10,
-                text: "Let me show you",
-              },
+            transcript: [
               {
-                start: 10,
-                end: 20,
-                text: "This is great",
+                speakerId: "user2",
+                topic: "Product Demo",
+                sentences: [
+                  {
+                    start: 0,
+                    end: 10,
+                    text: "Let me show you",
+                  },
+                  {
+                    start: 10,
+                    end: 20,
+                    text: "This is great",
+                  },
+                ],
               },
             ],
-            }],
           },
           {
             callId: "call2",
-            transcript: [{
-              speakerId: "speaker1",
-              topic: "Product Demo",
-              sentences: [
-                {
-                start: 0,
-                end: 10,
-                text: "Sick demo",
+            transcript: [
+              {
+                speakerId: "speaker1",
+                topic: "Product Demo",
+                sentences: [
+                  {
+                    start: 0,
+                    end: 10,
+                    text: "Sick demo",
+                  },
+                ],
               },
             ],
-            }],
           },
         ],
-        cursor: null,     
+        cursor: null,
       },
     });
 
@@ -143,12 +199,24 @@ describe("getGongTranscripts", () => {
     expect(result.callTranscripts).toHaveLength(3);
     expect(result.callTranscripts![0].callId).toBe("call1");
     expect(result.callTranscripts![0].callName).toBe("Sales Call");
-    expect(result.callTranscripts![0].startTime).toBe("2024-01-02T00:00:00.000Z");
-    expect(result.callTranscripts![0].transcript![0].speakerName).toEqual("John Doe");
-    expect(result.callTranscripts![0].transcript![0].speakerEmail).toEqual(process.env.GONG_USERNAME!);
-    expect(result.callTranscripts![1].transcript![0].topic).toBe("Product Demo");
-    expect(result.callTranscripts![2].transcript![0].speakerName).toEqual("Joe Jonas");
-    expect(result.callTranscripts![2].transcript![0].speakerEmail).toEqual("joe@credal.ai");
+    expect(result.callTranscripts![0].startTime).toBe(
+      "2024-01-02T00:00:00.000Z",
+    );
+    expect(result.callTranscripts![0].transcript![0].speakerName).toEqual(
+      "John Doe",
+    );
+    expect(result.callTranscripts![0].transcript![0].speakerEmail).toEqual(
+      process.env.GONG_USERNAME!,
+    );
+    expect(result.callTranscripts![1].transcript![0].topic).toBe(
+      "Product Demo",
+    );
+    expect(result.callTranscripts![2].transcript![0].speakerName).toEqual(
+      "Joe Jonas",
+    );
+    expect(result.callTranscripts![2].transcript![0].speakerEmail).toEqual(
+      "joe@credal.ai",
+    );
   });
 
   it("should handle authentication error", async () => {
@@ -219,59 +287,96 @@ describe("getGongTranscripts", () => {
 
   it("should handle pagination in responses", async () => {
     // Mock users response with pagination
-    mockedAxios.get.mockResolvedValueOnce({
-      data: {
-        users: [
-          { id: "user1", title: "Sales", firstName: "John", lastName: "Doe", emailAddress: process.env.GONG_USERNAME! },
-        ],
-        cursor: "cursor1",
-      },
-    }).mockResolvedValueOnce({
-      data: {
-        users: [
-          { id: "user2", title: "Sales", firstName: "Jane", lastName: "Doe", emailAddress: "fake@credal.ai" },
-        ],
-        cursor: null,
-      },
-    });
+    mockedAxios.get
+      .mockResolvedValueOnce({
+        data: {
+          users: [
+            {
+              id: "user1",
+              title: "Sales",
+              firstName: "John",
+              lastName: "Doe",
+              emailAddress: process.env.GONG_USERNAME!,
+            },
+          ],
+          cursor: "cursor1",
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          users: [
+            {
+              id: "user2",
+              title: "Sales",
+              firstName: "Jane",
+              lastName: "Doe",
+              emailAddress: "fake@credal.ai",
+            },
+          ],
+          cursor: null,
+        },
+      });
 
     // Mock calls response with pagination
-    mockedAxios.post.mockResolvedValueOnce({
-      data: {
-        calls: [{
-          metaData: { id: "call1", primaryUserId: "user1", started: "2024-01-04T00:00:00.000Z", isPrivate: false, title: "First Call" },
-          parties: [
-            { speakerId: "user1", name: "John Doe", emailAddress: process.env.GONG_USERNAME! },
-          ],
-          content: {
-            trackers: [
-              { id: "tracker1", name: "Tracker1" },
-              { id: "tracker2", name: "Tracker2" },
-            ],
-          },
-        },
-        ],
-        cursor: "cursor2",
-      },
-    }).mockResolvedValueOnce({
-      data: {
-        calls: [
-          {
-            metaData: { id: "call2", primaryUserId: "user2", started: "2024-01-02T00:00:00.000Z", isPrivate: false, title: "Second Call" },
-            parties: [
-              {speakerId: "user2", name: "Jane Doe", emailAddress: "fake@credal.ai"},
-            ],
-            content: {
-              trackers: [
-                { id: "tracker1", name: "Tracker1" },
-                { id: "tracker2", name: "Tracker2" },
+    mockedAxios.post
+      .mockResolvedValueOnce({
+        data: {
+          calls: [
+            {
+              metaData: {
+                id: "call1",
+                primaryUserId: "user1",
+                started: "2024-01-04T00:00:00.000Z",
+                isPrivate: false,
+                title: "First Call",
+              },
+              parties: [
+                {
+                  speakerId: "user1",
+                  name: "John Doe",
+                  emailAddress: process.env.GONG_USERNAME!,
+                },
               ],
+              content: {
+                trackers: [
+                  { id: "tracker1", name: "Tracker1" },
+                  { id: "tracker2", name: "Tracker2" },
+                ],
+              },
             },
-          },
-        ],
-        cursor: null,
-      },
-    });
+          ],
+          cursor: "cursor2",
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          calls: [
+            {
+              metaData: {
+                id: "call2",
+                primaryUserId: "user2",
+                started: "2024-01-02T00:00:00.000Z",
+                isPrivate: false,
+                title: "Second Call",
+              },
+              parties: [
+                {
+                  speakerId: "user2",
+                  name: "Jane Doe",
+                  emailAddress: "fake@credal.ai",
+                },
+              ],
+              content: {
+                trackers: [
+                  { id: "tracker1", name: "Tracker1" },
+                  { id: "tracker2", name: "Tracker2" },
+                ],
+              },
+            },
+          ],
+          cursor: null,
+        },
+      });
 
     // Mock transcripts response
     mockedAxios.post.mockResolvedValueOnce({
@@ -279,27 +384,35 @@ describe("getGongTranscripts", () => {
         callTranscripts: [
           {
             callId: "call1",
-            transcript: [{
-              speakerId: "user1",
-              topic: "First Call",
-              sentences: [{
-                start: 0,
-                end: 10,
-                text: "Hello",
-              }],
-            }],
+            transcript: [
+              {
+                speakerId: "user1",
+                topic: "First Call",
+                sentences: [
+                  {
+                    start: 0,
+                    end: 10,
+                    text: "Hello",
+                  },
+                ],
+              },
+            ],
           },
           {
             callId: "call2",
-            transcript: [{
-              speakerId: "user2",
-              topic: "Second Call",
-              sentences: [{
-                start: 10,
-                end: 20,
-                text: "Hi",
-              }],
-            }],
+            transcript: [
+              {
+                speakerId: "user2",
+                topic: "Second Call",
+                sentences: [
+                  {
+                    start: 10,
+                    end: 20,
+                    text: "Hi",
+                  },
+                ],
+              },
+            ],
           },
         ],
         cursor: null,
@@ -315,16 +428,26 @@ describe("getGongTranscripts", () => {
     expect(result.callTranscripts).toHaveLength(2);
     expect(result.callTranscripts![0].callId).toBe("call1");
     expect(result.callTranscripts![0].callName).toBe("First Call");
-    expect(result.callTranscripts![0].startTime).toBe("2024-01-04T00:00:00.000Z");
-    expect(result.callTranscripts![0].transcript![0].speakerName).toBe("John Doe");
-    expect(result.callTranscripts![0].transcript![0].speakerEmail).toBe(process.env.GONG_USERNAME!);
+    expect(result.callTranscripts![0].startTime).toBe(
+      "2024-01-04T00:00:00.000Z",
+    );
+    expect(result.callTranscripts![0].transcript![0].speakerName).toBe(
+      "John Doe",
+    );
+    expect(result.callTranscripts![0].transcript![0].speakerEmail).toBe(
+      process.env.GONG_USERNAME!,
+    );
     expect(result.callTranscripts![1].callId).toBe("call2");
-    expect(result.callTranscripts![1].transcript![0].speakerName).toBe("Jane Doe");
-    expect(result.callTranscripts![1].transcript![0].speakerEmail).toBe("fake@credal.ai");
+    expect(result.callTranscripts![1].transcript![0].speakerName).toBe(
+      "Jane Doe",
+    );
+    expect(result.callTranscripts![1].transcript![0].speakerEmail).toBe(
+      "fake@credal.ai",
+    );
     expect(mockedAxios.get).toHaveBeenCalledTimes(2);
     expect(mockedAxios.post).toHaveBeenCalledTimes(3);
   });
-}); 
+});
 
 describe("getGongTranscriptsWithoutUsername", () => {
   const mockAuthParams = {

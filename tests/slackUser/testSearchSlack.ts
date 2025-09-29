@@ -10,7 +10,7 @@ async function runTest() {
     "searchSlack",
     "slackUser",
     { authToken: process.env.SLACK_AUTH_TOKEN },
-    { emails: ["jack@credal.ai"], limit: 10, topic: "flatiron" }
+    { emails: ["jack@credal.ai"], limit: 10, topic: "flatiron" },
   )) as slackUserSearchSlackOutputType;
 
   // Multiple person DM
@@ -22,7 +22,7 @@ async function runTest() {
       emails: ["jack@credal.ai", "ravin@credal.ai"],
       limit: 1,
       topic: "good to know",
-    }
+    },
   )) as slackUserSearchSlackOutputType;
 
   // Channel
@@ -30,19 +30,19 @@ async function runTest() {
     "searchSlack",
     "slackUser",
     { authToken: process.env.SLACK_AUTH_TOKEN },
-    { channel: "general", limit: 1, topic: "welcome" }
+    { channel: "general", limit: 1, topic: "welcome" },
   )) as slackUserSearchSlackOutputType;
 
   console.log(
-    "Send Message Test Response 1: " + JSON.stringify(result1, null, 2)
+    "Send Message Test Response 1: " + JSON.stringify(result1, null, 2),
   );
 
   console.log(
-    "Send Message Test Response 2: " + JSON.stringify(result2, null, 2)
+    "Send Message Test Response 2: " + JSON.stringify(result2, null, 2),
   );
 
   console.log(
-    "Send Message Test Response 3: " + JSON.stringify(result3, null, 2)
+    "Send Message Test Response 3: " + JSON.stringify(result3, null, 2),
   );
 }
 
