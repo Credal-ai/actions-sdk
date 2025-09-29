@@ -69,8 +69,9 @@ const getFileContent: gitlabGetFileContentFunction = async ({
   const content = Buffer.from(data.content, "base64").toString("utf-8");
 
   // Get the project path to construct the correct web URL
-  const projectPath = await getProjectPath(project_id, authToken, `${gitlabBaseUrl}/api/v4`);
-  const url = data.web_url || `${gitlabBaseUrl}/${projectPath}/-/blob/${ref}/${path}`;
+  const url =
+    data.web_url ||
+    `${gitlabBaseUrl}/${await getProjectPath(project_id, authToken, `${gitlabBaseUrl}/api/v4`)}/-/blob/${ref}/${path}`;
 
   return {
     success: true,
