@@ -460,6 +460,29 @@ export const slackUserSearchSlackOutputSchema = z.object({
             .string()
             .describe("A Slack permalink to the anchor (message or thread root), if resolvable.")
             .optional(),
+          members: z
+            .array(
+              z.object({
+                userId: z.string().describe("The ID of the member").optional(),
+                userEmail: z.string().describe("The email of the member").optional(),
+                userName: z.string().describe("The name of the member").optional(),
+              }),
+            )
+            .describe("The members of the result")
+            .optional(),
+          context: z
+            .array(
+              z.object({
+                ts: z.string().describe("Timestamp of the contextual message."),
+                text: z.string().describe("Text of the contextual message.").optional(),
+                userEmail: z.string().describe("Author user email of the contextual message.").optional(),
+                userName: z.string().describe("Author user name of the contextual message.").optional(),
+              }),
+            )
+            .describe(
+              "When a hit is in a thread, this is the full thread (root first). Otherwise, a small surrounding context window (~3 before, 5 after).",
+            )
+            .optional(),
         }),
       }),
     )

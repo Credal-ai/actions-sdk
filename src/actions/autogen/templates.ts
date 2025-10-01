@@ -826,24 +826,24 @@ export const slackUserSearchSlackDefinition: ActionTemplate = {
                   type: "string",
                   description: "A Slack permalink to the anchor (message or thread root), if resolvable.",
                 },
-              },
-              members: {
-                type: "array",
-                description: "The members of the result",
-                items: {
-                  type: "object",
-                  properties: {
-                    userId: {
-                      type: "string",
-                      description: "The ID of the member",
-                    },
-                    userEmail: {
-                      type: "string",
-                      description: "The email of the member",
-                    },
-                    userName: {
-                      type: "string",
-                      description: "The name of the member",
+                members: {
+                  type: "array",
+                  description: "The members of the result",
+                  items: {
+                    type: "object",
+                    properties: {
+                      userId: {
+                        type: "string",
+                        description: "The ID of the member",
+                      },
+                      userEmail: {
+                        type: "string",
+                        description: "The email of the member",
+                      },
+                      userName: {
+                        type: "string",
+                        description: "The name of the member",
+                      },
                     },
                   },
                 },
