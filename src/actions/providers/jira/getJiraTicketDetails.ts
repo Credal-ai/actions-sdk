@@ -14,11 +14,11 @@ const getJiraTicketDetails: jiraGetJiraTicketDetailsFunction = async ({
   params: jiraGetJiraTicketDetailsParamsType;
   authParams: AuthParamsType;
 }): Promise<jiraGetJiraTicketDetailsOutputType> => {
-  const { authToken, cloudId } = authParams;
+  const { authToken, cloudId, baseUrl } = authParams;
   const { issueId } = params;
 
-  if (!cloudId || !authToken) {
-    throw new Error("Valid Cloud ID and auth token are required to comment on Jira ticket");
+  if (!cloudId || !authToken || !baseUrl) {
+    throw new Error("Valid Cloud ID, base URL, and auth token are required to get Jira ticket details");
   }
 
   const apiUrl = `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3/issue/${issueId}`;
@@ -36,7 +36,7 @@ const getJiraTicketDetails: jiraGetJiraTicketDetailsFunction = async ({
       results: [
         {
           name: response.data.key,
-          url: response.data.self,
+          url: `${baseUrl}/browse/${response.data.key}`,
           contents: response.data,
         },
       ],

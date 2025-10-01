@@ -4,7 +4,7 @@ import { jiraConfig, provider } from "./utils.js";
 import type { jiraGetJiraTicketDetailsOutputType } from "../../src/actions/autogen/types";
 
 async function runTest() {
-  const { authToken, cloudId, baseUrl, issueId } = jiraConfig;
+  const { authToken, cloudId, baseUrl, issueId, projectKey } = jiraConfig;
 
   const result = (await runAction(
     "getJiraTicketDetails",
@@ -16,6 +16,7 @@ async function runTest() {
     },
     {
       issueId,
+      projectKey
     }
   )) as jiraGetJiraTicketDetailsOutputType;
 
