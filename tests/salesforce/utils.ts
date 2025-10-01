@@ -6,6 +6,19 @@ dotenv.config();
 
 // JWT authentication for Salesforce to get token.
 // For setup see https://help.salesforce.com/s/articleView?id=xcloud.remoteaccess_oauth_jwt_flow.htm&type=5)
+// General steps to test:
+// 1. Set up a salesforce developer sandbox
+// 2. Create a connected app in Salesforce
+// 3. Create JWT certificate and private key
+// 4. Enable JWT authentication for the connected app and upload JWT certificate
+// 5. Convert the private key to base64 with the following command:
+// base64 -w 0 < private_key.pem > pbcopy
+// 6. Fill out the following environment variables in .env file:
+// SALESFORCE_CONSUMER_KEY
+// SALESFORCE_USERNAME
+// SALESFORCE_PRIVATE_KEY_BASE64
+// 7. Enable System Administrator permission for Selected Profile for connected app
+// 8. Run the tests
 
 // The private key of the connected app in pkcs8 format, base64 encoded
 const PRIVATE_KEY = Buffer.from(
