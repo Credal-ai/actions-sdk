@@ -29,9 +29,9 @@ const searchSalesforceRecords: salesforceSearchSalesforceRecordsFunction = async
     .replace(/"/g, '\\"') // Escape quotes
     .replace(/-/g, "\\-"); // Escape dashes
 
-  const soslQuery = `FIND {${escapedKeyword}} RETURNING ${recordType} (${searchFields.join(", ") + (dateFieldExists ? " ORDER BY CreatedDate DESC" : "")}) LIMIT ${params.limit && params.limit <= maxLimitValue ? params.limit : maxLimitValue}`;
-
-  const url = `${baseUrl}/services/data/v64.0/search/?q=${encodeURIComponent(soslQuery)}`;
+  const url = `${baseUrl}/services/data/v64.0/search/?q=${encodeURIComponent(
+    `FIND {${escapedKeyword}} RETURNING ${recordType} (${searchFields.join(", ") + (dateFieldExists ? " ORDER BY CreatedDate DESC" : "")}) LIMIT ${params.limit && params.limit <= maxLimitValue ? params.limit : maxLimitValue}`,
+  )}`;
 
   try {
     const response = await axiosClient.get(url, { headers: { Authorization: `Bearer ${authToken}` } });
