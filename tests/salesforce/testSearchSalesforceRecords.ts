@@ -5,20 +5,20 @@ import {
   salesforceSearchSalesforceRecordsOutputSchema,
   type salesforceSearchSalesforceRecordsOutputType,
 } from "../../src/actions/autogen/types.js";
+import { authenticateWithJWT } from "./utils.js";
 
 dotenv.config();
 
 async function runTest() {
-  const authToken = process.env.SALESFORCE_AUTH_TOKEN;
-  const baseUrl = process.env.SALESFORCE_URL;
+  const { accessToken, instanceUrl } = await authenticateWithJWT();
 
   // Test 1: Regular query with limit
   const regularQueryResult = (await runAction(
     "searchSalesforceRecords",
     "salesforce",
     {
-      authToken,
-      baseUrl,
+      authToken: accessToken,
+      baseUrl: instanceUrl,
     },
     {
       keyword: "Health",
@@ -27,6 +27,7 @@ async function runTest() {
       limit: 1,
     }
   )) as salesforceSearchSalesforceRecordsOutputType;
+  console.log(JSON.stringify(regularQueryResult, null, 2));
   assert.strictEqual(regularQueryResult.success, true);
   assert.equal(
     salesforceSearchSalesforceRecordsOutputSchema.safeParse(regularQueryResult)
@@ -39,8 +40,8 @@ async function runTest() {
     "searchSalesforceRecords",
     "salesforce",
     {
-      authToken,
-      baseUrl,
+      authToken: accessToken,
+      baseUrl: instanceUrl,
     },
     {
       keyword: "health-company",
@@ -49,6 +50,7 @@ async function runTest() {
       limit: 1,
     }
   );
+  console.log(JSON.stringify(dashKeywordResult, null, 2));
   assert.strictEqual(dashKeywordResult.success, true);
   assert.equal(
     salesforceSearchSalesforceRecordsOutputSchema.safeParse(dashKeywordResult)

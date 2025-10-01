@@ -2,26 +2,27 @@ import assert from "node:assert";
 import { runAction } from "../../src/app.js";
 import dotenv from "dotenv";
 import { type salesforceGetSalesforceRecordsByQueryOutputType } from "../../src/actions/autogen/types";
+import { authenticateWithJWT } from "./utils.js";
 
 dotenv.config();
 
 async function runTest() {
-  const authToken = process.env.SALESFORCE_AUTH_TOKEN;
-  const baseUrl = process.env.SALESFORCE_URL;
+  const { accessToken, instanceUrl } = await authenticateWithJWT();
 
   // Test 1: Regular query with limit
   const regularQueryResult = (await runAction(
     "getSalesforceRecordsByQuery",
     "salesforce",
     {
-      authToken,
-      baseUrl,
+      authToken: accessToken,
+      baseUrl: instanceUrl,
     },
     {
       query: "SELECT Id FROM Account",
       limit: 10,
     }
   )) as salesforceGetSalesforceRecordsByQueryOutputType;
+  console.log(JSON.stringify(regularQueryResult, null, 2));
   assert.strictEqual(regularQueryResult.success, true);
   assert.strictEqual(regularQueryResult.results?.length, 10);
 
@@ -30,14 +31,15 @@ async function runTest() {
     "getSalesforceRecordsByQuery",
     "salesforce",
     {
-      authToken,
-      baseUrl,
+      authToken: accessToken,
+      baseUrl: instanceUrl,
     },
     {
       query: "SELECT COUNT(Id) FROM Account",
       limit: 10,
     }
   )) as salesforceGetSalesforceRecordsByQueryOutputType;
+  console.log(JSON.stringify(aggregateQueryResult, null, 2));
   assert.strictEqual(aggregateQueryResult.success, true);
   assert.strictEqual(aggregateQueryResult.results?.length, 1);
 
@@ -46,8 +48,8 @@ async function runTest() {
     "getSalesforceRecordsByQuery",
     "salesforce",
     {
-      authToken,
-      baseUrl,
+      authToken: accessToken,
+      baseUrl: instanceUrl,
     },
     {
       query: "SELECT COUNT(Id), Industry FROM Account GROUP BY Industry",
@@ -56,15 +58,24 @@ async function runTest() {
   )) as salesforceGetSalesforceRecordsByQueryOutputType;
   assert.strictEqual(groupByQueryResult.success, true);
   assert.ok(groupByQueryResult.results?.length ?? 0 > 0);
-  assert.ok(groupByQueryResult.results?.[0].Industry !== undefined);
+  // Check that at least one result has a non-null Industry (skip null values from GROUP BY)
+  const resultWithIndustry = groupByQueryResult.results?.find(
+    (r) =>
+      (r as { content?: { Industry?: string | null } }).content?.Industry !==
+      null
+  );
+  assert.ok(
+    (resultWithIndustry as { content?: { Industry?: string | null } })?.content
+      ?.Industry !== undefined
+  );
 
   // Test 4: Query with existing LIMIT clause and no limit parameter - should keep existing limit if < 2000
   const existingLimitQueryResult = (await runAction(
     "getSalesforceRecordsByQuery",
     "salesforce",
     {
-      authToken,
-      baseUrl,
+      authToken: accessToken,
+      baseUrl: instanceUrl,
     },
     {
       query: "SELECT Id FROM Account LIMIT 5",
@@ -78,8 +89,8 @@ async function runTest() {
     "getSalesforceRecordsByQuery",
     "salesforce",
     {
-      authToken,
-      baseUrl,
+      authToken: accessToken,
+      baseUrl: instanceUrl,
     },
     {
       query: "SELECT Id FROM Account LIMIT 3000",
@@ -93,8 +104,8 @@ async function runTest() {
     "getSalesforceRecordsByQuery",
     "salesforce",
     {
-      authToken,
-      baseUrl,
+      authToken: accessToken,
+      baseUrl: instanceUrl,
     },
     {
       query: "SELECT Id FROM Account LIMIT 100",
@@ -109,8 +120,8 @@ async function runTest() {
     "getSalesforceRecordsByQuery",
     "salesforce",
     {
-      authToken,
-      baseUrl,
+      authToken: accessToken,
+      baseUrl: instanceUrl,
     },
     {
       query: "SELECT Id FROM Account LIMIT 50",
@@ -125,8 +136,8 @@ async function runTest() {
     "getSalesforceRecordsByQuery",
     "salesforce",
     {
-      authToken,
-      baseUrl,
+      authToken: accessToken,
+      baseUrl: instanceUrl,
     },
     {
       query: "SELECT Id FROM Account limit 7",
@@ -140,8 +151,8 @@ async function runTest() {
     "getSalesforceRecordsByQuery",
     "salesforce",
     {
-      authToken,
-      baseUrl,
+      authToken: accessToken,
+      baseUrl: instanceUrl,
     },
     {
       query: "SELECT Id FROM Account   LIMIT   15   ",

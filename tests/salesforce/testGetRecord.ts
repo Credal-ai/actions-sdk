@@ -1,25 +1,24 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app.js";
-import { authenticateWithJWT } from "./utils";
+import { authenticateWithJWT } from "./utils.js";
 import dotenv from "dotenv";
 
 dotenv.config();
 
 async function runTest() {
-  const authToken = await authenticateWithJWT();
-  const baseUrl = "https://power-speed-8849.my.salesforce.com/"; // Must be a valid Salesforce instance URL
+  const { accessToken, instanceUrl } = await authenticateWithJWT();
 
   const result = await runAction(
     "getRecord",
     "salesforce",
     {
-      authToken,
-      baseUrl,
+      authToken: accessToken,
+      baseUrl: instanceUrl,
     },
     {
       objectType: "Lead", // Replace with the object type you want to retrieve
-      recordId: "00Qfn0000004na7EAA", // Replace with a valid record ID
-    },
+      recordId: "00Qfj000004TxnBEAS", // Replace with a valid record ID
+    }
   );
 
   console.log(JSON.stringify(result, null, 2));

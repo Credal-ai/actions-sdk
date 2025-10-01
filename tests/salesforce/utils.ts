@@ -10,7 +10,7 @@ dotenv.config();
 // The private key of the connected app in pkcs8 format, base64 encoded
 const PRIVATE_KEY = Buffer.from(
   process.env.SALESFORCE_PRIVATE_KEY_BASE64!,
-  "base64",
+  "base64"
 ).toString("utf-8");
 // The client ID of the connected app
 const CLIENT_ID = process.env.SALESFORCE_CONSUMER_KEY!;
@@ -19,7 +19,10 @@ const USERNAME = process.env.SALESFORCE_USERNAME!;
 // Use the sandbox URL if you're working with a sandbox: https://test.salesforce.com
 const LOGIN_URL = "https://login.salesforce.com";
 
-export async function authenticateWithJWT(): Promise<string> {
+export async function authenticateWithJWT(): Promise<{
+  accessToken: string;
+  instanceUrl: string;
+}> {
   const payload = {
     iss: CLIENT_ID, // The client ID of the connected app
     sub: USERNAME, // The username of the Salesforce user
@@ -40,10 +43,13 @@ export async function authenticateWithJWT(): Promise<string> {
           grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
           assertion: signedJWT,
         },
-      },
+      }
     );
 
-    return response.data.access_token;
+    return {
+      accessToken: response.data.access_token,
+      instanceUrl: response.data.instance_url,
+    };
   } catch (error) {
     console.error("Error during JWT authentication:", error);
     throw error;
