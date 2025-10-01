@@ -744,7 +744,8 @@ export const slackUserSearchSlackDefinition: ActionTemplate = {
     properties: {
       emails: {
         type: "array",
-        description: "Participants identified strictly by email (one email = 1:1 DM, multiple = MPIM).",
+        description:
+          "List of participant emails to search conversations for.  If a single email is provided, searches your 1:1 DM with that user  as well as any channel discussions they participated in.  If multiple emails are provided, searches group DMs/MPIMs with those participants  and channel discussions where at least one of them posted.  The current user is always excluded from the participant check.\n",
         items: {
           type: "string",
           format: "email",
@@ -824,6 +825,27 @@ export const slackUserSearchSlackDefinition: ActionTemplate = {
                 permalink: {
                   type: "string",
                   description: "A Slack permalink to the anchor (message or thread root), if resolvable.",
+                },
+              },
+              members: {
+                type: "array",
+                description: "The members of the result",
+                items: {
+                  type: "object",
+                  properties: {
+                    userId: {
+                      type: "string",
+                      description: "The ID of the member",
+                    },
+                    userEmail: {
+                      type: "string",
+                      description: "The email of the member",
+                    },
+                    userName: {
+                      type: "string",
+                      description: "The name of the member",
+                    },
+                  },
                 },
                 context: {
                   type: "array",
