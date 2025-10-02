@@ -10,10 +10,10 @@ import type {
 } from "../../autogen/types.js";
 
 const MAX_EMAIL_CONTENTS_FETCHED = 50;
-const DEFAULT_EMAIL_CONTENTS_FETCHED = 15;
-const MAX_RESULTS_PER_REQUEST = 50;
+const DEFAULT_EMAIL_CONTENTS_FETCHED = 25;
+const MAX_RESULTS_PER_REQUEST = 100;
 const MAX_EMAILS_FETCHED_CONCURRENTLY = 5;
-const EMAIL_FETCH_TIMEOUT = 5000; // 5 second timeout per email
+const DEFAULT_EMAIL_FETCH_TIMEOUT = 5000; // 5 second timeout per email
 
 const limiter = new RateLimiter({ tokensPerInterval: MAX_EMAILS_FETCHED_CONCURRENTLY, interval: "second" });
 
@@ -64,10 +64,15 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
 
   try {
     while (fetched < max) {
+      // Calculate the optimal batch size for this request
+      const batchSize = Math.min(
+        MAX_RESULTS_PER_REQUEST, // API maximum
+        max - fetched,           // Only fetch what we still need
+        MAX_EMAILS_FETCHED_CONCURRENTLY // Respect concurrency limit
+      );
+
       const url =
-        `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent(query)}` +
-        (pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : "") +
-        `&maxResults=${Math.min(MAX_RESULTS_PER_REQUEST, max - fetched)}`;
+        `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent(query)}&maxResults=${batchSize}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}`;
 
       const listRes = await axiosClient.get(url, {
         headers: { Authorization: `Bearer ${authParams.authToken}` },
@@ -87,7 +92,7 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
               `https://gmail.googleapis.com/gmail/v1/users/me/messages/${msg.id}?format=full`,
               {
                 headers: { Authorization: `Bearer ${authParams.authToken}` },
-                timeout: timeout ? timeout * 1000 : EMAIL_FETCH_TIMEOUT,
+                timeout: timeout ? timeout * 1000 : DEFAULT_EMAIL_FETCH_TIMEOUT,
                 validateStatus: () => true,
               },
             );
