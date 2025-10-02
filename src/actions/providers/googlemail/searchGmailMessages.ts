@@ -10,17 +10,22 @@ import type {
 } from "../../autogen/types.js";
 
 const MAX_EMAIL_CONTENTS_FETCHED = 50;
-const DEFAULT_EMAIL_CONTENTS_FETCHED = 25;
-const MAX_RESULTS_PER_REQUEST = 100;
+const DEFAULT_EMAIL_CONTENTS_FETCHED = 15;
+const MAX_RESULTS_PER_REQUEST = 50;
 const MAX_EMAILS_FETCHED_CONCURRENTLY = 5;
+const EMAIL_FETCH_TIMEOUT = 2000; // 2 second timeout per email
 
 const limiter = new RateLimiter({ tokensPerInterval: MAX_EMAILS_FETCHED_CONCURRENTLY, interval: "second" });
 
+const QUOTED_REPLY_REGEX = /^>.*$/gm;
+const NEWLINE_NORMALIZE_REGEX = /\r\n|\r/g;
+const MULTIPLE_NEWLINES_REGEX = /\n{3,}/g;
+
 function cleanAndTruncateEmail(text: string, maxLength = 2000): string {
   if (!text) return "";
-
-  // Remove quoted replies (naive)
-  text = text.replace(/^>.*$/gm, "");
+  
+  // Remove quoted replies
+  text = text.replace(QUOTED_REPLY_REGEX, "");
 
   // Remove signatures
   const signatureMarkers = ["\nBest", "\nRegards", "\nThanks", "\nSincerely"];
@@ -34,8 +39,8 @@ function cleanAndTruncateEmail(text: string, maxLength = 2000): string {
 
   // Normalize whitespace
   text = text
-    .replace(/\r\n|\r/g, "\n")
-    .replace(/\n{3,}/g, "\n\n")
+    .replace(NEWLINE_NORMALIZE_REGEX, "\n")
+    .replace(MULTIPLE_NEWLINES_REGEX, "\n\n")
     .trim();
 
   return text.slice(0, maxLength).trim();
@@ -76,7 +81,7 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
 
       const batch = messageList.slice(0, max - allMessages.length);
 
-      const results = await Promise.all(
+      const results = await Promise.allSettled(
         batch.map(async msg => {
           try {
             await limiter.removeTokens(1);
@@ -85,16 +90,21 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
               `https://gmail.googleapis.com/gmail/v1/users/me/messages/${msg.id}?format=full`,
               {
                 headers: { Authorization: `Bearer ${authParams.authToken}` },
+                timeout: EMAIL_FETCH_TIMEOUT,
                 validateStatus: () => true,
               },
             );
             const { id, threadId, snippet, labelIds, internalDate, payload } = msgRes.data;
-            // Find the "From" header
-            const fromHeader = payload.headers.find(h => h.name.toLowerCase() === "from");
-            const toHeader = payload.headers.find(h => h.name.toLowerCase() === "to");
-            const subjectHeader = payload.headers.find(h => h.name.toLowerCase() === "subject");
-            const ccHeader = payload.headers.find(h => h.name.toLowerCase() === "cc");
-            const bccHeader = payload.headers.find(h => h.name.toLowerCase() === "bcc");
+
+            const headers: Record<string, string> = {};
+            for (const header of payload.headers) {
+              const lowerName = header.name.toLowerCase();
+              if (lowerName === "from" || lowerName === "to" || lowerName === "subject" || 
+                  lowerName === "cc" || lowerName === "bcc") {
+                headers[lowerName] = header.value;
+              }
+            }
+            
             const rawBody = getEmailContent(msgRes.data) || "";
             const emailBody = cleanAndTruncateEmail(rawBody);
 
@@ -105,11 +115,11 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
               labelIds,
               internalDate,
               emailBody,
-              from: fromHeader?.value,
-              to: toHeader?.value,
-              subject: subjectHeader?.value,
-              cc: ccHeader?.value,
-              bcc: bccHeader?.value,
+              from: headers.from,
+              to: headers.to,
+              subject: headers.subject,
+              cc: headers.cc,
+              bcc: headers.bcc,
             };
           } catch (err) {
             const errorMessage = err instanceof Error ? err.message : "Failed to fetch message details";
@@ -132,7 +142,17 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
         }),
       );
 
-      allMessages.push(...results);
+      const successfulResults = results
+        .filter((r): r is PromiseFulfilledResult<any> => r.status === "fulfilled")
+        .map(r => r.value);
+      
+      const failedResults = results.filter((r): r is PromiseRejectedResult => r.status === "rejected");
+      failedResults.forEach(r => {
+        const errorMessage = r.reason instanceof Error ? r.reason.message : "Failed to fetch message details";
+        errorMessages.push(errorMessage);
+      });
+
+      allMessages.push(...successfulResults);
       fetched = allMessages.length;
       if (!nextPageToken || fetched >= max) break;
       pageToken = nextPageToken;
