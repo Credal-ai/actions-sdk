@@ -16,10 +16,6 @@ import officeParser from "officeparser";
 const BASE_WEB_URL = "https://drive.google.com/file/d/";
 const BASE_API_URL = "https://www.googleapis.com/drive/v3/files/";
 
-// Default timeout reduced for faster failure on slow files
-const DEFAULT_TIMEOUT_MS = 5_000; // 5 seconds
-const METADATA_TIMEOUT_MS = 1_000; // 3 seconds
-
 const NEWLINE_REGEX = /\r?\n+/g;
 const WHITESPACE_REGEX = / +/g;
 
@@ -38,7 +34,7 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
 
   const { limit: charLimit, fileId } = params;
   const timeoutLimit =
-    params.timeoutLimit !== undefined && params.timeoutLimit > 0 ? params.timeoutLimit * 1000 : DEFAULT_TIMEOUT_MS;
+    params.timeoutLimit !== undefined && params.timeoutLimit > 0 ? params.timeoutLimit * 1000 : 15_000;
   const axiosClient = createAxiosClientWithTimeout(timeoutLimit);
 
   // helper to fetch drive metadata with fields we need (incl. shortcut details)
@@ -48,9 +44,9 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
       `?fields=name,mimeType,size,driveId,parents,` +
       `shortcutDetails(targetId,targetMimeType)` +
       `&supportsAllDrives=true`;
-    const res = await axiosClient.get<DriveFileMetadata>(metaUrl, { 
+    const res = await axiosClient.get<DriveFileMetadata>(metaUrl, {
       headers,
-      timeout: METADATA_TIMEOUT_MS 
+      timeout: timeoutLimit,
     });
     return res.data;
   };
@@ -144,16 +140,18 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
         responseType: "arraybuffer",
       });
 
+      // 1. Read the buffer into a workbook
       const workbook = read(downloadRes.data, { type: "buffer", sheetStubs: false });
 
       // Convert sheets to CSV with early termination if charLimit is set
       const sheetTexts: string[] = [];
       let totalLength = 0;
       const effectiveLimit = charLimit ? charLimit * 1.5 : Infinity; // Process 1.5x limit for safety
-      
+
+      // 2. Convert all sheets to plain text (CSV-style)
       for (const sheetName of workbook.SheetNames) {
         if (totalLength >= effectiveLimit) break; // Early termination
-        
+
         const sheet = workbook.Sheets[sheetName];
         const csv = utils.sheet_to_csv(sheet);
         sheetTexts.push(`--- Sheet: ${sheetName} ---\n${csv}`);
@@ -186,11 +184,7 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
 
     // 5) Apply content limit early, then normalize whitespace
     const originalLength = content.length;
-    
-    content = content
-      .trim()
-      .replace(NEWLINE_REGEX, " ")
-      .replace(WHITESPACE_REGEX, " ");
+    content = content.trim().replace(NEWLINE_REGEX, " ").replace(WHITESPACE_REGEX, " ");
 
     if (charLimit && content.length > charLimit) {
       content = content.slice(0, charLimit);
