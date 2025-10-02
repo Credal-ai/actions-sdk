@@ -16,6 +16,13 @@ import officeParser from "officeparser";
 const BASE_WEB_URL = "https://drive.google.com/file/d/";
 const BASE_API_URL = "https://www.googleapis.com/drive/v3/files/";
 
+// Default timeout reduced for faster failure on slow files
+const DEFAULT_TIMEOUT_MS = 5_000; // 5 seconds
+const METADATA_TIMEOUT_MS = 1_000; // 3 seconds
+
+const NEWLINE_REGEX = /\r?\n+/g;
+const WHITESPACE_REGEX = / +/g;
+
 const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = async ({
   params,
   authParams,
@@ -31,7 +38,7 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
 
   const { limit: charLimit, fileId } = params;
   const timeoutLimit =
-    params.timeoutLimit !== undefined && params.timeoutLimit > 0 ? params.timeoutLimit * 1000 : 15_000;
+    params.timeoutLimit !== undefined && params.timeoutLimit > 0 ? params.timeoutLimit * 1000 : DEFAULT_TIMEOUT_MS;
   const axiosClient = createAxiosClientWithTimeout(timeoutLimit);
 
   // helper to fetch drive metadata with fields we need (incl. shortcut details)
@@ -41,7 +48,10 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
       `?fields=name,mimeType,size,driveId,parents,` +
       `shortcutDetails(targetId,targetMimeType)` +
       `&supportsAllDrives=true`;
-    const res = await axiosClient.get<DriveFileMetadata>(metaUrl, { headers });
+    const res = await axiosClient.get<DriveFileMetadata>(metaUrl, { 
+      headers,
+      timeout: METADATA_TIMEOUT_MS 
+    });
     return res.data;
   };
 
@@ -110,15 +120,9 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
           }`,
         };
       }
-    } else if (mimeType === "text/plain" || mimeType === "text/html" || mimeType === "application/rtf") {
-      const downloadUrl = `${BASE_API_URL}${encodeURIComponent(params.fileId)}?alt=media${sharedDriveParam}`;
-      const downloadRes = await axiosClient.get(downloadUrl, {
-        headers,
-        responseType: "text",
-      });
-      content = downloadRes.data;
     } else if (
       mimeType === "text/plain" ||
+      mimeType === "text/html" ||
       mimeType === "text/csv" ||
       mimeType === "text/tab-separated-values" ||
       mimeType === "application/rtf" ||
@@ -127,12 +131,9 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
       const downloadUrl = `${BASE_API_URL}${encodeURIComponent(params.fileId)}?alt=media${sharedDriveParam}`;
       const downloadRes = await axiosClient.get(downloadUrl, {
         headers,
-        responseType: "arraybuffer",
+        responseType: "text",
       });
-      const bufferResults = downloadRes.data as ArrayBuffer;
-      const rawContentBuffer = Buffer.from(bufferResults); // Convert rawContent ArrayBuffer to Buffer
-
-      content = rawContentBuffer.toString("utf-8");
+      content = downloadRes.data;
     } else if (
       mimeType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
       mimeType === "application/vnd.ms-excel"
@@ -143,19 +144,23 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
         responseType: "arraybuffer",
       });
 
-      // 1. Read the buffer into a workbook
-      const workbook = read(downloadRes.data, { type: "buffer" });
+      const workbook = read(downloadRes.data, { type: "buffer", sheetStubs: false });
 
-      // 2. Convert all sheets to plain text (CSV-style)
-      let textOutput = "";
-      workbook.SheetNames.forEach(sheetName => {
+      // Convert sheets to CSV with early termination if charLimit is set
+      const sheetTexts: string[] = [];
+      let totalLength = 0;
+      const effectiveLimit = charLimit ? charLimit * 1.5 : Infinity; // Process 1.5x limit for safety
+      
+      for (const sheetName of workbook.SheetNames) {
+        if (totalLength >= effectiveLimit) break; // Early termination
+        
         const sheet = workbook.Sheets[sheetName];
-        const csv = utils.sheet_to_csv(sheet); // or sheet_to_json if you want arrays
-        textOutput += `\n--- Sheet: ${sheetName} ---\n${csv}`;
-      });
+        const csv = utils.sheet_to_csv(sheet);
+        sheetTexts.push(`--- Sheet: ${sheetName} ---\n${csv}`);
+        totalLength += csv.length;
+      }
 
-      // textOutput now contains all sheet data as text
-      content = textOutput.trim();
+      content = sheetTexts.join("\n").trim();
     } else if (mimeType === "application/vnd.openxmlformats-officedocument.presentationml.presentation") {
       // Handle modern PowerPoint files (.pptx only)
       const downloadUrl = `${BASE_API_URL}${encodeURIComponent(params.fileId)}?alt=media${sharedDriveParam}`;
@@ -179,14 +184,15 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
       return { success: false, error: `Unsupported file type: ${mimeType}` };
     }
 
-    // 5) normalize whitespace + apply content limit
-    content = (content ?? "")
-      .trim()
-      .replace(/\r?\n+/g, " ")
-      .replace(/ +/g, " ");
+    // 5) Apply content limit early, then normalize whitespace
     const originalLength = content.length;
+    
+    content = content
+      .trim()
+      .replace(NEWLINE_REGEX, " ")
+      .replace(WHITESPACE_REGEX, " ");
+
     if (charLimit && content.length > charLimit) {
-      // TODO in the future do this around the most valuable snippet of the doc?
       content = content.slice(0, charLimit);
     }
 
