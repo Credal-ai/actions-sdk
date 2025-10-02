@@ -13,7 +13,7 @@ const MAX_EMAIL_CONTENTS_FETCHED = 50;
 const DEFAULT_EMAIL_CONTENTS_FETCHED = 15;
 const MAX_RESULTS_PER_REQUEST = 50;
 const MAX_EMAILS_FETCHED_CONCURRENTLY = 5;
-const EMAIL_FETCH_TIMEOUT = 2000; // 2 second timeout per email
+const EMAIL_FETCH_TIMEOUT = 5000; // 5 second timeout per email
 
 const limiter = new RateLimiter({ tokensPerInterval: MAX_EMAILS_FETCHED_CONCURRENTLY, interval: "second" });
 
@@ -23,7 +23,7 @@ const MULTIPLE_NEWLINES_REGEX = /\n{3,}/g;
 
 function cleanAndTruncateEmail(text: string, maxLength = 2000): string {
   if (!text) return "";
-  
+
   // Remove quoted replies
   text = text.replace(QUOTED_REPLY_REGEX, "");
 
@@ -38,10 +38,7 @@ function cleanAndTruncateEmail(text: string, maxLength = 2000): string {
   }
 
   // Normalize whitespace
-  text = text
-    .replace(NEWLINE_NORMALIZE_REGEX, "\n")
-    .replace(MULTIPLE_NEWLINES_REGEX, "\n\n")
-    .trim();
+  text = text.replace(NEWLINE_NORMALIZE_REGEX, "\n").replace(MULTIPLE_NEWLINES_REGEX, "\n\n").trim();
 
   return text.slice(0, maxLength).trim();
 }
@@ -57,7 +54,7 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
     return { success: false, error: MISSING_AUTH_TOKEN, messages: [] };
   }
 
-  const { query, maxResults } = params;
+  const { query, maxResults, timeout } = params;
   const max = Math.min(maxResults ?? DEFAULT_EMAIL_CONTENTS_FETCHED, MAX_EMAIL_CONTENTS_FETCHED);
 
   const allMessages = [];
@@ -90,7 +87,7 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
               `https://gmail.googleapis.com/gmail/v1/users/me/messages/${msg.id}?format=full`,
               {
                 headers: { Authorization: `Bearer ${authParams.authToken}` },
-                timeout: EMAIL_FETCH_TIMEOUT,
+                timeout: timeout ? timeout * 1000 : EMAIL_FETCH_TIMEOUT,
                 validateStatus: () => true,
               },
             );
@@ -99,12 +96,17 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
             const headers: Record<string, string> = {};
             for (const header of payload.headers) {
               const lowerName = header.name.toLowerCase();
-              if (lowerName === "from" || lowerName === "to" || lowerName === "subject" || 
-                  lowerName === "cc" || lowerName === "bcc") {
+              if (
+                lowerName === "from" ||
+                lowerName === "to" ||
+                lowerName === "subject" ||
+                lowerName === "cc" ||
+                lowerName === "bcc"
+              ) {
                 headers[lowerName] = header.value;
               }
             }
-            
+
             const rawBody = getEmailContent(msgRes.data) || "";
             const emailBody = cleanAndTruncateEmail(rawBody);
 
@@ -145,7 +147,7 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
       const successfulResults = results
         .filter((r): r is PromiseFulfilledResult<any> => r.status === "fulfilled")
         .map(r => r.value);
-      
+
       const failedResults = results.filter((r): r is PromiseRejectedResult => r.status === "rejected");
       failedResults.forEach(r => {
         const errorMessage = r.reason instanceof Error ? r.reason.message : "Failed to fetch message details";

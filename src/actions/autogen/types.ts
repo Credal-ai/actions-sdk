@@ -4095,6 +4095,7 @@ export type googleOauthQueryGoogleBigQueryFunction = ActionFunction<
 export const googlemailSearchGmailMessagesParamsSchema = z.object({
   query: z.string().describe('Gmail search query (e.g. "from:alice subject:urgent")'),
   maxResults: z.number().describe("Maximum number of messages to return (optional)").optional(),
+  timeout: z.number().describe("Timeout for the query in seconds (optional)").optional(),
 });
 
 export type googlemailSearchGmailMessagesParamsType = z.infer<typeof googlemailSearchGmailMessagesParamsSchema>;

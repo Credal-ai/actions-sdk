@@ -7981,6 +7981,10 @@ export const googlemailSearchGmailMessagesDefinition: ActionTemplate = {
         type: "number",
         description: "Maximum number of messages to return (optional)",
       },
+      timeout: {
+        type: "number",
+        description: "Timeout for the query in seconds (optional)",
+      },
     },
   },
   output: {
