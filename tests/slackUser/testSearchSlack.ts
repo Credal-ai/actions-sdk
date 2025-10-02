@@ -33,6 +33,22 @@ async function runTest() {
     { channel: "general", limit: 1, topic: "welcome" }
   )) as slackUserSearchSlackOutputType;
 
+  // DM with no topic
+  const result4 = (await runAction(
+    "searchSlack",
+    "slackUser",
+    { authToken: process.env.SLACK_AUTH_TOKEN },
+    { emails: ["jack@credal.ai"], limit: 10 }
+  )) as slackUserSearchSlackOutputType;
+
+  // Channel no topic
+  const result5 = (await runAction(
+    "searchSlack",
+    "slackUser",
+    { authToken: process.env.SLACK_AUTH_TOKEN },
+    { channel: "general", limit: 1, timeRange: "all" }
+  )) as slackUserSearchSlackOutputType;
+
   console.log(
     "Send Message Test Response 1: " + JSON.stringify(result1, null, 2)
   );
@@ -43,6 +59,14 @@ async function runTest() {
 
   console.log(
     "Send Message Test Response 3: " + JSON.stringify(result3, null, 2)
+  );
+
+  console.log(
+    "Send Message Test Response 4: " + JSON.stringify(result4, null, 2)
+  );
+
+  console.log(
+    "Send Message Test Response 5: " + JSON.stringify(result5, null, 2)
   );
 }
 

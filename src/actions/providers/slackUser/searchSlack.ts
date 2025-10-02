@@ -70,6 +70,12 @@ class SlackUserCache {
 
 /* ===================== Helpers ===================== */
 
+function normalizeChannelOperand(ch: string): string {
+  const s = ch.trim();
+  if (/^[CGD][A-Z0-9]/i.test(s)) return s;
+  return s.replace(/^#/, "");
+}
+
 function fmtDaysAgo(n: number) {
   const d = new Date();
   d.setDate(d.getDate() - n);
@@ -244,7 +250,7 @@ const searchSlack: slackUserSearchSlackFunction = async ({
   const client = new WebClient(authParams.authToken);
   const cache = new SlackUserCache(client);
 
-  const { emails, topic, timeRange, limit = 20 } = params;
+  const { emails, topic, timeRange, limit = 20, channel } = params;
 
   const { user_id: myUserId } = await client.auth.test();
   if (!myUserId) throw new Error("Failed to get my user ID.");
@@ -267,10 +273,12 @@ const searchSlack: slackUserSearchSlackFunction = async ({
     for (const id of filteredTargetIds) {
       allMatches.push(...(await searchScoped({ client, scope: `<@${id}>`, topic, timeRange, limit })));
     }
+  } else if (channel) {
+    allMatches.push(...(await searchScoped({ client, scope: normalizeChannelOperand(channel), topic, timeRange, limit })));
   }
 
   // --- Topic-wide search ---
-  const topicMatches = await searchByTopic({ client, topic, timeRange, limit });
+  const topicMatches = topic ? await searchByTopic({ client, topic, timeRange, limit }) : [];
   allMatches.push(...topicMatches);
 
   // --- Expand hits with context + filter overlap ---
