@@ -274,7 +274,9 @@ const searchSlack: slackUserSearchSlackFunction = async ({
       allMatches.push(...(await searchScoped({ client, scope: `<@${id}>`, topic, timeRange, limit })));
     }
   } else if (channel) {
-    allMatches.push(...(await searchScoped({ client, scope: normalizeChannelOperand(channel), topic, timeRange, limit })));
+    allMatches.push(
+      ...(await searchScoped({ client, scope: normalizeChannelOperand(channel), topic, timeRange, limit })),
+    );
   }
 
   // --- Topic-wide search ---
