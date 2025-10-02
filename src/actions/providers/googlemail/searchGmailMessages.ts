@@ -67,12 +67,11 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
       // Calculate the optimal batch size for this request
       const batchSize = Math.min(
         MAX_RESULTS_PER_REQUEST, // API maximum
-        max - fetched,           // Only fetch what we still need
-        MAX_EMAILS_FETCHED_CONCURRENTLY // Respect concurrency limit
+        max - fetched, // Only fetch what we still need
+        MAX_EMAILS_FETCHED_CONCURRENTLY, // Respect concurrency limit
       );
 
-      const url =
-        `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent(query)}&maxResults=${batchSize}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}`;
+      const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent(query)}&maxResults=${batchSize}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ""}`;
 
       const listRes = await axiosClient.get(url, {
         headers: { Authorization: `Bearer ${authParams.authToken}` },
