@@ -84,16 +84,6 @@ class SlackUserCache {
   set(id: string, { email, name }: { email: string; name: string }) {
     this.cache.set(id, { email, name });
   }
-
-  async getBatch(ids: string[]): Promise<Map<string, { email: string; name: string }>> {
-    const results = await Promise.all(ids.map(id => this.get(id)));
-    const map = new Map<string, { email: string; name: string }>();
-    ids.forEach((id, i) => {
-      const result = results[i];
-      if (result) map.set(id, result);
-    });
-    return map;
-  }
 }
 
 /* ===================== Helpers ===================== */
@@ -297,13 +287,15 @@ const searchSlack: slackUserSearchSlackFunction = async ({
   if (filteredTargetIds.length === 1) {
     searchPromises.push(searchScoped({ client, scope: `<@${filteredTargetIds[0]}>`, topic, timeRange, limit }));
   } else if (filteredTargetIds.length >= 2) {
-    // Run MPIM lookup in parallel with individual searches
-    const mpimPromise = tryGetMPIMName(client, filteredTargetIds).then(mpimName =>
-      mpimName ? searchScoped({ client, scope: mpimName, topic, timeRange, limit }) : [],
-    );
-    searchPromises.push(mpimPromise);
+    // Run MPIM lookup and individual DM searches in parallel
+    const searchMPIM = async () => {
+      const mpimName = await tryGetMPIMName(client, filteredTargetIds);
+      return mpimName ? searchScoped({ client, scope: mpimName, topic, timeRange, limit }) : [];
+    };
+    
+    searchPromises.push(searchMPIM());
 
-    // Run all individual DM searches in parallel
+    // Add individual DM searches
     searchPromises.push(
       ...filteredTargetIds.map(id => searchScoped({ client, scope: `<@${id}>`, topic, timeRange, limit })),
     );
@@ -318,15 +310,12 @@ const searchSlack: slackUserSearchSlackFunction = async ({
   const searchResults = await Promise.all(searchPromises);
   searchResults.forEach(matches => allMatches.push(...matches));
 
-  // Early termination: limit matches to process (1.5x desired limit)
-  const matchesToProcess = allMatches.slice(0, Math.ceil(limit * 1.5));
-
   // --- Expand hits with context + filter overlap ---
   // Create a channel info cache to avoid redundant API calls
   const channelInfoCache = new Map<string, { isIm: boolean; isMpim: boolean; members?: string[] }>();
 
   const expanded = await Promise.all(
-    matchesToProcess.map(m =>
+    allMatches.map(m =>
       limitHit(async () => {
         if (!m.ts || !m.channel?.id) return null;
         const anchor = await fetchOneMessage(client, m.channel.id, m.ts);
@@ -353,19 +342,13 @@ const searchSlack: slackUserSearchSlackFunction = async ({
         let passesFilter = false;
         if (isIm || isMpim) {
           // DM/MPIM: use members, not authorship
-          // Cache members in channelInfo to avoid repeated API calls
-          if (!channelInfo.members) {
-            channelInfo.members = (await client.conversations.members({ channel: m.channel.id })).members ?? [];
-          }
-          const membersRes = channelInfo.members;
-
-          // Batch fetch user info for better performance
-          const userMap = await cache.getBatch(membersRes);
-          members = membersRes.map(uid => {
-            const u = userMap.get(uid);
-            return { userId: uid, userEmail: u?.email, userName: u?.name };
-          });
-
+          const membersRes = (await client.conversations.members({ channel: m.channel.id })).members ?? [];
+          members = await Promise.all(
+            membersRes.map(async uid => {
+              const u = await cache.get(uid);
+              return { userId: uid, userEmail: u?.email, userName: u?.name };
+            }),
+          );
           const overlap = filteredTargetIds.filter(id => membersRes.includes(id)).length;
           passesFilter = overlap >= 1;
         } else {
@@ -374,10 +357,6 @@ const searchSlack: slackUserSearchSlackFunction = async ({
         }
 
         if (filteredTargetIds.length && !passesFilter) return null;
-
-        // Batch fetch all user IDs in context messages for better performance
-        const contextUserIds = contextMsgs.map(t => t.user).filter(Boolean) as string[];
-        await cache.getBatch(contextUserIds);
 
         const context = await Promise.all(
           contextMsgs.map(async t => ({
@@ -402,8 +381,7 @@ const searchSlack: slackUserSearchSlackFunction = async ({
     ),
   );
 
-  // Dedupe, sort, and limit to requested amount
-  const results = dedupeAndSort(expanded.filter(h => h !== null) as SlackSearchMessage[]).slice(0, limit);
+  const results = dedupeAndSort(expanded.filter(h => h !== null) as SlackSearchMessage[]);
 
   return {
     query: topic ?? "",
