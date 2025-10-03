@@ -146,7 +146,7 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
       // Convert sheets to CSV with early termination if charLimit is set
       const sheetTexts: string[] = [];
       let totalLength = 0;
-      const effectiveLimit = charLimit ? charLimit * 1.5 : Infinity; // Process 1.5x limit for safety
+      const effectiveLimit = charLimit ? charLimit * 1.5 : 100000; // Process 1.5x limit for safety
 
       // 2. Convert all sheets to plain text (CSV-style)
       for (const sheetName of workbook.SheetNames) {
