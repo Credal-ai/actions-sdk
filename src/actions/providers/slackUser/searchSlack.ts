@@ -45,26 +45,54 @@ interface SlackMessage {
 
 class SlackUserCache {
   private cache: Map<string, { email: string; name: string }>;
+  private pendingRequests: Map<string, Promise<{ email: string; name: string } | undefined>>;
+
   constructor(private client: WebClient) {
     this.cache = new Map();
+    this.pendingRequests = new Map();
     this.client = client;
   }
+
   async get(id: string): Promise<{ email: string; name: string } | undefined> {
     const cached = this.cache.get(id);
     if (cached) return cached;
-    const res = await this.client.users.info({ user: id });
-    const u = {
-      name: res.user?.profile?.display_name ?? res.user?.real_name ?? res.user?.name ?? "",
-      email: res.user?.profile?.email ?? "",
-    };
-    if (res.user && id) {
-      this.cache.set(id, u);
-      return u;
-    }
-    return undefined;
+
+    const pending = this.pendingRequests.get(id);
+    if (pending) return pending;
+
+    const promise = (async () => {
+      try {
+        const res = await this.client.users.info({ user: id });
+        const u = {
+          name: res.user?.profile?.display_name ?? res.user?.real_name ?? res.user?.name ?? "",
+          email: res.user?.profile?.email ?? "",
+        };
+        if (res.user && id) {
+          this.cache.set(id, u);
+          return u;
+        }
+        return undefined;
+      } finally {
+        this.pendingRequests.delete(id);
+      }
+    })();
+
+    this.pendingRequests.set(id, promise);
+    return promise;
   }
+
   set(id: string, { email, name }: { email: string; name: string }) {
     this.cache.set(id, { email, name });
+  }
+
+  async getBatch(ids: string[]): Promise<Map<string, { email: string; name: string }>> {
+    const results = await Promise.all(ids.map(id => this.get(id)));
+    const map = new Map<string, { email: string; name: string }>();
+    ids.forEach((id, i) => {
+      const result = results[i];
+      if (result) map.set(id, result);
+    });
+    return map;
   }
 }
 
@@ -262,30 +290,41 @@ const searchSlack: slackUserSearchSlackFunction = async ({
 
   const allMatches: Match[] = [];
 
-  // --- Scoped DM/MPIM searches ---
+  // --- Parallel search execution for better performance ---
+  const searchPromises: Promise<Match[]>[] = [];
+
+  // Scoped DM/MPIM searches
   if (filteredTargetIds.length === 1) {
-    allMatches.push(...(await searchScoped({ client, scope: `<@${filteredTargetIds[0]}>`, topic, timeRange, limit })));
+    searchPromises.push(searchScoped({ client, scope: `<@${filteredTargetIds[0]}>`, topic, timeRange, limit }));
   } else if (filteredTargetIds.length >= 2) {
-    const mpimName = await tryGetMPIMName(client, filteredTargetIds);
-    if (mpimName) {
-      allMatches.push(...(await searchScoped({ client, scope: mpimName, topic, timeRange, limit })));
-    }
-    for (const id of filteredTargetIds) {
-      allMatches.push(...(await searchScoped({ client, scope: `<@${id}>`, topic, timeRange, limit })));
-    }
-  } else if (channel) {
-    allMatches.push(
-      ...(await searchScoped({ client, scope: normalizeChannelOperand(channel), topic, timeRange, limit })),
+    // Run MPIM lookup in parallel with individual searches
+    const mpimPromise = tryGetMPIMName(client, filteredTargetIds).then(mpimName =>
+      mpimName ? searchScoped({ client, scope: mpimName, topic, timeRange, limit }) : [],
+    );
+    searchPromises.push(mpimPromise);
+
+    // Run all individual DM searches in parallel
+    searchPromises.push(
+      ...filteredTargetIds.map(id => searchScoped({ client, scope: `<@${id}>`, topic, timeRange, limit })),
     );
   }
 
-  // --- Topic-wide search ---
-  const topicMatches = topic ? await searchByTopic({ client, topic, timeRange, limit }) : [];
-  allMatches.push(...topicMatches);
+  // Topic-wide search in parallel
+  searchPromises.push(searchByTopic({ client, topic, timeRange, limit }));
+
+  // Execute all searches in parallel
+  const searchResults = await Promise.all(searchPromises);
+  searchResults.forEach(matches => allMatches.push(...matches));
+
+  // Early termination: limit matches to process (1.5x desired limit)
+  const matchesToProcess = allMatches.slice(0, Math.ceil(limit * 1.5));
 
   // --- Expand hits with context + filter overlap ---
+  // Create a channel info cache to avoid redundant API calls
+  const channelInfoCache = new Map<string, { isIm: boolean; isMpim: boolean; members?: string[] }>();
+
   const expanded = await Promise.all(
-    allMatches.map(m =>
+    matchesToProcess.map(m =>
       limitHit(async () => {
         if (!m.ts || !m.channel?.id) return null;
         const anchor = await fetchOneMessage(client, m.channel.id, m.ts);
@@ -293,10 +332,17 @@ const searchSlack: slackUserSearchSlackFunction = async ({
 
         let members: { userId: string | undefined; userEmail: string | undefined; userName: string | undefined }[] = [];
 
-        // Check convo type (DM, MPIM, channel)
-        const convoInfo = await client.conversations.info({ channel: m.channel.id });
-        const isIm = convoInfo.channel?.is_im;
-        const isMpim = convoInfo.channel?.is_mpim;
+        // Check convo type (DM, MPIM, channel) with caching
+        let channelInfo = channelInfoCache.get(m.channel.id);
+        if (!channelInfo) {
+          const convoInfo = await client.conversations.info({ channel: m.channel.id });
+          channelInfo = {
+            isIm: convoInfo.channel?.is_im ?? false,
+            isMpim: convoInfo.channel?.is_mpim ?? false,
+          };
+          channelInfoCache.set(m.channel.id, channelInfo);
+        }
+        const { isIm, isMpim } = channelInfo;
 
         const [contextMsgs, permalink] = anchor?.thread_ts
           ? [await fetchThread(client, m.channel.id, rootTs), await getPermalink(client, m.channel.id, rootTs)]
@@ -305,13 +351,19 @@ const searchSlack: slackUserSearchSlackFunction = async ({
         let passesFilter = false;
         if (isIm || isMpim) {
           // DM/MPIM: use members, not authorship
-          const membersRes = (await client.conversations.members({ channel: m.channel.id })).members ?? [];
-          members = await Promise.all(
-            membersRes.map(async uid => {
-              const u = await cache.get(uid);
-              return { userId: uid, userEmail: u?.email, userName: u?.name };
-            }),
-          );
+          // Cache members in channelInfo to avoid repeated API calls
+          if (!channelInfo.members) {
+            channelInfo.members = (await client.conversations.members({ channel: m.channel.id })).members ?? [];
+          }
+          const membersRes = channelInfo.members;
+
+          // Batch fetch user info for better performance
+          const userMap = await cache.getBatch(membersRes);
+          members = membersRes.map(uid => {
+            const u = userMap.get(uid);
+            return { userId: uid, userEmail: u?.email, userName: u?.name };
+          });
+
           const overlap = filteredTargetIds.filter(id => membersRes.includes(id)).length;
           passesFilter = overlap >= 1;
         } else {
@@ -320,6 +372,10 @@ const searchSlack: slackUserSearchSlackFunction = async ({
         }
 
         if (filteredTargetIds.length && !passesFilter) return null;
+
+        // Batch fetch all user IDs in context messages for better performance
+        const contextUserIds = contextMsgs.map(t => t.user).filter(Boolean) as string[];
+        await cache.getBatch(contextUserIds);
 
         const context = await Promise.all(
           contextMsgs.map(async t => ({
@@ -344,7 +400,8 @@ const searchSlack: slackUserSearchSlackFunction = async ({
     ),
   );
 
-  const results = dedupeAndSort(expanded.filter(h => h !== null) as SlackSearchMessage[]);
+  // Dedupe, sort, and limit to requested amount
+  const results = dedupeAndSort(expanded.filter(h => h !== null) as SlackSearchMessage[]).slice(0, limit);
 
   return {
     query: topic ?? "",
