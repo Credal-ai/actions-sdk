@@ -307,10 +307,12 @@ const searchSlack: slackUserSearchSlackFunction = async ({
     searchPromises.push(
       ...filteredTargetIds.map(id => searchScoped({ client, scope: `<@${id}>`, topic, timeRange, limit })),
     );
+  } else if (channel) {
+    searchPromises.push(searchScoped({ client, scope: normalizeChannelOperand(channel), topic, timeRange, limit }));
   }
 
   // Topic-wide search in parallel
-  searchPromises.push(searchByTopic({ client, topic, timeRange, limit }));
+  searchPromises.push(...(topic ? [searchByTopic({ client, topic, timeRange, limit })] : []));
 
   // Execute all searches in parallel
   const searchResults = await Promise.all(searchPromises);
