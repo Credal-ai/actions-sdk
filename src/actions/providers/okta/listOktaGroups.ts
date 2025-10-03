@@ -93,7 +93,14 @@ const listOktaGroups: oktaListOktaGroupsFunction = async ({
       }
     }
 
-    return { success: true, groups };
+    return {
+      success: true,
+      results: groups.map(group => ({
+        name: group.profile.name || "Unknown Group",
+        url: `${baseUrl}/admin/group/${group.id}`,
+        contents: group,
+      })),
+    };
   } catch (error) {
     console.error("Error listing groups:", error);
     let errorMessage = "Unknown error while listing groups";

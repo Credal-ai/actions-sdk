@@ -218,21 +218,21 @@ const searchOrganization: githubSearchOrganizationFunction = async ({
     success: true,
     results: [
       ...codeResults.map(result => ({
-        type: "code" as const,
         name: result.name,
         url: result.url,
+        type: "code" as const,
         content: result,
       })),
       ...enrichedCommits.map(result => ({
-        type: "commit" as const,
         name: result.sha,
         url: result.url,
+        type: "commit" as const,
         content: result,
       })),
       ...issuesAndPRs.map(result => ({
-        type: "issueOrPullRequest" as const,
         name: result.title,
         url: result.html_url,
+        type: "issueOrPullRequest" as const,
         content: result,
       })),
     ],

@@ -62,7 +62,11 @@ const getDeals: hubspotGetDealsFunction = async ({
     );
     return {
       success: true,
-      deals,
+      results: deals.map((deal: { dealname?: string; id: string }) => ({
+        name: deal.dealname || "Unknown Deal",
+        url: `https://app.hubspot.com/deals/${deal.id}`,
+        contents: deal,
+      })),
     };
   } catch (error) {
     console.error("Error getting HubSpot deals:", error);

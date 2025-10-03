@@ -23,12 +23,19 @@ const symbolLookup: finnhubSymbolLookupFunction = async ({
     });
 
     return finnhubSymbolLookupOutputSchema.parse({
-      result: result.data.result,
+      success: true,
+      results: result.data.result.map((item: { description?: string; symbol: string }) => ({
+        name: item.description || item.symbol || "Unknown Symbol",
+        url: `https://finnhub.io/quote/${item.symbol}`,
+        contents: item,
+      })),
     });
   } catch (error) {
     console.error(error);
     return finnhubSymbolLookupOutputSchema.parse({
-      result: [],
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+      results: [],
     });
   }
 };

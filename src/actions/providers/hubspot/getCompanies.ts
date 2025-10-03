@@ -80,7 +80,11 @@ const getCompanies: hubspotGetCompaniesFunction = async ({
 
     return {
       success: true,
-      companies: allCompanies,
+      results: allCompanies.map(company => ({
+        name: company.name || "Unknown Company",
+        url: `https://app.hubspot.com/companies/${company.id}`,
+        contents: company,
+      })),
     };
   } catch (error) {
     console.error("Error searching HubSpot companies:", error);

@@ -177,21 +177,22 @@ const getIssues: linearGetIssuesFunction = async ({
 
     return {
       success: true,
-      issues: allIssues.slice(0, max).map(issue => {
-        const { id, title, labels, state, assignee, due_date, project, team, url, comments } = issue;
-        return {
-          id,
-          title,
-          labels,
-          state,
-          assignee: assignee || undefined,
-          due_date: due_date || undefined,
-          project: project || undefined,
-          team: team || undefined,
-          url,
-          comments,
-        };
-      }),
+      results: allIssues.slice(0, max).map(issue => ({
+        name: issue.title,
+        url: issue.url,
+        contents: {
+          id: issue.id,
+          title: issue.title,
+          labels: issue.labels,
+          state: issue.state,
+          assignee: issue.assignee || undefined,
+          due_date: issue.due_date || undefined,
+          project: issue.project || undefined,
+          team: issue.team || undefined,
+          url: issue.url,
+          comments: issue.comments,
+        },
+      })),
     };
   } catch (error) {
     console.error("Error retrieving Linear issues: ", error);

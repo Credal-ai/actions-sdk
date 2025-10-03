@@ -9,7 +9,7 @@ async function runTest() {
     { query: "AAPL" },
   );
   console.log(result);
-  assert(result.result.length > 0, "Result should not be empty");
+  assert(result.results.length > 0, "Result should not be empty");
 
   const basicFinancialsResult = await runAction(
     "getBasicFinancials",

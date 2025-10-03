@@ -66,7 +66,7 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
   authParams: AuthParamsType;
 }): Promise<googlemailSearchGmailMessagesOutputType> => {
   if (!authParams.authToken) {
-    return { success: false, error: MISSING_AUTH_TOKEN, messages: [] };
+    return { success: false, error: MISSING_AUTH_TOKEN, results: [] };
   }
 
   const { query, maxResults, timeout } = params;
@@ -182,14 +182,18 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
 
     return {
       success: errorMessages.length === 0,
-      messages: allMessages,
-      error: errorMessages.join("; "),
+      results: allMessages.map(message => ({
+        name: message.subject || message.snippet || "Email Message",
+        url: `https://mail.google.com/mail/u/0/#inbox/${message.threadId}`,
+        contents: message,
+      })),
+      error: errorMessages.length > 0 ? errorMessages.join("; ") : undefined,
     };
   } catch (err) {
     return {
       success: false,
       error: err instanceof Error ? err.message : "Unknown error searching Gmail",
-      messages: [],
+      results: [],
     };
   }
 };

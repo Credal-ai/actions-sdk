@@ -64,13 +64,49 @@ const searchAllSalesforceRecords: salesforceSearchAllSalesforceRecordsFunction =
 
     // Salesforce record types are confusing and non standard
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const recordsWithUrl = response.data.searchRecords.map((record: any) => {
-      const recordId = record.Id;
-      const webUrl = recordId ? `${baseUrl}/lightning/r/${recordId}/view` : undefined;
-      return { ...record, webUrl };
-    });
+    const recordsWithUrl = response.data.searchRecords.map(
+      (record: {
+        Id: string;
+        Name?: string;
+        Title?: string;
+        Subject?: string;
+        CaseNumber?: string;
+        AccountName?: string;
+        ContactName?: string;
+      }) => {
+        const recordId = record.Id;
+        const webUrl = recordId ? `${baseUrl}/lightning/r/${recordId}/view` : undefined;
+        return { ...record, webUrl };
+      },
+    );
 
-    return { success: true, searchRecords: recordsWithUrl };
+    return {
+      success: true,
+      results: recordsWithUrl.map(
+        (record: {
+          Name?: string;
+          Title?: string;
+          Subject?: string;
+          CaseNumber?: string;
+          AccountName?: string;
+          ContactName?: string;
+          Id?: string;
+          webUrl?: string;
+        }) => ({
+          name:
+            record.Name ||
+            record.Title ||
+            record.Subject ||
+            record.CaseNumber ||
+            record.AccountName ||
+            record.ContactName ||
+            record.Id ||
+            "Unknown Record",
+          url: record.webUrl,
+          contents: record,
+        }),
+      ),
+    };
   } catch (error) {
     console.error("Error retrieving Salesforce record:", error);
     return {

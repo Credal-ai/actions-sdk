@@ -39,7 +39,12 @@ const searchCandidates: ashbySearchCandidatesFunction = async ({
   }
 
   return {
-    candidates: response.data.results,
+    success: true,
+    results: response.data.results.map((candidate: { name?: string; email?: string; url?: string }) => ({
+      name: candidate.name || candidate.email || "Unknown Candidate",
+      url: candidate.url || "",
+      contents: candidate,
+    })),
   };
 };
 

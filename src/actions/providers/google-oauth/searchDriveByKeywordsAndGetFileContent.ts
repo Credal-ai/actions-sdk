@@ -66,7 +66,7 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
     return { success: false, error: searchResult.error };
   }
 
-  const files = searchResult.files ?? [];
+  const files = searchResult.results ?? [];
 
   // File types that are likely to fail or have no useful text content
   const problematicMimeTypes = new Set([
@@ -83,7 +83,7 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
   // Filter out problematic files BEFORE processing to avoid wasting resources
   const validFiles = files
     .slice(0, limit)
-    .filter(file => file.id && file.name && !problematicMimeTypes.has(file.mimeType));
+    .filter(file => file.contents.id && file.contents.name && !problematicMimeTypes.has(file.contents.mimeType));
 
   // Process only valid files in smaller batches to avoid overwhelming the API
   const filesWithContent = await processBatch(
@@ -93,25 +93,25 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
         // Add timeout for individual file content requests with shorter timeout
         const contentResult = await getDriveFileContentById({
           params: {
-            fileId: file.id,
+            fileId: file.contents.id,
             limit: maxChars,
             timeoutLimit: 2,
           },
           authParams,
         });
         return {
-          id: file.id,
-          name: file.name,
-          mimeType: file.mimeType,
-          url: file.url,
+          id: file.contents.id,
+          name: file.contents.name,
+          mimeType: file.contents.mimeType,
+          url: file.contents.url,
           content: contentResult.success ? contentResult.results?.[0]?.contents?.content : undefined,
         };
       } catch {
         return {
-          id: file.id,
-          name: file.name,
-          mimeType: file.mimeType,
-          url: file.url,
+          id: file.contents.id,
+          name: file.contents.name,
+          mimeType: file.contents.mimeType,
+          url: file.contents.url,
           content: undefined, // Gracefully handle errors
         };
       }

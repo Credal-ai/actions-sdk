@@ -76,15 +76,20 @@ const nearbysearchRestaurants: googlemapsNearbysearchRestaurantsFunction = async
   );
 
   return googlemapsNearbysearchRestaurantsOutputSchema.parse({
+    success: true,
     results: response.data.places.map((place: NearbySearchResult) => ({
       name: place.displayName.text,
-      address: place.formattedAddress,
-      priceLevel: place.priceLevel,
-      rating: place.rating,
-      primaryType: place.primaryTypeDisplayName.text,
-      editorialSummary: place.editorialSummary?.text || "",
-      openingHours: place.regularOpeningHours?.weekdayDescriptions.join("\n") || "",
-      websiteUri: place.websiteUri,
+      url: place.websiteUri || `https://maps.google.com/?q=${encodeURIComponent(place.formattedAddress)}`,
+      contents: {
+        name: place.displayName.text,
+        address: place.formattedAddress,
+        priceLevel: place.priceLevel,
+        rating: place.rating,
+        primaryType: place.primaryTypeDisplayName.text,
+        editorialSummary: place.editorialSummary?.text || "",
+        openingHours: place.regularOpeningHours?.weekdayDescriptions.join("\n") || "",
+        websiteUri: place.websiteUri,
+      },
     })),
   });
 };

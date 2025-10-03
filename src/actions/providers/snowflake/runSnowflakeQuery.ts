@@ -22,8 +22,7 @@ const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
   const executeQueryAndFormatData = async (): Promise<{ formattedData: string; resultsLength: number }> => {
     const formattedQuery = query.trim().replace(/\s+/g, " "); // Normalize all whitespace to single spaces
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const queryResults: any[] = await new Promise<any[]>((resolve, reject) => {
+    const queryResults: Record<string, unknown>[] = await new Promise<Record<string, unknown>[]>((resolve, reject) => {
       connection.execute({
         sqlText: formattedQuery,
         complete: (err, stmt, rows) => {
@@ -74,10 +73,19 @@ const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
       }
     });
     return {
-      rowCount: resultsLength,
-      content: formattedData,
-      format: outputFormat,
-      error: limit && limit < resultsLength ? `Query results truncated to ${limit} rows.` : undefined,
+      success: true,
+      results: [
+        {
+          name: "Query Results",
+          url: "",
+          contents: {
+            rowCount: resultsLength,
+            content: formattedData,
+            format: outputFormat,
+            error: limit && limit < resultsLength ? `Query results truncated to ${limit} rows.` : undefined,
+          },
+        },
+      ],
     };
   } catch (error: unknown) {
     connection.destroy(err => {
@@ -85,7 +93,11 @@ const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
         console.log("Failed to disconnect from Snowflake:", err);
       }
     });
-    throw Error(`An error occurred: ${error}`);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+      results: [],
+    };
   }
 };
 

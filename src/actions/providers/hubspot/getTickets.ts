@@ -57,7 +57,11 @@ const getTickets: hubspotGetTicketsFunction = async ({
     );
     return {
       success: true,
-      tickets,
+      results: tickets.map((ticket: { subject?: string; id: string }) => ({
+        name: ticket.subject || "Unknown Ticket",
+        url: `https://app.hubspot.com/tickets/${ticket.id}`,
+        contents: ticket,
+      })),
     };
   } catch (error) {
     console.error("Error getting HubSpot tickets:", error);

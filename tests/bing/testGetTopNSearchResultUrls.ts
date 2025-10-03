@@ -11,7 +11,16 @@ async function runTest() {
       site: "openai.com",
     },
   );
-  console.log(result);
+  console.log("Success:", result.success);
+  console.log("Results count:", result.results?.length || 0);
+  if (result.results) {
+    for (const searchResult of result.results) {
+      console.log(`- ${searchResult.name} (URL: ${searchResult.url})`);
+    }
+  }
+  if (result.error) {
+    console.log("Error:", result.error);
+  }
 }
 
 runTest().catch(console.error);

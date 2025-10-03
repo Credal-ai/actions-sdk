@@ -65,7 +65,11 @@ const searchAsanaTasks: asanaSearchTasksFunction = async ({
 
     return {
       success: true,
-      results: matches,
+      results: matches.map(match => ({
+        name: match.name,
+        url: `https://app.asana.com/0/${match.workspaceId}/${match.id}`,
+        contents: match,
+      })),
     };
   } catch (error) {
     console.error("Error searching Asana tasks:", error);

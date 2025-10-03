@@ -46,8 +46,12 @@ const listZendeskTickets: zendeskListZendeskTicketsFunction = async ({
   });
 
   return {
-    tickets: response.data.tickets,
-    count: response.data.count,
+    success: true,
+    results: response.data.tickets.map((ticket: { subject?: string; id: string }) => ({
+      name: ticket.subject || `Ticket #${ticket.id}`,
+      url: `https://${subdomain}.zendesk.com/agent/tickets/${ticket.id}`,
+      contents: ticket,
+    })),
   };
 };
 

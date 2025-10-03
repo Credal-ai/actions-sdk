@@ -17,7 +17,7 @@ const searchDriveByQuery: googleOauthSearchDriveByQueryFunction = async ({
   authParams: AuthParamsType;
 }): Promise<googleOauthSearchDriveByQueryOutputType> => {
   if (!authParams.authToken) {
-    return { success: false, error: MISSING_AUTH_TOKEN, files: [] };
+    return { success: false, error: MISSING_AUTH_TOKEN, results: [] };
   }
 
   const { query, limit, searchDriveByDrive, orderByQuery, includeTrashed = false } = params;
@@ -38,7 +38,7 @@ const searchDriveByQuery: googleOauthSearchDriveByQueryFunction = async ({
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
-      files: [],
+      results: [],
     };
   }
 };
@@ -93,7 +93,11 @@ const searchAllDrivesAtOnce = async (
 
   return {
     success: true,
-    files: limit ? dedupedFiles.slice(0, limit) : dedupedFiles,
+    results: (limit ? dedupedFiles.slice(0, limit) : dedupedFiles).map(file => ({
+      name: file.name,
+      url: file.url,
+      contents: file,
+    })),
   };
 };
 
@@ -153,7 +157,11 @@ const searchAllDrivesIndividually = async (
 
   return {
     success: true,
-    files: limit ? dedupedFiles.slice(0, limit) : dedupedFiles,
+    results: (limit ? dedupedFiles.slice(0, limit) : dedupedFiles).map(file => ({
+      name: file.name,
+      url: file.url,
+      contents: file,
+    })),
   };
 };
 

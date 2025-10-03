@@ -20,7 +20,16 @@ async function runSearchOrganizationWithoutRepository() {
     }
   )) as githubSearchOrganizationOutputType;
 
-  console.log(JSON.stringify(result, null, 2));
+  console.log("Success:", result.success);
+  console.log("Results count:", result.results?.length || 0);
+  if (result.results) {
+    for (const searchResult of result.results) {
+      console.log(`- ${searchResult.name} (URL: ${searchResult.url})`);
+    }
+  }
+  if (result.error) {
+    console.log("Error:", result.error);
+  }
 
   // Validate response
   assert(result, "Response should not be null");
@@ -43,7 +52,16 @@ async function runSearchOrganizationWithRepository() {
     }
   )) as githubSearchOrganizationOutputType;
 
-  console.log(JSON.stringify(result, null, 2));
+  console.log("Success:", result.success);
+  console.log("Results count:", result.results?.length || 0);
+  if (result.results) {
+    for (const searchResult of result.results) {
+      console.log(`- ${searchResult.name} (URL: ${searchResult.url})`);
+    }
+  }
+  if (result.error) {
+    console.log("Error:", result.error);
+  }
 
   // Validate response
   assert(result, "Response should not be null");

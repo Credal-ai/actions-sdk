@@ -14,7 +14,7 @@ async function runTest() {
 
   console.log(`Found ${result.results.length} matching tasks:`);
   for (const match of result.results) {
-    console.log(`- ${match.name} (ID: ${match.id}) in Workspace ${match.workspaceId}`);
+    console.log(`- ${match.name} (ID: ${match.contents.id}) in Workspace ${match.contents.workspaceId}`);
   }
 }
 

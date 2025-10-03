@@ -62,9 +62,13 @@ const getTeams: linearGetTeamsFunction = async ({
 
     return {
       success: true,
-      teams: teams.map((team: { id: string; name: string }) => ({
-        id: team.id,
+      results: teams.map((team: { id: string; name: string }) => ({
         name: team.name,
+        url: `https://linear.app/team/${team.id}`,
+        contents: {
+          id: team.id,
+          name: team.name,
+        },
       })),
     };
   } catch (error) {
