@@ -2,6 +2,21 @@ import { RateLimiter } from "limiter";
 import { axiosClient } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import { getEmailContent, type GmailMessage } from "../google-oauth/utils/decodeMessage.js";
+
+export interface GmailMessageResult {
+  id: string;
+  threadId: string;
+  snippet: string;
+  labelIds?: string[];
+  internalDate: string;
+  emailBody: string;
+  from?: string;
+  to?: string;
+  subject?: string;
+  cc?: string;
+  bcc?: string;
+  error?: string;
+}
 import type {
   AuthParamsType,
   googlemailSearchGmailMessagesFunction,
@@ -114,7 +129,7 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
             const rawBody = getEmailContent(msgRes.data) || "";
             const emailBody = cleanAndTruncateEmail(rawBody);
 
-            return {
+                      const message: GmailMessageResult = {
               id,
               threadId,
               snippet,
@@ -127,6 +142,7 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
               cc: headers.cc,
               bcc: headers.bcc,
             };
+            return message;
           } catch (err) {
             const errorMessage = err instanceof Error ? err.message : "Failed to fetch message details";
             errorMessages.push(errorMessage);
@@ -149,7 +165,7 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
       );
 
       const successfulResults = results
-        .filter((r): r is PromiseFulfilledResult<any> => r.status === "fulfilled")
+        .filter((r): r is PromiseFulfilledResult<GmailMessageResult> => r.status === "fulfilled")
         .map(r => r.value);
 
       const failedResults = results.filter((r): r is PromiseRejectedResult => r.status === "rejected");
