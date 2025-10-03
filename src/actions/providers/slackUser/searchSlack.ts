@@ -292,7 +292,7 @@ const searchSlack: slackUserSearchSlackFunction = async ({
       const mpimName = await tryGetMPIMName(client, filteredTargetIds);
       return mpimName ? searchScoped({ client, scope: mpimName, topic, timeRange, limit }) : [];
     };
-    
+
     searchPromises.push(searchMPIM());
 
     // Add individual DM searches
