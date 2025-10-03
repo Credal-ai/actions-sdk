@@ -129,7 +129,7 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
             const rawBody = getEmailContent(msgRes.data) || "";
             const emailBody = cleanAndTruncateEmail(rawBody);
 
-                      const message: GmailMessageResult = {
+            const message: GmailMessageResult = {
               id,
               threadId,
               snippet,
