@@ -4,7 +4,8 @@ import type {
   jiraGetJiraIssuesByQueryOutputType,
   jiraGetJiraIssuesByQueryParamsType,
 } from "../../autogen/types.js";
-import { ApiError, axiosClient } from "../../util/axiosClient.js";
+import { axiosClient } from "../../util/axiosClient.js";
+import { getJiraApiConfig, getErrorMessage } from "./utils.js";
 
 const DEFAULT_LIMIT = 100;
 
@@ -69,11 +70,12 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
   params: jiraGetJiraIssuesByQueryParamsType;
   authParams: AuthParamsType;
 }): Promise<jiraGetJiraIssuesByQueryOutputType> => {
-  const { authToken, cloudId, baseUrl } = authParams;
+  const { authToken } = authParams;
   const { query, limit } = params;
+  const { apiUrl, browseUrl, strategy } = getJiraApiConfig(authParams);
 
-  if (!cloudId || !authToken || !baseUrl) {
-    throw new Error("Valid Cloud ID, base URL, and auth token are required to comment on Jira ticket");
+  if (!authToken) {
+    throw new Error("Auth token is required");
   }
 
   const queryParams = new URLSearchParams();
@@ -100,10 +102,11 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
   ];
   queryParams.set("fields", fields.join(","));
 
-  const apiUrl = `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3/search/jql?${queryParams.toString()}`;
+  const searchEndpoint = strategy.getSearchEndpoint();
+  const fullApiUrl = `${apiUrl}${searchEndpoint}?${queryParams.toString()}`;
 
   try {
-    const response = await axiosClient.get<JiraSearchResponse>(apiUrl, {
+    const response = await axiosClient.get<JiraSearchResponse>(fullApiUrl, {
       headers: {
         Authorization: `Bearer ${authToken}`,
         Accept: "application/json",
@@ -112,49 +115,64 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
 
     return {
       success: true,
-      results: response.data.issues.map(issue => ({
-        name: issue.key,
-        url: `${baseUrl}/browse/${issue.key}`,
-        contents: {
-          id: issue.id,
-          key: issue.key,
-          summary: issue.fields.summary,
-          description: extractPlainText(issue.fields.description),
-          project: {
-            id: issue.fields.project.id,
-            key: issue.fields.project.key,
-            name: issue.fields.project.name,
+      results: response.data.issues.map(issue => {
+        const { id, key, fields } = issue;
+        const {
+          summary,
+          description,
+          project,
+          issuetype,
+          status,
+          assignee,
+          reporter,
+          creator,
+          created,
+          updated,
+          resolution,
+          duedate,
+        } = fields;
+
+        const ticketUrl = `${browseUrl}/browse/${key}`;
+
+        return {
+          name: key,
+          url: ticketUrl,
+          contents: {
+            id,
+            key,
+            summary,
+            description: extractPlainText(description),
+            project: {
+              id: project.id,
+              key: project.key,
+              name: project.name,
+            },
+            issueType: {
+              id: issuetype.id,
+              name: issuetype.name,
+            },
+            status: {
+              id: status.id,
+              name: status.name,
+              category: status.statusCategory.name,
+            },
+            assignee: assignee?.emailAddress || null,
+            reporter: reporter?.emailAddress || null,
+            creator: creator?.emailAddress || null,
+            created,
+            updated,
+            resolution: resolution?.name || null,
+            dueDate: duedate || null,
+            url: ticketUrl,
           },
-          issueType: {
-            id: issue.fields.issuetype.id,
-            name: issue.fields.issuetype.name,
-          },
-          status: {
-            id: issue.fields.status.id,
-            name: issue.fields.status.name,
-            category: issue.fields.status.statusCategory.name,
-          },
-          assignee: issue.fields.assignee?.emailAddress || null,
-          reporter: issue.fields.reporter?.emailAddress || null,
-          creator: issue.fields.creator?.emailAddress || null,
-          created: issue.fields.created,
-          updated: issue.fields.updated,
-          resolution: issue.fields.resolution?.name || null,
-          dueDate: issue.fields.duedate || null,
-          url: `${baseUrl}/browse/${issue.key}`,
-        },
-      })),
+        };
+      }),
     };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error retrieving Jira issues:", error);
     return {
       success: false,
-      error:
-        error instanceof ApiError
-          ? error.data.length > 0
-            ? error.data[0].message
-            : error.message
-          : "An unknown error occurred",
+      error: getErrorMessage(error),
     };
   }
 };

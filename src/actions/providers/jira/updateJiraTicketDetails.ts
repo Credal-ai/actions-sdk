@@ -5,7 +5,7 @@ import type {
   jiraUpdateJiraTicketDetailsParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
-import { getRequestTypeCustomFieldId } from "./utils.js";
+import { resolveRequestTypeField, getJiraApiConfig, getErrorMessage } from "./utils.js";
 
 const updateJiraTicketDetails: jiraUpdateJiraTicketDetailsFunction = async ({
   params,
@@ -14,68 +14,51 @@ const updateJiraTicketDetails: jiraUpdateJiraTicketDetailsFunction = async ({
   params: jiraUpdateJiraTicketDetailsParamsType;
   authParams: AuthParamsType;
 }): Promise<jiraUpdateJiraTicketDetailsOutputType> => {
-  const { authToken, cloudId, baseUrl } = authParams;
-  const { issueId, summary, description, customFields, requestTypeId } = params;
+  const { authToken } = authParams;
+  const { issueId, summary, description, customFields, requestTypeId, projectKey } = params;
+  const { apiUrl, browseUrl, strategy } = getJiraApiConfig(authParams);
 
-  if (!cloudId || !authToken) {
-    throw new Error("Valid Cloud ID and auth token are required to comment on Jira ticket");
+  if (!authToken) {
+    throw new Error("Auth token is required");
   }
 
-  const apiUrl = `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3/issue/${issueId}`;
+  const fullApiUrl = `${apiUrl}/issue/${issueId}`;
+  const formattedDescription = description ? strategy.formatText(description) : undefined;
 
-  const formattedDescription = description
-    ? {
-        type: "doc",
-        version: 1,
-        content: [
-          {
-            type: "paragraph",
-            content: [
-              {
-                type: "text",
-                text: description,
-              },
-            ],
-          },
-        ],
-      }
-    : undefined;
-
-  // If request type is provided, find the custom field ID and prepare the value
-  const requestTypeField: { [key: string]: string } = {};
-  if (requestTypeId && authToken) {
-    const requestTypeFieldId = await getRequestTypeCustomFieldId(
-      params.projectKey,
-      `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3`,
-      authToken,
-    );
-    if (requestTypeFieldId) {
-      requestTypeField[requestTypeFieldId] = requestTypeId;
-    }
-  }
+  const { field: requestTypeField, message: partialUpdateMessage } = await resolveRequestTypeField(
+    requestTypeId,
+    projectKey,
+    apiUrl,
+    authToken,
+  );
 
   const payload = {
     fields: {
       ...(summary && { summary }),
       ...(formattedDescription && { description: formattedDescription }),
-      ...requestTypeField,
-      ...(customFields && { ...customFields }),
+      ...(Object.keys(requestTypeField).length > 0 && requestTypeField),
+      ...(customFields && customFields),
     },
   };
 
   try {
-    await axiosClient.put(apiUrl, payload, {
+    await axiosClient.put(fullApiUrl, payload, {
       headers: {
         Authorization: `Bearer ${authToken}`,
         Accept: "application/json",
       },
     });
     return {
-      ticketUrl: `${baseUrl}/browse/${issueId}`,
+      success: true,
+      ticketUrl: `${browseUrl}/browse/${issueId}`,
+      ...(partialUpdateMessage && { error: partialUpdateMessage }),
     };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error updating Jira ticket:", error);
-    throw new Error(error instanceof Error ? error.message : "Unknown error");
+    return {
+      success: false,
+      error: getErrorMessage(error),
+    };
   }
 };
 

@@ -1019,7 +1019,7 @@ export const confluenceFetchPageContentDefinition: ActionTemplate = {
   provider: "confluence",
 };
 export const jiraAssignJiraTicketDefinition: ActionTemplate = {
-  description: "Assigns/Re-assignes a Jira ticket to a specified user",
+  description: "Assigns/Reassigns a Jira ticket to a specified user",
   scopes: ["write:jira-work", "read:jira-user"],
   parameters: {
     type: "object",
@@ -1184,11 +1184,19 @@ export const jiraCreateJiraTicketDefinition: ActionTemplate = {
   },
   output: {
     type: "object",
-    required: ["ticketUrl"],
+    required: ["success"],
     properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the ticket was successfully created",
+      },
       ticketUrl: {
         type: "string",
-        description: "The url to the created Jira Ticket",
+        description: "The url to the created Jira Ticket (only present if success is true)",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the ticket creation failed (only present if success is false)",
       },
     },
   },
@@ -1480,11 +1488,19 @@ export const jiraUpdateJiraTicketDetailsDefinition: ActionTemplate = {
   },
   output: {
     type: "object",
-    required: ["ticketUrl"],
+    required: ["success"],
     properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the ticket was successfully updated",
+      },
       ticketUrl: {
         type: "string",
-        description: "The url to the Jira ticket",
+        description: "The url to the Jira ticket (only present if success is true)",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the ticket update failed (only present if success is false)",
       },
     },
   },
@@ -1695,7 +1711,7 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
   provider: "jira",
 };
 export const jiraOrgAssignJiraTicketDefinition: ActionTemplate = {
-  description: "Assigns/Re-assignes a Jira ticket to a specified user",
+  description: "Assigns/Reassigns a Jira ticket to a specified user",
   scopes: ["write:jira-work", "read:jira-user"],
   parameters: {
     type: "object",
@@ -1860,11 +1876,19 @@ export const jiraOrgCreateJiraTicketDefinition: ActionTemplate = {
   },
   output: {
     type: "object",
-    required: ["ticketUrl"],
+    required: ["success"],
     properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the ticket was successfully created",
+      },
       ticketUrl: {
         type: "string",
-        description: "The url to the created Jira Ticket",
+        description: "The url to the created Jira Ticket (only present if success is true)",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the ticket creation failed (only present if success is false)",
       },
     },
   },
@@ -2156,11 +2180,19 @@ export const jiraOrgUpdateJiraTicketDetailsDefinition: ActionTemplate = {
   },
   output: {
     type: "object",
-    required: ["ticketUrl"],
+    required: ["success"],
     properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the ticket was successfully updated",
+      },
       ticketUrl: {
         type: "string",
-        description: "The url to the Jira ticket",
+        description: "The url to the Jira ticket (only present if success is true)",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the ticket update failed (only present if success is false)",
       },
     },
   },
@@ -2369,6 +2401,698 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
   },
   name: "getJiraIssuesByQuery",
   provider: "jiraOrg",
+};
+export const jiraDataCenterAssignJiraTicketDefinition: ActionTemplate = {
+  description: "Assigns/Reassigns a Jira ticket to a specified user",
+  scopes: ["write:jira-work", "read:jira-user"],
+  parameters: {
+    type: "object",
+    required: ["projectKey", "issueId", "assignee"],
+    properties: {
+      projectKey: {
+        type: "string",
+        description: "The key for the project you want to add it to",
+      },
+      assignee: {
+        type: "string",
+        description: "The assignee for the ticket, userID or email",
+      },
+      issueId: {
+        type: "string",
+        description: "The issue ID associated with the ticket to be assigned/re-assigned",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the ticket was successfully assigned/reassigned",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the ticket was not successfully assigned/reassigned",
+      },
+      ticketUrl: {
+        type: "string",
+        description: "The url to the newly assigned/reassigned Jira ticket",
+      },
+    },
+  },
+  name: "assignJiraTicket",
+  provider: "jiraDataCenter",
+};
+export const jiraDataCenterPublicCommentOnServiceDeskRequestDefinition: ActionTemplate = {
+  description: "Comments publicly on a Jira service desk request with specified content",
+  scopes: ["write:comment:jira"],
+  parameters: {
+    type: "object",
+    required: ["issueId", "comment"],
+    properties: {
+      issueId: {
+        type: "string",
+        description: "The issue ID associated with the ticket to be commented on",
+      },
+      comment: {
+        type: "string",
+        description: "The text to be commented on the ticket",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the comment was sent successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the comment was not sent successfully",
+      },
+      commentUrl: {
+        type: "string",
+        description: "The url to the created Jira comment",
+      },
+    },
+  },
+  name: "publicCommentOnServiceDeskRequest",
+  provider: "jiraDataCenter",
+};
+export const jiraDataCenterCommentJiraTicketDefinition: ActionTemplate = {
+  description: "Comments on a Jira ticket with specified content",
+  scopes: ["write:comment:jira"],
+  parameters: {
+    type: "object",
+    required: ["projectKey", "issueId", "comment"],
+    properties: {
+      projectKey: {
+        type: "string",
+        description: "The key for the project",
+      },
+      issueId: {
+        type: "string",
+        description: "The issue ID associated with the ticket to be commented on",
+      },
+      comment: {
+        type: "string",
+        description: "The text to be commented on the ticket",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the comment was sent successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the comment was not sent successfully",
+      },
+      commentUrl: {
+        type: "string",
+        description: "The url to the created Jira comment",
+      },
+    },
+  },
+  name: "commentJiraTicket",
+  provider: "jiraDataCenter",
+};
+export const jiraDataCenterCreateJiraTicketDefinition: ActionTemplate = {
+  description: "Create a jira ticket with new content specified",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["projectKey", "summary", "description", "issueType"],
+    properties: {
+      projectKey: {
+        type: "string",
+        description: "The key for the project you want to add it to",
+      },
+      summary: {
+        type: "string",
+        description: "The summary of the new ticket",
+      },
+      description: {
+        type: "string",
+        description: "The description for the new ticket",
+      },
+      issueType: {
+        type: "string",
+        description: "The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc.",
+      },
+      reporter: {
+        type: "string",
+        description: "The reporter for the new ticket creation",
+      },
+      assignee: {
+        type: "string",
+        description: "The assignee for the new ticket creation",
+      },
+      requestTypeId: {
+        type: "string",
+        description: "The request type ID for Jira Service Management tickets",
+      },
+      customFields: {
+        type: "object",
+        description: "Custom fields to be set on the create ticket request",
+        additionalProperties: true,
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the ticket was successfully created",
+      },
+      ticketUrl: {
+        type: "string",
+        description: "The url to the created Jira Ticket (only present if success is true)",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the ticket creation failed (only present if success is false)",
+      },
+    },
+  },
+  name: "createJiraTicket",
+  provider: "jiraDataCenter",
+};
+export const jiraDataCenterGetServiceDesksDefinition: ActionTemplate = {
+  description: "Get the service desks for a Jira instance",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: [],
+    properties: {},
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the service desks were retrieved successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the service desks were not retrieved successfully",
+      },
+      serviceDesks: {
+        type: "array",
+        description: "The list of service desks",
+        items: {
+          type: "object",
+          description: "A service desk",
+          properties: {
+            id: {
+              type: "string",
+              description: "The ID of the service desk",
+            },
+            projectId: {
+              type: "string",
+              description: "The ID of the project",
+            },
+            projectKey: {
+              type: "string",
+              description: "The key of the project",
+            },
+            projectName: {
+              type: "string",
+              description: "The name of the service desk",
+            },
+            requestTypes: {
+              type: "array",
+              description: "The list of request types",
+              items: {
+                type: "object",
+                description: "A request type",
+                properties: {
+                  id: {
+                    type: "string",
+                    description: "The ID of the request type",
+                  },
+                  name: {
+                    type: "string",
+                    description: "The name of the request type",
+                  },
+                  description: {
+                    type: "string",
+                    description: "The description of the request type",
+                  },
+                  issueTypeId: {
+                    type: "string",
+                    description: "The ID of the issue type",
+                  },
+                  portalId: {
+                    type: "string",
+                    description: "The ID of the customer portal",
+                  },
+                  helpText: {
+                    type: "string",
+                    description: "The help text for the request type",
+                  },
+                  serviceDeskId: {
+                    type: "string",
+                    description: "The ID of the service desk",
+                  },
+                  canCreateRequest: {
+                    type: "boolean",
+                    description: "Whether the request type can be created",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  name: "getServiceDesks",
+  provider: "jiraDataCenter",
+};
+export const jiraDataCenterCreateServiceDeskRequestDefinition: ActionTemplate = {
+  description: "Create a jira service desk request with specified content",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["serviceDeskId", "requestTypeId", "summary", "description"],
+    properties: {
+      serviceDeskId: {
+        type: "string",
+        description: "The ID of the service desk to create the request in",
+      },
+      requestTypeId: {
+        type: "string",
+        description: "The ID of the request type to use for the new request",
+      },
+      summary: {
+        type: "string",
+        description: "The summary of the new service desk request",
+      },
+      description: {
+        type: "string",
+        description: "The description for the new service desk request",
+      },
+      reporter: {
+        type: "string",
+        description: "The email address of the person reporting the issue (for raising on behalf of)",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the request was created successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the request was not created successfully",
+      },
+      issueKey: {
+        type: "string",
+        description: "The Jira issue key of the created request",
+      },
+      webLink: {
+        type: "string",
+        description: "The link to the customer portal request, if available",
+      },
+      currentStatus: {
+        type: "string",
+        description: "The current status of the created request",
+      },
+    },
+  },
+  name: "createServiceDeskRequest",
+  provider: "jiraDataCenter",
+};
+export const jiraDataCenterGetJiraTicketDetailsDefinition: ActionTemplate = {
+  description: "Get details of a ticket in Jira",
+  scopes: ["read:jira-work"],
+  parameters: {
+    type: "object",
+    required: ["projectKey", "issueId"],
+    properties: {
+      projectKey: {
+        type: "string",
+        description: "The key for the project",
+      },
+      issueId: {
+        type: "string",
+        description: "The ID of the ticket",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the status was updated successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the retrieval was unsuccessful",
+      },
+      results: {
+        type: "array",
+        description: "The results of the Jira ticket",
+        items: {
+          type: "object",
+          required: ["name", "url", "contents"],
+          properties: {
+            name: {
+              type: "string",
+              description: "The name of the result",
+            },
+            url: {
+              type: "string",
+              description: "The URL of the result",
+            },
+            contents: {
+              type: "object",
+              description: "The data of the Jira ticket",
+            },
+          },
+        },
+      },
+    },
+  },
+  name: "getJiraTicketDetails",
+  provider: "jiraDataCenter",
+};
+export const jiraDataCenterGetJiraTicketHistoryDefinition: ActionTemplate = {
+  description: "Get ticket history of a ticket in Jira",
+  scopes: ["read:jira-work"],
+  parameters: {
+    type: "object",
+    required: ["projectKey", "issueId"],
+    properties: {
+      projectKey: {
+        type: "string",
+        description: "The key for the project",
+      },
+      issueId: {
+        type: "string",
+        description: "The ID of the ticket",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the status was updated successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the retrieval was unsuccessful",
+      },
+      history: {
+        type: "array",
+        description: "The history data of the Jira ticket",
+      },
+    },
+  },
+  name: "getJiraTicketHistory",
+  provider: "jiraDataCenter",
+};
+export const jiraDataCenterUpdateJiraTicketDetailsDefinition: ActionTemplate = {
+  description: "Update a Jira ticket with new content specified",
+  scopes: ["write:jira-work"],
+  parameters: {
+    type: "object",
+    required: ["projectKey", "issueId"],
+    properties: {
+      projectKey: {
+        type: "string",
+        description: "The key for the project you want to add it to",
+      },
+      issueId: {
+        type: "string",
+        description: "The issue ID associated with the ticket to be updated",
+      },
+      summary: {
+        type: "string",
+        description: "The updated summary",
+      },
+      description: {
+        type: "string",
+        description: "The updated description",
+      },
+      issueType: {
+        type: "string",
+        description: "The updated issue type",
+      },
+      requestTypeId: {
+        type: "string",
+        description: "The request type ID for Jira Service Management tickets",
+      },
+      customFields: {
+        type: "object",
+        description: "Custom fields to be set on the update ticket request",
+        additionalProperties: true,
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the ticket was successfully updated",
+      },
+      ticketUrl: {
+        type: "string",
+        description: "The url to the Jira ticket (only present if success is true)",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the ticket update failed (only present if success is false)",
+      },
+    },
+  },
+  name: "updateJiraTicketDetails",
+  provider: "jiraDataCenter",
+};
+export const jiraDataCenterUpdateJiraTicketStatusDefinition: ActionTemplate = {
+  description: "Updates the status of Jira ticket with specified status",
+  scopes: ["read:jira-work", "write:jira-work"],
+  parameters: {
+    type: "object",
+    required: ["projectKey", "issueId", "status"],
+    properties: {
+      projectKey: {
+        type: "string",
+        description: "The key for the project you want to add it to",
+      },
+      issueId: {
+        type: "string",
+        description: "The issue ID associated with the ticket",
+      },
+      status: {
+        type: "string",
+        description: 'The status the ticket should be changed to (eg "In Progress", "Closed")',
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the status was updated successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the status was not updated successfully",
+      },
+      ticketUrl: {
+        type: "string",
+        description: "The url to the Jira ticket",
+      },
+    },
+  },
+  name: "updateJiraTicketStatus",
+  provider: "jiraDataCenter",
+};
+export const jiraDataCenterGetJiraIssuesByQueryDefinition: ActionTemplate = {
+  description: "Retrieve Jira Issues by JQL query",
+  scopes: [],
+  parameters: {
+    type: "object",
+    required: ["query"],
+    properties: {
+      query: {
+        type: "string",
+        description: "The JQL query to execute",
+      },
+      limit: {
+        type: "number",
+        description: "The maximum number of records to retrieve",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the records were successfully retrieved",
+      },
+      results: {
+        type: "array",
+        description: "The results of the Jira issues",
+        items: {
+          type: "object",
+          required: ["name", "url", "contents"],
+          properties: {
+            name: {
+              type: "string",
+              description: "The name of the result",
+            },
+            url: {
+              type: "string",
+              description: "The URL of the result",
+            },
+            contents: {
+              type: "object",
+              description: "The result object containing issues",
+              required: [
+                "id",
+                "key",
+                "summary",
+                "description",
+                "project",
+                "issueType",
+                "status",
+                "created",
+                "updated",
+                "url",
+              ],
+              properties: {
+                id: {
+                  type: "string",
+                  description: "Internal Jira issue ID",
+                },
+                key: {
+                  type: "string",
+                  description: "Human-readable issue key (e.g. SSPR-123)",
+                },
+                summary: {
+                  type: "string",
+                  description: "Summary of the issue",
+                },
+                description: {
+                  type: "string",
+                  description: "Plain text description",
+                },
+                url: {
+                  type: "string",
+                  description: "The web url of the Jira ticket",
+                },
+                project: {
+                  type: "object",
+                  properties: {
+                    id: {
+                      type: "string",
+                    },
+                    key: {
+                      type: "string",
+                    },
+                    name: {
+                      type: "string",
+                    },
+                  },
+                },
+                issueType: {
+                  type: "object",
+                  properties: {
+                    id: {
+                      type: "string",
+                    },
+                    name: {
+                      type: "string",
+                    },
+                  },
+                },
+                status: {
+                  type: "object",
+                  properties: {
+                    id: {
+                      type: "string",
+                    },
+                    name: {
+                      type: "string",
+                    },
+                    category: {
+                      type: "string",
+                    },
+                  },
+                },
+                assignee: {
+                  type: "string",
+                  nullable: true,
+                  description: "Email of the assignee, if any",
+                },
+                reporter: {
+                  type: "string",
+                  nullable: true,
+                  description: "Email of the reporter, if any",
+                },
+                creator: {
+                  type: "string",
+                  nullable: true,
+                  description: "Email of the creator, if any",
+                },
+                created: {
+                  type: "string",
+                  format: "date-time",
+                },
+                updated: {
+                  type: "string",
+                  format: "date-time",
+                },
+                resolution: {
+                  type: "string",
+                  nullable: true,
+                },
+                dueDate: {
+                  type: "string",
+                  nullable: true,
+                  format: "date",
+                },
+              },
+            },
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the records were not successfully retrieved",
+      },
+    },
+  },
+  name: "getJiraIssuesByQuery",
+  provider: "jiraDataCenter",
 };
 export const kandjiGetFVRecoveryKeyForDeviceDefinition: ActionTemplate = {
   description: "Get the FileVault recovery key for a device",

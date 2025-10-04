@@ -1,22 +1,20 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app.js";
-import { jiraConfig, provider } from "./utils.js";
+import type { JiraTestConfig } from "./utils.js";
+import { runJiraTest } from "./testRunner.js";
+import { getAuthParams } from "./utils.js";
 import type { jiraGetJiraTicketDetailsOutputType } from "../../src/actions/autogen/types";
 
-async function runTest() {
-  const { authToken, cloudId, baseUrl, issueId, projectKey } = jiraConfig;
+async function testGetJiraTicketDetails(config: JiraTestConfig) {
+  const { issueId, projectKey, provider } = config;
 
   const result = (await runAction(
     "getJiraTicketDetails",
     provider,
+    getAuthParams(config),
     {
-      authToken,
-      cloudId,
-      baseUrl,
-    },
-    {
+      projectKey,
       issueId,
-      projectKey
     }
   )) as jiraGetJiraTicketDetailsOutputType;
 
@@ -32,16 +30,9 @@ async function runTest() {
     "Ticket data should include fields"
   );
 
-  console.log(
-    `Successfully retrieved Jira ticket details for: ${result.results[0].name}`
-  );
 }
 
-runTest().catch((error) => {
+runJiraTest("Get Jira Ticket Details", testGetJiraTicketDetails).catch((error) => {
   console.error("Test failed:", error);
-  if (error.response) {
-    console.error("API response:", error.response.data);
-    console.error("Status code:", error.response.status);
-  }
   process.exit(1);
 });

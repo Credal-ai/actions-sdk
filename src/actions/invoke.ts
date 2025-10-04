@@ -21,7 +21,7 @@ export async function invokeAction<P, A>(input: InvokeActionInput<P, A>) {
     throw new Error(`Invalid parameters for action '${name}': ${safeParseParams.error}`);
   }
 
-  return providerFunction({ params: parameters, authParams });
+  return providerFunction({ params: parameters, authParams: { ...authParams, provider } });
 }
 
 function isProviderName(value: string): value is ProviderName {

@@ -10,6 +10,7 @@ export enum ProviderName {
   CONFLUENCE = "confluence",
   JIRA = "jira",
   JIRAORG = "jiraOrg",
+  JIRADATACENTER = "jiraDataCenter",
   KANDJI = "kandji",
   GOOGLEMAPS = "googlemaps",
   BING = "bing",
@@ -647,7 +648,12 @@ export const jiraCreateJiraTicketParamsSchema = z.object({
 export type jiraCreateJiraTicketParamsType = z.infer<typeof jiraCreateJiraTicketParamsSchema>;
 
 export const jiraCreateJiraTicketOutputSchema = z.object({
-  ticketUrl: z.string().describe("The url to the created Jira Ticket"),
+  success: z.boolean().describe("Whether the ticket was successfully created"),
+  ticketUrl: z.string().describe("The url to the created Jira Ticket (only present if success is true)").optional(),
+  error: z
+    .string()
+    .describe("Error message if the ticket creation failed (only present if success is false)")
+    .optional(),
 });
 
 export type jiraCreateJiraTicketOutputType = z.infer<typeof jiraCreateJiraTicketOutputSchema>;
@@ -797,7 +803,9 @@ export const jiraUpdateJiraTicketDetailsParamsSchema = z.object({
 export type jiraUpdateJiraTicketDetailsParamsType = z.infer<typeof jiraUpdateJiraTicketDetailsParamsSchema>;
 
 export const jiraUpdateJiraTicketDetailsOutputSchema = z.object({
-  ticketUrl: z.string().describe("The url to the Jira ticket"),
+  success: z.boolean().describe("Whether the ticket was successfully updated"),
+  ticketUrl: z.string().describe("The url to the Jira ticket (only present if success is true)").optional(),
+  error: z.string().describe("Error message if the ticket update failed (only present if success is false)").optional(),
 });
 
 export type jiraUpdateJiraTicketDetailsOutputType = z.infer<typeof jiraUpdateJiraTicketDetailsOutputSchema>;
@@ -966,7 +974,12 @@ export const jiraOrgCreateJiraTicketParamsSchema = z.object({
 export type jiraOrgCreateJiraTicketParamsType = z.infer<typeof jiraOrgCreateJiraTicketParamsSchema>;
 
 export const jiraOrgCreateJiraTicketOutputSchema = z.object({
-  ticketUrl: z.string().describe("The url to the created Jira Ticket"),
+  success: z.boolean().describe("Whether the ticket was successfully created"),
+  ticketUrl: z.string().describe("The url to the created Jira Ticket (only present if success is true)").optional(),
+  error: z
+    .string()
+    .describe("Error message if the ticket creation failed (only present if success is false)")
+    .optional(),
 });
 
 export type jiraOrgCreateJiraTicketOutputType = z.infer<typeof jiraOrgCreateJiraTicketOutputSchema>;
@@ -1116,7 +1129,9 @@ export const jiraOrgUpdateJiraTicketDetailsParamsSchema = z.object({
 export type jiraOrgUpdateJiraTicketDetailsParamsType = z.infer<typeof jiraOrgUpdateJiraTicketDetailsParamsSchema>;
 
 export const jiraOrgUpdateJiraTicketDetailsOutputSchema = z.object({
-  ticketUrl: z.string().describe("The url to the Jira ticket"),
+  success: z.boolean().describe("Whether the ticket was successfully updated"),
+  ticketUrl: z.string().describe("The url to the Jira ticket (only present if success is true)").optional(),
+  error: z.string().describe("Error message if the ticket update failed (only present if success is false)").optional(),
 });
 
 export type jiraOrgUpdateJiraTicketDetailsOutputType = z.infer<typeof jiraOrgUpdateJiraTicketDetailsOutputSchema>;
@@ -1196,6 +1211,356 @@ export type jiraOrgGetJiraIssuesByQueryFunction = ActionFunction<
   jiraOrgGetJiraIssuesByQueryParamsType,
   AuthParamsType,
   jiraOrgGetJiraIssuesByQueryOutputType
+>;
+
+export const jiraDataCenterAssignJiraTicketParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project you want to add it to"),
+  assignee: z.string().describe("The assignee for the ticket, userID or email"),
+  issueId: z.string().describe("The issue ID associated with the ticket to be assigned/re-assigned"),
+});
+
+export type jiraDataCenterAssignJiraTicketParamsType = z.infer<typeof jiraDataCenterAssignJiraTicketParamsSchema>;
+
+export const jiraDataCenterAssignJiraTicketOutputSchema = z.object({
+  success: z.boolean().describe("Whether the ticket was successfully assigned/reassigned"),
+  error: z
+    .string()
+    .describe("The error that occurred if the ticket was not successfully assigned/reassigned")
+    .optional(),
+  ticketUrl: z.string().describe("The url to the newly assigned/reassigned Jira ticket").optional(),
+});
+
+export type jiraDataCenterAssignJiraTicketOutputType = z.infer<typeof jiraDataCenterAssignJiraTicketOutputSchema>;
+export type jiraDataCenterAssignJiraTicketFunction = ActionFunction<
+  jiraDataCenterAssignJiraTicketParamsType,
+  AuthParamsType,
+  jiraDataCenterAssignJiraTicketOutputType
+>;
+
+export const jiraDataCenterPublicCommentOnServiceDeskRequestParamsSchema = z.object({
+  issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
+  comment: z.string().describe("The text to be commented on the ticket"),
+});
+
+export type jiraDataCenterPublicCommentOnServiceDeskRequestParamsType = z.infer<
+  typeof jiraDataCenterPublicCommentOnServiceDeskRequestParamsSchema
+>;
+
+export const jiraDataCenterPublicCommentOnServiceDeskRequestOutputSchema = z.object({
+  success: z.boolean().describe("Whether the comment was sent successfully"),
+  error: z.string().describe("The error that occurred if the comment was not sent successfully").optional(),
+  commentUrl: z.string().describe("The url to the created Jira comment").optional(),
+});
+
+export type jiraDataCenterPublicCommentOnServiceDeskRequestOutputType = z.infer<
+  typeof jiraDataCenterPublicCommentOnServiceDeskRequestOutputSchema
+>;
+export type jiraDataCenterPublicCommentOnServiceDeskRequestFunction = ActionFunction<
+  jiraDataCenterPublicCommentOnServiceDeskRequestParamsType,
+  AuthParamsType,
+  jiraDataCenterPublicCommentOnServiceDeskRequestOutputType
+>;
+
+export const jiraDataCenterCommentJiraTicketParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project"),
+  issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
+  comment: z.string().describe("The text to be commented on the ticket"),
+});
+
+export type jiraDataCenterCommentJiraTicketParamsType = z.infer<typeof jiraDataCenterCommentJiraTicketParamsSchema>;
+
+export const jiraDataCenterCommentJiraTicketOutputSchema = z.object({
+  success: z.boolean().describe("Whether the comment was sent successfully"),
+  error: z.string().describe("The error that occurred if the comment was not sent successfully").optional(),
+  commentUrl: z.string().describe("The url to the created Jira comment").optional(),
+});
+
+export type jiraDataCenterCommentJiraTicketOutputType = z.infer<typeof jiraDataCenterCommentJiraTicketOutputSchema>;
+export type jiraDataCenterCommentJiraTicketFunction = ActionFunction<
+  jiraDataCenterCommentJiraTicketParamsType,
+  AuthParamsType,
+  jiraDataCenterCommentJiraTicketOutputType
+>;
+
+export const jiraDataCenterCreateJiraTicketParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project you want to add it to"),
+  summary: z.string().describe("The summary of the new ticket"),
+  description: z.string().describe("The description for the new ticket"),
+  issueType: z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."),
+  reporter: z.string().describe("The reporter for the new ticket creation").optional(),
+  assignee: z.string().describe("The assignee for the new ticket creation").optional(),
+  requestTypeId: z.string().describe("The request type ID for Jira Service Management tickets").optional(),
+  customFields: z
+    .object({})
+    .catchall(z.any())
+    .describe("Custom fields to be set on the create ticket request")
+    .optional(),
+});
+
+export type jiraDataCenterCreateJiraTicketParamsType = z.infer<typeof jiraDataCenterCreateJiraTicketParamsSchema>;
+
+export const jiraDataCenterCreateJiraTicketOutputSchema = z.object({
+  success: z.boolean().describe("Whether the ticket was successfully created"),
+  ticketUrl: z.string().describe("The url to the created Jira Ticket (only present if success is true)").optional(),
+  error: z
+    .string()
+    .describe("Error message if the ticket creation failed (only present if success is false)")
+    .optional(),
+});
+
+export type jiraDataCenterCreateJiraTicketOutputType = z.infer<typeof jiraDataCenterCreateJiraTicketOutputSchema>;
+export type jiraDataCenterCreateJiraTicketFunction = ActionFunction<
+  jiraDataCenterCreateJiraTicketParamsType,
+  AuthParamsType,
+  jiraDataCenterCreateJiraTicketOutputType
+>;
+
+export const jiraDataCenterGetServiceDesksParamsSchema = z.object({});
+
+export type jiraDataCenterGetServiceDesksParamsType = z.infer<typeof jiraDataCenterGetServiceDesksParamsSchema>;
+
+export const jiraDataCenterGetServiceDesksOutputSchema = z.object({
+  success: z.boolean().describe("Whether the service desks were retrieved successfully"),
+  error: z.string().describe("The error that occurred if the service desks were not retrieved successfully").optional(),
+  serviceDesks: z
+    .array(
+      z
+        .object({
+          id: z.string().describe("The ID of the service desk").optional(),
+          projectId: z.string().describe("The ID of the project").optional(),
+          projectKey: z.string().describe("The key of the project").optional(),
+          projectName: z.string().describe("The name of the service desk").optional(),
+          requestTypes: z
+            .array(
+              z
+                .object({
+                  id: z.string().describe("The ID of the request type").optional(),
+                  name: z.string().describe("The name of the request type").optional(),
+                  description: z.string().describe("The description of the request type").optional(),
+                  issueTypeId: z.string().describe("The ID of the issue type").optional(),
+                  portalId: z.string().describe("The ID of the customer portal").optional(),
+                  helpText: z.string().describe("The help text for the request type").optional(),
+                  serviceDeskId: z.string().describe("The ID of the service desk").optional(),
+                  canCreateRequest: z.boolean().describe("Whether the request type can be created").optional(),
+                })
+                .describe("A request type"),
+            )
+            .describe("The list of request types")
+            .optional(),
+        })
+        .describe("A service desk"),
+    )
+    .describe("The list of service desks")
+    .optional(),
+});
+
+export type jiraDataCenterGetServiceDesksOutputType = z.infer<typeof jiraDataCenterGetServiceDesksOutputSchema>;
+export type jiraDataCenterGetServiceDesksFunction = ActionFunction<
+  jiraDataCenterGetServiceDesksParamsType,
+  AuthParamsType,
+  jiraDataCenterGetServiceDesksOutputType
+>;
+
+export const jiraDataCenterCreateServiceDeskRequestParamsSchema = z.object({
+  serviceDeskId: z.string().describe("The ID of the service desk to create the request in"),
+  requestTypeId: z.string().describe("The ID of the request type to use for the new request"),
+  summary: z.string().describe("The summary of the new service desk request"),
+  description: z.string().describe("The description for the new service desk request"),
+  reporter: z
+    .string()
+    .describe("The email address of the person reporting the issue (for raising on behalf of)")
+    .optional(),
+});
+
+export type jiraDataCenterCreateServiceDeskRequestParamsType = z.infer<
+  typeof jiraDataCenterCreateServiceDeskRequestParamsSchema
+>;
+
+export const jiraDataCenterCreateServiceDeskRequestOutputSchema = z.object({
+  success: z.boolean().describe("Whether the request was created successfully"),
+  error: z.string().describe("The error that occurred if the request was not created successfully").optional(),
+  issueKey: z.string().describe("The Jira issue key of the created request").optional(),
+  webLink: z.string().describe("The link to the customer portal request, if available").optional(),
+  currentStatus: z.string().describe("The current status of the created request").optional(),
+});
+
+export type jiraDataCenterCreateServiceDeskRequestOutputType = z.infer<
+  typeof jiraDataCenterCreateServiceDeskRequestOutputSchema
+>;
+export type jiraDataCenterCreateServiceDeskRequestFunction = ActionFunction<
+  jiraDataCenterCreateServiceDeskRequestParamsType,
+  AuthParamsType,
+  jiraDataCenterCreateServiceDeskRequestOutputType
+>;
+
+export const jiraDataCenterGetJiraTicketDetailsParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project"),
+  issueId: z.string().describe("The ID of the ticket"),
+});
+
+export type jiraDataCenterGetJiraTicketDetailsParamsType = z.infer<
+  typeof jiraDataCenterGetJiraTicketDetailsParamsSchema
+>;
+
+export const jiraDataCenterGetJiraTicketDetailsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the status was updated successfully"),
+  error: z.string().describe("The error that occurred if the retrieval was unsuccessful").optional(),
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the result"),
+        url: z.string().describe("The URL of the result"),
+        contents: z.object({}).catchall(z.any()).describe("The data of the Jira ticket"),
+      }),
+    )
+    .describe("The results of the Jira ticket")
+    .optional(),
+});
+
+export type jiraDataCenterGetJiraTicketDetailsOutputType = z.infer<
+  typeof jiraDataCenterGetJiraTicketDetailsOutputSchema
+>;
+export type jiraDataCenterGetJiraTicketDetailsFunction = ActionFunction<
+  jiraDataCenterGetJiraTicketDetailsParamsType,
+  AuthParamsType,
+  jiraDataCenterGetJiraTicketDetailsOutputType
+>;
+
+export const jiraDataCenterGetJiraTicketHistoryParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project"),
+  issueId: z.string().describe("The ID of the ticket"),
+});
+
+export type jiraDataCenterGetJiraTicketHistoryParamsType = z.infer<
+  typeof jiraDataCenterGetJiraTicketHistoryParamsSchema
+>;
+
+export const jiraDataCenterGetJiraTicketHistoryOutputSchema = z.object({
+  success: z.boolean().describe("Whether the status was updated successfully"),
+  error: z.string().describe("The error that occurred if the retrieval was unsuccessful").optional(),
+  history: z.array(z.any()).describe("The history data of the Jira ticket").optional(),
+});
+
+export type jiraDataCenterGetJiraTicketHistoryOutputType = z.infer<
+  typeof jiraDataCenterGetJiraTicketHistoryOutputSchema
+>;
+export type jiraDataCenterGetJiraTicketHistoryFunction = ActionFunction<
+  jiraDataCenterGetJiraTicketHistoryParamsType,
+  AuthParamsType,
+  jiraDataCenterGetJiraTicketHistoryOutputType
+>;
+
+export const jiraDataCenterUpdateJiraTicketDetailsParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project you want to add it to"),
+  issueId: z.string().describe("The issue ID associated with the ticket to be updated"),
+  summary: z.string().describe("The updated summary").optional(),
+  description: z.string().describe("The updated description").optional(),
+  issueType: z.string().describe("The updated issue type").optional(),
+  requestTypeId: z.string().describe("The request type ID for Jira Service Management tickets").optional(),
+  customFields: z
+    .object({})
+    .catchall(z.any())
+    .describe("Custom fields to be set on the update ticket request")
+    .optional(),
+});
+
+export type jiraDataCenterUpdateJiraTicketDetailsParamsType = z.infer<
+  typeof jiraDataCenterUpdateJiraTicketDetailsParamsSchema
+>;
+
+export const jiraDataCenterUpdateJiraTicketDetailsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the ticket was successfully updated"),
+  ticketUrl: z.string().describe("The url to the Jira ticket (only present if success is true)").optional(),
+  error: z.string().describe("Error message if the ticket update failed (only present if success is false)").optional(),
+});
+
+export type jiraDataCenterUpdateJiraTicketDetailsOutputType = z.infer<
+  typeof jiraDataCenterUpdateJiraTicketDetailsOutputSchema
+>;
+export type jiraDataCenterUpdateJiraTicketDetailsFunction = ActionFunction<
+  jiraDataCenterUpdateJiraTicketDetailsParamsType,
+  AuthParamsType,
+  jiraDataCenterUpdateJiraTicketDetailsOutputType
+>;
+
+export const jiraDataCenterUpdateJiraTicketStatusParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project you want to add it to"),
+  issueId: z.string().describe("The issue ID associated with the ticket"),
+  status: z.string().describe('The status the ticket should be changed to (eg "In Progress", "Closed")'),
+});
+
+export type jiraDataCenterUpdateJiraTicketStatusParamsType = z.infer<
+  typeof jiraDataCenterUpdateJiraTicketStatusParamsSchema
+>;
+
+export const jiraDataCenterUpdateJiraTicketStatusOutputSchema = z.object({
+  success: z.boolean().describe("Whether the status was updated successfully"),
+  error: z.string().describe("The error that occurred if the status was not updated successfully").optional(),
+  ticketUrl: z.string().describe("The url to the Jira ticket").optional(),
+});
+
+export type jiraDataCenterUpdateJiraTicketStatusOutputType = z.infer<
+  typeof jiraDataCenterUpdateJiraTicketStatusOutputSchema
+>;
+export type jiraDataCenterUpdateJiraTicketStatusFunction = ActionFunction<
+  jiraDataCenterUpdateJiraTicketStatusParamsType,
+  AuthParamsType,
+  jiraDataCenterUpdateJiraTicketStatusOutputType
+>;
+
+export const jiraDataCenterGetJiraIssuesByQueryParamsSchema = z.object({
+  query: z.string().describe("The JQL query to execute"),
+  limit: z.number().describe("The maximum number of records to retrieve").optional(),
+});
+
+export type jiraDataCenterGetJiraIssuesByQueryParamsType = z.infer<
+  typeof jiraDataCenterGetJiraIssuesByQueryParamsSchema
+>;
+
+export const jiraDataCenterGetJiraIssuesByQueryOutputSchema = z.object({
+  success: z.boolean().describe("Whether the records were successfully retrieved"),
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the result"),
+        url: z.string().describe("The URL of the result"),
+        contents: z
+          .object({
+            id: z.string().describe("Internal Jira issue ID"),
+            key: z.string().describe("Human-readable issue key (e.g. SSPR-123)"),
+            summary: z.string().describe("Summary of the issue"),
+            description: z.string().describe("Plain text description"),
+            url: z.string().describe("The web url of the Jira ticket"),
+            project: z.object({ id: z.string().optional(), key: z.string().optional(), name: z.string().optional() }),
+            issueType: z.object({ id: z.string().optional(), name: z.string().optional() }),
+            status: z.object({
+              id: z.string().optional(),
+              name: z.string().optional(),
+              category: z.string().optional(),
+            }),
+            assignee: z.string().nullable().describe("Email of the assignee, if any").optional(),
+            reporter: z.string().nullable().describe("Email of the reporter, if any").optional(),
+            creator: z.string().nullable().describe("Email of the creator, if any").optional(),
+            created: z.string().datetime({ offset: true }),
+            updated: z.string().datetime({ offset: true }),
+            resolution: z.string().nullable().optional(),
+            dueDate: z.string().date().nullable().optional(),
+          })
+          .describe("The result object containing issues"),
+      }),
+    )
+    .describe("The results of the Jira issues")
+    .optional(),
+  error: z.string().describe("The error that occurred if the records were not successfully retrieved").optional(),
+});
+
+export type jiraDataCenterGetJiraIssuesByQueryOutputType = z.infer<
+  typeof jiraDataCenterGetJiraIssuesByQueryOutputSchema
+>;
+export type jiraDataCenterGetJiraIssuesByQueryFunction = ActionFunction<
+  jiraDataCenterGetJiraIssuesByQueryParamsType,
+  AuthParamsType,
+  jiraDataCenterGetJiraIssuesByQueryOutputType
 >;
 
 export const kandjiGetFVRecoveryKeyForDeviceParamsSchema = z.object({

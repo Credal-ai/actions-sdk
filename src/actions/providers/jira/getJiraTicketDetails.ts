@@ -5,6 +5,7 @@ import type {
   jiraGetJiraTicketDetailsParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
+import { getJiraApiConfig, getErrorMessage } from "./utils.js";
 
 // https://developer.atlassian.com/cloud/jira/platform/rest/v2/api-group-issues/#api-rest-api-2-issue-issueidorkey-get
 const getJiraTicketDetails: jiraGetJiraTicketDetailsFunction = async ({
@@ -14,17 +15,18 @@ const getJiraTicketDetails: jiraGetJiraTicketDetailsFunction = async ({
   params: jiraGetJiraTicketDetailsParamsType;
   authParams: AuthParamsType;
 }): Promise<jiraGetJiraTicketDetailsOutputType> => {
-  const { authToken, cloudId, baseUrl } = authParams;
+  const { authToken, baseUrl } = authParams;
   const { issueId } = params;
+  const { apiUrl } = getJiraApiConfig(authParams);
 
-  if (!cloudId || !authToken || !baseUrl) {
+  if (!authToken || !baseUrl) {
     throw new Error("Valid Cloud ID, base URL, and auth token are required to get Jira ticket details");
   }
 
-  const apiUrl = `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3/issue/${issueId}`;
+  const fullApiUrl = `${apiUrl}/issue/${issueId}`;
 
   try {
-    const response = await axiosClient.get(apiUrl, {
+    const response = await axiosClient.get(fullApiUrl, {
       headers: {
         Authorization: `Bearer ${authToken}`,
         Accept: "application/json",
@@ -41,11 +43,11 @@ const getJiraTicketDetails: jiraGetJiraTicketDetailsFunction = async ({
         },
       ],
     };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error retrieving Jira ticket details: ", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: getErrorMessage(error),
     };
   }
 };
