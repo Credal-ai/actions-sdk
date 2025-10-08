@@ -11,7 +11,7 @@ import type { Match } from "@slack/web-api/dist/types/response/SearchMessagesRes
 
 /* ===================== Constants ===================== */
 
-const HIT_ENRICH_POOL = 5;
+const HIT_ENRICH_POOL = 2; // keep concurrency conservative to avoid 429s
 const limitHit = pLimit(HIT_ENRICH_POOL);
 
 const MENTION_USER_RE = /<@([UW][A-Z0-9]+)(?:\|[^>]+)?>/g;
@@ -31,57 +31,59 @@ export interface SlackSearchMessage {
   userName?: string;
   permalink?: string;
   context?: Array<{ ts: string; text?: string; userEmail?: string; userName?: string }>;
-  members?: Array<{ userId: string | undefined; userEmail: string | undefined; userName: string | undefined }>;
+  members?: Array<{ userId: string; userEmail?: string; userName?: string }>;
 }
 
 interface SlackMessage {
   ts?: string;
   text?: string;
   user?: string;
+  username?: string;
   thread_ts?: string;
 }
 
 /* ===================== Cache ===================== */
 
 class SlackUserCache {
-  private cache: Map<string, { email: string; name: string }>;
-  private pendingRequests: Map<string, Promise<{ email: string; name: string } | undefined>>;
+  private cache = new Map<string, { email?: string; name?: string }>();
+  private pending = new Map<string, Promise<{ email?: string; name?: string } | undefined>>();
 
-  constructor(private client: WebClient) {
-    this.cache = new Map();
-    this.pendingRequests = new Map();
-    this.client = client;
+  constructor(private client: WebClient) {}
+
+  getSync(id: string) {
+    return this.cache.get(id);
   }
 
-  async get(id: string): Promise<{ email: string; name: string } | undefined> {
+  async get(id: string): Promise<{ email?: string; name?: string } | undefined> {
     const cached = this.cache.get(id);
     if (cached) return cached;
 
-    const pending = this.pendingRequests.get(id);
+    const pending = this.pending.get(id);
     if (pending) return pending;
 
+    // fallback to users.info only if we have to
     const promise = (async () => {
       try {
         const res = await this.client.users.info({ user: id });
-        const u = {
-          name: res.user?.profile?.display_name ?? res.user?.real_name ?? res.user?.name ?? "",
-          email: res.user?.profile?.email ?? "",
-        };
-        if (res.user && id) {
+        if (res.user?.id) {
+          const u = {
+            name: res.user.profile?.display_name ?? res.user.real_name ?? res.user.name,
+            email: res.user.profile?.email,
+          };
           this.cache.set(id, u);
           return u;
         }
         return undefined;
       } finally {
-        this.pendingRequests.delete(id);
+        this.pending.delete(id);
       }
     })();
 
-    this.pendingRequests.set(id, promise);
+    this.pending.set(id, promise);
     return promise;
   }
 
-  set(id: string, { email, name }: { email: string; name: string }) {
+  set(id: string, { email, name }: { email?: string; name?: string }) {
     this.cache.set(id, { email, name });
   }
 }
@@ -125,8 +127,8 @@ async function lookupUserIdsByEmail(client: WebClient, emails: string[], cache: 
       const id = res.user?.id;
       if (id && res.user) {
         cache.set(id, {
-          name: res.user.profile?.display_name ?? res.user.real_name ?? res.user.name ?? "",
-          email: res.user.profile?.email ?? "",
+          name: res.user.profile?.display_name ?? res.user.real_name ?? res.user.name,
+          email: res.user.profile?.email,
         });
       }
       return id ?? null;
@@ -162,17 +164,17 @@ async function fetchOneMessage(client: WebClient, channel: string, ts: string): 
   return r.messages?.[0];
 }
 async function fetchThread(client: WebClient, channel: string, threadTs: string) {
-  const r = await client.conversations.replies({ channel, ts: threadTs, limit: 50 });
+  const r = await client.conversations.replies({ channel, ts: threadTs, limit: 20 });
   return r.messages ?? [];
 }
 async function fetchContextWindow(client: WebClient, channel: string, ts: string) {
   const out: SlackMessage[] = [];
   const anchor = await fetchOneMessage(client, channel, ts);
   if (!anchor) return out;
-  const before = await client.conversations.history({ channel, latest: ts, inclusive: false, limit: 4 });
+  const before = await client.conversations.history({ channel, latest: ts, inclusive: false, limit: 3 });
   out.push(...(before.messages ?? []).reverse());
   out.push(anchor);
-  const after = await client.conversations.history({ channel, oldest: ts, inclusive: false, limit: 5 });
+  const after = await client.conversations.history({ channel, oldest: ts, inclusive: false, limit: 3 });
   out.push(...(after.messages ?? []));
   return out;
 }
@@ -183,31 +185,17 @@ function hasOverlap(messages: SlackMessage[], ids: string[], minOverlap: number)
   return overlap >= minOverlap;
 }
 
-async function expandSlackEntities(client: WebClient, cache: SlackUserCache, raw: string): Promise<string> {
+async function expandSlackEntities(cache: SlackUserCache, raw: string): Promise<string> {
   let text = raw;
-
-  // resolve users
-  const userIds = new Set<string>();
-  for (const m of raw.matchAll(MENTION_USER_RE)) userIds.add(m[1]);
-  const idToUser: Record<string, { name?: string }> = {};
-  await Promise.all(
-    [...userIds].map(async id => {
-      const u = await cache.get(id);
-      idToUser[id] = { name: u?.name };
-    }),
-  );
-  text = text.replace(MENTION_USER_RE, (_, id) => `@${idToUser[id]?.name ?? id}`);
-
-  // channels
+  text = text.replace(MENTION_USER_RE, (_, id) => {
+    const u = cache.getSync(id);
+    return `@${u?.name ?? id}`;
+  });
   text = text.replace(MENTION_CHANNEL_RE, (_, id) => `#${id}`);
-  // special mentions
   text = text.replace(SPECIAL_RE, (_, kind) => `@${kind}`);
-  // subteams
   text = text.replace(SUBTEAM_RE, (_m, sid) => `@${sid}`);
-  // links
   text = text.replace(/<([^>|]+)\|([^>]+)>/g, (_m, _url, label) => label);
   text = text.replace(/<([^>|]+)>/g, (_m, url) => url);
-
   return text;
 }
 
@@ -231,12 +219,10 @@ async function searchScoped(input: {
 
 async function searchByTopic(input: { client: WebClient; topic?: string; timeRange: TimeRange; limit: number }) {
   const { client, topic, timeRange, limit } = input;
-
   const parts: string[] = [];
   if (topic?.trim()) parts.push(topic.trim());
   const tf = timeFilter(timeRange);
   if (tf) parts.push(tf);
-
   const query = parts.join(" ");
   const searchRes = await client.search.messages({ query, count: limit, highlight: true });
   return searchRes.messages?.matches ?? [];
@@ -273,46 +259,38 @@ const searchSlack: slackUserSearchSlackFunction = async ({
   const { user_id: myUserId } = await client.auth.test();
   if (!myUserId) throw new Error("Failed to get my user ID.");
 
-  const me = myUserId ? await cache.get(myUserId) : undefined;
+  // preload myself
+  const meInfo = await cache.get(myUserId);
 
+  // resolve targets by email
   const targetIds = emails?.length ? await lookupUserIdsByEmail(client, emails, cache) : [];
   const filteredTargetIds = targetIds.filter(id => id !== myUserId);
 
   const allMatches: Match[] = [];
-
-  // --- Parallel search execution for better performance ---
   const searchPromises: Promise<Match[]>[] = [];
 
-  // Scoped DM/MPIM searches
   if (filteredTargetIds.length === 1) {
     searchPromises.push(searchScoped({ client, scope: `<@${filteredTargetIds[0]}>`, topic, timeRange, limit }));
   } else if (filteredTargetIds.length >= 2) {
-    // Run MPIM lookup and individual DM searches in parallel
     const searchMPIM = async () => {
       const mpimName = await tryGetMPIMName(client, filteredTargetIds);
       return mpimName ? searchScoped({ client, scope: mpimName, topic, timeRange, limit }) : [];
     };
-
     searchPromises.push(searchMPIM());
-
-    // Add individual DM searches
     searchPromises.push(
       ...filteredTargetIds.map(id => searchScoped({ client, scope: `<@${id}>`, topic, timeRange, limit })),
     );
   } else if (channel) {
     searchPromises.push(searchScoped({ client, scope: normalizeChannelOperand(channel), topic, timeRange, limit }));
   }
+  if (topic) {
+    searchPromises.push(searchByTopic({ client, topic, timeRange, limit }));
+  }
 
-  // Topic-wide search in parallel
-  searchPromises.push(...(topic ? [searchByTopic({ client, topic, timeRange, limit })] : []));
-
-  // Execute all searches in parallel
   const searchResults = await Promise.all(searchPromises);
   searchResults.forEach(matches => allMatches.push(...matches));
 
-  // --- Expand hits with context + filter overlap ---
-  // Create a channel info cache to avoid redundant API calls
-  const channelInfoCache = new Map<string, { isIm: boolean; isMpim: boolean; members?: string[] }>();
+  const channelInfoCache = new Map<string, { isIm: boolean; isMpim: boolean; members: string[] }>();
 
   const expanded = await Promise.all(
     allMatches.map(m =>
@@ -321,67 +299,74 @@ const searchSlack: slackUserSearchSlackFunction = async ({
         const anchor = await fetchOneMessage(client, m.channel.id, m.ts);
         const rootTs = anchor?.thread_ts || m.ts;
 
-        let members: { userId: string | undefined; userEmail: string | undefined; userName: string | undefined }[] = [];
-
-        // Check convo type (DM, MPIM, channel) with caching
+        // channel info
         let channelInfo = channelInfoCache.get(m.channel.id);
         if (!channelInfo) {
           const convoInfo = await client.conversations.info({ channel: m.channel.id });
-          channelInfo = {
-            isIm: convoInfo.channel?.is_im ?? false,
-            isMpim: convoInfo.channel?.is_mpim ?? false,
-          };
+          const isIm = convoInfo.channel?.is_im ?? false;
+          const isMpim = convoInfo.channel?.is_mpim ?? false;
+          let members: string[] = [];
+          if (isIm || isMpim) {
+            const res = await client.conversations.members({ channel: m.channel.id });
+            members = res.members ?? [];
+          }
+          channelInfo = { isIm, isMpim, members };
           channelInfoCache.set(m.channel.id, channelInfo);
         }
-        const { isIm, isMpim } = channelInfo;
 
+        // context + permalink
         const [contextMsgs, permalink] = anchor?.thread_ts
-          ? [await fetchThread(client, m.channel.id, rootTs), await getPermalink(client, m.channel.id, rootTs)]
-          : [await fetchContextWindow(client, m.channel.id, m.ts), await getPermalink(client, m.channel.id, m.ts)];
+          ? [
+              await fetchThread(client, m.channel.id, rootTs),
+              m.permalink ?? (await getPermalink(client, m.channel.id, rootTs)),
+            ]
+          : [
+              await fetchContextWindow(client, m.channel.id, m.ts),
+              m.permalink ?? (await getPermalink(client, m.channel.id, m.ts)),
+            ];
 
+        // filter logic
         let passesFilter = false;
-        if (isIm || isMpim) {
-          // DM/MPIM: use members, not authorship
-          const membersRes = (await client.conversations.members({ channel: m.channel.id })).members ?? [];
-          members = await Promise.all(
-            membersRes.map(async uid => {
-              const u = await cache.get(uid);
-              return { userId: uid, userEmail: u?.email, userName: u?.name };
-            }),
-          );
-          const overlap = filteredTargetIds.filter(id => membersRes.includes(id)).length;
+        if (channelInfo.isIm || channelInfo.isMpim) {
+          const overlap = filteredTargetIds.filter(id => channelInfo!.members.includes(id)).length;
           passesFilter = overlap >= 1;
         } else {
-          // Channel: use authorship
           passesFilter = hasOverlap(contextMsgs, filteredTargetIds, 1);
         }
-
         if (filteredTargetIds.length && !passesFilter) return null;
 
         const context = await Promise.all(
-          contextMsgs.map(async t => ({
-            ts: t.ts!,
-            text: t.text ? await expandSlackEntities(client, cache, t.text) : undefined,
-            userEmail: t.user ? (await cache.get(t.user))?.email : undefined,
-            userName: t.user ? (await cache.get(t.user))?.name : undefined,
-          })),
+          contextMsgs.map(async t => {
+            const u = t.user ? (cache.getSync(t.user) ?? (await cache.get(t.user))) : undefined;
+            return {
+              ts: t.ts!,
+              text: t.text ? await expandSlackEntities(cache, t.text) : undefined,
+              userEmail: u?.email,
+              userName: u?.name ?? (t as SlackMessage).username,
+            };
+          }),
         );
+
+        const anchorUser = anchor?.user ? (cache.getSync(anchor.user) ?? (await cache.get(anchor.user))) : undefined;
 
         return {
           channelId: m.channel.id,
           ts: rootTs,
-          text: anchor?.text ? await expandSlackEntities(client, cache, anchor.text) : undefined,
-          userEmail: anchor?.user ? (await cache.get(anchor.user))?.email : undefined,
-          userName: anchor?.user ? (await cache.get(anchor.user))?.name : undefined,
+          text: anchor?.text ? await expandSlackEntities(cache, anchor.text) : undefined,
+          userEmail: anchorUser?.email,
+          userName: anchorUser?.name ?? anchor?.username,
           context,
-          permalink,
-          members,
+          permalink: m.permalink ?? permalink,
+          members: (channelInfo.members ?? []).map(uid => {
+            const u = cache.getSync(uid);
+            return { userId: uid, userEmail: u?.email, userName: u?.name };
+          }),
         } satisfies SlackSearchMessage;
       }),
     ),
   );
 
-  const results = dedupeAndSort(expanded.filter(h => h !== null) as SlackSearchMessage[]);
+  const results = dedupeAndSort(expanded.filter(Boolean) as SlackSearchMessage[]);
 
   return {
     query: topic ?? "",
@@ -390,7 +375,7 @@ const searchSlack: slackUserSearchSlackFunction = async ({
       url: r.permalink || "",
       contents: r,
     })),
-    currentUser: { userId: myUserId, userName: me?.name, userEmail: me?.email },
+    currentUser: { userId: myUserId, userName: meInfo?.name, userEmail: meInfo?.email },
   };
 };
 
