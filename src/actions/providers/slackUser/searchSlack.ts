@@ -187,10 +187,18 @@ function hasOverlap(messages: SlackMessage[], ids: string[], minOverlap: number)
 
 async function expandSlackEntities(cache: SlackUserCache, raw: string): Promise<string> {
   let text = raw;
-  text = text.replace(MENTION_USER_RE, (_, id) => {
-    const u = cache.getSync(id);
-    return `@${u?.name ?? id}`;
-  });
+
+  const userIds = [...raw.matchAll(MENTION_USER_RE)].map(m => m[1]);
+
+  // resolve all in parallel: prefer cache, else users.info
+  const idToName: Record<string, string> = {};
+  await Promise.all(
+    userIds.map(async id => {
+      const u = await cache.get(id); // get() will call users.info if missing
+      if (u?.name) idToName[id] = u.name;
+    })
+  );
+   text = text.replace(MENTION_USER_RE, (_, id) => `@${idToName[id] ?? id}`);
   text = text.replace(MENTION_CHANNEL_RE, (_, id) => `#${id}`);
   text = text.replace(SPECIAL_RE, (_, kind) => `@${kind}`);
   text = text.replace(SUBTEAM_RE, (_m, sid) => `@${sid}`);
@@ -337,7 +345,7 @@ const searchSlack: slackUserSearchSlackFunction = async ({
 
         const context = await Promise.all(
           contextMsgs.map(async t => {
-            const u = t.user ? (cache.getSync(t.user) ?? (await cache.get(t.user))) : undefined;
+            const u = t.user ? await cache.get(t.user) : undefined;
             return {
               ts: t.ts!,
               text: t.text ? await expandSlackEntities(cache, t.text) : undefined,
@@ -347,7 +355,7 @@ const searchSlack: slackUserSearchSlackFunction = async ({
           }),
         );
 
-        const anchorUser = anchor?.user ? (cache.getSync(anchor.user) ?? (await cache.get(anchor.user))) : undefined;
+        const anchorUser = anchor?.user ? await cache.get(anchor.user) : undefined;
 
         return {
           channelId: m.channel.id,
