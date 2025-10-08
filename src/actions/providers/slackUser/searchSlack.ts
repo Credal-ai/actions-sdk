@@ -196,9 +196,9 @@ async function expandSlackEntities(cache: SlackUserCache, raw: string): Promise<
     userIds.map(async id => {
       const u = await cache.get(id); // get() will call users.info if missing
       if (u?.name) idToName[id] = u.name;
-    })
+    }),
   );
-   text = text.replace(MENTION_USER_RE, (_, id) => `@${idToName[id] ?? id}`);
+  text = text.replace(MENTION_USER_RE, (_, id) => `@${idToName[id] ?? id}`);
   text = text.replace(MENTION_CHANNEL_RE, (_, id) => `#${id}`);
   text = text.replace(SPECIAL_RE, (_, kind) => `@${kind}`);
   text = text.replace(SUBTEAM_RE, (_m, sid) => `@${sid}`);
