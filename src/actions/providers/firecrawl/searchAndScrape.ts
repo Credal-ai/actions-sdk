@@ -41,7 +41,14 @@ const searchAndScrape: firecrawlSearchAndScrapeFunction = async ({
     })
     .filter(NotEmpty);
 
-  return { results };
+  return {
+    success: true,
+    results: results.map(result => ({
+      name: result.title,
+      url: result.url,
+      contents: result.contents,
+    })),
+  };
 };
 
 export default searchAndScrape;

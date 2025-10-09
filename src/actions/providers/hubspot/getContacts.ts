@@ -87,7 +87,11 @@ const getContacts: hubspotGetContactsFunction = async ({
 
     return {
       success: true,
-      contacts: allContacts,
+      results: allContacts.map(contact => ({
+        name: `${contact.firstname || ""} ${contact.lastname || ""}`.trim() || contact.email || "Unknown Contact",
+        url: `https://app.hubspot.com/contacts/${contact.id}`,
+        contents: contact,
+      })),
     };
   } catch (error) {
     console.error("Error searching HubSpot contacts:", error);

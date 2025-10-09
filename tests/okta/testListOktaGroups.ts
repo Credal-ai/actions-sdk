@@ -20,30 +20,44 @@ async function runTest() {
 
   console.log("Running Okta listGroups test without maxResults...");
   let result = await runAction("listOktaGroups", "okta", authParams, {});
+
+  console.log("Result:", JSON.stringify(result, null, 2));
+
+  // Validate response structure
   assert(result, "Response should not be null");
-  assert(result.success, `Action should be successful. Error: ${result.error}`);
-  assert(
-    Array.isArray(result.groups),
-    "Response should contain a groups array"
-  );
-  console.log(`Successfully listed ${result.groups.length} Okta groups.`);
+  assert(!result.error, `Should not have error. Got: ${result.error}`);
+  assert(Array.isArray(result.results), "Results should be an array");
+
+  // Validate first result structure if results exist
+  if (result.results.length > 0) {
+    const firstResult = result.results[0];
+    assert(firstResult.name && typeof firstResult.name === "string", "First result should have a name (string)");
+    assert(firstResult.url && typeof firstResult.url === "string", "First result should have a url (string)");
+    assert(firstResult.contents && typeof firstResult.contents === "object", "First result should have contents (object)");
+
+    // Validate contents has reasonable fields
+    const contents = firstResult.contents;
+    assert(
+      contents.id || contents.profile,
+      "Contents should have at least one reasonable field (id or profile)"
+    );
+  }
+
+  console.log(`Successfully listed ${result.results.length} Okta groups.`);
 
   console.log("Running Okta listGroups test with maxResults set to 201...");
   result = await runAction("listOktaGroups", "okta", authParams, {
     maxResults: 201,
   });
   assert(result, "Response should not be null");
-  assert(result.success, `Action should be successful. Error: ${result.error}`);
+  assert(!result.error, `Should not have error. Got: ${result.error}`);
+  assert(Array.isArray(result.results), "Results should be an array");
   assert(
-    Array.isArray(result.groups),
-    "Response should contain a groups array"
-  );
-  assert(
-    result.groups.length <= 201,
-    "Groups array should not exceed maxResults limit"
+    result.results.length <= 201,
+    "Results array should not exceed maxResults limit"
   );
   console.log(
-    `Successfully listed ${result.groups.length} Okta groups with maxResults set to 201.`
+    `Successfully listed ${result.results.length} Okta groups with maxResults set to 201.`
   );
 
   if (testGroupName) {
@@ -54,26 +68,23 @@ async function runTest() {
       searchQuery: `profile.name sw "${testGroupName}"`,
     });
     assert(searchResult, "Search response should not be null");
+    assert(!searchResult.error, `Should not have error. Got: ${searchResult.error}`);
+    assert(Array.isArray(searchResult.results), "Results should be an array");
     assert(
-      searchResult.success,
-      `Search action should be successful. Error: ${searchResult.error}`
-    );
-    assert(
-      Array.isArray(searchResult.groups),
-      "Search response should contain a groups array"
-    );
-    assert(
-      searchResult.groups.length > 0,
+      searchResult.results.length > 0,
       `No groups found for name: ${testGroupName}. Ensure the test group exists in Okta.`
     );
     console.log(
-      `Successfully found ${searchResult.groups.length} group(s) for name: ${testGroupName}`
+      `Successfully found ${searchResult.results.length} group(s) for name: ${testGroupName}`
     );
-    const foundGroup = searchResult.groups[0];
-    assert(foundGroup.id, "Found group should have an ID");
-    console.log("Found group Name:", foundGroup.profile.name);
+    const foundGroup = searchResult.results[0];
+    assert(foundGroup.name && typeof foundGroup.name === "string", "Found group should have a name");
+    assert(foundGroup.url && typeof foundGroup.url === "string", "Found group should have a URL");
+    assert(foundGroup.contents && typeof foundGroup.contents === "object", "Found group should have contents");
+    assert(foundGroup.contents.id, "Found group contents should have an ID");
+    console.log("Found group Name:", foundGroup.contents.profile.name);
     assert(
-      foundGroup.profile.name.startsWith(testGroupName),
+      foundGroup.contents.profile.name.toLowerCase().startsWith(testGroupName.toLowerCase()),
       "Found group's name should match the test name"
     );
     console.log("Found group:", JSON.stringify(foundGroup, null, 2));

@@ -91,19 +91,23 @@ const getProjects: linearGetProjectsFunction = async ({
 
     return {
       success: true,
-      projects: projects.map((project: ProjectNode) => {
+      results: projects.map((project: ProjectNode) => {
         const { id, name, description, state, progress, url, creator, lead, labels } = project;
         return {
-          id,
-          name,
-          status: state,
-          labels: Array.isArray(labels?.nodes) ? labels.nodes.map(({ name }) => name) : [],
-          content: description || undefined,
-          description: description || undefined,
-          creator: creator ? { id: creator.id, name: creator.name } : undefined,
-          lead: lead ? { id: lead.id, name: lead.name } : undefined,
-          progress,
-          url,
+          name: name,
+          url: url,
+          contents: {
+            id,
+            name,
+            status: state,
+            labels: Array.isArray(labels?.nodes) ? labels.nodes.map(({ name }) => name) : [],
+            content: description || undefined,
+            description: description || undefined,
+            creator: creator ? { id: creator.id, name: creator.name } : undefined,
+            lead: lead ? { id: lead.id, name: lead.name } : undefined,
+            progress,
+            url,
+          },
         };
       }),
     };

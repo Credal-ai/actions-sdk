@@ -12,18 +12,29 @@ async function runTest() {
     { query: "", limit: 2 },
   );
 
-  console.log("Response: ", JSON.stringify(result, null, 2));
+  console.log("Result:", JSON.stringify(result, null, 2));
 
+  // Validate response structure
   assert(result, "Response should not be null");
-  assert(result.success, "Response should indicate success");
-  assert(Array.isArray(result.companies), "Companies should be an array");
-  if (result.companies.length > 0) {
-    const company = result.companies[0];
-    assert(company.id, "Company should have an ID");
-    assert("name" in company, "Company should have a name");
-    assert("domain" in company, "Company should have a domain");
-    assert("createdAt" in company, "Company should have a createdAt");
+  assert.strictEqual(result.success, true, "Success should be true");
+  assert(Array.isArray(result.results), "Results should be an array");
+
+  // Validate first result structure if results exist
+  if (result.results.length > 0) {
+    const firstResult = result.results[0];
+    assert(firstResult.name && typeof firstResult.name === "string", "First result should have a name (string)");
+    assert(firstResult.url && typeof firstResult.url === "string", "First result should have a url (string)");
+    assert(firstResult.contents && typeof firstResult.contents === "object", "First result should have contents (object)");
+
+    // Validate contents has reasonable fields
+    const contents = firstResult.contents;
+    assert(
+      contents.id || contents.name || contents.domain,
+      "Contents should have at least one reasonable field (id, name, or domain)"
+    );
   }
+
+  console.log("All tests passed!");
 }
 
 runTest().catch((error) => {

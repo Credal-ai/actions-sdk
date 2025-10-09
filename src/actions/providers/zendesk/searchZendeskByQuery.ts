@@ -38,8 +38,14 @@ const searchZendeskByQuery: zendeskSearchZendeskByQueryFunction = async ({
   });
 
   return {
-    results: response.data.results,
-    count: response.data.count,
+    success: true,
+    results: response.data.results.map(
+      (result: { subject?: string; title?: string; name?: string; id: string; html_url?: string; url?: string }) => ({
+        name: result.subject || result.title || result.name || `Result #${result.id}`,
+        url: result.html_url || result.url || "",
+        contents: result,
+      }),
+    ),
   };
 };
 

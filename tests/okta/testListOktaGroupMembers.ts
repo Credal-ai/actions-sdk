@@ -26,32 +26,35 @@ async function runTest() {
 
   assert(result, "Response should not be null");
 
-  if (!result.success) {
+  if (result.error) {
     console.error("Okta API Error:", result.error);
   }
-  assert(result.success, `Action should be successful. Error: ${result.error}`);
+  assert(!result.error, `Action should be successful. Error: ${result.error}`);
   assert(
-    Array.isArray(result.members),
-    "Response should contain a members array"
+    Array.isArray(result.results),
+    "Response should contain a results array"
   );
   console.log(
-    `Successfully listed ${result.members.length} members for group ${testGroupId}.`
+    `Successfully listed ${result.results.length} members for group ${testGroupId}.`
   );
-  if (result.members.length > 0) {
-    const firstMember = result.members[0];
-    assert(firstMember.id, "First member should have an ID");
-    assert(firstMember.status, "First member should have a status");
-    assert(firstMember.created, "First member should have a created timestamp");
+  if (result.results.length > 0) {
+    const firstResult = result.results[0];
+    assert(firstResult.name && typeof firstResult.name === "string", "First result should have a name string");
+    assert(firstResult.url && typeof firstResult.url === "string", "First result should have a url string");
+    assert(firstResult.contents && typeof firstResult.contents === "object", "First result should have a contents object");
+    assert(firstResult.contents.id, "First result contents should have an ID");
+    assert(firstResult.contents.status, "First result contents should have a status");
+    assert(firstResult.contents.created, "First result contents should have a created timestamp");
     assert(
-      firstMember.profile.firstName,
-      "First member should have a first name"
+      firstResult.contents.profile?.firstName,
+      "First result contents should have a first name"
     );
     assert(
-      firstMember.profile.lastName,
-      "First member should have a last name"
+      firstResult.contents.profile?.lastName,
+      "First result contents should have a last name"
     );
-    assert(firstMember.profile.email, "First member should have an email");
-    console.log("Sample member:", JSON.stringify(firstMember, null, 2));
+    assert(firstResult.contents.profile?.email, "First result contents should have an email");
+    console.log("Sample member:", JSON.stringify(firstResult, null, 2));
   }
 
   console.log("Okta listGroupMembers test completed successfully.");

@@ -48,9 +48,13 @@ const getSalesforceRecordsByQuery: salesforceGetSalesforceRecordsByQueryFunction
     const response = await axiosClient.get(url, { headers: { Authorization: `Bearer ${authToken}` } });
 
     // Salesforce record types are confusing and non standard
+    interface SalesforceRecord {
+      Id: string;
+      [key: string]: unknown;
+    }
+
     const recordsWithUrl =
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      response.data.records?.map((record: any) => {
+      response.data.records?.map((record: SalesforceRecord) => {
         const recordId = record.Id;
         const webUrl = recordId ? `${baseUrl}/lightning/r/${recordId}/view` : undefined;
         return { ...record, webUrl };
@@ -59,24 +63,34 @@ const getSalesforceRecordsByQuery: salesforceGetSalesforceRecordsByQueryFunction
     return {
       success: true,
       results:
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        recordsWithUrl.map((record: any) => {
-          // Try common name fields in order of preference, using only what's available
-          const displayName =
-            record.Name ||
-            record.Title ||
-            record.Subject ||
-            record.CaseNumber ||
-            record.AccountName ||
-            record.ContactName ||
-            record.Id ||
-            record.webUrl;
-          return {
-            name: displayName,
-            url: record.webUrl,
-            content: record,
-          };
-        }) || [],
+        recordsWithUrl.map(
+          (record: {
+            Name?: string;
+            Title?: string;
+            Subject?: string;
+            CaseNumber?: string;
+            AccountName?: string;
+            ContactName?: string;
+            Id?: string;
+            webUrl?: string;
+          }) => {
+            // Try common name fields in order of preference, using only what's available
+            const displayName =
+              record.Name ||
+              record.Title ||
+              record.Subject ||
+              record.CaseNumber ||
+              record.AccountName ||
+              record.ContactName ||
+              record.Id ||
+              record.webUrl;
+            return {
+              name: displayName,
+              url: record.webUrl,
+              contents: record,
+            };
+          },
+        ) || [],
     };
   } catch (error) {
     console.error("Error retrieving Salesforce record:", error);

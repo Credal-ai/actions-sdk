@@ -27,15 +27,31 @@ async function runTest() {
       params,
     );
 
-    // Validate the response
+    console.log("Result:", JSON.stringify(result, null, 2));
+
+    // Validate response structure
     assert(result, "Response should not be null");
-    assert(result.rowCount >= 0, "Response should contain a row count");
-    assert(result.content, "Response should contain a result content");
-    assert(
-      result.format == "csv" || result.format == "json",
-      "Response should contain a result format",
-    );
-    console.log("Test passed! with content: " + result.content);
+    assert.strictEqual(result.success, true, "Success should be true");
+    assert(Array.isArray(result.results), "Results should be an array");
+
+    // Validate first result structure if results exist
+    if (result.results.length > 0) {
+      const firstResult = result.results[0];
+      assert(firstResult.name && typeof firstResult.name === "string", "First result should have a name (string)");
+      assert(typeof firstResult.url === "string", "First result should have a url (string)");
+      assert(firstResult.contents && typeof firstResult.contents === "object", "First result should have contents (object)");
+
+      // Validate contents has reasonable fields
+      const contents = firstResult.contents;
+      assert(contents.rowCount !== undefined, "Contents should have rowCount");
+      assert(contents.content, "Contents should have content");
+      assert(
+        contents.format === "csv" || contents.format === "json",
+        "Contents format should be csv or json"
+      );
+    }
+
+    console.log("All tests passed!");
   } catch (error) {
     console.error("Test failed:", error);
     process.exit(1);

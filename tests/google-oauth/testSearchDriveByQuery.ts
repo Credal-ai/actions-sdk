@@ -27,17 +27,16 @@ async function runTest() {
 
   // Validate the result
   assert.strictEqual(result.success, true, "Search should be successful");
-  assert(Array.isArray(result.files), "Files should be an array");
-  assert(result.files.length <= 5, "There should be at most 5 files");
-  if (result.files.length > 0) {
-    const firstFile = result.files[0];
-    assert(firstFile.id, "First file should have an id");
+  assert(Array.isArray(result.results), "Results should be an array");
+  assert(result.results.length <= 5, "There should be at most 5 files");
+  if (result.results.length > 0) {
+    const firstFile = result.results[0];
     assert(firstFile.name, "First file should have a name");
-    assert(firstFile.mimeType, "First file should have a mimeType");
     assert(firstFile.url, "First file should have a url");
+    assert(firstFile.contents, "First file should have contents");
   }
 
-  console.log("Found files:", result.files);
+  console.log("Found files:", result.results);
 }
 
 /**
@@ -67,11 +66,11 @@ async function runTrashedTest() {
     true,
     "Trashed files search should be successful"
   );
-  assert(Array.isArray(result.files), "Files should be an array");
-  assert(result.files.length <= 5, "There should be at most 5 files");
+  assert(Array.isArray(result.results), "Results should be an array");
+  assert(result.results.length <= 5, "There should be at most 5 files");
 
-  console.log("Found files:", result.files);
-  console.log(`Total files found: ${result.files.length}`);
+  console.log("Found files:", result.results);
+  console.log(`Total files found: ${result.results.length}`);
 }
 
 // Run both tests

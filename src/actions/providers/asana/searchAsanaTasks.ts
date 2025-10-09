@@ -15,7 +15,7 @@ const searchAsanaTasks: asanaSearchTasksFunction = async ({
   authParams: AuthParamsType;
 }): Promise<asanaSearchTasksOutputType> => {
   const { authToken } = authParams;
-  const { query } = params;
+  const { text, assignee, projects, completed, is_subtask, sort_by } = params;
 
   if (!authToken) {
     return { success: false, error: MISSING_AUTH_TOKEN };
@@ -37,13 +37,20 @@ const searchAsanaTasks: asanaSearchTasksFunction = async ({
     for (const workspace of workspaces) {
       const workspaceId = workspace.gid;
       try {
+        // Build query params according to Asana API
+        const searchParams: Record<string, string | boolean> = {};
+        if (text) searchParams.text = text;
+        if (assignee) searchParams["assignee.any"] = assignee;
+        if (projects && projects.length > 0) searchParams["projects.any"] = projects.join(",");
+        if (completed !== undefined) searchParams.completed = completed;
+        if (is_subtask !== undefined) searchParams.is_subtask = is_subtask;
+        if (sort_by) searchParams.sort_by = sort_by;
+
         const searchResponse = await axiosClient.get(
           `https://app.asana.com/api/1.0/workspaces/${workspaceId}/tasks/search`,
           {
             headers: { Authorization: `Bearer ${authToken}` },
-            params: {
-              text: query,
-            },
+            params: searchParams,
           },
         );
 
@@ -65,7 +72,11 @@ const searchAsanaTasks: asanaSearchTasksFunction = async ({
 
     return {
       success: true,
-      results: matches,
+      results: matches.map(match => ({
+        name: match.name,
+        url: `https://app.asana.com/0/${match.workspaceId}/${match.id}`,
+        contents: match,
+      })),
     };
   } catch (error) {
     console.error("Error searching Asana tasks:", error);

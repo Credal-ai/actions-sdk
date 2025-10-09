@@ -16,7 +16,7 @@ const searchDriveByKeywords: googleOauthSearchDriveByKeywordsFunction = async ({
   authParams: AuthParamsType;
 }): Promise<googleOauthSearchDriveByKeywordsOutputType> => {
   if (!authParams.authToken) {
-    return { success: false, error: MISSING_AUTH_TOKEN, files: [] };
+    return { success: false, error: MISSING_AUTH_TOKEN, results: [] };
   }
 
   const { keywords, limit, includeTrashed = false } = params;
@@ -65,13 +65,20 @@ const searchDriveByKeywords: googleOauthSearchDriveByKeywordsFunction = async ({
 
     const dedupedFiles = dedupeByIdKeepFirst(files);
 
-    return { success: true, files: dedupedFiles };
+    return {
+      success: true,
+      results: dedupedFiles.map(file => ({
+        name: file.name,
+        url: file.url,
+        contents: file,
+      })),
+    };
   } catch (error) {
     console.error("Error searching Google Drive", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
-      files: [],
+      results: [],
     };
   }
 };

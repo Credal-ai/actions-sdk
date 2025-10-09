@@ -43,7 +43,12 @@ const getTopNSearchResultUrls: bingGetTopNSearchResultUrlsFunction = async ({
     const searchResults = response.data.webPages?.value || [];
 
     return bingGetTopNSearchResultUrlsOutputSchema.parse({
-      results: searchResults,
+      success: true,
+      results: searchResults.map((result: { name?: string; title?: string; url: string }) => ({
+        name: result.title || result.name || "Search Result",
+        url: result.url,
+        contents: result,
+      })),
     });
   } catch (error) {
     console.error("Error fetching search results from Bing:", error);

@@ -281,7 +281,17 @@ export type asanaUpdateTaskFunction = ActionFunction<
   asanaUpdateTaskOutputType
 >;
 
-export const asanaSearchTasksParamsSchema = z.object({ query: z.string().describe("Search query") });
+export const asanaSearchTasksParamsSchema = z.object({
+  text: z.string().describe("Free text search string to match against task names and descriptions").optional(),
+  assignee: z.string().describe("The assignee's GID to filter by").optional(),
+  projects: z.array(z.string()).describe("Array of project GIDs to filter by").optional(),
+  completed: z.boolean().describe("Filter to completed (true) or incomplete (false) tasks").optional(),
+  is_subtask: z.boolean().describe("Filter to subtasks (true) or non-subtasks (false)").optional(),
+  sort_by: z
+    .enum(["due_date", "created_at", "completed_at", "likes", "modified_at"])
+    .describe("Sort results by this field")
+    .optional(),
+});
 
 export type asanaSearchTasksParamsType = z.infer<typeof asanaSearchTasksParamsSchema>;
 
@@ -290,9 +300,13 @@ export const asanaSearchTasksOutputSchema = z.object({
   success: z.boolean().describe("Whether search was successful"),
   results: z
     .array(
-      z
-        .object({ id: z.string(), name: z.string(), resourceType: z.string().optional(), workspaceId: z.string() })
-        .describe("List of tasks that match search query"),
+      z.object({
+        name: z.string().describe("The name of the task"),
+        url: z.string().describe("The URL to view the task in Asana"),
+        contents: z
+          .object({ id: z.string(), name: z.string(), resourceType: z.string().optional(), workspaceId: z.string() })
+          .describe("The task details"),
+      }),
     )
     .describe("The list of tasks that match search query")
     .optional(),
@@ -1666,20 +1680,29 @@ export const googlemapsNearbysearchRestaurantsParamsSchema = z.object({
 export type googlemapsNearbysearchRestaurantsParamsType = z.infer<typeof googlemapsNearbysearchRestaurantsParamsSchema>;
 
 export const googlemapsNearbysearchRestaurantsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the search was successful"),
   results: z
     .array(
       z.object({
-        name: z.string().describe("The name of the place").optional(),
-        address: z.string().describe("The address of the place").optional(),
-        rating: z.number().describe("The rating of the place").optional(),
-        priceLevel: z.string().describe("The price level of the place").optional(),
-        openingHours: z.string().describe("The opening hours of the place").optional(),
-        primaryType: z.string().describe("The primary type of the place").optional(),
-        editorialSummary: z.string().describe("The editorial summary of the place").optional(),
-        websiteUri: z.string().describe("The website URI of the place").optional(),
+        name: z.string().describe("The name of the place"),
+        url: z.string().describe("The URL to view the place in Google Maps"),
+        contents: z
+          .object({
+            name: z.string().describe("The name of the place").optional(),
+            address: z.string().describe("The address of the place").optional(),
+            rating: z.number().describe("The rating of the place").optional(),
+            priceLevel: z.string().describe("The price level of the place").optional(),
+            openingHours: z.string().describe("The opening hours of the place").optional(),
+            primaryType: z.string().describe("The primary type of the place").optional(),
+            editorialSummary: z.string().describe("The editorial summary of the place").optional(),
+            websiteUri: z.string().describe("The website URI of the place").optional(),
+          })
+          .describe("The place details"),
       }),
     )
-    .describe("The results of the nearby search"),
+    .describe("The results of the nearby search")
+    .optional(),
+  error: z.string().describe("Error message if the search failed").optional(),
 });
 
 export type googlemapsNearbysearchRestaurantsOutputType = z.infer<typeof googlemapsNearbysearchRestaurantsOutputSchema>;
@@ -1703,14 +1726,18 @@ export const bingGetTopNSearchResultUrlsParamsSchema = z.object({
 export type bingGetTopNSearchResultUrlsParamsType = z.infer<typeof bingGetTopNSearchResultUrlsParamsSchema>;
 
 export const bingGetTopNSearchResultUrlsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the search was successful"),
+  error: z.string().describe("Error message if the search failed").optional(),
   results: z
     .array(
       z.object({
-        name: z.string().describe("The name or title of the search result").optional(),
-        url: z.string().describe("The URL of the search result").optional(),
+        name: z.string().describe("The name or title of the search result"),
+        url: z.string().describe("The URL of the search result"),
+        contents: z.object({}).catchall(z.any()).describe("The search result details"),
       }),
     )
-    .describe("The top five search result objects"),
+    .describe("The top five search result objects")
+    .optional(),
 });
 
 export type bingGetTopNSearchResultUrlsOutputType = z.infer<typeof bingGetTopNSearchResultUrlsOutputSchema>;
@@ -1748,8 +1775,18 @@ export const zendeskListZendeskTicketsParamsSchema = z.object({
 export type zendeskListZendeskTicketsParamsType = z.infer<typeof zendeskListZendeskTicketsParamsSchema>;
 
 export const zendeskListZendeskTicketsOutputSchema = z.object({
-  tickets: z.array(z.object({}).catchall(z.any())).describe("List of tickets"),
-  count: z.number().describe("Number of tickets found"),
+  success: z.boolean().describe("Whether the operation was successful"),
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The ticket subject"),
+        url: z.string().describe("The URL to view the ticket in Zendesk"),
+        contents: z.object({}).catchall(z.any()).describe("The ticket details"),
+      }),
+    )
+    .describe("List of tickets")
+    .optional(),
+  error: z.string().describe("Error message if the operation failed").optional(),
 });
 
 export type zendeskListZendeskTicketsOutputType = z.infer<typeof zendeskListZendeskTicketsOutputSchema>;
@@ -1853,8 +1890,18 @@ export const zendeskSearchZendeskByQueryParamsSchema = z.object({
 export type zendeskSearchZendeskByQueryParamsType = z.infer<typeof zendeskSearchZendeskByQueryParamsSchema>;
 
 export const zendeskSearchZendeskByQueryOutputSchema = z.object({
-  results: z.array(z.object({}).catchall(z.any())).describe("List of objects matching the query"),
-  count: z.number().describe("Number of objects found"),
+  success: z.boolean().describe("Whether the search was successful"),
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The object name or title"),
+        url: z.string().describe("The URL to view the object in Zendesk"),
+        contents: z.object({}).catchall(z.any()).describe("The object details"),
+      }),
+    )
+    .describe("List of objects matching the query")
+    .optional(),
+  error: z.string().describe("Error message if the search failed").optional(),
 });
 
 export type zendeskSearchZendeskByQueryOutputType = z.infer<typeof zendeskSearchZendeskByQueryOutputSchema>;
@@ -1977,10 +2024,28 @@ export const snowflakeRunSnowflakeQueryParamsSchema = z.object({
 export type snowflakeRunSnowflakeQueryParamsType = z.infer<typeof snowflakeRunSnowflakeQueryParamsSchema>;
 
 export const snowflakeRunSnowflakeQueryOutputSchema = z.object({
-  format: z.enum(["json", "csv"]).describe("The format of the output"),
-  content: z.string().describe("The content of the query result (json)"),
-  rowCount: z.number().describe("The number of rows returned by the query"),
-  error: z.string().describe("The error that occurred if the query results failed or were limited").optional(),
+  success: z.boolean().describe("Whether the query was successful"),
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The query results name"),
+        url: z.string().describe("Empty URL for query results"),
+        contents: z
+          .object({
+            rowCount: z.number().describe("The number of rows returned by the query").optional(),
+            content: z.string().describe("The content of the query result").optional(),
+            format: z.enum(["json", "csv"]).describe("The format of the output").optional(),
+            error: z
+              .string()
+              .describe("The error that occurred if the query results failed or were limited")
+              .optional(),
+          })
+          .describe("The query result details"),
+      }),
+    )
+    .describe("The query results")
+    .optional(),
+  error: z.string().describe("The error that occurred if the query failed").optional(),
 });
 
 export type snowflakeRunSnowflakeQueryOutputType = z.infer<typeof snowflakeRunSnowflakeQueryOutputSchema>;
@@ -2125,15 +2190,18 @@ export const firecrawlSearchAndScrapeParamsSchema = z.object({
 export type firecrawlSearchAndScrapeParamsType = z.infer<typeof firecrawlSearchAndScrapeParamsSchema>;
 
 export const firecrawlSearchAndScrapeOutputSchema = z.object({
+  success: z.boolean().describe("Whether the search was successful"),
   results: z
     .array(
       z.object({
+        name: z.string().describe("The title of the result"),
         url: z.string().describe("The URL of the result"),
-        title: z.string().describe("The title of the result"),
         contents: z.string().describe("The contents of the result"),
       }),
     )
-    .describe("The results of the search"),
+    .describe("The results of the search")
+    .optional(),
+  error: z.string().describe("Error message if the search failed").optional(),
 });
 
 export type firecrawlSearchAndScrapeOutputType = z.infer<typeof firecrawlSearchAndScrapeOutputSchema>;
@@ -2157,14 +2225,18 @@ export const firecrawlGetTopNSearchResultUrlsParamsSchema = z.object({
 export type firecrawlGetTopNSearchResultUrlsParamsType = z.infer<typeof firecrawlGetTopNSearchResultUrlsParamsSchema>;
 
 export const firecrawlGetTopNSearchResultUrlsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the search was successful"),
+  error: z.string().describe("Error message if the search failed").optional(),
   results: z
     .array(
       z.object({
-        name: z.string().describe("The name or title of the search result").optional(),
-        url: z.string().describe("The URL of the search result").optional(),
+        name: z.string().describe("The name or title of the search result"),
+        url: z.string().describe("The URL of the search result"),
+        contents: z.object({}).catchall(z.any()).describe("The search result details"),
       }),
     )
-    .describe("The top five search result objects"),
+    .describe("The top five search result objects")
+    .optional(),
 });
 
 export type firecrawlGetTopNSearchResultUrlsOutputType = z.infer<typeof firecrawlGetTopNSearchResultUrlsOutputSchema>;
@@ -4080,13 +4152,19 @@ export type googleOauthSearchDriveByKeywordsParamsType = z.infer<typeof googleOa
 
 export const googleOauthSearchDriveByKeywordsOutputSchema = z.object({
   success: z.boolean().describe("Whether the search was successful"),
-  files: z
+  results: z
     .array(
       z.object({
-        id: z.string().describe("The file ID"),
         name: z.string().describe("The file name"),
-        mimeType: z.string().describe("The MIME type of the file"),
         url: z.string().describe("The web link to view the file"),
+        contents: z
+          .object({
+            id: z.string().describe("The file ID"),
+            name: z.string().describe("The file name"),
+            mimeType: z.string().describe("The MIME type of the file"),
+            url: z.string().describe("The web link to view the file"),
+          })
+          .describe("The file details"),
       }),
     )
     .describe("List of files matching the search")
@@ -4118,13 +4196,19 @@ export type googleOauthSearchDriveByQueryParamsType = z.infer<typeof googleOauth
 
 export const googleOauthSearchDriveByQueryOutputSchema = z.object({
   success: z.boolean().describe("Whether the search was successful"),
-  files: z
+  results: z
     .array(
       z.object({
-        id: z.string().describe("The file ID"),
         name: z.string().describe("The file name"),
-        mimeType: z.string().describe("The MIME type of the file"),
         url: z.string().describe("The web link to view the file"),
+        contents: z
+          .object({
+            id: z.string().describe("The file ID"),
+            name: z.string().describe("The file name"),
+            mimeType: z.string().describe("The MIME type of the file"),
+            url: z.string().describe("The web link to view the file"),
+          })
+          .describe("The file details"),
       }),
     )
     .describe("List of files matching the search")
@@ -4209,14 +4293,20 @@ export type googleOauthSearchDriveByQueryAndGetFileContentParamsType = z.infer<
 
 export const googleOauthSearchDriveByQueryAndGetFileContentOutputSchema = z.object({
   success: z.boolean().describe("Whether the search was successful"),
-  files: z
+  results: z
     .array(
       z.object({
-        id: z.string().describe("The file ID"),
         name: z.string().describe("The file name"),
-        mimeType: z.string().describe("The MIME type of the file"),
         url: z.string().describe("The web link to view the file"),
-        content: z.string().describe("The data returned from the file, subject to fileSizeLimit").optional(),
+        contents: z
+          .object({
+            id: z.string().describe("The file ID"),
+            name: z.string().describe("The file name"),
+            mimeType: z.string().describe("The MIME type of the file"),
+            url: z.string().describe("The web link to view the file"),
+            content: z.string().describe("The data returned from the file, subject to fileSizeLimit").optional(),
+          })
+          .describe("The file details"),
       }),
     )
     .describe("List of files matching the search")
@@ -4466,24 +4556,31 @@ export const googlemailSearchGmailMessagesParamsSchema = z.object({
 export type googlemailSearchGmailMessagesParamsType = z.infer<typeof googlemailSearchGmailMessagesParamsSchema>;
 
 export const googlemailSearchGmailMessagesOutputSchema = z.object({
-  success: z.boolean(),
-  messages: z
+  success: z.boolean().describe("Whether the search was successful"),
+  results: z
     .array(
       z.object({
-        id: z.string().describe("The message ID"),
-        threadId: z.string().describe("The thread ID"),
-        snippet: z.string().describe("A short part of the message text").optional(),
-        labelIds: z.array(z.string()).describe("Labels on the message").optional(),
-        internalDate: z.string().describe("Internal timestamp of the message").optional(),
-        emailBody: z.string().describe("The body of the message").optional(),
-        from: z.string().describe("The from header of the message").optional(),
-        to: z.string().describe("The to header of the message").optional(),
-        subject: z.string().describe("The subject header of the message").optional(),
-        cc: z.string().describe("The cc header of the message").optional(),
-        bcc: z.string().describe("The bcc header of the message").optional(),
+        name: z.string().describe("The subject or snippet of the message"),
+        url: z.string().describe("The Gmail thread URL"),
+        contents: z
+          .object({
+            id: z.string().describe("The message ID"),
+            threadId: z.string().describe("The thread ID"),
+            snippet: z.string().describe("A short part of the message text").optional(),
+            labelIds: z.array(z.string()).describe("Labels on the message").optional(),
+            internalDate: z.string().describe("Internal timestamp of the message").optional(),
+            emailBody: z.string().describe("The body of the message").optional(),
+            from: z.string().describe("The from header of the message").optional(),
+            to: z.string().describe("The to header of the message").optional(),
+            subject: z.string().describe("The subject header of the message").optional(),
+            cc: z.string().describe("The cc header of the message").optional(),
+            bcc: z.string().describe("The bcc header of the message").optional(),
+          })
+          .describe("The message details"),
       }),
     )
-    .describe("List of matching Gmail messages"),
+    .describe("List of matching Gmail messages")
+    .optional(),
   error: z.string().describe("Error message if search failed").optional(),
 });
 
@@ -4682,14 +4779,17 @@ export const oktaListOktaUserGroupsParamsSchema = z.object({
 export type oktaListOktaUserGroupsParamsType = z.infer<typeof oktaListOktaUserGroupsParamsSchema>;
 
 export const oktaListOktaUserGroupsOutputSchema = z.object({
-  success: z.boolean().describe("Whether the groups were successfully retrieved."),
-  groups: z
+  results: z
     .array(
       z.object({
-        id: z.string().describe("The group's ID."),
-        profile: z.object({
-          name: z.string().describe("The group's name."),
-          description: z.string().describe("The group's description."),
+        name: z.string().describe("The group's name."),
+        url: z.string().describe("URL to the group in the Okta admin console."),
+        contents: z.object({
+          id: z.string().describe("The group's ID."),
+          profile: z.object({
+            name: z.string().describe("The group's name."),
+            description: z.string().describe("The group's description.").optional(),
+          }),
         }),
       }),
     )
@@ -4718,15 +4818,20 @@ export const oktaListOktaGroupsParamsSchema = z.object({
 export type oktaListOktaGroupsParamsType = z.infer<typeof oktaListOktaGroupsParamsSchema>;
 
 export const oktaListOktaGroupsOutputSchema = z.object({
-  success: z.boolean().describe("Whether the groups were successfully retrieved."),
-  groups: z
+  results: z
     .array(
       z.object({
-        id: z.string().describe("The group's ID."),
-        profile: z.object({
-          name: z.string().describe("The group's name."),
-          description: z.string().describe("The group's description."),
-        }),
+        name: z.string().describe("The group's name"),
+        url: z.string().describe("The URL to view the group in Okta"),
+        contents: z
+          .object({
+            id: z.string().describe("The group's ID."),
+            profile: z.object({
+              name: z.string().describe("The group's name."),
+              description: z.string().describe("The group's description."),
+            }),
+          })
+          .describe("The group details"),
       }),
     )
     .describe("List of Okta groups.")
@@ -4801,53 +4906,62 @@ export const oktaListOktaGroupMembersParamsSchema = z.object({
 export type oktaListOktaGroupMembersParamsType = z.infer<typeof oktaListOktaGroupMembersParamsSchema>;
 
 export const oktaListOktaGroupMembersOutputSchema = z.object({
-  success: z.boolean().describe("Whether the members were successfully retrieved."),
-  members: z
+  results: z
     .array(
       z.object({
-        id: z.string().describe("The user's ID.").optional(),
-        status: z.string().describe("The user's status.").optional(),
-        created: z.string().datetime({ offset: true }).describe("The timestamp when the user was created.").optional(),
-        activated: z
-          .string()
-          .datetime({ offset: true })
-          .nullable()
-          .describe("The timestamp when the user was activated.")
-          .optional(),
-        statusChanged: z
-          .string()
-          .datetime({ offset: true })
-          .nullable()
-          .describe("The timestamp when the user's status changed.")
-          .optional(),
-        lastLogin: z
-          .string()
-          .datetime({ offset: true })
-          .nullable()
-          .describe("The timestamp of the user's last login.")
-          .optional(),
-        lastUpdated: z
-          .string()
-          .datetime({ offset: true })
-          .describe("The timestamp of the user's last update.")
-          .optional(),
-        passwordChanged: z
-          .string()
-          .datetime({ offset: true })
-          .describe("The timestamp when the user's password was last changed.")
-          .optional(),
-        type: z.object({ id: z.string().describe("The type ID of the user.").optional() }).optional(),
-        profile: z
+        name: z.string().describe("The user's display name"),
+        url: z.string().describe("The URL to view the user in Okta"),
+        contents: z
           .object({
-            firstName: z.string().describe("The user's first name.").optional(),
-            lastName: z.string().describe("The user's last name.").optional(),
-            mobilePhone: z.string().nullable().describe("The user's mobile phone number.").optional(),
-            secondEmail: z.string().nullable().describe("The user's secondary email address.").optional(),
-            login: z.string().describe("The user's login.").optional(),
-            email: z.string().describe("The user's email address.").optional(),
+            id: z.string().describe("The user's ID.").optional(),
+            status: z.string().describe("The user's status.").optional(),
+            created: z
+              .string()
+              .datetime({ offset: true })
+              .describe("The timestamp when the user was created.")
+              .optional(),
+            activated: z
+              .string()
+              .datetime({ offset: true })
+              .nullable()
+              .describe("The timestamp when the user was activated.")
+              .optional(),
+            statusChanged: z
+              .string()
+              .datetime({ offset: true })
+              .nullable()
+              .describe("The timestamp when the user's status changed.")
+              .optional(),
+            lastLogin: z
+              .string()
+              .datetime({ offset: true })
+              .nullable()
+              .describe("The timestamp of the user's last login.")
+              .optional(),
+            lastUpdated: z
+              .string()
+              .datetime({ offset: true })
+              .describe("The timestamp of the user's last update.")
+              .optional(),
+            passwordChanged: z
+              .string()
+              .datetime({ offset: true })
+              .describe("The timestamp when the user's password was last changed.")
+              .optional(),
+            type: z.object({ id: z.string().describe("The type ID of the user.").optional() }).optional(),
+            profile: z
+              .object({
+                firstName: z.string().describe("The user's first name.").optional(),
+                lastName: z.string().describe("The user's last name.").optional(),
+                mobilePhone: z.string().nullable().describe("The user's mobile phone number.").optional(),
+                secondEmail: z.string().nullable().describe("The user's secondary email address.").optional(),
+                login: z.string().describe("The user's login.").optional(),
+                email: z.string().describe("The user's email address.").optional(),
+              })
+              .describe("The user's profile information.")
+              .optional(),
           })
-          .describe("The user's profile information.")
-          .optional(),
+          .describe("The user details"),
       }),
     )
     .describe("List of members in the group.")
@@ -4913,28 +5027,33 @@ export const oktaListOktaUsersParamsSchema = z.object({
 export type oktaListOktaUsersParamsType = z.infer<typeof oktaListOktaUsersParamsSchema>;
 
 export const oktaListOktaUsersOutputSchema = z.object({
-  success: z.boolean().describe("Whether the user list was successfully retrieved"),
-  users: z
+  results: z
     .array(
       z.object({
-        id: z.string().describe("The user's Okta ID"),
-        status: z.string().describe("The user's status").optional(),
-        created: z.string().describe("The timestamp when the user was created").optional(),
-        activated: z.string().nullable().describe("The timestamp when the user was activated").optional(),
-        statusChanged: z.string().nullable().describe("The timestamp when the user's status changed").optional(),
-        lastLogin: z.string().nullable().describe("The timestamp of the user's last login").optional(),
-        lastUpdated: z.string().describe("The timestamp of the user's last update").optional(),
-        passwordChanged: z.string().describe("The timestamp when the user's password was last changed").optional(),
-        type: z.object({ id: z.string().describe("The type ID of the user").optional() }).optional(),
-        profile: z.object({
-          firstName: z.string().describe("The user's first name").optional(),
-          lastName: z.string().describe("The user's last name").optional(),
-          mobilePhone: z.string().nullable().describe("The user's mobile phone number").optional(),
-          secondEmail: z.string().nullable().describe("The user's secondary email address").optional(),
-          login: z.string().describe("The user's login").optional(),
-          email: z.string().describe("The user's email address").optional(),
-        }),
-        realmId: z.string().describe("The realm ID of the user").optional(),
+        name: z.string().describe("The user's display name"),
+        url: z.string().describe("The URL to view the user in Okta"),
+        contents: z
+          .object({
+            id: z.string().describe("The user's Okta ID"),
+            status: z.string().describe("The user's status").optional(),
+            created: z.string().describe("The timestamp when the user was created").optional(),
+            activated: z.string().nullable().describe("The timestamp when the user was activated").optional(),
+            statusChanged: z.string().nullable().describe("The timestamp when the user's status changed").optional(),
+            lastLogin: z.string().nullable().describe("The timestamp of the user's last login").optional(),
+            lastUpdated: z.string().describe("The timestamp of the user's last update").optional(),
+            passwordChanged: z.string().describe("The timestamp when the user's password was last changed").optional(),
+            type: z.object({ id: z.string().describe("The type ID of the user").optional() }).optional(),
+            profile: z.object({
+              firstName: z.string().describe("The user's first name").optional(),
+              lastName: z.string().describe("The user's last name").optional(),
+              mobilePhone: z.string().nullable().describe("The user's mobile phone number").optional(),
+              secondEmail: z.string().nullable().describe("The user's secondary email address").optional(),
+              login: z.string().describe("The user's login").optional(),
+              email: z.string().describe("The user's email address").optional(),
+            }),
+            realmId: z.string().describe("The realm ID of the user").optional(),
+          })
+          .describe("The user details"),
       }),
     )
     .describe("List of Okta users matching the query")
@@ -5151,16 +5270,23 @@ export const finnhubSymbolLookupParamsSchema = z.object({
 export type finnhubSymbolLookupParamsType = z.infer<typeof finnhubSymbolLookupParamsSchema>;
 
 export const finnhubSymbolLookupOutputSchema = z.object({
-  result: z
+  success: z.boolean().describe("Whether the lookup was successful"),
+  results: z
     .array(
-      z
-        .object({
-          symbol: z.string().describe("The symbol of the stock").optional(),
-          description: z.string().describe("The description of the stock").optional(),
-        })
-        .describe("The metadata of the stock"),
+      z.object({
+        name: z.string().describe("The symbol or description of the stock"),
+        url: z.string().describe("The URL to view the stock on Finnhub"),
+        contents: z
+          .object({
+            symbol: z.string().describe("The symbol of the stock").optional(),
+            description: z.string().describe("The description of the stock").optional(),
+          })
+          .describe("The stock metadata"),
+      }),
     )
-    .describe("The results of the symbol lookup"),
+    .describe("The results of the symbol lookup")
+    .optional(),
+  error: z.string().describe("Error message if the lookup failed").optional(),
 });
 
 export type finnhubSymbolLookupOutputType = z.infer<typeof finnhubSymbolLookupOutputSchema>;
@@ -5333,7 +5459,18 @@ export const ashbySearchCandidatesParamsSchema = z.object({
 export type ashbySearchCandidatesParamsType = z.infer<typeof ashbySearchCandidatesParamsSchema>;
 
 export const ashbySearchCandidatesOutputSchema = z.object({
-  candidates: z.array(z.any()).describe("A list of candidates"),
+  success: z.boolean().describe("Whether the search was successful"),
+  error: z.string().describe("Error message if the search failed").optional(),
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the candidate"),
+        url: z.string().describe("The URL to view the candidate"),
+        contents: z.object({}).catchall(z.any()).describe("The candidate details"),
+      }),
+    )
+    .describe("A list of candidates")
+    .optional(),
 });
 
 export type ashbySearchCandidatesOutputType = z.infer<typeof ashbySearchCandidatesOutputSchema>;
@@ -5552,21 +5689,25 @@ export type salesforceSearchAllSalesforceRecordsParamsType = z.infer<
 
 export const salesforceSearchAllSalesforceRecordsOutputSchema = z.object({
   success: z.boolean().describe("Whether the records were successfully retrieved"),
-  searchRecords: z
+  results: z
     .array(
-      z
-        .object({
-          id: z.string().describe("The Salesforce record ID").optional(),
-          attributes: z
-            .object({
-              type: z.string().describe("The Salesforce object type"),
-              url: z.string().describe("The Salesforce record URL"),
-            })
-            .catchall(z.any())
-            .describe("Metadata about the Salesforce record")
-            .optional(),
-        })
-        .describe("A record from Salesforce"),
+      z.object({
+        name: z.string().describe("The record name or title"),
+        url: z.string().describe("The URL to view the record in Salesforce"),
+        contents: z
+          .object({
+            id: z.string().describe("The Salesforce record ID").optional(),
+            attributes: z
+              .object({
+                type: z.string().describe("The Salesforce object type"),
+                url: z.string().describe("The Salesforce record URL"),
+              })
+              .catchall(z.any())
+              .describe("Metadata about the Salesforce record")
+              .optional(),
+          })
+          .describe("The Salesforce record details"),
+      }),
     )
     .describe("The records that match the search")
     .optional(),
@@ -6134,75 +6275,37 @@ export const githubSearchRepositoryParamsSchema = z.object({
 export type githubSearchRepositoryParamsType = z.infer<typeof githubSearchRepositoryParamsSchema>;
 
 export const githubSearchRepositoryOutputSchema = z.object({
-  code: z
+  success: z.boolean().describe("Whether the search was successful"),
+  results: z
     .array(
       z.object({
-        name: z.string().describe("The name of the file that had a match"),
-        path: z.string().describe("The path of the file that had a match"),
-        sha: z.string().describe("The SHA of the commit that had a match"),
-        url: z.string().describe("The URL of the file that had a match"),
-        score: z.number().describe("The similarity score of the match"),
-        textMatches: z
-          .array(
-            z.object({
-              object_url: z.string().describe("The URL of the object that had a match").optional(),
-              object_type: z.string().describe("The type of the object that had a match").optional(),
-              fragment: z.string().describe("The fragment of the text that had a match").optional(),
-              matches: z
-                .array(
-                  z.object({
-                    text: z.string().describe("The text that had a match").optional(),
-                    indices: z.array(z.number()).describe("The indices of the text that had a match").optional(),
-                  }),
-                )
-                .describe("A list of matches that match the query"),
-            }),
-          )
-          .describe("A list of text matches that match the query"),
-      }),
-    )
-    .describe("A list of code results that match the query"),
-  commits: z
-    .array(
-      z.object({
-        sha: z.string().describe("The SHA of the commit that had a match"),
-        url: z.string().describe("The URL of the commit that had a match"),
-        commit: z
+        name: z.string().describe("The name of the result"),
+        url: z.string().describe("The URL of the result"),
+        contents: z
           .object({
-            author: z.object({
-              name: z.string().describe("The name of the author"),
-              email: z.string().describe("The email of the author"),
-              date: z.string().describe("The date of the commit"),
-            }),
-            message: z.string().describe("The message of the commit"),
+            type: z.enum(["code", "commit", "issueOrPullRequest"]).describe("The type of the result").optional(),
+            name: z.string().describe("The name of the file that had a match").optional(),
+            path: z.string().describe("The path of the file that had a match").optional(),
+            sha: z.string().describe("The SHA of the commit that had a match").optional(),
+            score: z.number().describe("The similarity score of the match").optional(),
+            textMatches: z
+              .array(
+                z.object({
+                  object_url: z.string().describe("The URL of the object that had a match").optional(),
+                  object_type: z.string().describe("The type of the object that had a match").optional(),
+                  fragment: z.string().describe("The fragment of the text that had a match").optional(),
+                  matches: z.array(z.object({}).catchall(z.any())).describe("A list of matches that match the query"),
+                }),
+              )
+              .describe("A list of text matches that match the query")
+              .optional(),
           })
-          .optional(),
+          .describe("The result details"),
       }),
     )
-    .describe("A list of commits that match the query"),
-  issuesAndPullRequests: z
-    .array(
-      z.object({
-        number: z.number().describe("The number of the issue or pull request").optional(),
-        title: z.string().describe("The title of the issue or pull request"),
-        html_url: z.string().describe("The URL of the issue or pull request").optional(),
-        state: z.enum(["open", "closed"]).describe("The state of the issue or pull request"),
-        isPullRequest: z.boolean().describe("Whether the issue or pull request is a pull request").optional(),
-        body: z.string().describe("The body of the issue or pull request").optional(),
-        score: z.number().describe("The score of the issue or pull request").optional(),
-        files: z
-          .array(
-            z.object({
-              filename: z.string().describe("The filename of the file"),
-              status: z.string().describe("The status of the file"),
-              patch: z.string().describe("The patch of the file").optional(),
-            }),
-          )
-          .describe("A list of files that match the query")
-          .optional(),
-      }),
-    )
-    .describe("A list of issues and pull requests that match the query"),
+    .describe("Array of search results")
+    .optional(),
+  error: z.string().describe("Error message if the search failed").optional(),
 });
 
 export type githubSearchRepositoryOutputType = z.infer<typeof githubSearchRepositoryOutputSchema>;
@@ -6228,11 +6331,11 @@ export const githubSearchOrganizationOutputSchema = z.object({
       z.object({
         name: z.string().describe("The name of the result (file name, commit SHA, or issue/PR title)"),
         url: z.string().describe("The URL of the result"),
-        type: z.enum(["code", "commit", "issueOrPullRequest"]).describe("The type of the result"),
-        content: z.any().superRefine((x, ctx) => {
+        contents: z.any().superRefine((x, ctx) => {
           const schemas = [
             z
               .object({
+                type: z.literal("code").describe("The type of result"),
                 name: z.string().describe("The name of the file that had a match"),
                 path: z.string().describe("The path of the file that had a match"),
                 sha: z.string().describe("The SHA of the commit that had a match"),
@@ -6262,27 +6365,27 @@ export const githubSearchOrganizationOutputSchema = z.object({
               .describe("Code result content"),
             z
               .object({
+                type: z.literal("commit").describe("The type of result"),
                 sha: z.string().describe("The SHA of the commit that had a match"),
                 url: z.string().describe("The URL of the commit that had a match"),
-                commit: z
-                  .object({
-                    author: z.object({
-                      name: z.string().describe("The name of the author"),
-                      email: z.string().describe("The email of the author"),
-                      date: z.string().describe("The date of the commit"),
-                    }),
-                    message: z.string().describe("The message of the commit"),
-                  })
-                  .optional(),
+                commit: z.object({
+                  author: z.object({
+                    name: z.string().describe("The name of the author"),
+                    email: z.string().describe("The email of the author"),
+                    date: z.string().describe("The date of the commit"),
+                  }),
+                  message: z.string().describe("The message of the commit"),
+                }),
               })
               .describe("Commit result content"),
             z
               .object({
-                number: z.number().describe("The number of the issue or pull request").optional(),
+                type: z.literal("issueOrPullRequest").describe("The type of result"),
+                number: z.number().describe("The number of the issue or pull request"),
                 title: z.string().describe("The title of the issue or pull request"),
-                html_url: z.string().describe("The URL of the issue or pull request").optional(),
+                html_url: z.string().describe("The URL of the issue or pull request"),
                 state: z.enum(["open", "closed"]).describe("The state of the issue or pull request"),
-                isPullRequest: z.boolean().describe("Whether the issue or pull request is a pull request").optional(),
+                isPullRequest: z.boolean().describe("Whether the issue or pull request is a pull request"),
                 body: z.string().describe("The body of the issue or pull request").optional(),
                 score: z.number().describe("The score of the issue or pull request").optional(),
                 files: z
@@ -6522,9 +6625,14 @@ export const notionSearchByTitleOutputSchema = z.object({
   results: z
     .array(
       z.object({
-        id: z.string().describe("The Notion page ID"),
-        title: z.string().nullable().describe("The page title").optional(),
+        name: z.string().describe("The page title"),
         url: z.string().describe("The URL to the Notion page"),
+        contents: z.object({
+          id: z.string().describe("The Notion page ID"),
+          title: z.string().describe("The page title").optional(),
+          url: z.string().describe("The URL to the Notion page"),
+          object: z.string().describe("The type of Notion object (page or database)"),
+        }),
       }),
     )
     .describe("List of matching Notion pages")
@@ -6631,11 +6739,11 @@ export const gitlabSearchGroupOutputSchema = z.object({
       z.object({
         name: z.string().describe("The name/title of the search result"),
         url: z.string().describe("The URL to view the result in GitLab"),
-        type: z.enum(["mergeRequest", "blob", "commit"]).describe("The type of search result"),
         contents: z.any().superRefine((x, ctx) => {
           const schemas = [
             z
               .object({
+                type: z.literal("mergeRequest").describe("The type of search result"),
                 metadata: z
                   .object({
                     id: z.number().describe("The ID of the merge request"),
@@ -6668,6 +6776,7 @@ export const gitlabSearchGroupOutputSchema = z.object({
               .describe("Merge request contents"),
             z
               .object({
+                type: z.literal("blob").describe("The type of search result"),
                 metadata: z.object({
                   path: z.string().describe("The path of the blob"),
                   basename: z.string().describe("The basename of the blob"),
@@ -6692,6 +6801,7 @@ export const gitlabSearchGroupOutputSchema = z.object({
               .describe("Blob contents"),
             z
               .object({
+                type: z.literal("commit").describe("The type of search result"),
                 sha: z.string().describe("The commit SHA"),
                 web_url: z.string().describe("The URL to view the commit in GitLab"),
                 message: z.string().describe("The full commit message"),
@@ -6828,45 +6938,51 @@ export type linearGetIssuesParamsType = z.infer<typeof linearGetIssuesParamsSche
 export const linearGetIssuesOutputSchema = z.object({
   success: z.boolean().describe("Whether the operation was successful"),
   error: z.string().describe("Error message if the operation failed").optional(),
-  issues: z
+  results: z
     .array(
       z.object({
-        id: z.string().describe("The issue ID").optional(),
-        title: z.string().describe("The issue title").optional(),
-        labels: z.array(z.string()).describe("The issue labels").optional(),
-        state: z.string().describe("The issue state").optional(),
-        assignee: z
+        name: z.string().describe("The issue title"),
+        url: z.string().describe("The URL to view the issue in Linear"),
+        contents: z
           .object({
-            id: z.string().describe("The assignee ID").optional(),
-            name: z.string().describe("The assignee name").optional(),
+            id: z.string().describe("The issue ID").optional(),
+            title: z.string().describe("The issue title").optional(),
+            labels: z.array(z.string()).describe("The issue labels").optional(),
+            state: z.string().describe("The issue state").optional(),
+            assignee: z
+              .object({
+                id: z.string().describe("The assignee ID").optional(),
+                name: z.string().describe("The assignee name").optional(),
+              })
+              .describe("The issue assignee")
+              .optional(),
+            due_date: z.string().describe("The issue due date").optional(),
+            project: z
+              .object({
+                id: z.string().describe("The project ID").optional(),
+                name: z.string().describe("The project name").optional(),
+              })
+              .describe("The project the issue belongs to")
+              .optional(),
+            team: z
+              .object({
+                id: z.string().describe("The team ID").optional(),
+                name: z.string().describe("The team name").optional(),
+              })
+              .describe("The team the issue belongs to")
+              .optional(),
+            url: z.string().describe("The issue URL").optional(),
+            comments: z
+              .array(
+                z.object({
+                  author_name: z.string().describe("The comment author name").optional(),
+                  comment: z.string().describe("The comment content").optional(),
+                }),
+              )
+              .describe("The issue comments")
+              .optional(),
           })
-          .describe("The issue assignee")
-          .optional(),
-        due_date: z.string().describe("The issue due date").optional(),
-        project: z
-          .object({
-            id: z.string().describe("The project ID").optional(),
-            name: z.string().describe("The project name").optional(),
-          })
-          .describe("The project the issue belongs to")
-          .optional(),
-        team: z
-          .object({
-            id: z.string().describe("The team ID").optional(),
-            name: z.string().describe("The team name").optional(),
-          })
-          .describe("The team the issue belongs to")
-          .optional(),
-        url: z.string().describe("The issue URL").optional(),
-        comments: z
-          .array(
-            z.object({
-              author_name: z.string().describe("The comment author name").optional(),
-              comment: z.string().describe("The comment content").optional(),
-            }),
-          )
-          .describe("The issue comments")
-          .optional(),
+          .describe("The issue details"),
       }),
     )
     .describe("List of issues matching the query")
@@ -6959,31 +7075,37 @@ export type linearGetProjectsParamsType = z.infer<typeof linearGetProjectsParams
 export const linearGetProjectsOutputSchema = z.object({
   success: z.boolean().describe("Whether the operation was successful"),
   error: z.string().describe("Error message if the operation failed").optional(),
-  projects: z
+  results: z
     .array(
       z.object({
-        id: z.string().describe("The project ID").optional(),
-        name: z.string().describe("The project name").optional(),
-        status: z.string().describe("The project status").optional(),
-        labels: z.array(z.string()).describe("The project labels").optional(),
-        content: z.string().describe("The project content").optional(),
-        description: z.string().describe("The project description").optional(),
-        creator: z
+        name: z.string().describe("The project name"),
+        url: z.string().describe("The URL to view the project in Linear"),
+        contents: z
           .object({
-            id: z.string().describe("The creator ID").optional(),
-            name: z.string().describe("The creator name").optional(),
+            id: z.string().describe("The project ID").optional(),
+            name: z.string().describe("The project name").optional(),
+            status: z.string().describe("The project status").optional(),
+            labels: z.array(z.string()).describe("The project labels").optional(),
+            content: z.string().describe("The project content").optional(),
+            description: z.string().describe("The project description").optional(),
+            creator: z
+              .object({
+                id: z.string().describe("The creator ID").optional(),
+                name: z.string().describe("The creator name").optional(),
+              })
+              .describe("The project creator")
+              .optional(),
+            lead: z
+              .object({
+                id: z.string().describe("The lead ID").optional(),
+                name: z.string().describe("The lead name").optional(),
+              })
+              .describe("The project lead")
+              .optional(),
+            progress: z.number().describe("The project progress percentage").optional(),
+            url: z.string().describe("The project URL").optional(),
           })
-          .describe("The project creator")
-          .optional(),
-        lead: z
-          .object({
-            id: z.string().describe("The lead ID").optional(),
-            name: z.string().describe("The lead name").optional(),
-          })
-          .describe("The project lead")
-          .optional(),
-        progress: z.number().describe("The project progress percentage").optional(),
-        url: z.string().describe("The project URL").optional(),
+          .describe("The project details"),
       }),
     )
     .describe("List of all projects")
@@ -7101,11 +7223,17 @@ export type linearGetTeamsParamsType = z.infer<typeof linearGetTeamsParamsSchema
 export const linearGetTeamsOutputSchema = z.object({
   success: z.boolean().describe("Whether the operation was successful"),
   error: z.string().describe("Error message if the operation failed").optional(),
-  teams: z
+  results: z
     .array(
       z.object({
-        id: z.string().describe("The team ID").optional(),
-        name: z.string().describe("The team name").optional(),
+        name: z.string().describe("The team name"),
+        url: z.string().describe("The URL to view the team in Linear"),
+        contents: z
+          .object({
+            id: z.string().describe("The team ID").optional(),
+            name: z.string().describe("The team name").optional(),
+          })
+          .describe("The team details"),
       }),
     )
     .describe("List of all teams")
@@ -7125,14 +7253,20 @@ export type hubspotGetContactsParamsType = z.infer<typeof hubspotGetContactsPara
 export const hubspotGetContactsOutputSchema = z.object({
   success: z.boolean().describe("Whether the operation was successful"),
   error: z.string().describe("Error message if the operation failed").optional(),
-  contacts: z
+  results: z
     .array(
       z.object({
-        id: z.string().describe("The contact ID").optional(),
-        email: z.string().describe("Contact email address").optional(),
-        firstname: z.string().describe("Contact first name").optional(),
-        lastname: z.string().describe("Contact last name").optional(),
-        createdate: z.string().describe("When the contact was created").optional(),
+        name: z.string().describe("The contact name"),
+        url: z.string().describe("The URL to view the contact in HubSpot"),
+        contents: z
+          .object({
+            id: z.string().describe("The contact ID").optional(),
+            email: z.string().describe("Contact email address").optional(),
+            firstname: z.string().describe("Contact first name").optional(),
+            lastname: z.string().describe("Contact last name").optional(),
+            createdate: z.string().describe("When the contact was created").optional(),
+          })
+          .describe("The contact details"),
       }),
     )
     .describe("List of contacts matching the search criteria")
@@ -7198,13 +7332,19 @@ export type hubspotGetCompaniesParamsType = z.infer<typeof hubspotGetCompaniesPa
 export const hubspotGetCompaniesOutputSchema = z.object({
   success: z.boolean().describe("Whether the operation was successful"),
   error: z.string().describe("Error message if the operation failed").optional(),
-  companies: z
+  results: z
     .array(
       z.object({
-        id: z.string().describe("The company ID").optional(),
-        name: z.string().describe("Company name").optional(),
-        domain: z.string().describe("Company domain").optional(),
-        createdAt: z.string().describe("When the company was created").optional(),
+        name: z.string().describe("The company name"),
+        url: z.string().describe("The URL to view the company in HubSpot"),
+        contents: z
+          .object({
+            id: z.string().describe("The company ID").optional(),
+            name: z.string().describe("Company name").optional(),
+            domain: z.string().describe("Company domain").optional(),
+            createdAt: z.string().describe("When the company was created").optional(),
+          })
+          .describe("The company details"),
       }),
     )
     .describe("List of companies matching the search criteria")
@@ -7265,14 +7405,20 @@ export type hubspotGetDealsParamsType = z.infer<typeof hubspotGetDealsParamsSche
 export const hubspotGetDealsOutputSchema = z.object({
   success: z.boolean().describe("Whether the operation was successful"),
   error: z.string().describe("Error message if the operation failed").optional(),
-  deals: z
+  results: z
     .array(
       z.object({
-        id: z.string().describe("The deal ID").optional(),
-        dealname: z.string().describe("Deal name").optional(),
-        amount: z.string().describe("Deal amount").optional(),
-        dealstage: z.string().describe("Deal stage").optional(),
-        createdAt: z.string().describe("When the deal was created").optional(),
+        name: z.string().describe("The deal name"),
+        url: z.string().describe("The URL to view the deal in HubSpot"),
+        contents: z
+          .object({
+            id: z.string().describe("The deal ID").optional(),
+            dealname: z.string().describe("Deal name").optional(),
+            amount: z.string().describe("Deal amount").optional(),
+            dealstage: z.string().describe("Deal stage").optional(),
+            createdAt: z.string().describe("When the deal was created").optional(),
+          })
+          .describe("The deal details"),
       }),
     )
     .describe("List of deals matching the search criteria")
@@ -7334,13 +7480,19 @@ export type hubspotGetTicketsParamsType = z.infer<typeof hubspotGetTicketsParams
 export const hubspotGetTicketsOutputSchema = z.object({
   success: z.boolean().describe("Whether the operation was successful"),
   error: z.string().describe("Error message if the operation failed").optional(),
-  tickets: z
+  results: z
     .array(
       z.object({
-        id: z.string().describe("The ticket ID").optional(),
-        subject: z.string().describe("Ticket subject").optional(),
-        status: z.string().describe("Ticket status").optional(),
-        createdAt: z.string().describe("When the ticket was created").optional(),
+        name: z.string().describe("The ticket subject"),
+        url: z.string().describe("The URL to view the ticket in HubSpot"),
+        contents: z
+          .object({
+            id: z.string().describe("The ticket ID").optional(),
+            subject: z.string().describe("Ticket subject").optional(),
+            status: z.string().describe("Ticket status").optional(),
+            createdAt: z.string().describe("When the ticket was created").optional(),
+          })
+          .describe("The ticket details"),
       }),
     )
     .describe("List of tickets matching the search criteria")

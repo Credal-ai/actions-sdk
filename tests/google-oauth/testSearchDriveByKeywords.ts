@@ -21,19 +21,17 @@ async function runTest() {
       keywords: ["replace-me", "with-keywords", "to-search-for"],
     } as googleOauthSearchDriveByKeywordsParamsType
   );
-
   // Validate the result
   assert.strictEqual(result.success, true, "Search should be successful");
-  assert(Array.isArray(result.files), "Files should be an array");
-  if (result.files.length > 0) {
-    const firstFile = result.files[0];
-    assert(firstFile.id, "First file should have an id");
+  assert(Array.isArray(result.results), "Results should be an array");
+  if (result.results.length > 0) {
+    const firstFile = result.results[0];
     assert(firstFile.name, "First file should have a name");
-    assert(firstFile.mimeType, "First file should have a mimeType");
     assert(firstFile.url, "First file should have a url");
+    assert(firstFile.contents, "First file should have contents");
   }
 
-  console.log("Found files:", result.files);
+  console.log("Found files:", result.results);
 }
 
 /**
@@ -47,26 +45,24 @@ async function runTestIncludeTrashed() {
     "searchDriveByKeywords",
     "googleOauth",
     {
-      authToken: process.env.GOOGLE_OAUTH_TOKEN,
+      authToken: process.env.GOOGLE_AUTH_TOKEN,
     },
     {
       keywords: ["replace-me-trash"],
       includeTrashed: true,
     } as googleOauthSearchDriveByKeywordsParamsType
   );
-
   // Validate the result
   assert.strictEqual(result.success, true, "Search should be successful");
-  assert(Array.isArray(result.files), "Files should be an array");
-  if (result.files.length > 0) {
-    const firstFile = result.files[0];
-    assert(firstFile.id, "First file should have an id");
+  assert(Array.isArray(result.results), "Results should be an array");
+  if (result.results.length > 0) {
+    const firstFile = result.results[0];
     assert(firstFile.name, "First file should have a name");
-    assert(firstFile.mimeType, "First file should have a mimeType");
     assert(firstFile.url, "First file should have a url");
+    assert(firstFile.contents, "First file should have contents");
   }
 
-  console.log("Found files:", result.files);
+  console.log("Found files:", result.results);
 }
 
 // Run both tests

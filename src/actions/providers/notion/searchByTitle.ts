@@ -21,10 +21,11 @@ interface NotionResult {
   };
 }
 
-interface SearchResult {
+interface NotionPageResult {
   id: string;
   title: string;
   url: string;
+  object: string;
 }
 
 // Notion response is not standard for title, title can be in different places
@@ -69,29 +70,35 @@ const searchByTitle: notionSearchByTitleFunction = async ({
 
     const { results: notionResults = [] } = response.data;
 
-    const results: SearchResult[] =
-      (notionResults as NotionResult[]).map((item: NotionResult): SearchResult => {
-        let title = "";
+    const results = (notionResults as NotionResult[]).map((item: NotionResult) => {
+      let title = "";
 
-        // Try to find a title property in properties (for pages)
-        if (item.properties) {
-          const titleProp = Object.values(item.properties).find(isTitleProperty);
-          if (titleProp && Array.isArray(titleProp.title)) {
-            title = titleProp.title.map(t => t.plain_text).join("") || "";
-          }
+      // Try to find a title property in properties (for pages)
+      if (item.properties) {
+        const titleProp = Object.values(item.properties).find(isTitleProperty);
+        if (titleProp && Array.isArray(titleProp.title)) {
+          title = titleProp.title.map(t => t.plain_text).join("") || "";
         }
+      }
 
-        // If still no title, try item.title (for databases)
-        if (!title && Array.isArray(item.title)) {
-          title = item.title.map(t => t.plain_text).join("") || "";
-        }
+      // If still no title, try item.title (for databases)
+      if (!title && Array.isArray(item.title)) {
+        title = item.title.map(t => t.plain_text).join("") || "";
+      }
 
-        return {
-          id: item.id,
-          title,
-          url: item.url,
-        };
-      }) || [];
+      const pageResult: NotionPageResult = {
+        id: item.id,
+        title,
+        url: item.url,
+        object: item.object,
+      };
+
+      return {
+        name: title || "Untitled",
+        url: item.url,
+        contents: pageResult,
+      };
+    });
 
     return { success: true, results };
   } catch (error) {

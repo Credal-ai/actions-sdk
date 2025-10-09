@@ -259,20 +259,17 @@ const searchGroup: gitlabSearchGroupFunction = async ({
       ...mergeRequests.map(mr => ({
         name: mr.metadata.title,
         url: mr.metadata.web_url,
-        type: "mergeRequest" as const,
-        contents: mr,
+        contents: { type: "mergeRequest" as const, ...mr },
       })),
       ...blobs.map(blob => ({
         name: blob.metadata.filename,
         url: blob.metadata.web_url,
-        type: "blob" as const,
-        contents: blob,
+        contents: { type: "blob" as const, ...blob },
       })),
       ...commits.map(commit => ({
         name: commit.message.split("\n")[0], // Use first line of commit message as name
         url: commit.web_url,
-        type: "commit" as const,
-        contents: commit,
+        contents: { type: "commit" as const, ...commit },
       })),
     ];
 

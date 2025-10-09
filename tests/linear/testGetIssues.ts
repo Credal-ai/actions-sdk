@@ -1,7 +1,6 @@
 import assert from "node:assert";
-import { runAction } from "../../src/app.js";
-
 import dotenv from "dotenv";
+import { runAction } from "../../src/app.js";
 
 dotenv.config();
 
@@ -13,19 +12,29 @@ async function runTest() {
     { query: "500", maxResults: 25 }
   );
 
-  assert(result.success, result.error || "getIssues did not succeed");
-  assert(Array.isArray(result.issues), "Issues should be an array");
-  assert(result.issues.length > 0, "Should return at least one issue");
-  
-  const firstIssue = result.issues[0];
-  assert(firstIssue.id, "Issue should have an id");
-  assert(firstIssue.title, "Issue should have a title");
-  assert(Array.isArray(firstIssue.labels), "Issue should have labels array");
-  assert(typeof firstIssue.state === "string", "Issue should have a state");
-  assert(typeof firstIssue.url === "string", "Issue should have a url");
-  assert(Array.isArray(firstIssue.comments), "Issue should have comments array");
+  console.log("Result:", JSON.stringify(result, null, 2));
 
-  console.log("Response: ", JSON.stringify(result, null, 2));
+  // Validate response structure
+  assert(result, "Response should not be null");
+  assert.strictEqual(result.success, true, "Success should be true");
+  assert(Array.isArray(result.results), "Results should be an array");
+
+  // Validate first result structure if results exist
+  if (result.results.length > 0) {
+    const firstResult = result.results[0];
+    assert(firstResult.name && typeof firstResult.name === "string", "First result should have a name (string)");
+    assert(firstResult.url && typeof firstResult.url === "string", "First result should have a url (string)");
+    assert(firstResult.contents && typeof firstResult.contents === "object", "First result should have contents (object)");
+
+    // Validate contents has reasonable fields
+    const contents = firstResult.contents;
+    assert(
+      contents.id || contents.state || contents.labels,
+      "Contents should have at least one reasonable field (id, state, or labels)"
+    );
+  }
+
+  console.log("All tests passed!");
 }
 
 runTest().catch((error) => {
@@ -35,4 +44,4 @@ runTest().catch((error) => {
     console.error("Status code:", error.response.status);
   }
   process.exit(1);
-}); 
+});

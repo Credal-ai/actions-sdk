@@ -26,22 +26,25 @@ async function runTest() {
 
   assert(result, "Response should not be null");
 
-  if (!result.success) {
+  if (result.error) {
     console.error("Okta API Error:", result.error);
   }
-  assert(result.success, `Action should be successful. Error: ${result.error}`);
+  assert(!result.error, `Action should be successful. Error: ${result.error}`);
   assert(
-    Array.isArray(result.groups),
-    "Response should contain a groups array"
+    Array.isArray(result.results),
+    "Response should contain a results array"
   );
   console.log(
-    `Successfully listed ${result.groups.length} groups for user ${testUserId}.`
+    `Successfully listed ${result.results.length} groups for user ${testUserId}.`
   );
-  if (result.groups.length > 0) {
-    const firstGroup = result.groups[0];
-    assert(firstGroup.id, "First group should have an ID");
-    assert(firstGroup.profile.name, "First group should have a name");
-    console.log("Sample group:", JSON.stringify(firstGroup, null, 2));
+  if (result.results.length > 0) {
+    const firstResult = result.results[0];
+    assert(firstResult.name && typeof firstResult.name === "string", "First result should have a name string");
+    assert(firstResult.url && typeof firstResult.url === "string", "First result should have a url string");
+    assert(firstResult.contents && typeof firstResult.contents === "object", "First result should have a contents object");
+    assert(firstResult.contents.id, "First result contents should have an ID");
+    assert(firstResult.contents.profile?.name, "First result contents should have a profile name");
+    console.log("Sample group:", JSON.stringify(firstResult, null, 2));
   }
 
   console.log("Okta listUserGroups test completed successfully.");

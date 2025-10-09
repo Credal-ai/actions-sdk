@@ -8,26 +8,22 @@ import { googlemapsNearbysearchRestaurantsOutputSchema } from "../../autogen/typ
 import { axiosClient } from "../../util/axiosClient.js";
 
 interface NearbySearchResult {
-  displayName: {
+  displayName?: {
     text: string;
   };
-  formattedAddress: string;
-  priceLevel: string;
-  rating: number;
-  primaryTypeDisplayName: {
+  formattedAddress?: string;
+  priceLevel?: string;
+  rating?: number;
+  primaryTypeDisplayName?: {
     text: string;
   };
-  editorialSummary:
-    | {
-        text: string;
-      }
-    | undefined;
-  regularOpeningHours:
-    | {
-        weekdayDescriptions: string[];
-      }
-    | undefined;
-  websiteUri: string;
+  editorialSummary?: {
+    text: string;
+  };
+  regularOpeningHours?: {
+    weekdayDescriptions: string[];
+  };
+  websiteUri?: string;
 }
 
 const INCLUDED_TYPES = ["restaurant"];
@@ -76,15 +72,20 @@ const nearbysearchRestaurants: googlemapsNearbysearchRestaurantsFunction = async
   );
 
   return googlemapsNearbysearchRestaurantsOutputSchema.parse({
+    success: true,
     results: response.data.places.map((place: NearbySearchResult) => ({
-      name: place.displayName.text,
-      address: place.formattedAddress,
-      priceLevel: place.priceLevel,
-      rating: place.rating,
-      primaryType: place.primaryTypeDisplayName.text,
-      editorialSummary: place.editorialSummary?.text || "",
-      openingHours: place.regularOpeningHours?.weekdayDescriptions.join("\n") || "",
-      websiteUri: place.websiteUri,
+      name: place.displayName?.text || "Unknown",
+      url: place.websiteUri || `https://maps.google.com/?q=${encodeURIComponent(place.formattedAddress || "")}`,
+      contents: {
+        name: place.displayName?.text || "Unknown",
+        address: place.formattedAddress || "",
+        priceLevel: place.priceLevel || "",
+        rating: place.rating || 0,
+        primaryType: place.primaryTypeDisplayName?.text || "",
+        editorialSummary: place.editorialSummary?.text || "",
+        openingHours: place.regularOpeningHours?.weekdayDescriptions?.join("\n") || "",
+        websiteUri: place.websiteUri || "",
+      },
     })),
   });
 };

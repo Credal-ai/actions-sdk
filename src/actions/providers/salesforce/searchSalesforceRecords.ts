@@ -56,22 +56,31 @@ const searchSalesforceRecords: salesforceSearchSalesforceRecordsFunction = async
     // Salesforce record types are confusing and non standard
     return {
       success: true,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      results: response.data.searchRecords.map((record: any) => {
-        const recordId = record.Id;
-        const webUrl = recordId ? `${baseUrl}/lightning/r/${recordId}/view` : undefined;
-        // Try common name fields in order of preference, using only what's available
-        const displayName =
-          record.Name ||
-          record.Title ||
-          record.Subject ||
-          record.CaseNumber ||
-          record.AccountName ||
-          record.ContactName ||
-          record.Id ||
-          webUrl;
-        return { name: displayName, url: webUrl, contents: record };
-      }),
+      results: response.data.searchRecords.map(
+        (record: {
+          Id: string;
+          Name?: string;
+          Title?: string;
+          Subject?: string;
+          CaseNumber?: string;
+          AccountName?: string;
+          ContactName?: string;
+        }) => {
+          const recordId = record.Id;
+          const webUrl = recordId ? `${baseUrl}/lightning/r/${recordId}/view` : undefined;
+          // Try common name fields in order of preference, using only what's available
+          const displayName =
+            record.Name ||
+            record.Title ||
+            record.Subject ||
+            record.CaseNumber ||
+            record.AccountName ||
+            record.ContactName ||
+            record.Id ||
+            webUrl;
+          return { name: displayName, url: webUrl, contents: record };
+        },
+      ),
     };
   } catch (error) {
     console.error("Error retrieving Salesforce record:", error);

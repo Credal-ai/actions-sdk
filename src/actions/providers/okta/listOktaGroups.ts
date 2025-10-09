@@ -8,6 +8,14 @@ import type {
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
 
+/**
+ * Converts an Okta API base URL to the admin console URL format.
+ * Example: https://trial-xxx.okta.com -> https://trial-xxx-admin.okta.com
+ */
+export function getOktaAdminUrl(baseUrl: string): string {
+  return baseUrl.replace(/^(https?:\/\/[^.]+)\.okta\.com/, "$1-admin.okta.com");
+}
+
 // page limit 200 recomended by Okta documentation
 // https://developer.okta.com/docs/api/openapi/okta-management/management/tag/Group/#tag/Group/operation/listGroups
 const DEFAULT_LIMIT = 200;
@@ -23,7 +31,6 @@ const listOktaGroups: oktaListOktaGroupsFunction = async ({
 
   if (!authToken || !baseUrl) {
     return {
-      success: false,
       error: "Missing Okta OAuth token (authToken) or base URL (baseUrl) in authParams.",
     };
   }
@@ -89,11 +96,17 @@ const listOktaGroups: oktaListOktaGroupsFunction = async ({
       } else {
         const errorDetail =
           response.data?.errorSummary || response.data?.message || `Okta API responded with status ${response.status}`;
-        return { success: false, error: `Failed to list groups: ${errorDetail}` };
+        return { error: `Failed to list groups: ${errorDetail}` };
       }
     }
 
-    return { success: true, groups };
+    return {
+      results: groups.map(group => ({
+        name: group.profile.name || "Unknown Group",
+        url: `${getOktaAdminUrl(baseUrl)}/admin/group/${group.id}`,
+        contents: group,
+      })),
+    };
   } catch (error) {
     console.error("Error listing groups:", error);
     let errorMessage = "Unknown error while listing groups";
@@ -107,7 +120,6 @@ const listOktaGroups: oktaListOktaGroupsFunction = async ({
     }
 
     return {
-      success: false,
       error: errorMessage,
     };
   }

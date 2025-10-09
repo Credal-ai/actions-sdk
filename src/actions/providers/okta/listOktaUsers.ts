@@ -7,6 +7,7 @@ import type {
   oktaListOktaUsersParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
+import { getOktaAdminUrl } from "./listOktaGroups.js";
 
 // page limit default in Okta documentation
 // https://developer.okta.com/docs/api/openapi/okta-management/management/tag/User/#tag/User/operation/listUsers
@@ -23,7 +24,6 @@ const listOktaUsers: oktaListOktaUsersFunction = async ({
 
   if (!authToken || !baseUrl) {
     return {
-      success: false,
       error: "Missing Okta OAuth token (authToken) or base URL (baseUrl) in authParams.",
     };
   }
@@ -47,7 +47,7 @@ const listOktaUsers: oktaListOktaUsersFunction = async ({
       endpointUrl.searchParams.set("limit", DEFAULT_LIMIT.toString());
     }
     let nextUrl = endpointUrl.toString();
-    let users: oktaListOktaUsersOutputType["users"] = [];
+    let users: oktaListOktaUsersOutputType["results"] = [];
     let totalFetched = 0;
 
     while (nextUrl) {
@@ -61,18 +61,26 @@ const listOktaUsers: oktaListOktaUsersFunction = async ({
 
       if (response.status === 200 && Array.isArray(response.data)) {
         users = users.concat(
-          response.data.map(user => ({
-            id: user.id,
-            status: user.status,
-            created: user.created,
-            activated: user.activated,
-            statusChanged: user.statusChanged,
-            lastLogin: user.lastLogin,
-            lastUpdated: user.lastUpdated,
-            passwordChanged: user.passwordChanged,
-            type: user.type,
-            profile: user.profile,
-            realmId: user.realmId,
+          response.data.map((user: Record<string, unknown>) => ({
+            name: (() => {
+              const profile = user.profile as Record<string, unknown>;
+              if (profile?.firstName && profile?.lastName) {
+                return `${profile.firstName} ${profile.lastName}`.trim();
+              }
+              return (profile?.email as string) || (user.id as string) || "Unknown User";
+            })(),
+            url: `${getOktaAdminUrl(baseUrl)}/admin/user/profile/view/${user.id}`,
+            contents: user as {
+              id: string;
+              profile: {
+                email?: string;
+                firstName?: string;
+                lastName?: string;
+                login?: string;
+                secondEmail?: string | null;
+                mobilePhone?: string;
+              };
+            },
           })),
         );
 
@@ -89,11 +97,13 @@ const listOktaUsers: oktaListOktaUsersFunction = async ({
       } else {
         const errorDetail =
           response.data?.errorSummary || response.data?.message || `Okta API responded with status ${response.status}`;
-        return { success: false, error: `Failed to list Okta users: ${errorDetail}` };
+        return { error: `Failed to list Okta users: ${errorDetail}` };
       }
     }
 
-    return { success: true, users };
+    return {
+      results: users,
+    };
   } catch (error) {
     console.error("Error listing Okta users:", error);
     let errorMessage = "Unknown error while listing Okta users";
@@ -107,7 +117,6 @@ const listOktaUsers: oktaListOktaUsersFunction = async ({
     }
 
     return {
-      success: false,
       error: errorMessage,
     };
   }

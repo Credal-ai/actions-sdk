@@ -38,7 +38,14 @@ const getTopNSearchResultUrls: firecrawlGetTopNSearchResultUrlsFunction = async 
       url: r.url,
     }));
 
-    return { results };
+    return {
+      success: true,
+      results: results.map(result => ({
+        name: result.name,
+        url: result.url,
+        contents: result,
+      })),
+    };
   } catch (error) {
     console.error("Error fetching search results from Firecrawl:", error);
     throw error;

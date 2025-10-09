@@ -7,6 +7,7 @@ import type {
   oktaListOktaUserGroupsParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
+import { getOktaAdminUrl } from "./listOktaGroups.js";
 
 const DEFAULT_LIMIT = 200;
 
@@ -21,7 +22,6 @@ const listOktaUserGroups: oktaListOktaUserGroupsFunction = async ({
 
   if (!authToken || !baseUrl) {
     return {
-      success: false,
       error: "Missing Okta OAuth token (authToken) or base URL (baseUrl) in authParams.",
     };
   }
@@ -42,7 +42,7 @@ const listOktaUserGroups: oktaListOktaUserGroupsFunction = async ({
       endpointUrl.searchParams.set("limit", DEFAULT_LIMIT.toString());
     }
     let nextUrl = endpointUrl.toString();
-    let groups: oktaListOktaUserGroupsOutputType["groups"] = [];
+    let groups: Array<{ id: string; profile: { name: string; description?: string } }> = [];
     let totalFetched = 0;
 
     while (nextUrl) {
@@ -70,11 +70,17 @@ const listOktaUserGroups: oktaListOktaUserGroupsFunction = async ({
       } else {
         const errorDetail =
           response.data?.errorSummary || response.data?.message || `Okta API responded with status ${response.status}`;
-        return { success: false, error: `Failed to list user groups: ${errorDetail}` };
+        return { error: `Failed to list user groups: ${errorDetail}` };
       }
     }
 
-    return { success: true, groups };
+    return {
+      results: groups.map(group => ({
+        name: group.profile.name || "Unknown Group",
+        url: `${getOktaAdminUrl(baseUrl)}/admin/group/${group.id}`,
+        contents: group,
+      })),
+    };
   } catch (error) {
     console.error("Error listing user groups:", error);
     let errorMessage = "Unknown error while listing user groups";
@@ -88,7 +94,6 @@ const listOktaUserGroups: oktaListOktaUserGroupsFunction = async ({
     }
 
     return {
-      success: false,
       error: errorMessage,
     };
   }

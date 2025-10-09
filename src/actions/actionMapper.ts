@@ -646,7 +646,7 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       paramsSchema: googlemapsValidateAddressParamsSchema,
       outputSchema: googlemapsValidateAddressOutputSchema,
     },
-    nearbysearch: {
+    nearbysearchRestaurants: {
       fn: nearbysearch,
       paramsSchema: googlemapsNearbysearchRestaurantsParamsSchema,
       outputSchema: googlemapsNearbysearchRestaurantsOutputSchema,

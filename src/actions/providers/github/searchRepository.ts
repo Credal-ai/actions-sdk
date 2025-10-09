@@ -197,9 +197,24 @@ const searchRepository: githubSearchRepositoryFunction = async ({
     });
 
   return {
-    code: codeResults,
-    commits: enrichedCommits,
-    issuesAndPullRequests: issuesAndPRs,
+    success: true,
+    results: [
+      ...codeResults.map(result => ({
+        name: result.name,
+        url: result.url,
+        contents: { type: "code" as const, ...result },
+      })),
+      ...enrichedCommits.map(result => ({
+        name: result.sha,
+        url: result.url,
+        contents: { type: "commit" as const, ...result },
+      })),
+      ...issuesAndPRs.map(result => ({
+        name: result.title,
+        url: result.html_url,
+        contents: { type: "issueOrPullRequest" as const, ...result },
+      })),
+    ],
   };
 };
 
