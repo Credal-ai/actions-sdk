@@ -1,4 +1,4 @@
-import { type KnownBlock, WebClient, LogLevel } from "@slack/web-api";
+import { type KnownBlock, WebClient } from "@slack/web-api";
 import type { RichTextBlockElement, RichTextElement } from "@slack/types";
 import type { Attachment } from "@slack/web-api/dist/types/response/ChannelsHistoryResponse.js";
 import type { Match } from "@slack/web-api/dist/types/response/SearchMessagesResponse.js";
@@ -384,10 +384,9 @@ const searchSlack: slackUserSearchSlackFunction = async ({
   params: slackUserSearchSlackParamsType;
   authParams: AuthParamsType;
 }): Promise<slackUserSearchSlackOutputType> => {
-  console.log("searchSlack");
   if (!authParams.authToken) throw new Error(MISSING_AUTH_TOKEN);
 
-  const client = new WebClient(authParams.authToken, { logLevel: LogLevel.WARN });
+  const client = new WebClient(authParams.authToken);
   const cache = new SlackUserCache(client);
 
   const { emails, topic, timeRange, limit = 20, channel } = params;
@@ -419,7 +418,6 @@ const searchSlack: slackUserSearchSlackFunction = async ({
 
   const searchResults = await Promise.all(searchPromises);
   searchResults.forEach(matches => allMatches.push(...matches));
-  console.log("searchResults length", allMatches.length);
 
   const expanded: SlackSearchMessage[] = [];
   const channelInfoCache = new Map<string, { isIm: boolean; isMpim: boolean; members: string[] }>();
@@ -432,16 +430,15 @@ const searchSlack: slackUserSearchSlackFunction = async ({
     const rootTs = anchor.thread_ts || m.ts;
     let channelInfo = channelInfoCache.get(m.channel.id);
 
-    if (!m.channel?.id) continue;
     if (!channelInfo) {
-      // @ts-expect-error asffasasf
+      // @ts-expect-error typescript cannot infer the type of the channel id within queuedSlack
       const info = await queuedSlack("conversations.info", () => client.conversations.info({ channel: m.channel.id }));
       const isIm = info.channel?.is_im ?? false;
       const isMpim = info.channel?.is_mpim ?? false;
       let members: string[] = [];
       if (isIm || isMpim) {
         const res = await queuedSlack("conversations.members", () =>
-          // @ts-expect-error asffasasf
+          // @ts-expect-error typescript cannot infer the type of the channel id within queuedSlack
           client.conversations.members({ channel: m.channel.id }),
         );
         members = res.members ?? [];
