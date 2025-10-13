@@ -408,14 +408,33 @@ async function searchScoped(input: {
   limit: number;
 }) {
   const { client, scope, topic, timeRange, limit } = input;
-  const parts: string[] = [];
-  if (scope?.trim()) parts.push(`in:${scope.trim()}`);
+  const parts = [`in:${scope}`];
   if (topic?.trim()) parts.push(topic.trim());
   const tf = timeFilter(timeRange);
   if (tf) parts.push(tf);
+
   const query = parts.join(" ");
   const searchRes = await queuedSlack("search.messages", () =>
-    client.search.messages({ query, count: limit, highlight: true }),
+    client.search.messages({ query, count: limit, highlight: true })
+  );
+  return searchRes.messages?.matches ?? [];
+}
+
+async function searchByTopic(input: {
+  client: WebClient;
+  topic?: string;
+  timeRange: TimeRange;
+  limit: number;
+}) {
+  const { client, topic, timeRange, limit } = input;
+  const parts: string[] = [];
+  if (topic?.trim()) parts.push(topic.trim());
+  const tf = timeFilter(timeRange);
+  if (tf) parts.push(tf);
+
+  const query = parts.join(" ");
+  const searchRes = await queuedSlack("search.messages", () =>
+    client.search.messages({ query, count: limit, highlight: true })
   );
   return searchRes.messages?.matches ?? [];
 }
@@ -460,7 +479,7 @@ const searchSlack: slackUserSearchSlackFunction = async ({
     searchPromises.push(searchScoped({ client, scope: normalizeChannelOperand(channel), topic, timeRange, limit }));
   }
   if (topic) {
-    searchPromises.push(searchScoped({ client, scope: "", topic, timeRange, limit }));
+    searchPromises.push(searchByTopic({ client, topic, timeRange, limit }));
   }
 
   const searchResults = await Promise.all(searchPromises);
