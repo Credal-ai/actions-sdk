@@ -15,31 +15,22 @@ import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 /* ===================== PER-FAMILY QUEUES ===================== */
 
-// Slack applies rate limits per endpoint family, not globally.
-// These values reflect realistic steady-state limits.
 const queues = {
-  conversations: new PQueue({ interval: 1000, intervalCap: 3 }), // 1 req/sec
-  users: new PQueue({ interval: 60000, intervalCap: 20 }), // 20 req/min
-  chat: new PQueue({ interval: 10000, intervalCap: 5 }), // 5 req/10s
-  search: new PQueue({ interval: 60000, intervalCap: 20 }), // 20 req/min
-  other: new PQueue({ interval: 1000, intervalCap: 2 }), // fallback
+  conversations: new PQueue({ interval: 1000, intervalCap: 3 }),
+  users: new PQueue({ interval: 60000, intervalCap: 20 }),
+  chat: new PQueue({ interval: 10000, intervalCap: 5 }),
+  search: new PQueue({ interval: 60000, intervalCap: 20 }),
+  other: new PQueue({ interval: 1000, intervalCap: 2 }),
 };
 
-/**
- * Auto-routes each Slack API call to the correct rate-limit bucket.
- */
 async function queuedSlack<T>(methodName: string, fn: () => Promise<T>): Promise<T> {
   const lower = methodName.toLowerCase();
   let bucket: keyof typeof queues = "other";
-
   if (lower.startsWith("conversations.")) bucket = "conversations";
   else if (lower.startsWith("users.")) bucket = "users";
   else if (lower.startsWith("chat.")) bucket = "chat";
   else if (lower.startsWith("search.")) bucket = "search";
-
-  return queues[bucket].add(async () => {
-    return await fn();
-  });
+  return queues[bucket].add(fn);
 }
 
 /* ===================== CONSTANTS ===================== */
@@ -72,6 +63,54 @@ interface SlackMessage {
   thread_ts?: string;
   blocks?: KnownBlock[];
   attachments?: Attachment[];
+}
+
+/* ===================== HELPERS ===================== */
+
+function normalizeChannelOperand(ch: string): string {
+  const s = ch.trim();
+  if (/^[CGD][A-Z0-9]/i.test(s)) return s;
+  return s.replace(/^#/, "");
+}
+
+function fmtDaysAgo(n: number) {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.toISOString().slice(0, 10);
+}
+
+function timeFilter(range?: TimeRange) {
+  switch (range) {
+    case "today":
+      return "on:today";
+    case "yesterday":
+      return "on:yesterday";
+    case "last_7d":
+      return `after:${fmtDaysAgo(7)}`;
+    case "last_30d":
+      return `after:${fmtDaysAgo(30)}`;
+    default:
+      return "";
+  }
+}
+
+function hasOverlap(messages: SlackMessage[], ids: string[], minOverlap: number): boolean {
+  const participants = new Set(messages.map(m => m.user).filter(Boolean));
+  const overlap = ids.filter(id => participants.has(id)).length;
+  return overlap >= minOverlap;
+}
+
+function dedupeAndSort(results: SlackSearchMessage[]): SlackSearchMessage[] {
+  const seen = new Set<string>();
+  const out: SlackSearchMessage[] = [];
+  for (const r of results) {
+    const key = `${r.channelId}-${r.ts}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      out.push(r);
+    }
+  }
+  return out.sort((a, b) => Number(b.ts) - Number(a.ts));
 }
 
 /* ===================== USER CACHE ===================== */
@@ -124,116 +163,131 @@ export function extractMessageText(m: SlackMessage | undefined): string | undefi
   if (!m) return undefined;
   const pieces: string[] = [];
 
-  const walkRichTextInline = (el: RichTextElement): string[] => {
+  const walkRichTextInline = (el: RichTextElement) => {
+    const blockPieces: string[] = [];
     switch (el.type) {
       case "text":
-        return [el.text];
+        blockPieces.push(el.text);
+        break;
       case "link":
-        return [el.text || el.url];
+        blockPieces.push(el.text || el.url);
+        break;
       case "user":
-        return [`<@${el.user_id}>`];
+        blockPieces.push(`<@${el.user_id}>`);
+        break;
       case "channel":
-        return [`<#${el.channel_id}>`];
+        blockPieces.push(`<#${el.channel_id}>`);
+        break;
       case "emoji":
-        return [`:${el.name}:`];
+        blockPieces.push(`:${el.name}:`);
+        break;
       case "broadcast":
-        return [`@${el.range}`];
+        blockPieces.push(`@${el.range}`);
+        break;
       case "date":
-        return [el.fallback ?? `<date:${el.timestamp}>`];
+        blockPieces.push(el.fallback ?? `<date:${el.timestamp}>`);
+        break;
       case "team":
-        return [`<team:${el.team_id}>`];
+        blockPieces.push(`<team:${el.team_id}>`);
+        break;
       case "usergroup":
-        return [`<usergroup:${el.usergroup_id}>`];
-      default:
-        return [];
+        blockPieces.push(`<usergroup:${el.usergroup_id}>`);
+        break;
     }
+    return blockPieces;
   };
 
-  const walkRichTextElement = (el: RichTextBlockElement): string[] => {
+  const walkRichTextElement = (el: RichTextBlockElement) => {
+    const result: string[] = [];
     switch (el.type) {
       case "rich_text_section":
       case "rich_text_quote":
-        return el.elements.flatMap(walkRichTextInline);
+        result.push(el.elements.map(walkRichTextInline).join("\n"));
+        break;
       case "rich_text_list":
-        return el.elements.flatMap(section => section.elements.flatMap(walkRichTextInline));
+        result.push(el.elements.map(section => section.elements.map(walkRichTextInline).join("\n")).join("\n"));
+        break;
       case "rich_text_preformatted":
-        return el.elements.flatMap(walkRichTextInline);
-      default:
-        return [];
+        result.push(el.elements.map(walkRichTextInline).join("\n"));
+        break;
     }
+    return result;
   };
 
-  const walkBlock = (block: KnownBlock): string[] => {
+  const walkBlock = (block: KnownBlock) => {
+    const blockPieces: string[] = [];
     switch (block.type) {
       case "section":
-        return [
-          block.text?.text ?? "",
-          ...(block.fields?.map(f => f.text || "") ?? []),
-          "accessory" in block && block.accessory && "text" in block.accessory
-            ? (block.accessory.text?.text ?? "")
-            : "",
-        ].filter(Boolean);
+        if (block.text?.text) blockPieces.push(block.text.text);
+        if (block.fields) {
+          for (const f of block.fields) if (f.text) blockPieces.push(f.text);
+        }
+        if (block.accessory && "text" in block.accessory && block.accessory.text) {
+          blockPieces.push(block.accessory.text.text);
+        }
+        break;
       case "context":
-        return (block.elements ?? []).map(el => ("text" in el && el.text) || "").filter(Boolean);
+        if (Array.isArray(block.elements)) {
+          block.elements.forEach(el => {
+            if ("text" in el && el.text) blockPieces.push(el.text);
+          });
+        }
+        break;
       case "header":
-        return block.text?.text ? [block.text.text] : [];
+        if (block.text?.text) blockPieces.push(block.text.text);
+        break;
       case "rich_text":
-        return block.elements.flatMap(walkRichTextElement);
+        blockPieces.push(block.elements.map(walkRichTextElement).join("\n"));
+        break;
       case "markdown":
-        return block.text ? [block.text] : [];
+        if (block.text) blockPieces.push(block.text);
+        break;
       case "video":
-        return [block.title?.text, block.description?.text].filter(Boolean) as string[];
+        if (block.title?.text) blockPieces.push(block.title.text);
+        if (block.description?.text) blockPieces.push(block.description.text);
+        break;
       case "image":
-        return block.title?.text ? [block.title.text] : [];
+        if (block.title?.text) blockPieces.push(block.title.text);
+        break;
       case "input":
-        return [block.label?.text, block.hint?.text].filter(Boolean) as string[];
-      default:
-        return [];
+        if (block.label?.text) blockPieces.push(block.label.text);
+        if (block.hint?.text) blockPieces.push(block.hint.text);
+        break;
     }
+    return blockPieces;
   };
 
-  if (Array.isArray(m.blocks)) pieces.push(...m.blocks.flatMap(walkBlock));
-  if (m.text) pieces.push(m.text);
+  let blockText = "";
+  if (Array.isArray(m.blocks)) {
+    const blockPieces = m.blocks.map(b => walkBlock(b));
+    blockText = blockPieces.join("\n");
+  }
+
+  if (blockText) {
+    pieces.push(blockText);
+  } else if (m.text) {
+    pieces.push(m.text);
+  }
+
   if (m.attachments) {
     for (const att of m.attachments) {
       if (att.pretext) pieces.push(att.pretext);
       if (att.title) pieces.push(att.title);
       if (att.text) pieces.push(att.text);
-      if (att.fields) for (const f of att.fields) pieces.push([f.title, f.value].filter(Boolean).join(": "));
+      if (att.fields) {
+        for (const f of att.fields) {
+          const title = f.title?.trim() ?? "";
+          const value = f.value?.trim() ?? "";
+          if (title || value) {
+            pieces.push(title && value ? `${title}: ${value}` : title || value);
+          }
+        }
+      }
     }
   }
 
   const out = Array.from(new Set(pieces.map(s => s.trim()).filter(Boolean))).join("\n");
   return out || undefined;
-}
-
-/* ===================== HELPERS ===================== */
-
-function fmtDaysAgo(n: number) {
-  const d = new Date();
-  d.setDate(d.getDate() - n);
-  return d.toISOString().slice(0, 10);
-}
-
-function timeFilter(range?: TimeRange) {
-  switch (range) {
-    case "today":
-      return "on:today";
-    case "yesterday":
-      return "on:yesterday";
-    case "last_7d":
-      return `after:${fmtDaysAgo(7)}`;
-    case "last_30d":
-      return `after:${fmtDaysAgo(30)}`;
-    default:
-      return "";
-  }
-}
-
-function hasOverlap(messages: SlackMessage[], ids: string[], minOverlap: number): boolean {
-  const participants = new Set(messages.map(m => m.user).filter(Boolean));
-  const overlap = ids.filter(id => participants.has(id)).length;
-  return overlap >= minOverlap;
 }
 
 /* ===================== SLACK API HELPERS ===================== */
@@ -280,30 +334,6 @@ async function getPermalink(client: WebClient, channel: string, ts: string) {
   }
 }
 
-async function fetchOneMessage(client: WebClient, channel: string, ts: string): Promise<SlackMessage | undefined> {
-  const r = await queuedSlack("conversations.history", () =>
-    client.conversations.history({ channel, latest: ts, inclusive: true, limit: 1 }),
-  );
-  const message = r.messages?.[0];
-  if (!message) return undefined;
-  return {
-    ts: message.ts,
-    text: message.text,
-    user: message.user,
-    username: message.username,
-    thread_ts: message.thread_ts,
-    blocks: message.blocks as unknown as KnownBlock[],
-    attachments: message.attachments,
-  };
-}
-
-async function fetchThread(client: WebClient, channel: string, threadTs: string) {
-  const r = await queuedSlack("conversations.replies", () =>
-    client.conversations.replies({ channel, ts: threadTs, limit: 20 }),
-  );
-  return r.messages?.map(transformToSlackMessage) ?? [];
-}
-
 function transformToSlackMessage(message: MessageElement): SlackMessage {
   return {
     ts: message.ts,
@@ -316,6 +346,22 @@ function transformToSlackMessage(message: MessageElement): SlackMessage {
   };
 }
 
+async function fetchOneMessage(client: WebClient, channel: string, ts: string): Promise<SlackMessage | undefined> {
+  const r = await queuedSlack("conversations.history", () =>
+    client.conversations.history({ channel, latest: ts, inclusive: true, limit: 1 }),
+  );
+  const message = r.messages?.[0];
+  if (!message) return undefined;
+  return transformToSlackMessage(message);
+}
+
+async function fetchThread(client: WebClient, channel: string, threadTs: string) {
+  const r = await queuedSlack("conversations.replies", () =>
+    client.conversations.replies({ channel, ts: threadTs, limit: 20 }),
+  );
+  return r.messages?.map(transformToSlackMessage) ?? [];
+}
+
 async function fetchContextWindow(client: WebClient, channel: string, ts: string) {
   const out: SlackMessage[] = [];
   const anchor = await fetchOneMessage(client, channel, ts);
@@ -326,13 +372,11 @@ async function fetchContextWindow(client: WebClient, channel: string, ts: string
   const after = await queuedSlack("conversations.history", () =>
     client.conversations.history({ channel, oldest: ts, inclusive: false, limit: 3 }),
   );
-  const beforeMsgs = before.messages?.map(transformToSlackMessage) ?? [];
-  const afterMsgs = after.messages?.map(transformToSlackMessage) ?? [];
-  out.push(...beforeMsgs.reverse(), anchor, ...afterMsgs);
+  const beforeMsgs = before.messages?.map(transformToSlackMessage);
+  const afterMsgs = after.messages?.map(transformToSlackMessage);
+  out.push(...(beforeMsgs ?? []).reverse(), anchor, ...(afterMsgs ?? []));
   return out;
 }
-
-/* ===================== ENTITY EXPANSION ===================== */
 
 async function expandSlackEntities(cache: SlackUserCache, raw: string): Promise<string> {
   let text = raw;
@@ -364,7 +408,8 @@ async function searchScoped(input: {
   limit: number;
 }) {
   const { client, scope, topic, timeRange, limit } = input;
-  const parts = [`in:${scope}`];
+  const parts: string[] = [];
+  if (scope?.trim()) parts.push(`in:${scope.trim()}`);
   if (topic?.trim()) parts.push(topic.trim());
   const tf = timeFilter(timeRange);
   if (tf) parts.push(tf);
@@ -385,15 +430,14 @@ const searchSlack: slackUserSearchSlackFunction = async ({
   authParams: AuthParamsType;
 }): Promise<slackUserSearchSlackOutputType> => {
   if (!authParams.authToken) throw new Error(MISSING_AUTH_TOKEN);
-
   const client = new WebClient(authParams.authToken);
   const cache = new SlackUserCache(client);
 
   const { emails, topic, timeRange, limit = 20, channel } = params;
 
-  const myUser = await queuedSlack("auth.test", () => client.auth.test());
-  const myUserId = myUser.user_id!;
-  await cache.get(myUserId);
+  const { user_id: myUserId } = await queuedSlack("auth.test", () => client.auth.test());
+  if (!myUserId) throw new Error("Failed to get current user ID");
+  const meInfo = await cache.get(myUserId);
 
   const targetIds = emails?.length ? await lookupUserIdsByEmail(client, emails, cache) : [];
   const filteredTargetIds = targetIds.filter(id => id !== myUserId);
@@ -404,13 +448,16 @@ const searchSlack: slackUserSearchSlackFunction = async ({
   if (filteredTargetIds.length === 1) {
     searchPromises.push(searchScoped({ client, scope: `<@${filteredTargetIds[0]}>`, topic, timeRange, limit }));
   } else if (filteredTargetIds.length >= 2) {
-    const mpimName = await tryGetMPIMName(client, filteredTargetIds);
-    if (mpimName) searchPromises.push(searchScoped({ client, scope: mpimName, topic, timeRange, limit }));
+    const searchMPIM = (async () => {
+      const mpimName = await tryGetMPIMName(client, filteredTargetIds);
+      return mpimName ? searchScoped({ client, scope: mpimName, topic, timeRange, limit }) : [];
+    })();
+    searchPromises.push(searchMPIM);
     searchPromises.push(
       ...filteredTargetIds.map(id => searchScoped({ client, scope: `<@${id}>`, topic, timeRange, limit })),
     );
   } else if (channel) {
-    searchPromises.push(searchScoped({ client, scope: channel, topic, timeRange, limit }));
+    searchPromises.push(searchScoped({ client, scope: normalizeChannelOperand(channel), topic, timeRange, limit }));
   }
   if (topic) {
     searchPromises.push(searchScoped({ client, scope: "", topic, timeRange, limit }));
@@ -419,8 +466,8 @@ const searchSlack: slackUserSearchSlackFunction = async ({
   const searchResults = await Promise.all(searchPromises);
   searchResults.forEach(matches => allMatches.push(...matches));
 
-  const expanded: SlackSearchMessage[] = [];
   const channelInfoCache = new Map<string, { isIm: boolean; isMpim: boolean; members: string[] }>();
+  const expandedRaw: Array<SlackSearchMessage | null> = [];
 
   for await (const m of allMatches) {
     if (!m.ts || !m.channel?.id) continue;
@@ -431,10 +478,12 @@ const searchSlack: slackUserSearchSlackFunction = async ({
     let channelInfo = channelInfoCache.get(m.channel.id);
 
     if (!channelInfo) {
-      // @ts-expect-error typescript cannot infer the type of the channel id within queuedSlack
-      const info = await queuedSlack("conversations.info", () => client.conversations.info({ channel: m.channel.id }));
-      const isIm = info.channel?.is_im ?? false;
-      const isMpim = info.channel?.is_mpim ?? false;
+      const convoInfo = await queuedSlack("conversations.info", () =>
+        // @ts-expect-error typescript cannot infer the type of the channel id within queuedSlack
+        client.conversations.info({ channel: m.channel.id }),
+      );
+      const isIm = convoInfo.channel?.is_im ?? false;
+      const isMpim = convoInfo.channel?.is_mpim ?? false;
       let members: string[] = [];
       if (isIm || isMpim) {
         const res = await queuedSlack("conversations.members", () =>
@@ -481,7 +530,7 @@ const searchSlack: slackUserSearchSlackFunction = async ({
     const anchorUser = anchor.user ? await cache.get(anchor.user) : undefined;
     const anchorText = extractMessageText(anchor);
 
-    expanded.push({
+    expandedRaw.push({
       channelId: m.channel.id,
       ts: rootTs,
       text: anchorText ? await expandSlackEntities(cache, anchorText) : undefined,
@@ -496,14 +545,16 @@ const searchSlack: slackUserSearchSlackFunction = async ({
     });
   }
 
+  const results = dedupeAndSort(expandedRaw.filter(Boolean) as SlackSearchMessage[]);
+
   return {
     query: topic ?? "",
-    results: expanded.map(r => ({
+    results: results.map(r => ({
       name: r.text || "Untitled",
       url: r.permalink || "",
       contents: r,
     })),
-    currentUser: { userId: myUserId },
+    currentUser: { userId: myUserId, userName: meInfo?.name, userEmail: meInfo?.email },
   };
 };
 
