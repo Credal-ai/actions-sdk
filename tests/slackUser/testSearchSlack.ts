@@ -9,11 +9,11 @@ async function runTest() {
   const result1 = (await runAction(
     "searchSlack",
     "slackUser",
-    { authToken: process.env.SLACK_FLATIRON_AUTH_TOKEN },
-    { emails: ["anamika.parida@flatiron.com"], limit: 15, topic: "Github Copilot", timeRange: "latest" }
+    { authToken: process.env.SLACK_AUTH_TOKEN },
+    { emails: ["jack@credal.ai"], limit: 10, topic: "flatiron" }
   )) as slackUserSearchSlackOutputType;
 
-  /*// Multiple person DM
+  // Multiple person DM
   const result2 = (await runAction(
     "searchSlack",
     "slackUser",
@@ -47,13 +47,13 @@ async function runTest() {
     "slackUser",
     { authToken: process.env.SLACK_AUTH_TOKEN },
     { channel: "general", limit: 1, timeRange: "all" }
-  )) as slackUserSearchSlackOutputType;*/
+  )) as slackUserSearchSlackOutputType;
 
   console.log(
     "Send Message Test Response 1: " + JSON.stringify(result1, null, 2)
   );
 
-  /*console.log(
+  console.log(
     "Send Message Test Response 2: " + JSON.stringify(result2, null, 2)
   );
 
@@ -67,7 +67,7 @@ async function runTest() {
 
   console.log(
     "Send Message Test Response 5: " + JSON.stringify(result5, null, 2)
-  );*/
+  );
 }
 
 runTest().catch((error) => {
