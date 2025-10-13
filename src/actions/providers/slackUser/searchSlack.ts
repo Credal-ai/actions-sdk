@@ -19,10 +19,10 @@ import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 // These values reflect realistic steady-state limits.
 const queues = {
   conversations: new PQueue({ interval: 1000, intervalCap: 3 }), // 1 req/sec
-  users: new PQueue({ interval: 60000, intervalCap: 20 }),       // 20 req/min
-  chat: new PQueue({ interval: 10000, intervalCap: 5 }),          // 5 req/10s
-  search: new PQueue({ interval: 60000, intervalCap: 20 }),       // 20 req/min
-  other: new PQueue({ interval: 1000, intervalCap: 2 }),          // fallback
+  users: new PQueue({ interval: 60000, intervalCap: 20 }), // 20 req/min
+  chat: new PQueue({ interval: 10000, intervalCap: 5 }), // 5 req/10s
+  search: new PQueue({ interval: 60000, intervalCap: 20 }), // 20 req/min
+  other: new PQueue({ interval: 1000, intervalCap: 2 }), // fallback
 };
 
 /**
@@ -126,16 +126,26 @@ export function extractMessageText(m: SlackMessage | undefined): string | undefi
 
   const walkRichTextInline = (el: RichTextElement): string[] => {
     switch (el.type) {
-      case "text": return [el.text];
-      case "link": return [el.text || el.url];
-      case "user": return [`<@${el.user_id}>`];
-      case "channel": return [`<#${el.channel_id}>`];
-      case "emoji": return [`:${el.name}:`];
-      case "broadcast": return [`@${el.range}`];
-      case "date": return [el.fallback ?? `<date:${el.timestamp}>`];
-      case "team": return [`<team:${el.team_id}>`];
-      case "usergroup": return [`<usergroup:${el.usergroup_id}>`];
-      default: return [];
+      case "text":
+        return [el.text];
+      case "link":
+        return [el.text || el.url];
+      case "user":
+        return [`<@${el.user_id}>`];
+      case "channel":
+        return [`<#${el.channel_id}>`];
+      case "emoji":
+        return [`:${el.name}:`];
+      case "broadcast":
+        return [`@${el.range}`];
+      case "date":
+        return [el.fallback ?? `<date:${el.timestamp}>`];
+      case "team":
+        return [`<team:${el.team_id}>`];
+      case "usergroup":
+        return [`<usergroup:${el.usergroup_id}>`];
+      default:
+        return [];
     }
   };
 
@@ -160,7 +170,7 @@ export function extractMessageText(m: SlackMessage | undefined): string | undefi
           block.text?.text ?? "",
           ...(block.fields?.map(f => f.text || "") ?? []),
           "accessory" in block && block.accessory && "text" in block.accessory
-            ? block.accessory.text?.text ?? ""
+            ? (block.accessory.text?.text ?? "")
             : "",
         ].filter(Boolean);
       case "context":
@@ -189,9 +199,7 @@ export function extractMessageText(m: SlackMessage | undefined): string | undefi
       if (att.pretext) pieces.push(att.pretext);
       if (att.title) pieces.push(att.title);
       if (att.text) pieces.push(att.text);
-      if (att.fields)
-        for (const f of att.fields)
-          pieces.push([f.title, f.value].filter(Boolean).join(": "));
+      if (att.fields) for (const f of att.fields) pieces.push([f.title, f.value].filter(Boolean).join(": "));
     }
   }
 
@@ -209,11 +217,16 @@ function fmtDaysAgo(n: number) {
 
 function timeFilter(range?: TimeRange) {
   switch (range) {
-    case "today": return "on:today";
-    case "yesterday": return "on:yesterday";
-    case "last_7d": return `after:${fmtDaysAgo(7)}`;
-    case "last_30d": return `after:${fmtDaysAgo(30)}`;
-    default: return "";
+    case "today":
+      return "on:today";
+    case "yesterday":
+      return "on:yesterday";
+    case "last_7d":
+      return `after:${fmtDaysAgo(7)}`;
+    case "last_30d":
+      return `after:${fmtDaysAgo(30)}`;
+    default:
+      return "";
   }
 }
 
@@ -248,14 +261,10 @@ async function lookupUserIdsByEmail(client: WebClient, emails: string[], cache: 
 
 async function tryGetMPIMName(client: WebClient, userIds: string[]): Promise<string | null> {
   try {
-    const res = await queuedSlack("conversations.open", () =>
-      client.conversations.open({ users: userIds.join(",") })
-    );
+    const res = await queuedSlack("conversations.open", () => client.conversations.open({ users: userIds.join(",") }));
     const id = res.channel?.id;
     if (!id) return null;
-    const info = await queuedSlack("conversations.info", () =>
-      client.conversations.info({ channel: id })
-    );
+    const info = await queuedSlack("conversations.info", () => client.conversations.info({ channel: id }));
     return info.channel?.name ?? null;
   } catch {
     return null;
@@ -264,9 +273,7 @@ async function tryGetMPIMName(client: WebClient, userIds: string[]): Promise<str
 
 async function getPermalink(client: WebClient, channel: string, ts: string) {
   try {
-    const res = await queuedSlack("chat.getPermalink", () =>
-      client.chat.getPermalink({ channel, message_ts: ts })
-    );
+    const res = await queuedSlack("chat.getPermalink", () => client.chat.getPermalink({ channel, message_ts: ts }));
     return res.permalink;
   } catch {
     return undefined;
@@ -275,7 +282,7 @@ async function getPermalink(client: WebClient, channel: string, ts: string) {
 
 async function fetchOneMessage(client: WebClient, channel: string, ts: string): Promise<SlackMessage | undefined> {
   const r = await queuedSlack("conversations.history", () =>
-    client.conversations.history({ channel, latest: ts, inclusive: true, limit: 1 })
+    client.conversations.history({ channel, latest: ts, inclusive: true, limit: 1 }),
   );
   const message = r.messages?.[0];
   if (!message) return undefined;
@@ -292,7 +299,7 @@ async function fetchOneMessage(client: WebClient, channel: string, ts: string): 
 
 async function fetchThread(client: WebClient, channel: string, threadTs: string) {
   const r = await queuedSlack("conversations.replies", () =>
-    client.conversations.replies({ channel, ts: threadTs, limit: 20 })
+    client.conversations.replies({ channel, ts: threadTs, limit: 20 }),
   );
   return r.messages?.map(transformToSlackMessage) ?? [];
 }
@@ -314,10 +321,10 @@ async function fetchContextWindow(client: WebClient, channel: string, ts: string
   const anchor = await fetchOneMessage(client, channel, ts);
   if (!anchor) return out;
   const before = await queuedSlack("conversations.history", () =>
-    client.conversations.history({ channel, latest: ts, inclusive: false, limit: 3 })
+    client.conversations.history({ channel, latest: ts, inclusive: false, limit: 3 }),
   );
   const after = await queuedSlack("conversations.history", () =>
-    client.conversations.history({ channel, oldest: ts, inclusive: false, limit: 3 })
+    client.conversations.history({ channel, oldest: ts, inclusive: false, limit: 3 }),
   );
   const beforeMsgs = before.messages?.map(transformToSlackMessage) ?? [];
   const afterMsgs = after.messages?.map(transformToSlackMessage) ?? [];
@@ -335,7 +342,7 @@ async function expandSlackEntities(cache: SlackUserCache, raw: string): Promise<
     userIds.map(async id => {
       const u = await cache.get(id);
       if (u?.name) idToName[id] = u.name;
-    })
+    }),
   );
   text = text
     .replace(MENTION_USER_RE, (_, id) => `@${idToName[id] ?? id}`)
@@ -363,7 +370,7 @@ async function searchScoped(input: {
   if (tf) parts.push(tf);
   const query = parts.join(" ");
   const searchRes = await queuedSlack("search.messages", () =>
-    client.search.messages({ query, count: limit, highlight: true })
+    client.search.messages({ query, count: limit, highlight: true }),
   );
   return searchRes.messages?.matches ?? [];
 }
@@ -400,7 +407,9 @@ const searchSlack: slackUserSearchSlackFunction = async ({
   } else if (filteredTargetIds.length >= 2) {
     const mpimName = await tryGetMPIMName(client, filteredTargetIds);
     if (mpimName) searchPromises.push(searchScoped({ client, scope: mpimName, topic, timeRange, limit }));
-    searchPromises.push(...filteredTargetIds.map(id => searchScoped({ client, scope: `<@${id}>`, topic, timeRange, limit })));
+    searchPromises.push(
+      ...filteredTargetIds.map(id => searchScoped({ client, scope: `<@${id}>`, topic, timeRange, limit })),
+    );
   } else if (channel) {
     searchPromises.push(searchScoped({ client, scope: channel, topic, timeRange, limit }));
   }
@@ -433,7 +442,7 @@ const searchSlack: slackUserSearchSlackFunction = async ({
       if (isIm || isMpim) {
         const res = await queuedSlack("conversations.members", () =>
           // @ts-expect-error asffasasf
-          client.conversations.members({ channel: m.channel.id })
+          client.conversations.members({ channel: m.channel.id }),
         );
         members = res.members ?? [];
       }
