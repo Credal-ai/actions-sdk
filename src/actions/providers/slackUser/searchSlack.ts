@@ -415,17 +415,12 @@ async function searchScoped(input: {
 
   const query = parts.join(" ");
   const searchRes = await queuedSlack("search.messages", () =>
-    client.search.messages({ query, count: limit, highlight: true })
+    client.search.messages({ query, count: limit, highlight: true }),
   );
   return searchRes.messages?.matches ?? [];
 }
 
-async function searchByTopic(input: {
-  client: WebClient;
-  topic?: string;
-  timeRange: TimeRange;
-  limit: number;
-}) {
+async function searchByTopic(input: { client: WebClient; topic?: string; timeRange: TimeRange; limit: number }) {
   const { client, topic, timeRange, limit } = input;
   const parts: string[] = [];
   if (topic?.trim()) parts.push(topic.trim());
@@ -434,7 +429,7 @@ async function searchByTopic(input: {
 
   const query = parts.join(" ");
   const searchRes = await queuedSlack("search.messages", () =>
-    client.search.messages({ query, count: limit, highlight: true })
+    client.search.messages({ query, count: limit, highlight: true }),
   );
   return searchRes.messages?.matches ?? [];
 }
