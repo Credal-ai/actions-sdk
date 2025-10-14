@@ -463,7 +463,9 @@ const searchSlack: slackUserSearchSlackFunction = async ({
   } else if (filteredTargetIds.length >= 2) {
     const searchMPIM = async () => {
       const mpimName = await tryGetMPIMName(client, filteredTargetIds);
-      return mpimName ? searchScoped({ client, scope: mpimName, topic, timeRange, limit: Math.max(Math.floor(limit / 2), 1) }) : [];
+      return mpimName
+        ? searchScoped({ client, scope: mpimName, topic, timeRange, limit: Math.max(Math.floor(limit / 2), 1) })
+        : [];
     };
     searchPromises.push(searchMPIM());
     searchPromises.push(
@@ -479,11 +481,24 @@ const searchSlack: slackUserSearchSlackFunction = async ({
     );
   } else if (channel) {
     searchPromises.push(
-      searchScoped({ client, scope: normalizeChannelOperand(channel), topic, timeRange, limit: Math.max(Math.floor(limit / 2), 1) }),
+      searchScoped({
+        client,
+        scope: normalizeChannelOperand(channel),
+        topic,
+        timeRange,
+        limit: Math.max(Math.floor(limit / 2), 1),
+      }),
     );
   }
   if (topic) {
-    searchPromises.push(searchByTopic({ client, topic, timeRange, limit: Math.max(Math.floor(limit / Math.max(searchPromises.length, 1)), 1) }));
+    searchPromises.push(
+      searchByTopic({
+        client,
+        topic,
+        timeRange,
+        limit: Math.max(Math.floor(limit / Math.max(searchPromises.length, 1)), 1),
+      }),
+    );
   }
 
   const searchResults = await Promise.all(searchPromises);
