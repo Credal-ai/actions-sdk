@@ -463,17 +463,17 @@ const searchSlack: slackUserSearchSlackFunction = async ({
   } else if (filteredTargetIds.length >= 2) {
     const searchMPIM = async () => {
       const mpimName = await tryGetMPIMName(client, filteredTargetIds);
-      return mpimName ? searchScoped({ client, scope: mpimName, topic, timeRange, limit }) : [];
+      return mpimName ? searchScoped({ client, scope: mpimName, topic, timeRange, limit: Math.floor(limit/2) }) : [];
     };
     searchPromises.push(searchMPIM());
     searchPromises.push(
-      ...filteredTargetIds.map(id => searchScoped({ client, scope: `<@${id}>`, topic, timeRange, limit })),
+      ...filteredTargetIds.map(id => searchScoped({ client, scope: `<@${id}>`, topic, timeRange, limit: Math.floor(limit/filteredTargetIds.length) })),
     );
   } else if (channel) {
-    searchPromises.push(searchScoped({ client, scope: normalizeChannelOperand(channel), topic, timeRange, limit }));
+    searchPromises.push(searchScoped({ client, scope: normalizeChannelOperand(channel), topic, timeRange, limit: Math.floor(limit/2) }));
   }
   if (topic) {
-    searchPromises.push(searchByTopic({ client, topic, timeRange, limit }));
+    searchPromises.push(searchByTopic({ client, topic, timeRange, limit: Math.floor(limit/searchPromises.length) }));
   }
 
   const searchResults = await Promise.all(searchPromises);
