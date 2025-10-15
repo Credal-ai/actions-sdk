@@ -5552,18 +5552,26 @@ export type salesforceSearchAllSalesforceRecordsParamsType = z.infer<
 
 export const salesforceSearchAllSalesforceRecordsOutputSchema = z.object({
   success: z.boolean().describe("Whether the records were successfully retrieved"),
-  searchRecords: z
+  results: z
     .array(
       z
         .object({
-          id: z.string().describe("The Salesforce record ID").optional(),
-          attributes: z
+          name: z.string().describe("The name of the record").optional(),
+          url: z.string().describe("The URL of the record").optional(),
+          contents: z
             .object({
-              type: z.string().describe("The Salesforce object type"),
-              url: z.string().describe("The Salesforce record URL"),
+              id: z.string().describe("The Salesforce record ID").optional(),
+              attributes: z
+                .object({
+                  type: z.string().describe("The Salesforce object type"),
+                  url: z.string().describe("The Salesforce record URL"),
+                })
+                .catchall(z.any())
+                .describe("Metadata about the Salesforce record")
+                .optional(),
             })
             .catchall(z.any())
-            .describe("Metadata about the Salesforce record")
+            .describe("The contents of the record")
             .optional(),
         })
         .describe("A record from Salesforce"),
@@ -5612,6 +5620,7 @@ export const salesforceSearchSalesforceRecordsOutputSchema = z.object({
                 .describe("Metadata about the Salesforce record")
                 .optional(),
             })
+            .catchall(z.any())
             .describe("The contents of the record")
             .optional(),
         })

@@ -29,7 +29,7 @@ const searchAllSalesforceRecords: salesforceSearchAllSalesforceRecordsFunction =
 
   let customObject = "";
   if (params.usesLightningKnowledge) {
-    customObject = `Knowledge__kav(Article_Body__c, Title),
+    customObject = `Knowledge__kav(Article_Body__c, Title, Link_to_Community_Article__c),
       FeedItem(Id, Body, Title, ParentId, Parent.Name, CreatedBy.Name, CreatedDate, CommentCount),
       FeedComment(Id, CommentBody, FeedItemId, ParentId, CreatedBy.Name, CreatedDate),
       EmailMessage(Id, Subject, TextBody, FromAddress, ToAddress, ParentId, CreatedDate, Incoming)`;
@@ -63,14 +63,25 @@ const searchAllSalesforceRecords: salesforceSearchAllSalesforceRecordsFunction =
     }
 
     // Salesforce record types are confusing and non standard
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const recordsWithUrl = response.data.searchRecords.map((record: any) => {
-      const recordId = record.Id;
-      const webUrl = recordId ? `${baseUrl}/lightning/r/${recordId}/view` : undefined;
-      return { ...record, webUrl };
-    });
-
-    return { success: true, searchRecords: recordsWithUrl };
+    return {
+      success: true,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      results: response.data.searchRecords.map((record: any) => {
+        const recordId = record.Id;
+        const webUrl = recordId ? `${baseUrl}/lightning/r/${recordId}/view` : undefined;
+        // Try common name fields in order of preference, using only what's available
+        const displayName =
+          record.Name ||
+          record.Title ||
+          record.Subject ||
+          record.CaseNumber ||
+          record.AccountName ||
+          record.ContactName ||
+          record.Id ||
+          webUrl;
+        return { name: displayName, url: webUrl, contents: record };
+      }),
+    };
   } catch (error) {
     console.error("Error retrieving Salesforce record:", error);
     return {

@@ -10860,32 +10860,47 @@ export const salesforceSearchAllSalesforceRecordsDefinition: ActionTemplate = {
         type: "boolean",
         description: "Whether the records were successfully retrieved",
       },
-      searchRecords: {
+      results: {
         type: "array",
         description: "The records that match the search",
         items: {
           type: "object",
           description: "A record from Salesforce",
           properties: {
-            id: {
+            name: {
               type: "string",
-              description: "The Salesforce record ID",
+              description: "The name of the record",
             },
-            attributes: {
+            url: {
+              type: "string",
+              description: "The URL of the record",
+            },
+            contents: {
               type: "object",
-              description: "Metadata about the Salesforce record",
+              description: "The contents of the record",
+              additionalProperties: true,
               properties: {
-                type: {
+                id: {
                   type: "string",
-                  description: "The Salesforce object type",
+                  description: "The Salesforce record ID",
                 },
-                url: {
-                  type: "string",
-                  description: "The Salesforce record URL",
+                attributes: {
+                  type: "object",
+                  description: "Metadata about the Salesforce record",
+                  properties: {
+                    type: {
+                      type: "string",
+                      description: "The Salesforce object type",
+                    },
+                    url: {
+                      type: "string",
+                      description: "The Salesforce record URL",
+                    },
+                  },
+                  required: ["type", "url"],
+                  additionalProperties: true,
                 },
               },
-              required: ["type", "url"],
-              additionalProperties: true,
             },
           },
         },
@@ -10957,6 +10972,7 @@ export const salesforceSearchSalesforceRecordsDefinition: ActionTemplate = {
             contents: {
               type: "object",
               description: "The contents of the record",
+              additionalProperties: true,
               properties: {
                 id: {
                   type: "string",
