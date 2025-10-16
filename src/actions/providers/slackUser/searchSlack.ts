@@ -46,6 +46,8 @@ interface SlackMessage {
   thread_ts?: string;
   blocks?: KnownBlock[];
   attachments?: Attachment[];
+  reactions?: Array<{ name: string; count: number; users: string[] }>;
+  files?: Array<{ name?: string; title?: string; mimetype?: string; url_private?: string }>;
 }
 
 /* ===================== Cache ===================== */
@@ -332,6 +334,10 @@ function transformToSlackMessage(message: MessageElement): SlackMessage {
     thread_ts: message.thread_ts,
     blocks: message.blocks as unknown as KnownBlock[],
     attachments: message.attachments,
+    reactions: message.reactions as Array<{ name: string; count: number; users: string[] }> | undefined,
+    files: message.files as
+      | Array<{ name?: string; title?: string; mimetype?: string; url_private?: string }>
+      | undefined,
   };
 }
 
@@ -417,17 +423,49 @@ async function searchByTopic(input: { client: WebClient; topic?: string; timeRan
   return searchRes.messages?.matches ?? [];
 }
 
+/**
+ * Deduplicates and merges Slack threads.
+ * When multiple search hits point to the same thread (same thread_ts),
+ * we merge them into a single result with all unique messages in context.
+ */
 function dedupeAndSort(results: SlackSearchMessage[]): SlackSearchMessage[] {
-  const seen = new Set<string>();
-  const out: SlackSearchMessage[] = [];
-  for (const r of results) {
-    const key = `${r.channelId}-${r.ts}`;
-    if (!seen.has(key)) {
-      seen.add(key);
-      out.push(r);
+  // Group by thread: channelId + ts (where ts is the root thread_ts)
+  const threadMap = new Map<string, SlackSearchMessage>();
+
+  for (const result of results) {
+    const threadKey = `${result.channelId}-${result.ts}`;
+    const existing = threadMap.get(threadKey);
+
+    if (!existing) {
+      // First time seeing this thread
+      threadMap.set(threadKey, result);
+    } else {
+      // Merge: dedupe context messages by ts
+      const existingTsSet = new Set(existing.context?.map(m => m.ts) ?? []);
+      const newMessages = (result.context ?? []).filter(m => !existingTsSet.has(m.ts));
+
+      if (newMessages.length > 0) {
+        existing.context = [...(existing.context ?? []), ...newMessages].sort((a, b) => Number(a.ts) - Number(b.ts));
+      }
+
+      // Update permalink if missing
+      if (!existing.permalink && result.permalink) {
+        existing.permalink = result.permalink;
+      }
+
+      // Merge members if needed (for DMs/MPIMs)
+      if (result.members && result.members.length > 0) {
+        const existingMemberIds = new Set(existing.members?.map(m => m.userId) ?? []);
+        const newMembers = result.members.filter(m => !existingMemberIds.has(m.userId));
+        if (newMembers.length > 0) {
+          existing.members = [...(existing.members ?? []), ...newMembers];
+        }
+      }
     }
   }
-  return out.sort((a, b) => Number(b.ts) - Number(a.ts));
+
+  // Sort by timestamp descending (most recent first)
+  return Array.from(threadMap.values()).sort((a, b) => Number(b.ts) - Number(a.ts));
 }
 
 /* ===================== MAIN EXPORT ===================== */
@@ -443,7 +481,7 @@ const searchSlack: slackUserSearchSlackFunction = async ({
   const client = new WebClient(authParams.authToken);
   const cache = new SlackUserCache(client);
 
-  const { emails, topic, timeRange, limit = 20, channel } = params;
+  const { emails, topic, timeRange, limit = 20, channel, fetchAdjacentMessages = true } = params;
 
   const { user_id: myUserId } = await client.auth.test();
   if (!myUserId) throw new Error("Failed to get my user ID.");
@@ -534,10 +572,12 @@ const searchSlack: slackUserSearchSlackFunction = async ({
               await fetchThread(client, m.channel.id, rootTs),
               m.permalink ?? (await getPermalink(client, m.channel.id, rootTs)),
             ]
-          : [
-              await fetchContextWindow(client, m.channel.id, m.ts),
-              m.permalink ?? (await getPermalink(client, m.channel.id, m.ts)),
-            ];
+          : fetchAdjacentMessages
+            ? [
+                await fetchContextWindow(client, m.channel.id, m.ts),
+                m.permalink ?? (await getPermalink(client, m.channel.id, m.ts)),
+              ]
+            : [[], m.permalink ?? (await getPermalink(client, m.channel.id, m.ts))];
 
         // filter logic
         let passesFilter = false;
@@ -549,18 +589,37 @@ const searchSlack: slackUserSearchSlackFunction = async ({
         }
         if (filteredTargetIds.length && !passesFilter) return null;
 
-        const context = await Promise.all(
+        const allContext = await Promise.all(
           contextMsgs.map(async t => {
             const u = t.user ? await cache.get(t.user) : undefined;
             const rawText = extractMessageText(t);
+
+            // Build interaction description
+            const interactions: string[] = [];
+            if (t.reactions && t.reactions.length > 0) {
+              interactions.push(`Reactions: ${t.reactions.map(r => `:${r.name}: (${r.count})`).join(", ")}`);
+            }
+            if (t.files && t.files.length > 0) {
+              interactions.push(`Files: ${t.files.map(f => f.title || f.name || "Untitled").join(", ")}`);
+            }
+
             return {
               ts: t.ts!,
               text: rawText ? await expandSlackEntities(cache, rawText) : undefined,
               userEmail: u?.email,
               userName: u?.name ?? (t as SlackMessage).username,
+              ...(interactions.length > 0 ? { interactions: interactions.join(" | ") } : {}),
             };
           }),
         );
+
+        // Deduplicate by timestamp - appears the the context array returned can have duplicates
+        const seenTs = new Set<string>();
+        const context = allContext.filter(msg => {
+          if (seenTs.has(msg.ts)) return false;
+          seenTs.add(msg.ts);
+          return true;
+        });
 
         const anchorUser = anchor?.user ? await cache.get(anchor.user) : undefined;
         const anchorText = extractMessageText(anchor);
