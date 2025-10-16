@@ -773,6 +773,11 @@ export const slackUserSearchSlackDefinition: ActionTemplate = {
         maximum: 100,
         default: 50,
       },
+      fetchAdjacentMessages: {
+        type: "boolean",
+        description: "Fetch surrounding messages for context. Threads always fetch all replies.",
+        default: true,
+      },
     },
   },
   output: {

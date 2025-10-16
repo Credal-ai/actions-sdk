@@ -440,6 +440,10 @@ export const slackUserSearchSlackParamsSchema = z.object({
     .lte(100)
     .describe("Max matches to request (passed to Slack search; results are then hydrated and sorted newest-first).")
     .default(50),
+  fetchAdjacentMessages: z
+    .boolean()
+    .describe("Fetch surrounding messages for context. Threads always fetch all replies.")
+    .default(true),
 });
 
 export type slackUserSearchSlackParamsType = z.infer<typeof slackUserSearchSlackParamsSchema>;
