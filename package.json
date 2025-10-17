@@ -64,7 +64,7 @@
     "json-schema-to-zod": "^2.5.0",
     "jsonwebtoken": "^9.0.2",
     "limiter": "^3.0.0",
-    "mammoth": "^1.4.27",
+    "mammoth": "^1.11.00",
     "mongodb": "^6.13.1",
     "node-forge": "^1.3.1",
     "officeparser": "^5.2.0",
