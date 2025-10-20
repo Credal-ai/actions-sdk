@@ -18,7 +18,9 @@ export async function invokeAction<P, A>(input: InvokeActionInput<P, A>) {
 
   const safeParseParams = ActionMapper[provider][name].paramsSchema.safeParse(parameters);
   if (!safeParseParams.success) {
-    throw new Error(`Invalid parameters for action '${name}': ${safeParseParams.error}`);
+    throw new Error(
+      `There was an error passing parameters to action '${name}': ${safeParseParams.error}\n\nThis is common for certain thinking models. Please try again and contact support for help if the issue persists.`,
+    );
   }
 
   return providerFunction({ params: parameters, authParams: { ...authParams, provider } });
