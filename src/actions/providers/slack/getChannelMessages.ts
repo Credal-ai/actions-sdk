@@ -28,7 +28,7 @@ const getChannelMessages: slackGetChannelMessagesFunction = async ({
   }
 
   const client = new WebClient(authParams.authToken);
-  const { channelId: inputChannelId, channelName, oldest } = params;
+  const { channelId: inputChannelId, channelName, oldest, latest, limit, cursor, inclusive } = params;
   if (!inputChannelId && !channelName) {
     throw Error("Either channelId or channelName must be provided");
   }
@@ -47,6 +47,10 @@ const getChannelMessages: slackGetChannelMessagesFunction = async ({
   const messages = await client.conversations.history({
     channel: channelId,
     oldest: oldest,
+    latest: latest,
+    limit: limit,
+    cursor: cursor,
+    inclusive: inclusive,
   });
   if (!messages.ok) {
     throw Error(`Failed to fetch messages from channel ${channelName}, channelId: ${channelId}`);
@@ -54,6 +58,8 @@ const getChannelMessages: slackGetChannelMessagesFunction = async ({
 
   return {
     messages: messages.messages as SlackMessage[],
+    hasMore: messages.has_more,
+    nextCursor: messages.response_metadata?.next_cursor,
   };
 };
 

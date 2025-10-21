@@ -480,6 +480,18 @@ actions:
           oldest:
             type: string
             description: Only messages after this Unix timestamp will be included in results
+          latest:
+            type: string
+            description: Only messages before this Unix timestamp will be included. Default is the current time. Use with oldest to create a time range.
+          limit:
+            type: number
+            description: Maximum number of messages to return (1-999). Default is 100. Slack recommends no more than 200 results at a time for performance.
+          cursor:
+            type: string
+            description: Pagination cursor from a previous response's next_cursor value. Use to navigate through large result sets.
+          inclusive:
+            type: boolean
+            description: Include messages with oldest or latest timestamps in results. Default is false. Ignored unless either timestamp is specified.
       output:
         type: object
         required: [messages]
@@ -501,6 +513,12 @@ actions:
                 ts:
                   type: string
                   description: The timestamp of the message
+          hasMore:
+            type: boolean
+            description: Indicates if there are more messages available beyond the current result set
+          nextCursor:
+            type: string
+            description: Cursor to use for fetching the next page of results. Only present when hasMore is true.
   slackUser:
     searchSlack:
       description: Search Slack (DM/MPIM by emails or channel) with optional topic/time filter. Automatically hydrates each hit (full thread if threaded, otherwise a small surrounding context).
