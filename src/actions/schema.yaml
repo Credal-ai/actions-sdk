@@ -489,9 +489,9 @@ actions:
           cursor:
             type: string
             description: Pagination cursor from a previous response's next_cursor value. Use to navigate through large result sets.
-          inclusive:
+          includeThreadReplies:
             type: boolean
-            description: Include messages with oldest or latest timestamps in results. Default is false. Ignored unless either timestamp is specified.
+            description: If true, includes all replies for messages that are part of a thread. Default is false.
       output:
         type: object
         required: [messages]
