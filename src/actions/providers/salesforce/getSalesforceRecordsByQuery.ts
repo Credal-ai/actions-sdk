@@ -74,7 +74,7 @@ const getSalesforceRecordsByQuery: salesforceGetSalesforceRecordsByQueryFunction
           return {
             name: displayName,
             url: record.webUrl,
-            content: record,
+            contents: record,
           };
         }) || [],
     };
