@@ -396,6 +396,28 @@ export const slackGetChannelMessagesParamsSchema = z.object({
     .describe("Name of the channel to summarize. Either the channelId or channelName must be provided.")
     .optional(),
   oldest: z.string().describe("Only messages after this Unix timestamp will be included in results"),
+  latest: z
+    .string()
+    .describe(
+      "Only messages before this Unix timestamp will be included. Default is the current time. Use with oldest to create a time range.",
+    )
+    .optional(),
+  limit: z
+    .number()
+    .describe(
+      "Maximum number of messages to return (1-999). Default is 100. Slack recommends no more than 200 results at a time for performance.",
+    )
+    .optional(),
+  cursor: z
+    .string()
+    .describe(
+      "Pagination cursor from a previous response's next_cursor value. Use to navigate through large result sets.",
+    )
+    .optional(),
+  includeThreadReplies: z
+    .boolean()
+    .describe("If true, includes all replies for messages that are part of a thread. Default is false.")
+    .optional(),
 });
 
 export type slackGetChannelMessagesParamsType = z.infer<typeof slackGetChannelMessagesParamsSchema>;
@@ -412,6 +434,14 @@ export const slackGetChannelMessagesOutputSchema = z.object({
         .describe("A message in the channel"),
     )
     .describe("The messages in the channel"),
+  hasMore: z
+    .boolean()
+    .describe("Indicates if there are more messages available beyond the current result set")
+    .optional(),
+  nextCursor: z
+    .string()
+    .describe("Cursor to use for fetching the next page of results. Only present when hasMore is true.")
+    .optional(),
 });
 
 export type slackGetChannelMessagesOutputType = z.infer<typeof slackGetChannelMessagesOutputSchema>;

@@ -689,6 +689,25 @@ export const slackGetChannelMessagesDefinition: ActionTemplate = {
         type: "string",
         description: "Only messages after this Unix timestamp will be included in results",
       },
+      latest: {
+        type: "string",
+        description:
+          "Only messages before this Unix timestamp will be included. Default is the current time. Use with oldest to create a time range.",
+      },
+      limit: {
+        type: "number",
+        description:
+          "Maximum number of messages to return (1-999). Default is 100. Slack recommends no more than 200 results at a time for performance.",
+      },
+      cursor: {
+        type: "string",
+        description:
+          "Pagination cursor from a previous response's next_cursor value. Use to navigate through large result sets.",
+      },
+      includeThreadReplies: {
+        type: "boolean",
+        description: "If true, includes all replies for messages that are part of a thread. Default is false.",
+      },
     },
   },
   output: {
@@ -717,6 +736,14 @@ export const slackGetChannelMessagesDefinition: ActionTemplate = {
             },
           },
         },
+      },
+      hasMore: {
+        type: "boolean",
+        description: "Indicates if there are more messages available beyond the current result set",
+      },
+      nextCursor: {
+        type: "string",
+        description: "Cursor to use for fetching the next page of results. Only present when hasMore is true.",
       },
     },
   },
