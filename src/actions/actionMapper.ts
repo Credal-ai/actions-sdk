@@ -731,7 +731,49 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
   },
   jira: jiraActions,
   jiraOrg: jiraActions,
-  jiraDataCenter: jiraActions,
+  jiraDataCenter: {
+    // Exclude Service Desk: getServiceDesks, createServiceDeskRequest, publicCommentOnServiceDeskRequest
+    getJiraIssuesByQuery: {
+      fn: getJiraIssuesByQuery,
+      paramsSchema: jiraGetJiraIssuesByQueryParamsSchema,
+      outputSchema: jiraGetJiraIssuesByQueryOutputSchema,
+    },
+    assignJiraTicket: {
+      fn: assignJiraTicket,
+      paramsSchema: jiraAssignJiraTicketParamsSchema,
+      outputSchema: jiraAssignJiraTicketOutputSchema,
+    },
+    commentJiraTicket: {
+      fn: commentJiraTicket,
+      paramsSchema: jiraCommentJiraTicketParamsSchema,
+      outputSchema: jiraCommentJiraTicketOutputSchema,
+    },
+    createJiraTicket: {
+      fn: createJiraTicket,
+      paramsSchema: jiraCreateJiraTicketParamsSchema,
+      outputSchema: jiraCreateJiraTicketOutputSchema,
+    },
+    getJiraTicketDetails: {
+      fn: getJiraTicketDetails,
+      paramsSchema: jiraGetJiraTicketDetailsParamsSchema,
+      outputSchema: jiraGetJiraTicketDetailsOutputSchema,
+    },
+    getJiraTicketHistory: {
+      fn: getJiraTicketHistory,
+      paramsSchema: jiraGetJiraTicketHistoryParamsSchema,
+      outputSchema: jiraGetJiraTicketHistoryOutputSchema,
+    },
+    updateJiraTicketDetails: {
+      fn: updateJiraTicketDetails,
+      paramsSchema: jiraUpdateJiraTicketDetailsParamsSchema,
+      outputSchema: jiraUpdateJiraTicketDetailsOutputSchema,
+    },
+    updateJiraTicketStatus: {
+      fn: updateJiraTicketStatus,
+      paramsSchema: jiraUpdateJiraTicketStatusParamsSchema,
+      outputSchema: jiraUpdateJiraTicketStatusOutputSchema,
+    },
+  },
   openstreetmap: {
     getLatitudeLongitudeFromLocation: {
       fn: getLatitudeLongitudeFromLocation,
