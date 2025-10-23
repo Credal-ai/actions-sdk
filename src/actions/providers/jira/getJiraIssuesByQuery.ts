@@ -61,7 +61,24 @@ type JiraSearchResponse = {
       duedate?: string | null;
     };
   }[];
+  startAt: number;
+  maxResults: number;
+  total: number;
 };
+
+function extractPlainText(adf: JiraADFDoc | null | undefined): string {
+  if (!adf || adf.type !== "doc" || !Array.isArray(adf.content)) return "";
+
+  return adf.content
+    .map(block => {
+      if (block.type === "paragraph" && Array.isArray(block.content)) {
+        return block.content.map(inline => inline.text ?? "").join("");
+      }
+      return "";
+    })
+    .join("\n")
+    .trim();
+}
 
 const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
   params,
@@ -78,9 +95,6 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
     throw new Error("Auth token is required");
   }
 
-  const queryParams = new URLSearchParams();
-  queryParams.set("jql", query);
-  queryParams.set("maxResults", String(limit != undefined && limit <= DEFAULT_LIMIT ? limit : DEFAULT_LIMIT));
   const fields = [
     "key",
     "id",
@@ -100,22 +114,46 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
     "timespent",
     "aggregatetimeoriginalestimate",
   ];
-  queryParams.set("fields", fields.join(","));
 
   const searchEndpoint = strategy.getSearchEndpoint();
-  const fullApiUrl = `${apiUrl}${searchEndpoint}?${queryParams.toString()}`;
+  const requestedLimit = limit ?? DEFAULT_LIMIT;
+  const allIssues = [];
+  let startAt = 0;
 
   try {
-    const response = await axiosClient.get<JiraSearchResponse>(fullApiUrl, {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-        Accept: "application/json",
-      },
-    });
+    // Keep fetching pages until we have all requested issues
+    while (allIssues.length < requestedLimit) {
+      // Calculate how many results to fetch in this request
+      const remainingIssues = requestedLimit - allIssues.length;
+      const maxResults = Math.min(remainingIssues, DEFAULT_LIMIT);
+
+      const queryParams = new URLSearchParams();
+      queryParams.set("jql", query);
+      queryParams.set("maxResults", String(maxResults));
+      queryParams.set("startAt", String(startAt));
+      queryParams.set("fields", fields.join(","));
+
+      const fullApiUrl = `${apiUrl}${searchEndpoint}?${queryParams.toString()}`;
+
+      const response = await axiosClient.get<JiraSearchResponse>(fullApiUrl, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          Accept: "application/json",
+        },
+      });
+
+      const { issues, total } = response.data;
+
+      allIssues.push(...issues);
+      if (allIssues.length >= total || issues.length === 0) {
+        break;
+      }
+
+      startAt += issues.length;
+    }
 
     return {
-      success: true,
-      results: response.data.issues.map(issue => {
+      results: allIssues.map(issue => {
         const { id, key, fields } = issue;
         const {
           summary,
@@ -171,24 +209,10 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
   } catch (error: unknown) {
     console.error("Error retrieving Jira issues:", error);
     return {
-      success: false,
+      results: [],
       error: getErrorMessage(error),
     };
   }
 };
-
-function extractPlainText(adf: JiraADFDoc | null | undefined): string {
-  if (!adf || adf.type !== "doc" || !Array.isArray(adf.content)) return "";
-
-  return adf.content
-    .map(block => {
-      if (block.type === "paragraph" && Array.isArray(block.content)) {
-        return block.content.map(inline => inline.text ?? "").join("");
-      }
-      return "";
-    })
-    .join("\n")
-    .trim();
-}
 
 export default getJiraIssuesByQuery;

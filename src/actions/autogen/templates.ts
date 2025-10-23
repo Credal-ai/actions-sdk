@@ -1600,12 +1600,7 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
   },
   output: {
     type: "object",
-    required: ["success"],
     properties: {
-      success: {
-        type: "boolean",
-        description: "Whether the records were successfully retrieved",
-      },
       results: {
         type: "array",
         description: "The results of the Jira issues",
@@ -2292,12 +2287,7 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
   },
   output: {
     type: "object",
-    required: ["success"],
     properties: {
-      success: {
-        type: "boolean",
-        description: "Whether the records were successfully retrieved",
-      },
       results: {
         type: "array",
         description: "The results of the Jira issues",
@@ -2984,12 +2974,7 @@ export const jiraDataCenterGetJiraIssuesByQueryDefinition: ActionTemplate = {
   },
   output: {
     type: "object",
-    required: ["success"],
     properties: {
-      success: {
-        type: "boolean",
-        description: "Whether the records were successfully retrieved",
-      },
       results: {
         type: "array",
         description: "The results of the Jira issues",
