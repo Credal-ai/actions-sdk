@@ -7,11 +7,12 @@ import { Project, VariableDeclarationKind } from "ts-morph";
 import { z } from "zod";
 import { snakeToPascal } from "../utils/string.js";
 
+// TODO support oneOf correctly
+
 const jsonObjectSchema = z.object({
   type: z.string(),
   required: z.array(z.string()).optional(),
   properties: z.record(z.string(), z.any()).optional(), // Permissive for now, validate using JSON schema later
-  oneOf: z.array(z.any()).optional(), // Support oneOf schemas
 });
 
 type JsonObjectSchema = z.infer<typeof jsonObjectSchema>;
@@ -76,15 +77,7 @@ async function validateObject(object: JsonObjectSchema) {
   }
 
   // Handle oneOf schemas
-  if (object.oneOf) {
-    // For oneOf schemas, validate each option
-    for (const oneOfOption of object.oneOf) {
-      const validOption = ajv.validateSchema(oneOfOption);
-      if (!validOption) {
-        throw new Error(`Error validating oneOf option: ${JSON.stringify(ajv.errors, null, 4)}`);
-      }
-    }
-  } else if (object.required && object.properties) {
+  if (object.required && object.properties) {
     // Handle regular object schemas - check required fields
     for (const field of object.required) {
       if (!object.properties[field]) {
