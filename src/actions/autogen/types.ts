@@ -878,7 +878,6 @@ export const jiraGetJiraIssuesByQueryParamsSchema = z.object({
 export type jiraGetJiraIssuesByQueryParamsType = z.infer<typeof jiraGetJiraIssuesByQueryParamsSchema>;
 
 export const jiraGetJiraIssuesByQueryOutputSchema = z.object({
-  success: z.boolean().describe("Whether the records were successfully retrieved"),
   results: z
     .array(
       z.object({
@@ -1204,7 +1203,6 @@ export const jiraOrgGetJiraIssuesByQueryParamsSchema = z.object({
 export type jiraOrgGetJiraIssuesByQueryParamsType = z.infer<typeof jiraOrgGetJiraIssuesByQueryParamsSchema>;
 
 export const jiraOrgGetJiraIssuesByQueryOutputSchema = z.object({
-  success: z.boolean().describe("Whether the records were successfully retrieved"),
   results: z
     .array(
       z.object({
@@ -1552,7 +1550,6 @@ export type jiraDataCenterGetJiraIssuesByQueryParamsType = z.infer<
 >;
 
 export const jiraDataCenterGetJiraIssuesByQueryOutputSchema = z.object({
-  success: z.boolean().describe("Whether the records were successfully retrieved"),
   results: z
     .array(
       z.object({
