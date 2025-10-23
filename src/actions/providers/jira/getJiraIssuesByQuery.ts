@@ -142,14 +142,14 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
         },
       });
 
-      const { issues, maxResults: responseMaxResults, total } = response.data;
+      const { issues, total } = response.data;
 
       allIssues.push(...issues);
-      if (issues.length < maxResults || allIssues.length >= total) {
+      if (allIssues.length >= total || issues.length === 0) {
         break;
       }
 
-      startAt += responseMaxResults;
+      startAt += issues.length;
     }
 
     return {
