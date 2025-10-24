@@ -225,7 +225,7 @@ const searchOrganization: githubSearchOrganizationFunction = async ({
       })),
       ...enrichedCommits.map(result => ({
         type: "commit" as const,
-        name: `${result.sha.slice(0,7)} – ${result.commit.message.split("\n")[0]}`,
+        name: `${result.sha.slice(0, 7)} – ${result.commit.message.split("\n")[0]}`,
         url: result.url,
         contents: result,
       })),
