@@ -114,7 +114,7 @@ const searchRepository: githubSearchRepositoryFunction = async ({
     name: item.name,
     path: item.path,
     sha: item.sha.slice(0, 7),
-    url: item.url,
+    url: item.html_url,
     score: item.score,
     textMatches: item.text_matches
       ? item.text_matches.map(match => ({
@@ -136,7 +136,7 @@ const searchRepository: githubSearchRepositoryFunction = async ({
     const full = commitDetails.find(c => c.data.sha === item.sha);
     return {
       sha: item.sha,
-      url: item.url,
+      url: item.html_url,
       commit: {
         message: item.commit.message,
         author: item.commit.author,
