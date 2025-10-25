@@ -54,7 +54,7 @@ interface SearchCommitResult {
 interface SearchIssueOrPullRequestResult {
   number: number;
   title: string;
-  html_url: string;
+  url: string;
   state: "open" | "closed";
   isPullRequest: boolean;
   body?: string;
@@ -147,7 +147,7 @@ const searchRepository: githubSearchRepositoryFunction = async ({
         full?.data.files?.slice(0, MAX_FILES_PER_COMMIT).map(f => ({
           filename: f.filename,
           status: f.status,
-          patch: f.patch?.split("\n").slice(0, MAX_PATCH_LINES).join("\n"),
+          patch: f.patch?.split("\n")?.slice(0, MAX_PATCH_LINES)?.join("\n"),
         })) || [],
     };
   });
@@ -176,14 +176,14 @@ const searchRepository: githubSearchRepositoryFunction = async ({
           ? prFiles[prIndex].data.slice(0, MAX_FILES_PER_PR).map(f => ({
               filename: f.filename,
               status: f.status,
-              patch: f.patch?.split("\n").slice(0, MAX_PATCH_LINES).join("\n"),
+              patch: f.patch?.split("\n")?.slice(0, MAX_PATCH_LINES)?.join("\n"),
             }))
           : undefined;
 
       return {
         number: item.number,
         title: item.title,
-        html_url: item.html_url,
+        url: item.html_url,
         state: item.state as "open" | "closed",
         isPullRequest: isPR,
         body: item.body,
