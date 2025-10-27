@@ -5,7 +5,7 @@ import type {
   jiraGetJiraIssuesByQueryParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
-import { getJiraApiConfig, getErrorMessage } from "./utils.js";
+import { getJiraApiConfig, getErrorMessage, extractPlainText, type JiraADFDoc } from "./utils.js";
 
 const DEFAULT_LIMIT = 100;
 
@@ -13,18 +13,6 @@ type JiraUser = {
   accountId: string;
   emailAddress: string;
   displayName: string;
-};
-
-type JiraADFDoc = {
-  type: "doc";
-  version: number;
-  content: Array<{
-    type: string;
-    content?: Array<{
-      type: string;
-      text?: string;
-    }>;
-  }>;
 };
 
 type JiraSearchResponse = {
@@ -65,20 +53,6 @@ type JiraSearchResponse = {
   maxResults: number;
   total: number;
 };
-
-function extractPlainText(adf: JiraADFDoc | null | undefined): string {
-  if (!adf || adf.type !== "doc" || !Array.isArray(adf.content)) return "";
-
-  return adf.content
-    .map(block => {
-      if (block.type === "paragraph" && Array.isArray(block.content)) {
-        return block.content.map(inline => inline.text ?? "").join("");
-      }
-      return "";
-    })
-    .join("\n")
-    .trim();
-}
 
 /**
  * Get Jira issues from Jira Data Center
@@ -199,9 +173,27 @@ const getJiraDCIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
               name: status.name,
               category: status.statusCategory.name,
             },
-            assignee: assignee?.emailAddress || null,
-            reporter: reporter?.emailAddress || null,
-            creator: creator?.emailAddress || null,
+            assignee: assignee
+              ? {
+                  id: assignee.accountId,
+                  name: assignee.displayName,
+                  email: assignee.emailAddress,
+                }
+              : null,
+            reporter: reporter
+              ? {
+                  id: reporter.accountId,
+                  name: reporter.displayName,
+                  email: reporter.emailAddress,
+                }
+              : null,
+            creator: creator
+              ? {
+                  id: creator.accountId,
+                  name: creator.displayName,
+                  email: creator.emailAddress,
+                }
+              : null,
             created,
             updated,
             resolution: resolution?.name || null,

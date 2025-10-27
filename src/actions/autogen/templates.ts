@@ -1692,19 +1692,61 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
                   },
                 },
                 assignee: {
-                  type: "string",
+                  type: "object",
+                  description: "The issue assignee",
                   nullable: true,
-                  description: "Email of the assignee, if any",
+                  properties: {
+                    id: {
+                      type: "string",
+                      description: "The assignee ID",
+                    },
+                    name: {
+                      type: "string",
+                      description: "The assignee name",
+                    },
+                    email: {
+                      type: "string",
+                      description: "The assignee email",
+                    },
+                  },
                 },
                 reporter: {
-                  type: "string",
+                  type: "object",
+                  description: "The issue reporter",
                   nullable: true,
-                  description: "Email of the reporter, if any",
+                  properties: {
+                    id: {
+                      type: "string",
+                      description: "The reporter ID",
+                    },
+                    name: {
+                      type: "string",
+                      description: "The reporter name",
+                    },
+                    email: {
+                      type: "string",
+                      description: "The reporter email",
+                    },
+                  },
                 },
                 creator: {
-                  type: "string",
+                  type: "object",
+                  description: "The issue creator",
                   nullable: true,
-                  description: "Email of the creator, if any",
+                  properties: {
+                    id: {
+                      type: "string",
+                      description: "The creator ID",
+                    },
+                    name: {
+                      type: "string",
+                      description: "The creator name",
+                    },
+                    email: {
+                      type: "string",
+                      description: "The creator email",
+                    },
+                  },
                 },
                 created: {
                   type: "string",
@@ -2379,19 +2421,61 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
                   },
                 },
                 assignee: {
-                  type: "string",
+                  type: "object",
+                  description: "The issue assignee",
                   nullable: true,
-                  description: "Email of the assignee, if any",
+                  properties: {
+                    id: {
+                      type: "string",
+                      description: "The assignee ID",
+                    },
+                    name: {
+                      type: "string",
+                      description: "The assignee name",
+                    },
+                    email: {
+                      type: "string",
+                      description: "The assignee email",
+                    },
+                  },
                 },
                 reporter: {
-                  type: "string",
+                  type: "object",
+                  description: "The issue reporter",
                   nullable: true,
-                  description: "Email of the reporter, if any",
+                  properties: {
+                    id: {
+                      type: "string",
+                      description: "The reporter ID",
+                    },
+                    name: {
+                      type: "string",
+                      description: "The reporter name",
+                    },
+                    email: {
+                      type: "string",
+                      description: "The reporter email",
+                    },
+                  },
                 },
                 creator: {
-                  type: "string",
+                  type: "object",
+                  description: "The issue creator",
                   nullable: true,
-                  description: "Email of the creator, if any",
+                  properties: {
+                    id: {
+                      type: "string",
+                      description: "The creator ID",
+                    },
+                    name: {
+                      type: "string",
+                      description: "The creator name",
+                    },
+                    email: {
+                      type: "string",
+                      description: "The creator email",
+                    },
+                  },
                 },
                 created: {
                   type: "string",
@@ -3066,19 +3150,61 @@ export const jiraDataCenterGetJiraIssuesByQueryDefinition: ActionTemplate = {
                   },
                 },
                 assignee: {
-                  type: "string",
+                  type: "object",
+                  description: "The issue assignee",
                   nullable: true,
-                  description: "Email of the assignee, if any",
+                  properties: {
+                    id: {
+                      type: "string",
+                      description: "The assignee ID",
+                    },
+                    name: {
+                      type: "string",
+                      description: "The assignee name",
+                    },
+                    email: {
+                      type: "string",
+                      description: "The assignee email",
+                    },
+                  },
                 },
                 reporter: {
-                  type: "string",
+                  type: "object",
+                  description: "The issue reporter",
                   nullable: true,
-                  description: "Email of the reporter, if any",
+                  properties: {
+                    id: {
+                      type: "string",
+                      description: "The reporter ID",
+                    },
+                    name: {
+                      type: "string",
+                      description: "The reporter name",
+                    },
+                    email: {
+                      type: "string",
+                      description: "The reporter email",
+                    },
+                  },
                 },
                 creator: {
-                  type: "string",
+                  type: "object",
+                  description: "The issue creator",
                   nullable: true,
-                  description: "Email of the creator, if any",
+                  properties: {
+                    id: {
+                      type: "string",
+                      description: "The creator ID",
+                    },
+                    name: {
+                      type: "string",
+                      description: "The creator name",
+                    },
+                    email: {
+                      type: "string",
+                      description: "The creator email",
+                    },
+                  },
                 },
                 created: {
                   type: "string",

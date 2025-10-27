@@ -897,9 +897,33 @@ export const jiraGetJiraIssuesByQueryOutputSchema = z.object({
               name: z.string().optional(),
               category: z.string().optional(),
             }),
-            assignee: z.string().nullable().describe("Email of the assignee, if any").optional(),
-            reporter: z.string().nullable().describe("Email of the reporter, if any").optional(),
-            creator: z.string().nullable().describe("Email of the creator, if any").optional(),
+            assignee: z
+              .object({
+                id: z.string().describe("The assignee ID").optional(),
+                name: z.string().describe("The assignee name").optional(),
+                email: z.string().describe("The assignee email").optional(),
+              })
+              .nullable()
+              .describe("The issue assignee")
+              .optional(),
+            reporter: z
+              .object({
+                id: z.string().describe("The reporter ID").optional(),
+                name: z.string().describe("The reporter name").optional(),
+                email: z.string().describe("The reporter email").optional(),
+              })
+              .nullable()
+              .describe("The issue reporter")
+              .optional(),
+            creator: z
+              .object({
+                id: z.string().describe("The creator ID").optional(),
+                name: z.string().describe("The creator name").optional(),
+                email: z.string().describe("The creator email").optional(),
+              })
+              .nullable()
+              .describe("The issue creator")
+              .optional(),
             created: z.string().datetime({ offset: true }),
             updated: z.string().datetime({ offset: true }),
             resolution: z.string().nullable().optional(),
@@ -1222,9 +1246,33 @@ export const jiraOrgGetJiraIssuesByQueryOutputSchema = z.object({
               name: z.string().optional(),
               category: z.string().optional(),
             }),
-            assignee: z.string().nullable().describe("Email of the assignee, if any").optional(),
-            reporter: z.string().nullable().describe("Email of the reporter, if any").optional(),
-            creator: z.string().nullable().describe("Email of the creator, if any").optional(),
+            assignee: z
+              .object({
+                id: z.string().describe("The assignee ID").optional(),
+                name: z.string().describe("The assignee name").optional(),
+                email: z.string().describe("The assignee email").optional(),
+              })
+              .nullable()
+              .describe("The issue assignee")
+              .optional(),
+            reporter: z
+              .object({
+                id: z.string().describe("The reporter ID").optional(),
+                name: z.string().describe("The reporter name").optional(),
+                email: z.string().describe("The reporter email").optional(),
+              })
+              .nullable()
+              .describe("The issue reporter")
+              .optional(),
+            creator: z
+              .object({
+                id: z.string().describe("The creator ID").optional(),
+                name: z.string().describe("The creator name").optional(),
+                email: z.string().describe("The creator email").optional(),
+              })
+              .nullable()
+              .describe("The issue creator")
+              .optional(),
             created: z.string().datetime({ offset: true }),
             updated: z.string().datetime({ offset: true }),
             resolution: z.string().nullable().optional(),
@@ -1569,9 +1617,33 @@ export const jiraDataCenterGetJiraIssuesByQueryOutputSchema = z.object({
               name: z.string().optional(),
               category: z.string().optional(),
             }),
-            assignee: z.string().nullable().describe("Email of the assignee, if any").optional(),
-            reporter: z.string().nullable().describe("Email of the reporter, if any").optional(),
-            creator: z.string().nullable().describe("Email of the creator, if any").optional(),
+            assignee: z
+              .object({
+                id: z.string().describe("The assignee ID").optional(),
+                name: z.string().describe("The assignee name").optional(),
+                email: z.string().describe("The assignee email").optional(),
+              })
+              .nullable()
+              .describe("The issue assignee")
+              .optional(),
+            reporter: z
+              .object({
+                id: z.string().describe("The reporter ID").optional(),
+                name: z.string().describe("The reporter name").optional(),
+                email: z.string().describe("The reporter email").optional(),
+              })
+              .nullable()
+              .describe("The issue reporter")
+              .optional(),
+            creator: z
+              .object({
+                id: z.string().describe("The creator ID").optional(),
+                name: z.string().describe("The creator name").optional(),
+                email: z.string().describe("The creator email").optional(),
+              })
+              .nullable()
+              .describe("The issue creator")
+              .optional(),
             created: z.string().datetime({ offset: true }),
             updated: z.string().datetime({ offset: true }),
             resolution: z.string().nullable().optional(),

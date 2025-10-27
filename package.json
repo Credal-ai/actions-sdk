@@ -61,6 +61,7 @@
     "docx": "^9.3.0",
     "dotenv": "^16.4.7",
     "html-to-text": "^9.0.5",
+    "jira.js": "^5.2.2",
     "json-schema-to-zod": "^2.5.0",
     "jsonwebtoken": "^9.0.2",
     "limiter": "^3.0.0",

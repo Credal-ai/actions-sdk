@@ -1,4 +1,5 @@
 import type { AxiosError } from "axios";
+import type { Version3Client } from "jira.js";
 import { axiosClient } from "../../util/axiosClient.js";
 
 export interface JiraApiConfig {
@@ -13,6 +14,18 @@ export interface JiraServiceDeskApiConfig {
   browseUrl: string;
   isDataCenter: boolean;
 }
+
+export type JiraADFDoc = {
+  type: "doc";
+  version: number;
+  content: Array<{
+    type: string;
+    content?: Array<{
+      type: string;
+      text?: string;
+    }>;
+  }>;
+};
 
 interface JiraHistoryResponse {
   data?: {
@@ -258,4 +271,62 @@ export async function getRequestTypeCustomFieldId(
       return { fieldId: null, message: `Error finding Request Type custom field: ${axiosError.message}` };
     }
   }
+}
+
+export async function getUserEmailFromAccountId(
+  accountId: string | undefined,
+  client: Version3Client,
+): Promise<string | undefined> {
+  if (!accountId) return undefined;
+
+  try {
+    const userEmail = await client.users.getUser({ accountId });
+    console.log("USER EMAIL: ", userEmail);
+    return userEmail.emailAddress;
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    console.error("Error fetching user email:", axiosError.message);
+    return undefined;
+  }
+}
+
+export async function getUserInfoFromAccountId(
+  accountId: string | undefined,
+  client: Version3Client,
+): Promise<{
+  id: string;
+  name: string | undefined;
+  email: string | undefined;
+} | null> {
+  if (!accountId) return null;
+
+  try {
+    const user = await client.users.getUser({ accountId });
+    return {
+      id: user.accountId,
+      name: user?.displayName,
+      email: user?.emailAddress,
+    };
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    console.error("Error fetching user info:", axiosError.message);
+    return null;
+  }
+}
+
+export function extractPlainText(adf: unknown): string {
+  if (!adf || typeof adf !== "object") return "";
+
+  const doc = adf as JiraADFDoc;
+  if (doc.type !== "doc" || !Array.isArray(doc.content)) return "";
+
+  return doc.content
+    .map((block: { type: string; content?: Array<{ type: string; text?: string }> }) => {
+      if (block.type === "paragraph" && Array.isArray(block.content)) {
+        return block.content.map((inline: { type: string; text?: string }) => inline.text ?? "").join("");
+      }
+      return "";
+    })
+    .join("\n")
+    .trim();
 }
