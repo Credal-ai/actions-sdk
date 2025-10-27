@@ -61,8 +61,9 @@ type JiraSearchResponse = {
       duedate?: string | null;
     };
   }[];
-  nextPageToken: string | null;
-  isLast: false;
+  startAt: number;
+  maxResults: number;
+  total: number;
 };
 
 function extractPlainText(adf: JiraADFDoc | null | undefined): string {
@@ -79,7 +80,12 @@ function extractPlainText(adf: JiraADFDoc | null | undefined): string {
     .trim();
 }
 
-const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
+/**
+ * Get Jira issues from Jira Data Center
+ * Uses startAt parameter to paginate through the results while
+ * getJiraIssuesByQuery uses nextPageToken parameter to paginate through the results.
+ */
+const getJiraDCIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
   params,
   authParams,
 }: {
@@ -117,7 +123,7 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
   const searchEndpoint = strategy.getSearchEndpoint();
   const requestedLimit = limit ?? DEFAULT_LIMIT;
   const allIssues = [];
-  let pageToken = "";
+  let startAt = 0;
 
   try {
     // Keep fetching pages until we have all requested issues
@@ -129,23 +135,26 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
       const queryParams = new URLSearchParams();
       queryParams.set("jql", query);
       queryParams.set("maxResults", String(maxResults));
-      queryParams.set("nextPageToken", pageToken);
+      queryParams.set("startAt", String(startAt));
       queryParams.set("fields", fields.join(","));
 
       const fullApiUrl = `${apiUrl}${searchEndpoint}?${queryParams.toString()}`;
+
       const response = await axiosClient.get<JiraSearchResponse>(fullApiUrl, {
         headers: {
           Authorization: `Bearer ${authToken}`,
           Accept: "application/json",
         },
       });
-      const { issues, isLast, nextPageToken } = response.data;
+
+      const { issues, total } = response.data;
 
       allIssues.push(...issues);
-      if (issues.length === 0 || isLast) {
+      if (allIssues.length >= total || issues.length === 0) {
         break;
       }
-      pageToken = nextPageToken ?? "";
+
+      startAt += issues.length;
     }
 
     return {
@@ -211,4 +220,4 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
   }
 };
 
-export default getJiraIssuesByQuery;
+export default getJiraDCIssuesByQuery;
