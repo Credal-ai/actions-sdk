@@ -388,6 +388,7 @@ import fetchSalesforceSchemaByObject from "./providers/salesforce/fetchSalesforc
 import deepResearch from "./providers/firecrawl/deepResearch.js";
 import listPullRequests from "./providers/github/listPullRequests.js";
 import getJiraIssuesByQuery from "./providers/jira/getJiraIssuesByQuery.js";
+import getJiraDCIssuesByQuery from "./providers/jira/getJiraDCIssuesByQuery.js";
 import createRecord from "./providers/salesforce/createRecord.js";
 import getTopNSearchResultUrls from "./providers/bing/getTopNSearchResultUrls.js";
 import getGongTranscripts from "./providers/gong/getGongTranscripts.js";
@@ -734,7 +735,7 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
   jiraDataCenter: {
     // Exclude Service Desk: getServiceDesks, createServiceDeskRequest, publicCommentOnServiceDeskRequest
     getJiraIssuesByQuery: {
-      fn: getJiraIssuesByQuery,
+      fn: getJiraDCIssuesByQuery,
       paramsSchema: jiraGetJiraIssuesByQueryParamsSchema,
       outputSchema: jiraGetJiraIssuesByQueryOutputSchema,
     },
