@@ -86,7 +86,6 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
       nextPageToken = searchResults.nextPageToken;
     }
 
-    //console.log('RESPONSE: ', allIssues[0].fields);
     // Map issues with email addresses
     const results = await Promise.all(
       allIssues.map(async ({ id, key, fields }) => {
