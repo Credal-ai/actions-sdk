@@ -24,9 +24,9 @@ async function runTest() {
   console.dir(result, { depth: 4 });
 
   assert.strictEqual(result.success, true, "Search should be successful");
-  assert(Array.isArray(result.messages), "Messages should be an array");
+  assert(Array.isArray(result.results), "Messages should be an array");
   if (result.messages.length > 0) {
-    const firstMsg = result.messages[0];
+    const firstMsg = result.results[0];
     assert(firstMsg.id, "First message should have an id");
     assert(firstMsg.threadId, "First message should have a threadId");
     assert(typeof firstMsg.snippet === "string", "First message should have a snippet");
