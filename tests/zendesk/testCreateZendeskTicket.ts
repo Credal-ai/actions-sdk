@@ -9,7 +9,6 @@ async function runTest() {
     subdomain: "credalai",
     subject: "Credal Test Support Ticket",
     body: "This is a test ticket created through the API.\nIt has multiple lines of text.\n\nPlease ignore.",
-    groupId: 123456789,
   };
 
   const result = await runAction(

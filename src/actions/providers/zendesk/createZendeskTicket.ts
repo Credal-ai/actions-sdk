@@ -23,7 +23,7 @@ const createZendeskTicket: zendeskCreateZendeskTicketFunction = async ({
       comment: {
         body,
       },
-      ...(groupId ? { group_id: groupId } : {}),
+      group_id: groupId,
     },
   };
 
