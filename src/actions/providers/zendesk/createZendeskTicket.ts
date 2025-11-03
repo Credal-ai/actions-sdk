@@ -15,7 +15,7 @@ const createZendeskTicket: zendeskCreateZendeskTicketFunction = async ({
   authParams: AuthParamsType;
 }): Promise<zendeskCreateZendeskTicketOutputType> => {
   const { authToken } = authParams;
-  const { subdomain, subject, body } = params;
+  const { subdomain, subject, body, groupId } = params;
   const url = `https://${subdomain}.zendesk.com/api/v2/tickets.json`;
   const payload = {
     ticket: {
@@ -23,6 +23,7 @@ const createZendeskTicket: zendeskCreateZendeskTicketFunction = async ({
       comment: {
         body,
       },
+      ...(groupId ? { group_id: groupId } : {}),
     },
   };
 

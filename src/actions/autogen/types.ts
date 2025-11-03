@@ -1827,6 +1827,7 @@ export const zendeskCreateZendeskTicketParamsSchema = z.object({
   subject: z.string().describe("The subject of the ticket"),
   body: z.string().describe("The body of the ticket").optional(),
   subdomain: z.string().describe("The subdomain of the Zendesk account"),
+  groupId: z.number().describe("The ID of the group to assign the ticket to").optional(),
 });
 
 export type zendeskCreateZendeskTicketParamsType = z.infer<typeof zendeskCreateZendeskTicketParamsSchema>;
