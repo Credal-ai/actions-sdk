@@ -5251,7 +5251,7 @@ actions:
                     snippet:
                       type: string
                       description: A short part of the message text
-                    labelIds:
+                    labels:
                       type: array
                       items:
                         type: string
@@ -5259,7 +5259,7 @@ actions:
                     internalDate:
                       type: string
                       description: Internal timestamp of the message
-                    emailBody:
+                    body:
                       type: string
                       description: The body of the message
                     from:

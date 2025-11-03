@@ -8904,7 +8904,7 @@ export const googlemailSearchGmailMessagesDefinition: ActionTemplate = {
                   type: "string",
                   description: "A short part of the message text",
                 },
-                labelIds: {
+                labels: {
                   type: "array",
                   items: {
                     type: "string",
@@ -8915,7 +8915,7 @@ export const googlemailSearchGmailMessagesDefinition: ActionTemplate = {
                   type: "string",
                   description: "Internal timestamp of the message",
                 },
-                emailBody: {
+                body: {
                   type: "string",
                   description: "The body of the message",
                 },
