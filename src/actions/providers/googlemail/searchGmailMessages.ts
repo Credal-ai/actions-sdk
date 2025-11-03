@@ -146,7 +146,7 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
                 threadId,
                 internalDate,
               },
-            } satisfies GmailMessageResult;
+            };
           } catch (err) {
             const errorMsg = err instanceof Error ? err.message : "Failed to fetch message details";
             return {
@@ -165,7 +165,7 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
                 bcc: "",
                 labels: [],
               },
-            } satisfies GmailMessageResult;
+            };
           }
         }),
       );
