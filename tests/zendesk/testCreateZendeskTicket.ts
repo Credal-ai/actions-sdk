@@ -8,7 +8,7 @@ async function runTest() {
   const fullParams = {
     subdomain: "credalai",
     subject: "Credal Test Support Ticket",
-    body: "This is a test ticket created through the API.\nIt has multiple lines of text.\n\nPlease ignore. lalala",
+    body: "This is a test ticket created through the API.\nIt has multiple lines of text.\n\nPlease ignore.",
     groupId: 123456789,
   };
 
