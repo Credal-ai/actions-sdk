@@ -12,8 +12,8 @@ async function runTest() {
     "createZendeskTicket",
     "zendesk",
     {
-      apiKey: "insert_your_api_key_here",
-      username: "insert_your_username_here",
+      apiKey: process.env.ZENDESK_API_KEY,
+      username: process.env.ZENDESK_USERNAME,
     },
     fullParams,
   );
