@@ -125,9 +125,14 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
 
             // Extract and clean the full text
             const emailBody = cleanAndTruncateEmail(getEmailContent(msgRes.data) || "");
+            const subject = headers.subject?.trim() || "(No subject)";
+            const from = headers.from?.split("<")[0].trim() || "Unknown sender";
+            const date = new Date(Number(internalDate)).toLocaleDateString("en-US");
+
+            const name = `${subject} — ${from} (${date})`;
 
             return {
-              name: headers.subject || "(No subject)",
+              name,
               url: `https://mail.google.com/mail/u/0/#inbox/${id}`,
               contents: {
                 id,
