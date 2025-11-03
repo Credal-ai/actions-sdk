@@ -3576,6 +3576,10 @@ export const zendeskCreateZendeskTicketDefinition: ActionTemplate = {
         type: "string",
         description: "The subdomain of the Zendesk account",
       },
+      groupId: {
+        type: "number",
+        description: "The ID of the group to assign the ticket to",
+      },
     },
   },
   output: {
