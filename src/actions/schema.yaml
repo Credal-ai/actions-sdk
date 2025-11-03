@@ -5215,55 +5215,71 @@ actions:
             description: Timeout for the query in seconds (optional)
       output:
         type: object
-        required: [success, messages]
+        required: [success, results]
         properties:
           success:
             type: boolean
-          messages:
+          error:
+            type: string
+            description: Error message if search failed
+          pageToken:
+            type: string
+            description: The token to use to get the next page of results
+          results:
             type: array
             description: List of matching Gmail messages
             items:
               type: object
-              required: [id, threadId]
+              required: [name, url, contents]
               properties:
-                id:
+                name:
                   type: string
-                  description: The message ID
-                threadId:
+                  description: The name of the message
+                url:
                   type: string
-                  description: The thread ID
-                snippet:
-                  type: string
-                  description: A short part of the message text
-                labelIds:
-                  type: array
-                  items:
-                    type: string
-                  description: Labels on the message
-                internalDate:
-                  type: string
-                  description: Internal timestamp of the message
-                emailBody:
-                  type: string
-                  description: The body of the message
-                from:
-                  type: string
-                  description: The from header of the message
-                to:
-                  type: string
-                  description: The to header of the message
-                subject:
-                  type: string
-                  description: The subject header of the message
-                cc:
-                  type: string
-                  description: The cc header of the message
-                bcc:
-                  type: string
-                  description: The bcc header of the message
-          error:
-            type: string
-            description: Error message if search failed
+                  description: The URL of the message
+                contents:
+                  type: object
+                  required: [id, threadId]
+                  properties:
+                    id:
+                      type: string
+                      description: The message ID
+                    threadId:
+                      type: string
+                      description: The thread ID
+                    snippet:
+                      type: string
+                      description: A short part of the message text
+                    labelIds:
+                      type: array
+                      items:
+                        type: string
+                      description: Labels on the message
+                    internalDate:
+                      type: string
+                      description: Internal timestamp of the message
+                    emailBody:
+                      type: string
+                      description: The body of the message
+                    from:
+                      type: string
+                      description: The from header of the message
+                    to:
+                      type: string
+                      description: The to header of the message
+                    subject:
+                      type: string
+                      description: The subject header of the message
+                    cc:
+                      type: string
+                      description: The cc header of the message
+                    bcc:
+                      type: string
+                      description: The bcc header of the message
+                    error:
+                      type: string
+                      description: Error message if search failed
     listGmailThreads:
       description: List Gmail threads in a user's inbox using a query string.
       scopes:

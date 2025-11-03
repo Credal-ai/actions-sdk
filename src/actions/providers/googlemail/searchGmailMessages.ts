@@ -3,20 +3,25 @@ import { axiosClient } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import { getEmailContent, type GmailMessage } from "../google-oauth/utils/decodeMessage.js";
 
-export interface GmailMessageResult {
-  id: string;
-  threadId: string;
-  snippet: string;
-  labelIds?: string[];
-  internalDate: string;
-  emailBody: string;
-  from?: string;
-  to?: string;
-  subject?: string;
-  cc?: string;
-  bcc?: string;
-  error?: string;
+interface GmailMessageResult {
+  name: string;
+  url: string;
+  contents: {
+    id: string;
+    threadId: string;
+    snippet: string;
+    labels?: string[];
+    internalDate: string;
+    body: string;
+    from?: string;
+    to?: string;
+    subject?: string;
+    cc?: string;
+    bcc?: string;
+    error?: string;
+  };
 }
+
 import type {
   AuthParamsType,
   googlemailSearchGmailMessagesFunction,
@@ -66,7 +71,7 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
   authParams: AuthParamsType;
 }): Promise<googlemailSearchGmailMessagesOutputType> => {
   if (!authParams.authToken) {
-    return { success: false, error: MISSING_AUTH_TOKEN, messages: [] };
+    return { success: false, error: MISSING_AUTH_TOKEN, results: [] };
   }
 
   const { query, maxResults, timeout } = params;
@@ -97,7 +102,7 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
 
       const batch = messageList.slice(0, max - allMessages.length);
 
-      const results = await Promise.allSettled(
+      const results = await Promise.allSettled<GmailMessageResult>(
         batch.map(async msg => {
           try {
             await limiter.removeTokens(1);
@@ -110,63 +115,57 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
                 validateStatus: () => true,
               },
             );
+
             const { id, threadId, snippet, labelIds, internalDate, payload } = msgRes.data;
 
             const headers: Record<string, string> = {};
             for (const header of payload.headers) {
-              const lowerName = header.name.toLowerCase();
-              if (
-                lowerName === "from" ||
-                lowerName === "to" ||
-                lowerName === "subject" ||
-                lowerName === "cc" ||
-                lowerName === "bcc"
-              ) {
-                headers[lowerName] = header.value;
-              }
+              headers[header.name.toLowerCase()] = header.value;
             }
 
-            const rawBody = getEmailContent(msgRes.data) || "";
-            const emailBody = cleanAndTruncateEmail(rawBody);
+            // Extract and clean the full text
+            const emailBody = cleanAndTruncateEmail(getEmailContent(msgRes.data) || "");
 
-            const message: GmailMessageResult = {
-              id,
-              threadId,
-              snippet,
-              labelIds,
-              internalDate,
-              emailBody,
-              from: headers.from,
-              to: headers.to,
-              subject: headers.subject,
-              cc: headers.cc,
-              bcc: headers.bcc,
-            };
-            return message;
-          } catch (err) {
-            const errorMessage = err instanceof Error ? err.message : "Failed to fetch message details";
-            errorMessages.push(errorMessage);
             return {
-              id: msg.id,
-              threadId: "",
-              snippet: "",
-              labelIds: [],
-              internalDate: "",
-              emailBody: "",
-              error: errorMessage,
-              from: "",
-              to: "",
-              subject: "",
-              cc: "",
-              bcc: "",
-            };
+              name: headers.subject || "(No subject)",
+              url: `https://mail.google.com/mail/u/0/#inbox/${id}`,
+              contents: {
+                id,
+                from: headers.from,
+                to: headers.to,
+                cc: headers.cc,
+                bcc: headers.bcc,
+                snippet,
+                body: emailBody, // 👈 your old emailBody now lives here
+                labels: labelIds,
+                threadId,
+                internalDate,
+              },
+            } satisfies GmailMessageResult;
+          } catch (err) {
+            const errorMsg = err instanceof Error ? err.message : "Failed to fetch message details";
+            return {
+              name: "Error fetching message",
+              url: "",
+              contents: {
+                error: errorMsg,
+                id: msg.id,
+                threadId: "",
+                snippet: "",
+                internalDate: "",
+                body: "",
+                from: "",
+                to: "",
+                cc: "",
+                bcc: "",
+                labels: [],
+              },
+            } satisfies GmailMessageResult;
           }
         }),
       );
 
-      const successfulResults = results
-        .filter((r): r is PromiseFulfilledResult<GmailMessageResult> => r.status === "fulfilled")
-        .map(r => r.value);
+      const successfulResults = results.filter(r => r.status === "fulfilled").map(r => r.value);
 
       const failedResults = results.filter((r): r is PromiseRejectedResult => r.status === "rejected");
       failedResults.forEach(r => {
@@ -182,14 +181,15 @@ const searchGmailMessages: googlemailSearchGmailMessagesFunction = async ({
 
     return {
       success: errorMessages.length === 0,
-      messages: allMessages,
       error: errorMessages.join("; "),
+      results: allMessages,
+      pageToken,
     };
   } catch (err) {
     return {
       success: false,
       error: err instanceof Error ? err.message : "Unknown error searching Gmail",
-      messages: [],
+      results: [],
     };
   }
 };
