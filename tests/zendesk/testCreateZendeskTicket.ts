@@ -1,19 +1,22 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 async function runTest() {
   const fullParams = {
-    subdomain: "insert_your_subdomain_here",
+    subdomain: "credalai",
     subject: "Credal Test Support Ticket",
-    body: "This is a test ticket created through the API.\nIt has multiple lines of text.\n\nPlease ignore.",
+    body: "This is a test ticket created through the API.\nIt has multiple lines of text.\n\nPlease ignore. lalala",
+    groupId: 123456789,
   };
 
   const result = await runAction(
     "createZendeskTicket",
     "zendesk",
     {
-      apiKey: process.env.ZENDESK_API_KEY,
-      username: process.env.ZENDESK_USERNAME,
+      authToken: process.env.ZENDESK_TOKEN,
     },
     fullParams,
   );
