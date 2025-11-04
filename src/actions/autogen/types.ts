@@ -4571,24 +4571,30 @@ export type googlemailSearchGmailMessagesParamsType = z.infer<typeof googlemailS
 
 export const googlemailSearchGmailMessagesOutputSchema = z.object({
   success: z.boolean(),
-  messages: z
+  error: z.string().describe("Error message if search failed").optional(),
+  pageToken: z.string().describe("The token to use to get the next page of results").optional(),
+  results: z
     .array(
       z.object({
-        id: z.string().describe("The message ID"),
-        threadId: z.string().describe("The thread ID"),
-        snippet: z.string().describe("A short part of the message text").optional(),
-        labelIds: z.array(z.string()).describe("Labels on the message").optional(),
-        internalDate: z.string().describe("Internal timestamp of the message").optional(),
-        emailBody: z.string().describe("The body of the message").optional(),
-        from: z.string().describe("The from header of the message").optional(),
-        to: z.string().describe("The to header of the message").optional(),
-        subject: z.string().describe("The subject header of the message").optional(),
-        cc: z.string().describe("The cc header of the message").optional(),
-        bcc: z.string().describe("The bcc header of the message").optional(),
+        name: z.string().describe("The name of the message"),
+        url: z.string().describe("The URL of the message"),
+        contents: z.object({
+          id: z.string().describe("The message ID"),
+          threadId: z.string().describe("The thread ID"),
+          snippet: z.string().describe("A short part of the message text").optional(),
+          labels: z.array(z.string()).describe("Labels on the message").optional(),
+          internalDate: z.string().describe("Internal timestamp of the message").optional(),
+          body: z.string().describe("The body of the message").optional(),
+          from: z.string().describe("The from header of the message").optional(),
+          to: z.string().describe("The to header of the message").optional(),
+          subject: z.string().describe("The subject header of the message").optional(),
+          cc: z.string().describe("The cc header of the message").optional(),
+          bcc: z.string().describe("The bcc header of the message").optional(),
+          error: z.string().describe("Error message if search failed").optional(),
+        }),
       }),
     )
     .describe("List of matching Gmail messages"),
-  error: z.string().describe("Error message if search failed").optional(),
 });
 
 export type googlemailSearchGmailMessagesOutputType = z.infer<typeof googlemailSearchGmailMessagesOutputSchema>;
