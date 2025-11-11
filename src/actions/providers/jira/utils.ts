@@ -281,7 +281,6 @@ export async function getUserEmailFromAccountId(
 
   try {
     const userEmail = await client.users.getUser({ accountId });
-    console.log("USER EMAIL: ", userEmail);
     return userEmail.emailAddress;
   } catch (error) {
     const axiosError = error as AxiosError;

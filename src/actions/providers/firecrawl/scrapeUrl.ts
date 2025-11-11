@@ -31,8 +31,6 @@ const scrapeUrl: firecrawlScrapeUrlFunction = async ({
     zeroDataRetention: true,
   });
 
-  console.log("Result is: ", result);
-
   // Extract content based on requested formats
   let content = "";
   if (params.formats && params.formats.length > 0) {
