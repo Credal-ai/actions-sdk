@@ -24,7 +24,7 @@ const addCommentToTicket: zendeskAddCommentToTicketFunction = async ({
   const axiosClient = createAxiosClientWithRetries({ timeout: 20000, retryCount: 5 });
 
   try {
-    const response = await axiosClient.request({
+    await axiosClient.request({
       url: url,
       method: "PUT",
       headers: {
