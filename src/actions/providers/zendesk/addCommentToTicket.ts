@@ -41,7 +41,6 @@ const addCommentToTicket: zendeskAddCommentToTicketFunction = async ({
       },
     });
 
-    console.log(response.data);
     return {
       success: true,
       ticketUrl: `https://${subdomain}.zendesk.com/agent/tickets/${ticketId}`,
