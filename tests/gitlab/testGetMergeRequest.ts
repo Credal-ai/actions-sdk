@@ -8,11 +8,9 @@ dotenv.config();
 async function runTest() {
   console.log("Running test gitlab getMergeRequest");
 
-  // TODO: Replace with a real project ID and a valid file path in your test repo
   const params: gitlabGetMergeRequestParamsType = {
-    project_id: 71071238,                // <--- Put a real GitLab project ID here
-    mr_iid: "1",                   // <--- And a real file path (e.g., "src/index.js")
-    // ref: "main",                      // Optional, defaults to "HEAD"
+    project_id: 71071238,
+    mr_iid: "1",
   };
 
   const result = await runAction(
@@ -32,7 +30,7 @@ async function runTest() {
     assert(typeof result.results?.[0]?.commits[0]?.message === "string", "Message should be a string");
   } else {
     assert(typeof result.error === "string", "Error should be a string when not successful");
-    console.error("Failed to get file content:", result.error);
+    console.error("Failed to get merge request:", result.error);
   }
 }
 
