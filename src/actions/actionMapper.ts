@@ -286,6 +286,8 @@ import {
   hubspotGetTicketDetailsOutputSchema,
   gitlabGetFileContentParamsSchema,
   gitlabGetFileContentOutputSchema,
+  gitlabGetMergeRequestParamsSchema,
+  gitlabGetMergeRequestOutputSchema,
   jiraPublicCommentOnServiceDeskRequestParamsSchema,
   jiraPublicCommentOnServiceDeskRequestOutputSchema,
   googlemailSendGmailParamsSchema,
@@ -452,6 +454,7 @@ import getDealDetails from "./providers/hubspot/getDealDetails.js";
 import getTickets from "./providers/hubspot/getTickets.js";
 import getTicketDetails from "./providers/hubspot/getTicketDetails.js";
 import gitlabGetFileContent from "./providers/gitlab/getFileContent.js";
+import gitlabGetMergeRequest from "./providers/gitlab/getMergeRequest.js";
 import gitlabListDirectory from "./providers/gitlab/listDirectory.js";
 import publicCommentOnServiceDeskRequest from "./providers/jira/publicCommentOnServiceDeskRequest.js";
 import sendGmail from "./providers/googlemail/sendGmail.js";
@@ -1276,6 +1279,11 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: gitlabGetFileContent,
       paramsSchema: gitlabGetFileContentParamsSchema,
       outputSchema: gitlabGetFileContentOutputSchema,
+    },
+    getMergeRequest: {
+      fn: gitlabGetMergeRequest,
+      paramsSchema: gitlabGetMergeRequestParamsSchema,
+      outputSchema: gitlabGetMergeRequestOutputSchema,
     },
     listDirectory: {
       fn: gitlabListDirectory,

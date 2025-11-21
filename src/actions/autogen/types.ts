@@ -6917,6 +6917,80 @@ export type gitlabGetFileContentFunction = ActionFunction<
   gitlabGetFileContentOutputType
 >;
 
+export const gitlabGetMergeRequestParamsSchema = z.object({
+  project_id: z.number().describe("Numeric project ID in GitLab (unique per project)"),
+  mr_iid: z.string().describe("The internal ID of the merge request"),
+});
+
+export type gitlabGetMergeRequestParamsType = z.infer<typeof gitlabGetMergeRequestParamsSchema>;
+
+export const gitlabGetMergeRequestOutputSchema = z.object({
+  success: z.boolean().describe("Whether the operation was successful"),
+  error: z.string().describe("The error that occurred if the operation was not successful").optional(),
+  results: z
+    .array(
+      z.object({
+        metadata: z.object({
+          iid: z.number().describe("The internal ID of the merge request"),
+          id: z.number().describe("The ID of the merge request"),
+          project_id: z.number().describe("The ID of the project the merge request belongs to"),
+          title: z.string().describe("The title of the merge request"),
+          description: z.string().describe("The description of the merge request"),
+          state: z.string().describe("The state of the merge request"),
+          merged: z.boolean().describe("Whether the merge request has been merged"),
+          sha: z.string().describe("The SHA of the merge request"),
+          web_url: z.string().describe("The URL of the merge request"),
+          source_branch: z.string().describe("The source branch of the merge request"),
+          target_branch: z.string().describe("The target branch of the merge request"),
+          source_sha: z.string().describe("The source SHA of the merge request"),
+          target_sha: z.string().describe("The target SHA of the merge request").optional(),
+          diff_refs: z.object({
+            base_sha: z.string().describe("The base SHA of the merge request"),
+            head_sha: z.string().describe("The head SHA of the merge request"),
+          }),
+          author: z.object({
+            id: z.number().describe("The ID of the author"),
+            name: z.string().describe("The name of the author"),
+            username: z.string().describe("The username of the author"),
+          }),
+        }),
+        changes: z
+          .array(
+            z.object({
+              old_path: z.string().describe("The old path of the change"),
+              new_path: z.string().describe("The new path of the change"),
+              new_file: z.boolean().describe("Whether the change is a new file"),
+              renamed_file: z.boolean().describe("Whether the change is a renamed file"),
+              deleted_file: z.boolean().describe("Whether the change is a deleted file"),
+              diff: z.string().describe("The diff of the change"),
+            }),
+          )
+          .describe("A list of changes in the merge request"),
+        commits: z
+          .array(
+            z.object({
+              id: z.string().describe("The full SHA of the commit"),
+              title: z.string().describe("The title of the commit"),
+              message: z.string().describe("The message of the commit"),
+              author_name: z.string().describe("The name of the commit author"),
+              author_email: z.string().describe("The email of the commit author"),
+              created_at: z.string().describe("The date/time the commit was created"),
+            }),
+          )
+          .describe("A list of commits in the merge request"),
+      }),
+    )
+    .describe("The results of the merge request")
+    .optional(),
+});
+
+export type gitlabGetMergeRequestOutputType = z.infer<typeof gitlabGetMergeRequestOutputSchema>;
+export type gitlabGetMergeRequestFunction = ActionFunction<
+  gitlabGetMergeRequestParamsType,
+  AuthParamsType,
+  gitlabGetMergeRequestOutputType
+>;
+
 export const gitlabListDirectoryParamsSchema = z.object({
   group: z.string().describe('The group or namespace that owns the project (e.g., "my-group" or "org/subgroup")'),
   project: z.string().describe('The name of the GitLab project (e.g., "my-repo")'),

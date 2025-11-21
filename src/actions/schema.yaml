@@ -8765,6 +8765,152 @@ actions:
                     htmlUrl:
                       type: string
                       description: The URL of the file in the GitLab UI
+    getMergeRequest:
+      description: Get specified merge request from a GitLab repository
+      scopes: []
+      parameters:
+        type: object
+        required: [project_id, mr_iid]
+        properties:
+          project_id:
+            type: number
+            description: Numeric project ID in GitLab (unique per project)
+          mr_iid:
+            type: string
+            description: The internal ID of the merge request
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the operation was successful
+          error:
+            type: string
+            description: The error that occurred if the operation was not successful
+          results:
+            type: array
+            description: The results of the merge request
+            items:
+              type: object
+              required: [metadata, changes, commits]
+              properties:
+                metadata:
+                  type: object
+                  required: [iid, id, project_id, title, description, state, merged, sha, web_url, source_branch, target_branch, source_sha, diff_refs, author]
+                  properties:
+                    iid:
+                      type: number
+                      description: The internal ID of the merge request
+                    id:
+                      type: number
+                      description: The ID of the merge request
+                    project_id:
+                      type: number
+                      description: The ID of the project the merge request belongs to
+                    title:
+                      type: string
+                      description: The title of the merge request
+                    description:
+                      type: string
+                      description: The description of the merge request
+                    state:
+                      type: string
+                      description: The state of the merge request
+                    merged:
+                      type: boolean
+                      description: Whether the merge request has been merged
+                    sha:
+                      type: string
+                      description: The SHA of the merge request
+                    web_url:
+                      type: string
+                      description: The URL of the merge request
+                    source_branch:
+                      type: string
+                      description: The source branch of the merge request
+                    target_branch:
+                      type: string
+                      description: The target branch of the merge request
+                    source_sha:
+                      type: string
+                      description: The source SHA of the merge request
+                    target_sha:
+                      type: string
+                      description: The target SHA of the merge request
+                    diff_refs:
+                      type: object
+                      required: [base_sha, head_sha, start_sha]
+                      properties:
+                        base_sha:
+                          type: string
+                          description: The base SHA of the merge request
+                        head_sha:
+                          type: string
+                          description: The head SHA of the merge request
+                    author:
+                      type: object
+                      required: [id, name, username]
+                      properties:
+                        id:
+                          type: number
+                          description: The ID of the author
+                        name:
+                          type: string
+                          description: The name of the author
+                        username:
+                          type: string
+                          description: The username of the author
+                changes:
+                  type: array
+                  description: A list of changes in the merge request
+                  items:
+                    type: object
+                    required: [old_path, new_path, new_file, renamed_file, deleted_file, diff]
+                    properties:
+                      old_path:
+                        type: string
+                        description: The old path of the change
+                      new_path:
+                        type: string
+                        description: The new path of the change
+                      new_file:
+                        type: boolean
+                        description: Whether the change is a new file
+                      renamed_file:
+                        type: boolean
+                        description: Whether the change is a renamed file
+                      deleted_file:
+                        type: boolean
+                        description: Whether the change is a deleted file
+                      diff:
+                        type: string
+                        description: The diff of the change
+                commits:
+                  type: array
+                  description: A list of commits in the merge request
+                  items:
+                    type: object
+                    required: [id, title, message, author_name, author_email, created_at]
+                    properties:
+                      id:
+                        type: string
+                        description: The full SHA of the commit
+                      title:
+                        type: string
+                        description: The title of the commit
+                      message:
+                        type: string
+                        description: The message of the commit
+                      author_name:
+                        type: string
+                        description: The name of the commit author
+                      author_email:
+                        type: string
+                        description: The email of the commit author
+                      created_at:
+                        type: string
+                        description: The date/time the commit was created
     listDirectory:
       description: List directory contents of a path in a GitLab repository
       scopes: []
