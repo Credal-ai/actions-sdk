@@ -92,16 +92,22 @@ export const getMergeRequestContent: gitlabGetMergeRequestFunction = async ({
     return { success: false, error: MISSING_AUTH_TOKEN };
   }
 
-  const { project_id, mr_iid } = params;
+  const { project_id, project_path, mr_iid } = params;
+  const projectIdOrEncodedProjectPath = project_path ? encodeURIComponent(project_path) : project_id;
 
   // --------------------------------------------------------------------------
   // 1. Fetch MR metadata
   // --------------------------------------------------------------------------
-  const mrUrl = `${gitlabBaseUrl}/api/v4/projects/${project_id}/merge_requests/${mr_iid}`;
+  const mrUrl = `${gitlabBaseUrl}/api/v4/projects/${projectIdOrEncodedProjectPath}/merge_requests/${mr_iid}`;
 
   const mr = await gitlabFetch<GitLabMergeRequestMetadata>(mrUrl, authToken);
 
-  const projectPath = await getProjectPath(project_id, authToken, `${gitlabBaseUrl}/api/v4`);
+  const projectPath = project_path ? encodeURIComponent(project_path) : project_id ? await getProjectPath(project_id, authToken, `${gitlabBaseUrl}/api/v4`) : undefined;
+
+  if (!projectPath) {
+    throw new Error("Project path or project ID is required to fetch merge request");
+  }
+
   const webUrl = mr.web_url ?? `${gitlabBaseUrl}/${projectPath}/-/merge_requests/${mr_iid}`;
 
   const metadata: GitLabMergeRequestMetadata = {
@@ -125,7 +131,7 @@ export const getMergeRequestContent: gitlabGetMergeRequestFunction = async ({
   // --------------------------------------------------------------------------
   // 2. Fetch MR changes
   // --------------------------------------------------------------------------
-  const changesUrl = `${gitlabBaseUrl}/api/v4/projects/${project_id}/merge_requests/${mr_iid}/changes`;
+  const changesUrl = `${gitlabBaseUrl}/api/v4/projects/${projectPath}/merge_requests/${mr_iid}/changes`;
   const changesData = await gitlabFetch<{ changes: GitLabMergeRequestChangedFile[] }>(changesUrl, authToken);
   const changes: GitLabMergeRequestChangedFile[] = changesData.changes.map(c => ({
     old_path: c.old_path,
@@ -139,7 +145,7 @@ export const getMergeRequestContent: gitlabGetMergeRequestFunction = async ({
   // --------------------------------------------------------------------------
   // 3. Fetch MR commits
   // --------------------------------------------------------------------------
-  const commitsUrl = `${gitlabBaseUrl}/api/v4/projects/${project_id}/merge_requests/${mr_iid}/commits`;
+  const commitsUrl = `${gitlabBaseUrl}/api/v4/projects/${projectPath}/merge_requests/${mr_iid}/commits`;
   const commitsData = await gitlabFetch<GitLabMergeRequestCommit[]>(commitsUrl, authToken);
   const commits: GitLabMergeRequestCommit[] = commitsData.map(c => ({
     id: c.id,

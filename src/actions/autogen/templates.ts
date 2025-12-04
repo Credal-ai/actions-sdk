@@ -13789,11 +13789,16 @@ export const gitlabGetMergeRequestDefinition: ActionTemplate = {
   scopes: [],
   parameters: {
     type: "object",
-    required: ["project_id", "mr_iid"],
+    required: ["mr_iid"],
     properties: {
       project_id: {
         type: "number",
-        description: "Numeric project ID in GitLab (unique per project)",
+        description: "Numeric project ID in GitLab (unique per project). Either this or the project path is required.",
+      },
+      project_path: {
+        type: "string",
+        description:
+          'The path of the project to search in. Either this or the project ID is required. This is the path of the project in the GitLab URL (e.g., "my-group/my-project").',
       },
       mr_iid: {
         type: "string",
