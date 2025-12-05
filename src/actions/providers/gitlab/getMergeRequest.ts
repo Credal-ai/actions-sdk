@@ -102,13 +102,18 @@ export const getMergeRequestContent: gitlabGetMergeRequestFunction = async ({
 
   const mr = await gitlabFetch<GitLabMergeRequestMetadata>(mrUrl, authToken);
 
-  const projectPath = project_path ? encodeURIComponent(project_path) : project_id ? await getProjectPath(project_id, authToken, `${gitlabBaseUrl}/api/v4`) : undefined;
+  const projectPath = project_path
+    ? project_path
+    : project_id
+      ? await getProjectPath(project_id, authToken, `${gitlabBaseUrl}/api/v4`)
+      : undefined;
+  const encodedProjectPath = projectPath ? encodeURIComponent(projectPath) : undefined;
 
-  if (!projectPath) {
+  if (!encodedProjectPath) {
     throw new Error("Project path or project ID is required to fetch merge request");
   }
 
-  const webUrl = mr.web_url ?? `${gitlabBaseUrl}/${projectPath}/-/merge_requests/${mr_iid}`;
+  const webUrl = mr.web_url ?? `${gitlabBaseUrl}/${encodedProjectPath}/-/merge_requests/${mr_iid}`;
 
   const metadata: GitLabMergeRequestMetadata = {
     iid: mr.iid,
@@ -131,7 +136,7 @@ export const getMergeRequestContent: gitlabGetMergeRequestFunction = async ({
   // --------------------------------------------------------------------------
   // 2. Fetch MR changes
   // --------------------------------------------------------------------------
-  const changesUrl = `${gitlabBaseUrl}/api/v4/projects/${projectPath}/merge_requests/${mr_iid}/changes`;
+  const changesUrl = `${gitlabBaseUrl}/api/v4/projects/${encodedProjectPath}/merge_requests/${mr_iid}/changes`;
   const changesData = await gitlabFetch<{ changes: GitLabMergeRequestChangedFile[] }>(changesUrl, authToken);
   const changes: GitLabMergeRequestChangedFile[] = changesData.changes.map(c => ({
     old_path: c.old_path,
@@ -145,7 +150,7 @@ export const getMergeRequestContent: gitlabGetMergeRequestFunction = async ({
   // --------------------------------------------------------------------------
   // 3. Fetch MR commits
   // --------------------------------------------------------------------------
-  const commitsUrl = `${gitlabBaseUrl}/api/v4/projects/${projectPath}/merge_requests/${mr_iid}/commits`;
+  const commitsUrl = `${gitlabBaseUrl}/api/v4/projects/${encodedProjectPath}/merge_requests/${mr_iid}/commits`;
   const commitsData = await gitlabFetch<GitLabMergeRequestCommit[]>(commitsUrl, authToken);
   const commits: GitLabMergeRequestCommit[] = commitsData.map(c => ({
     id: c.id,
