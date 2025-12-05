@@ -93,14 +93,6 @@ export const getMergeRequestContent: gitlabGetMergeRequestFunction = async ({
   }
 
   const { project_id, project_path, mr_iid } = params;
-  const projectIdOrEncodedProjectPath = project_path ? encodeURIComponent(project_path) : project_id;
-
-  // --------------------------------------------------------------------------
-  // 1. Fetch MR metadata
-  // --------------------------------------------------------------------------
-  const mrUrl = `${gitlabBaseUrl}/api/v4/projects/${projectIdOrEncodedProjectPath}/merge_requests/${mr_iid}`;
-
-  const mr = await gitlabFetch<GitLabMergeRequestMetadata>(mrUrl, authToken);
 
   const projectPath = project_path
     ? project_path
@@ -112,6 +104,13 @@ export const getMergeRequestContent: gitlabGetMergeRequestFunction = async ({
   if (!encodedProjectPath) {
     throw new Error("Project path or project ID is required to fetch merge request");
   }
+
+  // --------------------------------------------------------------------------
+  // 1. Fetch MR metadata
+  // --------------------------------------------------------------------------
+  const mrUrl = `${gitlabBaseUrl}/api/v4/projects/${encodedProjectPath}/merge_requests/${mr_iid}`;
+
+  const mr = await gitlabFetch<GitLabMergeRequestMetadata>(mrUrl, authToken);
 
   const webUrl = mr.web_url ?? `${gitlabBaseUrl}/${encodedProjectPath}/-/merge_requests/${mr_iid}`;
 
