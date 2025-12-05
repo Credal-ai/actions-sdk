@@ -6918,7 +6918,16 @@ export type gitlabGetFileContentFunction = ActionFunction<
 >;
 
 export const gitlabGetMergeRequestParamsSchema = z.object({
-  project_id: z.number().describe("Numeric project ID in GitLab (unique per project)"),
+  project_id: z
+    .number()
+    .describe("Numeric project ID in GitLab (unique per project). Either this or the project path is required.")
+    .optional(),
+  project_path: z
+    .string()
+    .describe(
+      'The path of the project to search in. Either this or the project ID is required. This is the path of the project in the GitLab URL (e.g., "my-group/my-project").',
+    )
+    .optional(),
   mr_iid: z.string().describe("The internal ID of the merge request"),
 });
 
