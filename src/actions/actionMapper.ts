@@ -19,6 +19,8 @@ import {
   slackGetChannelMessagesParamsSchema,
   slackCreateChannelParamsSchema,
   slackCreateChannelOutputSchema,
+  slackUserSendDirectMessageParamsSchema,
+  slackUserSendDirectMessageOutputSchema,
   snowflakeGetRowByFieldValueOutputSchema,
   snowflakeGetRowByFieldValueParamsSchema,
   zendeskCreateZendeskTicketOutputSchema,
@@ -421,6 +423,7 @@ import resetPassword from "./providers/okta/resetPassword.js";
 import resetMFA from "./providers/okta/resetMFA.js";
 import listMFA from "./providers/okta/listMFA.js";
 import createChannel from "./providers/slack/createChannel.js";
+import sendDirectMessage from "./providers/slackUser/sendDirectMessage.js";
 import getJamfUserComputerId from "./providers/jamf/getJamfUserComputerId.js";
 import lockJamfComputerById from "./providers/jamf/lockJamfComputerById.js";
 import triggerOktaWorkflow from "./providers/okta/triggerOktaWorkflow.js";
@@ -630,6 +633,11 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: searchSlack,
       paramsSchema: slackUserSearchSlackParamsSchema,
       outputSchema: slackUserSearchSlackOutputSchema,
+    },
+    sendDirectMessage: {
+      fn: sendDirectMessage,
+      paramsSchema: slackUserSendDirectMessageParamsSchema,
+      outputSchema: slackUserSendDirectMessageOutputSchema,
     },
   },
   confluence: {
