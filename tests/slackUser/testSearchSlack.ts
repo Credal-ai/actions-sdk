@@ -57,6 +57,14 @@ async function runTest() {
     { limit: 1, timeRange: "yesterday" }
   )) as slackUserSearchSlackOutputType;
 
+  // Timerange only with only IMs
+  const result7 = (await runAction(
+    "searchSlack",
+    "slackUser",
+    { authToken: process.env.SLACK_AUTH_TOKEN },
+    { limit: 10, timeRange: "yesterday", messageType: "im" }
+  )) as slackUserSearchSlackOutputType;
+
   console.log(
     "Send Message Test Response 1: " + JSON.stringify(result1, null, 2)
   );
@@ -79,6 +87,10 @@ async function runTest() {
 
   console.log(
     "Send Message Test Response 6: " + JSON.stringify(result6, null, 2)
+  );
+
+   console.log(
+    "Send Message Test Response 7: " + JSON.stringify(result7, null, 2)
   );
 }
 

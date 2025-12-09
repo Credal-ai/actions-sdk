@@ -461,6 +461,12 @@ export const slackUserSearchSlackParamsSchema = z.object({
     .enum(["latest", "today", "yesterday", "last_7d", "last_30d", "all"])
     .describe("Optional time filter applied to the search.")
     .default("latest"),
+  messageType: z
+    .enum(["im", "group", "channel"])
+    .describe(
+      "Optional filter for the type of messages to search for. If not specified, all message types will be searched.",
+    )
+    .optional(),
   limit: z
     .number()
     .gte(1)
@@ -1661,26 +1667,6 @@ export type jiraDataCenterGetJiraIssuesByQueryFunction = ActionFunction<
   jiraDataCenterGetJiraIssuesByQueryParamsType,
   AuthParamsType,
   jiraDataCenterGetJiraIssuesByQueryOutputType
->;
-
-export const kandjiGetFVRecoveryKeyForDeviceParamsSchema = z.object({
-  userEmail: z.string().describe("The email of the user requesting the recovery key"),
-  subdomain: z.string().describe("The subdomain of the Kandji account"),
-});
-
-export type kandjiGetFVRecoveryKeyForDeviceParamsType = z.infer<typeof kandjiGetFVRecoveryKeyForDeviceParamsSchema>;
-
-export const kandjiGetFVRecoveryKeyForDeviceOutputSchema = z.object({
-  success: z.boolean().describe("Whether the recovery key was retrieved successfully"),
-  recoveryKey: z.string().describe("The FileVault recovery key for the device").optional(),
-  error: z.string().describe("The error that occurred if the recovery key was not retrieved successfully").optional(),
-});
-
-export type kandjiGetFVRecoveryKeyForDeviceOutputType = z.infer<typeof kandjiGetFVRecoveryKeyForDeviceOutputSchema>;
-export type kandjiGetFVRecoveryKeyForDeviceFunction = ActionFunction<
-  kandjiGetFVRecoveryKeyForDeviceParamsType,
-  AuthParamsType,
-  kandjiGetFVRecoveryKeyForDeviceOutputType
 >;
 
 export const googlemapsValidateAddressParamsSchema = z.object({
@@ -5368,187 +5354,6 @@ export type lookerEnableUserByEmailFunction = ActionFunction<
   lookerEnableUserByEmailOutputType
 >;
 
-export const ashbyCreateNoteParamsSchema = z.object({
-  candidateId: z.string().describe("The ID of the candidate to create a note for"),
-  note: z.string().describe("The note content"),
-});
-
-export type ashbyCreateNoteParamsType = z.infer<typeof ashbyCreateNoteParamsSchema>;
-
-export const ashbyCreateNoteOutputSchema = z.void();
-
-export type ashbyCreateNoteOutputType = z.infer<typeof ashbyCreateNoteOutputSchema>;
-export type ashbyCreateNoteFunction = ActionFunction<
-  ashbyCreateNoteParamsType,
-  AuthParamsType,
-  ashbyCreateNoteOutputType
->;
-
-export const ashbyGetCandidateInfoParamsSchema = z.object({
-  candidateId: z.string().describe("The ID of the candidate whose information is to be retrieved"),
-});
-
-export type ashbyGetCandidateInfoParamsType = z.infer<typeof ashbyGetCandidateInfoParamsSchema>;
-
-export const ashbyGetCandidateInfoOutputSchema = z.object({
-  candidate: z.object({}).catchall(z.any()).describe("The candidate's information"),
-});
-
-export type ashbyGetCandidateInfoOutputType = z.infer<typeof ashbyGetCandidateInfoOutputSchema>;
-export type ashbyGetCandidateInfoFunction = ActionFunction<
-  ashbyGetCandidateInfoParamsType,
-  AuthParamsType,
-  ashbyGetCandidateInfoOutputType
->;
-
-export const ashbyAddCandidateToProjectParamsSchema = z.object({
-  candidateId: z.string().describe("The ID of the candidate to add to the project"),
-  projectId: z.string().describe("The ID of the project to add the candidate to"),
-});
-
-export type ashbyAddCandidateToProjectParamsType = z.infer<typeof ashbyAddCandidateToProjectParamsSchema>;
-
-export const ashbyAddCandidateToProjectOutputSchema = z.void();
-
-export type ashbyAddCandidateToProjectOutputType = z.infer<typeof ashbyAddCandidateToProjectOutputSchema>;
-export type ashbyAddCandidateToProjectFunction = ActionFunction<
-  ashbyAddCandidateToProjectParamsType,
-  AuthParamsType,
-  ashbyAddCandidateToProjectOutputType
->;
-
-export const ashbyListCandidatesParamsSchema = z.object({});
-
-export type ashbyListCandidatesParamsType = z.infer<typeof ashbyListCandidatesParamsSchema>;
-
-export const ashbyListCandidatesOutputSchema = z.object({
-  candidates: z.array(z.any()).describe("A list of candidates"),
-});
-
-export type ashbyListCandidatesOutputType = z.infer<typeof ashbyListCandidatesOutputSchema>;
-export type ashbyListCandidatesFunction = ActionFunction<
-  ashbyListCandidatesParamsType,
-  AuthParamsType,
-  ashbyListCandidatesOutputType
->;
-
-export const ashbySearchCandidatesParamsSchema = z.object({
-  email: z.string().describe("The email address of the candidate to search for").optional(),
-  name: z.string().describe("The name of the candidate to search for").optional(),
-});
-
-export type ashbySearchCandidatesParamsType = z.infer<typeof ashbySearchCandidatesParamsSchema>;
-
-export const ashbySearchCandidatesOutputSchema = z.object({
-  candidates: z.array(z.any()).describe("A list of candidates"),
-});
-
-export type ashbySearchCandidatesOutputType = z.infer<typeof ashbySearchCandidatesOutputSchema>;
-export type ashbySearchCandidatesFunction = ActionFunction<
-  ashbySearchCandidatesParamsType,
-  AuthParamsType,
-  ashbySearchCandidatesOutputType
->;
-
-export const ashbyListCandidateNotesParamsSchema = z.object({
-  candidateId: z.string().describe("The ID of the candidate"),
-});
-
-export type ashbyListCandidateNotesParamsType = z.infer<typeof ashbyListCandidateNotesParamsSchema>;
-
-export const ashbyListCandidateNotesOutputSchema = z.object({ notes: z.array(z.any()).describe("A list of notes") });
-
-export type ashbyListCandidateNotesOutputType = z.infer<typeof ashbyListCandidateNotesOutputSchema>;
-export type ashbyListCandidateNotesFunction = ActionFunction<
-  ashbyListCandidateNotesParamsType,
-  AuthParamsType,
-  ashbyListCandidateNotesOutputType
->;
-
-export const ashbyCreateCandidateParamsSchema = z.object({
-  name: z.string().describe("The first and last name of the candidate to be created."),
-  email: z.string().describe("Primary, personal email of the candidate to be created.").optional(),
-  phoneNumber: z.string().describe("Primary, personal phone number of the candidate to be created.").optional(),
-  linkedInUrl: z.string().describe("Url to the candidate's LinkedIn profile. Must be a valid Url.").optional(),
-  githubUrl: z.string().describe("Url to the candidate's Github profile. Must be a valid Url.").optional(),
-  website: z.string().describe("Url of the candidate's website. Must be a valid Url.").optional(),
-  alternateEmailAddresses: z
-    .array(z.string())
-    .describe("Array of alternate email address to add to the candidate's profile.")
-    .optional(),
-  sourceId: z.string().describe("The source to set on the candidate being created.").optional(),
-  creditedToUserId: z.string().describe("The id of the user the candidate will be credited to.").optional(),
-  location: z
-    .object({
-      city: z.string().describe("The city of the candidate.").optional(),
-      region: z.string().describe("The region of the candidate.").optional(),
-      country: z.string().describe("The country of the candidate.").optional(),
-    })
-    .describe("The location of the candidate.")
-    .optional(),
-});
-
-export type ashbyCreateCandidateParamsType = z.infer<typeof ashbyCreateCandidateParamsSchema>;
-
-export const ashbyCreateCandidateOutputSchema = z.void();
-
-export type ashbyCreateCandidateOutputType = z.infer<typeof ashbyCreateCandidateOutputSchema>;
-export type ashbyCreateCandidateFunction = ActionFunction<
-  ashbyCreateCandidateParamsType,
-  AuthParamsType,
-  ashbyCreateCandidateOutputType
->;
-
-export const ashbyUpdateCandidateParamsSchema = z.object({
-  candidateId: z.string().describe("The ID of the candidate to update"),
-  name: z.string().describe("The first and last name of the candidate to update.").optional(),
-  email: z.string().describe("Primary, personal email of the candidate to update.").optional(),
-  phoneNumber: z.string().describe("Primary, personal phone number of the candidate to update.").optional(),
-  linkedInUrl: z.string().describe("Url to the candidate's LinkedIn profile. Must be a valid Url.").optional(),
-  githubUrl: z.string().describe("Url to the candidate's Github profile. Must be a valid Url.").optional(),
-  websiteUrl: z.string().describe("Url of the candidate's website. Must be a valid Url.").optional(),
-  alternateEmail: z.string().describe("An alternate email address to add to the candidate's profile.").optional(),
-  socialLinks: z
-    .array(
-      z.object({
-        type: z.string().describe("The type of social link").optional(),
-        url: z.string().describe("The URL of the social link").optional(),
-      }),
-    )
-    .describe(
-      "An array of social links to set on the candidate. This value replaces existing socialLinks that have been set on the candidate.",
-    )
-    .optional(),
-  sourceId: z.string().describe("The id of source for this candidate.").optional(),
-  creditedToUserId: z.string().describe("The id of the user the candidate will be credited to.").optional(),
-  location: z
-    .object({
-      city: z.string().describe("The city of the candidate").optional(),
-      region: z.string().describe("The region of the candidate").optional(),
-      country: z.string().describe("The country of the candidate").optional(),
-    })
-    .describe("The location of the candidate.")
-    .optional(),
-  createdAt: z.string().describe("An ISO date string to set the candidate's createdAt timestamp.").optional(),
-  sendNotifications: z
-    .boolean()
-    .describe(
-      "Whether or not users who are subscribed to the candidate should be notified that candidate was updated. Default is true.",
-    )
-    .optional(),
-});
-
-export type ashbyUpdateCandidateParamsType = z.infer<typeof ashbyUpdateCandidateParamsSchema>;
-
-export const ashbyUpdateCandidateOutputSchema = z.void();
-
-export type ashbyUpdateCandidateOutputType = z.infer<typeof ashbyUpdateCandidateOutputSchema>;
-export type ashbyUpdateCandidateFunction = ActionFunction<
-  ashbyUpdateCandidateParamsType,
-  AuthParamsType,
-  ashbyUpdateCandidateOutputType
->;
-
 export const salesforceUpdateRecordParamsSchema = z.object({
   objectType: z.string().describe("The Salesforce object type to update (e.g., Lead, Account, Contact)"),
   recordId: z.string().describe("The ID of the record to update"),
@@ -6675,82 +6480,6 @@ export type notionSearchByTitleFunction = ActionFunction<
   notionSearchByTitleParamsType,
   AuthParamsType,
   notionSearchByTitleOutputType
->;
-
-export const jamfGetJamfFileVaultRecoveryKeyParamsSchema = z.object({
-  computerId: z.string().describe("The computerId of the device to get the FileVault2 recovery key for"),
-});
-
-export type jamfGetJamfFileVaultRecoveryKeyParamsType = z.infer<typeof jamfGetJamfFileVaultRecoveryKeyParamsSchema>;
-
-export const jamfGetJamfFileVaultRecoveryKeyOutputSchema = z.object({
-  success: z.boolean().describe("Whether the request was successful"),
-  data: z.string().describe("The FileVault2 recovery key data").optional(),
-  error: z.string().describe("Error message if the request failed").optional(),
-});
-
-export type jamfGetJamfFileVaultRecoveryKeyOutputType = z.infer<typeof jamfGetJamfFileVaultRecoveryKeyOutputSchema>;
-export type jamfGetJamfFileVaultRecoveryKeyFunction = ActionFunction<
-  jamfGetJamfFileVaultRecoveryKeyParamsType,
-  AuthParamsType,
-  jamfGetJamfFileVaultRecoveryKeyOutputType
->;
-
-export const jamfGetJamfComputerInventoryParamsSchema = z.object({
-  section: z.string().describe("Optional section parameter to filter inventory data").optional(),
-});
-
-export type jamfGetJamfComputerInventoryParamsType = z.infer<typeof jamfGetJamfComputerInventoryParamsSchema>;
-
-export const jamfGetJamfComputerInventoryOutputSchema = z.object({
-  success: z.boolean().describe("Whether the request was successful"),
-  data: z.array(z.any()).describe("The computer inventory data").optional(),
-  error: z.string().describe("Error message if the request failed").optional(),
-});
-
-export type jamfGetJamfComputerInventoryOutputType = z.infer<typeof jamfGetJamfComputerInventoryOutputSchema>;
-export type jamfGetJamfComputerInventoryFunction = ActionFunction<
-  jamfGetJamfComputerInventoryParamsType,
-  AuthParamsType,
-  jamfGetJamfComputerInventoryOutputType
->;
-
-export const jamfGetJamfUserComputerIdParamsSchema = z.object({
-  userEmail: z.string().describe("The email of the Jamf user to retrieve the computer ID for"),
-});
-
-export type jamfGetJamfUserComputerIdParamsType = z.infer<typeof jamfGetJamfUserComputerIdParamsSchema>;
-
-export const jamfGetJamfUserComputerIdOutputSchema = z.object({
-  success: z.boolean().describe("Whether the request was successful"),
-  computerId: z.string().describe("The computer ID associated with the user").optional(),
-  error: z.string().describe("Error message if the request failed").optional(),
-});
-
-export type jamfGetJamfUserComputerIdOutputType = z.infer<typeof jamfGetJamfUserComputerIdOutputSchema>;
-export type jamfGetJamfUserComputerIdFunction = ActionFunction<
-  jamfGetJamfUserComputerIdParamsType,
-  AuthParamsType,
-  jamfGetJamfUserComputerIdOutputType
->;
-
-export const jamfLockJamfComputerByIdParamsSchema = z.object({
-  computerId: z.string().describe("The computer ID of the device to lock"),
-  passcode: z.string().describe("Six digit passcode to unlock the computer afterwards"),
-});
-
-export type jamfLockJamfComputerByIdParamsType = z.infer<typeof jamfLockJamfComputerByIdParamsSchema>;
-
-export const jamfLockJamfComputerByIdOutputSchema = z.object({
-  success: z.boolean().describe("Whether the lock command was successful"),
-  error: z.string().describe("Error message if the lock command failed").optional(),
-});
-
-export type jamfLockJamfComputerByIdOutputType = z.infer<typeof jamfLockJamfComputerByIdOutputSchema>;
-export type jamfLockJamfComputerByIdFunction = ActionFunction<
-  jamfLockJamfComputerByIdParamsType,
-  AuthParamsType,
-  jamfLockJamfComputerByIdOutputType
 >;
 
 export const gitlabSearchGroupParamsSchema = z.object({
