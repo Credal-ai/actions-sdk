@@ -121,10 +121,6 @@ import {
   googleOauthDeleteGroupMemberParamsSchema,
   gongGetGongTranscriptsParamsSchema,
   gongGetGongTranscriptsOutputSchema,
-  ashbyCreateNoteParamsSchema,
-  ashbyCreateNoteOutputSchema,
-  ashbyGetCandidateInfoParamsSchema,
-  ashbyGetCandidateInfoOutputSchema,
   salesforceUpdateRecordParamsSchema,
   salesforceUpdateRecordOutputSchema,
   salesforceCreateCaseParamsSchema,
@@ -133,16 +129,6 @@ import {
   salesforceGenerateSalesReportOutputSchema,
   salesforceGetRecordParamsSchema,
   salesforceGetRecordOutputSchema,
-  ashbyListCandidatesParamsSchema,
-  ashbyListCandidatesOutputSchema,
-  ashbyListCandidateNotesParamsSchema,
-  ashbyListCandidateNotesOutputSchema,
-  ashbySearchCandidatesParamsSchema,
-  ashbySearchCandidatesOutputSchema,
-  ashbyCreateCandidateParamsSchema,
-  ashbyCreateCandidateOutputSchema,
-  ashbyUpdateCandidateParamsSchema,
-  ashbyUpdateCandidateOutputSchema,
   microsoftMessageTeamsChatParamsSchema,
   microsoftMessageTeamsChatOutputSchema,
   microsoftMessageTeamsChannelParamsSchema,
@@ -179,8 +165,6 @@ import {
   firecrawlDeepResearchOutputSchema,
   bingGetTopNSearchResultUrlsParamsSchema,
   bingGetTopNSearchResultUrlsOutputSchema,
-  ashbyAddCandidateToProjectParamsSchema,
-  ashbyAddCandidateToProjectOutputSchema,
   microsoftCreateDocumentParamsSchema,
   microsoftCreateDocumentOutputSchema,
   asanaListAsanaTasksByProjectParamsSchema,
@@ -191,10 +175,6 @@ import {
   asanaGetTasksDetailsOutputSchema,
   notionSearchByTitleParamsSchema,
   notionSearchByTitleOutputSchema,
-  jamfGetJamfComputerInventoryParamsSchema,
-  jamfGetJamfComputerInventoryOutputSchema,
-  jamfGetJamfFileVaultRecoveryKeyParamsSchema,
-  jamfGetJamfFileVaultRecoveryKeyOutputSchema,
   googlemailSearchGmailMessagesOutputSchema,
   googlemailSearchGmailMessagesParamsSchema,
   googlemailListGmailThreadsOutputSchema,
@@ -363,18 +343,10 @@ import updateSpreadsheet from "./providers/google-oauth/updateSpreadsheet.js";
 import createPresentation from "./providers/google-oauth/createPresentation.js";
 import updatePresentation from "./providers/google-oauth/updatePresentation.js";
 import getPresentation from "./providers/google-oauth/getPresentation.js";
-import createNote from "./providers/ashby/createNote.js";
-import getCandidateInfo from "./providers/ashby/getCandidateInfo.js";
 import updateRecord from "./providers/salesforce/updateRecord.js";
 import createCase from "./providers/salesforce/createCase.js";
 import generateSalesReport from "./providers/salesforce/generateSalesReport.js";
 import getRecord from "./providers/salesforce/getRecord.js";
-import listCandidates from "./providers/ashby/listCandidates.js";
-import listCandidateNotes from "./providers/ashby/listCandidateNotes.js";
-import searchCandidates from "./providers/ashby/searchCandidates.js";
-import createCandidate from "./providers/ashby/createCandidate.js";
-import updateCandidate from "./providers/ashby/updateCandidate.js";
-import addCandidateToProject from "./providers/ashby/addCandidateToProject.js";
 import sendMessageToTeamsChat from "./providers/microsoft/messageTeamsChat.js";
 import sendMessageToTeamsChannel from "./providers/microsoft/messageTeamsChannel.js";
 import createOrUpdateFile from "./providers/github/createOrUpdateFile.js";
@@ -982,48 +954,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: enableUserByEmail,
       paramsSchema: lookerEnableUserByEmailParamsSchema,
       outputSchema: lookerEnableUserByEmailOutputSchema,
-    },
-  },
-  ashby: {
-    createNote: {
-      fn: createNote,
-      paramsSchema: ashbyCreateNoteParamsSchema,
-      outputSchema: ashbyCreateNoteOutputSchema,
-    },
-    getCandidateInfo: {
-      fn: getCandidateInfo,
-      paramsSchema: ashbyGetCandidateInfoParamsSchema,
-      outputSchema: ashbyGetCandidateInfoOutputSchema,
-    },
-    listCandidates: {
-      fn: listCandidates,
-      paramsSchema: ashbyListCandidatesParamsSchema,
-      outputSchema: ashbyListCandidatesOutputSchema,
-    },
-    listCandidateNotes: {
-      fn: listCandidateNotes,
-      paramsSchema: ashbyListCandidateNotesParamsSchema,
-      outputSchema: ashbyListCandidateNotesOutputSchema,
-    },
-    searchCandidates: {
-      fn: searchCandidates,
-      paramsSchema: ashbySearchCandidatesParamsSchema,
-      outputSchema: ashbySearchCandidatesOutputSchema,
-    },
-    createCandidate: {
-      fn: createCandidate,
-      paramsSchema: ashbyCreateCandidateParamsSchema,
-      outputSchema: ashbyCreateCandidateOutputSchema,
-    },
-    updateCandidate: {
-      fn: updateCandidate,
-      paramsSchema: ashbyUpdateCandidateParamsSchema,
-      outputSchema: ashbyUpdateCandidateOutputSchema,
-    },
-    addCandidateToProject: {
-      fn: addCandidateToProject,
-      paramsSchema: ashbyAddCandidateToProjectParamsSchema,
-      outputSchema: ashbyAddCandidateToProjectOutputSchema,
     },
   },
   salesforce: {

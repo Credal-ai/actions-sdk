@@ -30,7 +30,6 @@ export enum ProviderName {
   GONG = "gong",
   FINNHUB = "finnhub",
   LOOKER = "looker",
-  ASHBY = "ashby",
   SALESFORCE = "salesforce",
   MICROSOFT = "microsoft",
   GITHUB = "github",
