@@ -198,8 +198,6 @@ import {
   oktaListMFAParamsSchema,
   oktaListMFAOutputSchema,
   type ProviderName,
-  oktaTriggerOktaWorkflowParamsSchema,
-  oktaTriggerOktaWorkflowOutputSchema,
   gitlabSearchGroupOutputSchema,
   gitlabSearchGroupParamsSchema,
   githubSearchRepositoryOutputSchema,
