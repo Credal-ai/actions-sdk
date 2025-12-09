@@ -218,12 +218,7 @@ async function expandSlackEntities(cache: SlackUserCache, raw: string): Promise<
   return text;
 }
 
-async function searchScoped(input: {
-  client: WebClient;
-  scope?: string;
-  topic?: string;
-  timeRange: TimeRange;
-}) {
+async function searchScoped(input: { client: WebClient; scope?: string; topic?: string; timeRange: TimeRange }) {
   const { client, scope, topic, timeRange } = input;
   const parts: string[] = [];
   if (scope) parts.push(`in:${scope}`);
