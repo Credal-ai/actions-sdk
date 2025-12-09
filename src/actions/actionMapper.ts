@@ -119,8 +119,6 @@ import {
   googleOauthAddGroupMemberParamsSchema,
   googleOauthDeleteGroupMemberOutputSchema,
   googleOauthDeleteGroupMemberParamsSchema,
-  gongGetGongTranscriptsParamsSchema,
-  gongGetGongTranscriptsOutputSchema,
   salesforceUpdateRecordParamsSchema,
   salesforceUpdateRecordOutputSchema,
   salesforceCreateCaseParamsSchema,
@@ -153,8 +151,6 @@ import {
   microsoftUpdateDocumentOutputSchema,
   microsoftGetDocumentParamsSchema,
   microsoftGetDocumentOutputSchema,
-  salesforceFetchSalesforceSchemaByObjectParamsSchema,
-  salesforceFetchSalesforceSchemaByObjectOutputSchema,
   githubListPullRequestsParamsSchema,
   githubListPullRequestsOutputSchema,
   jiraGetJiraIssuesByQueryOutputSchema,
@@ -352,14 +348,12 @@ import microsoftUpdateSpreadsheet from "./providers/microsoft/updateSpreadsheet.
 import updateDocument from "./providers/microsoft/updateDocument.js";
 import createDocument from "./providers/microsoft/createDocument.js";
 import getDocument from "./providers/microsoft/getDocument.js";
-import fetchSalesforceSchemaByObject from "./providers/salesforce/fetchSalesforceSchema.js";
 import deepResearch from "./providers/firecrawl/deepResearch.js";
 import listPullRequests from "./providers/github/listPullRequests.js";
 import getJiraIssuesByQuery from "./providers/jira/getJiraIssuesByQuery.js";
 import getJiraDCIssuesByQuery from "./providers/jira/getJiraDCIssuesByQuery.js";
 import createRecord from "./providers/salesforce/createRecord.js";
 import getTopNSearchResultUrls from "./providers/bing/getTopNSearchResultUrls.js";
-import getGongTranscripts from "./providers/gong/getGongTranscripts.js";
 import searchDriveByKeywords from "./providers/google-oauth/searchDriveByKeywords.js";
 import listAsanaTasksByProject from "./providers/asana/listAsanaTasksByProject.js";
 import getTasksDetails from "./providers/asana/getTasksDetails.js";
@@ -921,13 +915,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       outputSchema: xCreateShareXPostUrlOutputSchema,
     },
   },
-  gong: {
-    getGongTranscripts: {
-      fn: getGongTranscripts,
-      paramsSchema: gongGetGongTranscriptsParamsSchema,
-      outputSchema: gongGetGongTranscriptsOutputSchema,
-    },
-  },
   finnhub: {
     symbolLookup: {
       fn: symbolLookup,
@@ -987,11 +974,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: getSalesforceRecordsByQuery,
       paramsSchema: salesforceGetSalesforceRecordsByQueryParamsSchema,
       outputSchema: salesforceGetSalesforceRecordsByQueryOutputSchema,
-    },
-    fetchSalesforceSchemaByObject: {
-      fn: fetchSalesforceSchemaByObject,
-      paramsSchema: salesforceFetchSalesforceSchemaByObjectParamsSchema,
-      outputSchema: salesforceFetchSalesforceSchemaByObjectOutputSchema,
     },
   },
   microsoft: {

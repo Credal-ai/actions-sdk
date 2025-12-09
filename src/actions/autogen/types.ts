@@ -27,7 +27,6 @@ export enum ProviderName {
   GOOGLESEARCH = "googleSearch",
   OKTA = "okta",
   OKTAORG = "oktaOrg",
-  GONG = "gong",
   FINNHUB = "finnhub",
   LOOKER = "looker",
   SALESFORCE = "salesforce",
