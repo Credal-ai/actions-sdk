@@ -25,6 +25,7 @@ const MENTION_USER_RE = /<@([UW][A-Z0-9]+)(?:\|[^>]+)?>/g;
 const MENTION_CHANNEL_RE = /<#(C[A-Z0-9]+)(?:\|[^>]+)?>/g;
 const SPECIAL_RE = /<!(channel|here|everyone)>/g;
 const SUBTEAM_RE = /<!subteam\^([A-Z0-9]+)(?:\|[^>]+)?>/g;
+const MAX_LIMIT_PER_PAGE = 100;
 
 /* ===================== Types ===================== */
 
@@ -217,14 +218,8 @@ async function expandSlackEntities(cache: SlackUserCache, raw: string): Promise<
   return text;
 }
 
-async function searchScoped(input: {
-  client: WebClient;
-  scope?: string;
-  topic?: string;
-  timeRange: TimeRange;
-  limit: number;
-}) {
-  const { client, scope, topic, timeRange, limit } = input;
+async function searchScoped(input: { client: WebClient; scope?: string; topic?: string; timeRange: TimeRange }) {
+  const { client, scope, topic, timeRange } = input;
   const parts: string[] = [];
   if (scope) parts.push(`in:${scope}`);
   if (topic?.trim()) parts.push(topic.trim());
@@ -232,18 +227,18 @@ async function searchScoped(input: {
   if (tf) parts.push(tf);
 
   const query = parts.join(" ");
-  const searchRes = await client.search.messages({ query, count: limit, highlight: true });
+  const searchRes = await client.search.messages({ query, count: MAX_LIMIT_PER_PAGE, highlight: true });
   return searchRes.messages?.matches ?? [];
 }
 
-async function searchByTopic(input: { client: WebClient; topic?: string; timeRange: TimeRange; limit: number }) {
-  const { client, topic, timeRange, limit } = input;
+async function searchByTopic(input: { client: WebClient; topic?: string; timeRange: TimeRange }) {
+  const { client, topic, timeRange } = input;
   const parts: string[] = [];
   if (topic?.trim()) parts.push(topic.trim());
   const tf = timeFilter(timeRange);
   if (tf) parts.push(tf);
   const query = parts.join(" ");
-  const searchRes = await client.search.messages({ query, count: limit, highlight: true });
+  const searchRes = await client.search.messages({ query, count: MAX_LIMIT_PER_PAGE, highlight: true });
   return searchRes.messages?.matches ?? [];
 }
 
@@ -322,11 +317,11 @@ const searchSlack: slackUserSearchSlackFunction = async ({
   const searchPromises: Promise<Match[]>[] = [];
 
   if (filteredTargetIds.length === 1) {
-    searchPromises.push(searchScoped({ client, scope: `<@${filteredTargetIds[0]}>`, topic, timeRange, limit }));
+    searchPromises.push(searchScoped({ client, scope: `<@${filteredTargetIds[0]}>`, topic, timeRange }));
   } else if (filteredTargetIds.length >= 2) {
     const searchMPIM = async () => {
       const mpimName = await tryGetMPIMName(client, filteredTargetIds);
-      return mpimName ? searchScoped({ client, scope: mpimName, topic, timeRange, limit }) : [];
+      return mpimName ? searchScoped({ client, scope: mpimName, topic, timeRange }) : [];
     };
     searchPromises.push(searchMPIM());
     searchPromises.push(
@@ -336,7 +331,6 @@ const searchSlack: slackUserSearchSlackFunction = async ({
           scope: `<@${id}>`,
           topic,
           timeRange,
-          limit,
         }),
       ),
     );
@@ -347,7 +341,6 @@ const searchSlack: slackUserSearchSlackFunction = async ({
         scope: normalizeChannelOperand(channel),
         topic,
         timeRange,
-        limit,
       }),
     );
   } else if (timeRange) {
@@ -356,7 +349,6 @@ const searchSlack: slackUserSearchSlackFunction = async ({
         client,
         topic,
         timeRange,
-        limit,
       }),
     );
   }
@@ -366,7 +358,6 @@ const searchSlack: slackUserSearchSlackFunction = async ({
         client,
         topic,
         timeRange,
-        limit,
       }),
     );
   }
