@@ -378,7 +378,6 @@ import resetPassword from "./providers/okta/resetPassword.js";
 import resetMFA from "./providers/okta/resetMFA.js";
 import listMFA from "./providers/okta/listMFA.js";
 import createChannel from "./providers/slack/createChannel.js";
-import triggerOktaWorkflow from "./providers/okta/triggerOktaWorkflow.js";
 import searchGroup from "./providers/gitlab/searchGroup.js";
 import searchRepository from "./providers/github/searchRepository.js";
 import searchOrganization from "./providers/github/searchOrganization.js";
@@ -1127,11 +1126,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: listMFA,
       paramsSchema: oktaListMFAParamsSchema,
       outputSchema: oktaListMFAOutputSchema,
-    },
-    triggerOktaWorkflow: {
-      fn: triggerOktaWorkflow,
-      paramsSchema: oktaTriggerOktaWorkflowParamsSchema,
-      outputSchema: oktaTriggerOktaWorkflowOutputSchema,
     },
   },
   oktaOrg: {
