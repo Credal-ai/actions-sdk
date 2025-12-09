@@ -213,13 +213,14 @@ async function expandSlackEntities(cache: SlackUserCache, raw: string): Promise<
 
 async function searchScoped(input: {
   client: WebClient;
-  scope: string;
+  scope?: string;
   topic?: string;
   timeRange: TimeRange;
   limit: number;
 }) {
   const { client, scope, topic, timeRange, limit } = input;
-  const parts = [`in:${scope}`];
+  const parts: string[] = [];
+  if (scope) parts.push(`in:${scope}`);
   if (topic?.trim()) parts.push(topic.trim());
   const tf = timeFilter(timeRange);
   if (tf) parts.push(tf);
@@ -339,6 +340,15 @@ const searchSlack: slackUserSearchSlackFunction = async ({
       searchScoped({
         client,
         scope: normalizeChannelOperand(channel),
+        topic,
+        timeRange,
+        limit: Math.max(Math.floor(limit / 2), 1),
+      }),
+    );
+  } else if (timeRange) {
+    searchPromises.push(
+      searchScoped({
+        client,
         topic,
         timeRange,
         limit: Math.max(Math.floor(limit / 2), 1),
