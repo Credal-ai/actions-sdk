@@ -202,10 +202,6 @@ import {
   oktaListMFAParamsSchema,
   oktaListMFAOutputSchema,
   type ProviderName,
-  jamfGetJamfUserComputerIdParamsSchema,
-  jamfGetJamfUserComputerIdOutputSchema,
-  jamfLockJamfComputerByIdParamsSchema,
-  jamfLockJamfComputerByIdOutputSchema,
   oktaTriggerOktaWorkflowParamsSchema,
   oktaTriggerOktaWorkflowOutputSchema,
   gitlabSearchGroupOutputSchema,
@@ -365,7 +361,6 @@ import createRecord from "./providers/salesforce/createRecord.js";
 import getTopNSearchResultUrls from "./providers/bing/getTopNSearchResultUrls.js";
 import getGongTranscripts from "./providers/gong/getGongTranscripts.js";
 import searchDriveByKeywords from "./providers/google-oauth/searchDriveByKeywords.js";
-import getFVRecoveryKeyForDevice from "./providers/kandji/getFVRecoveryKeyForDevice.js";
 import listAsanaTasksByProject from "./providers/asana/listAsanaTasksByProject.js";
 import getTasksDetails from "./providers/asana/getTasksDetails.js";
 import searchByTitle from "./providers/notion/searchByTitle.js";
