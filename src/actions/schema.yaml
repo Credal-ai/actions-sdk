@@ -6138,19 +6138,6 @@ actions:
           resetPasswordUrl:
             type: string
             description: The URL for resetting the password manually.
-      output:
-        type: object
-        required: [success]
-        properties:
-          success:
-            type: boolean
-            description: Whether the workflow was successfully triggered.
-          output:
-            type: object
-            description: The output of the triggered workflow, if applicable.
-          error:
-            type: string
-            description: Error message if the workflow trigger failed.
   oktaOrg:
     getOktaUserByName:
       description: Retrieve details of a specific Okta user by their name.

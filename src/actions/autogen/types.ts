@@ -5125,29 +5125,6 @@ export type oktaResetPasswordFunction = ActionFunction<
   oktaResetPasswordOutputType
 >;
 
-export const oktaTriggerOktaWorkflowParamsSchema = z.object({
-  workflowId: z.string().describe("The unique ID of the workflow"),
-  workflowParameters: z
-    .record(z.string())
-    .describe("A key,value pair where the keys are the input variables the values are the values of those fields.")
-    .optional(),
-});
-
-export type oktaTriggerOktaWorkflowParamsType = z.infer<typeof oktaTriggerOktaWorkflowParamsSchema>;
-
-export const oktaTriggerOktaWorkflowOutputSchema = z.object({
-  success: z.boolean().describe("Whether the workflow was successfully triggered."),
-  output: z.object({}).catchall(z.any()).describe("The output of the triggered workflow, if applicable.").optional(),
-  error: z.string().describe("Error message if the workflow trigger failed.").optional(),
-});
-
-export type oktaTriggerOktaWorkflowOutputType = z.infer<typeof oktaTriggerOktaWorkflowOutputSchema>;
-export type oktaTriggerOktaWorkflowFunction = ActionFunction<
-  oktaTriggerOktaWorkflowParamsType,
-  AuthParamsType,
-  oktaTriggerOktaWorkflowOutputType
->;
-
 export const oktaOrgGetOktaUserByNameParamsSchema = z.object({
   name: z.string().describe("The name of the user to retrieve."),
 });
@@ -5173,67 +5150,6 @@ export type oktaOrgGetOktaUserByNameFunction = ActionFunction<
   oktaOrgGetOktaUserByNameParamsType,
   AuthParamsType,
   oktaOrgGetOktaUserByNameOutputType
->;
-
-export const gongGetGongTranscriptsParamsSchema = z.object({
-  userRole: z.string().describe("The role of users whose transcripts are being fetched"),
-  trackers: z
-    .array(z.string().describe("The names of the trackers to fetch transcripts for"))
-    .describe("The trackers to fetch transcripts for")
-    .optional(),
-  company: z.string().describe("The company to get calls with").optional(),
-  startDate: z.string().describe("The start date of the transcripts to fetch in ISO 8601 format").optional(),
-  endDate: z.string().describe("The end date of the transcripts to fetch in ISO 8601 format").optional(),
-});
-
-export type gongGetGongTranscriptsParamsType = z.infer<typeof gongGetGongTranscriptsParamsSchema>;
-
-export const gongGetGongTranscriptsOutputSchema = z.object({
-  success: z.boolean().describe("Whether the transcripts were fetched successfully"),
-  callTranscripts: z
-    .array(
-      z
-        .object({
-          callId: z.string().describe("The ID of the call").optional(),
-          callName: z.string().describe("The name of the call").optional(),
-          startTime: z.string().describe("The start time of the call in ISO 8601 format").optional(),
-          transcript: z
-            .array(
-              z
-                .object({
-                  speakerName: z.string().describe("The name of the speaker").optional(),
-                  speakerEmail: z.string().describe("The email of the speaker").optional(),
-                  topic: z.string().nullable().describe("The topic of the transcript").optional(),
-                  sentences: z
-                    .array(
-                      z
-                        .object({
-                          start: z.number().describe("The start time of the sentence in seconds").optional(),
-                          end: z.number().describe("The end time of the sentence in seconds").optional(),
-                          text: z.string().describe("The text of the sentence").optional(),
-                        })
-                        .describe("A sentence"),
-                    )
-                    .describe("The sentences in the transcript")
-                    .optional(),
-                })
-                .describe("A transcript"),
-            )
-            .describe("The transcript")
-            .optional(),
-        })
-        .describe("A transcript"),
-    )
-    .describe("The transcripts fetched")
-    .optional(),
-  error: z.string().describe("The error that occurred if the transcripts weren't fetched successfully").optional(),
-});
-
-export type gongGetGongTranscriptsOutputType = z.infer<typeof gongGetGongTranscriptsOutputSchema>;
-export type gongGetGongTranscriptsFunction = ActionFunction<
-  gongGetGongTranscriptsParamsType,
-  AuthParamsType,
-  gongGetGongTranscriptsOutputType
 >;
 
 export const finnhubSymbolLookupParamsSchema = z.object({
@@ -5591,29 +5507,6 @@ export type salesforceGetRecordFunction = ActionFunction<
   salesforceGetRecordParamsType,
   AuthParamsType,
   salesforceGetRecordOutputType
->;
-
-export const salesforceFetchSalesforceSchemaByObjectParamsSchema = z.object({
-  objectType: z.string().describe("The Salesforce object type to fetch the schema for (e.g., Lead, Account, Contact)"),
-});
-
-export type salesforceFetchSalesforceSchemaByObjectParamsType = z.infer<
-  typeof salesforceFetchSalesforceSchemaByObjectParamsSchema
->;
-
-export const salesforceFetchSalesforceSchemaByObjectOutputSchema = z.object({
-  success: z.boolean().describe("Whether the schema was successfully retrieved"),
-  schema: z.record(z.string()).describe("The retrieved schema data").optional(),
-  error: z.string().describe("The error that occurred if the schema was not successfully retrieved").optional(),
-});
-
-export type salesforceFetchSalesforceSchemaByObjectOutputType = z.infer<
-  typeof salesforceFetchSalesforceSchemaByObjectOutputSchema
->;
-export type salesforceFetchSalesforceSchemaByObjectFunction = ActionFunction<
-  salesforceFetchSalesforceSchemaByObjectParamsType,
-  AuthParamsType,
-  salesforceFetchSalesforceSchemaByObjectOutputType
 >;
 
 export const microsoftCreateDocumentParamsSchema = z.object({
