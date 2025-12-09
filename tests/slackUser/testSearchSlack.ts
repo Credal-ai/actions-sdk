@@ -49,6 +49,14 @@ async function runTest() {
     { channel: "general", limit: 1, timeRange: "all" }
   )) as slackUserSearchSlackOutputType;
 
+  // Timerange only
+  const result6 = (await runAction(
+    "searchSlack",
+    "slackUser",
+    { authToken: process.env.SLACK_AUTH_TOKEN },
+    { limit: 1, timeRange: "yesterday" }
+  )) as slackUserSearchSlackOutputType;
+
   console.log(
     "Send Message Test Response 1: " + JSON.stringify(result1, null, 2)
   );
@@ -67,6 +75,10 @@ async function runTest() {
 
   console.log(
     "Send Message Test Response 5: " + JSON.stringify(result5, null, 2)
+  );
+
+  console.log(
+    "Send Message Test Response 6: " + JSON.stringify(result6, null, 2)
   );
 }
 
