@@ -347,13 +347,13 @@ const searchSlack: slackUserSearchSlackFunction = async ({
     );
   } else if (timeRange) {
     searchPromises.push(
-    searchScoped({
+      searchScoped({
         client,
         topic,
         timeRange,
         limit: Math.max(Math.floor(limit / 2), 1),
-      })
-    )
+      }),
+    );
   }
   if (topic) {
     searchPromises.push(
