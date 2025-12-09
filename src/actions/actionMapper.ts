@@ -183,8 +183,6 @@ import {
   ashbyAddCandidateToProjectOutputSchema,
   microsoftCreateDocumentParamsSchema,
   microsoftCreateDocumentOutputSchema,
-  kandjiGetFVRecoveryKeyForDeviceParamsSchema,
-  kandjiGetFVRecoveryKeyForDeviceOutputSchema,
   asanaListAsanaTasksByProjectParamsSchema,
   asanaListAsanaTasksByProjectOutputSchema,
   asanaSearchTasksParamsSchema,
@@ -579,28 +577,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       outputSchema: asanaGetTasksDetailsOutputSchema,
     },
   },
-  jamf: {
-    getJamfComputerInventory: {
-      fn: getJamfComputerInventory,
-      paramsSchema: jamfGetJamfComputerInventoryParamsSchema,
-      outputSchema: jamfGetJamfComputerInventoryOutputSchema,
-    },
-    getJamfFileVaultRecoveryKey: {
-      fn: getJamfFileVaultRecoveryKey,
-      paramsSchema: jamfGetJamfFileVaultRecoveryKeyParamsSchema,
-      outputSchema: jamfGetJamfFileVaultRecoveryKeyOutputSchema,
-    },
-    getJamfUserComputerId: {
-      fn: getJamfUserComputerId,
-      paramsSchema: jamfGetJamfUserComputerIdParamsSchema,
-      outputSchema: jamfGetJamfUserComputerIdOutputSchema,
-    },
-    lockJamfComputerById: {
-      fn: lockJamfComputerById,
-      paramsSchema: jamfLockJamfComputerByIdParamsSchema,
-      outputSchema: jamfLockJamfComputerByIdOutputSchema,
-    },
-  },
   math: {
     add: {
       fn: add,
@@ -654,13 +630,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: nearbysearch,
       paramsSchema: googlemapsNearbysearchRestaurantsParamsSchema,
       outputSchema: googlemapsNearbysearchRestaurantsOutputSchema,
-    },
-  },
-  kandji: {
-    getFVRecoveryKeyForDevice: {
-      fn: getFVRecoveryKeyForDevice,
-      paramsSchema: kandjiGetFVRecoveryKeyForDeviceParamsSchema,
-      outputSchema: kandjiGetFVRecoveryKeyForDeviceOutputSchema,
     },
   },
   bing: {
