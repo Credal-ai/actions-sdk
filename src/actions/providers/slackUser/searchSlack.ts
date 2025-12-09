@@ -95,6 +95,12 @@ function normalizeChannelOperand(ch: string): string {
   return s.replace(/^#/, "");
 }
 
+function getMessageTypeFilter(messageType: string | undefined): string | undefined {
+  // This converts the LLM readable message type to the Slack search API message type (e.g. "channel" -> "message")
+  if (messageType === "channel") return "message";
+  return messageType;
+}
+
 function fmtDaysAgo(n: number) {
   const d = new Date();
   d.setDate(d.getDate() - n);
@@ -299,7 +305,8 @@ const searchSlack: slackUserSearchSlackFunction = async ({
   const client = new WebClient(authParams.authToken);
   const cache = new SlackUserCache(client);
 
-  const { emails, topic, timeRange, limit = 20, channel, fetchAdjacentMessages = true } = params;
+  const { emails, topic, timeRange, limit = 20, channel, fetchAdjacentMessages = true, messageType } = params;
+  const messageTypeFilter = getMessageTypeFilter(messageType);
 
   const { user_id: myUserId } = await client.auth.test();
   if (!myUserId) throw new Error("Failed to get my user ID.");
@@ -319,9 +326,7 @@ const searchSlack: slackUserSearchSlackFunction = async ({
   } else if (filteredTargetIds.length >= 2) {
     const searchMPIM = async () => {
       const mpimName = await tryGetMPIMName(client, filteredTargetIds);
-      return mpimName
-        ? searchScoped({ client, scope: mpimName, topic, timeRange, limit: Math.max(Math.floor(limit / 2), 1) })
-        : [];
+      return mpimName ? searchScoped({ client, scope: mpimName, topic, timeRange, limit }) : [];
     };
     searchPromises.push(searchMPIM());
     searchPromises.push(
@@ -331,7 +336,7 @@ const searchSlack: slackUserSearchSlackFunction = async ({
           scope: `<@${id}>`,
           topic,
           timeRange,
-          limit: Math.max(Math.floor(limit / filteredTargetIds.length), 1),
+          limit,
         }),
       ),
     );
@@ -342,7 +347,7 @@ const searchSlack: slackUserSearchSlackFunction = async ({
         scope: normalizeChannelOperand(channel),
         topic,
         timeRange,
-        limit: Math.max(Math.floor(limit / 2), 1),
+        limit,
       }),
     );
   } else if (timeRange) {
@@ -351,7 +356,7 @@ const searchSlack: slackUserSearchSlackFunction = async ({
         client,
         topic,
         timeRange,
-        limit: Math.max(Math.floor(limit / 2), 1),
+        limit,
       }),
     );
   }
@@ -361,13 +366,23 @@ const searchSlack: slackUserSearchSlackFunction = async ({
         client,
         topic,
         timeRange,
-        limit: Math.max(Math.floor(limit / Math.max(searchPromises.length, 1)), 1),
+        limit,
       }),
     );
   }
 
   const searchResults = await Promise.all(searchPromises);
-  searchResults.forEach(matches => allMatches.push(...matches));
+  const searchResultsFilteredByTypeAndLimit = searchResults.map(matches => {
+    return matches
+      .filter(m => {
+        if (messageTypeFilter) {
+          return m.type === messageTypeFilter;
+        }
+        return true;
+      })
+      .slice(0, Math.max(Math.floor(limit / Math.max(searchPromises.length, 1)), 1));
+  });
+  searchResultsFilteredByTypeAndLimit.forEach(matches => allMatches.push(...matches));
 
   const channelInfoCache = new Map<string, { isIm: boolean; isMpim: boolean; members: string[] }>();
 
