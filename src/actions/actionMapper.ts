@@ -175,28 +175,6 @@ import {
   googlemailSearchGmailMessagesParamsSchema,
   googlemailListGmailThreadsOutputSchema,
   googlemailListGmailThreadsParamsSchema,
-  oktaListOktaUsersParamsSchema,
-  oktaListOktaUsersOutputSchema,
-  oktaGetOktaUserParamsSchema,
-  oktaGetOktaUserOutputSchema,
-  oktaListOktaUserGroupsParamsSchema,
-  oktaListOktaUserGroupsOutputSchema,
-  oktaListOktaGroupsParamsSchema,
-  oktaListOktaGroupsOutputSchema,
-  oktaGetOktaGroupParamsSchema,
-  oktaGetOktaGroupOutputSchema,
-  oktaListOktaGroupMembersParamsSchema,
-  oktaListOktaGroupMembersOutputSchema,
-  oktaRemoveUserFromGroupParamsSchema,
-  oktaRemoveUserFromGroupOutputSchema,
-  oktaAddUserToGroupParamsSchema,
-  oktaAddUserToGroupOutputSchema,
-  oktaResetPasswordParamsSchema,
-  oktaResetPasswordOutputSchema,
-  oktaResetMFAParamsSchema,
-  oktaResetMFAOutputSchema,
-  oktaListMFAParamsSchema,
-  oktaListMFAOutputSchema,
   type ProviderName,
   gitlabSearchGroupOutputSchema,
   gitlabSearchGroupParamsSchema,
@@ -364,17 +342,6 @@ import listGroupMembers from "./providers/google-oauth/listGroupMembers.js";
 import hasGroupMember from "./providers/google-oauth/hasGroupMember.js";
 import addGroupMember from "./providers/google-oauth/addGroupMember.js";
 import deleteGroupMember from "./providers/google-oauth/deleteGroupMember.js";
-import listOktaUsers from "./providers/okta/listOktaUsers.js";
-import getOktaUser from "./providers/okta/getOktaUser.js";
-import listOktaUserGroups from "./providers/okta/listOktaUserGroups.js";
-import listOktaGroups from "./providers/okta/listOktaGroups.js";
-import getOktaGroup from "./providers/okta/getOktaGroup.js";
-import listOktaGroupMembers from "./providers/okta/listOktaGroupMembers.js";
-import removeUserFromGroup from "./providers/okta/removeUserFromGroup.js";
-import addUserToGroup from "./providers/okta/addUserToGroup.js";
-import resetPassword from "./providers/okta/resetPassword.js";
-import resetMFA from "./providers/okta/resetMFA.js";
-import listMFA from "./providers/okta/listMFA.js";
 import createChannel from "./providers/slack/createChannel.js";
 import searchGroup from "./providers/gitlab/searchGroup.js";
 import searchRepository from "./providers/github/searchRepository.js";
@@ -1067,63 +1034,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: searchByTitle,
       paramsSchema: notionSearchByTitleParamsSchema,
       outputSchema: notionSearchByTitleOutputSchema,
-    },
-  },
-  okta: {
-    listOktaUsers: {
-      fn: listOktaUsers,
-      paramsSchema: oktaListOktaUsersParamsSchema,
-      outputSchema: oktaListOktaUsersOutputSchema,
-    },
-    getOktaUser: {
-      fn: getOktaUser,
-      paramsSchema: oktaGetOktaUserParamsSchema,
-      outputSchema: oktaGetOktaUserOutputSchema,
-    },
-    listOktaUserGroups: {
-      fn: listOktaUserGroups,
-      paramsSchema: oktaListOktaUserGroupsParamsSchema,
-      outputSchema: oktaListOktaUserGroupsOutputSchema,
-    },
-    listOktaGroups: {
-      fn: listOktaGroups,
-      paramsSchema: oktaListOktaGroupsParamsSchema,
-      outputSchema: oktaListOktaGroupsOutputSchema,
-    },
-    getOktaGroup: {
-      fn: getOktaGroup,
-      paramsSchema: oktaGetOktaGroupParamsSchema,
-      outputSchema: oktaGetOktaGroupOutputSchema,
-    },
-    listOktaGroupMembers: {
-      fn: listOktaGroupMembers,
-      paramsSchema: oktaListOktaGroupMembersParamsSchema,
-      outputSchema: oktaListOktaGroupMembersOutputSchema,
-    },
-    removeUserFromGroup: {
-      fn: removeUserFromGroup,
-      paramsSchema: oktaRemoveUserFromGroupParamsSchema,
-      outputSchema: oktaRemoveUserFromGroupOutputSchema,
-    },
-    addUserToGroup: {
-      fn: addUserToGroup,
-      paramsSchema: oktaAddUserToGroupParamsSchema,
-      outputSchema: oktaAddUserToGroupOutputSchema,
-    },
-    resetPassword: {
-      fn: resetPassword,
-      paramsSchema: oktaResetPasswordParamsSchema,
-      outputSchema: oktaResetPasswordOutputSchema,
-    },
-    resetMFA: {
-      fn: resetMFA,
-      paramsSchema: oktaResetMFAParamsSchema,
-      outputSchema: oktaResetMFAOutputSchema,
-    },
-    listMFA: {
-      fn: listMFA,
-      paramsSchema: oktaListMFAParamsSchema,
-      outputSchema: oktaListMFAOutputSchema,
     },
   },
   oktaOrg: {
