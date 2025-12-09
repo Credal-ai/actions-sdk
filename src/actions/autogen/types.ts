@@ -540,7 +540,7 @@ export type slackUserSearchSlackFunction = ActionFunction<
 
 export const slackUserSendDirectMessageParamsSchema = z.object({
   userEmail: z.string().describe("The email address of the user to send the DM to"),
-  message: z.string().describe("The message content to send.."),
+  message: z.string().describe("The direct message content to send to Slack. Can include markdown formatting."),
 });
 
 export type slackUserSendDirectMessageParamsType = z.infer<typeof slackUserSendDirectMessageParamsSchema>;

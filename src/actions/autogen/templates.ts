@@ -948,7 +948,7 @@ export const slackUserSendDirectMessageDefinition: ActionTemplate = {
       },
       message: {
         type: "string",
-        description: "The message content to send..",
+        description: "The direct message content to send to Slack. Can include markdown formatting.",
       },
     },
   },
