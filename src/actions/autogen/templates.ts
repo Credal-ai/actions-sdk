@@ -935,6 +935,40 @@ export const slackUserSearchSlackDefinition: ActionTemplate = {
   name: "searchSlack",
   provider: "slackUser",
 };
+export const slackUserSendDirectMessageDefinition: ActionTemplate = {
+  description: "Sends a direct message to a user by their email address (on behalf of the signed-in user)",
+  scopes: ["users:read.email", "im:write", "chat:write"],
+  parameters: {
+    type: "object",
+    required: ["userEmail", "message"],
+    properties: {
+      userEmail: {
+        type: "string",
+        description: "The email address of the user to send the DM to",
+      },
+      message: {
+        type: "string",
+        description: "The message content to send..",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["channelId", "messageId"],
+    properties: {
+      channelId: {
+        type: "string",
+        description: "The DM channel ID",
+      },
+      messageId: {
+        type: "string",
+        description: "The ID of the sent message",
+      },
+    },
+  },
+  name: "sendDirectMessage",
+  provider: "slackUser",
+};
 export const mathAddDefinition: ActionTemplate = {
   description: "Adds two numbers together",
   scopes: [],

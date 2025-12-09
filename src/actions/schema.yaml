@@ -674,6 +674,32 @@ actions:
               userEmail:
                 type: string
                 description: The email of the current user
+    sendDirectMessage:
+      description: Sends a direct message to a user by their email address (on behalf of the signed-in user)
+      scopes:
+        - users:read.email
+        - im:write
+        - chat:write
+      parameters:
+        type: object
+        required: [userEmail, message]
+        properties:
+          userEmail:
+            type: string
+            description: The email address of the user to send the DM to
+          message:
+            type: string
+            description: The message content to send..
+      output:
+        type: object
+        required: [channelId, messageId]
+        properties:
+          channelId:
+            type: string
+            description: The DM channel ID
+          messageId:
+            type: string
+            description: The ID of the sent message
   math:
     add:
       description: Adds two numbers together
@@ -5194,7 +5220,7 @@ actions:
                   description: Column mode (NULLABLE, REQUIRED, REPEATED)
           error:
             type: string
-            description: Error message if query failed 
+            description: Error message if query failed
   googlemail:
     searchGmailMessages:
       description: Search Gmail messages in a user's inbox using a query string.
@@ -8800,7 +8826,23 @@ actions:
               properties:
                 metadata:
                   type: object
-                  required: [iid, id, project_id, title, description, state, merged, sha, web_url, source_branch, target_branch, source_sha, diff_refs, author]
+                  required:
+                    [
+                      iid,
+                      id,
+                      project_id,
+                      title,
+                      description,
+                      state,
+                      merged,
+                      sha,
+                      web_url,
+                      source_branch,
+                      target_branch,
+                      source_sha,
+                      diff_refs,
+                      author,
+                    ]
                   properties:
                     iid:
                       type: number
