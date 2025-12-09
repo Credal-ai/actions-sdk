@@ -937,7 +937,7 @@ export const slackUserSearchSlackDefinition: ActionTemplate = {
 };
 export const slackUserSendDirectMessageDefinition: ActionTemplate = {
   description: "Sends a direct message to a user by their email address (on behalf of the signed-in user)",
-  scopes: ["users:read.email", "im:write", "chat:write"],
+  scopes: ["users:read.email", "users:read", "im:write", "chat:write"],
   parameters: {
     type: "object",
     required: ["userEmail", "message"],
