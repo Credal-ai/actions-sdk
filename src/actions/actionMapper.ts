@@ -121,10 +121,6 @@ import {
   googleOauthDeleteGroupMemberParamsSchema,
   gongGetGongTranscriptsParamsSchema,
   gongGetGongTranscriptsOutputSchema,
-  ashbyCreateNoteParamsSchema,
-  ashbyCreateNoteOutputSchema,
-  ashbyGetCandidateInfoParamsSchema,
-  ashbyGetCandidateInfoOutputSchema,
   salesforceUpdateRecordParamsSchema,
   salesforceUpdateRecordOutputSchema,
   salesforceCreateCaseParamsSchema,
@@ -133,16 +129,6 @@ import {
   salesforceGenerateSalesReportOutputSchema,
   salesforceGetRecordParamsSchema,
   salesforceGetRecordOutputSchema,
-  ashbyListCandidatesParamsSchema,
-  ashbyListCandidatesOutputSchema,
-  ashbyListCandidateNotesParamsSchema,
-  ashbyListCandidateNotesOutputSchema,
-  ashbySearchCandidatesParamsSchema,
-  ashbySearchCandidatesOutputSchema,
-  ashbyCreateCandidateParamsSchema,
-  ashbyCreateCandidateOutputSchema,
-  ashbyUpdateCandidateParamsSchema,
-  ashbyUpdateCandidateOutputSchema,
   microsoftMessageTeamsChatParamsSchema,
   microsoftMessageTeamsChatOutputSchema,
   microsoftMessageTeamsChannelParamsSchema,
@@ -179,12 +165,8 @@ import {
   firecrawlDeepResearchOutputSchema,
   bingGetTopNSearchResultUrlsParamsSchema,
   bingGetTopNSearchResultUrlsOutputSchema,
-  ashbyAddCandidateToProjectParamsSchema,
-  ashbyAddCandidateToProjectOutputSchema,
   microsoftCreateDocumentParamsSchema,
   microsoftCreateDocumentOutputSchema,
-  kandjiGetFVRecoveryKeyForDeviceParamsSchema,
-  kandjiGetFVRecoveryKeyForDeviceOutputSchema,
   asanaListAsanaTasksByProjectParamsSchema,
   asanaListAsanaTasksByProjectOutputSchema,
   asanaSearchTasksParamsSchema,
@@ -193,10 +175,6 @@ import {
   asanaGetTasksDetailsOutputSchema,
   notionSearchByTitleParamsSchema,
   notionSearchByTitleOutputSchema,
-  jamfGetJamfComputerInventoryParamsSchema,
-  jamfGetJamfComputerInventoryOutputSchema,
-  jamfGetJamfFileVaultRecoveryKeyParamsSchema,
-  jamfGetJamfFileVaultRecoveryKeyOutputSchema,
   googlemailSearchGmailMessagesOutputSchema,
   googlemailSearchGmailMessagesParamsSchema,
   googlemailListGmailThreadsOutputSchema,
@@ -224,10 +202,6 @@ import {
   oktaListMFAParamsSchema,
   oktaListMFAOutputSchema,
   type ProviderName,
-  jamfGetJamfUserComputerIdParamsSchema,
-  jamfGetJamfUserComputerIdOutputSchema,
-  jamfLockJamfComputerByIdParamsSchema,
-  jamfLockJamfComputerByIdOutputSchema,
   oktaTriggerOktaWorkflowParamsSchema,
   oktaTriggerOktaWorkflowOutputSchema,
   gitlabSearchGroupOutputSchema,
@@ -365,18 +339,10 @@ import updateSpreadsheet from "./providers/google-oauth/updateSpreadsheet.js";
 import createPresentation from "./providers/google-oauth/createPresentation.js";
 import updatePresentation from "./providers/google-oauth/updatePresentation.js";
 import getPresentation from "./providers/google-oauth/getPresentation.js";
-import createNote from "./providers/ashby/createNote.js";
-import getCandidateInfo from "./providers/ashby/getCandidateInfo.js";
 import updateRecord from "./providers/salesforce/updateRecord.js";
 import createCase from "./providers/salesforce/createCase.js";
 import generateSalesReport from "./providers/salesforce/generateSalesReport.js";
 import getRecord from "./providers/salesforce/getRecord.js";
-import listCandidates from "./providers/ashby/listCandidates.js";
-import listCandidateNotes from "./providers/ashby/listCandidateNotes.js";
-import searchCandidates from "./providers/ashby/searchCandidates.js";
-import createCandidate from "./providers/ashby/createCandidate.js";
-import updateCandidate from "./providers/ashby/updateCandidate.js";
-import addCandidateToProject from "./providers/ashby/addCandidateToProject.js";
 import sendMessageToTeamsChat from "./providers/microsoft/messageTeamsChat.js";
 import sendMessageToTeamsChannel from "./providers/microsoft/messageTeamsChannel.js";
 import createOrUpdateFile from "./providers/github/createOrUpdateFile.js";
@@ -395,7 +361,6 @@ import createRecord from "./providers/salesforce/createRecord.js";
 import getTopNSearchResultUrls from "./providers/bing/getTopNSearchResultUrls.js";
 import getGongTranscripts from "./providers/gong/getGongTranscripts.js";
 import searchDriveByKeywords from "./providers/google-oauth/searchDriveByKeywords.js";
-import getFVRecoveryKeyForDevice from "./providers/kandji/getFVRecoveryKeyForDevice.js";
 import listAsanaTasksByProject from "./providers/asana/listAsanaTasksByProject.js";
 import getTasksDetails from "./providers/asana/getTasksDetails.js";
 import searchByTitle from "./providers/notion/searchByTitle.js";
@@ -407,8 +372,6 @@ import listGroupMembers from "./providers/google-oauth/listGroupMembers.js";
 import hasGroupMember from "./providers/google-oauth/hasGroupMember.js";
 import addGroupMember from "./providers/google-oauth/addGroupMember.js";
 import deleteGroupMember from "./providers/google-oauth/deleteGroupMember.js";
-import getJamfComputerInventory from "./providers/jamf/getJamfComputerInventory.js";
-import getJamfFileVaultRecoveryKey from "./providers/jamf/getJamfFileVaultRecoveryKey.js";
 import listOktaUsers from "./providers/okta/listOktaUsers.js";
 import getOktaUser from "./providers/okta/getOktaUser.js";
 import listOktaUserGroups from "./providers/okta/listOktaUserGroups.js";
@@ -421,8 +384,6 @@ import resetPassword from "./providers/okta/resetPassword.js";
 import resetMFA from "./providers/okta/resetMFA.js";
 import listMFA from "./providers/okta/listMFA.js";
 import createChannel from "./providers/slack/createChannel.js";
-import getJamfUserComputerId from "./providers/jamf/getJamfUserComputerId.js";
-import lockJamfComputerById from "./providers/jamf/lockJamfComputerById.js";
 import triggerOktaWorkflow from "./providers/okta/triggerOktaWorkflow.js";
 import searchGroup from "./providers/gitlab/searchGroup.js";
 import searchRepository from "./providers/github/searchRepository.js";
@@ -579,28 +540,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       outputSchema: asanaGetTasksDetailsOutputSchema,
     },
   },
-  jamf: {
-    getJamfComputerInventory: {
-      fn: getJamfComputerInventory,
-      paramsSchema: jamfGetJamfComputerInventoryParamsSchema,
-      outputSchema: jamfGetJamfComputerInventoryOutputSchema,
-    },
-    getJamfFileVaultRecoveryKey: {
-      fn: getJamfFileVaultRecoveryKey,
-      paramsSchema: jamfGetJamfFileVaultRecoveryKeyParamsSchema,
-      outputSchema: jamfGetJamfFileVaultRecoveryKeyOutputSchema,
-    },
-    getJamfUserComputerId: {
-      fn: getJamfUserComputerId,
-      paramsSchema: jamfGetJamfUserComputerIdParamsSchema,
-      outputSchema: jamfGetJamfUserComputerIdOutputSchema,
-    },
-    lockJamfComputerById: {
-      fn: lockJamfComputerById,
-      paramsSchema: jamfLockJamfComputerByIdParamsSchema,
-      outputSchema: jamfLockJamfComputerByIdOutputSchema,
-    },
-  },
   math: {
     add: {
       fn: add,
@@ -654,13 +593,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: nearbysearch,
       paramsSchema: googlemapsNearbysearchRestaurantsParamsSchema,
       outputSchema: googlemapsNearbysearchRestaurantsOutputSchema,
-    },
-  },
-  kandji: {
-    getFVRecoveryKeyForDevice: {
-      fn: getFVRecoveryKeyForDevice,
-      paramsSchema: kandjiGetFVRecoveryKeyForDeviceParamsSchema,
-      outputSchema: kandjiGetFVRecoveryKeyForDeviceOutputSchema,
     },
   },
   bing: {
@@ -1013,48 +945,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: enableUserByEmail,
       paramsSchema: lookerEnableUserByEmailParamsSchema,
       outputSchema: lookerEnableUserByEmailOutputSchema,
-    },
-  },
-  ashby: {
-    createNote: {
-      fn: createNote,
-      paramsSchema: ashbyCreateNoteParamsSchema,
-      outputSchema: ashbyCreateNoteOutputSchema,
-    },
-    getCandidateInfo: {
-      fn: getCandidateInfo,
-      paramsSchema: ashbyGetCandidateInfoParamsSchema,
-      outputSchema: ashbyGetCandidateInfoOutputSchema,
-    },
-    listCandidates: {
-      fn: listCandidates,
-      paramsSchema: ashbyListCandidatesParamsSchema,
-      outputSchema: ashbyListCandidatesOutputSchema,
-    },
-    listCandidateNotes: {
-      fn: listCandidateNotes,
-      paramsSchema: ashbyListCandidateNotesParamsSchema,
-      outputSchema: ashbyListCandidateNotesOutputSchema,
-    },
-    searchCandidates: {
-      fn: searchCandidates,
-      paramsSchema: ashbySearchCandidatesParamsSchema,
-      outputSchema: ashbySearchCandidatesOutputSchema,
-    },
-    createCandidate: {
-      fn: createCandidate,
-      paramsSchema: ashbyCreateCandidateParamsSchema,
-      outputSchema: ashbyCreateCandidateOutputSchema,
-    },
-    updateCandidate: {
-      fn: updateCandidate,
-      paramsSchema: ashbyUpdateCandidateParamsSchema,
-      outputSchema: ashbyUpdateCandidateOutputSchema,
-    },
-    addCandidateToProject: {
-      fn: addCandidateToProject,
-      paramsSchema: ashbyAddCandidateToProjectParamsSchema,
-      outputSchema: ashbyAddCandidateToProjectOutputSchema,
     },
   },
   salesforce: {
