@@ -250,14 +250,14 @@ import {
   perplexityPerplexityDeepResearchOutputSchema,
   slackUserSearchSlackParamsSchema,
   slackUserSearchSlackOutputSchema,
-  slackUserSendDmParamsSchema,
-  slackUserSendDmOutputSchema,
   oktaOrgGetOktaUserByNameParamsSchema,
   oktaOrgGetOktaUserByNameOutputSchema,
   googleSearchCustomSearchParamsSchema,
   googleSearchCustomSearchOutputSchema,
   salesforceSearchAllSalesforceRecordsParamsSchema,
   salesforceSearchAllSalesforceRecordsOutputSchema,
+  slackSendDmParamsSchema,
+  slackSendDmOutputSchema,
 } from "./autogen/types.js";
 import validateAddress from "./providers/googlemaps/validateAddress.js";
 import add from "./providers/math/add.js";
@@ -526,8 +526,8 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
     },
     sendDm: {
       fn: sendDm,
-      paramsSchema: slackUserSendDmParamsSchema,
-      outputSchema: slackUserSendDmOutputSchema,
+      paramsSchema: slackSendDmParamsSchema,
+      outputSchema: slackSendDmOutputSchema,
     },
   },
   slackUser: {
