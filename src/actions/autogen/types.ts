@@ -539,6 +539,28 @@ export type slackUserSearchSlackFunction = ActionFunction<
   slackUserSearchSlackOutputType
 >;
 
+export const slackUserSendDmParamsSchema = z.object({
+  email: z.string().email().describe("The email address of the user to send a direct message to"),
+  message: z.string().describe("The message text to send"),
+});
+
+export type slackUserSendDmParamsType = z.infer<typeof slackUserSendDmParamsSchema>;
+
+export const slackUserSendDmOutputSchema = z.object({
+  success: z.boolean().describe("Whether the message was successfully sent"),
+  error: z.string().describe("Error message if the send failed").optional(),
+  channelId: z.string().describe("The ID of the DM channel").optional(),
+  timestamp: z.string().describe("The timestamp of the sent message").optional(),
+  permalink: z.string().describe("Permalink to the sent message").optional(),
+});
+
+export type slackUserSendDmOutputType = z.infer<typeof slackUserSendDmOutputSchema>;
+export type slackUserSendDmFunction = ActionFunction<
+  slackUserSendDmParamsType,
+  AuthParamsType,
+  slackUserSendDmOutputType
+>;
+
 export const mathAddParamsSchema = z.object({
   a: z.number().describe("The first number to add"),
   b: z.number().describe("The second number to add"),
