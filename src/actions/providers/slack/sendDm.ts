@@ -1,30 +1,30 @@
 import { WebClient } from "@slack/web-api";
 
 import {
-  type slackUserSendDmFunction,
-  type slackUserSendDmOutputType,
-  type slackUserSendDmParamsType,
+  type slackSendDmFunction,
+  type slackSendDmOutputType,
+  type slackSendDmParamsType,
   type AuthParamsType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 /**
  * Sends a direct message to a user on Slack.
- * 
+ *
  * This action:
  * 1. Looks up the user by email using users.lookupByEmail
  * 2. Opens a DM channel with conversations.open (or uses existing)
  * 3. Posts the message using chat.postMessage
  */
-const sendDm: slackUserSendDmFunction = async ({
+const sendDm: slackSendDmFunction = async ({
   params,
   authParams,
 }: {
-  params: slackUserSendDmParamsType;
+  params: slackSendDmParamsType;
   authParams: AuthParamsType;
-}): Promise<slackUserSendDmOutputType> => {
+}): Promise<slackSendDmOutputType> => {
   if (!authParams.authToken) throw new Error(MISSING_AUTH_TOKEN);
-  
+
   const client = new WebClient(authParams.authToken);
   const { email, message } = params;
 

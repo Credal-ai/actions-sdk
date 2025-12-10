@@ -585,6 +585,52 @@ export const asanaGetTasksDetailsDefinition: ActionTemplate = {
   name: "getTasksDetails",
   provider: "asana",
 };
+export const slackSendDmDefinition: ActionTemplate = {
+  description: "Sends a direct message to a user on Slack",
+  scopes: ["users:read", "channels:manage", "chat:write"],
+  parameters: {
+    type: "object",
+    required: ["email", "message"],
+    properties: {
+      email: {
+        type: "string",
+        description: "The email of the user to send the DM to",
+      },
+      message: {
+        type: "string",
+        description: "The message content to send",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the DM was sent successfully",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the operation failed",
+      },
+      channelId: {
+        type: "string",
+        description: "The ID of the DM channel",
+      },
+      timestamp: {
+        type: "string",
+        description: "The timestamp of the sent message",
+      },
+      permalink: {
+        type: "string",
+        description: "The permalink to the sent message",
+      },
+    },
+  },
+  name: "sendDm",
+  provider: "slack",
+};
 export const slackCreateChannelDefinition: ActionTemplate = {
   description: "Creates a new Slack channel using a bot token",
   scopes: ["channels:manage"],
@@ -939,57 +985,6 @@ export const slackUserSearchSlackDefinition: ActionTemplate = {
     },
   },
   name: "searchSlack",
-  provider: "slackUser",
-};
-export const slackUserSendDmDefinition: ActionTemplate = {
-  description: "Send a direct message to a Slack user by their email address",
-  scopes: [
-    "users:read.email",
-    "chat:write",
-    "im:write",
-  ],
-  parameters: {
-    type: "object",
-    required: ["email", "message"],
-    properties: {
-      email: {
-        type: "string",
-        format: "email",
-        description: "The email address of the user to send a direct message to",
-      },
-      message: {
-        type: "string",
-        description: "The message text to send",
-      },
-    },
-  },
-  output: {
-    type: "object",
-    required: ["success"],
-    properties: {
-      success: {
-        type: "boolean",
-        description: "Whether the message was successfully sent",
-      },
-      error: {
-        type: "string",
-        description: "Error message if the send failed",
-      },
-      channelId: {
-        type: "string",
-        description: "The ID of the DM channel",
-      },
-      timestamp: {
-        type: "string",
-        description: "The timestamp of the sent message",
-      },
-      permalink: {
-        type: "string",
-        description: "Permalink to the sent message",
-      },
-    },
-  },
-  name: "sendDm",
   provider: "slackUser",
 };
 export const mathAddDefinition: ActionTemplate = {
