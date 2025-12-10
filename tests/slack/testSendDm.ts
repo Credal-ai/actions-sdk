@@ -11,24 +11,13 @@ async function runTest() {
     "slack",
     { authToken: process.env.SLACK_AUTH_TOKEN },
     { 
-      email: "jack@credal.ai", 
+      email: "livia@credal.ai", 
       message: "Test message from sendDm action - simple test" 
     }
   )) as slackSendDmOutputType;
 
-  // Test 2: Send a DM with more complex message
+  // Test 2: Send to non-existent user (should fail gracefully)
   const result2 = (await runAction(
-    "sendDm",
-    "slack",
-    { authToken: process.env.SLACK_AUTH_TOKEN },
-    {
-      email: "ravin@credal.ai",
-      message: "Hello! This is a test message with:\n- Bullet points\n- Multiple lines\n- Special characters: @#$%",
-    }
-  )) as slackSendDmOutputType;
-
-  // Test 3: Send to non-existent user (should fail gracefully)
-  const result3 = (await runAction(
     "sendDm",
     "slack",
     { authToken: process.env.SLACK_AUTH_TOKEN },
@@ -43,11 +32,7 @@ async function runTest() {
   );
 
   console.log(
-    "Send DM Test Response 2: " + JSON.stringify(result2, null, 2)
-  );
-
-  console.log(
-    "Send DM Test Response 3 (should fail): " + JSON.stringify(result3, null, 2)
+    "Send DM Test Response 2 (should fail): " + JSON.stringify(result2, null, 2)
   );
 }
 
