@@ -119,8 +119,6 @@ import {
   googleOauthAddGroupMemberParamsSchema,
   googleOauthDeleteGroupMemberOutputSchema,
   googleOauthDeleteGroupMemberParamsSchema,
-  gongGetGongTranscriptsParamsSchema,
-  gongGetGongTranscriptsOutputSchema,
   salesforceUpdateRecordParamsSchema,
   salesforceUpdateRecordOutputSchema,
   salesforceCreateCaseParamsSchema,
@@ -153,8 +151,6 @@ import {
   microsoftUpdateDocumentOutputSchema,
   microsoftGetDocumentParamsSchema,
   microsoftGetDocumentOutputSchema,
-  salesforceFetchSalesforceSchemaByObjectParamsSchema,
-  salesforceFetchSalesforceSchemaByObjectOutputSchema,
   githubListPullRequestsParamsSchema,
   githubListPullRequestsOutputSchema,
   jiraGetJiraIssuesByQueryOutputSchema,
@@ -179,31 +175,7 @@ import {
   googlemailSearchGmailMessagesParamsSchema,
   googlemailListGmailThreadsOutputSchema,
   googlemailListGmailThreadsParamsSchema,
-  oktaListOktaUsersParamsSchema,
-  oktaListOktaUsersOutputSchema,
-  oktaGetOktaUserParamsSchema,
-  oktaGetOktaUserOutputSchema,
-  oktaListOktaUserGroupsParamsSchema,
-  oktaListOktaUserGroupsOutputSchema,
-  oktaListOktaGroupsParamsSchema,
-  oktaListOktaGroupsOutputSchema,
-  oktaGetOktaGroupParamsSchema,
-  oktaGetOktaGroupOutputSchema,
-  oktaListOktaGroupMembersParamsSchema,
-  oktaListOktaGroupMembersOutputSchema,
-  oktaRemoveUserFromGroupParamsSchema,
-  oktaRemoveUserFromGroupOutputSchema,
-  oktaAddUserToGroupParamsSchema,
-  oktaAddUserToGroupOutputSchema,
-  oktaResetPasswordParamsSchema,
-  oktaResetPasswordOutputSchema,
-  oktaResetMFAParamsSchema,
-  oktaResetMFAOutputSchema,
-  oktaListMFAParamsSchema,
-  oktaListMFAOutputSchema,
   type ProviderName,
-  oktaTriggerOktaWorkflowParamsSchema,
-  oktaTriggerOktaWorkflowOutputSchema,
   gitlabSearchGroupOutputSchema,
   gitlabSearchGroupParamsSchema,
   githubSearchRepositoryOutputSchema,
@@ -352,14 +324,12 @@ import microsoftUpdateSpreadsheet from "./providers/microsoft/updateSpreadsheet.
 import updateDocument from "./providers/microsoft/updateDocument.js";
 import createDocument from "./providers/microsoft/createDocument.js";
 import getDocument from "./providers/microsoft/getDocument.js";
-import fetchSalesforceSchemaByObject from "./providers/salesforce/fetchSalesforceSchema.js";
 import deepResearch from "./providers/firecrawl/deepResearch.js";
 import listPullRequests from "./providers/github/listPullRequests.js";
 import getJiraIssuesByQuery from "./providers/jira/getJiraIssuesByQuery.js";
 import getJiraDCIssuesByQuery from "./providers/jira/getJiraDCIssuesByQuery.js";
 import createRecord from "./providers/salesforce/createRecord.js";
 import getTopNSearchResultUrls from "./providers/bing/getTopNSearchResultUrls.js";
-import getGongTranscripts from "./providers/gong/getGongTranscripts.js";
 import searchDriveByKeywords from "./providers/google-oauth/searchDriveByKeywords.js";
 import listAsanaTasksByProject from "./providers/asana/listAsanaTasksByProject.js";
 import getTasksDetails from "./providers/asana/getTasksDetails.js";
@@ -372,19 +342,7 @@ import listGroupMembers from "./providers/google-oauth/listGroupMembers.js";
 import hasGroupMember from "./providers/google-oauth/hasGroupMember.js";
 import addGroupMember from "./providers/google-oauth/addGroupMember.js";
 import deleteGroupMember from "./providers/google-oauth/deleteGroupMember.js";
-import listOktaUsers from "./providers/okta/listOktaUsers.js";
-import getOktaUser from "./providers/okta/getOktaUser.js";
-import listOktaUserGroups from "./providers/okta/listOktaUserGroups.js";
-import listOktaGroups from "./providers/okta/listOktaGroups.js";
-import getOktaGroup from "./providers/okta/getOktaGroup.js";
-import listOktaGroupMembers from "./providers/okta/listOktaGroupMembers.js";
-import removeUserFromGroup from "./providers/okta/removeUserFromGroup.js";
-import addUserToGroup from "./providers/okta/addUserToGroup.js";
-import resetPassword from "./providers/okta/resetPassword.js";
-import resetMFA from "./providers/okta/resetMFA.js";
-import listMFA from "./providers/okta/listMFA.js";
 import createChannel from "./providers/slack/createChannel.js";
-import triggerOktaWorkflow from "./providers/okta/triggerOktaWorkflow.js";
 import searchGroup from "./providers/gitlab/searchGroup.js";
 import searchRepository from "./providers/github/searchRepository.js";
 import searchOrganization from "./providers/github/searchOrganization.js";
@@ -921,13 +879,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       outputSchema: xCreateShareXPostUrlOutputSchema,
     },
   },
-  gong: {
-    getGongTranscripts: {
-      fn: getGongTranscripts,
-      paramsSchema: gongGetGongTranscriptsParamsSchema,
-      outputSchema: gongGetGongTranscriptsOutputSchema,
-    },
-  },
   finnhub: {
     symbolLookup: {
       fn: symbolLookup,
@@ -987,11 +938,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: getSalesforceRecordsByQuery,
       paramsSchema: salesforceGetSalesforceRecordsByQueryParamsSchema,
       outputSchema: salesforceGetSalesforceRecordsByQueryOutputSchema,
-    },
-    fetchSalesforceSchemaByObject: {
-      fn: fetchSalesforceSchemaByObject,
-      paramsSchema: salesforceFetchSalesforceSchemaByObjectParamsSchema,
-      outputSchema: salesforceFetchSalesforceSchemaByObjectOutputSchema,
     },
   },
   microsoft: {
@@ -1088,68 +1034,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: searchByTitle,
       paramsSchema: notionSearchByTitleParamsSchema,
       outputSchema: notionSearchByTitleOutputSchema,
-    },
-  },
-  okta: {
-    listOktaUsers: {
-      fn: listOktaUsers,
-      paramsSchema: oktaListOktaUsersParamsSchema,
-      outputSchema: oktaListOktaUsersOutputSchema,
-    },
-    getOktaUser: {
-      fn: getOktaUser,
-      paramsSchema: oktaGetOktaUserParamsSchema,
-      outputSchema: oktaGetOktaUserOutputSchema,
-    },
-    listOktaUserGroups: {
-      fn: listOktaUserGroups,
-      paramsSchema: oktaListOktaUserGroupsParamsSchema,
-      outputSchema: oktaListOktaUserGroupsOutputSchema,
-    },
-    listOktaGroups: {
-      fn: listOktaGroups,
-      paramsSchema: oktaListOktaGroupsParamsSchema,
-      outputSchema: oktaListOktaGroupsOutputSchema,
-    },
-    getOktaGroup: {
-      fn: getOktaGroup,
-      paramsSchema: oktaGetOktaGroupParamsSchema,
-      outputSchema: oktaGetOktaGroupOutputSchema,
-    },
-    listOktaGroupMembers: {
-      fn: listOktaGroupMembers,
-      paramsSchema: oktaListOktaGroupMembersParamsSchema,
-      outputSchema: oktaListOktaGroupMembersOutputSchema,
-    },
-    removeUserFromGroup: {
-      fn: removeUserFromGroup,
-      paramsSchema: oktaRemoveUserFromGroupParamsSchema,
-      outputSchema: oktaRemoveUserFromGroupOutputSchema,
-    },
-    addUserToGroup: {
-      fn: addUserToGroup,
-      paramsSchema: oktaAddUserToGroupParamsSchema,
-      outputSchema: oktaAddUserToGroupOutputSchema,
-    },
-    resetPassword: {
-      fn: resetPassword,
-      paramsSchema: oktaResetPasswordParamsSchema,
-      outputSchema: oktaResetPasswordOutputSchema,
-    },
-    resetMFA: {
-      fn: resetMFA,
-      paramsSchema: oktaResetMFAParamsSchema,
-      outputSchema: oktaResetMFAOutputSchema,
-    },
-    listMFA: {
-      fn: listMFA,
-      paramsSchema: oktaListMFAParamsSchema,
-      outputSchema: oktaListMFAOutputSchema,
-    },
-    triggerOktaWorkflow: {
-      fn: triggerOktaWorkflow,
-      paramsSchema: oktaTriggerOktaWorkflowParamsSchema,
-      outputSchema: oktaTriggerOktaWorkflowOutputSchema,
     },
   },
   oktaOrg: {
