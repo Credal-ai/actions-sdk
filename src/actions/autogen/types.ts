@@ -336,6 +336,28 @@ export type asanaGetTasksDetailsFunction = ActionFunction<
   asanaGetTasksDetailsOutputType
 >;
 
+export const slackSendDmFromBotParamsSchema = z.object({
+  email: z.string().describe("The email of the user to send the DM to"),
+  message: z.string().describe("The message content to send"),
+});
+
+export type slackSendDmFromBotParamsType = z.infer<typeof slackSendDmFromBotParamsSchema>;
+
+export const slackSendDmFromBotOutputSchema = z.object({
+  success: z.boolean().describe("Whether the DM was sent successfully"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  channelId: z.string().describe("The ID of the DM channel").optional(),
+  timestamp: z.string().describe("The timestamp of the sent message").optional(),
+  permalink: z.string().describe("The permalink to the sent message").optional(),
+});
+
+export type slackSendDmFromBotOutputType = z.infer<typeof slackSendDmFromBotOutputSchema>;
+export type slackSendDmFromBotFunction = ActionFunction<
+  slackSendDmFromBotParamsType,
+  AuthParamsType,
+  slackSendDmFromBotOutputType
+>;
+
 export const slackCreateChannelParamsSchema = z.object({
   channelName: z.string().describe("The name of the channel to create (without '#')"),
   isPrivate: z.boolean().describe("Whether to create a private channel (defaults to false)").optional(),
