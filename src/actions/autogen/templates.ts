@@ -585,8 +585,8 @@ export const asanaGetTasksDetailsDefinition: ActionTemplate = {
   name: "getTasksDetails",
   provider: "asana",
 };
-export const slackSendDmDefinition: ActionTemplate = {
-  description: "Sends a direct message to a user on Slack",
+export const slackSendDmFromBotDefinition: ActionTemplate = {
+  description: "Sends a direct message to a user on Slack using a bot",
   scopes: ["users:read", "channels:manage", "chat:write"],
   parameters: {
     type: "object",
@@ -628,7 +628,7 @@ export const slackSendDmDefinition: ActionTemplate = {
       },
     },
   },
-  name: "sendDm",
+  name: "sendDmFromBot",
   provider: "slack",
 };
 export const slackCreateChannelDefinition: ActionTemplate = {

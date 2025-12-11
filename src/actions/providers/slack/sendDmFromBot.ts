@@ -1,9 +1,9 @@
 import { WebClient } from "@slack/web-api";
 
 import {
-  type slackSendDmFunction,
-  type slackSendDmOutputType,
-  type slackSendDmParamsType,
+  type slackSendDmFromBotFunction,
+  type slackSendDmFromBotOutputType,
+  type slackSendDmFromBotParamsType,
   type AuthParamsType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
@@ -16,13 +16,13 @@ import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
  * 2. Opens a DM channel with conversations.open (or uses existing)
  * 3. Posts the message using chat.postMessage
  */
-const sendDm: slackSendDmFunction = async ({
+const sendDmFromBot: slackSendDmFromBotFunction = async ({
   params,
   authParams,
 }: {
-  params: slackSendDmParamsType;
+  params: slackSendDmFromBotParamsType;
   authParams: AuthParamsType;
-}): Promise<slackSendDmOutputType> => {
+}): Promise<slackSendDmFromBotOutputType> => {
   if (!authParams.authToken) throw new Error(MISSING_AUTH_TOKEN);
 
   const client = new WebClient(authParams.authToken);
@@ -95,4 +95,4 @@ const sendDm: slackSendDmFunction = async ({
   }
 };
 
-export default sendDm;
+export default sendDmFromBot;

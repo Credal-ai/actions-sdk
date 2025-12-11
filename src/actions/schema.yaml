@@ -403,8 +403,8 @@ actions:
                       creator_name:
                         type: string
   slack:
-    sendDm:
-      description: Sends a direct message to a user on Slack
+    sendDmFromBot:
+      description: Sends a direct message to a user on Slack using a bot
       scopes:
         - users:read
         - channels:manage
