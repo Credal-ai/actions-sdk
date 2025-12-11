@@ -63,6 +63,16 @@ export const AuthParamsSchema = z.object({
 
 export type AuthParamsType = z.infer<typeof AuthParamsSchema>;
 
+export const ActionTagSchema = z.enum(["read", "write"]);
+
+export type ActionTag = z.infer<typeof ActionTagSchema>;
+
+export const ACTION_TAGS = ["read", "write"] as const;
+export const ParameterTagSchema = z.enum(["recommended"]);
+
+export type ParameterTag = z.infer<typeof ParameterTagSchema>;
+
+export const PARAMETER_TAGS = ["recommended"] as const;
 export const genericFillTemplateParamsSchema = z.object({
   template: z.string().describe("The template string to be processed and returned"),
 });

@@ -9,6 +9,16 @@ import { snakeToPascal } from "../utils/string.js";
 
 // TODO support oneOf correctly
 
+// Tag enum definitions - must be defined before schemas for validation
+const actionTagValues = [
+  "read", // this action is read-only in the source system
+  "write", // this action executes writes in the source system
+] as const;
+
+const parameterTagValues = [
+  "recommended", // we recommend that this parameter is predefined by the user versus AI generated at runtime
+] as const;
+
 const jsonObjectSchema = z.object({
   type: z.string(),
   required: z.array(z.string()).optional(),
@@ -17,9 +27,12 @@ const jsonObjectSchema = z.object({
 
 type JsonObjectSchema = z.infer<typeof jsonObjectSchema>;
 
+const parameterTagEnum = z.enum([...parameterTagValues]);
+const actionTagEnum = z.enum([...actionTagValues]);
 const actionSchema = z.object({
   description: z.string(),
   scopes: z.array(z.string()),
+  tags: z.array(actionTagEnum).optional().default([]),
   parameters: jsonObjectSchema.optional(),
   output: jsonObjectSchema.optional(),
 });
@@ -70,6 +83,10 @@ async function validateObject(object: JsonObjectSchema) {
     strictTuples: true,
     strictRequired: true,
   });
+
+  // Add custom keyword - just allow it, we'll validate manually
+  ajv.addKeyword("tags");
+
   // validate schema and check required fields
   const validParameters = ajv.validateSchema(object);
   if (!validParameters) {
@@ -82,6 +99,23 @@ async function validateObject(object: JsonObjectSchema) {
     for (const field of object.required) {
       if (!object.properties[field]) {
         throw new Error(`Required field ${field} is missing`);
+      }
+    }
+  }
+
+  // Validate tags in property schemas using Zod
+  if (object.properties) {
+    for (const [propName, propSchema] of Object.entries(object.properties)) {
+      if (propSchema && typeof propSchema === "object" && "tags" in propSchema) {
+        const tags = propSchema.tags;
+        if (tags !== undefined) {
+          const result = z.array(parameterTagEnum).safeParse(tags);
+          if (!result.success) {
+            throw new Error(
+              `Property "${propName}" has invalid tags: ${result.error.errors.map(e => e.message).join(", ")}`,
+            );
+          }
+        }
       }
     }
   }
@@ -210,8 +244,78 @@ async function generateTypes({
     isExported: true,
   });
 
+  // ActionTag enum for action-level tags (using values defined at top of file)
+  typesFile.addVariableStatement({
+    declarationKind: VariableDeclarationKind.Const,
+    isExported: true,
+    declarations: [
+      {
+        name: "ActionTagSchema",
+        initializer: `z.enum([${actionTagValues.map(t => `"${t}"`).join(", ")}])`,
+      },
+    ],
+  });
+
+  typesFile.addTypeAlias({
+    name: "ActionTag",
+    type: "z.infer<typeof ActionTagSchema>",
+    isExported: true,
+  });
+
+  typesFile.addVariableStatement({
+    declarationKind: VariableDeclarationKind.Const,
+    isExported: true,
+    declarations: [
+      {
+        name: "ACTION_TAGS",
+        initializer: `[${actionTagValues.map(t => `"${t}"`).join(", ")}] as const`,
+      },
+    ],
+  });
+
+  // ParameterTag enum for parameter property tags (using values defined at top of file)
+  typesFile.addVariableStatement({
+    declarationKind: VariableDeclarationKind.Const,
+    isExported: true,
+    declarations: [
+      {
+        name: "ParameterTagSchema",
+        initializer: `z.enum([${parameterTagValues.map(t => `"${t}"`).join(", ")}])`,
+      },
+    ],
+  });
+
+  typesFile.addTypeAlias({
+    name: "ParameterTag",
+    type: "z.infer<typeof ParameterTagSchema>",
+    isExported: true,
+  });
+
+  typesFile.addVariableStatement({
+    declarationKind: VariableDeclarationKind.Const,
+    isExported: true,
+    declarations: [
+      {
+        name: "PARAMETER_TAGS",
+        initializer: `[${parameterTagValues.map(t => `"${t}"`).join(", ")}] as const`,
+      },
+    ],
+  });
+
   for (const [categoryName, category] of Object.entries(parsedConfig.actions)) {
     for (const [actionName, action] of Object.entries(category)) {
+      // Validate action-level tags
+      if (action.tags && action.tags.length > 0) {
+        const invalidTags = action.tags.filter(
+          tag => !actionTagValues.includes(tag as (typeof actionTagValues)[number]),
+        );
+        if (invalidTags.length > 0) {
+          throw new Error(
+            `Action "${categoryName}.${actionName}" has invalid tag values: ${invalidTags.join(", ")}. Valid values are: ${actionTagValues.join(", ")}`,
+          );
+        }
+      }
+
       if (action.parameters) {
         await validateObject(action.parameters);
       }
@@ -261,4 +365,11 @@ async function generateTypes({
   await typesFile.save();
 }
 
-generateTypes({});
+generateTypes({}).catch(error => {
+  console.error("Error generating types:", error);
+  if (error instanceof Error) {
+    console.error(error.message);
+    console.error(error.stack);
+  }
+  process.exit(1);
+});
