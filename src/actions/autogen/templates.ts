@@ -10329,10 +10329,12 @@ export const githubCreateOrUpdateFileDefinition: ActionTemplate = {
       repositoryOwner: {
         type: "string",
         description: "The owner of the repository",
+        tags: ["recommended"],
       },
       repositoryName: {
         type: "string",
         description: "The name of the repository",
+        tags: ["recommended"],
       },
       filePath: {
         type: "string",
@@ -10393,10 +10395,12 @@ export const githubCreateBranchDefinition: ActionTemplate = {
       repositoryOwner: {
         type: "string",
         description: "The owner of the repository",
+        tags: ["recommended"],
       },
       repositoryName: {
         type: "string",
         description: "The name of the repository",
+        tags: ["recommended"],
       },
       branchName: {
         type: "string",
@@ -10436,10 +10440,12 @@ export const githubCreatePullRequestDefinition: ActionTemplate = {
       repositoryOwner: {
         type: "string",
         description: "The owner of the repository",
+        tags: ["recommended"],
       },
       repositoryName: {
         type: "string",
         description: "The name of the repository",
+        tags: ["recommended"],
       },
       head: {
         type: "string",
@@ -10496,10 +10502,12 @@ export const githubListPullRequestsDefinition: ActionTemplate = {
       repositoryOwner: {
         type: "string",
         description: "The owner of the repository",
+        tags: ["recommended"],
       },
       repositoryName: {
         type: "string",
         description: "The name of the repository",
+        tags: ["recommended"],
       },
       state: {
         type: "string",
@@ -10595,10 +10603,12 @@ export const githubGetPullRequestDetailsDefinition: ActionTemplate = {
       repositoryOwner: {
         type: "string",
         description: "The owner of the repository",
+        tags: ["recommended"],
       },
       repositoryName: {
         type: "string",
         description: "The name of the repository",
+        tags: ["recommended"],
       },
       pullRequestNumber: {
         type: "number",
@@ -10873,10 +10883,12 @@ export const githubGetFileContentDefinition: ActionTemplate = {
       organization: {
         type: "string",
         description: "The organization that owns the repository",
+        tags: ["recommended"],
       },
       repository: {
         type: "string",
         description: "The repository name",
+        tags: ["recommended"],
       },
       path: {
         type: "string",
@@ -10950,10 +10962,12 @@ export const githubListDirectoryDefinition: ActionTemplate = {
       organization: {
         type: "string",
         description: "The organization that owns the repository",
+        tags: ["recommended"],
       },
       repository: {
         type: "string",
         description: "The repository name",
+        tags: ["recommended"],
       },
       path: {
         type: "string",
@@ -11026,10 +11040,12 @@ export const githubSearchRepositoryDefinition: ActionTemplate = {
       organization: {
         type: "string",
         description: "The organization to search for data in",
+        tags: ["recommended"],
       },
       repository: {
         type: "string",
         description: "The repository to search for data in",
+        tags: ["recommended"],
       },
       query: {
         type: "string",
@@ -11262,6 +11278,7 @@ export const githubSearchOrganizationDefinition: ActionTemplate = {
       organization: {
         type: "string",
         description: "The organization to search for data in",
+        tags: ["recommended"],
       },
       query: {
         type: "string",
@@ -11553,10 +11570,12 @@ export const githubGetBranchDefinition: ActionTemplate = {
       repositoryOwner: {
         type: "string",
         description: "The owner of the repository",
+        tags: ["recommended"],
       },
       repositoryName: {
         type: "string",
         description: "The name of the repository",
+        tags: ["recommended"],
       },
       branchName: {
         type: "string",
@@ -11810,10 +11829,12 @@ export const githubListCommitsDefinition: ActionTemplate = {
       repositoryOwner: {
         type: "string",
         description: "The owner of the repository",
+        tags: ["recommended"],
       },
       repositoryName: {
         type: "string",
         description: "The name of the repository",
+        tags: ["recommended"],
       },
       branch: {
         type: "string",
