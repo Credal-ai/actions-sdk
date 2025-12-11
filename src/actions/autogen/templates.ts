@@ -3,6 +3,7 @@ import { ActionTemplate } from "../../actions/parse";
 export const genericFillTemplateDefinition: ActionTemplate = {
   description: "Simple utility that takes a template and returns it filled in",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["template"],
@@ -29,6 +30,7 @@ export const genericFillTemplateDefinition: ActionTemplate = {
 export const perplexityPerplexityDeepResearchDefinition: ActionTemplate = {
   description: "Performs deep research using Perplexity AI",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["query"],
@@ -110,6 +112,7 @@ export const perplexityPerplexityDeepResearchDefinition: ActionTemplate = {
 export const asanaCommentTaskDefinition: ActionTemplate = {
   description: "Comments on an Asana task with specified content",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["taskId", "commentText"],
@@ -152,6 +155,7 @@ export const asanaCommentTaskDefinition: ActionTemplate = {
 export const asanaListAsanaTasksByProjectDefinition: ActionTemplate = {
   description: "List all tasks associated with an Asana project and their data",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["projectId"],
@@ -319,6 +323,7 @@ export const asanaListAsanaTasksByProjectDefinition: ActionTemplate = {
 export const asanaCreateTaskDefinition: ActionTemplate = {
   description: "Create an Asana task with specified content using optional template",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["name", "projectId"],
@@ -382,6 +387,7 @@ export const asanaCreateTaskDefinition: ActionTemplate = {
 export const asanaUpdateTaskDefinition: ActionTemplate = {
   description: "Updates a Asana task with specified content",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["taskId"],
@@ -445,6 +451,7 @@ export const asanaUpdateTaskDefinition: ActionTemplate = {
 export const asanaSearchTasksDefinition: ActionTemplate = {
   description: "List all tasks associated with search query",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["query"],
@@ -498,6 +505,7 @@ export const asanaSearchTasksDefinition: ActionTemplate = {
 export const asanaGetTasksDetailsDefinition: ActionTemplate = {
   description: "Retrieve detailed information (assignee, comments, description, title, etc.) for a list of task IDs",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["taskIds"],
@@ -588,6 +596,7 @@ export const asanaGetTasksDetailsDefinition: ActionTemplate = {
 export const slackCreateChannelDefinition: ActionTemplate = {
   description: "Creates a new Slack channel using a bot token",
   scopes: ["channels:manage"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["channelName"],
@@ -630,6 +639,7 @@ export const slackCreateChannelDefinition: ActionTemplate = {
 export const slackSendMessageDefinition: ActionTemplate = {
   description: "Sends a message to a Slack channel",
   scopes: ["chat:write"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["message"],
@@ -672,6 +682,7 @@ export const slackSendMessageDefinition: ActionTemplate = {
 export const slackGetChannelMessagesDefinition: ActionTemplate = {
   description: "Gets messages from a Slack channel",
   scopes: ["channels:history"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["oldest"],
@@ -765,6 +776,7 @@ export const slackUserSearchSlackDefinition: ActionTemplate = {
     "mpim:history",
     "users:read.email",
   ],
+  tags: [],
   parameters: {
     type: "object",
     required: [],
@@ -944,6 +956,7 @@ export const slackUserSearchSlackDefinition: ActionTemplate = {
 export const mathAddDefinition: ActionTemplate = {
   description: "Adds two numbers together",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["a", "b"],
@@ -974,6 +987,7 @@ export const mathAddDefinition: ActionTemplate = {
 export const confluenceOverwritePageDefinition: ActionTemplate = {
   description: "Updates a Confluence page with the new content specified",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["pageId", "title", "content"],
@@ -1012,6 +1026,7 @@ export const confluenceOverwritePageDefinition: ActionTemplate = {
 export const confluenceFetchPageContentDefinition: ActionTemplate = {
   description: "Fetches content from a Confluence page",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["pageId"],
@@ -1059,6 +1074,7 @@ export const confluenceFetchPageContentDefinition: ActionTemplate = {
 export const jiraAssignJiraTicketDefinition: ActionTemplate = {
   description: "Assigns/Reassigns a Jira ticket to a specified user",
   scopes: ["write:jira-work", "read:jira-user"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["projectKey", "issueId", "assignee"],
@@ -1101,6 +1117,7 @@ export const jiraAssignJiraTicketDefinition: ActionTemplate = {
 export const jiraPublicCommentOnServiceDeskRequestDefinition: ActionTemplate = {
   description: "Comments publicly on a Jira service desk request with specified content",
   scopes: ["write:comment:jira"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["issueId", "comment"],
@@ -1139,6 +1156,7 @@ export const jiraPublicCommentOnServiceDeskRequestDefinition: ActionTemplate = {
 export const jiraCommentJiraTicketDefinition: ActionTemplate = {
   description: "Comments on a Jira ticket with specified content",
   scopes: ["write:comment:jira"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["projectKey", "issueId", "comment"],
@@ -1181,6 +1199,7 @@ export const jiraCommentJiraTicketDefinition: ActionTemplate = {
 export const jiraCreateJiraTicketDefinition: ActionTemplate = {
   description: "Create a jira ticket with new content specified",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["projectKey", "summary", "description", "issueType"],
@@ -1244,6 +1263,7 @@ export const jiraCreateJiraTicketDefinition: ActionTemplate = {
 export const jiraGetServiceDesksDefinition: ActionTemplate = {
   description: "Get the service desks for a Jira instance",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: [],
@@ -1337,6 +1357,7 @@ export const jiraGetServiceDesksDefinition: ActionTemplate = {
 export const jiraCreateServiceDeskRequestDefinition: ActionTemplate = {
   description: "Create a jira service desk request with specified content",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["serviceDeskId", "requestTypeId", "summary", "description"],
@@ -1395,6 +1416,7 @@ export const jiraCreateServiceDeskRequestDefinition: ActionTemplate = {
 export const jiraGetJiraTicketDetailsDefinition: ActionTemplate = {
   description: "Get details of a ticket in Jira",
   scopes: ["read:jira-work"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["projectKey", "issueId"],
@@ -1451,6 +1473,7 @@ export const jiraGetJiraTicketDetailsDefinition: ActionTemplate = {
 export const jiraGetJiraTicketHistoryDefinition: ActionTemplate = {
   description: "Get ticket history of a ticket in Jira",
   scopes: ["read:jira-work"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["projectKey", "issueId"],
@@ -1489,6 +1512,7 @@ export const jiraGetJiraTicketHistoryDefinition: ActionTemplate = {
 export const jiraUpdateJiraTicketDetailsDefinition: ActionTemplate = {
   description: "Update a Jira ticket with new content specified",
   scopes: ["write:jira-work"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["projectKey", "issueId"],
@@ -1548,6 +1572,7 @@ export const jiraUpdateJiraTicketDetailsDefinition: ActionTemplate = {
 export const jiraUpdateJiraTicketStatusDefinition: ActionTemplate = {
   description: "Updates the status of Jira ticket with specified status",
   scopes: ["read:jira-work", "write:jira-work"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["projectKey", "issueId", "status"],
@@ -1590,6 +1615,7 @@ export const jiraUpdateJiraTicketStatusDefinition: ActionTemplate = {
 export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
   description: "Retrieve Jira Issues by JQL query",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["query"],
@@ -1788,6 +1814,7 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
 export const jiraOrgAssignJiraTicketDefinition: ActionTemplate = {
   description: "Assigns/Reassigns a Jira ticket to a specified user",
   scopes: ["write:jira-work", "read:jira-user"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["projectKey", "issueId", "assignee"],
@@ -1830,6 +1857,7 @@ export const jiraOrgAssignJiraTicketDefinition: ActionTemplate = {
 export const jiraOrgPublicCommentOnServiceDeskRequestDefinition: ActionTemplate = {
   description: "Comments publicly on a Jira service desk request with specified content",
   scopes: ["write:comment:jira"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["issueId", "comment"],
@@ -1868,6 +1896,7 @@ export const jiraOrgPublicCommentOnServiceDeskRequestDefinition: ActionTemplate 
 export const jiraOrgCommentJiraTicketDefinition: ActionTemplate = {
   description: "Comments on a Jira ticket with specified content",
   scopes: ["write:comment:jira"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["projectKey", "issueId", "comment"],
@@ -1910,6 +1939,7 @@ export const jiraOrgCommentJiraTicketDefinition: ActionTemplate = {
 export const jiraOrgCreateJiraTicketDefinition: ActionTemplate = {
   description: "Create a jira ticket with new content specified",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["projectKey", "summary", "description", "issueType"],
@@ -1973,6 +2003,7 @@ export const jiraOrgCreateJiraTicketDefinition: ActionTemplate = {
 export const jiraOrgGetServiceDesksDefinition: ActionTemplate = {
   description: "Get the service desks for a Jira instance",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: [],
@@ -2066,6 +2097,7 @@ export const jiraOrgGetServiceDesksDefinition: ActionTemplate = {
 export const jiraOrgCreateServiceDeskRequestDefinition: ActionTemplate = {
   description: "Create a jira service desk request with specified content",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["serviceDeskId", "requestTypeId", "summary", "description"],
@@ -2124,6 +2156,7 @@ export const jiraOrgCreateServiceDeskRequestDefinition: ActionTemplate = {
 export const jiraOrgGetJiraTicketDetailsDefinition: ActionTemplate = {
   description: "Get details of a ticket in Jira",
   scopes: ["read:jira-work"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["projectKey", "issueId"],
@@ -2180,6 +2213,7 @@ export const jiraOrgGetJiraTicketDetailsDefinition: ActionTemplate = {
 export const jiraOrgGetJiraTicketHistoryDefinition: ActionTemplate = {
   description: "Get ticket history of a ticket in Jira",
   scopes: ["read:jira-work"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["projectKey", "issueId"],
@@ -2218,6 +2252,7 @@ export const jiraOrgGetJiraTicketHistoryDefinition: ActionTemplate = {
 export const jiraOrgUpdateJiraTicketDetailsDefinition: ActionTemplate = {
   description: "Update a Jira ticket with new content specified",
   scopes: ["write:jira-work"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["projectKey", "issueId"],
@@ -2277,6 +2312,7 @@ export const jiraOrgUpdateJiraTicketDetailsDefinition: ActionTemplate = {
 export const jiraOrgUpdateJiraTicketStatusDefinition: ActionTemplate = {
   description: "Updates the status of Jira ticket with specified status",
   scopes: ["read:jira-work", "write:jira-work"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["projectKey", "issueId", "status"],
@@ -2319,6 +2355,7 @@ export const jiraOrgUpdateJiraTicketStatusDefinition: ActionTemplate = {
 export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
   description: "Retrieve Jira Issues by JQL query",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["query"],
@@ -2517,6 +2554,7 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
 export const jiraDataCenterAssignJiraTicketDefinition: ActionTemplate = {
   description: "Assigns/Reassigns a Jira ticket to a specified user",
   scopes: ["write:jira-work", "read:jira-user"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["projectKey", "issueId", "assignee"],
@@ -2559,6 +2597,7 @@ export const jiraDataCenterAssignJiraTicketDefinition: ActionTemplate = {
 export const jiraDataCenterPublicCommentOnServiceDeskRequestDefinition: ActionTemplate = {
   description: "Comments publicly on a Jira service desk request with specified content",
   scopes: ["write:comment:jira"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["issueId", "comment"],
@@ -2597,6 +2636,7 @@ export const jiraDataCenterPublicCommentOnServiceDeskRequestDefinition: ActionTe
 export const jiraDataCenterCommentJiraTicketDefinition: ActionTemplate = {
   description: "Comments on a Jira ticket with specified content",
   scopes: ["write:comment:jira"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["projectKey", "issueId", "comment"],
@@ -2639,6 +2679,7 @@ export const jiraDataCenterCommentJiraTicketDefinition: ActionTemplate = {
 export const jiraDataCenterCreateJiraTicketDefinition: ActionTemplate = {
   description: "Create a jira ticket with new content specified",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["projectKey", "summary", "description", "issueType"],
@@ -2702,6 +2743,7 @@ export const jiraDataCenterCreateJiraTicketDefinition: ActionTemplate = {
 export const jiraDataCenterGetServiceDesksDefinition: ActionTemplate = {
   description: "Get the service desks for a Jira instance",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: [],
@@ -2795,6 +2837,7 @@ export const jiraDataCenterGetServiceDesksDefinition: ActionTemplate = {
 export const jiraDataCenterCreateServiceDeskRequestDefinition: ActionTemplate = {
   description: "Create a jira service desk request with specified content",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["serviceDeskId", "requestTypeId", "summary", "description"],
@@ -2853,6 +2896,7 @@ export const jiraDataCenterCreateServiceDeskRequestDefinition: ActionTemplate = 
 export const jiraDataCenterGetJiraTicketDetailsDefinition: ActionTemplate = {
   description: "Get details of a ticket in Jira",
   scopes: ["read:jira-work"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["projectKey", "issueId"],
@@ -2909,6 +2953,7 @@ export const jiraDataCenterGetJiraTicketDetailsDefinition: ActionTemplate = {
 export const jiraDataCenterGetJiraTicketHistoryDefinition: ActionTemplate = {
   description: "Get ticket history of a ticket in Jira",
   scopes: ["read:jira-work"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["projectKey", "issueId"],
@@ -2947,6 +2992,7 @@ export const jiraDataCenterGetJiraTicketHistoryDefinition: ActionTemplate = {
 export const jiraDataCenterUpdateJiraTicketDetailsDefinition: ActionTemplate = {
   description: "Update a Jira ticket with new content specified",
   scopes: ["write:jira-work"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["projectKey", "issueId"],
@@ -3006,6 +3052,7 @@ export const jiraDataCenterUpdateJiraTicketDetailsDefinition: ActionTemplate = {
 export const jiraDataCenterUpdateJiraTicketStatusDefinition: ActionTemplate = {
   description: "Updates the status of Jira ticket with specified status",
   scopes: ["read:jira-work", "write:jira-work"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["projectKey", "issueId", "status"],
@@ -3048,6 +3095,7 @@ export const jiraDataCenterUpdateJiraTicketStatusDefinition: ActionTemplate = {
 export const jiraDataCenterGetJiraIssuesByQueryDefinition: ActionTemplate = {
   description: "Retrieve Jira Issues by JQL query",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["query"],
@@ -3246,6 +3294,7 @@ export const jiraDataCenterGetJiraIssuesByQueryDefinition: ActionTemplate = {
 export const googlemapsValidateAddressDefinition: ActionTemplate = {
   description: "Validate a Google Maps address",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["regionCode", "locality", "addressLines", "postalCode"],
@@ -3413,6 +3462,7 @@ export const googlemapsValidateAddressDefinition: ActionTemplate = {
 export const googlemapsNearbysearchRestaurantsDefinition: ActionTemplate = {
   description: "Search for nearby places using Google Maps",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["latitude", "longitude"],
@@ -3480,6 +3530,7 @@ export const googlemapsNearbysearchRestaurantsDefinition: ActionTemplate = {
 export const bingGetTopNSearchResultUrlsDefinition: ActionTemplate = {
   description: "Get the top five search result URLs from Bing",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["query"],
@@ -3528,6 +3579,7 @@ export const bingGetTopNSearchResultUrlsDefinition: ActionTemplate = {
 export const zendeskCreateZendeskTicketDefinition: ActionTemplate = {
   description: "Create a ticket in Zendesk",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["subject", "subdomain"],
@@ -3570,6 +3622,7 @@ export const zendeskCreateZendeskTicketDefinition: ActionTemplate = {
 export const zendeskListZendeskTicketsDefinition: ActionTemplate = {
   description: "List tickets in Zendesk from the past 3 months",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["subdomain"],
@@ -3607,6 +3660,7 @@ export const zendeskListZendeskTicketsDefinition: ActionTemplate = {
 export const zendeskGetTicketDetailsDefinition: ActionTemplate = {
   description: "Get details of a ticket in Zendesk",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["ticketId", "subdomain"],
@@ -3637,6 +3691,7 @@ export const zendeskGetTicketDetailsDefinition: ActionTemplate = {
 export const zendeskUpdateTicketStatusDefinition: ActionTemplate = {
   description: "Update the status of a ticket in Zendesk",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["ticketId", "subdomain", "status"],
@@ -3662,6 +3717,7 @@ export const zendeskUpdateTicketStatusDefinition: ActionTemplate = {
 export const zendeskAddCommentToTicketDefinition: ActionTemplate = {
   description: "Add a comment to a ticket in Zendesk",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["ticketId", "subdomain", "body"],
@@ -3704,6 +3760,7 @@ export const zendeskAddCommentToTicketDefinition: ActionTemplate = {
 export const zendeskAssignTicketDefinition: ActionTemplate = {
   description: "Assign a ticket in Zendesk to a specific user",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["ticketId", "subdomain", "assigneeEmail"],
@@ -3728,6 +3785,7 @@ export const zendeskAssignTicketDefinition: ActionTemplate = {
 export const zendeskSearchZendeskByQueryDefinition: ActionTemplate = {
   description: "Search Zendesk objects by query with flexible filtering options",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["subdomain", "query"],
@@ -3775,6 +3833,7 @@ export const zendeskSearchZendeskByQueryDefinition: ActionTemplate = {
 export const linkedinCreateShareLinkedinPostUrlDefinition: ActionTemplate = {
   description: "Create a share linkedin post link",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: [],
@@ -3805,6 +3864,7 @@ export const linkedinCreateShareLinkedinPostUrlDefinition: ActionTemplate = {
 export const xCreateShareXPostUrlDefinition: ActionTemplate = {
   description: "Create a share X (formerly twitter) post link",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["text"],
@@ -3850,6 +3910,7 @@ export const xCreateShareXPostUrlDefinition: ActionTemplate = {
 export const mongoInsertMongoDocDefinition: ActionTemplate = {
   description: "Insert a document into a MongoDB collection",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["databaseName", "collectionName", "document"],
@@ -3884,6 +3945,7 @@ export const mongoInsertMongoDocDefinition: ActionTemplate = {
 export const snowflakeGetRowByFieldValueDefinition: ActionTemplate = {
   description: "Get a row from a Snowflake table by a field value",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["tableName", "fieldName", "fieldValue"],
@@ -3940,6 +4002,7 @@ export const snowflakeGetRowByFieldValueDefinition: ActionTemplate = {
 export const snowflakeRunSnowflakeQueryDefinition: ActionTemplate = {
   description: "Execute a Snowflake query and return output.",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["databaseName", "warehouse", "query", "accountName"],
@@ -4018,6 +4081,7 @@ export const snowflakeRunSnowflakeQueryDefinition: ActionTemplate = {
 export const openstreetmapGetLatitudeLongitudeFromLocationDefinition: ActionTemplate = {
   description: "Get the latitude and longitude of a location",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["location"],
@@ -4062,6 +4126,7 @@ export const openstreetmapGetLatitudeLongitudeFromLocationDefinition: ActionTemp
 export const nwsGetForecastForLocationDefinition: ActionTemplate = {
   description: "Get the weather forecast for a location using latitude and longitude",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["latitude", "longitude", "isoDate"],
@@ -4110,6 +4175,7 @@ export const nwsGetForecastForLocationDefinition: ActionTemplate = {
 export const firecrawlDeepResearchDefinition: ActionTemplate = {
   description: "Deep research on a topic using Firecrawl",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["query"],
@@ -4170,6 +4236,7 @@ export const firecrawlDeepResearchDefinition: ActionTemplate = {
 export const firecrawlScrapeUrlDefinition: ActionTemplate = {
   description: "Scrape a URL and get website content using Firecrawl",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["url"],
@@ -4239,6 +4306,7 @@ export const firecrawlScrapeUrlDefinition: ActionTemplate = {
 export const firecrawlSearchAndScrapeDefinition: ActionTemplate = {
   description: "Search and scrape the web using Firecrawl",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["query"],
@@ -4292,6 +4360,7 @@ export const firecrawlSearchAndScrapeDefinition: ActionTemplate = {
 export const firecrawlGetTopNSearchResultUrlsDefinition: ActionTemplate = {
   description: "Get the top five search result URLs from Firecrawl",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["query"],
@@ -4340,6 +4409,7 @@ export const firecrawlGetTopNSearchResultUrlsDefinition: ActionTemplate = {
 export const firecrawlScrapeTweetDataWithNitterDefinition: ActionTemplate = {
   description: "Given A tweet URL scrape the tweet data with nitter+firecrawl",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["tweetUrl"],
@@ -4366,6 +4436,7 @@ export const firecrawlScrapeTweetDataWithNitterDefinition: ActionTemplate = {
 export const resendSendEmailDefinition: ActionTemplate = {
   description: "Send an email using Resend",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["to", "subject", "content"],
@@ -4404,6 +4475,7 @@ export const resendSendEmailDefinition: ActionTemplate = {
 export const resendSendEmailHtmlDefinition: ActionTemplate = {
   description: "Send an HTML email using Resend",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["to", "subject", "content"],
@@ -4442,6 +4514,7 @@ export const resendSendEmailHtmlDefinition: ActionTemplate = {
 export const googleOauthCreateNewGoogleDocDefinition: ActionTemplate = {
   description: "Create a new Google Docs document using OAuth authentication",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["title"],
@@ -4480,6 +4553,7 @@ export const googleOauthCreateNewGoogleDocDefinition: ActionTemplate = {
 export const googleOauthUpdateDocDefinition: ActionTemplate = {
   description: "Update an existing Google Docs document using OAuth authentication with batch requests",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["documentId"],
@@ -5592,6 +5666,7 @@ export const googleOauthUpdateDocDefinition: ActionTemplate = {
 export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
   description: "Schedule a meeting on google calendar using OAuth authentication",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["calendarId", "name", "start", "end"],
@@ -5708,6 +5783,7 @@ export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
 export const googleOauthListCalendarsDefinition: ActionTemplate = {
   description: "List all Google Calendars for the authenticated user",
   scopes: ["https://www.googleapis.com/auth/calendar.readonly"],
+  tags: [],
   parameters: {
     type: "object",
     required: [],
@@ -5756,6 +5832,7 @@ export const googleOauthListCalendarsDefinition: ActionTemplate = {
 export const googleOauthListCalendarEventsDefinition: ActionTemplate = {
   description: "List events on a Google Calendar, optionally searching by query.",
   scopes: ["https://www.googleapis.com/auth/calendar.readonly"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["calendarId"],
@@ -5906,6 +5983,7 @@ export const googleOauthListCalendarEventsDefinition: ActionTemplate = {
 export const googleOauthUpdateCalendarEventDefinition: ActionTemplate = {
   description: "Update an event on a Google Calendar using OAuth authentication",
   scopes: ["https://www.googleapis.com/auth/calendar"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["calendarId", "eventId"],
@@ -6004,6 +6082,7 @@ export const googleOauthUpdateCalendarEventDefinition: ActionTemplate = {
 export const googleOauthEditAGoogleCalendarEventDefinition: ActionTemplate = {
   description: "Edit an existing Google Calendar event using OAuth authentication",
   scopes: ["https://www.googleapis.com/auth/calendar"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["calendarId", "eventId"],
@@ -6100,6 +6179,7 @@ export const googleOauthEditAGoogleCalendarEventDefinition: ActionTemplate = {
 export const googleOauthDeleteCalendarEventDefinition: ActionTemplate = {
   description: "Delete an event from a Google Calendar using OAuth authentication",
   scopes: ["https://www.googleapis.com/auth/calendar"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["calendarId", "eventId"],
@@ -6134,6 +6214,7 @@ export const googleOauthDeleteCalendarEventDefinition: ActionTemplate = {
 export const googleOauthCreateSpreadsheetDefinition: ActionTemplate = {
   description: "Create a new Google Spreadsheet using OAuth authentication",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["title"],
@@ -6246,6 +6327,7 @@ export const googleOauthCreateSpreadsheetDefinition: ActionTemplate = {
 export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
   description: "Update a Google Spreadsheet with new content specified",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["spreadsheetId", "requests"],
@@ -6629,6 +6711,7 @@ export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
 export const googleOauthCreatePresentationDefinition: ActionTemplate = {
   description: "Create a Google Presentation",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["title"],
@@ -6702,6 +6785,7 @@ export const googleOauthCreatePresentationDefinition: ActionTemplate = {
 export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
   description: "Update a Google Presentation",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["presentationId", "requests"],
@@ -8000,6 +8084,7 @@ export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
 export const googleOauthGetPresentationDefinition: ActionTemplate = {
   description: "Get a presentation by ID",
   scopes: ["slides.readonly"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["presentationId"],
@@ -8056,6 +8141,7 @@ export const googleOauthGetPresentationDefinition: ActionTemplate = {
 export const googleOauthSearchDriveByKeywordsDefinition: ActionTemplate = {
   description: "Search Google Drive files that contain one or more keywords in their full text.",
   scopes: ["drive.readonly"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["keywords"],
@@ -8123,6 +8209,7 @@ export const googleOauthSearchDriveByKeywordsDefinition: ActionTemplate = {
 export const googleOauthSearchDriveByQueryDefinition: ActionTemplate = {
   description: "Search Google Drive files based on a google drive query provided.",
   scopes: ["drive.readonly"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["query", "searchDriveByDrive"],
@@ -8196,6 +8283,7 @@ export const googleOauthSearchDriveByQueryDefinition: ActionTemplate = {
 export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: ActionTemplate = {
   description: "Search Google Drive with keywords and get resulting content",
   scopes: ["drive.readonly"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["searchQuery", "searchDriveByDrive"],
@@ -8292,6 +8380,7 @@ export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: Action
 export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTemplate = {
   description: "Search Google Drive with Google Drive query syntax and get resulting content",
   scopes: ["drive.readonly"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["query", "searchDriveByDrive"],
@@ -8373,6 +8462,7 @@ export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTem
 export const googleOauthGetDriveFileContentByIdDefinition: ActionTemplate = {
   description: "Get text content of a Google Drive file by its ID.",
   scopes: ["drive.readonly"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["fileId"],
@@ -8451,6 +8541,7 @@ export const googleOauthGetDriveFileContentByIdDefinition: ActionTemplate = {
 export const googleOauthListGroupsDefinition: ActionTemplate = {
   description: "List all Google Groups for the customer.",
   scopes: ["https://www.googleapis.com/auth/admin.directory.group.readonly"],
+  tags: [],
   parameters: {
     type: "object",
     required: [],
@@ -8507,6 +8598,7 @@ export const googleOauthListGroupsDefinition: ActionTemplate = {
 export const googleOauthGetGroupDefinition: ActionTemplate = {
   description: "Get details for a specific Google Group by group email or ID.",
   scopes: ["https://www.googleapis.com/auth/admin.directory.group.readonly"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["groupKey"],
@@ -8559,6 +8651,7 @@ export const googleOauthGetGroupDefinition: ActionTemplate = {
 export const googleOauthListGroupMembersDefinition: ActionTemplate = {
   description: "List all members of a Google Group.",
   scopes: ["https://www.googleapis.com/auth/admin.directory.group.member.readonly"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["groupKey"],
@@ -8619,6 +8712,7 @@ export const googleOauthListGroupMembersDefinition: ActionTemplate = {
 export const googleOauthHasGroupMemberDefinition: ActionTemplate = {
   description: "Check if a user is a member of a Google Group.",
   scopes: ["https://www.googleapis.com/auth/admin.directory.group.member.readonly"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["groupKey", "memberKey"],
@@ -8657,6 +8751,7 @@ export const googleOauthHasGroupMemberDefinition: ActionTemplate = {
 export const googleOauthAddGroupMemberDefinition: ActionTemplate = {
   description: "Add a member to a Google Group.",
   scopes: ["https://www.googleapis.com/auth/admin.directory.group.member"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["groupKey", "email"],
@@ -8695,6 +8790,7 @@ export const googleOauthAddGroupMemberDefinition: ActionTemplate = {
 export const googleOauthDeleteGroupMemberDefinition: ActionTemplate = {
   description: "Remove a member from a Google Group.",
   scopes: ["https://www.googleapis.com/auth/admin.directory.group.member"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["groupKey", "memberKey"],
@@ -8729,6 +8825,7 @@ export const googleOauthDeleteGroupMemberDefinition: ActionTemplate = {
 export const googleOauthQueryGoogleBigQueryDefinition: ActionTemplate = {
   description: "Execute read only SQL queries on Google BigQuery datasets",
   scopes: ["https://www.googleapis.com/auth/bigquery.readonly"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["query", "projectId"],
@@ -8808,6 +8905,7 @@ export const googleOauthQueryGoogleBigQueryDefinition: ActionTemplate = {
 export const googlemailSearchGmailMessagesDefinition: ActionTemplate = {
   description: "Search Gmail messages in a user's inbox using a query string.",
   scopes: ["https://www.googleapis.com/auth/gmail.readonly"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["query"],
@@ -8924,6 +9022,7 @@ export const googlemailSearchGmailMessagesDefinition: ActionTemplate = {
 export const googlemailListGmailThreadsDefinition: ActionTemplate = {
   description: "List Gmail threads in a user's inbox using a query string.",
   scopes: ["https://www.googleapis.com/auth/gmail.readonly"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["query"],
@@ -9006,6 +9105,7 @@ export const googlemailListGmailThreadsDefinition: ActionTemplate = {
 export const googlemailSendGmailDefinition: ActionTemplate = {
   description: "Send an email through Gmail with support for to, cc, bcc, subject, and content.",
   scopes: ["https://www.googleapis.com/auth/gmail.send"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["to", "subject", "content"],
@@ -9069,6 +9169,7 @@ export const googlemailSendGmailDefinition: ActionTemplate = {
 export const googleSearchCustomSearchDefinition: ActionTemplate = {
   description: "Search for information using the Google Custom Search API",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["query", "customSearchEngineId"],
@@ -9176,6 +9277,7 @@ export const googleSearchCustomSearchDefinition: ActionTemplate = {
 export const oktaOrgGetOktaUserByNameDefinition: ActionTemplate = {
   description: "Retrieve details of a specific Okta user by their name.",
   scopes: ["okta.users.read"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["name"],
@@ -9232,6 +9334,7 @@ export const oktaOrgGetOktaUserByNameDefinition: ActionTemplate = {
 export const finnhubSymbolLookupDefinition: ActionTemplate = {
   description: "Look up a stock symbol by name",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["query"],
@@ -9272,6 +9375,7 @@ export const finnhubSymbolLookupDefinition: ActionTemplate = {
 export const finnhubGetBasicFinancialsDefinition: ActionTemplate = {
   description: "Get company basic financials such as margin, P/E ratio, 52-week high/low etc.",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["symbol"],
@@ -9364,6 +9468,7 @@ export const finnhubGetBasicFinancialsDefinition: ActionTemplate = {
 export const lookerEnableUserByEmailDefinition: ActionTemplate = {
   description: "Search for a Looker user by email and enable them if disabled",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["userEmail"],
@@ -9425,6 +9530,7 @@ export const lookerEnableUserByEmailDefinition: ActionTemplate = {
 export const salesforceUpdateRecordDefinition: ActionTemplate = {
   description: "Update a record in Salesforce",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["objectType", "recordId", "fieldsToUpdate"],
@@ -9467,6 +9573,7 @@ export const salesforceUpdateRecordDefinition: ActionTemplate = {
 export const salesforceCreateRecordDefinition: ActionTemplate = {
   description: "Create a record in Salesforce",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["objectType"],
@@ -9508,6 +9615,7 @@ export const salesforceCreateRecordDefinition: ActionTemplate = {
 export const salesforceCreateCaseDefinition: ActionTemplate = {
   description: "Create a case or support ticket in Salesforce",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["subject", "description", "priority", "origin"],
@@ -9561,6 +9669,7 @@ export const salesforceCreateCaseDefinition: ActionTemplate = {
 export const salesforceGenerateSalesReportDefinition: ActionTemplate = {
   description: "Generate a sales report from Salesforce",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["startDate", "endDate"],
@@ -9613,6 +9722,7 @@ export const salesforceGenerateSalesReportDefinition: ActionTemplate = {
 export const salesforceSearchAllSalesforceRecordsDefinition: ActionTemplate = {
   description: "Search for all Salesforce records by keyword",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["keyword"],
@@ -9700,6 +9810,7 @@ export const salesforceSearchAllSalesforceRecordsDefinition: ActionTemplate = {
 export const salesforceSearchSalesforceRecordsDefinition: ActionTemplate = {
   description: "Search for Salesforce records by keyword",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["keyword", "recordType", "fieldsToSearch"],
@@ -9794,6 +9905,7 @@ export const salesforceSearchSalesforceRecordsDefinition: ActionTemplate = {
 export const salesforceGetSalesforceRecordsByQueryDefinition: ActionTemplate = {
   description: "Retrieve Salesforce records by SOQL query",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["query"],
@@ -9849,6 +9961,7 @@ export const salesforceGetSalesforceRecordsByQueryDefinition: ActionTemplate = {
 export const salesforceGetRecordDefinition: ActionTemplate = {
   description: "Retrieve a record from Salesforce",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["objectType", "recordId"],
@@ -9890,6 +10003,7 @@ export const salesforceGetRecordDefinition: ActionTemplate = {
 export const microsoftCreateDocumentDefinition: ActionTemplate = {
   description: "Creates a new Office365 document",
   scopes: ["Files.ReadWrite", "Sites.Manage.All", "Sites.ReadWrite.All"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["name", "content"],
@@ -9944,6 +10058,7 @@ export const microsoftCreateDocumentDefinition: ActionTemplate = {
 export const microsoftUpdateDocumentDefinition: ActionTemplate = {
   description: "Updates a Office365 document",
   scopes: ["Files.ReadWrite", "Sites.ReadWrite.All"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["documentId", "content"],
@@ -9986,6 +10101,7 @@ export const microsoftUpdateDocumentDefinition: ActionTemplate = {
 export const microsoftUpdateSpreadsheetDefinition: ActionTemplate = {
   description: "Updates a Microsoft Excel spreadsheet",
   scopes: ["Files.ReadWrite", "Sites.ReadWrite.All"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["spreadsheetId", "range", "values"],
@@ -10038,6 +10154,7 @@ export const microsoftUpdateSpreadsheetDefinition: ActionTemplate = {
 export const microsoftMessageTeamsChatDefinition: ActionTemplate = {
   description: "Sends a message to a Microsoft Teams chat",
   scopes: ["ChatMessage.Send"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["chatId", "message"],
@@ -10076,6 +10193,7 @@ export const microsoftMessageTeamsChatDefinition: ActionTemplate = {
 export const microsoftMessageTeamsChannelDefinition: ActionTemplate = {
   description: "Sends a message to a Microsoft Teams channel",
   scopes: ["ChannelMessage.Send"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["teamId", "channelId", "message"],
@@ -10118,6 +10236,7 @@ export const microsoftMessageTeamsChannelDefinition: ActionTemplate = {
 export const microsoftGetDocumentDefinition: ActionTemplate = {
   description: "Retrieves the content of a Microsoft Office document",
   scopes: ["Files.ReadWrite", "Sites.ReadWrite.All"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["documentId"],
@@ -10156,6 +10275,7 @@ export const microsoftGetDocumentDefinition: ActionTemplate = {
 export const githubCreateOrUpdateFileDefinition: ActionTemplate = {
   description: "Create or update a file in a GitHub repository",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["repositoryOwner", "repositoryName", "filePath", "branch", "fileContent", "commitMessage"],
@@ -10219,6 +10339,7 @@ export const githubCreateOrUpdateFileDefinition: ActionTemplate = {
 export const githubCreateBranchDefinition: ActionTemplate = {
   description: "Create a new branch in a GitHub repository",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["repositoryOwner", "repositoryName", "branchName", "baseRefOrHash"],
@@ -10261,6 +10382,7 @@ export const githubCreateBranchDefinition: ActionTemplate = {
 export const githubCreatePullRequestDefinition: ActionTemplate = {
   description: "Create a pull request in a GitHub repository",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["repositoryOwner", "repositoryName", "head", "base", "title"],
@@ -10320,6 +10442,7 @@ export const githubCreatePullRequestDefinition: ActionTemplate = {
 export const githubListPullRequestsDefinition: ActionTemplate = {
   description: "List pull requests in a GitHub repository",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["repositoryOwner", "repositoryName"],
@@ -10418,6 +10541,7 @@ export const githubGetPullRequestDetailsDefinition: ActionTemplate = {
   description:
     "Get detailed information about a specific pull request including description, files, reviews, and status",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["repositoryOwner", "repositoryName", "pullRequestNumber"],
@@ -10695,6 +10819,7 @@ export const githubGetPullRequestDetailsDefinition: ActionTemplate = {
 export const githubGetFileContentDefinition: ActionTemplate = {
   description: "Get specified file content from a GitHub repository",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["organization", "repository", "path"],
@@ -10771,6 +10896,7 @@ export const githubGetFileContentDefinition: ActionTemplate = {
 export const githubListDirectoryDefinition: ActionTemplate = {
   description: "List directory contents of a path in a GitHub repository",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["organization", "repository", "path"],
@@ -10846,6 +10972,7 @@ export const githubListDirectoryDefinition: ActionTemplate = {
 export const githubSearchRepositoryDefinition: ActionTemplate = {
   description: "Search for code, issues and pull requests within a repository in a GitHub organization",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["organization", "repository", "query"],
@@ -11081,6 +11208,7 @@ export const githubSearchRepositoryDefinition: ActionTemplate = {
 export const githubSearchOrganizationDefinition: ActionTemplate = {
   description: "Search for code, issues and pull requests within a GitHub organization",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["organization", "query"],
@@ -11371,6 +11499,7 @@ export const githubSearchOrganizationDefinition: ActionTemplate = {
 export const githubGetBranchDefinition: ActionTemplate = {
   description: "Get a branch in a GitHub repository",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["repositoryOwner", "repositoryName", "branchName"],
@@ -11627,6 +11756,7 @@ export const githubGetBranchDefinition: ActionTemplate = {
 export const githubListCommitsDefinition: ActionTemplate = {
   description: "List commits in a GitHub repository with optional date filtering and pagination",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["repositoryOwner", "repositoryName"],
@@ -11811,6 +11941,7 @@ export const githubListCommitsDefinition: ActionTemplate = {
 export const notionSearchByTitleDefinition: ActionTemplate = {
   description: "Search Notion pages and databases by title",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["query"],
@@ -11865,6 +11996,7 @@ export const gitlabSearchGroupDefinition: ActionTemplate = {
   description:
     "Searches gitlab for details about a query. This will return a list of merge requests and blobs that match the query.",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["query", "groupId"],
@@ -12150,6 +12282,7 @@ export const gitlabSearchGroupDefinition: ActionTemplate = {
 export const gitlabGetFileContentDefinition: ActionTemplate = {
   description: "Get specified file content from a GitLab repository",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["project_id", "path"],
@@ -12228,6 +12361,7 @@ export const gitlabGetFileContentDefinition: ActionTemplate = {
 export const gitlabGetMergeRequestDefinition: ActionTemplate = {
   description: "Get specified merge request from a GitLab repository",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["mr_iid"],
@@ -12450,6 +12584,7 @@ export const gitlabGetMergeRequestDefinition: ActionTemplate = {
 export const gitlabListDirectoryDefinition: ActionTemplate = {
   description: "List directory contents of a path in a GitLab repository",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["group", "project", "path"],
@@ -12537,6 +12672,7 @@ export const gitlabListDirectoryDefinition: ActionTemplate = {
 export const linearGetIssuesDefinition: ActionTemplate = {
   description: "Get Linear issues with optional query filter",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: [],
@@ -12666,6 +12802,7 @@ export const linearGetIssuesDefinition: ActionTemplate = {
 export const linearGetIssueDetailsDefinition: ActionTemplate = {
   description: "Get detailed information about a Linear issue",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["issueId"],
@@ -12826,6 +12963,7 @@ export const linearGetIssueDetailsDefinition: ActionTemplate = {
 export const linearGetProjectsDefinition: ActionTemplate = {
   description: "Get all Linear projects",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: [],
@@ -12923,6 +13061,7 @@ export const linearGetProjectsDefinition: ActionTemplate = {
 export const linearGetProjectDetailsDefinition: ActionTemplate = {
   description: "Get detailed information about a Linear project",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["projectId"],
@@ -13069,6 +13208,7 @@ export const linearGetProjectDetailsDefinition: ActionTemplate = {
 export const linearGetTeamDetailsDefinition: ActionTemplate = {
   description: "Get detailed information about a Linear team",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: ["teamId"],
@@ -13135,6 +13275,7 @@ export const linearGetTeamDetailsDefinition: ActionTemplate = {
 export const linearGetTeamsDefinition: ActionTemplate = {
   description: "Get all teams in Linear",
   scopes: [],
+  tags: [],
   parameters: {
     type: "object",
     required: [],
@@ -13177,6 +13318,7 @@ export const linearGetTeamsDefinition: ActionTemplate = {
 export const hubspotGetContactsDefinition: ActionTemplate = {
   description: "List or search HubSpot contacts by optional query",
   scopes: ["oauth crm.objects.contacts.read"],
+  tags: [],
   parameters: {
     type: "object",
     required: [],
@@ -13240,6 +13382,7 @@ export const hubspotGetContactsDefinition: ActionTemplate = {
 export const hubspotGetContactDetailsDefinition: ActionTemplate = {
   description: "Get detailed information about a specific HubSpot contact",
   scopes: ["oauth crm.objects.contacts.read"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["contactId"],
@@ -13340,6 +13483,7 @@ export const hubspotGetContactDetailsDefinition: ActionTemplate = {
 export const hubspotGetCompaniesDefinition: ActionTemplate = {
   description: "List or search HubSpot companies by optional query",
   scopes: ["oauth crm.objects.companies.read"],
+  tags: [],
   parameters: {
     type: "object",
     required: [],
@@ -13399,6 +13543,7 @@ export const hubspotGetCompaniesDefinition: ActionTemplate = {
 export const hubspotGetCompanyDetailsDefinition: ActionTemplate = {
   description: "Get detailed information about a specific HubSpot company",
   scopes: ["oauth crm.objects.companies.read"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["companyId"],
@@ -13491,6 +13636,7 @@ export const hubspotGetCompanyDetailsDefinition: ActionTemplate = {
 export const hubspotGetDealsDefinition: ActionTemplate = {
   description: "List or search HubSpot deals by optional query",
   scopes: ["oauth crm.objects.deals.read"],
+  tags: [],
   parameters: {
     type: "object",
     required: [],
@@ -13554,6 +13700,7 @@ export const hubspotGetDealsDefinition: ActionTemplate = {
 export const hubspotGetDealDetailsDefinition: ActionTemplate = {
   description: "Get detailed information about a specific HubSpot deal",
   scopes: ["oauth crm.objects.deals.read"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["dealId"],
@@ -13638,6 +13785,7 @@ export const hubspotGetDealDetailsDefinition: ActionTemplate = {
 export const hubspotGetTicketsDefinition: ActionTemplate = {
   description: "List or search HubSpot tickets by optional query",
   scopes: ["oauth crm.objects.tickets.read"],
+  tags: [],
   parameters: {
     type: "object",
     required: [],
@@ -13697,6 +13845,7 @@ export const hubspotGetTicketsDefinition: ActionTemplate = {
 export const hubspotGetTicketDetailsDefinition: ActionTemplate = {
   description: "Get detailed information about a specific HubSpot ticket",
   scopes: ["oauth crm.objects.tickets.read"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["ticketId"],
