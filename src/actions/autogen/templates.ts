@@ -8805,6 +8805,65 @@ export const googleOauthQueryGoogleBigQueryDefinition: ActionTemplate = {
   name: "queryGoogleBigQuery",
   provider: "googleOauth",
 };
+export const googleOauthCopyDriveFileDefinition: ActionTemplate = {
+  description: "Create a copy of a file in Google Drive. Can be used to copy templates.",
+  scopes: ["https://www.googleapis.com/auth/drive.file"],
+  parameters: {
+    type: "object",
+    required: ["fileId"],
+    properties: {
+      fileId: {
+        type: "string",
+        description: "The ID of the file to copy",
+      },
+      name: {
+        type: "string",
+        description: "The name for the new copy. If not specified, the original file name will be used.",
+      },
+      parentFolderId: {
+        type: "string",
+        description:
+          "The ID of the folder to place the copy in. If not specified, the copy will be placed in the same location as the original.",
+      },
+      description: {
+        type: "string",
+        description: "A description for the new copy",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the file was copied successfully",
+      },
+      fileId: {
+        type: "string",
+        description: "The ID of the newly created copy",
+      },
+      fileUrl: {
+        type: "string",
+        description: "The URL to access the new copy",
+      },
+      fileName: {
+        type: "string",
+        description: "The name of the new copy",
+      },
+      mimeType: {
+        type: "string",
+        description: "The MIME type of the copied file",
+      },
+      error: {
+        type: "string",
+        description: "Error message if copy failed",
+      },
+    },
+  },
+  name: "copyDriveFile",
+  provider: "googleOauth",
+};
 export const googlemailSearchGmailMessagesDefinition: ActionTemplate = {
   description: "Search Gmail messages in a user's inbox using a query string.",
   scopes: ["https://www.googleapis.com/auth/gmail.readonly"],

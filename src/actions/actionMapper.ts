@@ -192,6 +192,8 @@ import {
   googleOauthSearchDriveByQueryAndGetFileContentOutputSchema,
   googleOauthQueryGoogleBigQueryParamsSchema,
   googleOauthQueryGoogleBigQueryOutputSchema,
+  googleOauthCopyDriveFileParamsSchema,
+  googleOauthCopyDriveFileOutputSchema,
   githubGetFileContentParamsSchema,
   githubGetFileContentOutputSchema,
   githubListDirectoryOutputSchema,
@@ -353,6 +355,7 @@ import getDriveFileContentById from "./providers/google-oauth/getDriveFileConten
 import searchDriveByQuery from "./providers/google-oauth/searchDriveByQuery.js";
 import searchDriveByQueryAndGetFileContent from "./providers/google-oauth/searchDriveByQueryAndGetFileContent.js";
 import queryGoogleBigQuery from "./providers/google-oauth/queryGoogleBigQuery.js";
+import copyDriveFile from "./providers/google-oauth/copyDriveFile.js";
 import getFileContent from "./providers/github/getFileContent.js";
 import listDirectory from "./providers/github/listDirectory.js";
 import getBranch from "./providers/github/getBranch.js";
@@ -846,6 +849,11 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: queryGoogleBigQuery,
       paramsSchema: googleOauthQueryGoogleBigQueryParamsSchema,
       outputSchema: googleOauthQueryGoogleBigQueryOutputSchema,
+    },
+    copyDriveFile: {
+      fn: copyDriveFile,
+      paramsSchema: googleOauthCopyDriveFileParamsSchema,
+      outputSchema: googleOauthCopyDriveFileOutputSchema,
     },
   },
   googlemail: {
