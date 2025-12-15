@@ -585,6 +585,52 @@ export const asanaGetTasksDetailsDefinition: ActionTemplate = {
   name: "getTasksDetails",
   provider: "asana",
 };
+export const slackSendDmFromBotDefinition: ActionTemplate = {
+  description: "Sends a direct message to a user on Slack using a bot",
+  scopes: ["users:read", "channels:manage", "chat:write"],
+  parameters: {
+    type: "object",
+    required: ["email", "message"],
+    properties: {
+      email: {
+        type: "string",
+        description: "The email of the user to send the DM to",
+      },
+      message: {
+        type: "string",
+        description: "The message content to send",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the DM was sent successfully",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the operation failed",
+      },
+      channelId: {
+        type: "string",
+        description: "The ID of the DM channel",
+      },
+      timestamp: {
+        type: "string",
+        description: "The timestamp of the sent message",
+      },
+      permalink: {
+        type: "string",
+        description: "The permalink to the sent message",
+      },
+    },
+  },
+  name: "sendDmFromBot",
+  provider: "slack",
+};
 export const slackCreateChannelDefinition: ActionTemplate = {
   description: "Creates a new Slack channel using a bot token",
   scopes: ["channels:manage"],

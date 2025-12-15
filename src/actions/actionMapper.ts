@@ -256,6 +256,8 @@ import {
   googleSearchCustomSearchOutputSchema,
   salesforceSearchAllSalesforceRecordsParamsSchema,
   salesforceSearchAllSalesforceRecordsOutputSchema,
+  slackSendDmFromBotParamsSchema,
+  slackSendDmFromBotOutputSchema,
 } from "./autogen/types.js";
 import validateAddress from "./providers/googlemaps/validateAddress.js";
 import add from "./providers/math/add.js";
@@ -382,6 +384,7 @@ import firecrawlGetTopNSearchResultUrls from "./providers/firecrawl/getTopNSearc
 import searchDriveByKeywordsAndGetFileContent from "./providers/google-oauth/searchDriveByKeywordsAndGetFileContent.js";
 import perplexityDeepResearch from "./providers/perplexity/perplexityDeepResearch.js";
 import searchSlack from "./providers/slackUser/searchSlack.js";
+import sendDmFromBot from "./providers/slack/sendDmFromBot.js";
 import getOktaUserByName from "./providers/oktaOrg/getOktaUserByName.js";
 import customSearch from "./providers/googleSearch/customSearch.js";
 import searchAllSalesforceRecords from "./providers/salesforce/searchAllSalesforceRecords.js";
@@ -520,6 +523,11 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: createChannel,
       paramsSchema: slackCreateChannelParamsSchema,
       outputSchema: slackCreateChannelOutputSchema,
+    },
+    sendDmFromBot: {
+      fn: sendDmFromBot,
+      paramsSchema: slackSendDmFromBotParamsSchema,
+      outputSchema: slackSendDmFromBotOutputSchema,
     },
   },
   slackUser: {
