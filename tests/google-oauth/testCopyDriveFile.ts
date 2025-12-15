@@ -5,7 +5,6 @@ import copyDriveFile from "../../src/actions/providers/google-oauth/copyDriveFil
 import assert from "node:assert";
 import dotenv from "dotenv";
 
-// Load from .env.local (falls back to .env if .env.local doesn't exist)
 dotenv.config();
 
 /**
