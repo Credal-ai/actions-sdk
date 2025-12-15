@@ -4564,6 +4564,39 @@ export type googleOauthQueryGoogleBigQueryFunction = ActionFunction<
   googleOauthQueryGoogleBigQueryOutputType
 >;
 
+export const googleOauthCopyDriveFileParamsSchema = z.object({
+  fileId: z.string().describe("The ID of the file to copy"),
+  name: z
+    .string()
+    .describe("The name for the new copy. If not specified, the original file name will be used.")
+    .optional(),
+  parentFolderId: z
+    .string()
+    .describe(
+      "The ID of the folder to place the copy in. If not specified, the copy will be placed in the same location as the original.",
+    )
+    .optional(),
+  description: z.string().describe("A description for the new copy").optional(),
+});
+
+export type googleOauthCopyDriveFileParamsType = z.infer<typeof googleOauthCopyDriveFileParamsSchema>;
+
+export const googleOauthCopyDriveFileOutputSchema = z.object({
+  success: z.boolean().describe("Whether the file was copied successfully"),
+  fileId: z.string().describe("The ID of the newly created copy").optional(),
+  fileUrl: z.string().describe("The URL to access the new copy").optional(),
+  fileName: z.string().describe("The name of the new copy").optional(),
+  mimeType: z.string().describe("The MIME type of the copied file").optional(),
+  error: z.string().describe("Error message if copy failed").optional(),
+});
+
+export type googleOauthCopyDriveFileOutputType = z.infer<typeof googleOauthCopyDriveFileOutputSchema>;
+export type googleOauthCopyDriveFileFunction = ActionFunction<
+  googleOauthCopyDriveFileParamsType,
+  AuthParamsType,
+  googleOauthCopyDriveFileOutputType
+>;
+
 export const googlemailSearchGmailMessagesParamsSchema = z.object({
   query: z.string().describe('Gmail search query (e.g. "from:alice subject:urgent")'),
   maxResults: z.number().describe("Maximum number of messages to return (optional)").optional(),
