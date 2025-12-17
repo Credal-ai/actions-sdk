@@ -596,6 +596,7 @@ export const asanaGetTasksDetailsDefinition: ActionTemplate = {
 export const slackSendDmFromBotDefinition: ActionTemplate = {
   description: "Sends a direct message to a user on Slack using a bot",
   scopes: ["users:read", "channels:manage", "chat:write"],
+  tags: [],
   parameters: {
     type: "object",
     required: ["email", "message"],
