@@ -3268,168 +3268,155 @@ export const googleOauthUpdateSpreadsheetParamsSchema = z.object({
             const schemas = [
               z
                 .object({
-                  addSheet: z
-                    .object({
-                      properties: z
-                        .object({
-                          title: z.string().describe("The title of the new sheet").optional(),
-                          gridProperties: z
-                            .object({
-                              rowCount: z.number().describe("The number of rows in the sheet").optional(),
-                              columnCount: z.number().describe("The number of columns in the sheet").optional(),
-                            })
-                            .optional(),
-                        })
-                        .optional(),
-                    })
-                    .optional(),
+                  addSheet: z.object({
+                    properties: z
+                      .object({
+                        title: z.string().describe("The title of the new sheet").optional(),
+                        gridProperties: z
+                          .object({
+                            rowCount: z.number().describe("The number of rows in the sheet").optional(),
+                            columnCount: z.number().describe("The number of columns in the sheet").optional(),
+                          })
+                          .optional(),
+                      })
+                      .optional(),
+                  }),
                 })
                 .describe("Add or update a sheet"),
               z
                 .object({
-                  deleteSheet: z
-                    .object({ sheetId: z.number().describe("The ID of the sheet to delete").optional() })
-                    .optional(),
+                  deleteSheet: z.object({ sheetId: z.number().describe("The ID of the sheet to delete").optional() }),
                 })
                 .describe("Delete a sheet"),
               z
                 .object({
-                  updateCells: z
-                    .object({
-                      range: z
-                        .object({
-                          sheetId: z.number().describe("The ID of the sheet").optional(),
-                          startRowIndex: z.number().describe("The start row (0-based, inclusive)").optional(),
-                          endRowIndex: z.number().describe("The end row (0-based, exclusive)").optional(),
-                          startColumnIndex: z.number().describe("The start column (0-based, inclusive)").optional(),
-                          endColumnIndex: z.number().describe("The end column (0-based, exclusive)").optional(),
-                        })
-                        .optional(),
-                      rows: z
-                        .array(
-                          z.object({
-                            values: z
-                              .array(
-                                z.object({
-                                  userEnteredValue: z
-                                    .object({
-                                      stringValue: z.string().optional(),
-                                      numberValue: z.number().optional(),
-                                      boolValue: z.boolean().optional(),
-                                      formulaValue: z.string().optional(),
-                                    })
-                                    .optional(),
-                                }),
-                              )
-                              .optional(),
-                          }),
-                        )
-                        .optional(),
-                    })
-                    .optional(),
+                  updateCells: z.object({
+                    range: z
+                      .object({
+                        sheetId: z.number().describe("The ID of the sheet").optional(),
+                        startRowIndex: z.number().describe("The start row (0-based, inclusive)").optional(),
+                        endRowIndex: z.number().describe("The end row (0-based, exclusive)").optional(),
+                        startColumnIndex: z.number().describe("The start column (0-based, inclusive)").optional(),
+                        endColumnIndex: z.number().describe("The end column (0-based, exclusive)").optional(),
+                      })
+                      .optional(),
+                    rows: z
+                      .array(
+                        z.object({
+                          values: z
+                            .array(
+                              z.object({
+                                userEnteredValue: z
+                                  .object({
+                                    stringValue: z.string().optional(),
+                                    numberValue: z.number().optional(),
+                                    boolValue: z.boolean().optional(),
+                                    formulaValue: z.string().optional(),
+                                  })
+                                  .optional(),
+                              }),
+                            )
+                            .optional(),
+                        }),
+                      )
+                      .optional(),
+                  }),
                 })
                 .describe("Update cells in a range"),
               z
                 .object({
-                  updateSheetProperties: z
-                    .object({
-                      properties: z
-                        .object({
-                          sheetId: z.number().describe("The ID of the sheet to update").optional(),
-                          title: z.string().describe("The new title of the sheet").optional(),
-                          gridProperties: z
-                            .object({
-                              rowCount: z.number().describe("The new number of rows").optional(),
-                              columnCount: z.number().describe("The new number of columns").optional(),
-                              frozenRowCount: z.number().describe("The number of frozen rows").optional(),
-                              frozenColumnCount: z.number().describe("The number of frozen columns").optional(),
-                            })
-                            .optional(),
-                        })
-                        .optional(),
-                      fields: z
-                        .string()
-                        .describe("The fields to update (comma-separated list using JSON field paths)")
-                        .optional(),
-                    })
-                    .optional(),
+                  updateSheetProperties: z.object({
+                    properties: z
+                      .object({
+                        sheetId: z.number().describe("The ID of the sheet to update").optional(),
+                        title: z.string().describe("The new title of the sheet").optional(),
+                        gridProperties: z
+                          .object({
+                            rowCount: z.number().describe("The new number of rows").optional(),
+                            columnCount: z.number().describe("The new number of columns").optional(),
+                            frozenRowCount: z.number().describe("The number of frozen rows").optional(),
+                            frozenColumnCount: z.number().describe("The number of frozen columns").optional(),
+                          })
+                          .optional(),
+                      })
+                      .optional(),
+                    fields: z
+                      .string()
+                      .describe("The fields to update (comma-separated list using JSON field paths)")
+                      .optional(),
+                  }),
                 })
                 .describe("Update sheet properties"),
               z
                 .object({
-                  updateSpreadsheetProperties: z
-                    .object({
-                      properties: z
-                        .object({
-                          title: z.string().describe("The title of the spreadsheet").optional(),
-                          locale: z.string().describe("The locale of the spreadsheet (e.g., en_US)").optional(),
-                          timeZone: z
-                            .string()
-                            .describe("The time zone of the spreadsheet (e.g., America/New_York)")
-                            .optional(),
-                          autoRecalc: z
-                            .enum(["ON_CHANGE", "MINUTE", "HOUR"])
-                            .describe("When to recalculate the spreadsheet")
-                            .optional(),
-                          defaultFormat: z
-                            .object({
-                              backgroundColor: z
-                                .object({
-                                  red: z.number().describe("The red component [0.0, 1.0]").optional(),
-                                  green: z.number().describe("The green component [0.0, 1.0]").optional(),
-                                  blue: z.number().describe("The blue component [0.0, 1.0]").optional(),
-                                  alpha: z.number().describe("The alpha component [0.0, 1.0]").optional(),
-                                })
-                                .optional(),
-                              numberFormat: z
-                                .object({
-                                  type: z
-                                    .enum([
-                                      "TEXT",
-                                      "NUMBER",
-                                      "PERCENT",
-                                      "CURRENCY",
-                                      "DATE",
-                                      "TIME",
-                                      "DATE_TIME",
-                                      "SCIENTIFIC",
-                                    ])
-                                    .describe("The type of the number format")
-                                    .optional(),
-                                  pattern: z.string().describe("Pattern string used for formatting").optional(),
-                                })
-                                .optional(),
-                              textFormat: z
-                                .object({
-                                  foregroundColor: z
-                                    .object({
-                                      red: z.number().describe("The red component [0.0, 1.0]").optional(),
-                                      green: z.number().describe("The green component [0.0, 1.0]").optional(),
-                                      blue: z.number().describe("The blue component [0.0, 1.0]").optional(),
-                                      alpha: z.number().describe("The alpha component [0.0, 1.0]").optional(),
-                                    })
-                                    .optional(),
-                                  fontFamily: z.string().describe("The font family").optional(),
-                                  fontSize: z.number().describe("The size of the font in points").optional(),
-                                  bold: z.boolean().describe("Whether the text is bold").optional(),
-                                  italic: z.boolean().describe("Whether the text is italic").optional(),
-                                  strikethrough: z
-                                    .boolean()
-                                    .describe("Whether the text has a strikethrough")
-                                    .optional(),
-                                  underline: z.boolean().describe("Whether the text is underlined").optional(),
-                                })
-                                .optional(),
-                            })
-                            .optional(),
-                        })
-                        .optional(),
-                      fields: z
-                        .string()
-                        .describe("The fields to update (comma-separated list using JSON field paths)")
-                        .optional(),
-                    })
-                    .optional(),
+                  updateSpreadsheetProperties: z.object({
+                    properties: z
+                      .object({
+                        title: z.string().describe("The title of the spreadsheet").optional(),
+                        locale: z.string().describe("The locale of the spreadsheet (e.g., en_US)").optional(),
+                        timeZone: z
+                          .string()
+                          .describe("The time zone of the spreadsheet (e.g., America/New_York)")
+                          .optional(),
+                        autoRecalc: z
+                          .enum(["ON_CHANGE", "MINUTE", "HOUR"])
+                          .describe("When to recalculate the spreadsheet")
+                          .optional(),
+                        defaultFormat: z
+                          .object({
+                            backgroundColor: z
+                              .object({
+                                red: z.number().describe("The red component [0.0, 1.0]").optional(),
+                                green: z.number().describe("The green component [0.0, 1.0]").optional(),
+                                blue: z.number().describe("The blue component [0.0, 1.0]").optional(),
+                                alpha: z.number().describe("The alpha component [0.0, 1.0]").optional(),
+                              })
+                              .optional(),
+                            numberFormat: z
+                              .object({
+                                type: z
+                                  .enum([
+                                    "TEXT",
+                                    "NUMBER",
+                                    "PERCENT",
+                                    "CURRENCY",
+                                    "DATE",
+                                    "TIME",
+                                    "DATE_TIME",
+                                    "SCIENTIFIC",
+                                  ])
+                                  .describe("The type of the number format")
+                                  .optional(),
+                                pattern: z.string().describe("Pattern string used for formatting").optional(),
+                              })
+                              .optional(),
+                            textFormat: z
+                              .object({
+                                foregroundColor: z
+                                  .object({
+                                    red: z.number().describe("The red component [0.0, 1.0]").optional(),
+                                    green: z.number().describe("The green component [0.0, 1.0]").optional(),
+                                    blue: z.number().describe("The blue component [0.0, 1.0]").optional(),
+                                    alpha: z.number().describe("The alpha component [0.0, 1.0]").optional(),
+                                  })
+                                  .optional(),
+                                fontFamily: z.string().describe("The font family").optional(),
+                                fontSize: z.number().describe("The size of the font in points").optional(),
+                                bold: z.boolean().describe("Whether the text is bold").optional(),
+                                italic: z.boolean().describe("Whether the text is italic").optional(),
+                                strikethrough: z.boolean().describe("Whether the text has a strikethrough").optional(),
+                                underline: z.boolean().describe("Whether the text is underlined").optional(),
+                              })
+                              .optional(),
+                          })
+                          .optional(),
+                      })
+                      .optional(),
+                    fields: z
+                      .string()
+                      .describe("The fields to update (comma-separated list using JSON field paths)")
+                      .optional(),
+                  }),
                 })
                 .describe("Update spreadsheet properties"),
             ];
