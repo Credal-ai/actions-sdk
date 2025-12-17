@@ -6174,11 +6174,11 @@ actions:
           repositoryOwner:
             type: string
             description: The owner of the repository
-            tags: [recommended]
+            tags: [recommend-predefined]
           repositoryName:
             type: string
             description: The name of the repository
-            tags: [recommended]
+            tags: [recommend-predefined]
           filePath:
             type: string
             description: The path of the file to create or update
@@ -6221,11 +6221,11 @@ actions:
           repositoryOwner:
             type: string
             description: The owner of the repository
-            tags: [recommended]
+            tags: [recommend-predefined]
           repositoryName:
             type: string
             description: The name of the repository
-            tags: [recommended]
+            tags: [recommend-predefined]
           branchName:
             type: string
             description: The name of the new branch to create
@@ -6252,11 +6252,11 @@ actions:
           repositoryOwner:
             type: string
             description: The owner of the repository
-            tags: [recommended]
+            tags: [recommend-predefined]
           repositoryName:
             type: string
             description: The name of the repository
-            tags: [recommended]
+            tags: [recommend-predefined]
           head:
             type: string
             description: "The branch containing the changes to be merged (prefix with owner: if different from the repository owner)"
@@ -6295,11 +6295,11 @@ actions:
           repositoryOwner:
             type: string
             description: The owner of the repository
-            tags: [recommended]
+            tags: [recommend-predefined]
           repositoryName:
             type: string
             description: The name of the repository
-            tags: [recommended]
+            tags: [recommend-predefined]
           state:
             type: string
             description: The state of the pull requests to list (e.g., open, closed)
@@ -6365,11 +6365,11 @@ actions:
           repositoryOwner:
             type: string
             description: The owner of the repository
-            tags: [recommended]
+            tags: [recommend-predefined]
           repositoryName:
             type: string
             description: The name of the repository
-            tags: [recommended]
+            tags: [recommend-predefined]
           pullRequestNumber:
             type: number
             description: The number of the pull request to get details for
@@ -6567,11 +6567,11 @@ actions:
           organization:
             type: string
             description: The organization that owns the repository
-            tags: [recommended]
+            tags: [recommend-predefined]
           repository:
             type: string
             description: The repository name
-            tags: [recommended]
+            tags: [recommend-predefined]
           path:
             type: string
             description: The file path to get content from
@@ -6622,11 +6622,11 @@ actions:
           organization:
             type: string
             description: The organization that owns the repository
-            tags: [recommended]
+            tags: [recommend-predefined]
           repository:
             type: string
             description: The repository name
-            tags: [recommended]
+            tags: [recommend-predefined]
           path:
             type: string
             description: The path to list directory contents from
@@ -6677,11 +6677,11 @@ actions:
           organization:
             type: string
             description: The organization to search for data in
-            tags: [recommended]
+            tags: [recommend-predefined]
           repository:
             type: string
             description: The repository to search for data in
-            tags: [recommended]
+            tags: [recommend-predefined]
           query:
             type: string
             description: The query to search for in the repository
@@ -6848,7 +6848,7 @@ actions:
           organization:
             type: string
             description: The organization to search for data in
-            tags: [recommended]
+            tags: [recommend-predefined]
           query:
             type: string
             description: The query to search for within the organization
@@ -7057,11 +7057,11 @@ actions:
           repositoryOwner:
             type: string
             description: The owner of the repository
-            tags: [recommended]
+            tags: [recommend-predefined]
           repositoryName:
             type: string
             description: The name of the repository
-            tags: [recommended]
+            tags: [recommend-predefined]
           branchName:
             type: string
             description: The name of the branch to retrieve
@@ -7237,11 +7237,11 @@ actions:
           repositoryOwner:
             type: string
             description: The owner of the repository
-            tags: [recommended]
+            tags: [recommend-predefined]
           repositoryName:
             type: string
             description: The name of the repository
-            tags: [recommended]
+            tags: [recommend-predefined]
           branch:
             type: string
             description: The branch to list commits from (defaults to default branch)
