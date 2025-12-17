@@ -6309,6 +6309,7 @@ export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
             {
               type: "object",
               description: "Add or update a sheet",
+              required: ["addSheet"],
               properties: {
                 addSheet: {
                   type: "object",
@@ -6342,6 +6343,7 @@ export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
             {
               type: "object",
               description: "Delete a sheet",
+              required: ["deleteSheet"],
               properties: {
                 deleteSheet: {
                   type: "object",
@@ -6357,6 +6359,7 @@ export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
             {
               type: "object",
               description: "Update cells in a range",
+              required: ["updateCells"],
               properties: {
                 updateCells: {
                   type: "object",
@@ -6426,6 +6429,7 @@ export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
             {
               type: "object",
               description: "Update sheet properties",
+              required: ["updateSheetProperties"],
               properties: {
                 updateSheetProperties: {
                   type: "object",
@@ -6475,6 +6479,7 @@ export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
             {
               type: "object",
               description: "Update spreadsheet properties",
+              required: ["updateSpreadsheetProperties"],
               properties: {
                 updateSpreadsheetProperties: {
                   type: "object",
