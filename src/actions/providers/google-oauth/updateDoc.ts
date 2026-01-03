@@ -26,12 +26,18 @@ const updateDoc: googleOauthUpdateDocFunction = async ({
     };
   }
 
-  const { documentId, requests } = params;
+  const { documentId } = params;
+  // Fix: Handle nested requests.requests structure from Credal schema wrapper
+  // The Credal action schema wraps the requests array in an object, so we need
+  // to handle both { requests: [...] } and { requests: { requests: [...] } }
+  const requests = Array.isArray(params.requests) 
+    ? params.requests 
+    : params.requests?.requests;
   const baseApiUrl = "https://docs.googleapis.com/v1/documents";
 
   try {
     // If requests are provided, send them as a batch update
-    if (requests && requests.length > 0) {
+    if (requests && Array.isArray(requests) && requests.length > 0) {
       const response = await axios.post(
         `${baseApiUrl}/${documentId}:batchUpdate`,
         {
