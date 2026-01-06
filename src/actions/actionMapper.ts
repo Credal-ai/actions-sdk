@@ -1,4 +1,4 @@
-import type { z } from "zod";
+import { z } from "zod";
 import {
   type ActionFunction,
   genericFillTemplateParamsSchema,
@@ -389,11 +389,19 @@ import getOktaUserByName from "./providers/oktaOrg/getOktaUserByName.js";
 import customSearch from "./providers/googleSearch/customSearch.js";
 import searchAllSalesforceRecords from "./providers/salesforce/searchAllSalesforceRecords.js";
 
+const ActionType = z.enum(["read", "write"]);
+type ActionTypeSchema = z.infer<typeof ActionType>;
+
+const CapabilityTag = z.enum(["Google Drive", "Google Groups", "Google BigQuery", "Google Calendar"]);
+type CapabilityTagSchema = z.infer<typeof CapabilityTag>;
+
 interface ActionFunctionComponents {
   // eslint-disable-next-line
   fn: ActionFunction<any, any, any>;
   paramsSchema: z.ZodSchema;
   outputSchema: z.ZodSchema;
+  actionType?: ActionTypeSchema;
+  capabilityTag?: CapabilityTagSchema;
 }
 
 const jiraActions = {
@@ -734,11 +742,15 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: createNewGoogleDoc,
       paramsSchema: googleOauthCreateNewGoogleDocParamsSchema,
       outputSchema: googleOauthCreateNewGoogleDocOutputSchema,
+      actionType: "write",
+      capabilityTag: "Google Drive",
     },
     updateDoc: {
       fn: updateDoc,
       paramsSchema: googleOauthUpdateDocParamsSchema,
       outputSchema: googleOauthUpdateDocOutputSchema,
+      actionType: "write",
+      capabilityTag: "Google Drive",
     },
     scheduleCalendarMeeting: {
       fn: scheduleCalendarMeeting,
