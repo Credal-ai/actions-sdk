@@ -392,7 +392,7 @@ import searchAllSalesforceRecords from "./providers/salesforce/searchAllSalesfor
 const ActionType = z.enum(["read", "write"]);
 type ActionTypeSchema = z.infer<typeof ActionType>;
 
-const CapabilityTag = z.enum(["Google Drive", "Google Groups", "Google BigQuery", "Google Calendar"]);
+const CapabilityTag = z.enum(["Google Drive", "Google Groups", "Google BigQuery", "Google Calendar", "Pull Request"]);
 type CapabilityTagSchema = z.infer<typeof CapabilityTag>;
 
 interface ActionFunctionComponents {
