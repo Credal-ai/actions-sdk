@@ -397,7 +397,7 @@ interface ActionFunctionComponents {
   fn: ActionFunction<any, any, any>;
   paramsSchema: z.ZodSchema;
   outputSchema: z.ZodSchema;
-  actionType: ActionTypeSchema;
+  actionType?: ActionTypeSchema;
 }
 
 const jiraActions = {
@@ -475,7 +475,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: fillTemplate,
       paramsSchema: genericFillTemplateParamsSchema,
       outputSchema: genericFillTemplateOutputSchema,
-      actionType: "read",
     },
   },
   perplexity: {
@@ -483,7 +482,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: perplexityDeepResearch,
       paramsSchema: perplexityPerplexityDeepResearchParamsSchema,
       outputSchema: perplexityPerplexityDeepResearchOutputSchema,
-      actionType: "read",
     },
   },
   asana: {
@@ -529,7 +527,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: add,
       paramsSchema: mathAddParamsSchema,
       outputSchema: mathAddOutputSchema,
-      actionType: "read",
     },
   },
   slack: {
@@ -585,13 +582,11 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: validateAddress,
       paramsSchema: googlemapsValidateAddressParamsSchema,
       outputSchema: googlemapsValidateAddressOutputSchema,
-      actionType: "read",
     },
     nearbysearch: {
       fn: nearbysearch,
       paramsSchema: googlemapsNearbysearchRestaurantsParamsSchema,
       outputSchema: googlemapsNearbysearchRestaurantsOutputSchema,
-      actionType: "read",
     },
   },
   bing: {
@@ -599,7 +594,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: getTopNSearchResultUrls,
       paramsSchema: bingGetTopNSearchResultUrlsParamsSchema,
       outputSchema: bingGetTopNSearchResultUrlsOutputSchema,
-      actionType: "read",
     },
   },
   zendesk: {
@@ -673,7 +667,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: createShareLinkedinPostUrl,
       paramsSchema: linkedinCreateShareLinkedinPostUrlParamsSchema,
       outputSchema: linkedinCreateShareLinkedinPostUrlOutputSchema,
-      actionType: "read",
     },
   },
   jira: jiraActions,
@@ -734,7 +727,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: getLatitudeLongitudeFromLocation,
       paramsSchema: openstreetmapGetLatitudeLongitudeFromLocationParamsSchema,
       outputSchema: openstreetmapGetLatitudeLongitudeFromLocationOutputSchema,
-      actionType: "read",
     },
   },
   nws: {
@@ -742,7 +734,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: getForecastForLocation,
       paramsSchema: nwsGetForecastForLocationParamsSchema,
       outputSchema: nwsGetForecastForLocationOutputSchema,
-      actionType: "read",
     },
   },
   firecrawl: {
@@ -750,31 +741,26 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: scrapeUrl,
       paramsSchema: firecrawlScrapeUrlParamsSchema,
       outputSchema: firecrawlScrapeUrlOutputSchema,
-      actionType: "read",
     },
     scrapeTweetDataWithNitter: {
       fn: scrapeTweetDataWithNitter,
       paramsSchema: firecrawlScrapeTweetDataWithNitterParamsSchema,
       outputSchema: firecrawlScrapeTweetDataWithNitterOutputSchema,
-      actionType: "read",
     },
     deepResearch: {
       fn: deepResearch,
       paramsSchema: firecrawlDeepResearchParamsSchema,
       outputSchema: firecrawlDeepResearchOutputSchema,
-      actionType: "read",
     },
     searchAndScrape: {
       fn: searchAndScrape,
       paramsSchema: firecrawlSearchAndScrapeParamsSchema,
       outputSchema: firecrawlSearchAndScrapeOutputSchema,
-      actionType: "read",
     },
     getTopNSearchResultUrls: {
       fn: firecrawlGetTopNSearchResultUrls,
       paramsSchema: firecrawlGetTopNSearchResultUrlsParamsSchema,
       outputSchema: firecrawlGetTopNSearchResultUrlsOutputSchema,
-      actionType: "read",
     },
   },
   resend: {
@@ -968,7 +954,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: customSearch,
       paramsSchema: googleSearchCustomSearchParamsSchema,
       outputSchema: googleSearchCustomSearchOutputSchema,
-      actionType: "read",
     },
   },
   x: {
@@ -976,7 +961,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: createXSharePostUrl,
       paramsSchema: xCreateShareXPostUrlParamsSchema,
       outputSchema: xCreateShareXPostUrlOutputSchema,
-      actionType: "read",
     },
   },
   finnhub: {
@@ -984,13 +968,11 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: symbolLookup,
       paramsSchema: finnhubSymbolLookupParamsSchema,
       outputSchema: finnhubSymbolLookupOutputSchema,
-      actionType: "read",
     },
     getBasicFinancials: {
       fn: getBasicFinancials,
       paramsSchema: finnhubGetBasicFinancialsParamsSchema,
       outputSchema: finnhubGetBasicFinancialsOutputSchema,
-      actionType: "read",
     },
   },
   looker: {
