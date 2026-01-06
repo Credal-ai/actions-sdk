@@ -389,8 +389,7 @@ import getOktaUserByName from "./providers/oktaOrg/getOktaUserByName.js";
 import customSearch from "./providers/googleSearch/customSearch.js";
 import searchAllSalesforceRecords from "./providers/salesforce/searchAllSalesforceRecords.js";
 
-const ActionType = z.enum(["read", "write"]);
-type ActionTypeSchema = z.infer<typeof ActionType>;
+type ActionTypeSchema = "read" | "write";
 
 interface ActionFunctionComponents {
   // eslint-disable-next-line
