@@ -392,16 +392,12 @@ import searchAllSalesforceRecords from "./providers/salesforce/searchAllSalesfor
 const ActionType = z.enum(["read", "write"]);
 type ActionTypeSchema = z.infer<typeof ActionType>;
 
-const CapabilityTag = z.enum(["Google Drive", "Google Groups", "Google BigQuery", "Google Calendar", "Pull Request"]);
-type CapabilityTagSchema = z.infer<typeof CapabilityTag>;
-
 interface ActionFunctionComponents {
   // eslint-disable-next-line
   fn: ActionFunction<any, any, any>;
   paramsSchema: z.ZodSchema;
   outputSchema: z.ZodSchema;
-  actionType?: ActionTypeSchema;
-  capabilityTag?: CapabilityTagSchema;
+  actionType: ActionTypeSchema;
 }
 
 const jiraActions = {
@@ -409,58 +405,69 @@ const jiraActions = {
     fn: getJiraIssuesByQuery,
     paramsSchema: jiraGetJiraIssuesByQueryParamsSchema,
     outputSchema: jiraGetJiraIssuesByQueryOutputSchema,
+    actionType: "read",
   },
   assignJiraTicket: {
     fn: assignJiraTicket,
     paramsSchema: jiraAssignJiraTicketParamsSchema,
     outputSchema: jiraAssignJiraTicketOutputSchema,
+    actionType: "write",
   },
   commentJiraTicket: {
     fn: commentJiraTicket,
     paramsSchema: jiraCommentJiraTicketParamsSchema,
     outputSchema: jiraCommentJiraTicketOutputSchema,
+    actionType: "write",
   },
   publicCommentOnServiceDeskRequest: {
     fn: publicCommentOnServiceDeskRequest,
     paramsSchema: jiraPublicCommentOnServiceDeskRequestParamsSchema,
     outputSchema: jiraPublicCommentOnServiceDeskRequestOutputSchema,
+    actionType: "write",
   },
   createJiraTicket: {
     fn: createJiraTicket,
     paramsSchema: jiraCreateJiraTicketParamsSchema,
     outputSchema: jiraCreateJiraTicketOutputSchema,
+    actionType: "write",
   },
   getJiraTicketDetails: {
     fn: getJiraTicketDetails,
     paramsSchema: jiraGetJiraTicketDetailsParamsSchema,
     outputSchema: jiraGetJiraTicketDetailsOutputSchema,
+    actionType: "read",
   },
   getJiraTicketHistory: {
     fn: getJiraTicketHistory,
     paramsSchema: jiraGetJiraTicketHistoryParamsSchema,
     outputSchema: jiraGetJiraTicketHistoryOutputSchema,
+    actionType: "read",
   },
   updateJiraTicketDetails: {
     fn: updateJiraTicketDetails,
     paramsSchema: jiraUpdateJiraTicketDetailsParamsSchema,
     outputSchema: jiraUpdateJiraTicketDetailsOutputSchema,
+    actionType: "write",
   },
   updateJiraTicketStatus: {
     fn: updateJiraTicketStatus,
     paramsSchema: jiraUpdateJiraTicketStatusParamsSchema,
     outputSchema: jiraUpdateJiraTicketStatusOutputSchema,
+    actionType: "write",
   },
   getServiceDesks: {
     fn: getServiceDesks,
     paramsSchema: jiraGetServiceDesksParamsSchema,
     outputSchema: jiraGetServiceDesksOutputSchema,
+    actionType: "read",
   },
   createServiceDeskRequest: {
     fn: createServiceDeskRequest,
     paramsSchema: jiraCreateServiceDeskRequestParamsSchema,
     outputSchema: jiraCreateServiceDeskRequestOutputSchema,
+    actionType: "write",
   },
-};
+} satisfies Record<string, ActionFunctionComponents>;
 
 export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionComponents>> = {
   generic: {
@@ -468,6 +475,7 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: fillTemplate,
       paramsSchema: genericFillTemplateParamsSchema,
       outputSchema: genericFillTemplateOutputSchema,
+      actionType: "read",
     },
   },
   perplexity: {
@@ -475,6 +483,7 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: perplexityDeepResearch,
       paramsSchema: perplexityPerplexityDeepResearchParamsSchema,
       outputSchema: perplexityPerplexityDeepResearchOutputSchema,
+      actionType: "read",
     },
   },
   asana: {
@@ -482,31 +491,37 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: commentAsanaTask,
       paramsSchema: asanaCommentTaskParamsSchema,
       outputSchema: asanaCommentTaskOutputSchema,
+      actionType: "write",
     },
     createTask: {
       fn: createAsanaTask,
       paramsSchema: asanaCreateTaskParamsSchema,
       outputSchema: asanaCreateTaskOutputSchema,
+      actionType: "write",
     },
     updateTask: {
       fn: updateAsanaTask,
       paramsSchema: asanaUpdateTaskParamsSchema,
       outputSchema: asanaUpdateTaskOutputSchema,
+      actionType: "write",
     },
     searchTasks: {
       fn: searchAsanaTasks,
       paramsSchema: asanaSearchTasksParamsSchema,
       outputSchema: asanaSearchTasksOutputSchema,
+      actionType: "read",
     },
     listAsanaTasksByProject: {
       fn: listAsanaTasksByProject,
       paramsSchema: asanaListAsanaTasksByProjectParamsSchema,
       outputSchema: asanaListAsanaTasksByProjectOutputSchema,
+      actionType: "read",
     },
     getTasksDetails: {
       fn: getTasksDetails,
       paramsSchema: asanaGetTasksDetailsParamsSchema,
       outputSchema: asanaGetTasksDetailsOutputSchema,
+      actionType: "read",
     },
   },
   math: {
@@ -514,6 +529,7 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: add,
       paramsSchema: mathAddParamsSchema,
       outputSchema: mathAddOutputSchema,
+      actionType: "read",
     },
   },
   slack: {
@@ -521,21 +537,25 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: sendMessage,
       paramsSchema: slackSendMessageParamsSchema,
       outputSchema: slackSendMessageOutputSchema,
+      actionType: "write",
     },
     getChannelMessages: {
       fn: getChannelMessages,
       paramsSchema: slackGetChannelMessagesParamsSchema,
       outputSchema: slackGetChannelMessagesOutputSchema,
+      actionType: "read",
     },
     createChannel: {
       fn: createChannel,
       paramsSchema: slackCreateChannelParamsSchema,
       outputSchema: slackCreateChannelOutputSchema,
+      actionType: "write",
     },
     sendDmFromBot: {
       fn: sendDmFromBot,
       paramsSchema: slackSendDmFromBotParamsSchema,
       outputSchema: slackSendDmFromBotOutputSchema,
+      actionType: "write",
     },
   },
   slackUser: {
@@ -543,6 +563,7 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: searchSlack,
       paramsSchema: slackUserSearchSlackParamsSchema,
       outputSchema: slackUserSearchSlackOutputSchema,
+      actionType: "read",
     },
   },
   confluence: {
@@ -550,11 +571,13 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: confluenceOverwritePage,
       paramsSchema: confluenceOverwritePageParamsSchema,
       outputSchema: confluenceOverwritePageOutputSchema,
+      actionType: "write",
     },
     fetchPageContent: {
       fn: confluenceFetchPageContent,
       paramsSchema: confluenceFetchPageContentParamsSchema,
       outputSchema: confluenceFetchPageContentOutputSchema,
+      actionType: "read",
     },
   },
   googlemaps: {
@@ -562,11 +585,13 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: validateAddress,
       paramsSchema: googlemapsValidateAddressParamsSchema,
       outputSchema: googlemapsValidateAddressOutputSchema,
+      actionType: "read",
     },
     nearbysearch: {
       fn: nearbysearch,
       paramsSchema: googlemapsNearbysearchRestaurantsParamsSchema,
       outputSchema: googlemapsNearbysearchRestaurantsOutputSchema,
+      actionType: "read",
     },
   },
   bing: {
@@ -574,6 +599,7 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: getTopNSearchResultUrls,
       paramsSchema: bingGetTopNSearchResultUrlsParamsSchema,
       outputSchema: bingGetTopNSearchResultUrlsOutputSchema,
+      actionType: "read",
     },
   },
   zendesk: {
@@ -581,36 +607,43 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: createZendeskTicket,
       paramsSchema: zendeskCreateZendeskTicketParamsSchema,
       outputSchema: zendeskCreateZendeskTicketOutputSchema,
+      actionType: "write",
     },
     getTicketDetails: {
       fn: getZendeskTicketDetails,
       paramsSchema: zendeskGetTicketDetailsParamsSchema,
       outputSchema: zendeskGetTicketDetailsOutputSchema,
+      actionType: "read",
     },
     updateTicketStatus: {
       fn: updateTicketStatus,
       paramsSchema: zendeskUpdateTicketStatusParamsSchema,
       outputSchema: zendeskUpdateTicketStatusOutputSchema,
+      actionType: "write",
     },
     addCommentToTicket: {
       fn: addCommentToTicket,
       paramsSchema: zendeskAddCommentToTicketParamsSchema,
       outputSchema: zendeskAddCommentToTicketOutputSchema,
+      actionType: "write",
     },
     assignTicket: {
       fn: assignTicket,
       paramsSchema: zendeskAssignTicketParamsSchema,
       outputSchema: zendeskAssignTicketOutputSchema,
+      actionType: "write",
     },
     listZendeskTickets: {
       fn: listZendeskTickets,
       paramsSchema: zendeskListZendeskTicketsParamsSchema,
       outputSchema: zendeskListZendeskTicketsOutputSchema,
+      actionType: "read",
     },
     searchZendeskByQuery: {
       fn: searchZendeskByQuery,
       paramsSchema: zendeskSearchZendeskByQueryParamsSchema,
       outputSchema: zendeskSearchZendeskByQueryOutputSchema,
+      actionType: "read",
     },
   },
   mongo: {
@@ -618,6 +651,7 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: insertMongoDoc,
       paramsSchema: mongoInsertMongoDocParamsSchema,
       outputSchema: mongoInsertMongoDocOutputSchema,
+      actionType: "write",
     },
   },
   snowflake: {
@@ -625,11 +659,13 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: getRowByFieldValue,
       paramsSchema: snowflakeGetRowByFieldValueParamsSchema,
       outputSchema: snowflakeGetRowByFieldValueOutputSchema,
+      actionType: "read",
     },
     runSnowflakeQuery: {
       fn: runSnowflakeQuery,
       paramsSchema: snowflakeRunSnowflakeQueryParamsSchema,
       outputSchema: snowflakeRunSnowflakeQueryOutputSchema,
+      actionType: "write",
     },
   },
   linkedin: {
@@ -637,6 +673,7 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: createShareLinkedinPostUrl,
       paramsSchema: linkedinCreateShareLinkedinPostUrlParamsSchema,
       outputSchema: linkedinCreateShareLinkedinPostUrlOutputSchema,
+      actionType: "read",
     },
   },
   jira: jiraActions,
@@ -647,41 +684,49 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: getJiraDCIssuesByQuery,
       paramsSchema: jiraGetJiraIssuesByQueryParamsSchema,
       outputSchema: jiraGetJiraIssuesByQueryOutputSchema,
+      actionType: "read",
     },
     assignJiraTicket: {
       fn: assignJiraTicket,
       paramsSchema: jiraAssignJiraTicketParamsSchema,
       outputSchema: jiraAssignJiraTicketOutputSchema,
+      actionType: "write",
     },
     commentJiraTicket: {
       fn: commentJiraTicket,
       paramsSchema: jiraCommentJiraTicketParamsSchema,
       outputSchema: jiraCommentJiraTicketOutputSchema,
+      actionType: "write",
     },
     createJiraTicket: {
       fn: createJiraTicket,
       paramsSchema: jiraCreateJiraTicketParamsSchema,
       outputSchema: jiraCreateJiraTicketOutputSchema,
+      actionType: "write",
     },
     getJiraTicketDetails: {
       fn: getJiraTicketDetails,
       paramsSchema: jiraGetJiraTicketDetailsParamsSchema,
       outputSchema: jiraGetJiraTicketDetailsOutputSchema,
+      actionType: "read",
     },
     getJiraTicketHistory: {
       fn: getJiraTicketHistory,
       paramsSchema: jiraGetJiraTicketHistoryParamsSchema,
       outputSchema: jiraGetJiraTicketHistoryOutputSchema,
+      actionType: "read",
     },
     updateJiraTicketDetails: {
       fn: updateJiraTicketDetails,
       paramsSchema: jiraUpdateJiraTicketDetailsParamsSchema,
       outputSchema: jiraUpdateJiraTicketDetailsOutputSchema,
+      actionType: "write",
     },
     updateJiraTicketStatus: {
       fn: updateJiraTicketStatus,
       paramsSchema: jiraUpdateJiraTicketStatusParamsSchema,
       outputSchema: jiraUpdateJiraTicketStatusOutputSchema,
+      actionType: "write",
     },
   },
   openstreetmap: {
@@ -689,6 +734,7 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: getLatitudeLongitudeFromLocation,
       paramsSchema: openstreetmapGetLatitudeLongitudeFromLocationParamsSchema,
       outputSchema: openstreetmapGetLatitudeLongitudeFromLocationOutputSchema,
+      actionType: "read",
     },
   },
   nws: {
@@ -696,6 +742,7 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: getForecastForLocation,
       paramsSchema: nwsGetForecastForLocationParamsSchema,
       outputSchema: nwsGetForecastForLocationOutputSchema,
+      actionType: "read",
     },
   },
   firecrawl: {
@@ -703,26 +750,31 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: scrapeUrl,
       paramsSchema: firecrawlScrapeUrlParamsSchema,
       outputSchema: firecrawlScrapeUrlOutputSchema,
+      actionType: "read",
     },
     scrapeTweetDataWithNitter: {
       fn: scrapeTweetDataWithNitter,
       paramsSchema: firecrawlScrapeTweetDataWithNitterParamsSchema,
       outputSchema: firecrawlScrapeTweetDataWithNitterOutputSchema,
+      actionType: "read",
     },
     deepResearch: {
       fn: deepResearch,
       paramsSchema: firecrawlDeepResearchParamsSchema,
       outputSchema: firecrawlDeepResearchOutputSchema,
+      actionType: "read",
     },
     searchAndScrape: {
       fn: searchAndScrape,
       paramsSchema: firecrawlSearchAndScrapeParamsSchema,
       outputSchema: firecrawlSearchAndScrapeOutputSchema,
+      actionType: "read",
     },
     getTopNSearchResultUrls: {
       fn: firecrawlGetTopNSearchResultUrls,
       paramsSchema: firecrawlGetTopNSearchResultUrlsParamsSchema,
       outputSchema: firecrawlGetTopNSearchResultUrlsOutputSchema,
+      actionType: "read",
     },
   },
   resend: {
@@ -730,11 +782,13 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: sendEmail,
       paramsSchema: resendSendEmailParamsSchema,
       outputSchema: resendSendEmailOutputSchema,
+      actionType: "write",
     },
     sendEmailHtml: {
       fn: sendEmailHtml,
       paramsSchema: resendSendEmailHtmlParamsSchema,
       outputSchema: resendSendEmailHtmlOutputSchema,
+      actionType: "write",
     },
   },
   googleOauth: {
@@ -743,129 +797,150 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       paramsSchema: googleOauthCreateNewGoogleDocParamsSchema,
       outputSchema: googleOauthCreateNewGoogleDocOutputSchema,
       actionType: "write",
-      capabilityTag: "Google Drive",
     },
     updateDoc: {
       fn: updateDoc,
       paramsSchema: googleOauthUpdateDocParamsSchema,
       outputSchema: googleOauthUpdateDocOutputSchema,
       actionType: "write",
-      capabilityTag: "Google Drive",
     },
     scheduleCalendarMeeting: {
       fn: scheduleCalendarMeeting,
       paramsSchema: googleOauthScheduleCalendarMeetingParamsSchema,
       outputSchema: googleOauthScheduleCalendarMeetingOutputSchema,
+      actionType: "write",
     },
     createSpreadsheet: {
       fn: createSpreadsheet,
       paramsSchema: googleOauthCreateSpreadsheetParamsSchema,
       outputSchema: googleOauthCreateSpreadsheetOutputSchema,
+      actionType: "write",
     },
     updateSpreadsheet: {
       fn: updateSpreadsheet,
       paramsSchema: googleOauthUpdateSpreadsheetParamsSchema,
       outputSchema: googleOauthUpdateSpreadsheetOutputSchema,
+      actionType: "write",
     },
     createPresentation: {
       fn: createPresentation,
       paramsSchema: googleOauthCreatePresentationParamsSchema,
       outputSchema: googleOauthCreatePresentationOutputSchema,
+      actionType: "write",
     },
     updatePresentation: {
       fn: updatePresentation,
       paramsSchema: googleOauthUpdatePresentationParamsSchema,
       outputSchema: googleOauthUpdatePresentationOutputSchema,
+      actionType: "write",
     },
     getPresentation: {
       fn: getPresentation,
       paramsSchema: googleOauthGetPresentationParamsSchema,
       outputSchema: googleOauthGetPresentationOutputSchema,
+      actionType: "read",
     },
     searchDriveByKeywords: {
       fn: searchDriveByKeywords,
       paramsSchema: googleOauthSearchDriveByKeywordsParamsSchema,
       outputSchema: googleOauthSearchDriveByKeywordsOutputSchema,
+      actionType: "read",
     },
     searchDriveByKeywordsAndGetFileContent: {
       fn: searchDriveByKeywordsAndGetFileContent,
       paramsSchema: googleOauthSearchDriveByKeywordsAndGetFileContentParamsSchema,
       outputSchema: googleOauthSearchDriveByKeywordsAndGetFileContentOutputSchema,
+      actionType: "read",
     },
     searchDriveByQuery: {
       fn: searchDriveByQuery,
       paramsSchema: googleOauthSearchDriveByQueryParamsSchema,
       outputSchema: googleOauthSearchDriveByQueryOutputSchema,
+      actionType: "read",
     },
     searchDriveByQueryAndGetFileContent: {
       fn: searchDriveByQueryAndGetFileContent,
       paramsSchema: googleOauthSearchDriveByQueryAndGetFileContentParamsSchema,
       outputSchema: googleOauthSearchDriveByQueryAndGetFileContentOutputSchema,
+      actionType: "read",
     },
     getDriveFileContentById: {
       fn: getDriveFileContentById,
       paramsSchema: googleOauthGetDriveFileContentByIdParamsSchema,
       outputSchema: googleOauthGetDriveFileContentByIdOutputSchema,
+      actionType: "read",
     },
     listCalendars: {
       fn: listCalendars,
       paramsSchema: googleOauthListCalendarsParamsSchema,
       outputSchema: googleOauthListCalendarsOutputSchema,
+      actionType: "read",
     },
     listCalendarEvents: {
       fn: listCalendarEvents,
       paramsSchema: googleOauthListCalendarEventsParamsSchema,
       outputSchema: googleOauthListCalendarEventsOutputSchema,
+      actionType: "read",
     },
     updateCalendarEvent: {
       fn: updateCalendarEvent,
       paramsSchema: googleOauthUpdateCalendarEventParamsSchema,
       outputSchema: googleOauthUpdateCalendarEventOutputSchema,
+      actionType: "write",
     },
     deleteCalendarEvent: {
       fn: deleteCalendarEvent,
       paramsSchema: googleOauthDeleteCalendarEventParamsSchema,
       outputSchema: googleOauthDeleteCalendarEventOutputSchema,
+      actionType: "write",
     },
     editAGoogleCalendarEvent: {
       fn: editAGoogleCalendarEvent,
       paramsSchema: googleOauthEditAGoogleCalendarEventParamsSchema,
       outputSchema: googleOauthEditAGoogleCalendarEventOutputSchema,
+      actionType: "write",
     },
     listGroups: {
       fn: listGroups,
       paramsSchema: googleOauthListGroupsParamsSchema,
       outputSchema: googleOauthListGroupsOutputSchema,
+      actionType: "read",
     },
     getGroup: {
       fn: getGroup,
       paramsSchema: googleOauthGetGroupParamsSchema,
       outputSchema: googleOauthGetGroupOutputSchema,
+      actionType: "read",
     },
     listGroupMembers: {
       fn: listGroupMembers,
       paramsSchema: googleOauthListGroupMembersParamsSchema,
       outputSchema: googleOauthListGroupMembersOutputSchema,
+      actionType: "read",
     },
     hasGroupMember: {
       fn: hasGroupMember,
       paramsSchema: googleOauthHasGroupMemberParamsSchema,
       outputSchema: googleOauthHasGroupMemberOutputSchema,
+      actionType: "read",
     },
     addGroupMember: {
       fn: addGroupMember,
       paramsSchema: googleOauthAddGroupMemberParamsSchema,
       outputSchema: googleOauthAddGroupMemberOutputSchema,
+      actionType: "write",
     },
     deleteGroupMember: {
       fn: deleteGroupMember,
       paramsSchema: googleOauthDeleteGroupMemberParamsSchema,
       outputSchema: googleOauthDeleteGroupMemberOutputSchema,
+      actionType: "write",
     },
     queryGoogleBigQuery: {
       fn: queryGoogleBigQuery,
       paramsSchema: googleOauthQueryGoogleBigQueryParamsSchema,
       outputSchema: googleOauthQueryGoogleBigQueryOutputSchema,
+      actionType: "write",
     },
   },
   googlemail: {
@@ -873,16 +948,19 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: searchGmailMessages,
       paramsSchema: googlemailSearchGmailMessagesParamsSchema,
       outputSchema: googlemailSearchGmailMessagesOutputSchema,
+      actionType: "read",
     },
     listGmailThreads: {
       fn: listGmailThreads,
       paramsSchema: googlemailListGmailThreadsParamsSchema,
       outputSchema: googlemailListGmailThreadsOutputSchema,
+      actionType: "read",
     },
     sendGmail: {
       fn: sendGmail,
       paramsSchema: googlemailSendGmailParamsSchema,
       outputSchema: googlemailSendGmailOutputSchema,
+      actionType: "write",
     },
   },
   googleSearch: {
@@ -890,6 +968,7 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: customSearch,
       paramsSchema: googleSearchCustomSearchParamsSchema,
       outputSchema: googleSearchCustomSearchOutputSchema,
+      actionType: "read",
     },
   },
   x: {
@@ -897,6 +976,7 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: createXSharePostUrl,
       paramsSchema: xCreateShareXPostUrlParamsSchema,
       outputSchema: xCreateShareXPostUrlOutputSchema,
+      actionType: "read",
     },
   },
   finnhub: {
@@ -904,11 +984,13 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: symbolLookup,
       paramsSchema: finnhubSymbolLookupParamsSchema,
       outputSchema: finnhubSymbolLookupOutputSchema,
+      actionType: "read",
     },
     getBasicFinancials: {
       fn: getBasicFinancials,
       paramsSchema: finnhubGetBasicFinancialsParamsSchema,
       outputSchema: finnhubGetBasicFinancialsOutputSchema,
+      actionType: "read",
     },
   },
   looker: {
@@ -916,6 +998,7 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: enableUserByEmail,
       paramsSchema: lookerEnableUserByEmailParamsSchema,
       outputSchema: lookerEnableUserByEmailOutputSchema,
+      actionType: "write",
     },
   },
   salesforce: {
@@ -923,41 +1006,49 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: updateRecord,
       paramsSchema: salesforceUpdateRecordParamsSchema,
       outputSchema: salesforceUpdateRecordOutputSchema,
+      actionType: "write",
     },
     createRecord: {
       fn: createRecord,
       paramsSchema: salesforceCreateRecordParamsSchema,
       outputSchema: salesforceCreateRecordOutputSchema,
+      actionType: "write",
     },
     createCase: {
       fn: createCase,
       paramsSchema: salesforceCreateCaseParamsSchema,
       outputSchema: salesforceCreateCaseOutputSchema,
+      actionType: "write",
     },
     generateSalesReport: {
       fn: generateSalesReport,
       paramsSchema: salesforceGenerateSalesReportParamsSchema,
       outputSchema: salesforceGenerateSalesReportOutputSchema,
+      actionType: "read",
     },
     getRecord: {
       fn: getRecord,
       paramsSchema: salesforceGetRecordParamsSchema,
       outputSchema: salesforceGetRecordOutputSchema,
+      actionType: "read",
     },
     searchSalesforceRecords: {
       fn: searchSalesforceRecords,
       paramsSchema: salesforceSearchSalesforceRecordsParamsSchema,
       outputSchema: salesforceSearchSalesforceRecordsOutputSchema,
+      actionType: "read",
     },
     searchAllSalesforceRecords: {
       fn: searchAllSalesforceRecords,
       paramsSchema: salesforceSearchAllSalesforceRecordsParamsSchema,
       outputSchema: salesforceSearchAllSalesforceRecordsOutputSchema,
+      actionType: "read",
     },
     getSalesforceRecordsByQuery: {
       fn: getSalesforceRecordsByQuery,
       paramsSchema: salesforceGetSalesforceRecordsByQueryParamsSchema,
       outputSchema: salesforceGetSalesforceRecordsByQueryOutputSchema,
+      actionType: "read",
     },
   },
   microsoft: {
@@ -965,31 +1056,37 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: sendMessageToTeamsChat,
       paramsSchema: microsoftMessageTeamsChatParamsSchema,
       outputSchema: microsoftMessageTeamsChatOutputSchema,
+      actionType: "write",
     },
     messageTeamsChannel: {
       fn: sendMessageToTeamsChannel,
       paramsSchema: microsoftMessageTeamsChannelParamsSchema,
       outputSchema: microsoftMessageTeamsChannelOutputSchema,
+      actionType: "write",
     },
     updateSpreadsheet: {
       fn: microsoftUpdateSpreadsheet,
       paramsSchema: microsoftUpdateSpreadsheetParamsSchema,
       outputSchema: microsoftUpdateSpreadsheetOutputSchema,
+      actionType: "write",
     },
     updateDocument: {
       fn: updateDocument,
       paramsSchema: microsoftUpdateDocumentParamsSchema,
       outputSchema: microsoftUpdateDocumentOutputSchema,
+      actionType: "write",
     },
     createDocument: {
       fn: createDocument,
       paramsSchema: microsoftCreateDocumentParamsSchema,
       outputSchema: microsoftCreateDocumentOutputSchema,
+      actionType: "write",
     },
     getDocument: {
       fn: getDocument,
       paramsSchema: microsoftGetDocumentParamsSchema,
       outputSchema: microsoftGetDocumentOutputSchema,
+      actionType: "read",
     },
   },
   github: {
@@ -997,56 +1094,67 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: searchOrganization,
       paramsSchema: githubSearchOrganizationParamsSchema,
       outputSchema: githubSearchOrganizationOutputSchema,
+      actionType: "read",
     },
     searchRepository: {
       fn: searchRepository,
       paramsSchema: githubSearchRepositoryParamsSchema,
       outputSchema: githubSearchRepositoryOutputSchema,
+      actionType: "read",
     },
     createOrUpdateFile: {
       fn: createOrUpdateFile,
       paramsSchema: githubCreateOrUpdateFileParamsSchema,
       outputSchema: githubCreateOrUpdateFileOutputSchema,
+      actionType: "write",
     },
     createBranch: {
       fn: createBranch,
       paramsSchema: githubCreateBranchParamsSchema,
       outputSchema: githubCreateBranchOutputSchema,
+      actionType: "write",
     },
     createPullRequest: {
       fn: createPullRequest,
       paramsSchema: githubCreatePullRequestParamsSchema,
       outputSchema: githubCreatePullRequestOutputSchema,
+      actionType: "write",
     },
     listPullRequests: {
       fn: listPullRequests,
       paramsSchema: githubListPullRequestsParamsSchema,
       outputSchema: githubListPullRequestsOutputSchema,
+      actionType: "read",
     },
     getFileContent: {
       fn: getFileContent,
       paramsSchema: githubGetFileContentParamsSchema,
       outputSchema: githubGetFileContentOutputSchema,
+      actionType: "read",
     },
     listDirectory: {
       fn: listDirectory,
       paramsSchema: githubListDirectoryParamsSchema,
       outputSchema: githubListDirectoryOutputSchema,
+      actionType: "read",
     },
     getBranch: {
       fn: getBranch,
       paramsSchema: githubGetBranchParamsSchema,
       outputSchema: githubGetBranchOutputSchema,
+      actionType: "read",
     },
     listCommits: {
       fn: listCommits,
       paramsSchema: githubListCommitsParamsSchema,
       outputSchema: githubListCommitsOutputSchema,
+      actionType: "read",
     },
     getPullRequestDetails: {
       fn: getPullRequestDetails,
       paramsSchema: githubGetPullRequestDetailsParamsSchema,
       outputSchema: githubGetPullRequestDetailsOutputSchema,
+      actionType: "read",
     },
   },
   notion: {
@@ -1054,6 +1162,7 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: searchByTitle,
       paramsSchema: notionSearchByTitleParamsSchema,
       outputSchema: notionSearchByTitleOutputSchema,
+      actionType: "read",
     },
   },
   oktaOrg: {
@@ -1061,6 +1170,7 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: getOktaUserByName,
       paramsSchema: oktaOrgGetOktaUserByNameParamsSchema,
       outputSchema: oktaOrgGetOktaUserByNameOutputSchema,
+      actionType: "read",
     },
   },
   gitlab: {
@@ -1068,21 +1178,25 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: searchGroup,
       paramsSchema: gitlabSearchGroupParamsSchema,
       outputSchema: gitlabSearchGroupOutputSchema,
+      actionType: "read",
     },
     getFileContent: {
       fn: gitlabGetFileContent,
       paramsSchema: gitlabGetFileContentParamsSchema,
       outputSchema: gitlabGetFileContentOutputSchema,
+      actionType: "read",
     },
     getMergeRequest: {
       fn: gitlabGetMergeRequest,
       paramsSchema: gitlabGetMergeRequestParamsSchema,
       outputSchema: gitlabGetMergeRequestOutputSchema,
+      actionType: "read",
     },
     listDirectory: {
       fn: gitlabListDirectory,
       paramsSchema: gitlabListDirectoryParamsSchema,
       outputSchema: gitlabListDirectoryOutputSchema,
+      actionType: "read",
     },
   },
   linear: {
@@ -1090,31 +1204,37 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: getIssues,
       paramsSchema: linearGetIssuesParamsSchema,
       outputSchema: linearGetIssuesOutputSchema,
+      actionType: "read",
     },
     getIssueDetails: {
       fn: getIssueDetails,
       paramsSchema: linearGetIssueDetailsParamsSchema,
       outputSchema: linearGetIssueDetailsOutputSchema,
+      actionType: "read",
     },
     getProjects: {
       fn: getProjects,
       paramsSchema: linearGetProjectsParamsSchema,
       outputSchema: linearGetProjectsOutputSchema,
+      actionType: "read",
     },
     getProjectDetails: {
       fn: getProjectDetails,
       paramsSchema: linearGetProjectDetailsParamsSchema,
       outputSchema: linearGetProjectDetailsOutputSchema,
+      actionType: "read",
     },
     getTeamDetails: {
       fn: getTeamDetails,
       paramsSchema: linearGetTeamDetailsParamsSchema,
       outputSchema: linearGetTeamDetailsOutputSchema,
+      actionType: "read",
     },
     getTeams: {
       fn: getTeams,
       paramsSchema: linearGetTeamsParamsSchema,
       outputSchema: linearGetTeamsOutputSchema,
+      actionType: "read",
     },
   },
   hubspot: {
@@ -1122,41 +1242,49 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: getContacts,
       paramsSchema: hubspotGetContactsParamsSchema,
       outputSchema: hubspotGetContactsOutputSchema,
+      actionType: "read",
     },
     getContactDetails: {
       fn: getContactDetails,
       paramsSchema: hubspotGetContactDetailsParamsSchema,
       outputSchema: hubspotGetContactDetailsOutputSchema,
+      actionType: "read",
     },
     getCompanies: {
       fn: getCompanies,
       paramsSchema: hubspotGetCompaniesParamsSchema,
       outputSchema: hubspotGetCompaniesOutputSchema,
+      actionType: "read",
     },
     getCompanyDetails: {
       fn: getCompanyDetails,
       paramsSchema: hubspotGetCompanyDetailsParamsSchema,
       outputSchema: hubspotGetCompanyDetailsOutputSchema,
+      actionType: "read",
     },
     getDeals: {
       fn: getDeals,
       paramsSchema: hubspotGetDealsParamsSchema,
       outputSchema: hubspotGetDealsOutputSchema,
+      actionType: "read",
     },
     getDealDetails: {
       fn: getDealDetails,
       paramsSchema: hubspotGetDealDetailsParamsSchema,
       outputSchema: hubspotGetDealDetailsOutputSchema,
+      actionType: "read",
     },
     getTickets: {
       fn: getTickets,
       paramsSchema: hubspotGetTicketsParamsSchema,
       outputSchema: hubspotGetTicketsOutputSchema,
+      actionType: "read",
     },
     getTicketDetails: {
       fn: getTicketDetails,
       paramsSchema: hubspotGetTicketDetailsParamsSchema,
       outputSchema: hubspotGetTicketDetailsOutputSchema,
+      actionType: "read",
     },
   },
 };
