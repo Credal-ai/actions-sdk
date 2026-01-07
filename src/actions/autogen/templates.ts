@@ -331,6 +331,7 @@ export const asanaCreateTaskDefinition: ActionTemplate = {
       projectId: {
         type: "string",
         description: "Project gid the task belongs to",
+        tags: ["recommend-predefined"],
       },
       name: {
         type: "string",
@@ -1129,6 +1130,7 @@ export const jiraAssignJiraTicketDefinition: ActionTemplate = {
       projectKey: {
         type: "string",
         description: "The key for the project you want to add it to",
+        tags: ["recommend-predefined"],
       },
       assignee: {
         type: "string",
@@ -1211,6 +1213,7 @@ export const jiraCommentJiraTicketDefinition: ActionTemplate = {
       projectKey: {
         type: "string",
         description: "The key for the project",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -1254,6 +1257,7 @@ export const jiraCreateJiraTicketDefinition: ActionTemplate = {
       projectKey: {
         type: "string",
         description: "The key for the project you want to add it to",
+        tags: ["recommend-predefined"],
       },
       summary: {
         type: "string",
@@ -1471,6 +1475,7 @@ export const jiraGetJiraTicketDetailsDefinition: ActionTemplate = {
       projectKey: {
         type: "string",
         description: "The key for the project",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -1528,6 +1533,7 @@ export const jiraGetJiraTicketHistoryDefinition: ActionTemplate = {
       projectKey: {
         type: "string",
         description: "The key for the project",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -1567,6 +1573,7 @@ export const jiraUpdateJiraTicketDetailsDefinition: ActionTemplate = {
       projectKey: {
         type: "string",
         description: "The key for the project you want to add it to",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -1627,6 +1634,7 @@ export const jiraUpdateJiraTicketStatusDefinition: ActionTemplate = {
       projectKey: {
         type: "string",
         description: "The key for the project you want to add it to",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -1869,6 +1877,7 @@ export const jiraOrgAssignJiraTicketDefinition: ActionTemplate = {
       projectKey: {
         type: "string",
         description: "The key for the project you want to add it to",
+        tags: ["recommend-predefined"],
       },
       assignee: {
         type: "string",
@@ -1951,6 +1960,7 @@ export const jiraOrgCommentJiraTicketDefinition: ActionTemplate = {
       projectKey: {
         type: "string",
         description: "The key for the project",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -1994,6 +2004,7 @@ export const jiraOrgCreateJiraTicketDefinition: ActionTemplate = {
       projectKey: {
         type: "string",
         description: "The key for the project you want to add it to",
+        tags: ["recommend-predefined"],
       },
       summary: {
         type: "string",
@@ -2211,6 +2222,7 @@ export const jiraOrgGetJiraTicketDetailsDefinition: ActionTemplate = {
       projectKey: {
         type: "string",
         description: "The key for the project",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -2268,6 +2280,7 @@ export const jiraOrgGetJiraTicketHistoryDefinition: ActionTemplate = {
       projectKey: {
         type: "string",
         description: "The key for the project",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -2307,6 +2320,7 @@ export const jiraOrgUpdateJiraTicketDetailsDefinition: ActionTemplate = {
       projectKey: {
         type: "string",
         description: "The key for the project you want to add it to",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -2367,6 +2381,7 @@ export const jiraOrgUpdateJiraTicketStatusDefinition: ActionTemplate = {
       projectKey: {
         type: "string",
         description: "The key for the project you want to add it to",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -2609,6 +2624,7 @@ export const jiraDataCenterAssignJiraTicketDefinition: ActionTemplate = {
       projectKey: {
         type: "string",
         description: "The key for the project you want to add it to",
+        tags: ["recommend-predefined"],
       },
       assignee: {
         type: "string",
@@ -2691,6 +2707,7 @@ export const jiraDataCenterCommentJiraTicketDefinition: ActionTemplate = {
       projectKey: {
         type: "string",
         description: "The key for the project",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -2734,6 +2751,7 @@ export const jiraDataCenterCreateJiraTicketDefinition: ActionTemplate = {
       projectKey: {
         type: "string",
         description: "The key for the project you want to add it to",
+        tags: ["recommend-predefined"],
       },
       summary: {
         type: "string",
@@ -2951,6 +2969,7 @@ export const jiraDataCenterGetJiraTicketDetailsDefinition: ActionTemplate = {
       projectKey: {
         type: "string",
         description: "The key for the project",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -3008,6 +3027,7 @@ export const jiraDataCenterGetJiraTicketHistoryDefinition: ActionTemplate = {
       projectKey: {
         type: "string",
         description: "The key for the project",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -3047,6 +3067,7 @@ export const jiraDataCenterUpdateJiraTicketDetailsDefinition: ActionTemplate = {
       projectKey: {
         type: "string",
         description: "The key for the project you want to add it to",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -3107,6 +3128,7 @@ export const jiraDataCenterUpdateJiraTicketStatusDefinition: ActionTemplate = {
       projectKey: {
         type: "string",
         description: "The key for the project you want to add it to",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -3642,6 +3664,7 @@ export const zendeskCreateZendeskTicketDefinition: ActionTemplate = {
       subdomain: {
         type: "string",
         description: "The subdomain of the Zendesk account",
+        tags: ["recommend-predefined"],
       },
       groupId: {
         type: "number",
@@ -3677,6 +3700,7 @@ export const zendeskListZendeskTicketsDefinition: ActionTemplate = {
       subdomain: {
         type: "string",
         description: "The subdomain of the Zendesk account",
+        tags: ["recommend-predefined"],
       },
       status: {
         type: "string",
@@ -3719,6 +3743,7 @@ export const zendeskGetTicketDetailsDefinition: ActionTemplate = {
       subdomain: {
         type: "string",
         description: "The subdomain of the Zendesk account",
+        tags: ["recommend-predefined"],
       },
     },
   },
@@ -3750,6 +3775,7 @@ export const zendeskUpdateTicketStatusDefinition: ActionTemplate = {
       subdomain: {
         type: "string",
         description: "The subdomain of the Zendesk account",
+        tags: ["recommend-predefined"],
       },
       status: {
         type: "string",
@@ -3776,6 +3802,7 @@ export const zendeskAddCommentToTicketDefinition: ActionTemplate = {
       subdomain: {
         type: "string",
         description: "The subdomain of the Zendesk account",
+        tags: ["recommend-predefined"],
       },
       body: {
         type: "string",
@@ -3819,6 +3846,7 @@ export const zendeskAssignTicketDefinition: ActionTemplate = {
       subdomain: {
         type: "string",
         description: "The subdomain of the Zendesk account",
+        tags: ["recommend-predefined"],
       },
       assigneeEmail: {
         type: "string",
@@ -3840,6 +3868,7 @@ export const zendeskSearchZendeskByQueryDefinition: ActionTemplate = {
       subdomain: {
         type: "string",
         description: "The subdomain of the Zendesk account",
+        tags: ["recommend-predefined"],
       },
       query: {
         type: "string",
@@ -5721,6 +5750,7 @@ export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
       calendarId: {
         type: "string",
         description: "The ID of the calendar to schedule the meeting on",
+        tags: ["recommend-predefined"],
       },
       name: {
         type: "string",
@@ -5887,6 +5917,7 @@ export const googleOauthListCalendarEventsDefinition: ActionTemplate = {
       calendarId: {
         type: "string",
         description: "The ID of the calendar to list events from",
+        tags: ["recommend-predefined"],
       },
       query: {
         type: "string",
@@ -6038,6 +6069,7 @@ export const googleOauthUpdateCalendarEventDefinition: ActionTemplate = {
       calendarId: {
         type: "string",
         description: "The ID of the calendar containing the event",
+        tags: ["recommend-predefined"],
       },
       eventId: {
         type: "string",
@@ -6137,6 +6169,7 @@ export const googleOauthEditAGoogleCalendarEventDefinition: ActionTemplate = {
       calendarId: {
         type: "string",
         description: "The ID of the calendar containing the event",
+        tags: ["recommend-predefined"],
       },
       eventId: {
         type: "string",
@@ -6234,6 +6267,7 @@ export const googleOauthDeleteCalendarEventDefinition: ActionTemplate = {
       calendarId: {
         type: "string",
         description: "The ID of the calendar containing the event",
+        tags: ["recommend-predefined"],
       },
       eventId: {
         type: "string",
@@ -8355,6 +8389,7 @@ export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: Action
       searchDriveByDrive: {
         type: "boolean",
         description: "Search drive by drive or run a general search",
+        tags: ["recommend-predefined"],
       },
       orderByQuery: {
         type: "string",
@@ -8364,6 +8399,7 @@ export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: Action
       includeTrashed: {
         type: "boolean",
         description: "Whether to include trashed files in the search results",
+        tags: ["recommend-predefined"],
       },
     },
   },
@@ -8452,6 +8488,7 @@ export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTem
       searchDriveByDrive: {
         type: "boolean",
         description: "Search drive by drive or run a general search",
+        tags: ["recommend-predefined"],
       },
       orderByQuery: {
         type: "string",
@@ -8461,6 +8498,7 @@ export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTem
       includeTrashed: {
         type: "boolean",
         description: "Whether to include trashed files in the search results",
+        tags: ["recommend-predefined"],
       },
     },
   },
@@ -12081,10 +12119,12 @@ export const gitlabSearchGroupDefinition: ActionTemplate = {
       groupId: {
         type: "string",
         description: "The group ID of the project to search in",
+        tags: ["recommend-predefined"],
       },
       project: {
         type: "string",
         description: "The name of the project to search in",
+        tags: ["recommend-predefined"],
       },
     },
   },
@@ -12363,6 +12403,7 @@ export const gitlabGetFileContentDefinition: ActionTemplate = {
       project_id: {
         type: "number",
         description: "Numeric project ID in GitLab (unique per project)",
+        tags: ["recommend-predefined"],
       },
       path: {
         type: "string",
@@ -12442,6 +12483,7 @@ export const gitlabGetMergeRequestDefinition: ActionTemplate = {
       project_id: {
         type: "number",
         description: "Numeric project ID in GitLab (unique per project). Either this or the project path is required.",
+        tags: ["recommend-predefined"],
       },
       project_path: {
         type: "string",
@@ -12665,10 +12707,12 @@ export const gitlabListDirectoryDefinition: ActionTemplate = {
       group: {
         type: "string",
         description: 'The group or namespace that owns the project (e.g., "my-group" or "org/subgroup")',
+        tags: ["recommend-predefined"],
       },
       project: {
         type: "string",
         description: 'The name of the GitLab project (e.g., "my-repo")',
+        tags: ["recommend-predefined"],
       },
       path: {
         type: "string",
