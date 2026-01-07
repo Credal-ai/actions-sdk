@@ -25,23 +25,39 @@ async function runTest() {
 
     assert(result1, "Public channel ID response should not be null");
     assert(
-      result1.members,
-      "Public channel ID response should contain members"
+      Array.isArray(result1.members),
+      "Public channel ID response members should be an array"
+    );
+    assert(
+      result1.members.length > 0,
+      "Public channel ID response should contain at least one member"
     );
     assert(result2, "Public channel name response should not be null");
     assert(
-      result2.members,
-      "Public channel name response should contain members"
+      Array.isArray(result2.members),
+      "Public channel name response members should be an array"
+    );
+    assert(
+      result2.members.length > 0,
+      "Public channel name response should contain at least one member"
     );
     assert(result3, "Private channel ID response should not be null");
     assert(
-      result3.members,
-      "Private channel ID response should contain members"
+      Array.isArray(result3.members),
+      "Private channel ID response members should be an array"
+    );
+    assert(
+      result3.members.length > 0,
+      "Private channel ID response should contain at least one member"
     );
     assert(result4, "Private channel name response should not be null");
     assert(
-      result4.members,
-      "Private channel name response should contain members"
+      Array.isArray(result4.members),
+      "Private channel name response members should be an array"
+    );
+    assert(
+      result4.members.length > 0,
+      "Private channel name response should contain at least one member"
     );
 
     console.log(
