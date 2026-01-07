@@ -49,8 +49,6 @@ import {
   jiraUpdateJiraTicketDetailsOutputSchema,
   jiraUpdateJiraTicketStatusParamsSchema,
   jiraUpdateJiraTicketStatusOutputSchema,
-  jiraGetServiceDesksParamsSchema,
-  jiraGetServiceDesksOutputSchema,
   jiraCreateServiceDeskRequestParamsSchema,
   jiraCreateServiceDeskRequestOutputSchema,
   openstreetmapGetLatitudeLongitudeFromLocationParamsSchema,
@@ -348,7 +346,6 @@ import deleteGroupMember from "./providers/google-oauth/deleteGroupMember.js";
 import createChannel from "./providers/slack/createChannel.js";
 import searchGroup from "./providers/gitlab/searchGroup.js";
 import searchOrganization from "./providers/github/searchOrganization.js";
-import getServiceDesks from "./providers/jira/getServiceDesks.js";
 import createServiceDeskRequest from "./providers/jira/createServiceDeskRequest.js";
 import searchSalesforceRecords from "./providers/salesforce/searchSalesforceRecords.js";
 import getDriveFileContentById from "./providers/google-oauth/getDriveFileContentById.js";
@@ -453,12 +450,6 @@ const jiraActions = {
     paramsSchema: jiraUpdateJiraTicketStatusParamsSchema,
     outputSchema: jiraUpdateJiraTicketStatusOutputSchema,
     actionType: "write",
-  },
-  getServiceDesks: {
-    fn: getServiceDesks,
-    paramsSchema: jiraGetServiceDesksParamsSchema,
-    outputSchema: jiraGetServiceDesksOutputSchema,
-    actionType: "read",
   },
   createServiceDeskRequest: {
     fn: createServiceDeskRequest,
@@ -677,7 +668,7 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
   jira: jiraActions,
   jiraOrg: jiraActions,
   jiraDataCenter: {
-    // Exclude Service Desk: getServiceDesks, createServiceDeskRequest, publicCommentOnServiceDeskRequest
+    // Exclude Service Desk: createServiceDeskRequest, publicCommentOnServiceDeskRequest
     getJiraIssuesByQuery: {
       fn: getJiraDCIssuesByQuery,
       paramsSchema: jiraGetJiraIssuesByQueryParamsSchema,
