@@ -178,8 +178,6 @@ import {
   type ProviderName,
   gitlabSearchGroupOutputSchema,
   gitlabSearchGroupParamsSchema,
-  githubSearchRepositoryOutputSchema,
-  githubSearchRepositoryParamsSchema,
   githubSearchOrganizationOutputSchema,
   githubSearchOrganizationParamsSchema,
   salesforceSearchSalesforceRecordsParamsSchema,
@@ -349,7 +347,6 @@ import addGroupMember from "./providers/google-oauth/addGroupMember.js";
 import deleteGroupMember from "./providers/google-oauth/deleteGroupMember.js";
 import createChannel from "./providers/slack/createChannel.js";
 import searchGroup from "./providers/gitlab/searchGroup.js";
-import searchRepository from "./providers/github/searchRepository.js";
 import searchOrganization from "./providers/github/searchOrganization.js";
 import getServiceDesks from "./providers/jira/getServiceDesks.js";
 import createServiceDeskRequest from "./providers/jira/createServiceDeskRequest.js";
@@ -1084,12 +1081,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: searchOrganization,
       paramsSchema: githubSearchOrganizationParamsSchema,
       outputSchema: githubSearchOrganizationOutputSchema,
-      actionType: "read",
-    },
-    searchRepository: {
-      fn: searchRepository,
-      paramsSchema: githubSearchRepositoryParamsSchema,
-      outputSchema: githubSearchRepositoryOutputSchema,
       actionType: "read",
     },
     createOrUpdateFile: {
