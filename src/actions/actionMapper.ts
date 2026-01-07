@@ -668,7 +668,7 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
   jira: jiraActions,
   jiraOrg: jiraActions,
   jiraDataCenter: {
-    // Exclude Service Desk: getServiceDesks, createServiceDeskRequest, publicCommentOnServiceDeskRequest
+    // Exclude Service Desk: createServiceDeskRequest, publicCommentOnServiceDeskRequest
     getJiraIssuesByQuery: {
       fn: getJiraDCIssuesByQuery,
       paramsSchema: jiraGetJiraIssuesByQueryParamsSchema,
