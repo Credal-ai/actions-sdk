@@ -478,6 +478,27 @@ export type slackGetChannelMessagesFunction = ActionFunction<
   slackGetChannelMessagesOutputType
 >;
 
+export const slackGetChannelMembersParamsSchema = z.object({
+  channelId: z.string().describe("The ID of the channel to get members from").optional(),
+  channelName: z.string().describe("The name of the channel to get members from").optional(),
+});
+
+export type slackGetChannelMembersParamsType = z.infer<typeof slackGetChannelMembersParamsSchema>;
+
+export const slackGetChannelMembersOutputSchema = z.object({
+  success: z.boolean().describe("Whether the members were retrieved successfully"),
+  members: z
+    .array(z.object({ id: z.string(), name: z.string(), email: z.string() }).describe("A member of the channel"))
+    .describe("The members of the channel"),
+});
+
+export type slackGetChannelMembersOutputType = z.infer<typeof slackGetChannelMembersOutputSchema>;
+export type slackGetChannelMembersFunction = ActionFunction<
+  slackGetChannelMembersParamsType,
+  AuthParamsType,
+  slackGetChannelMembersOutputType
+>;
+
 export const slackUserSearchSlackParamsSchema = z.object({
   emails: z
     .array(z.string().email())

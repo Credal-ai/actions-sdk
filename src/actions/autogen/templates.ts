@@ -808,6 +808,56 @@ export const slackGetChannelMessagesDefinition: ActionTemplate = {
   name: "getChannelMessages",
   provider: "slack",
 };
+export const slackGetChannelMembersDefinition: ActionTemplate = {
+  description: "Gets the members of a Slack channel",
+  scopes: ["channels:read"],
+  tags: [],
+  parameters: {
+    type: "object",
+    properties: {
+      channelId: {
+        type: "string",
+        description: "The ID of the channel to get members from",
+      },
+      channelName: {
+        type: "string",
+        description: "The name of the channel to get members from",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success", "members"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the members were retrieved successfully",
+      },
+      members: {
+        type: "array",
+        description: "The members of the channel",
+        items: {
+          type: "object",
+          description: "A member of the channel",
+          required: ["id", "name", "email"],
+          properties: {
+            id: {
+              type: "string",
+            },
+            name: {
+              type: "string",
+            },
+            email: {
+              type: "string",
+            },
+          },
+        },
+      },
+    },
+  },
+  name: "getChannelMembers",
+  provider: "slack",
+};
 export const slackUserSearchSlackDefinition: ActionTemplate = {
   description:
     "Search Slack (DM/MPIM by emails or channel) with optional topic/time filter. Automatically hydrates each hit (full thread if threaded, otherwise a small surrounding context).",

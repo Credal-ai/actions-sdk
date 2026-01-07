@@ -258,6 +258,8 @@ import {
   salesforceSearchAllSalesforceRecordsOutputSchema,
   slackSendDmFromBotParamsSchema,
   slackSendDmFromBotOutputSchema,
+  slackGetChannelMembersParamsSchema,
+  slackGetChannelMembersOutputSchema,
 } from "./autogen/types.js";
 import validateAddress from "./providers/googlemaps/validateAddress.js";
 import add from "./providers/math/add.js";
@@ -265,6 +267,7 @@ import fillTemplate from "./providers/generic/fillTemplate.js";
 import insertMongoDoc from "./providers/mongodb/insertMongoDoc.js";
 import sendMessage from "./providers/slack/sendMessage.js";
 import getChannelMessages from "./providers/slack/getChannelMessages.js";
+import getChannelMembers from "./providers/slack/getChannelMembers.js";
 import getRowByFieldValue from "./providers/snowflake/getRowByFieldValue.js";
 import createZendeskTicket from "./providers/zendesk/createZendeskTicket.js";
 import getZendeskTicketDetails from "./providers/zendesk/getTicketDetails.js";
@@ -539,6 +542,12 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: getChannelMessages,
       paramsSchema: slackGetChannelMessagesParamsSchema,
       outputSchema: slackGetChannelMessagesOutputSchema,
+      actionType: "read",
+    },
+    getChannelMembers: {
+      fn: getChannelMembers,
+      paramsSchema: slackGetChannelMembersParamsSchema,
+      outputSchema: slackGetChannelMembersOutputSchema,
       actionType: "read",
     },
     createChannel: {
