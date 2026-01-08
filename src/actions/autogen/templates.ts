@@ -59,7 +59,7 @@ export const perplexityPerplexityDeepResearchDefinition: ActionTemplate = {
       },
       result: {
         type: "object",
-        description: "The main research response/analysis",
+        description: "The main research response/analysis object",
         properties: {
           content: {
             type: "string",
@@ -1182,7 +1182,7 @@ export const jiraAssignJiraTicketDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to add it to",
+        description: "The key for the project you want to add the ticket to.",
         tags: ["recommend-predefined"],
       },
       assignee: {
@@ -1265,16 +1265,16 @@ export const jiraCommentJiraTicketDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project",
+        description: "The key for the project to which the ticket you want to comment on belongs.",
         tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
-        description: "The issue ID associated with the ticket to be commented on",
+        description: "The issue ID associated with the ticket to be commented on.",
       },
       comment: {
         type: "string",
-        description: "The text to be commented on the ticket",
+        description: "The text to be commented on the ticket.",
       },
     },
   },
@@ -1309,7 +1309,7 @@ export const jiraCreateJiraTicketDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to add it to",
+        description: "The key for the project you want to add the ticket to.",
         tags: ["recommend-predefined"],
       },
       summary: {
@@ -1433,7 +1433,7 @@ export const jiraGetJiraTicketDetailsDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project",
+        description: "The key for the project the ticket belongs to.",
         tags: ["recommend-predefined"],
       },
       issueId: {
@@ -1491,7 +1491,7 @@ export const jiraGetJiraTicketHistoryDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project",
+        description: "The key for the project the ticket belongs to.",
         tags: ["recommend-predefined"],
       },
       issueId: {
@@ -1531,7 +1531,7 @@ export const jiraUpdateJiraTicketDetailsDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to add it to",
+        description: "The key for the project the ticket belongs to.",
         tags: ["recommend-predefined"],
       },
       issueId: {
@@ -1592,7 +1592,7 @@ export const jiraUpdateJiraTicketStatusDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to add it to",
+        description: "The key for the project you want to add the ticket to.",
         tags: ["recommend-predefined"],
       },
       issueId: {
@@ -1835,7 +1835,7 @@ export const jiraOrgAssignJiraTicketDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to add it to",
+        description: "The key for the project you want to add the ticket to.",
         tags: ["recommend-predefined"],
       },
       assignee: {
@@ -1918,16 +1918,16 @@ export const jiraOrgCommentJiraTicketDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project",
+        description: "The key for the project to which the ticket you want to comment on belongs.",
         tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
-        description: "The issue ID associated with the ticket to be commented on",
+        description: "The issue ID associated with the ticket to be commented on.",
       },
       comment: {
         type: "string",
-        description: "The text to be commented on the ticket",
+        description: "The text to be commented on the ticket.",
       },
     },
   },
@@ -1962,7 +1962,7 @@ export const jiraOrgCreateJiraTicketDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to add it to",
+        description: "The key for the project you want to add the ticket to.",
         tags: ["recommend-predefined"],
       },
       summary: {
@@ -2086,7 +2086,7 @@ export const jiraOrgGetJiraTicketDetailsDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project",
+        description: "The key for the project the ticket belongs to.",
         tags: ["recommend-predefined"],
       },
       issueId: {
@@ -2144,7 +2144,7 @@ export const jiraOrgGetJiraTicketHistoryDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project",
+        description: "The key for the project the ticket belongs to.",
         tags: ["recommend-predefined"],
       },
       issueId: {
@@ -2184,7 +2184,7 @@ export const jiraOrgUpdateJiraTicketDetailsDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to add it to",
+        description: "The key for the project the ticket belongs to.",
         tags: ["recommend-predefined"],
       },
       issueId: {
@@ -2245,7 +2245,7 @@ export const jiraOrgUpdateJiraTicketStatusDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to add it to",
+        description: "The key for the project you want to add the ticket to.",
         tags: ["recommend-predefined"],
       },
       issueId: {
@@ -2488,7 +2488,7 @@ export const jiraDataCenterAssignJiraTicketDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to add it to",
+        description: "The key for the project you want to add the ticket to.",
         tags: ["recommend-predefined"],
       },
       assignee: {
@@ -2571,16 +2571,16 @@ export const jiraDataCenterCommentJiraTicketDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project",
+        description: "The key for the project to which the ticket you want to comment on belongs.",
         tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
-        description: "The issue ID associated with the ticket to be commented on",
+        description: "The issue ID associated with the ticket to be commented on.",
       },
       comment: {
         type: "string",
-        description: "The text to be commented on the ticket",
+        description: "The text to be commented on the ticket.",
       },
     },
   },
@@ -2615,7 +2615,7 @@ export const jiraDataCenterCreateJiraTicketDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to add it to",
+        description: "The key for the project you want to add the ticket to.",
         tags: ["recommend-predefined"],
       },
       summary: {
@@ -2739,7 +2739,7 @@ export const jiraDataCenterGetJiraTicketDetailsDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project",
+        description: "The key for the project the ticket belongs to.",
         tags: ["recommend-predefined"],
       },
       issueId: {
@@ -2797,7 +2797,7 @@ export const jiraDataCenterGetJiraTicketHistoryDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project",
+        description: "The key for the project the ticket belongs to.",
         tags: ["recommend-predefined"],
       },
       issueId: {
@@ -2837,7 +2837,7 @@ export const jiraDataCenterUpdateJiraTicketDetailsDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to add it to",
+        description: "The key for the project the ticket belongs to.",
         tags: ["recommend-predefined"],
       },
       issueId: {
@@ -2898,7 +2898,7 @@ export const jiraDataCenterUpdateJiraTicketStatusDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to add it to",
+        description: "The key for the project you want to add the ticket to.",
         tags: ["recommend-predefined"],
       },
       issueId: {
@@ -3132,7 +3132,7 @@ export const jiraDataCenterGetJiraIssuesByQueryDefinition: ActionTemplate = {
   provider: "jiraDataCenter",
 };
 export const googlemapsValidateAddressDefinition: ActionTemplate = {
-  description: "Validate a Google Maps address",
+  description: "Validate an address using the Google Maps API",
   scopes: [],
   tags: [],
   parameters: {
@@ -3396,7 +3396,7 @@ export const bingGetTopNSearchResultUrlsDefinition: ActionTemplate = {
     properties: {
       results: {
         type: "array",
-        description: "The top five search result objects",
+        description: "The top search result objects",
         items: {
           type: "object",
           properties: {
@@ -5530,11 +5530,11 @@ export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
       },
       start: {
         type: "string",
-        description: "The start time of the meeting",
+        description: "The start time of the meeting (in datetime format)",
       },
       end: {
         type: "string",
-        description: "The end time of the meeting",
+        description: "The end time of the meeting (in datetime format)",
       },
       description: {
         type: "string",
@@ -5545,7 +5545,7 @@ export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
         description: "The attendees of the meeting",
         items: {
           type: "string",
-          description: "The email of the attendee",
+          description: "The emails of the attendees",
         },
       },
       useGoogleMeet: {
@@ -5813,6 +5813,41 @@ export const googleOauthListCalendarEventsDefinition: ActionTemplate = {
               type: "string",
               description: "Last modification time of the event (RFC3339 timestamp)",
             },
+            attachments: {
+              type: "array",
+              description: "List of file attachments for the event",
+              items: {
+                type: "object",
+                properties: {
+                  fileId: {
+                    type: "string",
+                    description: "ID of the attached file",
+                  },
+                  fileUrl: {
+                    type: "string",
+                    description: "URL link to the attachment",
+                  },
+                  title: {
+                    type: "string",
+                    description: "Attachment title",
+                  },
+                  mimeType: {
+                    type: "string",
+                    description: "Internet media type (MIME type) of the attachment",
+                  },
+                },
+              },
+            },
+            eventType: {
+              type: "string",
+              description:
+                'Differentiate "workingLocation" events, which simply specify a location, from real meetings',
+            },
+            transparency: {
+              type: "string",
+              description:
+                'Whether the event blocks time on the calendar and is considered a "busy" time. Populated when transparent.',
+            },
           },
         },
       },
@@ -5940,7 +5975,7 @@ export const googleOauthEditAGoogleCalendarEventDefinition: ActionTemplate = {
     properties: {
       calendarId: {
         type: "string",
-        description: "The ID of the calendar containing the event. This can be a person's email.",
+        description: "The ID of the calendar containing the event",
         tags: ["recommend-predefined"],
       },
       eventId: {
@@ -6038,7 +6073,7 @@ export const googleOauthDeleteCalendarEventDefinition: ActionTemplate = {
     properties: {
       calendarId: {
         type: "string",
-        description: "The ID of the calendar containing the event. This can be a person's email.",
+        description: "The ID of the calendar containing the event",
         tags: ["recommend-predefined"],
       },
       eventId: {
@@ -6564,6 +6599,66 @@ export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
     },
   },
   name: "updateSpreadsheet",
+  provider: "googleOauth",
+};
+export const googleOauthAppendRowsToSpreadsheetDefinition: ActionTemplate = {
+  description:
+    "Adds new cells after the last row with data in a sheet, inserting new rows into the sheet if necessary.",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["spreadsheetId", "rows"],
+    properties: {
+      spreadsheetId: {
+        type: "string",
+        description:
+          'The ID of the Google Spreadsheet to update. This should be provided by the user. Can be found in the URL of the spreadsheet. For example, "1bWp1w2OVwH19mkXEiLIaP8As7N-9c_3EXF_Eo5d5Nm0".',
+        tags: ["recommend-predefined"],
+      },
+      sheetName: {
+        type: "string",
+        description: 'The name of the SHEET to append to. This should be provided by the user. For example, "Sheet1".',
+      },
+      rows: {
+        type: "array",
+        description: "Rows of cells to append to the spreadsheet",
+        items: {
+          type: "array",
+          description: "A list of cells to append to the spreadsheet",
+          items: {
+            type: "object",
+            required: ["stringValue"],
+            properties: {
+              stringValue: {
+                type: "string",
+                description: "The value of the cell",
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the spreadsheet was updated successfully",
+      },
+      spreadsheetUrl: {
+        type: "string",
+        description: "The URL of the updated spreadsheet",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the spreadsheet was not updated successfully",
+      },
+    },
+  },
+  name: "appendRowsToSpreadsheet",
   provider: "googleOauth",
 };
 export const googleOauthCreatePresentationDefinition: ActionTemplate = {
@@ -9395,11 +9490,11 @@ export const salesforceUpdateRecordDefinition: ActionTemplate = {
   tags: [],
   parameters: {
     type: "object",
-    required: ["objectType", "recordId", "fieldsToUpdate"],
+    required: ["recordType", "recordId", "fieldsToUpdate"],
     properties: {
-      objectType: {
+      recordType: {
         type: "string",
-        description: "The Salesforce object type to update (e.g., Lead, Account, Contact)",
+        description: "The Salesforce record type to update (e.g., Lead, Account, Contact)",
       },
       recordId: {
         type: "string",
@@ -9438,11 +9533,11 @@ export const salesforceCreateRecordDefinition: ActionTemplate = {
   tags: [],
   parameters: {
     type: "object",
-    required: ["objectType"],
+    required: ["recordType"],
     properties: {
-      objectType: {
+      recordType: {
         type: "string",
-        description: "The Salesforce object type to create (e.g., Lead, Account, Contact)",
+        description: "The Salesforce record type to create (e.g., Lead, Account, Contact)",
       },
       fieldsToCreate: {
         type: "object",
@@ -9596,6 +9691,7 @@ export const salesforceSearchAllSalesforceRecordsDefinition: ActionTemplate = {
       usesLightningKnowledge: {
         type: "boolean",
         description: "Whether your Salesforce instance uses lightning knowledge articles",
+        tags: ["recommend-predefined"],
       },
       limit: {
         type: "number",
@@ -9826,11 +9922,11 @@ export const salesforceGetRecordDefinition: ActionTemplate = {
   tags: [],
   parameters: {
     type: "object",
-    required: ["objectType", "recordId"],
+    required: ["recordType", "recordId"],
     properties: {
-      objectType: {
+      recordType: {
         type: "string",
-        description: "The Salesforce object type to retrieve (e.g., Lead, Account, Contact)",
+        description: "The Salesforce record type to retrieve (e.g., Lead, Account, Contact)",
       },
       recordId: {
         type: "string",
@@ -12982,7 +13078,7 @@ export const hubspotGetContactsDefinition: ActionTemplate = {
     properties: {
       query: {
         type: "string",
-        description: "Optional search query to filter contacts by name, email, or other properties",
+        description: "Optional keyword search query to filter contacts by name, email, or other properties",
       },
       limit: {
         type: "number",
@@ -13046,7 +13142,8 @@ export const hubspotGetContactDetailsDefinition: ActionTemplate = {
     properties: {
       contactId: {
         type: "string",
-        description: "The ID of the HubSpot contact to retrieve",
+        description:
+          "The ID of the HubSpot contact to retrieve. If you view the contact online, the url contains record/0-1/{contactId}/.",
       },
     },
   },
@@ -13147,7 +13244,7 @@ export const hubspotGetCompaniesDefinition: ActionTemplate = {
     properties: {
       query: {
         type: "string",
-        description: "Optional search query to filter companies by name, domain, or other properties",
+        description: "Optional keyword search query to filter companies by name, domain, or other properties",
       },
       limit: {
         type: "number",
@@ -13207,7 +13304,8 @@ export const hubspotGetCompanyDetailsDefinition: ActionTemplate = {
     properties: {
       companyId: {
         type: "string",
-        description: "The ID of the HubSpot company to retrieve",
+        description:
+          "The ID of the HubSpot company to retrieve. If you view the company online, the url contains record/0-2/{companyId}/.",
       },
     },
   },
@@ -13364,7 +13462,8 @@ export const hubspotGetDealDetailsDefinition: ActionTemplate = {
     properties: {
       dealId: {
         type: "string",
-        description: "The ID of the HubSpot deal to retrieve",
+        description:
+          "The ID of the HubSpot deal to retrieve. If you view the deal online, the url contains record/0-3/{dealId}/.",
       },
     },
   },
@@ -13509,7 +13608,8 @@ export const hubspotGetTicketDetailsDefinition: ActionTemplate = {
     properties: {
       ticketId: {
         type: "string",
-        description: "The ID of the HubSpot ticket to retrieve",
+        description:
+          "The ID of the HubSpot ticket to retrieve. If you view the ticket online, the url contains record/0-5/{ticketId}/.",
       },
     },
   },

@@ -14,7 +14,7 @@ const createRecord: salesforceCreateRecordFunction = async ({
   authParams: AuthParamsType;
 }): Promise<salesforceCreateRecordOutputType> => {
   const { authToken, baseUrl } = authParams;
-  const { objectType, fieldsToCreate } = params;
+  const { recordType, fieldsToCreate } = params;
 
   if (!authToken || !baseUrl) {
     return {
@@ -22,7 +22,7 @@ const createRecord: salesforceCreateRecordFunction = async ({
       error: "authToken and baseUrl are required for Salesforce API",
     };
   }
-  const url = `${baseUrl}/services/data/v56.0/sobjects/${objectType}/`;
+  const url = `${baseUrl}/services/data/v56.0/sobjects/${recordType}/`;
 
   try {
     const response = await axiosClient.post(url, fieldsToCreate, {
