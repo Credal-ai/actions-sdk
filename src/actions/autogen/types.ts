@@ -661,7 +661,7 @@ export type confluenceFetchPageContentFunction = ActionFunction<
 >;
 
 export const jiraAssignJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to assign the ticket to"),
+  projectKey: z.string().describe("The key for the project you want to add it to"),
   assignee: z.string().describe("The assignee for the ticket, userID or email"),
   issueId: z.string().describe("The issue ID associated with the ticket to be assigned/re-assigned"),
 });
@@ -840,7 +840,7 @@ export type jiraGetJiraTicketHistoryFunction = ActionFunction<
 >;
 
 export const jiraUpdateJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to update"),
+  projectKey: z.string().describe("The key for the project you want to add it to"),
   issueId: z.string().describe("The issue ID associated with the ticket to be updated"),
   summary: z.string().describe("The updated summary").optional(),
   description: z.string().describe("The updated description").optional(),
@@ -869,7 +869,7 @@ export type jiraUpdateJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraUpdateJiraTicketStatusParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to update"),
+  projectKey: z.string().describe("The key for the project you want to add it to"),
   issueId: z.string().describe("The issue ID associated with the ticket"),
   status: z.string().describe('The status the ticket should be changed to (eg "In Progress", "Closed")'),
 });
@@ -964,7 +964,7 @@ export type jiraGetJiraIssuesByQueryFunction = ActionFunction<
 >;
 
 export const jiraOrgAssignJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to assign the ticket to"),
+  projectKey: z.string().describe("The key for the project you want to add it to"),
   assignee: z.string().describe("The assignee for the ticket, userID or email"),
   issueId: z.string().describe("The issue ID associated with the ticket to be assigned/re-assigned"),
 });
@@ -1143,7 +1143,7 @@ export type jiraOrgGetJiraTicketHistoryFunction = ActionFunction<
 >;
 
 export const jiraOrgUpdateJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to update"),
+  projectKey: z.string().describe("The key for the project you want to add it to"),
   issueId: z.string().describe("The issue ID associated with the ticket to be updated"),
   summary: z.string().describe("The updated summary").optional(),
   description: z.string().describe("The updated description").optional(),
@@ -1172,7 +1172,7 @@ export type jiraOrgUpdateJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraOrgUpdateJiraTicketStatusParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to update"),
+  projectKey: z.string().describe("The key for the project you want to add it to"),
   issueId: z.string().describe("The issue ID associated with the ticket"),
   status: z.string().describe('The status the ticket should be changed to (eg "In Progress", "Closed")'),
 });
@@ -1267,7 +1267,7 @@ export type jiraOrgGetJiraIssuesByQueryFunction = ActionFunction<
 >;
 
 export const jiraDataCenterAssignJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to assign the ticket to"),
+  projectKey: z.string().describe("The key for the project you want to add it to"),
   assignee: z.string().describe("The assignee for the ticket, userID or email"),
   issueId: z.string().describe("The issue ID associated with the ticket to be assigned/re-assigned"),
 });
@@ -1458,7 +1458,7 @@ export type jiraDataCenterGetJiraTicketHistoryFunction = ActionFunction<
 >;
 
 export const jiraDataCenterUpdateJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to update"),
+  projectKey: z.string().describe("The key for the project you want to add it to"),
   issueId: z.string().describe("The issue ID associated with the ticket to be updated"),
   summary: z.string().describe("The updated summary").optional(),
   description: z.string().describe("The updated description").optional(),
@@ -1491,7 +1491,7 @@ export type jiraDataCenterUpdateJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraDataCenterUpdateJiraTicketStatusParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to update"),
+  projectKey: z.string().describe("The key for the project you want to add it to"),
   issueId: z.string().describe("The issue ID associated with the ticket"),
   status: z.string().describe('The status the ticket should be changed to (eg "In Progress", "Closed")'),
 });
@@ -5365,7 +5365,7 @@ export type githubGetPullRequestDetailsFunction = ActionFunction<
 
 export const githubGetFileContentParamsSchema = z.object({
   organization: z.string().describe("The organization that owns the GitHub repository"),
-  repository: z.string().describe("The name of the GitHub repository"),
+  repositoryName: z.string().describe("The name of the GitHub repository"),
   path: z.string().describe("The file path to get content from"),
 });
 
@@ -5402,7 +5402,7 @@ export type githubGetFileContentFunction = ActionFunction<
 
 export const githubListDirectoryParamsSchema = z.object({
   organization: z.string().describe("The organization that owns the GitHub repository"),
-  repository: z.string().describe("The name of the GitHub repository"),
+  repositoryName: z.string().describe("The name of the GitHub repository"),
   path: z.string().describe("The path to list directory contents from"),
 });
 

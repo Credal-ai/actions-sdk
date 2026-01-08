@@ -844,7 +844,7 @@ actions:
         properties:
           projectKey:
             type: string
-            description: The key for the project you want to assign the ticket to
+            description: The key for the project you want to add it to
             tags: [recommend-predefined]
           assignee:
             type: string
@@ -1089,7 +1089,7 @@ actions:
         properties:
           projectKey:
             type: string
-            description: The key for the project you want to update
+            description: The key for the project you want to add it to
             tags: [recommend-predefined]
           issueId:
             type: string
@@ -1134,7 +1134,7 @@ actions:
         properties:
           projectKey:
             type: string
-            description: The key for the project you want to update
+            description: The key for the project you want to add it to
             tags: [recommend-predefined]
           issueId:
             type: string
@@ -6564,13 +6564,13 @@ actions:
       scopes: []
       parameters:
         type: object
-        required: [organization, repository, path]
+        required: [organization, repositoryName, path]
         properties:
           organization:
             type: string
             description: The organization that owns the GitHub repository
             tags: [recommend-predefined]
-          repository:
+          repositoryName:
             type: string
             description: The name of the GitHub repository
             tags: [recommend-predefined]
@@ -6619,13 +6619,13 @@ actions:
       scopes: []
       parameters:
         type: object
-        required: [organization, repository, path]
+        required: [organization, repositoryName, path]
         properties:
           organization:
             type: string
             description: The organization that owns the GitHub repository
             tags: [recommend-predefined]
-          repository:
+          repositoryName:
             type: string
             description: The name of the GitHub repository
             tags: [recommend-predefined]

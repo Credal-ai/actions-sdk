@@ -1182,7 +1182,7 @@ export const jiraAssignJiraTicketDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to assign the ticket to",
+        description: "The key for the project you want to add it to",
         tags: ["recommend-predefined"],
       },
       assignee: {
@@ -1531,7 +1531,7 @@ export const jiraUpdateJiraTicketDetailsDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to update",
+        description: "The key for the project you want to add it to",
         tags: ["recommend-predefined"],
       },
       issueId: {
@@ -1592,7 +1592,7 @@ export const jiraUpdateJiraTicketStatusDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to update",
+        description: "The key for the project you want to add it to",
         tags: ["recommend-predefined"],
       },
       issueId: {
@@ -1835,7 +1835,7 @@ export const jiraOrgAssignJiraTicketDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to assign the ticket to",
+        description: "The key for the project you want to add it to",
         tags: ["recommend-predefined"],
       },
       assignee: {
@@ -2184,7 +2184,7 @@ export const jiraOrgUpdateJiraTicketDetailsDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to update",
+        description: "The key for the project you want to add it to",
         tags: ["recommend-predefined"],
       },
       issueId: {
@@ -2245,7 +2245,7 @@ export const jiraOrgUpdateJiraTicketStatusDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to update",
+        description: "The key for the project you want to add it to",
         tags: ["recommend-predefined"],
       },
       issueId: {
@@ -2488,7 +2488,7 @@ export const jiraDataCenterAssignJiraTicketDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to assign the ticket to",
+        description: "The key for the project you want to add it to",
         tags: ["recommend-predefined"],
       },
       assignee: {
@@ -2837,7 +2837,7 @@ export const jiraDataCenterUpdateJiraTicketDetailsDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to update",
+        description: "The key for the project you want to add it to",
         tags: ["recommend-predefined"],
       },
       issueId: {
@@ -2898,7 +2898,7 @@ export const jiraDataCenterUpdateJiraTicketStatusDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to update",
+        description: "The key for the project you want to add it to",
         tags: ["recommend-predefined"],
       },
       issueId: {
@@ -10699,14 +10699,14 @@ export const githubGetFileContentDefinition: ActionTemplate = {
   tags: [],
   parameters: {
     type: "object",
-    required: ["organization", "repository", "path"],
+    required: ["organization", "repositoryName", "path"],
     properties: {
       organization: {
         type: "string",
         description: "The organization that owns the GitHub repository",
         tags: ["recommend-predefined"],
       },
-      repository: {
+      repositoryName: {
         type: "string",
         description: "The name of the GitHub repository",
         tags: ["recommend-predefined"],
@@ -10778,14 +10778,14 @@ export const githubListDirectoryDefinition: ActionTemplate = {
   tags: [],
   parameters: {
     type: "object",
-    required: ["organization", "repository", "path"],
+    required: ["organization", "repositoryName", "path"],
     properties: {
       organization: {
         type: "string",
         description: "The organization that owns the GitHub repository",
         tags: ["recommend-predefined"],
       },
-      repository: {
+      repositoryName: {
         type: "string",
         description: "The name of the GitHub repository",
         tags: ["recommend-predefined"],
