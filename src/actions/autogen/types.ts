@@ -2949,6 +2949,27 @@ export const googleOauthListCalendarEventsOutputSchema = z.object({
           hangoutLink: z.string().describe("Google Meet link for the event, if available").optional(),
           created: z.string().describe("Creation time of the event (RFC3339 timestamp)").optional(),
           updated: z.string().describe("Last modification time of the event (RFC3339 timestamp)").optional(),
+          attachments: z
+            .array(
+              z.object({
+                fileId: z.string().describe("ID of the attached file").optional(),
+                fileUrl: z.string().describe("URL link to the attachment").optional(),
+                title: z.string().describe("Attachment title").optional(),
+                mimeType: z.string().describe("Internet media type (MIME type) of the attachment").optional(),
+              }),
+            )
+            .describe("List of file attachments for the event")
+            .optional(),
+          eventType: z
+            .string()
+            .describe('Differentiate "workingLocation" events, which simply specify a location, from real meetings')
+            .optional(),
+          transparency: z
+            .string()
+            .describe(
+              'Whether the event blocks time on the calendar and is considered a "busy" time. Populated when transparent.',
+            )
+            .optional(),
         })
         .describe("A calendar event"),
     )

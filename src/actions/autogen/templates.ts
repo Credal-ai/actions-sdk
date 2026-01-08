@@ -5809,6 +5809,41 @@ export const googleOauthListCalendarEventsDefinition: ActionTemplate = {
               type: "string",
               description: "Last modification time of the event (RFC3339 timestamp)",
             },
+            attachments: {
+              type: "array",
+              description: "List of file attachments for the event",
+              items: {
+                type: "object",
+                properties: {
+                  fileId: {
+                    type: "string",
+                    description: "ID of the attached file",
+                  },
+                  fileUrl: {
+                    type: "string",
+                    description: "URL link to the attachment",
+                  },
+                  title: {
+                    type: "string",
+                    description: "Attachment title",
+                  },
+                  mimeType: {
+                    type: "string",
+                    description: "Internet media type (MIME type) of the attachment",
+                  },
+                },
+              },
+            },
+            eventType: {
+              type: "string",
+              description:
+                'Differentiate "workingLocation" events, which simply specify a location, from real meetings',
+            },
+            transparency: {
+              type: "string",
+              description:
+                'Whether the event blocks time on the calendar and is considered a "busy" time. Populated when transparent.',
+            },
           },
         },
       },
