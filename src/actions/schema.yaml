@@ -405,7 +405,7 @@ actions:
                         type: string
   slack:
     sendDmFromBot:
-      description: Sends a direct message to a user on Slack using a bot
+      description: Sends a direct message to a user on Slack from the Credal Slack bot
       scopes:
         - users:read
         - channels:manage
@@ -419,7 +419,7 @@ actions:
             description: The email of the user to send the DM to
           message:
             type: string
-            description: The message content to send
+            description: The message content to send. Can include Slack markdown formatting.
       output:
         type: object
         required: [success]
@@ -432,7 +432,7 @@ actions:
             description: Error message if the operation failed
           channelId:
             type: string
-            description: The ID of the DM channel
+            description: The channel ID of the channel the DM was sent to
           timestamp:
             type: string
             description: The timestamp of the sent message
@@ -440,7 +440,7 @@ actions:
             type: string
             description: The permalink to the sent message
     createChannel:
-      description: Creates a new Slack channel using a bot token
+      description: Creates a new Slack channel
       scopes:
         - channels:manage
       parameters:
@@ -452,7 +452,7 @@ actions:
             description: The name of the channel to create (without '#')
           isPrivate:
             type: boolean
-            description: Whether to create a private channel (defaults to false)
+            description: Whether the created channel should be private (defaults to false)
       output:
         type: object
         required: [success]
@@ -470,7 +470,7 @@ actions:
             type: string
             description: The error that occurred if the channel was not created successfully
     sendMessage:
-      description: Sends a message to a Slack channel
+      description: Sends a message to a public Slack channel
       scopes:
         - chat:write
       parameters:
@@ -479,13 +479,13 @@ actions:
         properties:
           channelId:
             type: string
-            description: The ID of the channel to send the message to
+            description: The ID of the channel to send the message to. Either the channelId or channelName must be provided.
           channelName:
             type: string
-            description: The name of the Slack channel to send the message to (e.g. general, alerts)
+            description: The name of the Slack channel to send the message to (without '#' e.g. general, alerts). Either the channelId or channelName must be provided.
           message:
             type: string
-            description: The message content to send to Slack. Can include markdown formatting.
+            description: The message content to send to Slack. Can include Slack markdown formatting.
       output:
         type: object
         required: [success]
@@ -500,7 +500,7 @@ actions:
             type: string
             description: The ID of the message that was sent
     getChannelMessages:
-      description: Gets messages from a Slack channel
+      description: Gets a continuous list of messages from a specified Slack channel
       scopes:
         - channels:history
       parameters:
@@ -556,7 +556,7 @@ actions:
             type: string
             description: Cursor to use for fetching the next page of results. Only present when hasMore is true.
     getChannelMembers:
-      description: Gets the members of a Slack channel
+      description: Gets the names and emails of the members of a Slack channel
       scopes:
         - channels:read
       parameters:
@@ -564,10 +564,10 @@ actions:
         properties:
           channelId:
             type: string
-            description: The ID of the channel to get members from
+            description: The ID of the channel to get members from. Either the channelId or channelName must be provided.
           channelName:
             type: string
-            description: The name of the channel to get members from
+            description: The name of the channel to get members from. Either the channelId or channelName must be provided.
       output:
         type: object
         required: [success, members]
@@ -775,7 +775,7 @@ actions:
 
   confluence:
     overwritePage:
-      description: Updates a Confluence page with the new content specified
+      description: Overwrites a Confluence page with the new content specified
       scopes: []
       parameters:
         type: object
@@ -783,13 +783,13 @@ actions:
         properties:
           pageId:
             type: string
-            description: The page id for the page to add content to
+            description: The page id for the page to add content to. This is a string of numbers.
           title:
             type: string
             description: The title of the page that should be updated
           content:
             type: string
-            description: The new content for the page
+            description: The new content for the page in storage format (HTML)
       output:
         type: object
         required: [success]
@@ -809,7 +809,7 @@ actions:
         properties:
           pageId:
             type: string
-            description: The ID of the page to fetch content from
+            description: The ID of the page to fetch content from. This is a string of numbers.
       output:
         type: object
         required: [success]
@@ -844,7 +844,7 @@ actions:
         properties:
           projectKey:
             type: string
-            description: The key for the project you want to add it to
+            description: The key for the Jira project you want to assign the ticket to
             tags: [recommend-predefined]
           assignee:
             type: string
@@ -902,7 +902,7 @@ actions:
         properties:
           projectKey:
             type: string
-            description: The key for the project
+            description: The key for the Jira project
             tags: [recommend-predefined]
           issueId:
             type: string
@@ -932,7 +932,7 @@ actions:
         properties:
           projectKey:
             type: string
-            description: The key for the project you want to add it to
+            description: The key for the Jira project you want to add it to
             tags: ["recommend-predefined"]
           summary:
             type: string
@@ -1020,7 +1020,7 @@ actions:
         properties:
           projectKey:
             type: string
-            description: The key for the project
+            description: The key for the Jira project
             tags: ["recommend-predefined"]
           issueId:
             type: string
@@ -1061,7 +1061,7 @@ actions:
         properties:
           projectKey:
             type: string
-            description: The key for the project
+            description: The key for the Jira project
             tags: ["recommend-predefined"]
           issueId:
             type: string
@@ -1089,7 +1089,7 @@ actions:
         properties:
           projectKey:
             type: string
-            description: The key for the project you want to add it to
+            description: The key for the Jira project you want to update
             tags: ["recommend-predefined"]
           issueId:
             type: string
@@ -1134,7 +1134,7 @@ actions:
         properties:
           projectKey:
             type: string
-            description: The key for the project you want to add it to
+            description: The key for the Jira project you want to update
             tags: ["recommend-predefined"]
           issueId:
             type: string
@@ -1521,7 +1521,8 @@ actions:
             tags: ["recommend-predefined"]
           groupId:
             type: number
-            description: The ID of the group to assign the ticket to
+            description: The ID of the group to assign the Zendesk ticket to
+            tags: ["recommend-predefined"]
       output:
         type: object
         required: [ticketId]
@@ -1613,7 +1614,7 @@ actions:
             tags: ["recommend-predefined"]
           body:
             type: string
-            description: The body of the comment
+            description: The body of the Zendesk ticket comment
           public:
             type: boolean
             description: Whether the comment should be public (defaults to true)
@@ -3266,7 +3267,7 @@ actions:
         properties:
           calendarId:
             type: string
-            description: The ID of the calendar containing the event
+            description: The ID of the calendar containing the event. This can be a person's email.
             tags: ["recommend-predefined"]
           eventId:
             type: string
@@ -3336,7 +3337,7 @@ actions:
         properties:
           calendarId:
             type: string
-            description: The ID of the calendar containing the event
+            description: The ID of the calendar containing the event. This can be a person's email.
             tags: ["recommend-predefined"]
           eventId:
             type: string
@@ -5984,7 +5985,8 @@ actions:
         properties:
           siteId:
             type: string
-            description: The ID of the site where the document will be created
+            description: The ID of the Sharepoint site where the document should be created
+            tags: [recommend-predefined]
           name:
             type: string
             description: The name of the new document (include extension like .docx or .xlsx)
@@ -6022,7 +6024,8 @@ actions:
         properties:
           siteId:
             type: string
-            description: The ID of the site where the document is located
+            description: The ID of the Sharepoint site where the document is located
+            tags: [recommend-predefined]
           documentId:
             type: string
             description: The ID of the document
@@ -6079,7 +6082,7 @@ actions:
             type: string
             description: The range that was updated in the spreadsheet
     messageTeamsChat:
-      description: Sends a message to a Microsoft Teams chat
+      description: Sends a message to a Microsoft Teams chat on behalf of the user
       scopes: [ChatMessage.Send]
       parameters:
         type: object
@@ -6087,7 +6090,7 @@ actions:
         properties:
           chatId:
             type: string
-            description: The chat ID of the Microsoft Teams chat
+            description: The chat ID of the Microsoft Teams chat to send a message to
           message:
             type: string
             description: The text to be messaged to the chat
@@ -6105,7 +6108,7 @@ actions:
             type: string
             description: The ID of the message that was sent
     messageTeamsChannel:
-      description: Sends a message to a Microsoft Teams channel
+      description: Sends a message to a Microsoft Teams channel on behalf of the user
       scopes: [ChannelMessage.Send]
       parameters:
         type: object
@@ -6113,10 +6116,12 @@ actions:
         properties:
           teamId:
             type: string
-            description: The team ID of the Microsoft Teams channel
+            description: The team ID of the Microsoft Teams channel to send a message to
+            tags: [recommend-predefined]
           channelId:
             type: string
-            description: The channel ID of the Microsoft Teams channel
+            description: The channel ID of the Microsoft Teams channel to send a message to
+            tags: [recommend-predefined]
           message:
             type: string
             description: The text to be messaged to the channel
@@ -6142,7 +6147,8 @@ actions:
         properties:
           siteId:
             type: string
-            description: The ID of the site where the document is located (optional for OneDrive)
+            description: The ID of the Sharepoint site where the fetched document is located (optional for OneDrive)
+            tags: [recommend-predefined]
           documentId:
             type: string
             description: The ID of the document to retrieve
@@ -6169,11 +6175,11 @@ actions:
         properties:
           repositoryOwner:
             type: string
-            description: The owner of the repository
+            description: The owner of the GitHub repository's username
             tags: [recommend-predefined]
           repositoryName:
             type: string
-            description: The name of the repository
+            description: The name of the GitHub repository
             tags: [recommend-predefined]
           filePath:
             type: string
@@ -6216,11 +6222,11 @@ actions:
         properties:
           repositoryOwner:
             type: string
-            description: The owner of the repository
+            description: The owner of the GitHub repository
             tags: [recommend-predefined]
           repositoryName:
             type: string
-            description: The name of the repository
+            description: The name of the GitHub repository to create branches in
             tags: [recommend-predefined]
           branchName:
             type: string
@@ -6247,11 +6253,11 @@ actions:
         properties:
           repositoryOwner:
             type: string
-            description: The owner of the repository
+            description: The owner of the GitHub repository
             tags: [recommend-predefined]
           repositoryName:
             type: string
-            description: The name of the repository
+            description: The name of the GitHub repository to create pull requests in
             tags: [recommend-predefined]
           head:
             type: string
@@ -6290,11 +6296,11 @@ actions:
         properties:
           repositoryOwner:
             type: string
-            description: The owner of the repository
+            description: The owner of the GitHub repository
             tags: [recommend-predefined]
           repositoryName:
             type: string
-            description: The name of the repository
+            description: The name of the GitHub repository to fetch pull requests from
             tags: [recommend-predefined]
           state:
             type: string
@@ -6360,11 +6366,11 @@ actions:
         properties:
           repositoryOwner:
             type: string
-            description: The owner of the repository
+            description: The owner of the GitHub repository
             tags: [recommend-predefined]
           repositoryName:
             type: string
-            description: The name of the repository
+            description: The name of the GitHub repository to fetch information from
             tags: [recommend-predefined]
           pullRequestNumber:
             type: number
@@ -6562,11 +6568,11 @@ actions:
         properties:
           organization:
             type: string
-            description: The organization that owns the repository
+            description: The organization that owns the GitHub repository
             tags: [recommend-predefined]
           repository:
             type: string
-            description: The repository name
+            description: The name of the GitHub repository
             tags: [recommend-predefined]
           path:
             type: string
@@ -6617,11 +6623,11 @@ actions:
         properties:
           organization:
             type: string
-            description: The organization that owns the repository
+            description: The organization that owns the GitHub repository
             tags: [recommend-predefined]
           repository:
             type: string
-            description: The repository name
+            description: The name of the GitHub repository
             tags: [recommend-predefined]
           path:
             type: string
@@ -6672,7 +6678,7 @@ actions:
         properties:
           organization:
             type: string
-            description: The organization to search for data in
+            description: The GitHub organization to search for data in
             tags: [recommend-predefined]
           query:
             type: string
@@ -6881,11 +6887,11 @@ actions:
         properties:
           repositoryOwner:
             type: string
-            description: The owner of the repository
+            description: The owner of the GitHub repository's username
             tags: [recommend-predefined]
           repositoryName:
             type: string
-            description: The name of the repository
+            description: The name of the GitHub repository
             tags: [recommend-predefined]
           branchName:
             type: string
@@ -7061,11 +7067,11 @@ actions:
         properties:
           repositoryOwner:
             type: string
-            description: The owner of the repository
+            description: The owner of the repository's username
             tags: [recommend-predefined]
           repositoryName:
             type: string
-            description: The name of the repository
+            description: The name of the GitHub repository to fetch commits from
             tags: [recommend-predefined]
           branch:
             type: string
@@ -7238,11 +7244,11 @@ actions:
             description: The query that will be used to search gitlab blobs and merge requests
           groupId:
             type: string
-            description: The group ID of the project to search in
+            description: The group ID of the GitLab group to search in
             tags: ["recommend-predefined"]
           project:
             type: string
-            description: The name of the project to search in
+            description: The name of the GitLab project to search in
             tags: ["recommend-predefined"]
       output:
         type: object
@@ -7440,7 +7446,7 @@ actions:
         properties:
           project_id:
             type: number
-            description: Numeric project ID in GitLab (unique per project)
+            description: Numeric project ID in GitLab (unique per project) to fetch file content from
             tags: ["recommend-predefined"]
           path:
             type: string
@@ -7501,6 +7507,7 @@ actions:
           project_path:
             type: string
             description: The path of the project to search in. Either this or the project ID is required. This is the path of the project in the GitLab URL (e.g., "my-group/my-project").
+            tags: ["recommend-predefined"]
           mr_iid:
             type: string
             description: The internal ID of the merge request
@@ -7662,7 +7669,7 @@ actions:
         properties:
           group:
             type: string
-            description: The group or namespace that owns the project (e.g., "my-group" or "org/subgroup")
+            description: The group or namespace that owns the GitLab project (e.g., "my-group" or "org/subgroup")
             tags: ["recommend-predefined"]
           project:
             type: string

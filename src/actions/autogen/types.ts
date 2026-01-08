@@ -348,7 +348,7 @@ export type asanaGetTasksDetailsFunction = ActionFunction<
 
 export const slackSendDmFromBotParamsSchema = z.object({
   email: z.string().describe("The email of the user to send the DM to"),
-  message: z.string().describe("The message content to send"),
+  message: z.string().describe("The message content to send. Can include Slack markdown formatting."),
 });
 
 export type slackSendDmFromBotParamsType = z.infer<typeof slackSendDmFromBotParamsSchema>;
@@ -356,7 +356,7 @@ export type slackSendDmFromBotParamsType = z.infer<typeof slackSendDmFromBotPara
 export const slackSendDmFromBotOutputSchema = z.object({
   success: z.boolean().describe("Whether the DM was sent successfully"),
   error: z.string().describe("Error message if the operation failed").optional(),
-  channelId: z.string().describe("The ID of the DM channel").optional(),
+  channelId: z.string().describe("The channel ID of the channel the DM was sent to").optional(),
   timestamp: z.string().describe("The timestamp of the sent message").optional(),
   permalink: z.string().describe("The permalink to the sent message").optional(),
 });
@@ -370,7 +370,7 @@ export type slackSendDmFromBotFunction = ActionFunction<
 
 export const slackCreateChannelParamsSchema = z.object({
   channelName: z.string().describe("The name of the channel to create (without '#')"),
-  isPrivate: z.boolean().describe("Whether to create a private channel (defaults to false)").optional(),
+  isPrivate: z.boolean().describe("Whether the created channel should be private (defaults to false)").optional(),
 });
 
 export type slackCreateChannelParamsType = z.infer<typeof slackCreateChannelParamsSchema>;
@@ -390,12 +390,17 @@ export type slackCreateChannelFunction = ActionFunction<
 >;
 
 export const slackSendMessageParamsSchema = z.object({
-  channelId: z.string().describe("The ID of the channel to send the message to").optional(),
+  channelId: z
+    .string()
+    .describe("The ID of the channel to send the message to. Either the channelId or channelName must be provided.")
+    .optional(),
   channelName: z
     .string()
-    .describe("The name of the Slack channel to send the message to (e.g. general, alerts)")
+    .describe(
+      "The name of the Slack channel to send the message to (without '#' e.g. general, alerts). Either the channelId or channelName must be provided.",
+    )
     .optional(),
-  message: z.string().describe("The message content to send to Slack. Can include markdown formatting."),
+  message: z.string().describe("The message content to send to Slack. Can include Slack markdown formatting."),
 });
 
 export type slackSendMessageParamsType = z.infer<typeof slackSendMessageParamsSchema>;
@@ -479,8 +484,14 @@ export type slackGetChannelMessagesFunction = ActionFunction<
 >;
 
 export const slackGetChannelMembersParamsSchema = z.object({
-  channelId: z.string().describe("The ID of the channel to get members from").optional(),
-  channelName: z.string().describe("The name of the channel to get members from").optional(),
+  channelId: z
+    .string()
+    .describe("The ID of the channel to get members from. Either the channelId or channelName must be provided.")
+    .optional(),
+  channelName: z
+    .string()
+    .describe("The name of the channel to get members from. Either the channelId or channelName must be provided.")
+    .optional(),
 });
 
 export type slackGetChannelMembersParamsType = z.infer<typeof slackGetChannelMembersParamsSchema>;
@@ -605,9 +616,9 @@ export type mathAddOutputType = z.infer<typeof mathAddOutputSchema>;
 export type mathAddFunction = ActionFunction<mathAddParamsType, AuthParamsType, mathAddOutputType>;
 
 export const confluenceOverwritePageParamsSchema = z.object({
-  pageId: z.string().describe("The page id for the page to add content to"),
+  pageId: z.string().describe("The page id for the page to add content to. This is a string of numbers."),
   title: z.string().describe("The title of the page that should be updated"),
-  content: z.string().describe("The new content for the page"),
+  content: z.string().describe("The new content for the page in storage format (HTML)"),
 });
 
 export type confluenceOverwritePageParamsType = z.infer<typeof confluenceOverwritePageParamsSchema>;
@@ -625,7 +636,7 @@ export type confluenceOverwritePageFunction = ActionFunction<
 >;
 
 export const confluenceFetchPageContentParamsSchema = z.object({
-  pageId: z.string().describe("The ID of the page to fetch content from"),
+  pageId: z.string().describe("The ID of the page to fetch content from. This is a string of numbers."),
 });
 
 export type confluenceFetchPageContentParamsType = z.infer<typeof confluenceFetchPageContentParamsSchema>;
@@ -650,7 +661,7 @@ export type confluenceFetchPageContentFunction = ActionFunction<
 >;
 
 export const jiraAssignJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the Jira project you want to assign the ticket to"),
   assignee: z.string().describe("The assignee for the ticket, userID or email"),
   issueId: z.string().describe("The issue ID associated with the ticket to be assigned/re-assigned"),
 });
@@ -698,7 +709,7 @@ export type jiraPublicCommentOnServiceDeskRequestFunction = ActionFunction<
 >;
 
 export const jiraCommentJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
+  projectKey: z.string().describe("The key for the Jira project"),
   issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
   comment: z.string().describe("The text to be commented on the ticket"),
 });
@@ -719,7 +730,7 @@ export type jiraCommentJiraTicketFunction = ActionFunction<
 >;
 
 export const jiraCreateJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the Jira project you want to add it to"),
   summary: z.string().describe("The summary of the new ticket"),
   description: z.string().describe("The description for the new ticket"),
   issueType: z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."),
@@ -780,7 +791,7 @@ export type jiraCreateServiceDeskRequestFunction = ActionFunction<
 >;
 
 export const jiraGetJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
+  projectKey: z.string().describe("The key for the Jira project"),
   issueId: z.string().describe("The ID of the ticket"),
 });
 
@@ -809,7 +820,7 @@ export type jiraGetJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraGetJiraTicketHistoryParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
+  projectKey: z.string().describe("The key for the Jira project"),
   issueId: z.string().describe("The ID of the ticket"),
 });
 
@@ -829,7 +840,7 @@ export type jiraGetJiraTicketHistoryFunction = ActionFunction<
 >;
 
 export const jiraUpdateJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the Jira project you want to update"),
   issueId: z.string().describe("The issue ID associated with the ticket to be updated"),
   summary: z.string().describe("The updated summary").optional(),
   description: z.string().describe("The updated description").optional(),
@@ -858,7 +869,7 @@ export type jiraUpdateJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraUpdateJiraTicketStatusParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the Jira project you want to update"),
   issueId: z.string().describe("The issue ID associated with the ticket"),
   status: z.string().describe('The status the ticket should be changed to (eg "In Progress", "Closed")'),
 });
@@ -953,7 +964,7 @@ export type jiraGetJiraIssuesByQueryFunction = ActionFunction<
 >;
 
 export const jiraOrgAssignJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the Jira project you want to assign the ticket to"),
   assignee: z.string().describe("The assignee for the ticket, userID or email"),
   issueId: z.string().describe("The issue ID associated with the ticket to be assigned/re-assigned"),
 });
@@ -1001,7 +1012,7 @@ export type jiraOrgPublicCommentOnServiceDeskRequestFunction = ActionFunction<
 >;
 
 export const jiraOrgCommentJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
+  projectKey: z.string().describe("The key for the Jira project"),
   issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
   comment: z.string().describe("The text to be commented on the ticket"),
 });
@@ -1022,7 +1033,7 @@ export type jiraOrgCommentJiraTicketFunction = ActionFunction<
 >;
 
 export const jiraOrgCreateJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the Jira project you want to add it to"),
   summary: z.string().describe("The summary of the new ticket"),
   description: z.string().describe("The description for the new ticket"),
   issueType: z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."),
@@ -1083,7 +1094,7 @@ export type jiraOrgCreateServiceDeskRequestFunction = ActionFunction<
 >;
 
 export const jiraOrgGetJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
+  projectKey: z.string().describe("The key for the Jira project"),
   issueId: z.string().describe("The ID of the ticket"),
 });
 
@@ -1112,7 +1123,7 @@ export type jiraOrgGetJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraOrgGetJiraTicketHistoryParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
+  projectKey: z.string().describe("The key for the Jira project"),
   issueId: z.string().describe("The ID of the ticket"),
 });
 
@@ -1132,7 +1143,7 @@ export type jiraOrgGetJiraTicketHistoryFunction = ActionFunction<
 >;
 
 export const jiraOrgUpdateJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the Jira project you want to update"),
   issueId: z.string().describe("The issue ID associated with the ticket to be updated"),
   summary: z.string().describe("The updated summary").optional(),
   description: z.string().describe("The updated description").optional(),
@@ -1161,7 +1172,7 @@ export type jiraOrgUpdateJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraOrgUpdateJiraTicketStatusParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the Jira project you want to update"),
   issueId: z.string().describe("The issue ID associated with the ticket"),
   status: z.string().describe('The status the ticket should be changed to (eg "In Progress", "Closed")'),
 });
@@ -1256,7 +1267,7 @@ export type jiraOrgGetJiraIssuesByQueryFunction = ActionFunction<
 >;
 
 export const jiraDataCenterAssignJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the Jira project you want to assign the ticket to"),
   assignee: z.string().describe("The assignee for the ticket, userID or email"),
   issueId: z.string().describe("The issue ID associated with the ticket to be assigned/re-assigned"),
 });
@@ -1304,7 +1315,7 @@ export type jiraDataCenterPublicCommentOnServiceDeskRequestFunction = ActionFunc
 >;
 
 export const jiraDataCenterCommentJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
+  projectKey: z.string().describe("The key for the Jira project"),
   issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
   comment: z.string().describe("The text to be commented on the ticket"),
 });
@@ -1325,7 +1336,7 @@ export type jiraDataCenterCommentJiraTicketFunction = ActionFunction<
 >;
 
 export const jiraDataCenterCreateJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the Jira project you want to add it to"),
   summary: z.string().describe("The summary of the new ticket"),
   description: z.string().describe("The description for the new ticket"),
   issueType: z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."),
@@ -1390,7 +1401,7 @@ export type jiraDataCenterCreateServiceDeskRequestFunction = ActionFunction<
 >;
 
 export const jiraDataCenterGetJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
+  projectKey: z.string().describe("The key for the Jira project"),
   issueId: z.string().describe("The ID of the ticket"),
 });
 
@@ -1423,7 +1434,7 @@ export type jiraDataCenterGetJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraDataCenterGetJiraTicketHistoryParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
+  projectKey: z.string().describe("The key for the Jira project"),
   issueId: z.string().describe("The ID of the ticket"),
 });
 
@@ -1447,7 +1458,7 @@ export type jiraDataCenterGetJiraTicketHistoryFunction = ActionFunction<
 >;
 
 export const jiraDataCenterUpdateJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the Jira project you want to update"),
   issueId: z.string().describe("The issue ID associated with the ticket to be updated"),
   summary: z.string().describe("The updated summary").optional(),
   description: z.string().describe("The updated description").optional(),
@@ -1480,7 +1491,7 @@ export type jiraDataCenterUpdateJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraDataCenterUpdateJiraTicketStatusParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the Jira project you want to update"),
   issueId: z.string().describe("The issue ID associated with the ticket"),
   status: z.string().describe('The status the ticket should be changed to (eg "In Progress", "Closed")'),
 });
@@ -1723,7 +1734,7 @@ export const zendeskCreateZendeskTicketParamsSchema = z.object({
   subject: z.string().describe("The subject of the ticket"),
   body: z.string().describe("The body of the ticket").optional(),
   subdomain: z.string().describe("The subdomain of the Zendesk account"),
-  groupId: z.number().describe("The ID of the group to assign the ticket to").optional(),
+  groupId: z.number().describe("The ID of the group to assign the Zendesk ticket to").optional(),
 });
 
 export type zendeskCreateZendeskTicketParamsType = z.infer<typeof zendeskCreateZendeskTicketParamsSchema>;
@@ -1801,7 +1812,7 @@ export type zendeskUpdateTicketStatusFunction = ActionFunction<
 export const zendeskAddCommentToTicketParamsSchema = z.object({
   ticketId: z.string().describe("The ID of the ticket to update"),
   subdomain: z.string().describe("The subdomain of the Zendesk account"),
-  body: z.string().describe("The body of the comment"),
+  body: z.string().describe("The body of the Zendesk ticket comment"),
   public: z.boolean().describe("Whether the comment should be public (defaults to true)").optional(),
 });
 
@@ -3017,7 +3028,7 @@ export type googleOauthUpdateCalendarEventFunction = ActionFunction<
 >;
 
 export const googleOauthEditAGoogleCalendarEventParamsSchema = z.object({
-  calendarId: z.string().describe("The ID of the calendar containing the event"),
+  calendarId: z.string().describe("The ID of the calendar containing the event. This can be a person's email."),
   eventId: z.string().describe("The ID of the event to edit"),
   title: z.string().describe("The new title/summary of the event").optional(),
   description: z.string().describe("The new description of the event").optional(),
@@ -3067,7 +3078,7 @@ export type googleOauthEditAGoogleCalendarEventFunction = ActionFunction<
 >;
 
 export const googleOauthDeleteCalendarEventParamsSchema = z.object({
-  calendarId: z.string().describe("The ID of the calendar containing the event"),
+  calendarId: z.string().describe("The ID of the calendar containing the event. This can be a person's email."),
   eventId: z.string().describe("The ID of the event to delete"),
 });
 
@@ -4994,7 +5005,7 @@ export type salesforceGetRecordFunction = ActionFunction<
 >;
 
 export const microsoftCreateDocumentParamsSchema = z.object({
-  siteId: z.string().describe("The ID of the site where the document will be created").optional(),
+  siteId: z.string().describe("The ID of the Sharepoint site where the document should be created").optional(),
   name: z.string().describe("The name of the new document (include extension like .docx or .xlsx)"),
   content: z.string().describe("The content to add to the new document"),
   folderId: z.string().describe("The ID of the folder to create the document in (optional)").optional(),
@@ -5018,7 +5029,7 @@ export type microsoftCreateDocumentFunction = ActionFunction<
 >;
 
 export const microsoftUpdateDocumentParamsSchema = z.object({
-  siteId: z.string().describe("The ID of the site where the document is located").optional(),
+  siteId: z.string().describe("The ID of the Sharepoint site where the document is located").optional(),
   documentId: z.string().describe("The ID of the document"),
   content: z.string().describe("The new content to update in the document"),
 });
@@ -5061,7 +5072,7 @@ export type microsoftUpdateSpreadsheetFunction = ActionFunction<
 >;
 
 export const microsoftMessageTeamsChatParamsSchema = z.object({
-  chatId: z.string().describe("The chat ID of the Microsoft Teams chat"),
+  chatId: z.string().describe("The chat ID of the Microsoft Teams chat to send a message to"),
   message: z.string().describe("The text to be messaged to the chat"),
 });
 
@@ -5081,8 +5092,8 @@ export type microsoftMessageTeamsChatFunction = ActionFunction<
 >;
 
 export const microsoftMessageTeamsChannelParamsSchema = z.object({
-  teamId: z.string().describe("The team ID of the Microsoft Teams channel"),
-  channelId: z.string().describe("The channel ID of the Microsoft Teams channel"),
+  teamId: z.string().describe("The team ID of the Microsoft Teams channel to send a message to"),
+  channelId: z.string().describe("The channel ID of the Microsoft Teams channel to send a message to"),
   message: z.string().describe("The text to be messaged to the channel"),
 });
 
@@ -5102,7 +5113,10 @@ export type microsoftMessageTeamsChannelFunction = ActionFunction<
 >;
 
 export const microsoftGetDocumentParamsSchema = z.object({
-  siteId: z.string().describe("The ID of the site where the document is located (optional for OneDrive)").optional(),
+  siteId: z
+    .string()
+    .describe("The ID of the Sharepoint site where the fetched document is located (optional for OneDrive)")
+    .optional(),
   documentId: z.string().describe("The ID of the document to retrieve"),
 });
 
@@ -5122,8 +5136,8 @@ export type microsoftGetDocumentFunction = ActionFunction<
 >;
 
 export const githubCreateOrUpdateFileParamsSchema = z.object({
-  repositoryOwner: z.string().describe("The owner of the repository"),
-  repositoryName: z.string().describe("The name of the repository"),
+  repositoryOwner: z.string().describe("The owner of the GitHub repository's username"),
+  repositoryName: z.string().describe("The name of the GitHub repository"),
   filePath: z.string().describe("The path of the file to create or update"),
   branch: z.string().describe("The branch where the file will be created or updated"),
   fileContent: z.string().describe("The content of the file"),
@@ -5148,8 +5162,8 @@ export type githubCreateOrUpdateFileFunction = ActionFunction<
 >;
 
 export const githubCreateBranchParamsSchema = z.object({
-  repositoryOwner: z.string().describe("The owner of the repository"),
-  repositoryName: z.string().describe("The name of the repository"),
+  repositoryOwner: z.string().describe("The owner of the GitHub repository"),
+  repositoryName: z.string().describe("The name of the GitHub repository to create branches in"),
   branchName: z.string().describe("The name of the new branch to create"),
   baseRefOrHash: z.string().describe("The ref or hash of the base commit to create the new branch from"),
 });
@@ -5169,8 +5183,8 @@ export type githubCreateBranchFunction = ActionFunction<
 >;
 
 export const githubCreatePullRequestParamsSchema = z.object({
-  repositoryOwner: z.string().describe("The owner of the repository"),
-  repositoryName: z.string().describe("The name of the repository"),
+  repositoryOwner: z.string().describe("The owner of the GitHub repository"),
+  repositoryName: z.string().describe("The name of the GitHub repository to create pull requests in"),
   head: z
     .string()
     .describe(
@@ -5198,8 +5212,8 @@ export type githubCreatePullRequestFunction = ActionFunction<
 >;
 
 export const githubListPullRequestsParamsSchema = z.object({
-  repositoryOwner: z.string().describe("The owner of the repository"),
-  repositoryName: z.string().describe("The name of the repository"),
+  repositoryOwner: z.string().describe("The owner of the GitHub repository"),
+  repositoryName: z.string().describe("The name of the GitHub repository to fetch pull requests from"),
   state: z.string().describe("The state of the pull requests to list (e.g., open, closed)").optional(),
 });
 
@@ -5243,8 +5257,8 @@ export type githubListPullRequestsFunction = ActionFunction<
 >;
 
 export const githubGetPullRequestDetailsParamsSchema = z.object({
-  repositoryOwner: z.string().describe("The owner of the repository"),
-  repositoryName: z.string().describe("The name of the repository"),
+  repositoryOwner: z.string().describe("The owner of the GitHub repository"),
+  repositoryName: z.string().describe("The name of the GitHub repository to fetch information from"),
   pullRequestNumber: z.number().describe("The number of the pull request to get details for"),
 });
 
@@ -5350,8 +5364,8 @@ export type githubGetPullRequestDetailsFunction = ActionFunction<
 >;
 
 export const githubGetFileContentParamsSchema = z.object({
-  organization: z.string().describe("The organization that owns the repository"),
-  repository: z.string().describe("The repository name"),
+  organization: z.string().describe("The organization that owns the GitHub repository"),
+  repository: z.string().describe("The name of the GitHub repository"),
   path: z.string().describe("The file path to get content from"),
 });
 
@@ -5387,8 +5401,8 @@ export type githubGetFileContentFunction = ActionFunction<
 >;
 
 export const githubListDirectoryParamsSchema = z.object({
-  organization: z.string().describe("The organization that owns the repository"),
-  repository: z.string().describe("The repository name"),
+  organization: z.string().describe("The organization that owns the GitHub repository"),
+  repository: z.string().describe("The name of the GitHub repository"),
   path: z.string().describe("The path to list directory contents from"),
 });
 
@@ -5423,7 +5437,7 @@ export type githubListDirectoryFunction = ActionFunction<
 >;
 
 export const githubSearchOrganizationParamsSchema = z.object({
-  organization: z.string().describe("The organization to search for data in"),
+  organization: z.string().describe("The GitHub organization to search for data in"),
   query: z.string().describe("The query to search for within the organization"),
   repository: z.string().describe("The repository to search for data in").optional(),
 });
@@ -5557,8 +5571,8 @@ export type githubSearchOrganizationFunction = ActionFunction<
 >;
 
 export const githubGetBranchParamsSchema = z.object({
-  repositoryOwner: z.string().describe("The owner of the repository"),
-  repositoryName: z.string().describe("The name of the repository"),
+  repositoryOwner: z.string().describe("The owner of the GitHub repository's username"),
+  repositoryName: z.string().describe("The name of the GitHub repository"),
   branchName: z.string().describe("The name of the branch to retrieve"),
 });
 
@@ -5670,8 +5684,8 @@ export type githubGetBranchFunction = ActionFunction<
 >;
 
 export const githubListCommitsParamsSchema = z.object({
-  repositoryOwner: z.string().describe("The owner of the repository"),
-  repositoryName: z.string().describe("The name of the repository"),
+  repositoryOwner: z.string().describe("The owner of the repository's username"),
+  repositoryName: z.string().describe("The name of the GitHub repository to fetch commits from"),
   branch: z.string().describe("The branch to list commits from (defaults to default branch)").optional(),
   since: z
     .string()
@@ -5773,8 +5787,8 @@ export type notionSearchByTitleFunction = ActionFunction<
 
 export const gitlabSearchGroupParamsSchema = z.object({
   query: z.string().describe("The query that will be used to search gitlab blobs and merge requests"),
-  groupId: z.string().describe("The group ID of the project to search in"),
-  project: z.string().describe("The name of the project to search in").optional(),
+  groupId: z.string().describe("The group ID of the GitLab group to search in"),
+  project: z.string().describe("The name of the GitLab project to search in").optional(),
 });
 
 export type gitlabSearchGroupParamsType = z.infer<typeof gitlabSearchGroupParamsSchema>;
@@ -5895,7 +5909,7 @@ export type gitlabSearchGroupFunction = ActionFunction<
 >;
 
 export const gitlabGetFileContentParamsSchema = z.object({
-  project_id: z.number().describe("Numeric project ID in GitLab (unique per project)"),
+  project_id: z.number().describe("Numeric project ID in GitLab (unique per project) to fetch file content from"),
   path: z.string().describe("The file path to get content from (e.g., src/index.js)"),
   ref: z
     .string()
@@ -6016,7 +6030,9 @@ export type gitlabGetMergeRequestFunction = ActionFunction<
 >;
 
 export const gitlabListDirectoryParamsSchema = z.object({
-  group: z.string().describe('The group or namespace that owns the project (e.g., "my-group" or "org/subgroup")'),
+  group: z
+    .string()
+    .describe('The group or namespace that owns the GitLab project (e.g., "my-group" or "org/subgroup")'),
   project: z.string().describe('The name of the GitLab project (e.g., "my-repo")'),
   path: z.string().describe("The path to list directory contents from (empty string for root)"),
   ref: z.string().describe('The branch, tag, or commit (defaults to "main")').optional(),
