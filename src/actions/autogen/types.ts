@@ -5029,7 +5029,7 @@ export type microsoftCreateDocumentFunction = ActionFunction<
 >;
 
 export const microsoftUpdateDocumentParamsSchema = z.object({
-  siteId: z.string().describe("The ID of the Sharepoint site where the document is located").optional(),
+  siteId: z.string().describe("The ID of the SharePoint site where the document is located").optional(),
   documentId: z.string().describe("The ID of the document"),
   content: z.string().describe("The new content to update in the document"),
 });
