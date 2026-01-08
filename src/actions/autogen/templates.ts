@@ -59,7 +59,7 @@ export const perplexityPerplexityDeepResearchDefinition: ActionTemplate = {
       },
       result: {
         type: "object",
-        description: "The main research response/analysis",
+        description: "The main research response/analysis object",
         properties: {
           content: {
             type: "string",
@@ -3129,7 +3129,7 @@ export const jiraDataCenterGetJiraIssuesByQueryDefinition: ActionTemplate = {
   provider: "jiraDataCenter",
 };
 export const googlemapsValidateAddressDefinition: ActionTemplate = {
-  description: "Validate a Google Maps address",
+  description: "Validate an address using the Google Maps API",
   scopes: [],
   tags: [],
   parameters: {
@@ -3393,7 +3393,7 @@ export const bingGetTopNSearchResultUrlsDefinition: ActionTemplate = {
     properties: {
       results: {
         type: "array",
-        description: "The top five search result objects",
+        description: "The top search result objects",
         items: {
           type: "object",
           properties: {
@@ -5526,11 +5526,11 @@ export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
       },
       start: {
         type: "string",
-        description: "The start time of the meeting",
+        description: "The start time of the meeting (in datetime format)",
       },
       end: {
         type: "string",
-        description: "The end time of the meeting",
+        description: "The end time of the meeting (in datetime format)",
       },
       description: {
         type: "string",
@@ -5541,7 +5541,7 @@ export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
         description: "The attendees of the meeting",
         items: {
           type: "string",
-          description: "The email of the attendee",
+          description: "The emails of the attendees",
         },
       },
       useGoogleMeet: {
