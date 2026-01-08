@@ -111,7 +111,7 @@ export const perplexityPerplexityDeepResearchOutputSchema = z.object({
         .describe("Array of source citations")
         .optional(),
     })
-    .describe("The main research response/analysis")
+    .describe("The main research response/analysis object")
     .optional(),
 });
 
@@ -1709,7 +1709,7 @@ export const bingGetTopNSearchResultUrlsOutputSchema = z.object({
         url: z.string().describe("The URL of the search result").optional(),
       }),
     )
-    .describe("The top five search result objects"),
+    .describe("The top search result objects"),
 });
 
 export type bingGetTopNSearchResultUrlsOutputType = z.infer<typeof bingGetTopNSearchResultUrlsOutputSchema>;
@@ -2808,11 +2808,11 @@ export type googleOauthUpdateDocFunction = ActionFunction<
 export const googleOauthScheduleCalendarMeetingParamsSchema = z.object({
   calendarId: z.string().describe("The ID of the calendar to schedule the meeting on"),
   name: z.string().describe("The name of the meeting"),
-  start: z.string().describe("The start time of the meeting"),
-  end: z.string().describe("The end time of the meeting"),
+  start: z.string().describe("The start time of the meeting (in datetime format)"),
+  end: z.string().describe("The end time of the meeting (in datetime format)"),
   description: z.string().describe("The description of the meeting").optional(),
   attendees: z
-    .array(z.string().describe("The email of the attendee"))
+    .array(z.string().describe("The emails of the attendees"))
     .describe("The attendees of the meeting")
     .optional(),
   useGoogleMeet: z.boolean().describe("Whether to use Google Meet for the meeting").optional(),
