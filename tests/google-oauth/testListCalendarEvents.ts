@@ -3,20 +3,23 @@ import { runAction } from "../../src/app.js";
 import dotenv from "dotenv";
 dotenv.config();
 
-
 async function runTest() {
-
   const now = new Date();
   const weekBeg = new Date(now.setDate(now.getDate() - now.getDay())); // Sunday 00:00
   weekBeg.setHours(0, 0, 0, 0);
   const weekEnd = new Date(+weekBeg + 7 * 864e5);
 
-
   const result = await runAction(
     "listCalendarEvents",
     "googleOauth",
     { authToken: process.env.GOOGLE_CAL_AUTH_TOKEN },
-    { calendarId: "test@gmail.com", query: "", maxResults: 50, timeMin: weekBeg.toISOString(), timeMax: weekEnd.toISOString() },
+    {
+      calendarId: "jack@credal.ai",
+      query: "",
+      maxResults: 50,
+      timeMin: weekBeg.toISOString(),
+      timeMax: weekEnd.toISOString(),
+    }
   );
 
   assert(result, "Response should not be null");
@@ -25,14 +28,23 @@ async function runTest() {
   // Only check the first event for required fields
   const first = result.events[0];
   if (first) {
-    assert(typeof first.id === "string" && first.id.length > 0, "Event should have an id");
+    assert(
+      typeof first.id === "string" && first.id.length > 0,
+      "Event should have an id"
+    );
     assert(typeof first.title === "string", "Event should have a title");
     assert(typeof first.status === "string", "Event should have a status");
     assert(typeof first.url === "string", "Event should have a url");
     assert(typeof first.start === "string", "Event should have a start");
-    assert(typeof first.startDayOfWeek === "string", "Event should have a startDayOfWeek");
+    assert(
+      typeof first.startDayOfWeek === "string",
+      "Event should have a startDayOfWeek"
+    );
     assert(typeof first.end === "string", "Event should have an end");
-    assert(typeof first.endDayOfWeek === "string", "Event should have an endDayOfWeek");
+    assert(
+      typeof first.endDayOfWeek === "string",
+      "Event should have an endDayOfWeek"
+    );
   }
 
   console.log(`Successfully found ${result.events.length} events`);
