@@ -6597,6 +6597,66 @@ export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
   name: "updateSpreadsheet",
   provider: "googleOauth",
 };
+export const googleOauthAppendRowsToSpreadsheetDefinition: ActionTemplate = {
+  description:
+    "Adds new cells after the last row with data in a sheet, inserting new rows into the sheet if necessary.",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["spreadsheetId", "rows"],
+    properties: {
+      spreadsheetId: {
+        type: "string",
+        description:
+          'The ID of the Google Spreadsheet to update. This should be provided by the user. Can be found in the URL of the spreadsheet. For example, "1bWp1w2OVwH19mkXEiLIaP8As7N-9c_3EXF_Eo5d5Nm0".',
+        tags: ["recommend-predefined"],
+      },
+      sheetName: {
+        type: "string",
+        description: 'The name of the SHEET to append to. This should be provided by the user. For example, "Sheet1".',
+      },
+      rows: {
+        type: "array",
+        description: "Rows of cells to append to the spreadsheet",
+        items: {
+          type: "array",
+          description: "A list of cells to append to the spreadsheet",
+          items: {
+            type: "object",
+            required: ["stringValue"],
+            properties: {
+              stringValue: {
+                type: "string",
+                description: "The value of the cell",
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the spreadsheet was updated successfully",
+      },
+      spreadsheetUrl: {
+        type: "string",
+        description: "The URL of the updated spreadsheet",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the spreadsheet was not updated successfully",
+      },
+    },
+  },
+  name: "appendRowsToSpreadsheet",
+  provider: "googleOauth",
+};
 export const googleOauthCreatePresentationDefinition: ActionTemplate = {
   description: "Create a Google Presentation",
   scopes: [],
