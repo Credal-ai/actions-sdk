@@ -661,7 +661,7 @@ export type confluenceFetchPageContentFunction = ActionFunction<
 >;
 
 export const jiraAssignJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the Jira project you want to assign the ticket to"),
+  projectKey: z.string().describe("The key for the project you want to assign the ticket to"),
   assignee: z.string().describe("The assignee for the ticket, userID or email"),
   issueId: z.string().describe("The issue ID associated with the ticket to be assigned/re-assigned"),
 });
@@ -709,7 +709,7 @@ export type jiraPublicCommentOnServiceDeskRequestFunction = ActionFunction<
 >;
 
 export const jiraCommentJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the Jira project"),
+  projectKey: z.string().describe("The key for the project"),
   issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
   comment: z.string().describe("The text to be commented on the ticket"),
 });
@@ -730,7 +730,7 @@ export type jiraCommentJiraTicketFunction = ActionFunction<
 >;
 
 export const jiraCreateJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the Jira project you want to add it to"),
+  projectKey: z.string().describe("The key for the project you want to add it to"),
   summary: z.string().describe("The summary of the new ticket"),
   description: z.string().describe("The description for the new ticket"),
   issueType: z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."),
@@ -791,7 +791,7 @@ export type jiraCreateServiceDeskRequestFunction = ActionFunction<
 >;
 
 export const jiraGetJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the Jira project"),
+  projectKey: z.string().describe("The key for the project"),
   issueId: z.string().describe("The ID of the ticket"),
 });
 
@@ -820,7 +820,7 @@ export type jiraGetJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraGetJiraTicketHistoryParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the Jira project"),
+  projectKey: z.string().describe("The key for the project"),
   issueId: z.string().describe("The ID of the ticket"),
 });
 
@@ -840,7 +840,7 @@ export type jiraGetJiraTicketHistoryFunction = ActionFunction<
 >;
 
 export const jiraUpdateJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the Jira project you want to update"),
+  projectKey: z.string().describe("The key for the project you want to update"),
   issueId: z.string().describe("The issue ID associated with the ticket to be updated"),
   summary: z.string().describe("The updated summary").optional(),
   description: z.string().describe("The updated description").optional(),
@@ -869,7 +869,7 @@ export type jiraUpdateJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraUpdateJiraTicketStatusParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the Jira project you want to update"),
+  projectKey: z.string().describe("The key for the project you want to update"),
   issueId: z.string().describe("The issue ID associated with the ticket"),
   status: z.string().describe('The status the ticket should be changed to (eg "In Progress", "Closed")'),
 });
@@ -964,7 +964,7 @@ export type jiraGetJiraIssuesByQueryFunction = ActionFunction<
 >;
 
 export const jiraOrgAssignJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the Jira project you want to assign the ticket to"),
+  projectKey: z.string().describe("The key for the project you want to assign the ticket to"),
   assignee: z.string().describe("The assignee for the ticket, userID or email"),
   issueId: z.string().describe("The issue ID associated with the ticket to be assigned/re-assigned"),
 });
@@ -1012,7 +1012,7 @@ export type jiraOrgPublicCommentOnServiceDeskRequestFunction = ActionFunction<
 >;
 
 export const jiraOrgCommentJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the Jira project"),
+  projectKey: z.string().describe("The key for the project"),
   issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
   comment: z.string().describe("The text to be commented on the ticket"),
 });
@@ -1033,7 +1033,7 @@ export type jiraOrgCommentJiraTicketFunction = ActionFunction<
 >;
 
 export const jiraOrgCreateJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the Jira project you want to add it to"),
+  projectKey: z.string().describe("The key for the project you want to add it to"),
   summary: z.string().describe("The summary of the new ticket"),
   description: z.string().describe("The description for the new ticket"),
   issueType: z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."),
@@ -1094,7 +1094,7 @@ export type jiraOrgCreateServiceDeskRequestFunction = ActionFunction<
 >;
 
 export const jiraOrgGetJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the Jira project"),
+  projectKey: z.string().describe("The key for the project"),
   issueId: z.string().describe("The ID of the ticket"),
 });
 
@@ -1123,7 +1123,7 @@ export type jiraOrgGetJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraOrgGetJiraTicketHistoryParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the Jira project"),
+  projectKey: z.string().describe("The key for the project"),
   issueId: z.string().describe("The ID of the ticket"),
 });
 
@@ -1143,7 +1143,7 @@ export type jiraOrgGetJiraTicketHistoryFunction = ActionFunction<
 >;
 
 export const jiraOrgUpdateJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the Jira project you want to update"),
+  projectKey: z.string().describe("The key for the project you want to update"),
   issueId: z.string().describe("The issue ID associated with the ticket to be updated"),
   summary: z.string().describe("The updated summary").optional(),
   description: z.string().describe("The updated description").optional(),
@@ -1172,7 +1172,7 @@ export type jiraOrgUpdateJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraOrgUpdateJiraTicketStatusParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the Jira project you want to update"),
+  projectKey: z.string().describe("The key for the project you want to update"),
   issueId: z.string().describe("The issue ID associated with the ticket"),
   status: z.string().describe('The status the ticket should be changed to (eg "In Progress", "Closed")'),
 });
@@ -1267,7 +1267,7 @@ export type jiraOrgGetJiraIssuesByQueryFunction = ActionFunction<
 >;
 
 export const jiraDataCenterAssignJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the Jira project you want to assign the ticket to"),
+  projectKey: z.string().describe("The key for the project you want to assign the ticket to"),
   assignee: z.string().describe("The assignee for the ticket, userID or email"),
   issueId: z.string().describe("The issue ID associated with the ticket to be assigned/re-assigned"),
 });
@@ -1315,7 +1315,7 @@ export type jiraDataCenterPublicCommentOnServiceDeskRequestFunction = ActionFunc
 >;
 
 export const jiraDataCenterCommentJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the Jira project"),
+  projectKey: z.string().describe("The key for the project"),
   issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
   comment: z.string().describe("The text to be commented on the ticket"),
 });
@@ -1336,7 +1336,7 @@ export type jiraDataCenterCommentJiraTicketFunction = ActionFunction<
 >;
 
 export const jiraDataCenterCreateJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the Jira project you want to add it to"),
+  projectKey: z.string().describe("The key for the project you want to add it to"),
   summary: z.string().describe("The summary of the new ticket"),
   description: z.string().describe("The description for the new ticket"),
   issueType: z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."),
@@ -1401,7 +1401,7 @@ export type jiraDataCenterCreateServiceDeskRequestFunction = ActionFunction<
 >;
 
 export const jiraDataCenterGetJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the Jira project"),
+  projectKey: z.string().describe("The key for the project"),
   issueId: z.string().describe("The ID of the ticket"),
 });
 
@@ -1434,7 +1434,7 @@ export type jiraDataCenterGetJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraDataCenterGetJiraTicketHistoryParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the Jira project"),
+  projectKey: z.string().describe("The key for the project"),
   issueId: z.string().describe("The ID of the ticket"),
 });
 
@@ -1458,7 +1458,7 @@ export type jiraDataCenterGetJiraTicketHistoryFunction = ActionFunction<
 >;
 
 export const jiraDataCenterUpdateJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the Jira project you want to update"),
+  projectKey: z.string().describe("The key for the project you want to update"),
   issueId: z.string().describe("The issue ID associated with the ticket to be updated"),
   summary: z.string().describe("The updated summary").optional(),
   description: z.string().describe("The updated description").optional(),
@@ -1491,7 +1491,7 @@ export type jiraDataCenterUpdateJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraDataCenterUpdateJiraTicketStatusParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the Jira project you want to update"),
+  projectKey: z.string().describe("The key for the project you want to update"),
   issueId: z.string().describe("The issue ID associated with the ticket"),
   status: z.string().describe('The status the ticket should be changed to (eg "In Progress", "Closed")'),
 });
@@ -5029,7 +5029,7 @@ export type microsoftCreateDocumentFunction = ActionFunction<
 >;
 
 export const microsoftUpdateDocumentParamsSchema = z.object({
-  siteId: z.string().describe("The ID of the SharePoint site where the document is located").optional(),
+  siteId: z.string().describe("The ID of the Sharepoint site where the document is located").optional(),
   documentId: z.string().describe("The ID of the document"),
   content: z.string().describe("The new content to update in the document"),
 });
