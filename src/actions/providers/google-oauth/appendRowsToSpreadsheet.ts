@@ -34,7 +34,7 @@ const appendRowsToSpreadsheet: googleOauthAppendRowsToSpreadsheetFunction = asyn
   try {
     const response = await axiosClient.post(
       appendUrl,
-      { 
+      {
         values,
         majorDimension: "ROWS",
         range: `'${sheetName}'`,
