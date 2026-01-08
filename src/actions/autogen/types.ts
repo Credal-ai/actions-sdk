@@ -3365,10 +3365,12 @@ export type googleOauthUpdateSpreadsheetFunction = ActionFunction<
 export const googleOauthAppendRowsToSpreadsheetParamsSchema = z.object({
   spreadsheetId: z
     .string()
-    .describe("The ID of the Google Spreadsheet to update. This should be provided by the user."),
+    .describe(
+      'The ID of the Google Spreadsheet to update. This should be provided by the user. Can be found in the URL of the spreadsheet. For example, "1bWp1w2OVwH19mkXEiLIaP8As7N-9c_3EXF_Eo5d5Nm0".',
+    ),
   sheetName: z
     .string()
-    .describe("The name of the sheet to append to the spreadsheet. This should be provided by the user.")
+    .describe('The name of the SHEET to append to. This should be provided by the user. For example, "Sheet1".')
     .optional(),
   rows: z
     .array(

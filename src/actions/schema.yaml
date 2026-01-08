@@ -3705,11 +3705,11 @@ actions:
         properties:
           spreadsheetId:
             type: string
-            description: The ID of the Google Spreadsheet to update. This should be provided by the user.
-            tags: ["recommend-predefined"]
+            description: The ID of the Google Spreadsheet to update. This should be provided by the user. Can be found in the URL of the spreadsheet. For example, "1bWp1w2OVwH19mkXEiLIaP8As7N-9c_3EXF_Eo5d5Nm0".
+            tags: [recommend-predefined]
           sheetName:
             type: string
-            description: The name of the sheet to append to the spreadsheet. This should be provided by the user.
+            description: The name of the SHEET to append to. This should be provided by the user. For example, "Sheet1".
           rows:
             type: array
             description: Rows of cells to append to the spreadsheet
