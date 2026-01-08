@@ -17,7 +17,7 @@ We strongly encourage you to develop actions that rely on oauth based credential
 7. Run `npm publish --access public` to publish the new version to npm. (Need to be logged in via `npm login`)
 
 
-## Writing good action parameter descriptoins
+## Writing good action parameter descriptions
 
 When adding new actions to the SDK, follow these guidelines to ensure agents can use them effectively:
 
