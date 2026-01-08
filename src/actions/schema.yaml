@@ -225,7 +225,7 @@ actions:
           projectId:
             type: string
             description: Project gid the task belongs to
-            tags: ["recommend-predefined"]
+            tags: [recommend-predefined]
           name:
             type: string
             description: The name of the new task
@@ -844,7 +844,7 @@ actions:
         properties:
           projectKey:
             type: string
-            description: The key for the project you want to add it to
+            description: The key for the project you want to add the ticket to.
             tags: [recommend-predefined]
           assignee:
             type: string
@@ -902,14 +902,14 @@ actions:
         properties:
           projectKey:
             type: string
-            description: The key for the project
+            description: The key for the project to which the ticket you want to comment on belongs.
             tags: [recommend-predefined]
           issueId:
             type: string
-            description: The issue ID associated with the ticket to be commented on
+            description: The issue ID associated with the ticket to be commented on.
           comment:
             type: string
-            description: The text to be commented on the ticket
+            description: The text to be commented on the ticket.
       output:
         type: object
         required: [success]
@@ -932,8 +932,8 @@ actions:
         properties:
           projectKey:
             type: string
-            description: The key for the project you want to add it to
-            tags: ["recommend-predefined"]
+            description: The key for the project you want to add the ticket to.
+            tags: [recommend-predefined]
           summary:
             type: string
             description: The summary of the new ticket
@@ -1020,8 +1020,8 @@ actions:
         properties:
           projectKey:
             type: string
-            description: The key for the project
-            tags: ["recommend-predefined"]
+            description: The key for the project the ticket belongs to.
+            tags: [recommend-predefined]
           issueId:
             type: string
             description: The ID of the ticket
@@ -1061,8 +1061,8 @@ actions:
         properties:
           projectKey:
             type: string
-            description: The key for the project
-            tags: ["recommend-predefined"]
+            description: The key for the project the ticket belongs to.
+            tags: [recommend-predefined]
           issueId:
             type: string
             description: The ID of the ticket
@@ -1089,8 +1089,8 @@ actions:
         properties:
           projectKey:
             type: string
-            description: The key for the project you want to add it to
-            tags: ["recommend-predefined"]
+            description: The key for the project the ticket belongs to.
+            tags: [recommend-predefined]
           issueId:
             type: string
             description: The issue ID associated with the ticket to be updated
@@ -1134,8 +1134,8 @@ actions:
         properties:
           projectKey:
             type: string
-            description: The key for the project you want to add it to
-            tags: ["recommend-predefined"]
+            description: The key for the project you want to add the ticket to.
+            tags: [recommend-predefined]
           issueId:
             type: string
             description: The issue ID associated with the ticket
@@ -1518,7 +1518,7 @@ actions:
           subdomain:
             type: string
             description: The subdomain of the Zendesk account
-            tags: ["recommend-predefined"]
+            tags: [recommend-predefined]
           groupId:
             type: number
             description: The ID of the group to assign the ticket to
@@ -1542,7 +1542,7 @@ actions:
           subdomain:
             type: string
             description: The subdomain of the Zendesk account
-            tags: ["recommend-predefined"]
+            tags: [recommend-predefined]
           status:
             type: string
             description: Filter tickets by status (new, open, pending, hold, solved, closed)
@@ -1571,7 +1571,7 @@ actions:
           subdomain:
             type: string
             description: The subdomain of the Zendesk account
-            tags: ["recommend-predefined"]
+            tags: [recommend-predefined]
       output:
         type: object
         required:
@@ -1593,7 +1593,7 @@ actions:
           subdomain:
             type: string
             description: The subdomain of the Zendesk account
-            tags: ["recommend-predefined"]
+            tags: [recommend-predefined]
           status:
             type: string
             description: The state of the ticket. If your account has activated custom ticket statuses, this is the ticket's status category. Allowed values are "new", "open", "pending", "hold", "solved", or "closed".
@@ -1610,7 +1610,7 @@ actions:
           subdomain:
             type: string
             description: The subdomain of the Zendesk account
-            tags: ["recommend-predefined"]
+            tags: [recommend-predefined]
           body:
             type: string
             description: The body of the comment
@@ -1640,7 +1640,7 @@ actions:
           subdomain:
             type: string
             description: The subdomain of the Zendesk account
-            tags: ["recommend-predefined"]
+            tags: [recommend-predefined]
           assigneeEmail:
             type: string
             description: The email address of the agent to assign the ticket to
@@ -1654,7 +1654,7 @@ actions:
           subdomain:
             type: string
             description: The subdomain of the Zendesk account
-            tags: ["recommend-predefined"]
+            tags: [recommend-predefined]
           query:
             type: string
             description: Search query string that can include filters like status, priority, tags, assignee, etc. Examples - status:open, priority:high, tags:bug, assignee:user@example.com, or combination like "status:open priority:high"
@@ -2970,7 +2970,7 @@ actions:
           calendarId:
             type: string
             description: The ID of the calendar to schedule the meeting on
-            tags: ["recommend-predefined"]
+            tags: [recommend-predefined]
           name:
             type: string
             description: The name of the meeting
@@ -3089,7 +3089,7 @@ actions:
           calendarId:
             type: string
             description: The ID of the calendar to list events from
-            tags: ["recommend-predefined"]
+            tags: [recommend-predefined]
           query:
             type: string
             description: Optional free-text search query to filter events
@@ -3220,7 +3220,7 @@ actions:
           calendarId:
             type: string
             description: The ID of the calendar containing the event
-            tags: ["recommend-predefined"]
+            tags: [recommend-predefined]
           eventId:
             type: string
             description: The ID of the event to update
@@ -3291,7 +3291,7 @@ actions:
           calendarId:
             type: string
             description: The ID of the calendar containing the event
-            tags: ["recommend-predefined"]
+            tags: [recommend-predefined]
           eventId:
             type: string
             description: The ID of the event to edit
@@ -3361,7 +3361,7 @@ actions:
           calendarId:
             type: string
             description: The ID of the calendar containing the event
-            tags: ["recommend-predefined"]
+            tags: [recommend-predefined]
           eventId:
             type: string
             description: The ID of the event to delete
@@ -4808,14 +4808,14 @@ actions:
           searchDriveByDrive:
             type: boolean
             description: Search drive by drive or run a general search
-            tags: ["recommend-predefined"]
+            tags: [recommend-predefined]
           orderByQuery:
             type: string
             description: The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'
           includeTrashed:
             type: boolean
             description: Whether to include trashed files in the search results
-            tags: ["recommend-predefined"]
+            tags: [recommend-predefined]
       output:
         type: object
         required: [success]
@@ -4879,14 +4879,14 @@ actions:
           searchDriveByDrive:
             type: boolean
             description: Search drive by drive or run a general search
-            tags: ["recommend-predefined"]
+            tags: [recommend-predefined]
           orderByQuery:
             type: string
             description: The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'
           includeTrashed:
             type: boolean
             description: Whether to include trashed files in the search results
-            tags: ["recommend-predefined"]
+            tags: [recommend-predefined]
       output:
         type: object
         required: [success]
@@ -5679,11 +5679,11 @@ actions:
       scopes: []
       parameters:
         type: object
-        required: [objectType, recordId, fieldsToUpdate]
+        required: [recordType, recordId, fieldsToUpdate]
         properties:
-          objectType:
+          recordType:
             type: string
-            description: The Salesforce object type to update (e.g., Lead, Account, Contact)
+            description: The Salesforce record type to update (e.g., Lead, Account, Contact)
           recordId:
             type: string
             description: The ID of the record to update
@@ -5707,11 +5707,11 @@ actions:
       scopes: []
       parameters:
         type: object
-        required: [objectType]
+        required: [recordType]
         properties:
-          objectType:
+          recordType:
             type: string
-            description: The Salesforce object type to create (e.g., Lead, Account, Contact)
+            description: The Salesforce record type to create (e.g., Lead, Account, Contact)
           fieldsToCreate:
             type: object
             description: The fields to create on the record
@@ -5816,6 +5816,7 @@ actions:
           usesLightningKnowledge:
             type: boolean
             description: Whether your Salesforce instance uses lightning knowledge articles
+            tags: [recommend-predefined]
           limit:
             type: number
             description: The maximum number of records to return
@@ -5975,11 +5976,11 @@ actions:
       scopes: []
       parameters:
         type: object
-        required: [objectType, recordId]
+        required: [recordType, recordId]
         properties:
-          objectType:
+          recordType:
             type: string
-            description: The Salesforce object type to retrieve (e.g., Lead, Account, Contact)
+            description: The Salesforce record type to retrieve (e.g., Lead, Account, Contact)
           recordId:
             type: string
             description: The ID of the record to retrieve
@@ -7263,11 +7264,11 @@ actions:
           groupId:
             type: string
             description: The group ID of the project to search in
-            tags: ["recommend-predefined"]
+            tags: [recommend-predefined]
           project:
             type: string
             description: The name of the project to search in
-            tags: ["recommend-predefined"]
+            tags: [recommend-predefined]
       output:
         type: object
         required: [success]
@@ -7465,7 +7466,7 @@ actions:
           project_id:
             type: number
             description: Numeric project ID in GitLab (unique per project)
-            tags: ["recommend-predefined"]
+            tags: [recommend-predefined]
           path:
             type: string
             description: The file path to get content from (e.g., src/index.js)
@@ -7521,7 +7522,7 @@ actions:
           project_id:
             type: number
             description: Numeric project ID in GitLab (unique per project). Either this or the project path is required.
-            tags: ["recommend-predefined"]
+            tags: [recommend-predefined]
           project_path:
             type: string
             description: The path of the project to search in. Either this or the project ID is required. This is the path of the project in the GitLab URL (e.g., "my-group/my-project").
@@ -7687,11 +7688,11 @@ actions:
           group:
             type: string
             description: The group or namespace that owns the project (e.g., "my-group" or "org/subgroup")
-            tags: ["recommend-predefined"]
+            tags: [recommend-predefined]
           project:
             type: string
             description: The name of the GitLab project (e.g., "my-repo")
-            tags: ["recommend-predefined"]
+            tags: [recommend-predefined]
           path:
             type: string
             description: The path to list directory contents from (empty string for root)
@@ -8204,7 +8205,7 @@ actions:
         properties:
           query:
             type: string
-            description: Optional search query to filter contacts by name, email, or other properties
+            description: Optional keyword search query to filter contacts by name, email, or other properties
           limit:
             type: number
             description: Maximum number of contacts to return (default 100, max 100)
@@ -8248,7 +8249,7 @@ actions:
         properties:
           contactId:
             type: string
-            description: The ID of the HubSpot contact to retrieve
+            description: The ID of the HubSpot contact to retrieve. If you view the contact online, the url contains record/0-1/{contactId}/.
       output:
         type: object
         required: [success]
@@ -8320,7 +8321,7 @@ actions:
         properties:
           query:
             type: string
-            description: Optional search query to filter companies by name, domain, or other properties
+            description: Optional keyword search query to filter companies by name, domain, or other properties
           limit:
             type: number
             description: Maximum number of companies to return (default 100, max 100)
@@ -8361,7 +8362,7 @@ actions:
         properties:
           companyId:
             type: string
-            description: The ID of the HubSpot company to retrieve
+            description: The ID of the HubSpot company to retrieve. If you view the company online, the url contains record/0-2/{companyId}/.
       output:
         type: object
         required: [success]
@@ -8471,7 +8472,7 @@ actions:
         properties:
           dealId:
             type: string
-            description: The ID of the HubSpot deal to retrieve
+            description: The ID of the HubSpot deal to retrieve. If you view the deal online, the url contains record/0-3/{dealId}/.
       output:
         type: object
         required: [success]
@@ -8572,7 +8573,7 @@ actions:
         properties:
           ticketId:
             type: string
-            description: The ID of the HubSpot ticket to retrieve
+            description: The ID of the HubSpot ticket to retrieve. If you view the ticket online, the url contains record/0-5/{ticketId}/.
       output:
         type: object
         required: [success]

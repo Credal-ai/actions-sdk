@@ -650,7 +650,7 @@ export type confluenceFetchPageContentFunction = ActionFunction<
 >;
 
 export const jiraAssignJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the project you want to add the ticket to."),
   assignee: z.string().describe("The assignee for the ticket, userID or email"),
   issueId: z.string().describe("The issue ID associated with the ticket to be assigned/re-assigned"),
 });
@@ -698,9 +698,9 @@ export type jiraPublicCommentOnServiceDeskRequestFunction = ActionFunction<
 >;
 
 export const jiraCommentJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
-  issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
-  comment: z.string().describe("The text to be commented on the ticket"),
+  projectKey: z.string().describe("The key for the project to which the ticket you want to comment on belongs."),
+  issueId: z.string().describe("The issue ID associated with the ticket to be commented on."),
+  comment: z.string().describe("The text to be commented on the ticket."),
 });
 
 export type jiraCommentJiraTicketParamsType = z.infer<typeof jiraCommentJiraTicketParamsSchema>;
@@ -719,7 +719,7 @@ export type jiraCommentJiraTicketFunction = ActionFunction<
 >;
 
 export const jiraCreateJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the project you want to add the ticket to."),
   summary: z.string().describe("The summary of the new ticket"),
   description: z.string().describe("The description for the new ticket"),
   issueType: z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."),
@@ -780,7 +780,7 @@ export type jiraCreateServiceDeskRequestFunction = ActionFunction<
 >;
 
 export const jiraGetJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
+  projectKey: z.string().describe("The key for the project the ticket belongs to."),
   issueId: z.string().describe("The ID of the ticket"),
 });
 
@@ -809,7 +809,7 @@ export type jiraGetJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraGetJiraTicketHistoryParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
+  projectKey: z.string().describe("The key for the project the ticket belongs to."),
   issueId: z.string().describe("The ID of the ticket"),
 });
 
@@ -829,7 +829,7 @@ export type jiraGetJiraTicketHistoryFunction = ActionFunction<
 >;
 
 export const jiraUpdateJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the project the ticket belongs to."),
   issueId: z.string().describe("The issue ID associated with the ticket to be updated"),
   summary: z.string().describe("The updated summary").optional(),
   description: z.string().describe("The updated description").optional(),
@@ -858,7 +858,7 @@ export type jiraUpdateJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraUpdateJiraTicketStatusParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the project you want to add the ticket to."),
   issueId: z.string().describe("The issue ID associated with the ticket"),
   status: z.string().describe('The status the ticket should be changed to (eg "In Progress", "Closed")'),
 });
@@ -953,7 +953,7 @@ export type jiraGetJiraIssuesByQueryFunction = ActionFunction<
 >;
 
 export const jiraOrgAssignJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the project you want to add the ticket to."),
   assignee: z.string().describe("The assignee for the ticket, userID or email"),
   issueId: z.string().describe("The issue ID associated with the ticket to be assigned/re-assigned"),
 });
@@ -1001,9 +1001,9 @@ export type jiraOrgPublicCommentOnServiceDeskRequestFunction = ActionFunction<
 >;
 
 export const jiraOrgCommentJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
-  issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
-  comment: z.string().describe("The text to be commented on the ticket"),
+  projectKey: z.string().describe("The key for the project to which the ticket you want to comment on belongs."),
+  issueId: z.string().describe("The issue ID associated with the ticket to be commented on."),
+  comment: z.string().describe("The text to be commented on the ticket."),
 });
 
 export type jiraOrgCommentJiraTicketParamsType = z.infer<typeof jiraOrgCommentJiraTicketParamsSchema>;
@@ -1022,7 +1022,7 @@ export type jiraOrgCommentJiraTicketFunction = ActionFunction<
 >;
 
 export const jiraOrgCreateJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the project you want to add the ticket to."),
   summary: z.string().describe("The summary of the new ticket"),
   description: z.string().describe("The description for the new ticket"),
   issueType: z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."),
@@ -1083,7 +1083,7 @@ export type jiraOrgCreateServiceDeskRequestFunction = ActionFunction<
 >;
 
 export const jiraOrgGetJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
+  projectKey: z.string().describe("The key for the project the ticket belongs to."),
   issueId: z.string().describe("The ID of the ticket"),
 });
 
@@ -1112,7 +1112,7 @@ export type jiraOrgGetJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraOrgGetJiraTicketHistoryParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
+  projectKey: z.string().describe("The key for the project the ticket belongs to."),
   issueId: z.string().describe("The ID of the ticket"),
 });
 
@@ -1132,7 +1132,7 @@ export type jiraOrgGetJiraTicketHistoryFunction = ActionFunction<
 >;
 
 export const jiraOrgUpdateJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the project the ticket belongs to."),
   issueId: z.string().describe("The issue ID associated with the ticket to be updated"),
   summary: z.string().describe("The updated summary").optional(),
   description: z.string().describe("The updated description").optional(),
@@ -1161,7 +1161,7 @@ export type jiraOrgUpdateJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraOrgUpdateJiraTicketStatusParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the project you want to add the ticket to."),
   issueId: z.string().describe("The issue ID associated with the ticket"),
   status: z.string().describe('The status the ticket should be changed to (eg "In Progress", "Closed")'),
 });
@@ -1256,7 +1256,7 @@ export type jiraOrgGetJiraIssuesByQueryFunction = ActionFunction<
 >;
 
 export const jiraDataCenterAssignJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the project you want to add the ticket to."),
   assignee: z.string().describe("The assignee for the ticket, userID or email"),
   issueId: z.string().describe("The issue ID associated with the ticket to be assigned/re-assigned"),
 });
@@ -1304,9 +1304,9 @@ export type jiraDataCenterPublicCommentOnServiceDeskRequestFunction = ActionFunc
 >;
 
 export const jiraDataCenterCommentJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
-  issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
-  comment: z.string().describe("The text to be commented on the ticket"),
+  projectKey: z.string().describe("The key for the project to which the ticket you want to comment on belongs."),
+  issueId: z.string().describe("The issue ID associated with the ticket to be commented on."),
+  comment: z.string().describe("The text to be commented on the ticket."),
 });
 
 export type jiraDataCenterCommentJiraTicketParamsType = z.infer<typeof jiraDataCenterCommentJiraTicketParamsSchema>;
@@ -1325,7 +1325,7 @@ export type jiraDataCenterCommentJiraTicketFunction = ActionFunction<
 >;
 
 export const jiraDataCenterCreateJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the project you want to add the ticket to."),
   summary: z.string().describe("The summary of the new ticket"),
   description: z.string().describe("The description for the new ticket"),
   issueType: z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."),
@@ -1390,7 +1390,7 @@ export type jiraDataCenterCreateServiceDeskRequestFunction = ActionFunction<
 >;
 
 export const jiraDataCenterGetJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
+  projectKey: z.string().describe("The key for the project the ticket belongs to."),
   issueId: z.string().describe("The ID of the ticket"),
 });
 
@@ -1423,7 +1423,7 @@ export type jiraDataCenterGetJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraDataCenterGetJiraTicketHistoryParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
+  projectKey: z.string().describe("The key for the project the ticket belongs to."),
   issueId: z.string().describe("The ID of the ticket"),
 });
 
@@ -1447,7 +1447,7 @@ export type jiraDataCenterGetJiraTicketHistoryFunction = ActionFunction<
 >;
 
 export const jiraDataCenterUpdateJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the project the ticket belongs to."),
   issueId: z.string().describe("The issue ID associated with the ticket to be updated"),
   summary: z.string().describe("The updated summary").optional(),
   description: z.string().describe("The updated description").optional(),
@@ -1480,7 +1480,7 @@ export type jiraDataCenterUpdateJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraDataCenterUpdateJiraTicketStatusParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the project you want to add the ticket to."),
   issueId: z.string().describe("The issue ID associated with the ticket"),
   status: z.string().describe('The status the ticket should be changed to (eg "In Progress", "Closed")'),
 });
@@ -4775,7 +4775,7 @@ export type lookerEnableUserByEmailFunction = ActionFunction<
 >;
 
 export const salesforceUpdateRecordParamsSchema = z.object({
-  objectType: z.string().describe("The Salesforce object type to update (e.g., Lead, Account, Contact)"),
+  recordType: z.string().describe("The Salesforce record type to update (e.g., Lead, Account, Contact)"),
   recordId: z.string().describe("The ID of the record to update"),
   fieldsToUpdate: z
     .record(z.string())
@@ -4799,7 +4799,7 @@ export type salesforceUpdateRecordFunction = ActionFunction<
 >;
 
 export const salesforceCreateRecordParamsSchema = z.object({
-  objectType: z.string().describe("The Salesforce object type to create (e.g., Lead, Account, Contact)"),
+  recordType: z.string().describe("The Salesforce record type to create (e.g., Lead, Account, Contact)"),
   fieldsToCreate: z.record(z.string()).describe("The fields to create on the record").optional(),
 });
 
@@ -4995,7 +4995,7 @@ export type salesforceGetSalesforceRecordsByQueryFunction = ActionFunction<
 >;
 
 export const salesforceGetRecordParamsSchema = z.object({
-  objectType: z.string().describe("The Salesforce object type to retrieve (e.g., Lead, Account, Contact)"),
+  recordType: z.string().describe("The Salesforce record type to retrieve (e.g., Lead, Account, Contact)"),
   recordId: z.string().describe("The ID of the record to retrieve"),
 });
 
@@ -6376,7 +6376,10 @@ export type linearGetTeamsOutputType = z.infer<typeof linearGetTeamsOutputSchema
 export type linearGetTeamsFunction = ActionFunction<linearGetTeamsParamsType, AuthParamsType, linearGetTeamsOutputType>;
 
 export const hubspotGetContactsParamsSchema = z.object({
-  query: z.string().describe("Optional search query to filter contacts by name, email, or other properties").optional(),
+  query: z
+    .string()
+    .describe("Optional keyword search query to filter contacts by name, email, or other properties")
+    .optional(),
   limit: z.number().describe("Maximum number of contacts to return (default 100, max 100)").optional(),
 });
 
@@ -6407,7 +6410,11 @@ export type hubspotGetContactsFunction = ActionFunction<
 >;
 
 export const hubspotGetContactDetailsParamsSchema = z.object({
-  contactId: z.string().describe("The ID of the HubSpot contact to retrieve"),
+  contactId: z
+    .string()
+    .describe(
+      "The ID of the HubSpot contact to retrieve. If you view the contact online, the url contains record/0-1/{contactId}/.",
+    ),
 });
 
 export type hubspotGetContactDetailsParamsType = z.infer<typeof hubspotGetContactDetailsParamsSchema>;
@@ -6448,7 +6455,7 @@ export type hubspotGetContactDetailsFunction = ActionFunction<
 export const hubspotGetCompaniesParamsSchema = z.object({
   query: z
     .string()
-    .describe("Optional search query to filter companies by name, domain, or other properties")
+    .describe("Optional keyword search query to filter companies by name, domain, or other properties")
     .optional(),
   limit: z.number().describe("Maximum number of companies to return (default 100, max 100)").optional(),
 });
@@ -6479,7 +6486,11 @@ export type hubspotGetCompaniesFunction = ActionFunction<
 >;
 
 export const hubspotGetCompanyDetailsParamsSchema = z.object({
-  companyId: z.string().describe("The ID of the HubSpot company to retrieve"),
+  companyId: z
+    .string()
+    .describe(
+      "The ID of the HubSpot company to retrieve. If you view the company online, the url contains record/0-2/{companyId}/.",
+    ),
 });
 
 export type hubspotGetCompanyDetailsParamsType = z.infer<typeof hubspotGetCompanyDetailsParamsSchema>;
@@ -6547,7 +6558,11 @@ export type hubspotGetDealsFunction = ActionFunction<
 >;
 
 export const hubspotGetDealDetailsParamsSchema = z.object({
-  dealId: z.string().describe("The ID of the HubSpot deal to retrieve"),
+  dealId: z
+    .string()
+    .describe(
+      "The ID of the HubSpot deal to retrieve. If you view the deal online, the url contains record/0-3/{dealId}/.",
+    ),
 });
 
 export type hubspotGetDealDetailsParamsType = z.infer<typeof hubspotGetDealDetailsParamsSchema>;
@@ -6615,7 +6630,11 @@ export type hubspotGetTicketsFunction = ActionFunction<
 >;
 
 export const hubspotGetTicketDetailsParamsSchema = z.object({
-  ticketId: z.string().describe("The ID of the HubSpot ticket to retrieve"),
+  ticketId: z
+    .string()
+    .describe(
+      "The ID of the HubSpot ticket to retrieve. If you view the ticket online, the url contains record/0-5/{ticketId}/.",
+    ),
 });
 
 export type hubspotGetTicketDetailsParamsType = z.infer<typeof hubspotGetTicketDetailsParamsSchema>;
