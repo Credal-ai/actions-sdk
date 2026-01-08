@@ -3362,6 +3362,42 @@ export type googleOauthUpdateSpreadsheetFunction = ActionFunction<
   googleOauthUpdateSpreadsheetOutputType
 >;
 
+export const googleOauthAppendRowsToSpreadsheetParamsSchema = z.object({
+  spreadsheetId: z
+    .string()
+    .describe("The ID of the Google Spreadsheet to update. This should be provided by the user."),
+  sheetName: z
+    .string()
+    .describe("The name of the sheet to append to the spreadsheet. This should be provided by the user.")
+    .optional(),
+  rows: z
+    .array(
+      z
+        .array(z.object({ stringValue: z.string().describe("The value of the cell") }))
+        .describe("A list of cells to append to the spreadsheet"),
+    )
+    .describe("Rows of cells to append to the spreadsheet"),
+});
+
+export type googleOauthAppendRowsToSpreadsheetParamsType = z.infer<
+  typeof googleOauthAppendRowsToSpreadsheetParamsSchema
+>;
+
+export const googleOauthAppendRowsToSpreadsheetOutputSchema = z.object({
+  success: z.boolean().describe("Whether the spreadsheet was updated successfully"),
+  spreadsheetUrl: z.string().describe("The URL of the updated spreadsheet").optional(),
+  error: z.string().describe("The error that occurred if the spreadsheet was not updated successfully").optional(),
+});
+
+export type googleOauthAppendRowsToSpreadsheetOutputType = z.infer<
+  typeof googleOauthAppendRowsToSpreadsheetOutputSchema
+>;
+export type googleOauthAppendRowsToSpreadsheetFunction = ActionFunction<
+  googleOauthAppendRowsToSpreadsheetParamsType,
+  AuthParamsType,
+  googleOauthAppendRowsToSpreadsheetOutputType
+>;
+
 export const googleOauthCreatePresentationParamsSchema = z.object({
   title: z.string().describe("The title of the presentation"),
   pageSize: z
