@@ -14,7 +14,7 @@ const updateRecord: salesforceUpdateRecordFunction = async ({
   authParams: AuthParamsType;
 }): Promise<salesforceUpdateRecordOutputType> => {
   const { authToken, baseUrl } = authParams;
-  const { objectType, recordId, fieldsToUpdate } = params;
+  const { recordType, recordId, fieldsToUpdate } = params;
 
   if (!authToken || !baseUrl) {
     return {
@@ -23,7 +23,7 @@ const updateRecord: salesforceUpdateRecordFunction = async ({
     };
   }
 
-  const url = `${baseUrl}/services/data/v56.0/sobjects/${objectType}/${recordId}`;
+  const url = `${baseUrl}/services/data/v56.0/sobjects/${recordType}/${recordId}`;
 
   try {
     await axiosClient.patch(url, fieldsToUpdate, {
