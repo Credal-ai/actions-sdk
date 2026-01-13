@@ -1083,7 +1083,7 @@ export const slackUserSearchSlackRTSDefinition: ActionTemplate = {
       },
       contentTypes: {
         type: "array",
-        description: "Filter by content types to include in search results. Defaults to messages only.",
+        description: "Filter by content types to include in search results.",
         items: {
           type: "string",
           enum: ["messages", "files", "channels"],

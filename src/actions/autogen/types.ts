@@ -730,7 +730,7 @@ export const slackUserSearchSlackRTSParamsSchema = z.object({
     .optional(),
   contentTypes: z
     .array(z.enum(["messages", "files", "channels"]))
-    .describe("Filter by content types to include in search results. Defaults to messages only.")
+    .describe("Filter by content types to include in search results.")
     .default(["messages", "files", "channels"]),
   includeBots: z.boolean().describe("Whether to include bot messages in search results.").default(false),
   includeContextMessages: z
