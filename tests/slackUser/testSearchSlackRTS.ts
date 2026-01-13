@@ -6,7 +6,7 @@ dotenv.config();
 
 async function runTest() {
   // Basic search with query only
- /**  const result1 = (await runAction(
+  const result1 = (await runAction(
     "searchSlackRTS",
     "slackUser",
     { authToken: process.env.SLACK_AUTH_TOKEN },
@@ -23,7 +23,7 @@ async function runTest() {
       channelTypes: ["public_channel", "private_channel"],
       limit: 5,
     }
-  )) as slackUserSearchSlackRTSOutputType;*/
+  )) as slackUserSearchSlackRTSOutputType;
 
   // Search in DMs only
   const result3 = (await runAction(
@@ -38,7 +38,6 @@ async function runTest() {
   )) as slackUserSearchSlackRTSOutputType;
 
   // Search with time filters
-  /** 
   const result4 = (await runAction(
     "searchSlackRTS",
     "slackUser",
@@ -73,20 +72,20 @@ async function runTest() {
       contentTypes: ["messages", "files"],
       limit: 5,
     }
-  )) as slackUserSearchSlackRTSOutputType;*/
-/**
+  )) as slackUserSearchSlackRTSOutputType;
+
   console.log(
     "Search Test Response 1 (Basic): " + JSON.stringify(result1, null, 2)
   );
 
   console.log(
     "Search Test Response 2 (Channel Filters): " + JSON.stringify(result2, null, 2)
-  );*/
+  );
 
   console.log(
     "Search Test Response 3 (DMs Only): " + JSON.stringify(result3, null, 2)
   );
-/**
+
   console.log(
     "Search Test Response 4 (Time Filters): " + JSON.stringify(result4, null, 2)
   );
@@ -97,7 +96,7 @@ async function runTest() {
 
   console.log(
     "Search Test Response 6 (Files): " + JSON.stringify(result6, null, 2)
-  );*/
+  );
 
 }
 

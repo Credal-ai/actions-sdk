@@ -67,7 +67,7 @@ const searchSlackRTS: slackUserSearchSlackRTSFunction = async ({
   }
 
   if (limit) {
-    requestParams.limit = Math.min(limit, 20); // API max is 20
+    requestParams.limit = Math.min(limit, 20); // API max is 20, not handling pagination yet
   }
 
   if (includeContextMessages !== undefined) {
@@ -84,13 +84,10 @@ const searchSlackRTS: slackUserSearchSlackRTSFunction = async ({
 
   try {
     // Call the assistant.search.context API
-    console.log("Calling assistant.search.context with params:", JSON.stringify(requestParams, null, 2));
   const response = (await client.apiCall(
       "assistant.search.context",
       requestParams,
     )) as AssistantSearchContextResponse;
-    console.log(response)
-    console.log(response.results?.messages)
 
     if (!response.ok) {
       throw new Error(`Slack API error: ${response.error || "Unknown error"}`);
