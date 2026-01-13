@@ -1,4 +1,5 @@
 import type { AxiosInstance } from "axios";
+import Papa from "papaparse";
 import { isAxiosTimeoutError } from "../actions/util/axiosClient.js";
 
 // Custom interfaces to replace googleapis types
@@ -256,45 +257,100 @@ export function parseGoogleDocFromRawContentToPlainText(snapshotRawContent: Goog
   return validDocSections.map(section => section.paragraphs.join(" ")).join("\n");
 }
 
-export function parseGoogleSheetsFromRawContentToPlainText(snapshotRawContent: GoogleSheetsSpreadsheet): string {
-  if (!snapshotRawContent.sheets) return "";
+// Helper to convert 0-based column index to Excel-style column letter (0 -> "A", 25 -> "Z", 26 -> "AA")
+function columnIndexToLetter(index: number): string {
+  let letter = "";
+  while (index >= 0) {
+    letter = String.fromCharCode((index % 26) + 65) + letter;
+    index = Math.floor(index / 26) - 1;
+  }
+  return letter;
+}
 
-  const sheetContents: string[] = [];
+// Helper to parse CSV string into the JSON sheet format
+function parseCSVToSheetJson(csvData: string, sheetName: string = "Sheet1"): string {
+  const headers: Array<{ column: string; header: string }> = [];
+  const rows: Array<{ column: string; row: number; value: string }> = [];
+
+  const parsed = Papa.parse<string[]>(csvData, {
+    skipEmptyLines: true,
+  });
+
+  parsed.data.forEach((values, rowIndex) => {
+    values.forEach((value, colIndex) => {
+      const column = columnIndexToLetter(colIndex);
+
+      if (rowIndex === 0) {
+        // Headers: keep all cells (including empty) to preserve column positions
+        headers.push({ column, header: value.trim() });
+      } else {
+        // Rows: skip empty or whitespace-only cells
+        const trimmedValue = value.trim();
+        if (!trimmedValue) return;
+        rows.push({ column, row: rowIndex + 1, value: trimmedValue });
+      }
+    });
+  });
+
+  return JSON.stringify([{ sheetName, headers, rows }]);
+}
+
+export function parseGoogleSheetsFromRawContentToPlainText(snapshotRawContent: GoogleSheetsSpreadsheet): string {
+  if (!snapshotRawContent.sheets) return "[]";
+
+  const sheetsData: Array<{
+    sheetName: string;
+    headers: Array<{ column: string; header: string }>;
+    rows: Array<{ column: string; row: number; value: string }>;
+  }> = [];
 
   for (const sheet of snapshotRawContent.sheets) {
     if (!sheet.data || !sheet.properties?.title) continue;
 
-    const sheetTitle = sheet.properties.title;
-    const sheetRows: string[] = [`Sheet: ${sheetTitle}`];
+    const sheetName = sheet.properties.title;
+    const headers: Array<{ column: string; header: string }> = [];
+    const rows: Array<{ column: string; row: number; value: string }> = [];
+
+    // Helper to extract cell value
+    const getCellValue = (cell: {
+      formattedValue?: string;
+      userEnteredValue?: { stringValue?: string; numberValue?: number; boolValue?: boolean };
+    }): string => {
+      if (cell.formattedValue) return cell.formattedValue;
+      if (cell.userEnteredValue?.stringValue) return cell.userEnteredValue.stringValue;
+      if (cell.userEnteredValue?.numberValue !== undefined) return cell.userEnteredValue.numberValue.toString();
+      if (cell.userEnteredValue?.boolValue !== undefined) return cell.userEnteredValue.boolValue.toString();
+      return "";
+    };
 
     for (const gridData of sheet.data) {
       if (!gridData.rowData) continue;
 
-      for (const rowData of gridData.rowData) {
-        if (!rowData.values) continue;
+      gridData.rowData.forEach((rowData, rowIndex) => {
+        if (!rowData.values) return;
 
-        const cellValues = rowData.values
-          .map(cell => {
-            if (cell.formattedValue) return cell.formattedValue;
-            if (cell.userEnteredValue?.stringValue) return cell.userEnteredValue.stringValue;
-            if (cell.userEnteredValue?.numberValue) return cell.userEnteredValue.numberValue.toString();
-            if (cell.userEnteredValue?.boolValue) return cell.userEnteredValue.boolValue.toString();
-            return "";
-          })
-          .filter(value => value !== "");
+        rowData.values.forEach((cell, colIndex) => {
+          const column = columnIndexToLetter(colIndex);
+          const value = getCellValue(cell).trim();
 
-        if (cellValues.length > 0) {
-          sheetRows.push(cellValues.join(" | "));
-        }
-      }
+          if (rowIndex === 0) {
+            // Headers: keep all cells (including empty) to preserve column positions
+            headers.push({ column, header: value });
+          } else {
+            // Rows: skip empty or whitespace-only cells
+            if (!value) return;
+            rows.push({ column, row: rowIndex + 1, value });
+          }
+        });
+      });
     }
 
-    if (sheetRows.length > 1) {
-      sheetContents.push(sheetRows.join("\n"));
+    if (headers.length > 0 || rows.length > 0) {
+      sheetsData.push({ sheetName, headers, rows });
     }
   }
 
-  return sheetContents.join("\n\n");
+  return JSON.stringify(sheetsData);
 }
 
 export function parseGoogleSlidesFromRawContentToPlainText(snapshotRawContent: GoogleSlidesPresentation): string {
@@ -469,11 +525,13 @@ export async function getGoogleSheetContent(
       headers: { Authorization: `Bearer ${authToken}` },
       responseType: "text",
     });
-    return exportRes.data
+    // Clean up trailing commas and convert to JSON format
+    const cleanedCsv = exportRes.data
       .split("\n")
       .map((line: string) => line.replace(/,+$/, ""))
       .map((line: string) => line.replace(/,{2,}/g, ","))
       .join("\n");
+    return parseCSVToSheetJson(cleanedCsv);
   } catch (exportError) {
     // Check if it's a 404 or permission error
     if (exportError && typeof exportError === "object" && "status" in exportError) {

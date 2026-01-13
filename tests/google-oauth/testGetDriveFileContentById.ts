@@ -61,6 +61,8 @@ async function runTest() {
 
   console.log("File name:", result.results?.[0]?.name);
   console.log("Content snippet:", result.results?.[0]?.contents?.content);
+
+  console.dir(result, { depth: null });
 }
 
 // Run the test
