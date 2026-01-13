@@ -22,7 +22,7 @@ jobs:
       - name: Set up Node.js
         uses: useblacksmith/setup-node@v5
         with:
-          node-version: "22" # Adjust this to match your Node.js version
+          node-version: "24" # Adjust this to match your Node.js version
 
       # Install dependencies
       - name: Install dependencies
@@ -49,7 +49,7 @@ jobs:
       - name: Set up Node.js
         uses: useblacksmith/setup-node@v5
         with:
-          node-version: "22" # Adjust this to match your Node.js version
+          node-version: "24" # Adjust this to match your Node.js version
 
       # Install dependencies
       - name: Install dependencies
