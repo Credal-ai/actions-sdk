@@ -719,7 +719,11 @@ export type slackUserSearchSlackFunction = ActionFunction<
 >;
 
 export const slackUserSearchSlackRTSParamsSchema = z.object({
-  query: z.string().describe('The search query string (e.g., "What is project gizmo?", "mobile UX revamp").'),
+  query: z
+    .string()
+    .describe(
+      'The search query string (e.g., "What is project gizmo?", "mobile UX revamp"). You can use any Slack filters directly in the query string.',
+    ),
   channelTypes: z
     .array(z.enum(["public_channel", "private_channel", "mpim", "im"]))
     .describe("Filter by channel types to search. If not specified, searches all channel types the user has access to.")
@@ -727,7 +731,7 @@ export const slackUserSearchSlackRTSParamsSchema = z.object({
   contentTypes: z
     .array(z.enum(["messages", "files", "channels"]))
     .describe("Filter by content types to include in search results. Defaults to messages only.")
-    .default(["messages"]),
+    .default(["messages", "files", "channels"]),
   includeBots: z.boolean().describe("Whether to include bot messages in search results.").default(false),
   includeContextMessages: z
     .boolean()

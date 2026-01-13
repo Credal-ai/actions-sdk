@@ -1055,9 +1055,7 @@ export const slackUserSearchSlackRTSDefinition: ActionTemplate = {
   description:
     "Search Slack messages across your organization using Slack's Real-Time Search API (assistant.search.context). Searches all conversations within the scope of permissions granted and returns relevant messages with content, author info, and permalinks.",
   scopes: [
-    "assistant:write",
     "im:history",
-    "chat:write",
     "search:read.public",
     "search:read.private",
     "search:read.mpim",
@@ -1071,7 +1069,8 @@ export const slackUserSearchSlackRTSDefinition: ActionTemplate = {
     properties: {
       query: {
         type: "string",
-        description: 'The search query string (e.g., "What is project gizmo?", "mobile UX revamp").',
+        description:
+          'The search query string (e.g., "What is project gizmo?", "mobile UX revamp"). You can use any Slack filters directly in the query string.',
       },
       channelTypes: {
         type: "array",
@@ -1089,7 +1088,7 @@ export const slackUserSearchSlackRTSDefinition: ActionTemplate = {
           type: "string",
           enum: ["messages", "files", "channels"],
         },
-        default: ["messages"],
+        default: ["messages", "files", "channels"],
       },
       includeBots: {
         type: "boolean",
