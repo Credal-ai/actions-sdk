@@ -68,7 +68,7 @@
     "mammoth": "^1.11.00",
     "mongodb": "^6.13.1",
     "node-forge": "^1.3.3",
-    "officeparser": "^5.2.0",
+    "officeparser": "^5.2.2",
     "p-limit": "^7.1.1",
     "resend": "^4.7.0",
     "snowflake-sdk": "^2.0.2",
