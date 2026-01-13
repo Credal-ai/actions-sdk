@@ -46,7 +46,16 @@ const searchSlackRTS: slackUserSearchSlackRTSFunction = async ({
   if (!authParams.authToken) throw new Error(MISSING_AUTH_TOKEN);
   const client = new WebClient(authParams.authToken);
 
-  const { query, channelTypes, contentTypes = ["messages"], includeBots = false, limit = 20, includeContextMessages = true, before, after } = params;
+  const {
+    query,
+    channelTypes,
+    contentTypes = ["messages", "files", "channels"],
+    includeBots = false,
+    limit = 20,
+    includeContextMessages = true,
+    before,
+    after,
+  } = params;
 
   // Build the request parameters for assistant.search.context
   const requestParams: Record<string, unknown> = {
@@ -84,7 +93,7 @@ const searchSlackRTS: slackUserSearchSlackRTSFunction = async ({
 
   try {
     // Call the assistant.search.context API
-  const response = (await client.apiCall(
+    const response = (await client.apiCall(
       "assistant.search.context",
       requestParams,
     )) as AssistantSearchContextResponse;

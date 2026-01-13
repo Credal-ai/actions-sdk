@@ -754,9 +754,7 @@ actions:
     searchSlackRTS:
       description: Search Slack messages across your organization using Slack's Real-Time Search API (assistant.search.context). Searches all conversations within the scope of permissions granted and returns relevant messages with content, author info, and permalinks.
       scopes:
-        - assistant:write
         - im:history
-        - chat:write
         - search:read.public
         - search:read.private
         - search:read.mpim
@@ -769,7 +767,7 @@ actions:
         properties:
           query:
             type: string
-            description: The search query string (e.g., "What is project gizmo?", "mobile UX revamp").
+            description: The search query string (e.g., "What is project gizmo?", "mobile UX revamp"). You can use any Slack filters directly in the query string.npm run generate:types 
           channelTypes:
             type: array
             description: Filter by channel types to search. If not specified, searches all channel types the user has access to.
