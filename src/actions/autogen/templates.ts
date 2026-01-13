@@ -1051,6 +1051,151 @@ export const slackUserSearchSlackDefinition: ActionTemplate = {
   name: "searchSlack",
   provider: "slackUser",
 };
+export const slackUserSearchSlackRTSDefinition: ActionTemplate = {
+  description:
+    "Search Slack messages across your organization using Slack's Real-Time Search API (assistant.search.context). Searches all conversations within the scope of permissions granted and returns relevant messages with content, author info, and permalinks.",
+  scopes: [
+    "assistant:write",
+    "im:history",
+    "chat:write",
+    "search:read.public",
+    "search:read.private",
+    "search:read.mpim",
+    "search:read.im",
+    "search:read.files",
+  ],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["query"],
+    properties: {
+      query: {
+        type: "string",
+        description: 'The search query string (e.g., "What is project gizmo?", "mobile UX revamp").',
+      },
+      channelTypes: {
+        type: "array",
+        description:
+          "Filter by channel types to search. If not specified, searches all channel types the user has access to.",
+        items: {
+          type: "string",
+          enum: ["public_channel", "private_channel", "mpim", "im"],
+        },
+      },
+      contentTypes: {
+        type: "array",
+        description: "Filter by content types to include in search results. Defaults to messages only.",
+        items: {
+          type: "string",
+          enum: ["messages", "files", "channels"],
+        },
+        default: ["messages"],
+      },
+      includeBots: {
+        type: "boolean",
+        description: "Whether to include bot messages in search results.",
+        default: false,
+      },
+      includeContextMessages: {
+        type: "boolean",
+        description: "Whether to include contextual messages in search results.",
+        default: false,
+      },
+      limit: {
+        type: "number",
+        description: "Maximum number of results per page (max 20).",
+        minimum: 1,
+        maximum: 20,
+        default: 20,
+      },
+      before: {
+        type: "string",
+        description: "Optional UNIX timestamp filter. If present, filters for results before this date.",
+      },
+      after: {
+        type: "string",
+        description: "Optional UNIX timestamp filter. If present, filters for results after this date.",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["ok", "results"],
+    properties: {
+      ok: {
+        type: "boolean",
+        description: "Whether the request was successful.",
+      },
+      results: {
+        type: "object",
+        description: "Search results containing messages and/or files.",
+        properties: {
+          messages: {
+            type: "array",
+            description: "Array of message results matching the search query.",
+            items: {
+              type: "object",
+              required: ["author_user_id", "team_id", "channel_id", "message_ts", "content", "is_author_bot"],
+              properties: {
+                author_user_id: {
+                  type: "string",
+                  description: "User ID of the message author.",
+                },
+                team_id: {
+                  type: "string",
+                  description: "Team/workspace ID where the message was posted.",
+                },
+                channel_id: {
+                  type: "string",
+                  description: "Channel ID where the message was posted.",
+                },
+                message_ts: {
+                  type: "string",
+                  description: "Message timestamp.",
+                },
+                content: {
+                  type: "string",
+                  description: "The message content/text.",
+                },
+                is_author_bot: {
+                  type: "boolean",
+                  description: "Whether the message author is a bot.",
+                },
+                permalink: {
+                  type: "string",
+                  description: "Permalink URL to the message in Slack.",
+                },
+              },
+            },
+          },
+          files: {
+            type: "array",
+            description: "Array of file results matching the search query (if files content type was requested).",
+            items: {
+              type: "object",
+              properties: {
+                file_id: {
+                  type: "string",
+                  description: "File ID.",
+                },
+                title: {
+                  type: "string",
+                  description: "File title.",
+                },
+                permalink: {
+                  type: "string",
+                  description: "Permalink URL to the file in Slack.",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  name: "searchSlackRTS",
+  provider: "slackUser",
+};
 export const mathAddDefinition: ActionTemplate = {
   description: "Adds two numbers together",
   scopes: [],

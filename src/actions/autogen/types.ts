@@ -718,6 +718,73 @@ export type slackUserSearchSlackFunction = ActionFunction<
   slackUserSearchSlackOutputType
 >;
 
+export const slackUserSearchSlackRTSParamsSchema = z.object({
+  query: z.string().describe('The search query string (e.g., "What is project gizmo?", "mobile UX revamp").'),
+  channelTypes: z
+    .array(z.enum(["public_channel", "private_channel", "mpim", "im"]))
+    .describe("Filter by channel types to search. If not specified, searches all channel types the user has access to.")
+    .optional(),
+  contentTypes: z
+    .array(z.enum(["messages", "files", "channels"]))
+    .describe("Filter by content types to include in search results. Defaults to messages only.")
+    .default(["messages"]),
+  includeBots: z.boolean().describe("Whether to include bot messages in search results.").default(false),
+  includeContextMessages: z
+    .boolean()
+    .describe("Whether to include contextual messages in search results.")
+    .default(false),
+  limit: z.number().gte(1).lte(20).describe("Maximum number of results per page (max 20).").default(20),
+  before: z
+    .string()
+    .describe("Optional UNIX timestamp filter. If present, filters for results before this date.")
+    .optional(),
+  after: z
+    .string()
+    .describe("Optional UNIX timestamp filter. If present, filters for results after this date.")
+    .optional(),
+});
+
+export type slackUserSearchSlackRTSParamsType = z.infer<typeof slackUserSearchSlackRTSParamsSchema>;
+
+export const slackUserSearchSlackRTSOutputSchema = z.object({
+  ok: z.boolean().describe("Whether the request was successful."),
+  results: z
+    .object({
+      messages: z
+        .array(
+          z.object({
+            author_user_id: z.string().describe("User ID of the message author."),
+            team_id: z.string().describe("Team/workspace ID where the message was posted."),
+            channel_id: z.string().describe("Channel ID where the message was posted."),
+            message_ts: z.string().describe("Message timestamp."),
+            content: z.string().describe("The message content/text."),
+            is_author_bot: z.boolean().describe("Whether the message author is a bot."),
+            permalink: z.string().describe("Permalink URL to the message in Slack.").optional(),
+          }),
+        )
+        .describe("Array of message results matching the search query.")
+        .optional(),
+      files: z
+        .array(
+          z.object({
+            file_id: z.string().describe("File ID.").optional(),
+            title: z.string().describe("File title.").optional(),
+            permalink: z.string().describe("Permalink URL to the file in Slack.").optional(),
+          }),
+        )
+        .describe("Array of file results matching the search query (if files content type was requested).")
+        .optional(),
+    })
+    .describe("Search results containing messages and/or files."),
+});
+
+export type slackUserSearchSlackRTSOutputType = z.infer<typeof slackUserSearchSlackRTSOutputSchema>;
+export type slackUserSearchSlackRTSFunction = ActionFunction<
+  slackUserSearchSlackRTSParamsType,
+  AuthParamsType,
+  slackUserSearchSlackRTSOutputType
+>;
+
 export const mathAddParamsSchema = z.object({
   a: z.number().describe("The first number to add"),
   b: z.number().describe("The second number to add"),
