@@ -35,6 +35,7 @@ export enum ProviderName {
   GITLAB = "gitlab",
   LINEAR = "linear",
   HUBSPOT = "hubspot",
+  BOXUSER = "boxUser",
 }
 
 export enum ActionName {

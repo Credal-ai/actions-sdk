@@ -8780,3 +8780,4 @@ actions:
               archived:
                 type: boolean
                 description: Whether the ticket is archived
+  boxUser: {}
