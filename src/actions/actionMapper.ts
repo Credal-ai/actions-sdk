@@ -248,6 +248,8 @@ import {
   perplexityPerplexityDeepResearchOutputSchema,
   slackUserSearchSlackParamsSchema,
   slackUserSearchSlackOutputSchema,
+  slackUserSearchSlackRTSParamsSchema,
+  slackUserSearchSlackRTSOutputSchema,
   oktaOrgGetOktaUserByNameParamsSchema,
   oktaOrgGetOktaUserByNameOutputSchema,
   googleSearchCustomSearchParamsSchema,
@@ -384,6 +386,7 @@ import firecrawlGetTopNSearchResultUrls from "./providers/firecrawl/getTopNSearc
 import searchDriveByKeywordsAndGetFileContent from "./providers/google-oauth/searchDriveByKeywordsAndGetFileContent.js";
 import perplexityDeepResearch from "./providers/perplexity/perplexityDeepResearch.js";
 import searchSlack from "./providers/slackUser/searchSlack.js";
+import searchSlackRTS from "./providers/slackUser/searchSlackRTS.js";
 import sendDmFromBot from "./providers/slack/sendDmFromBot.js";
 import getOktaUserByName from "./providers/oktaOrg/getOktaUserByName.js";
 import customSearch from "./providers/googleSearch/customSearch.js";
@@ -559,6 +562,12 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: searchSlack,
       paramsSchema: slackUserSearchSlackParamsSchema,
       outputSchema: slackUserSearchSlackOutputSchema,
+      actionType: "read",
+    },
+    searchSlackRTS: {
+      fn: searchSlackRTS,
+      paramsSchema: slackUserSearchSlackRTSParamsSchema,
+      outputSchema: slackUserSearchSlackRTSOutputSchema,
       actionType: "read",
     },
   },
