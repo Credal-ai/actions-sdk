@@ -2,15 +2,12 @@ import type {
   AuthParamsType,
   salesforceListReportsFunction,
   salesforceListReportsOutputType,
-  salesforceListReportsParamsType,
 } from "../../autogen/types.js";
 import { ApiError, axiosClient } from "../../util/axiosClient.js";
 
 const listReports: salesforceListReportsFunction = async ({
-  params,
   authParams,
 }: {
-  params: salesforceListReportsParamsType;
   authParams: AuthParamsType;
 }): Promise<salesforceListReportsOutputType> => {
   const { authToken, baseUrl } = authParams;
