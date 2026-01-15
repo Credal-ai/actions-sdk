@@ -266,6 +266,8 @@ import {
   slackGetChannelMembersOutputSchema,
   salesforceGetReportMetadataParamsSchema,
   salesforceGetReportMetadataOutputSchema,
+  googleOauthUpdateRowsInSpreadsheetParamsSchema,
+  googleOauthUpdateRowsInSpreadsheetOutputSchema,
 } from "./autogen/types.js";
 import validateAddress from "./providers/googlemaps/validateAddress.js";
 import add from "./providers/math/add.js";
@@ -321,6 +323,7 @@ import createSpreadsheet from "./providers/google-oauth/createSpreadsheet.js";
 import updateSpreadsheet from "./providers/google-oauth/updateSpreadsheet.js";
 import appendRowsToSpreadsheet from "./providers/google-oauth/appendRowsToSpreadsheet.js";
 import deleteRowFromSpreadsheet from "./providers/google-oauth/deleteRowFromSpreadsheet.js";
+import updateRowsInSpreadsheet from "./providers/google-oauth/updateRowsInSpreadsheet.js";
 import createPresentation from "./providers/google-oauth/createPresentation.js";
 import updatePresentation from "./providers/google-oauth/updatePresentation.js";
 import getPresentation from "./providers/google-oauth/getPresentation.js";
@@ -825,10 +828,10 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       outputSchema: googleOauthUpdateSpreadsheetOutputSchema,
       actionType: "write",
     },
-    appendRowsToSpreadsheet: {
-      fn: appendRowsToSpreadsheet,
-      paramsSchema: googleOauthAppendRowsToSpreadsheetParamsSchema,
-      outputSchema: googleOauthAppendRowsToSpreadsheetOutputSchema,
+    updateRowsInSpreadsheet: {
+      fn: updateRowsInSpreadsheet,
+      paramsSchema: googleOauthUpdateRowsInSpreadsheetParamsSchema,
+      outputSchema: googleOauthUpdateRowsInSpreadsheetOutputSchema,
       actionType: "write",
     },
     deleteRowFromSpreadsheet: {

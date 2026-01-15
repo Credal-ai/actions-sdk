@@ -6801,14 +6801,14 @@ export const googleOauthAppendRowsToSpreadsheetDefinition: ActionTemplate = {
   name: "appendRowsToSpreadsheet",
   provider: "googleOauth",
 };
-export const googleOauthDeleteRowFromSpreadsheetDefinition: ActionTemplate = {
+export const googleOauthUpdateRowsInSpreadsheetDefinition: ActionTemplate = {
   description:
-    "Deletes a specific row from a Google Spreadsheet by row index. Row indices are 0-based (first row is 0).",
+    "Updates one or more rows in a Google Spreadsheet starting from a specific row number. This overwrites existing data in the specified rows.",
   scopes: [],
   tags: [],
   parameters: {
     type: "object",
-    required: ["spreadsheetId", "sheetId", "rowIndex"],
+    required: ["spreadsheetId", "startRow", "rows"],
     properties: {
       spreadsheetId: {
         type: "string",
@@ -6816,15 +6816,34 @@ export const googleOauthDeleteRowFromSpreadsheetDefinition: ActionTemplate = {
           'The ID of the Google Spreadsheet. This should be provided by the user. Can be found in the URL of the spreadsheet. For example, "1bWp1w2OVwH19mkXEiLIaP8As7N-9c_3EXF_Eo5d5Nm0".',
         tags: ["recommend-predefined"],
       },
-      sheetId: {
-        type: "integer",
+      sheetName: {
+        type: "string",
         description:
-          'The ID of the specific sheet within the spreadsheet (not the sheet name). Sheet ID is 0 for the first sheet. Can be found in the URL after "gid=". For example, if the URL is "...#gid=123456789", the sheetId is 123456789.',
+          'The name of the SHEET to update. This should be provided by the user. For example, "Sheet1". Defaults to "Sheet1" if not provided.',
       },
-      rowIndex: {
+      startRow: {
         type: "integer",
         description:
-          "The 0-based index of the row to delete. For example, to delete the first row (excluding headers if row 0 is headers), use rowIndex 1. To delete the header row, use rowIndex 0.",
+          "The row number to start updating from (1-based). For example, to update starting from the first row, use 1. To start from the second row, use 2.",
+      },
+      rows: {
+        type: "array",
+        description:
+          "Rows of cells to update in the spreadsheet. Each row will be written sequentially starting from startRow.",
+        items: {
+          type: "array",
+          description: "A list of cells for this row",
+          items: {
+            type: "object",
+            required: ["stringValue"],
+            properties: {
+              stringValue: {
+                type: "string",
+                description: "The value of the cell",
+              },
+            },
+          },
+        },
       },
     },
   },
@@ -6834,26 +6853,35 @@ export const googleOauthDeleteRowFromSpreadsheetDefinition: ActionTemplate = {
     properties: {
       success: {
         type: "boolean",
-        description: "Whether the row was deleted successfully",
+        description: "Whether the rows were updated successfully",
       },
       spreadsheetUrl: {
         type: "string",
         description: "The URL of the updated spreadsheet",
       },
-      replies: {
-        type: "array",
-        description: "The replies from the batchUpdate request",
-        items: {
-          type: "object",
-        },
+      updatedRange: {
+        type: "string",
+        description: "The range that was updated in A1 notation",
+      },
+      updatedRows: {
+        type: "integer",
+        description: "The number of rows that were updated",
+      },
+      updatedColumns: {
+        type: "integer",
+        description: "The number of columns that were updated",
+      },
+      updatedCells: {
+        type: "integer",
+        description: "The total number of cells that were updated",
       },
       error: {
         type: "string",
-        description: "The error that occurred if the row was not deleted successfully",
+        description: "The error that occurred if the rows were not updated successfully",
       },
     },
   },
-  name: "deleteRowFromSpreadsheet",
+  name: "updateRowsInSpreadsheet",
   provider: "googleOauth",
 };
 export const googleOauthCreatePresentationDefinition: ActionTemplate = {

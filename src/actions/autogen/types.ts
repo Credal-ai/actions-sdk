@@ -101,7 +101,7 @@ export enum ActionName {
   CREATESPREADSHEET = "createSpreadsheet",
   UPDATESPREADSHEET = "updateSpreadsheet",
   APPENDROWSTOSPREADSHEET = "appendRowsToSpreadsheet",
-  DELETEROWFROMSPREADSHEET = "deleteRowFromSpreadsheet",
+  UPDATEROWSINSPREADSHEET = "updateRowsInSpreadsheet",
   CREATEPRESENTATION = "createPresentation",
   UPDATEPRESENTATION = "updatePresentation",
   GETPRESENTATION = "getPresentation",
@@ -3623,44 +3623,56 @@ export type googleOauthAppendRowsToSpreadsheetFunction = ActionFunction<
   googleOauthAppendRowsToSpreadsheetOutputType
 >;
 
-export const googleOauthDeleteRowFromSpreadsheetParamsSchema = z.object({
+export const googleOauthUpdateRowsInSpreadsheetParamsSchema = z.object({
   spreadsheetId: z
     .string()
     .describe(
       'The ID of the Google Spreadsheet. This should be provided by the user. Can be found in the URL of the spreadsheet. For example, "1bWp1w2OVwH19mkXEiLIaP8As7N-9c_3EXF_Eo5d5Nm0".',
     ),
-  sheetId: z
+  sheetName: z
+    .string()
+    .describe(
+      'The name of the SHEET to update. This should be provided by the user. For example, "Sheet1". Defaults to "Sheet1" if not provided.',
+    )
+    .optional(),
+  startRow: z
     .number()
     .int()
     .describe(
-      'The ID of the specific sheet within the spreadsheet (not the sheet name). Sheet ID is 0 for the first sheet. Can be found in the URL after "gid=". For example, if the URL is "...#gid=123456789", the sheetId is 123456789.',
+      "The row number to start updating from (1-based). For example, to update starting from the first row, use 1. To start from the second row, use 2.",
     ),
-  rowIndex: z
-    .number()
-    .int()
+  rows: z
+    .array(
+      z
+        .array(z.object({ stringValue: z.string().describe("The value of the cell") }))
+        .describe("A list of cells for this row"),
+    )
     .describe(
-      "The 0-based index of the row to delete. For example, to delete the first row (excluding headers if row 0 is headers), use rowIndex 1. To delete the header row, use rowIndex 0.",
+      "Rows of cells to update in the spreadsheet. Each row will be written sequentially starting from startRow.",
     ),
 });
 
-export type googleOauthDeleteRowFromSpreadsheetParamsType = z.infer<
-  typeof googleOauthDeleteRowFromSpreadsheetParamsSchema
+export type googleOauthUpdateRowsInSpreadsheetParamsType = z.infer<
+  typeof googleOauthUpdateRowsInSpreadsheetParamsSchema
 >;
 
-export const googleOauthDeleteRowFromSpreadsheetOutputSchema = z.object({
-  success: z.boolean().describe("Whether the row was deleted successfully"),
+export const googleOauthUpdateRowsInSpreadsheetOutputSchema = z.object({
+  success: z.boolean().describe("Whether the rows were updated successfully"),
   spreadsheetUrl: z.string().describe("The URL of the updated spreadsheet").optional(),
-  replies: z.array(z.object({}).catchall(z.any())).describe("The replies from the batchUpdate request").optional(),
-  error: z.string().describe("The error that occurred if the row was not deleted successfully").optional(),
+  updatedRange: z.string().describe("The range that was updated in A1 notation").optional(),
+  updatedRows: z.number().int().describe("The number of rows that were updated").optional(),
+  updatedColumns: z.number().int().describe("The number of columns that were updated").optional(),
+  updatedCells: z.number().int().describe("The total number of cells that were updated").optional(),
+  error: z.string().describe("The error that occurred if the rows were not updated successfully").optional(),
 });
 
-export type googleOauthDeleteRowFromSpreadsheetOutputType = z.infer<
-  typeof googleOauthDeleteRowFromSpreadsheetOutputSchema
+export type googleOauthUpdateRowsInSpreadsheetOutputType = z.infer<
+  typeof googleOauthUpdateRowsInSpreadsheetOutputSchema
 >;
-export type googleOauthDeleteRowFromSpreadsheetFunction = ActionFunction<
-  googleOauthDeleteRowFromSpreadsheetParamsType,
+export type googleOauthUpdateRowsInSpreadsheetFunction = ActionFunction<
+  googleOauthUpdateRowsInSpreadsheetParamsType,
   AuthParamsType,
-  googleOauthDeleteRowFromSpreadsheetOutputType
+  googleOauthUpdateRowsInSpreadsheetOutputType
 >;
 
 export const googleOauthCreatePresentationParamsSchema = z.object({
