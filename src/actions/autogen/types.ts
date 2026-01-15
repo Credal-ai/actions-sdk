@@ -3649,6 +3649,7 @@ export type googleOauthDeleteRowFromSpreadsheetParamsType = z.infer<
 export const googleOauthDeleteRowFromSpreadsheetOutputSchema = z.object({
   success: z.boolean().describe("Whether the row was deleted successfully"),
   spreadsheetUrl: z.string().describe("The URL of the updated spreadsheet").optional(),
+  replies: z.array(z.object({}).catchall(z.any())).describe("The replies from the batchUpdate request").optional(),
   error: z.string().describe("The error that occurred if the row was not deleted successfully").optional(),
 });
 

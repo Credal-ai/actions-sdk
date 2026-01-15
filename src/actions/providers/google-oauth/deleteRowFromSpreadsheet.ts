@@ -36,8 +36,9 @@ const deleteRowFromSpreadsheet: googleOauthDeleteRowFromSpreadsheetFunction = as
               range: {
                 sheetId: sheetId,
                 dimension: "ROWS",
-                startIndex: rowIndex,
-                endIndex: rowIndex + 1,
+                // startIndex is 0-based, but sheets is 1-based
+                startIndex: rowIndex - 1,
+                endIndex: rowIndex,
               },
             },
           },

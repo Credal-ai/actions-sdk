@@ -6840,6 +6840,13 @@ export const googleOauthDeleteRowFromSpreadsheetDefinition: ActionTemplate = {
         type: "string",
         description: "The URL of the updated spreadsheet",
       },
+      replies: {
+        type: "array",
+        description: "The replies from the batchUpdate request",
+        items: {
+          type: "object",
+        },
+      },
       error: {
         type: "string",
         description: "The error that occurred if the row was not deleted successfully",
