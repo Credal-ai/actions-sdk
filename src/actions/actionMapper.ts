@@ -1277,4 +1277,5 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       actionType: "read",
     },
   },
+  boxUser: {},
 };
