@@ -101,6 +101,7 @@ export enum ActionName {
   CREATESPREADSHEET = "createSpreadsheet",
   UPDATESPREADSHEET = "updateSpreadsheet",
   APPENDROWSTOSPREADSHEET = "appendRowsToSpreadsheet",
+  DELETEROWFROMSPREADSHEET = "deleteRowFromSpreadsheet",
   CREATEPRESENTATION = "createPresentation",
   UPDATEPRESENTATION = "updatePresentation",
   GETPRESENTATION = "getPresentation",
@@ -3619,6 +3620,46 @@ export type googleOauthAppendRowsToSpreadsheetFunction = ActionFunction<
   googleOauthAppendRowsToSpreadsheetParamsType,
   AuthParamsType,
   googleOauthAppendRowsToSpreadsheetOutputType
+>;
+
+export const googleOauthDeleteRowFromSpreadsheetParamsSchema = z.object({
+  spreadsheetId: z
+    .string()
+    .describe(
+      'The ID of the Google Spreadsheet. This should be provided by the user. Can be found in the URL of the spreadsheet. For example, "1bWp1w2OVwH19mkXEiLIaP8As7N-9c_3EXF_Eo5d5Nm0".',
+    ),
+  sheetId: z
+    .number()
+    .int()
+    .describe(
+      'The ID of the specific sheet within the spreadsheet (not the sheet name). Sheet ID is 0 for the first sheet. Can be found in the URL after "gid=". For example, if the URL is "...#gid=123456789", the sheetId is 123456789.',
+    ),
+  rowIndex: z
+    .number()
+    .int()
+    .describe(
+      "The 0-based index of the row to delete. For example, to delete the first row (excluding headers if row 0 is headers), use rowIndex 1. To delete the header row, use rowIndex 0.",
+    ),
+});
+
+export type googleOauthDeleteRowFromSpreadsheetParamsType = z.infer<
+  typeof googleOauthDeleteRowFromSpreadsheetParamsSchema
+>;
+
+export const googleOauthDeleteRowFromSpreadsheetOutputSchema = z.object({
+  success: z.boolean().describe("Whether the row was deleted successfully"),
+  spreadsheetUrl: z.string().describe("The URL of the updated spreadsheet").optional(),
+  replies: z.array(z.object({}).catchall(z.any())).describe("The replies from the batchUpdate request").optional(),
+  error: z.string().describe("The error that occurred if the row was not deleted successfully").optional(),
+});
+
+export type googleOauthDeleteRowFromSpreadsheetOutputType = z.infer<
+  typeof googleOauthDeleteRowFromSpreadsheetOutputSchema
+>;
+export type googleOauthDeleteRowFromSpreadsheetFunction = ActionFunction<
+  googleOauthDeleteRowFromSpreadsheetParamsType,
+  AuthParamsType,
+  googleOauthDeleteRowFromSpreadsheetOutputType
 >;
 
 export const googleOauthCreatePresentationParamsSchema = z.object({
