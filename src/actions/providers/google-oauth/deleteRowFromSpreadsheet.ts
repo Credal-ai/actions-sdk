@@ -36,12 +36,8 @@ const deleteRowFromSpreadsheet: googleOauthDeleteRowFromSpreadsheetFunction = as
               range: {
                 sheetId: sheetId,
                 dimension: "ROWS",
-                // startIndex is 0-based, but sheets is 1-based
-                // For example, if the user passes in row 1, they probably want
-                // to delete the first row. The first row is actually 0, so we
-                // subtract 1.
-                startIndex: rowIndex - 1,
-                endIndex: rowIndex,
+                startIndex: rowIndex,
+                endIndex: rowIndex + 1,
               },
             },
           },
