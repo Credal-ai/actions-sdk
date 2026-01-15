@@ -3882,6 +3882,36 @@ actions:
           error:
             type: string
             description: The error that occurred if the spreadsheet was not updated successfully
+    deleteRowFromSpreadsheet:
+      description: Deletes a specific row from a Google Spreadsheet by row index. Row indices are 0-based (first row is 0).
+      scopes: []
+      parameters:
+        type: object
+        required: [spreadsheetId, sheetId, rowIndex]
+        properties:
+          spreadsheetId:
+            type: string
+            description: The ID of the Google Spreadsheet. This should be provided by the user. Can be found in the URL of the spreadsheet. For example, "1bWp1w2OVwH19mkXEiLIaP8As7N-9c_3EXF_Eo5d5Nm0".
+            tags: [recommend-predefined]
+          sheetId:
+            type: integer
+            description: The ID of the specific sheet within the spreadsheet (not the sheet name). Sheet ID is 0 for the first sheet. Can be found in the URL after "gid=". For example, if the URL is "...#gid=123456789", the sheetId is 123456789.
+          rowIndex:
+            type: integer
+            description: The 0-based index of the row to delete. For example, to delete the first row (excluding headers if row 0 is headers), use rowIndex 1. To delete the header row, use rowIndex 0.
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the row was deleted successfully
+          spreadsheetUrl:
+            type: string
+            description: The URL of the updated spreadsheet
+          error:
+            type: string
+            description: The error that occurred if the row was not deleted successfully
     createPresentation:
       description: Create a Google Presentation
       scopes: []
