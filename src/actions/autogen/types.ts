@@ -53,6 +53,7 @@ export enum ActionName {
   GETCHANNELMESSAGES = "getChannelMessages",
   GETCHANNELMEMBERS = "getChannelMembers",
   SEARCHSLACK = "searchSlack",
+  SEARCHSLACKRTS = "searchSlackRTS",
   ADD = "add",
   OVERWRITEPAGE = "overwritePage",
   FETCHPAGECONTENT = "fetchPageContent",

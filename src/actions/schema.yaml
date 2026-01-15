@@ -5966,7 +5966,7 @@ actions:
             type: string
             description: The error that occurred if the sales report was not successfully generated.
     searchAllSalesforceRecords:
-      description: Search for all Salesforce records by keyword
+      description: Search through all Salesforce records by keyword. This works best for searching the content of text fields across all records. For example, searching for any description fields that contain a specific keyword.
       scopes: []
       parameters:
         type: object
@@ -6029,7 +6029,7 @@ actions:
             type: string
             description: The error that occurred if the records were not successfully retrieved
     searchSalesforceRecords:
-      description: Search for Salesforce records by keyword
+      description: Search for Salesforce records by keyword. This works best for searching the content of text fields on a specific object. For example, searching for Case descriptions that mention a specific keyword.
       scopes: []
       parameters:
         type: object
@@ -6096,7 +6096,7 @@ actions:
             type: string
             description: The error that occurred if the records were not successfully retrieved
     getSalesforceRecordsByQuery:
-      description: Retrieve Salesforce records by SOQL query
+      description: Retrieve Salesforce records by SOQL query. This works best for structured queries that depend on specific fields, for example "Find all Opportunities associated with the Acme Account" or "Find all contacts with the last name 'Smith'".
       scopes: []
       parameters:
         type: object
