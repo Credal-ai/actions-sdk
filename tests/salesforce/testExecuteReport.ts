@@ -12,7 +12,6 @@ async function runTest() {
   if (!accessToken || !instanceUrl || !reportId) {
     throw new Error("Missing required environment variables: SALESFORCE_AUTH_TOKEN, SALESFORCE_URL, SALESFORCE_REPORT_ID");
   }
-  console.log("here");
 
   const result = await runAction(
     "executeReport",
