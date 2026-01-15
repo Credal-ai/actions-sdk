@@ -37,6 +37,9 @@ const deleteRowFromSpreadsheet: googleOauthDeleteRowFromSpreadsheetFunction = as
                 sheetId: sheetId,
                 dimension: "ROWS",
                 // startIndex is 0-based, but sheets is 1-based
+                // For example, if the user passes in row 1, they probably want
+                // to delete the first row. The first row is actually 0, so we
+                // subtract 1.
                 startIndex: rowIndex - 1,
                 endIndex: rowIndex,
               },
@@ -51,13 +54,6 @@ const deleteRowFromSpreadsheet: googleOauthDeleteRowFromSpreadsheetFunction = as
         },
       },
     );
-
-    if (response.status < 200 || response.status >= 300) {
-      return {
-        success: false,
-        error: response.data.error,
-      };
-    }
 
     const spreadsheetUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}`;
 
