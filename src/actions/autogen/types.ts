@@ -53,6 +53,7 @@ export enum ActionName {
   GETCHANNELMESSAGES = "getChannelMessages",
   GETCHANNELMEMBERS = "getChannelMembers",
   SEARCHSLACK = "searchSlack",
+  SEARCHSLACKRTS = "searchSlackRTS",
   ADD = "add",
   OVERWRITEPAGE = "overwritePage",
   FETCHPAGECONTENT = "fetchPageContent",
@@ -128,6 +129,7 @@ export enum ActionName {
   CREATECASE = "createCase",
   GENERATESALESREPORT = "generateSalesReport",
   SEARCHALLSALESFORCERECORDS = "searchAllSalesforceRecords",
+  LISTREPORTS = "listReports",
   SEARCHSALESFORCERECORDS = "searchSalesforceRecords",
   GETSALESFORCERECORDSBYQUERY = "getSalesforceRecordsByQuery",
   GETRECORD = "getRecord",
@@ -5156,6 +5158,26 @@ export type salesforceSearchAllSalesforceRecordsFunction = ActionFunction<
   salesforceSearchAllSalesforceRecordsParamsType,
   AuthParamsType,
   salesforceSearchAllSalesforceRecordsOutputType
+>;
+
+export const salesforceListReportsParamsSchema = z.object({});
+
+export type salesforceListReportsParamsType = z.infer<typeof salesforceListReportsParamsSchema>;
+
+export const salesforceListReportsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the reports were successfully retrieved"),
+  reports: z
+    .array(z.object({}).catchall(z.any()).describe("A Salesforce report"))
+    .describe("List of available reports")
+    .optional(),
+  error: z.string().describe("The error that occurred if the reports were not successfully retrieved").optional(),
+});
+
+export type salesforceListReportsOutputType = z.infer<typeof salesforceListReportsOutputSchema>;
+export type salesforceListReportsFunction = ActionFunction<
+  salesforceListReportsParamsType,
+  AuthParamsType,
+  salesforceListReportsOutputType
 >;
 
 export const salesforceSearchSalesforceRecordsParamsSchema = z.object({

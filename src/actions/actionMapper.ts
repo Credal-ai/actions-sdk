@@ -256,6 +256,8 @@ import {
   googleSearchCustomSearchOutputSchema,
   salesforceSearchAllSalesforceRecordsParamsSchema,
   salesforceSearchAllSalesforceRecordsOutputSchema,
+  salesforceListReportsParamsSchema,
+  salesforceListReportsOutputSchema,
   slackSendDmFromBotParamsSchema,
   slackSendDmFromBotOutputSchema,
   slackGetChannelMembersParamsSchema,
@@ -391,6 +393,7 @@ import sendDmFromBot from "./providers/slack/sendDmFromBot.js";
 import getOktaUserByName from "./providers/oktaOrg/getOktaUserByName.js";
 import customSearch from "./providers/googleSearch/customSearch.js";
 import searchAllSalesforceRecords from "./providers/salesforce/searchAllSalesforceRecords.js";
+import listReports from "./providers/salesforce/listReports.js";
 
 type ActionTypeSchema = "read" | "write";
 
@@ -1038,6 +1041,12 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: searchAllSalesforceRecords,
       paramsSchema: salesforceSearchAllSalesforceRecordsParamsSchema,
       outputSchema: salesforceSearchAllSalesforceRecordsOutputSchema,
+      actionType: "read",
+    },
+    listReports: {
+      fn: listReports,
+      paramsSchema: salesforceListReportsParamsSchema,
+      outputSchema: salesforceListReportsOutputSchema,
       actionType: "read",
     },
     getSalesforceRecordsByQuery: {
