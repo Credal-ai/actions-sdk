@@ -27,7 +27,7 @@ const deleteRowFromSpreadsheet: googleOauthDeleteRowFromSpreadsheetFunction = as
   const batchUpdateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`;
 
   try {
-    const response = await axiosClient.post(
+    await axiosClient.post(
       batchUpdateUrl,
       {
         requests: [
