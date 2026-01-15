@@ -1,6 +1,7 @@
 actions:
   generic:
     fillTemplate:
+      displayName: Fill a template
       description: Simple utility that takes a template and returns it filled in
       scopes: []
       parameters:
@@ -19,6 +20,7 @@ actions:
             description: The template string returned filled in
   perplexity:
     perplexityDeepResearch:
+      displayName: Perplexity Deep Research
       description: Performs deep research using Perplexity AI
       scopes: []
       parameters:
@@ -75,6 +77,7 @@ actions:
                 type: number
   asana:
     commentTask:
+      displayName: Comment on a task
       description: Comments on an Asana task with specified content
       scopes: []
       parameters:
@@ -104,6 +107,7 @@ actions:
             type: string
             description: The url to the created comment
     listAsanaTasksByProject:
+      displayName: List Asana Tasks by project
       description: List all tasks associated with an Asana project and their data
       scopes: []
       parameters:
@@ -216,6 +220,7 @@ actions:
                           resource_type:
                             type: string
     createTask:
+      displayName: Create task
       description: Create an Asana task with specified content using optional template
       scopes: []
       parameters:
@@ -262,6 +267,7 @@ actions:
             type: string
             description: The url to the created Asana task
     updateTask:
+      displayName: Update task
       description: Updates a Asana task with specified content
       scopes: []
       parameters:
@@ -307,6 +313,7 @@ actions:
             type: string
             description: The url to the updated Asana task
     searchTasks:
+      displayName: Search tasks
       description: List all tasks associated with search query
       scopes: []
       parameters:
@@ -343,6 +350,7 @@ actions:
                 workspaceId:
                   type: string
     getTasksDetails:
+      displayName: Get details of tasks
       description: Retrieve detailed information (assignee, comments, description, title, etc.) for a list of task IDs
       scopes: []
       parameters:
@@ -405,6 +413,7 @@ actions:
                         type: string
   slack:
     sendDmFromBot:
+      displayName: Send DM from bot
       description: Sends a direct message to a user on Slack using a bot
       scopes:
         - users:read
@@ -440,6 +449,7 @@ actions:
             type: string
             description: The permalink to the sent message
     createChannel:
+      displayName: Create a channel
       description: Creates a new Slack channel using a bot token
       scopes:
         - channels:manage
@@ -470,6 +480,7 @@ actions:
             type: string
             description: The error that occurred if the channel was not created successfully
     sendMessage:
+      displayName: Send a message
       description: Sends a message to a Slack channel
       scopes:
         - chat:write
@@ -500,6 +511,7 @@ actions:
             type: string
             description: The ID of the message that was sent
     getChannelMessages:
+      displayName: Get messages in a channel
       description: Gets messages from a Slack channel
       scopes:
         - channels:history
@@ -556,6 +568,7 @@ actions:
             type: string
             description: Cursor to use for fetching the next page of results. Only present when hasMore is true.
     getChannelMembers:
+      displayName: Get members of a channel
       description: Gets the members of a Slack channel
       scopes:
         - channels:read
@@ -591,6 +604,7 @@ actions:
                   type: string
   slackUser:
     searchSlack:
+      displayName: Search Slack
       description: Search Slack (DM/MPIM by emails or channel) with optional topic/time filter. Automatically hydrates each hit (full thread if threaded, otherwise a small surrounding context).
       scopes:
         - search:read
@@ -752,6 +766,7 @@ actions:
                 type: string
                 description: The email of the current user
     searchSlackRTS:
+      displayName: Search Slack with Real-Time Search
       description: Search Slack messages across your organization using Slack's Real-Time Search API (assistant.search.context). Searches all conversations within the scope of permissions granted and returns relevant messages with content, author info, and permalinks.
       scopes:
         - im:history
@@ -875,6 +890,7 @@ actions:
                       description: Permalink URL to the file in Slack.
   math:
     add:
+      displayName: Add numbers
       description: Adds two numbers together
       scopes: []
       parameters:
@@ -897,6 +913,7 @@ actions:
 
   confluence:
     overwritePage:
+      displayName: Overwrite a page
       description: Updates a Confluence page with the new content specified
       scopes: []
       parameters:
@@ -923,6 +940,7 @@ actions:
             type: string
             description: The error that occurred if the page was not successfully updated
     fetchPageContent:
+      displayName: Fetch page content
       description: Fetches content from a Confluence page
       scopes: []
       parameters:
@@ -956,6 +974,7 @@ actions:
                 description: The content of the page in storage format (HTML)
   jira: &jira
     assignJiraTicket:
+      displayName: Assign a Jira ticket
       description: Assigns/Reassigns a Jira ticket to a specified user
       scopes:
         - write:jira-work
@@ -988,6 +1007,7 @@ actions:
             type: string
             description: The url to the newly assigned/reassigned Jira ticket
     publicCommentOnServiceDeskRequest:
+      displayName: Publicly comment on a service desk request
       description: Comments publicly on a Jira service desk request with specified content
       scopes:
         - write:comment:jira
@@ -1015,6 +1035,7 @@ actions:
             type: string
             description: The url to the created Jira comment
     commentJiraTicket:
+      displayName: Comment on a Jira ticket
       description: Comments on a Jira ticket with specified content
       scopes:
         - write:comment:jira
@@ -1046,6 +1067,7 @@ actions:
             type: string
             description: The url to the created Jira comment
     createJiraTicket:
+      displayName: Create a Jira ticket
       description: Create a jira ticket with new content specified
       scopes: []
       parameters:
@@ -1092,6 +1114,7 @@ actions:
             type: string
             description: Error message if the ticket creation failed (only present if success is false)
     createServiceDeskRequest:
+      displayName: Create a service desk request
       description: Create a jira service desk request with specified content
       scopes: []
       parameters:
@@ -1133,6 +1156,7 @@ actions:
             type: string
             description: The current status of the created request
     getJiraTicketDetails:
+      displayName: Get Jira ticket details
       description: Get details of a ticket in Jira
       scopes:
         - read:jira-work
@@ -1174,6 +1198,7 @@ actions:
                   type: object
                   description: The data of the Jira ticket
     getJiraTicketHistory:
+      displayName: Get Jira ticket history
       description: Get ticket history of a ticket in Jira
       scopes:
         - read:jira-work
@@ -1202,6 +1227,7 @@ actions:
             type: array
             description: The history data of the Jira ticket
     updateJiraTicketDetails:
+      displayName: Update Jira ticket details
       description: Update a Jira ticket with new content specified
       scopes:
         - write:jira-work
@@ -1246,6 +1272,7 @@ actions:
             type: string
             description: Error message if the ticket update failed (only present if success is false)
     updateJiraTicketStatus:
+      displayName: Update Jira ticket status
       description: Updates the status of Jira ticket with specified status
       scopes:
         - read:jira-work
@@ -1278,6 +1305,7 @@ actions:
             type: string
             description: The url to the Jira ticket
     getJiraIssuesByQuery:
+      displayName: Get Jira issues with a query
       description: Retrieve Jira Issues by JQL query
       scopes: []
       parameters:
@@ -1428,6 +1456,7 @@ actions:
 
   googlemaps:
     validateAddress:
+      displayName: Validate an address
       description: Validate an address using the Google Maps API
       scopes: []
       parameters:
@@ -1544,6 +1573,7 @@ actions:
                 type: string
                 description: The level of precision for the USPS address.
     nearbysearchRestaurants:
+      displayName: Search for nearby places
       description: Search for nearby places using Google Maps
       scopes: []
       parameters:
@@ -1592,7 +1622,8 @@ actions:
                   description: The website URI of the place
   bing:
     getTopNSearchResultUrls:
-      description: Get the top five search result URLs from Bing
+      displayName: Get top search result URLs
+      description: Get the top search result URLs from Bing
       scopes: []
       parameters:
         type: object
@@ -1625,6 +1656,7 @@ actions:
                   description: The URL of the search result
   zendesk:
     createZendeskTicket:
+      displayName: Create a Zendesk ticket
       description: Create a ticket in Zendesk
       scopes: []
       parameters:
@@ -1655,6 +1687,7 @@ actions:
             type: string
             description: The URL of the ticket created
     listZendeskTickets:
+      displayName: List Zendesk tickets
       description: List tickets in Zendesk from the past 3 months
       scopes: []
       parameters:
@@ -1681,6 +1714,7 @@ actions:
             type: number
             description: Number of tickets found
     getTicketDetails:
+      displayName: Get ticket details
       description: Get details of a ticket in Zendesk
       scopes: []
       parameters:
@@ -1703,6 +1737,7 @@ actions:
             type: object
             description: The details of the ticket
     updateTicketStatus:
+      displayName: Update ticket status
       description: Update the status of a ticket in Zendesk
       scopes: []
       parameters:
@@ -1720,6 +1755,7 @@ actions:
             type: string
             description: The state of the ticket. If your account has activated custom ticket statuses, this is the ticket's status category. Allowed values are "new", "open", "pending", "hold", "solved", or "closed".
     addCommentToTicket:
+      displayName: Add comment to ticket
       description: Add a comment to a ticket in Zendesk
       scopes: []
       parameters:
@@ -1750,6 +1786,7 @@ actions:
             type: string
             description: The URL to view the ticket
     assignTicket:
+      displayName: Assign a ticket
       description: Assign a ticket in Zendesk to a specific user
       scopes: []
       parameters:
@@ -1767,6 +1804,7 @@ actions:
             type: string
             description: The email address of the agent to assign the ticket to
     searchZendeskByQuery:
+      displayName: Search Zendesk with a query
       description: Search Zendesk objects by query with flexible filtering options
       scopes: []
       parameters:
@@ -1801,7 +1839,8 @@ actions:
             description: Number of objects found
   linkedin:
     createShareLinkedinPostUrl:
-      description: Create a share linkedin post link
+      displayName: Create a share LinkedIn post URL
+      description: Create a share LinkedIn post link
       scopes: []
       parameters:
         type: object
@@ -1823,6 +1862,7 @@ actions:
 
   x:
     createShareXPostUrl:
+      displayName: Create a share X post URL
       description: Create a share X (formerly twitter) post link
       scopes: []
       parameters:
@@ -1856,6 +1896,7 @@ actions:
 
   mongo:
     insertMongoDoc:
+      displayName: Insert a Mongo document
       description: Insert a document into a MongoDB collection
       scopes: []
       parameters:
@@ -1881,6 +1922,7 @@ actions:
 
   snowflake:
     getRowByFieldValue:
+      displayName: Get a row by field value
       description: Get a row from a Snowflake table by a field value
       scopes: []
       parameters:
@@ -1920,6 +1962,7 @@ actions:
                 type: object
                 description: The contents of the row
     runSnowflakeQuery:
+      displayName: Run a Snowflake query
       description: Execute a Snowflake query and return output.
       scopes: []
       parameters:
@@ -1976,6 +2019,7 @@ actions:
             description: The error that occurred if the query results failed or were limited
   openstreetmap:
     getLatitudeLongitudeFromLocation:
+      displayName: Get latitude and longitude from location
       description: Get the latitude and longitude of a location
       scopes: []
       parameters:
@@ -2007,6 +2051,7 @@ actions:
                   description: The display name of the location
   nws:
     getForecastForLocation:
+      displayName: Get forecast for location
       description: Get the weather forecast for a location using latitude and longitude
       scopes: []
       parameters:
@@ -2041,6 +2086,7 @@ actions:
                 description: The forecast for the location
   firecrawl:
     deepResearch:
+      displayName: Deep Research
       description: Deep research on a topic using Firecrawl
       scopes: []
       parameters:
@@ -2084,6 +2130,7 @@ actions:
                   description: The description of the source
 
     scrapeUrl:
+      displayName: Scrape URL
       description: Scrape a URL and get website content using Firecrawl
       scopes: []
       parameters:
@@ -2133,6 +2180,7 @@ actions:
                   type: string
                   description: The content of the URL
     searchAndScrape:
+      displayName: Search and scrape
       description: Search and scrape the web using Firecrawl
       scopes: []
       parameters:
@@ -2169,6 +2217,7 @@ actions:
                   type: string
                   description: The contents of the result
     getTopNSearchResultUrls:
+      displayName: Get top search result URLs
       description: Get the top five search result URLs from Firecrawl
       scopes: []
       parameters:
@@ -2202,7 +2251,8 @@ actions:
                   description: The URL of the search result
 
     scrapeTweetDataWithNitter:
-      description: Given A tweet URL scrape the tweet data with nitter+firecrawl
+      displayName: Scrape tweet data with nitter
+      description: Given a tweet URL, scrape the tweet data with nitter+firecrawl
       scopes: []
       parameters:
         type: object
@@ -2220,6 +2270,7 @@ actions:
             description: The text in the tweet URL
   resend:
     sendEmail:
+      displayName: Send an email
       description: Send an email using Resend
       scopes: []
       parameters:
@@ -2246,6 +2297,7 @@ actions:
             type: string
             description: The error that occurred if the email was not sent successfully
     sendEmailHtml:
+      displayName: Send an HTML email
       description: Send an HTML email using Resend
       scopes: []
       parameters:
@@ -2274,6 +2326,7 @@ actions:
 
   googleOauth:
     createNewGoogleDoc:
+      displayName: Create a new Google Doc
       description: Create a new Google Docs document using OAuth authentication
       scopes: []
       parameters:
@@ -2300,6 +2353,7 @@ actions:
             type: string
             description: The URL to access the created Google Doc
     updateDoc:
+      displayName: Update a Google Doc
       description: Update an existing Google Docs document using OAuth authentication with batch requests
       scopes: []
       parameters:
@@ -3083,7 +3137,8 @@ actions:
             type: string
             description: The error message if the update failed
     scheduleCalendarMeeting:
-      description: Schedule a meeting on google calendar using OAuth authentication
+      displayName: Schedule a Calendar meeting
+      description: Schedule a meeting on Google Calendar using OAuth authentication
       scopes: []
       parameters:
         type: object
@@ -3169,6 +3224,7 @@ actions:
             type: string
             description: The error that occurred if the meeting was not scheduled successfully
     listCalendars:
+      displayName: List calendars
       description: List all Google Calendars for the authenticated user
       scopes: [https://www.googleapis.com/auth/calendar.readonly]
       parameters:
@@ -3202,6 +3258,7 @@ actions:
             type: string
             description: Error message if listing failed
     listCalendarEvents:
+      displayName: List Calendar events
       description: List events on a Google Calendar, optionally searching by query.
       scopes: [https://www.googleapis.com/auth/calendar.readonly]
       parameters:
@@ -3333,6 +3390,7 @@ actions:
             type: string
             description: Error message if listing failed
     updateCalendarEvent:
+      displayName: Update a Calendar event
       description: Update an event on a Google Calendar using OAuth authentication
       scopes: [https://www.googleapis.com/auth/calendar]
       parameters:
@@ -3404,6 +3462,7 @@ actions:
             type: string
             description: The error that occurred if the event was not updated successfully
     editAGoogleCalendarEvent:
+      displayName: Edit a Google Calendar event
       description: Edit an existing Google Calendar event using OAuth authentication
       scopes: [https://www.googleapis.com/auth/calendar]
       parameters:
@@ -3474,6 +3533,7 @@ actions:
             type: string
             description: The error that occurred if the event was not edited successfully
     deleteCalendarEvent:
+      displayName: Delete a Calendar event
       description: Delete an event from a Google Calendar using OAuth authentication
       scopes: [https://www.googleapis.com/auth/calendar]
       parameters:
@@ -3498,6 +3558,7 @@ actions:
             type: string
             description: The error that occurred if the event was not deleted successfully
     createSpreadsheet:
+      displayName: Create a spreadsheet
       description: Create a new Google Spreadsheet using OAuth authentication
       scopes: []
       parameters:
@@ -3577,6 +3638,7 @@ actions:
             type: string
             description: The error that occurred if the spreadsheet was not created successfully
     updateSpreadsheet:
+      displayName: Update a spreadsheet
       description: Update a Google Spreadsheet with new content specified
       scopes: []
       parameters:
@@ -3843,6 +3905,7 @@ actions:
             type: string
             description: The error that occurred if the spreadsheet was not updated successfully
     appendRowsToSpreadsheet:
+      displayName: Append rows to a spreadsheet
       description: Adds new cells after the last row with data in a sheet, inserting new rows into the sheet if necessary.
       scopes: []
       parameters:
@@ -3883,6 +3946,7 @@ actions:
             type: string
             description: The error that occurred if the spreadsheet was not updated successfully
     deleteRowFromSpreadsheet:
+      displayName: Delete a row from a spreadsheet
       description: Deletes a specific row from a Google Spreadsheet by row index. Row indices are 0-based (first row is 0).
       scopes: []
       parameters:
@@ -3918,6 +3982,7 @@ actions:
             type: string
             description: The error that occurred if the row was not deleted successfully
     createPresentation:
+      displayName: Create a presentation
       description: Create a Google Presentation
       scopes: []
       parameters:
@@ -3969,6 +4034,7 @@ actions:
             type: string
             description: The URL of the created presentation
     updatePresentation:
+      displayName: Update a presentation
       description: Update a Google Presentation
       scopes: []
       parameters:
@@ -4850,6 +4916,7 @@ actions:
             type: string
             description: The URL of the created presentation
     getPresentation:
+      displayName: Get a presentation
       description: Get a presentation by ID
       scopes: [slides.readonly]
       parameters:
@@ -4889,6 +4956,7 @@ actions:
                         text: string
                         styling: string
     searchDriveByKeywords:
+      displayName: Search Drive by keywords
       description: Search Google Drive files that contain one or more keywords in their full text.
       scopes: [drive.readonly]
       parameters:
@@ -4936,6 +5004,7 @@ actions:
             type: string
             description: Error message if search failed
     searchDriveByQuery:
+      displayName: Search Drive with a query
       description: Search Google Drive files based on a google drive query provided.
       scopes: [drive.readonly]
       parameters:
@@ -4987,6 +5056,7 @@ actions:
             type: string
             description: Error message if search failed
     searchDriveByKeywordsAndGetFileContent:
+      displayName: Search Drive by keywords and get file contents
       description: Search Google Drive with keywords and get resulting content
       scopes: [drive.readonly]
       parameters:
@@ -5058,6 +5128,7 @@ actions:
             description: Error message if search failed
 
     searchDriveByQueryAndGetFileContent:
+      displayName: Search Drive with a query and get file contents
       description: Search Google Drive with Google Drive query syntax and get resulting content
       scopes: [drive.readonly]
       parameters:
@@ -5117,6 +5188,7 @@ actions:
             type: string
             description: Error message if search failed
     getDriveFileContentById:
+      displayName: Get Drive File contents by ID
       description: Get text content of a Google Drive file by its ID.
       scopes: [drive.readonly]
       parameters:
@@ -5172,6 +5244,7 @@ actions:
             type: string
             description: Error message if file content retrieval failed
     listGroups:
+      displayName: List Groups
       description: List all Google Groups for the customer.
       scopes:
         - https://www.googleapis.com/auth/admin.directory.group.readonly
@@ -5212,6 +5285,7 @@ actions:
             type: string
             description: The error that occurred if the groups could not be listed
     getGroup:
+      displayName: Get a Group
       description: Get details for a specific Google Group by group email or ID.
       scopes:
         - https://www.googleapis.com/auth/admin.directory.group.readonly
@@ -5249,6 +5323,7 @@ actions:
             type: string
             description: The error that occurred if the group could not be retrieved
     listGroupMembers:
+      displayName: List Group members
       description: List all members of a Google Group.
       scopes:
         - https://www.googleapis.com/auth/admin.directory.group.member.readonly
@@ -5292,6 +5367,7 @@ actions:
             type: string
             description: The error that occurred if the members could not be listed
     hasGroupMember:
+      displayName: Check if a user is a Group member
       description: Check if a user is a member of a Google Group.
       scopes:
         - https://www.googleapis.com/auth/admin.directory.group.member.readonly
@@ -5319,6 +5395,7 @@ actions:
             type: string
             description: The error that occurred if the check could not be performed
     addGroupMember:
+      displayName: Add a Group member
       description: Add a member to a Google Group.
       scopes:
         - https://www.googleapis.com/auth/admin.directory.group.member
@@ -5346,6 +5423,7 @@ actions:
             type: string
             description: The error that occurred if the member could not be added
     deleteGroupMember:
+      displayName: Delete a Group member
       description: Remove a member from a Google Group.
       scopes:
         - https://www.googleapis.com/auth/admin.directory.group.member
@@ -5370,6 +5448,7 @@ actions:
             type: string
             description: The error that occurred if the member could not be removed
     queryGoogleBigQuery:
+      displayName: Query Google BigQuery
       description: Execute read only SQL queries on Google BigQuery datasets
       scopes:
         - https://www.googleapis.com/auth/bigquery.readonly
@@ -5428,6 +5507,7 @@ actions:
             description: Error message if query failed
   googlemail:
     searchGmailMessages:
+      displayName: Search Gmail messages
       description: Search Gmail messages in a user's inbox using a query string.
       scopes:
         - https://www.googleapis.com/auth/gmail.readonly
@@ -5512,6 +5592,7 @@ actions:
                       type: string
                       description: Error message if search failed
     listGmailThreads:
+      displayName: List Gmail threads
       description: List Gmail threads in a user's inbox using a query string.
       scopes:
         - https://www.googleapis.com/auth/gmail.readonly
@@ -5569,6 +5650,7 @@ actions:
             type: string
             description: Error message if search failed
     sendGmail:
+      displayName: Send email with Gmail
       description: Send an email through Gmail with support for to, cc, bcc, subject, and content.
       scopes:
         - https://www.googleapis.com/auth/gmail.send
@@ -5615,6 +5697,7 @@ actions:
             description: Error message if sending failed
   googleSearch:
     customSearch:
+      displayName: Custom Search
       description: Search for information using the Google Custom Search API
       scopes: []
       parameters:
@@ -5693,6 +5776,7 @@ actions:
             description: Error message if search failed
   oktaOrg:
     getOktaUserByName:
+      displayName: Get Okta User by name
       description: Retrieve details of a specific Okta user by their name.
       scopes:
         - okta.users.read
@@ -5736,6 +5820,7 @@ actions:
             description: Error message if retrieval failed.
   finnhub:
     symbolLookup:
+      displayName: Look up a stock symbol
       description: Look up a stock symbol by name
       scopes: []
       parameters:
@@ -5763,6 +5848,7 @@ actions:
                   type: string
                   description: The description of the stock
     getBasicFinancials:
+      displayName: Get basic financials
       description: Get company basic financials such as margin, P/E ratio, 52-week high/low etc.
       scopes: []
       parameters:
@@ -5828,6 +5914,7 @@ actions:
                             description: The value of the financial metric
   looker:
     enableUserByEmail:
+      displayName: Enable user by email
       description: Search for a Looker user by email and enable them if disabled
       scopes: []
       parameters:
@@ -5872,6 +5959,7 @@ actions:
                 description: Whether the user is disabled
   salesforce:
     updateRecord:
+      displayName: Update a record
       description: Update a record in Salesforce
       scopes: []
       parameters:
@@ -5900,6 +5988,7 @@ actions:
             type: string
             description: The error that occurred if the record was not successfully updated
     createRecord:
+      displayName: Create a record
       description: Create a record in Salesforce
       scopes: []
       parameters:
@@ -5928,6 +6017,7 @@ actions:
             type: string
             description: The error that occurred if the record was not successfully created
     createCase:
+      displayName: Create a case
       description: Create a case or support ticket in Salesforce
       scopes: []
       parameters:
@@ -5965,6 +6055,7 @@ actions:
             type: string
             description: The error that occurred if the case was not successfully created
     generateSalesReport:
+      displayName: Generate a sales report
       description: Generate a sales report from Salesforce
       scopes: []
       parameters:
@@ -6001,6 +6092,7 @@ actions:
             type: string
             description: The error that occurred if the sales report was not successfully generated.
     searchAllSalesforceRecords:
+      displayName: Search all salesforce records
       description: Search for all Salesforce records by keyword
       scopes: []
       parameters:
@@ -6064,6 +6156,7 @@ actions:
             type: string
             description: The error that occurred if the records were not successfully retrieved
     listReports:
+      displayName: List reports
       description: List all available Salesforce reports
       scopes: []
       parameters:
@@ -6087,6 +6180,7 @@ actions:
             type: string
             description: The error that occurred if the reports were not successfully retrieved
     searchSalesforceRecords:
+      displayName: Search Salesforce records
       description: Search for Salesforce records by keyword
       scopes: []
       parameters:
@@ -6154,6 +6248,7 @@ actions:
             type: string
             description: The error that occurred if the records were not successfully retrieved
     getSalesforceRecordsByQuery:
+      displayName: Get Salesforce records with a query
       description: Retrieve Salesforce records by SOQL query
       scopes: []
       parameters:
@@ -6192,6 +6287,7 @@ actions:
             type: string
             description: The error that occurred if the records were not successfully retrieved
     getRecord:
+      displayName: Get a record
       description: Retrieve a record from Salesforce
       scopes: []
       parameters:
@@ -6221,6 +6317,7 @@ actions:
             description: The error that occurred if the record was not successfully retrieved
   microsoft:
     createDocument:
+      displayName: Create a document
       description: Creates a new Office365 document
       scopes: [Files.ReadWrite, Sites.Manage.All, Sites.ReadWrite.All]
       parameters:
@@ -6259,6 +6356,7 @@ actions:
             type: string
             description: The error that occurred if the document was not created successfully
     updateDocument:
+      displayName: Update a document
       description: Updates a Office365 document
       scopes: [Files.ReadWrite, Sites.ReadWrite.All]
       parameters:
@@ -6288,6 +6386,7 @@ actions:
             type: string
             description: The URL to access the updated document
     updateSpreadsheet:
+      displayName: Update a spreadsheet
       description: Updates a Microsoft Excel spreadsheet
       scopes: [Files.ReadWrite, Sites.ReadWrite.All]
       parameters:
@@ -6324,6 +6423,7 @@ actions:
             type: string
             description: The range that was updated in the spreadsheet
     messageTeamsChat:
+      displayName: Message a Teams chat
       description: Sends a message to a Microsoft Teams chat
       scopes: [ChatMessage.Send]
       parameters:
@@ -6350,6 +6450,7 @@ actions:
             type: string
             description: The ID of the message that was sent
     messageTeamsChannel:
+      displayName: Message a Teams channel
       description: Sends a message to a Microsoft Teams channel
       scopes: [ChannelMessage.Send]
       parameters:
@@ -6379,6 +6480,7 @@ actions:
             type: string
             description: The ID of the message that was sent
     getDocument:
+      displayName: Get a document
       description: Retrieves the content of a Microsoft Office document
       scopes: [Files.ReadWrite, Sites.ReadWrite.All]
       parameters:
@@ -6406,6 +6508,7 @@ actions:
             description: The error that occurred if the document was not successfully retrieved
   github:
     createOrUpdateFile:
+      displayName: Create or update a file
       description: Create or update a file in a GitHub repository
       scopes: []
       parameters:
@@ -6453,6 +6556,7 @@ actions:
             description: Indicates whether the file was created or updated
             enum: [created, updated]
     createBranch:
+      displayName: Create a branch
       description: Create a new branch in a GitHub repository
       scopes: []
       parameters:
@@ -6484,6 +6588,7 @@ actions:
             type: string
             description: The error that occurred if the branch was not created successfully
     createPullRequest:
+      displayName: Create a pull request
       description: Create a pull request in a GitHub repository
       scopes: []
       parameters:
@@ -6527,6 +6632,7 @@ actions:
             type: number
             description: The number of the created pull request
     listPullRequests:
+      displayName: List pull requests
       description: List pull requests in a GitHub repository
       scopes: []
       parameters:
@@ -6597,6 +6703,7 @@ actions:
                       type: string
                       description: The description of the pull request
     getPullRequestDetails:
+      displayName: Get pull request details
       description: Get detailed information about a specific pull request including description, files, reviews, and status
       scopes: []
       parameters:
@@ -6799,6 +6906,7 @@ actions:
                     description: The due date of the milestone
                     nullable: true
     getFileContent:
+      displayName: Get contents of a file
       description: Get specified file content from a GitHub repository
       scopes: []
       parameters:
@@ -6854,6 +6962,7 @@ actions:
                       type: string
                       description: The URL of the file in the Github UI
     listDirectory:
+      displayName: List contents of a directory
       description: List directory contents of a path in a GitHub repository
       scopes: []
       parameters:
@@ -6909,6 +7018,7 @@ actions:
                       type: number
                       description: The size of the file in bytes
     searchOrganization:
+      displayName: Search an organization
       description: Search for code, issues and pull requests within a GitHub organization
       scopes: []
       parameters:
@@ -7118,6 +7228,7 @@ actions:
                                 type: string
                                 description: Diff patch content (truncated).
     getBranch:
+      displayName: Get a branch
       description: Get a branch in a GitHub repository
       scopes: []
       parameters:
@@ -7298,6 +7409,7 @@ actions:
                 type: string
                 description: The URL of the branch protection settings
     listCommits:
+      displayName: List commits
       description: List commits in a GitHub repository with optional date filtering and pagination
       scopes: []
       parameters:
@@ -7434,6 +7546,7 @@ actions:
 
   notion:
     searchByTitle:
+      displayName: Search by title
       description: Search Notion pages and databases by title
       scopes: []
       parameters:
@@ -7472,6 +7585,7 @@ actions:
             description: Error message if search failed
   gitlab:
     searchGroup:
+      displayName: Search a group
       description: Searches gitlab for details about a query. This will return a list of merge requests and blobs that match the query.
       scopes: []
       parameters:
@@ -7677,6 +7791,7 @@ actions:
                                 type: string
                                 description: The diff contents for the file
     getFileContent:
+      displayName: Get file content
       description: Get specified file content from a GitLab repository
       scopes: []
       parameters:
@@ -7733,6 +7848,7 @@ actions:
                       type: string
                       description: The URL of the file in the GitLab UI
     getMergeRequest:
+      displayName: Get merge request
       description: Get specified merge request from a GitLab repository
       scopes: []
       parameters:
@@ -7899,6 +8015,7 @@ actions:
                         type: string
                         description: The date/time the commit was created
     listDirectory:
+      displayName: List contents of a directory
       description: List directory contents of a path in a GitLab repository
       scopes: []
       parameters:
@@ -7964,6 +8081,7 @@ actions:
                       description: The URL of the file or folder in the GitLab UI
   linear:
     getIssues:
+      displayName: Get issues
       description: Get Linear issues with optional query filter
       scopes: []
       parameters:
@@ -8055,6 +8173,7 @@ actions:
                         type: string
                         description: The comment content
     getIssueDetails:
+      displayName: Get issue details
       description: Get detailed information about a Linear issue
       scopes: []
       parameters:
@@ -8169,6 +8288,7 @@ actions:
                 type: string
                 description: The issue content
     getProjects:
+      displayName: Get projects
       description: Get all Linear projects
       scopes: []
       parameters:
@@ -8238,6 +8358,7 @@ actions:
                   type: string
                   description: The project URL
     getProjectDetails:
+      displayName: Get project details
       description: Get detailed information about a Linear project
       scopes: []
       parameters:
@@ -8342,6 +8463,7 @@ actions:
                 type: string
                 description: The project content
     getTeamDetails:
+      displayName: Get team details
       description: Get detailed information about a Linear team
       scopes: []
       parameters:
@@ -8387,6 +8509,7 @@ actions:
                     email:
                       type: string
     getTeams:
+      displayName: Get teams
       description: Get all teams in Linear
       scopes: []
       parameters:
@@ -8417,6 +8540,7 @@ actions:
                   description: The team name
   hubspot:
     getContacts:
+      displayName: Get contacts
       description: List or search HubSpot contacts by optional query
       scopes: [oauth crm.objects.contacts.read]
       parameters:
@@ -8461,6 +8585,7 @@ actions:
                   type: string
                   description: When the contact was created
     getContactDetails:
+      displayName: Get details of a contact
       description: Get detailed information about a specific HubSpot contact
       scopes: [oauth crm.objects.contacts.read]
       parameters:
@@ -8533,6 +8658,7 @@ actions:
                 type: boolean
                 description: Whether the contact is archived
     getCompanies:
+      displayName: Get companies
       description: List or search HubSpot companies by optional query
       scopes: [oauth crm.objects.companies.read]
       parameters:
@@ -8574,6 +8700,7 @@ actions:
                   type: string
                   description: When the company was created
     getCompanyDetails:
+      displayName: Get details of a company
       description: Get detailed information about a specific HubSpot company
       scopes: [oauth crm.objects.companies.read]
       parameters:
@@ -8640,6 +8767,7 @@ actions:
                 type: boolean
                 description: Whether the company is archived
     getDeals:
+      displayName: Get deals
       description: List or search HubSpot deals by optional query
       scopes: [oauth crm.objects.deals.read]
       parameters:
@@ -8684,6 +8812,7 @@ actions:
                   type: string
                   description: When the deal was created
     getDealDetails:
+      displayName: Get details of a deal
       description: Get detailed information about a specific HubSpot deal
       scopes: [oauth crm.objects.deals.read]
       parameters:
@@ -8744,6 +8873,7 @@ actions:
                 type: boolean
                 description: Whether the deal is archived
     getTickets:
+      displayName: Get tickets
       description: List or search HubSpot tickets by optional query
       scopes: [oauth crm.objects.tickets.read]
       parameters:
@@ -8785,6 +8915,7 @@ actions:
                   type: string
                   description: When the ticket was created
     getTicketDetails:
+      displayName: Get details of a ticket
       description: Get detailed information about a specific HubSpot ticket
       scopes: [oauth crm.objects.tickets.read]
       parameters:
