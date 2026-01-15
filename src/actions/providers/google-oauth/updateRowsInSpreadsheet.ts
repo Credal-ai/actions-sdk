@@ -50,13 +50,6 @@ const updateRowsInSpreadsheet: googleOauthUpdateRowsInSpreadsheetFunction = asyn
       },
     );
 
-    if (response.status < 200 || response.status >= 300) {
-      return {
-        success: false,
-        error: response.data.error,
-      };
-    }
-
     const spreadsheetUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}`;
 
     return {
