@@ -131,6 +131,7 @@ export enum ActionName {
   GENERATESALESREPORT = "generateSalesReport",
   SEARCHALLSALESFORCERECORDS = "searchAllSalesforceRecords",
   LISTREPORTS = "listReports",
+  EXECUTEREPORT = "executeReport",
   SEARCHSALESFORCERECORDS = "searchSalesforceRecords",
   GETSALESFORCERECORDSBYQUERY = "getSalesforceRecordsByQuery",
   GETRECORD = "getRecord",
@@ -5220,6 +5221,234 @@ export type salesforceListReportsFunction = ActionFunction<
   salesforceListReportsParamsType,
   AuthParamsType,
   salesforceListReportsOutputType
+>;
+
+export const salesforceExecuteReportParamsSchema = z.object({
+  reportId: z.string().describe("Id for the report to execute"),
+  includeDetails: z.boolean().describe("Whether to include detailed report metadata in the response").optional(),
+});
+
+export type salesforceExecuteReportParamsType = z.infer<typeof salesforceExecuteReportParamsSchema>;
+
+export const salesforceExecuteReportOutputSchema = z.object({
+  success: z.boolean().describe("Whether the report was successfully executed"),
+  reportResults: z
+    .object({
+      attributes: z
+        .object({
+          describeUrl: z.string().describe("URL to describe the report").optional(),
+          instancesUrl: z.string().describe("URL to get report instances").optional(),
+          reportId: z.string().describe("The unique identifier for the report").optional(),
+          reportName: z.string().describe("The name of the report").optional(),
+          type: z.string().describe('The type of the resource (e.g., "Report")').optional(),
+        })
+        .describe("Attributes associated with the report")
+        .optional(),
+      allData: z.boolean().describe("Whether all data is included in the response").optional(),
+      factMap: z
+        .record(
+          z.object({
+            aggregates: z
+              .array(
+                z.object({
+                  label: z.string().describe("Display label for the aggregate").optional(),
+                  value: z.any().describe("The aggregate value (can be number, string, or null)").optional(),
+                }),
+              )
+              .describe("Aggregate values for this grouping")
+              .optional(),
+            rows: z
+              .array(
+                z.object({
+                  dataCells: z
+                    .array(
+                      z.object({
+                        label: z.string().describe("Display label for the cell").optional(),
+                        value: z.any().describe("The cell value (can be string, number, object, or null)").optional(),
+                      }),
+                    )
+                    .describe("Data cells in the row")
+                    .optional(),
+                }),
+              )
+              .describe("Detail rows for this grouping")
+              .optional(),
+          }),
+        )
+        .describe("Map of fact data organized by grouping keys")
+        .optional(),
+      groupingsAcross: z
+        .object({
+          groupings: z
+            .array(
+              z.object({
+                groupings: z.array(z.object({}).catchall(z.any())).describe("Nested groupings").optional(),
+                key: z.string().describe("Unique key for this grouping").optional(),
+                label: z.string().describe("Display label for this grouping").optional(),
+                value: z.any().describe("The grouping value").optional(),
+              }),
+            )
+            .describe("Array of grouping levels")
+            .optional(),
+        })
+        .describe("Column groupings for matrix reports")
+        .optional(),
+      groupingsDown: z
+        .object({
+          groupings: z
+            .array(
+              z.object({
+                groupings: z.array(z.object({}).catchall(z.any())).describe("Nested groupings").optional(),
+                key: z.string().describe("Unique key for this grouping").optional(),
+                label: z.string().describe("Display label for this grouping").optional(),
+                value: z.any().describe("The grouping value").optional(),
+              }),
+            )
+            .describe("Array of grouping levels")
+            .optional(),
+        })
+        .describe("Row groupings for matrix reports")
+        .optional(),
+      hasDetailRows: z.boolean().describe("Whether the report includes detail rows").optional(),
+      reportExtendedMetadata: z
+        .object({
+          aggregateColumnInfo: z
+            .record(
+              z.object({
+                acrossGroupingContext: z.any().describe("Across grouping context (can be null)").optional(),
+                dataType: z.string().describe("Data type of the aggregate (e.g., currency, int)").optional(),
+                downGroupingContext: z.any().describe("Down grouping context (can be null)").optional(),
+                label: z.string().describe("Display label for the aggregate").optional(),
+              }),
+            )
+            .describe("Information about aggregate columns")
+            .optional(),
+          detailColumnInfo: z
+            .record(
+              z.object({
+                dataType: z.string().describe("Data type of the column").optional(),
+                label: z.string().describe("Display label for the column").optional(),
+              }),
+            )
+            .describe("Information about detail columns")
+            .optional(),
+          groupingColumnInfo: z
+            .record(
+              z.object({
+                dataType: z.string().describe("Data type of the grouping").optional(),
+                groupingLevel: z.number().describe("Level of the grouping").optional(),
+                label: z.string().describe("Display label for the grouping").optional(),
+              }),
+            )
+            .describe("Information about grouping columns")
+            .optional(),
+        })
+        .describe("Extended metadata about report columns and groupings")
+        .optional(),
+      reportMetadata: z
+        .object({
+          aggregates: z.array(z.string()).describe("List of aggregate functions used").optional(),
+          chart: z
+            .object({
+              chartType: z.string().describe("Type of chart (e.g., Donut, Bar)").optional(),
+              groupings: z.array(z.string()).describe("Groupings used in the chart").optional(),
+              hasLegend: z.boolean().describe("Whether the chart has a legend").optional(),
+              showChartValues: z.boolean().describe("Whether to show values on the chart").optional(),
+              summaries: z.array(z.string()).describe("Summary fields displayed in the chart").optional(),
+              summaryAxisLocations: z.array(z.string()).describe("Axis locations for summaries").optional(),
+              title: z.string().describe("Chart title").optional(),
+            })
+            .describe("Chart configuration")
+            .optional(),
+          currency: z.any().describe("Currency code (can be null)").optional(),
+          description: z.any().describe("Report description (can be null)").optional(),
+          detailColumns: z.array(z.string()).describe("List of detail columns").optional(),
+          developerName: z.string().describe("Developer name of the report").optional(),
+          division: z.any().describe("Division (can be null)").optional(),
+          folderId: z.string().describe("ID of the folder containing the report").optional(),
+          groupingsAcross: z
+            .array(
+              z.object({
+                dateGranularity: z.string().describe("Date granularity (e.g., Month, None)").optional(),
+                name: z.string().describe("Field name").optional(),
+                sortAggregate: z.any().describe("Sort aggregate (can be null)").optional(),
+                sortOrder: z.string().describe("Sort order (Asc or Desc)").optional(),
+              }),
+            )
+            .describe("Column grouping definitions")
+            .optional(),
+          groupingsDown: z
+            .array(
+              z.object({
+                dateGranularity: z.string().describe("Date granularity").optional(),
+                name: z.string().describe("Field name").optional(),
+                sortAggregate: z.any().describe("Sort aggregate (can be null)").optional(),
+                sortOrder: z.string().describe("Sort order").optional(),
+              }),
+            )
+            .describe("Row grouping definitions")
+            .optional(),
+          hasDetailRows: z.boolean().describe("Whether detail rows are included").optional(),
+          hasRecordCount: z.boolean().describe("Whether record count is included").optional(),
+          historicalSnapshotDates: z.array(z.string()).describe("Historical snapshot dates").optional(),
+          id: z.string().describe("Report ID").optional(),
+          name: z.string().describe("Report name").optional(),
+          reportBooleanFilter: z.any().describe("Boolean filter logic (can be null)").optional(),
+          reportFilters: z
+            .array(
+              z.object({
+                column: z.string().describe("Column to filter on").optional(),
+                isRunPageEditable: z.boolean().describe("Whether filter is editable at runtime").optional(),
+                operator: z.string().describe("Filter operator").optional(),
+                value: z.string().describe("Filter value").optional(),
+              }),
+            )
+            .describe("Report filters")
+            .optional(),
+          reportFormat: z.string().describe("Report format (e.g., MATRIX, TABULAR)").optional(),
+          reportType: z
+            .object({
+              label: z.string().describe("Display label for the report type").optional(),
+              type: z.string().describe("Report type name").optional(),
+            })
+            .describe("Report type information")
+            .optional(),
+          scope: z.string().describe("Report scope (e.g., organization, user)").optional(),
+          showGrandTotal: z.boolean().describe("Whether to show grand totals").optional(),
+          showSubtotals: z.boolean().describe("Whether to show subtotals").optional(),
+          sortBy: z.array(z.object({}).catchall(z.any())).describe("Sort configuration").optional(),
+          standardDateFilter: z
+            .object({
+              column: z.string().describe("Date column to filter on").optional(),
+              durationValue: z.string().describe("Duration value (e.g., THIS_FISCAL_QUARTER)").optional(),
+              endDate: z.string().describe("End date").optional(),
+              startDate: z.string().describe("Start date").optional(),
+            })
+            .describe("Standard date filter configuration")
+            .optional(),
+          standardFilters: z
+            .array(
+              z.object({
+                name: z.string().describe("Filter name").optional(),
+                value: z.string().describe("Filter value").optional(),
+              }),
+            )
+            .describe("Standard filters")
+            .optional(),
+        })
+        .describe("Metadata about the report configuration")
+        .optional(),
+    })
+    .describe("Results from the executed report")
+    .optional(),
+  error: z.string().describe("The error that occurred if the report was not successfully executed").optional(),
+});
+
+export type salesforceExecuteReportOutputType = z.infer<typeof salesforceExecuteReportOutputSchema>;
+export type salesforceExecuteReportFunction = ActionFunction<
+  salesforceExecuteReportParamsType,
+  AuthParamsType,
+  salesforceExecuteReportOutputType
 >;
 
 export const salesforceSearchSalesforceRecordsParamsSchema = z.object({

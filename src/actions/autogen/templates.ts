@@ -9982,8 +9982,8 @@ export const salesforceListReportsDefinition: ActionTemplate = {
         items: {
           type: "object",
           description: "A Salesforce report",
-          additionalProperties: true,
         },
+        additionalProperties: true,
       },
       error: {
         type: "string",
@@ -9992,6 +9992,519 @@ export const salesforceListReportsDefinition: ActionTemplate = {
     },
   },
   name: "listReports",
+  provider: "salesforce",
+};
+export const salesforceExecuteReportDefinition: ActionTemplate = {
+  description: "Execute a Salesforce report and retrieve its results",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["reportId"],
+    properties: {
+      reportId: {
+        type: "string",
+        description: "Id for the report to execute",
+      },
+      includeDetails: {
+        type: "boolean",
+        description: "Whether to include detailed report metadata in the response",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the report was successfully executed",
+      },
+      reportResults: {
+        type: "object",
+        description: "Results from the executed report",
+        properties: {
+          attributes: {
+            type: "object",
+            description: "Attributes associated with the report",
+            properties: {
+              describeUrl: {
+                type: "string",
+                description: "URL to describe the report",
+              },
+              instancesUrl: {
+                type: "string",
+                description: "URL to get report instances",
+              },
+              reportId: {
+                type: "string",
+                description: "The unique identifier for the report",
+              },
+              reportName: {
+                type: "string",
+                description: "The name of the report",
+              },
+              type: {
+                type: "string",
+                description: 'The type of the resource (e.g., "Report")',
+              },
+            },
+          },
+          allData: {
+            type: "boolean",
+            description: "Whether all data is included in the response",
+          },
+          factMap: {
+            type: "object",
+            description: "Map of fact data organized by grouping keys",
+            additionalProperties: {
+              type: "object",
+              properties: {
+                aggregates: {
+                  type: "array",
+                  description: "Aggregate values for this grouping",
+                  items: {
+                    type: "object",
+                    properties: {
+                      label: {
+                        type: "string",
+                        description: "Display label for the aggregate",
+                      },
+                      value: {
+                        description: "The aggregate value (can be number, string, or null)",
+                      },
+                    },
+                  },
+                },
+                rows: {
+                  type: "array",
+                  description: "Detail rows for this grouping",
+                  items: {
+                    type: "object",
+                    properties: {
+                      dataCells: {
+                        type: "array",
+                        description: "Data cells in the row",
+                        items: {
+                          type: "object",
+                          properties: {
+                            label: {
+                              type: "string",
+                              description: "Display label for the cell",
+                            },
+                            value: {
+                              description: "The cell value (can be string, number, object, or null)",
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          groupingsAcross: {
+            type: "object",
+            description: "Column groupings for matrix reports",
+            properties: {
+              groupings: {
+                type: "array",
+                description: "Array of grouping levels",
+                items: {
+                  type: "object",
+                  properties: {
+                    groupings: {
+                      type: "array",
+                      description: "Nested groupings",
+                      items: {
+                        type: "object",
+                      },
+                    },
+                    key: {
+                      type: "string",
+                      description: "Unique key for this grouping",
+                    },
+                    label: {
+                      type: "string",
+                      description: "Display label for this grouping",
+                    },
+                    value: {
+                      description: "The grouping value",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          groupingsDown: {
+            type: "object",
+            description: "Row groupings for matrix reports",
+            properties: {
+              groupings: {
+                type: "array",
+                description: "Array of grouping levels",
+                items: {
+                  type: "object",
+                  properties: {
+                    groupings: {
+                      type: "array",
+                      description: "Nested groupings",
+                      items: {
+                        type: "object",
+                      },
+                    },
+                    key: {
+                      type: "string",
+                      description: "Unique key for this grouping",
+                    },
+                    label: {
+                      type: "string",
+                      description: "Display label for this grouping",
+                    },
+                    value: {
+                      description: "The grouping value",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          hasDetailRows: {
+            type: "boolean",
+            description: "Whether the report includes detail rows",
+          },
+          reportExtendedMetadata: {
+            type: "object",
+            description: "Extended metadata about report columns and groupings",
+            properties: {
+              aggregateColumnInfo: {
+                type: "object",
+                description: "Information about aggregate columns",
+                additionalProperties: {
+                  type: "object",
+                  properties: {
+                    acrossGroupingContext: {
+                      description: "Across grouping context (can be null)",
+                    },
+                    dataType: {
+                      type: "string",
+                      description: "Data type of the aggregate (e.g., currency, int)",
+                    },
+                    downGroupingContext: {
+                      description: "Down grouping context (can be null)",
+                    },
+                    label: {
+                      type: "string",
+                      description: "Display label for the aggregate",
+                    },
+                  },
+                },
+              },
+              detailColumnInfo: {
+                type: "object",
+                description: "Information about detail columns",
+                additionalProperties: {
+                  type: "object",
+                  properties: {
+                    dataType: {
+                      type: "string",
+                      description: "Data type of the column",
+                    },
+                    label: {
+                      type: "string",
+                      description: "Display label for the column",
+                    },
+                  },
+                },
+              },
+              groupingColumnInfo: {
+                type: "object",
+                description: "Information about grouping columns",
+                additionalProperties: {
+                  type: "object",
+                  properties: {
+                    dataType: {
+                      type: "string",
+                      description: "Data type of the grouping",
+                    },
+                    groupingLevel: {
+                      type: "number",
+                      description: "Level of the grouping",
+                    },
+                    label: {
+                      type: "string",
+                      description: "Display label for the grouping",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          reportMetadata: {
+            type: "object",
+            description: "Metadata about the report configuration",
+            properties: {
+              aggregates: {
+                type: "array",
+                description: "List of aggregate functions used",
+                items: {
+                  type: "string",
+                },
+              },
+              chart: {
+                type: "object",
+                description: "Chart configuration",
+                properties: {
+                  chartType: {
+                    type: "string",
+                    description: "Type of chart (e.g., Donut, Bar)",
+                  },
+                  groupings: {
+                    type: "array",
+                    description: "Groupings used in the chart",
+                    items: {
+                      type: "string",
+                    },
+                  },
+                  hasLegend: {
+                    type: "boolean",
+                    description: "Whether the chart has a legend",
+                  },
+                  showChartValues: {
+                    type: "boolean",
+                    description: "Whether to show values on the chart",
+                  },
+                  summaries: {
+                    type: "array",
+                    description: "Summary fields displayed in the chart",
+                    items: {
+                      type: "string",
+                    },
+                  },
+                  summaryAxisLocations: {
+                    type: "array",
+                    description: "Axis locations for summaries",
+                    items: {
+                      type: "string",
+                    },
+                  },
+                  title: {
+                    type: "string",
+                    description: "Chart title",
+                  },
+                },
+              },
+              currency: {
+                description: "Currency code (can be null)",
+              },
+              description: {
+                description: "Report description (can be null)",
+              },
+              detailColumns: {
+                type: "array",
+                description: "List of detail columns",
+                items: {
+                  type: "string",
+                },
+              },
+              developerName: {
+                type: "string",
+                description: "Developer name of the report",
+              },
+              division: {
+                description: "Division (can be null)",
+              },
+              folderId: {
+                type: "string",
+                description: "ID of the folder containing the report",
+              },
+              groupingsAcross: {
+                type: "array",
+                description: "Column grouping definitions",
+                items: {
+                  type: "object",
+                  properties: {
+                    dateGranularity: {
+                      type: "string",
+                      description: "Date granularity (e.g., Month, None)",
+                    },
+                    name: {
+                      type: "string",
+                      description: "Field name",
+                    },
+                    sortAggregate: {
+                      description: "Sort aggregate (can be null)",
+                    },
+                    sortOrder: {
+                      type: "string",
+                      description: "Sort order (Asc or Desc)",
+                    },
+                  },
+                },
+              },
+              groupingsDown: {
+                type: "array",
+                description: "Row grouping definitions",
+                items: {
+                  type: "object",
+                  properties: {
+                    dateGranularity: {
+                      type: "string",
+                      description: "Date granularity",
+                    },
+                    name: {
+                      type: "string",
+                      description: "Field name",
+                    },
+                    sortAggregate: {
+                      description: "Sort aggregate (can be null)",
+                    },
+                    sortOrder: {
+                      type: "string",
+                      description: "Sort order",
+                    },
+                  },
+                },
+              },
+              hasDetailRows: {
+                type: "boolean",
+                description: "Whether detail rows are included",
+              },
+              hasRecordCount: {
+                type: "boolean",
+                description: "Whether record count is included",
+              },
+              historicalSnapshotDates: {
+                type: "array",
+                description: "Historical snapshot dates",
+                items: {
+                  type: "string",
+                },
+              },
+              id: {
+                type: "string",
+                description: "Report ID",
+              },
+              name: {
+                type: "string",
+                description: "Report name",
+              },
+              reportBooleanFilter: {
+                description: "Boolean filter logic (can be null)",
+              },
+              reportFilters: {
+                type: "array",
+                description: "Report filters",
+                items: {
+                  type: "object",
+                  properties: {
+                    column: {
+                      type: "string",
+                      description: "Column to filter on",
+                    },
+                    isRunPageEditable: {
+                      type: "boolean",
+                      description: "Whether filter is editable at runtime",
+                    },
+                    operator: {
+                      type: "string",
+                      description: "Filter operator",
+                    },
+                    value: {
+                      type: "string",
+                      description: "Filter value",
+                    },
+                  },
+                },
+              },
+              reportFormat: {
+                type: "string",
+                description: "Report format (e.g., MATRIX, TABULAR)",
+              },
+              reportType: {
+                type: "object",
+                description: "Report type information",
+                properties: {
+                  label: {
+                    type: "string",
+                    description: "Display label for the report type",
+                  },
+                  type: {
+                    type: "string",
+                    description: "Report type name",
+                  },
+                },
+              },
+              scope: {
+                type: "string",
+                description: "Report scope (e.g., organization, user)",
+              },
+              showGrandTotal: {
+                type: "boolean",
+                description: "Whether to show grand totals",
+              },
+              showSubtotals: {
+                type: "boolean",
+                description: "Whether to show subtotals",
+              },
+              sortBy: {
+                type: "array",
+                description: "Sort configuration",
+                items: {
+                  type: "object",
+                },
+              },
+              standardDateFilter: {
+                type: "object",
+                description: "Standard date filter configuration",
+                properties: {
+                  column: {
+                    type: "string",
+                    description: "Date column to filter on",
+                  },
+                  durationValue: {
+                    type: "string",
+                    description: "Duration value (e.g., THIS_FISCAL_QUARTER)",
+                  },
+                  endDate: {
+                    type: "string",
+                    description: "End date",
+                  },
+                  startDate: {
+                    type: "string",
+                    description: "Start date",
+                  },
+                },
+              },
+              standardFilters: {
+                type: "array",
+                description: "Standard filters",
+                items: {
+                  type: "object",
+                  properties: {
+                    name: {
+                      type: "string",
+                      description: "Filter name",
+                    },
+                    value: {
+                      type: "string",
+                      description: "Filter value",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the report was not successfully executed",
+      },
+    },
+  },
+  name: "executeReport",
   provider: "salesforce",
 };
 export const salesforceSearchSalesforceRecordsDefinition: ActionTemplate = {
