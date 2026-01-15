@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const authToken = process.env.GOOGLE_ACTIONS_ACCESS_TOKEN;
-const spreadsheetId = "1ig4zHxFgbwQRdAMIeFBw4f3dB3ihtqLDgj06fzdiKrQ";
+const spreadsheetId = process.env.GOOGLE_SHEET_ID;
 const sheetId = 0;
 
 /**
