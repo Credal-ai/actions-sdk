@@ -6,7 +6,7 @@ dotenv.config();
 
 async function runTest() {
   const authToken = process.env.SALESFORCE_AUTH_TOKEN;
-  const baseUrl = process.env.SALESFORCE_BASE_URL;
+  const baseUrl = process.env.SALESFORCE_URL;
 
   if (!authToken || !baseUrl) {
     throw new Error("Missing required environment variables: SALESFORCE_AUTH_TOKEN, SALESFORCE_BASE_URL");
