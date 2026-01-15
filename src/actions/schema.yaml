@@ -6028,6 +6028,29 @@ actions:
           error:
             type: string
             description: The error that occurred if the records were not successfully retrieved
+    listReports:
+      description: List all available Salesforce reports
+      scopes: []
+      parameters:
+        type: object
+        properties: {}
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the reports were successfully retrieved
+          reports:
+            type: array
+            description: List of available reports
+            items:
+              type: object
+              description: A Salesforce report
+              additionalProperties: true
+          error:
+            type: string
+            description: The error that occurred if the reports were not successfully retrieved
     searchSalesforceRecords:
       description: Search for Salesforce records by keyword
       scopes: []

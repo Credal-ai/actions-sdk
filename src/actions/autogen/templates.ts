@@ -9905,6 +9905,40 @@ export const salesforceSearchAllSalesforceRecordsDefinition: ActionTemplate = {
   name: "searchAllSalesforceRecords",
   provider: "salesforce",
 };
+export const salesforceListReportsDefinition: ActionTemplate = {
+  description: "List all available Salesforce reports",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    properties: {},
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the reports were successfully retrieved",
+      },
+      reports: {
+        type: "array",
+        description: "List of available reports",
+        items: {
+          type: "object",
+          description: "A Salesforce report",
+          additionalProperties: true,
+        },
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the reports were not successfully retrieved",
+      },
+    },
+  },
+  name: "listReports",
+  provider: "salesforce",
+};
 export const salesforceSearchSalesforceRecordsDefinition: ActionTemplate = {
   description: "Search for Salesforce records by keyword",
   scopes: [],
