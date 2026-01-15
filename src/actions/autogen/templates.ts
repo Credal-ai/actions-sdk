@@ -10245,6 +10245,7 @@ export const salesforceSearchSalesforceRecordsDefinition: ActionTemplate = {
       recordType: {
         type: "string",
         description: "The type of record to search for",
+        tags: ["recommend-predefined"],
       },
       fieldsToSearch: {
         type: "array",
