@@ -25,9 +25,26 @@ const getReportMetadata: salesforceGetReportMetadataFunction = async ({
   try {
     const response = await axiosClient.get(url, { headers: { Authorization: `Bearer ${authToken}` } });
 
+    const fullMetadata = response.data;
+    const filteredMetadata = {
+      reportType: fullMetadata.reportMetadata?.reportType
+        ? {
+            type: fullMetadata.reportMetadata.reportType.type,
+            label: fullMetadata.reportMetadata.reportType.label,
+          }
+        : undefined,
+      detailColumns: fullMetadata.reportMetadata?.detailColumns,
+      reportFilters: fullMetadata.reportMetadata?.reportFilters,
+      reportBooleanFilter: fullMetadata.reportMetadata?.reportBooleanFilter,
+      standardDateFilter: fullMetadata.reportMetadata?.standardDateFilter,
+      groupingsDown: fullMetadata.reportMetadata?.groupingsDown,
+      groupingsAcross: fullMetadata.reportMetadata?.groupingsAcross,
+      scope: fullMetadata.reportMetadata?.scope,
+    };
+
     return {
       success: true,
-      metadata: response.data,
+      metadata: filteredMetadata,
     };
   } catch (error) {
     console.error("Error retrieving Salesforce report metadata:", error);

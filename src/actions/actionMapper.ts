@@ -1072,7 +1072,7 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       paramsSchema: salesforceGetReportMetadataParamsSchema,
       outputSchema: salesforceGetReportMetadataOutputSchema,
       actionType: "read",
-    }
+    },
   },
   microsoft: {
     messageTeamsChat: {

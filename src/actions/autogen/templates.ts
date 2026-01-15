@@ -10211,9 +10211,53 @@ export const salesforceGetReportMetadataDefinition: ActionTemplate = {
       },
       metadata: {
         type: "object",
-        description: "Metadata from the report",
-        additionalProperties: {
-          type: "string",
+        description: "Filtered metadata from the report",
+        properties: {
+          reportType: {
+            type: "object",
+            description: "Report type information",
+            properties: {
+              type: {
+                type: "string",
+                description: "The type of the report",
+              },
+              label: {
+                type: "string",
+                description: "The label of the report type",
+              },
+            },
+          },
+          detailColumns: {
+            type: "array",
+            description: "Detail columns in the report",
+            items: {
+              type: "string",
+            },
+          },
+          reportFilters: {
+            type: "array",
+            description: "Filters applied to the report",
+          },
+          reportBooleanFilter: {
+            type: "string",
+            description: "Boolean filter logic for the report",
+          },
+          standardDateFilter: {
+            type: "object",
+            description: "Standard date filter configuration",
+          },
+          groupingsDown: {
+            type: "array",
+            description: "Row groupings for the report",
+          },
+          groupingsAcross: {
+            type: "array",
+            description: "Column groupings for matrix reports",
+          },
+          scope: {
+            type: "string",
+            description: "The scope of the report",
+          },
         },
       },
       error: {

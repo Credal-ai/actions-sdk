@@ -5322,7 +5322,25 @@ export type salesforceGetReportMetadataParamsType = z.infer<typeof salesforceGet
 
 export const salesforceGetReportMetadataOutputSchema = z.object({
   success: z.boolean().describe("Whether the report metadata was successfully retrieved"),
-  metadata: z.record(z.string()).describe("Metadata from the report").optional(),
+  metadata: z
+    .object({
+      reportType: z
+        .object({
+          type: z.string().describe("The type of the report").optional(),
+          label: z.string().describe("The label of the report type").optional(),
+        })
+        .describe("Report type information")
+        .optional(),
+      detailColumns: z.array(z.string()).describe("Detail columns in the report").optional(),
+      reportFilters: z.array(z.any()).describe("Filters applied to the report").optional(),
+      reportBooleanFilter: z.string().describe("Boolean filter logic for the report").optional(),
+      standardDateFilter: z.object({}).catchall(z.any()).describe("Standard date filter configuration").optional(),
+      groupingsDown: z.array(z.any()).describe("Row groupings for the report").optional(),
+      groupingsAcross: z.array(z.any()).describe("Column groupings for matrix reports").optional(),
+      scope: z.string().describe("The scope of the report").optional(),
+    })
+    .describe("Filtered metadata from the report")
+    .optional(),
   error: z
     .string()
     .describe("The error that occurred if the report metadata was not successfully retrieved")
