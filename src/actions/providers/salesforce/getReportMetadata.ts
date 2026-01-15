@@ -52,7 +52,7 @@ const getReportMetadata: salesforceGetReportMetadataFunction = async ({
       success: false,
       error:
         error instanceof ApiError
-          ? error.data.length > 0
+          ? Array.isArray(error.data) && error.data.length > 0
             ? error.data[0].message
             : error.message
           : "An unknown error occurred",
