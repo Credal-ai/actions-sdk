@@ -1055,12 +1055,12 @@ export const slackUserSearchSlackRTSDefinition: ActionTemplate = {
   description:
     "Search Slack messages across your organization using Slack's Real-Time Search API (assistant.search.context). Searches all conversations within the scope of permissions granted and returns relevant messages with content, author info, and permalinks.",
   scopes: [
-    "im:history",
     "search:read.public",
     "search:read.private",
     "search:read.mpim",
     "search:read.im",
     "search:read.files",
+    "search:read.users",
   ],
   tags: [],
   parameters: {
@@ -10185,6 +10185,44 @@ export const salesforceGetRecordDefinition: ActionTemplate = {
     },
   },
   name: "getRecord",
+  provider: "salesforce",
+};
+export const salesforceGetReportMetadataDefinition: ActionTemplate = {
+  description: "Get metadata for a given Salesforce report",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["reportId"],
+    properties: {
+      reportId: {
+        type: "string",
+        description: "Id for the report to retrieve metadata for",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the report metadata was successfully retrieved",
+      },
+      metadata: {
+        type: "object",
+        description: "Metadata from the report",
+        additionalProperties: {
+          type: "string",
+        },
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the report metadata was not successfully retrieved",
+      },
+    },
+  },
+  name: "getReportMetadata",
   provider: "salesforce",
 };
 export const microsoftCreateDocumentDefinition: ActionTemplate = {

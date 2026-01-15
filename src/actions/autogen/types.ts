@@ -134,6 +134,7 @@ export enum ActionName {
   SEARCHSALESFORCERECORDS = "searchSalesforceRecords",
   GETSALESFORCERECORDSBYQUERY = "getSalesforceRecordsByQuery",
   GETRECORD = "getRecord",
+  GETREPORTMETADATA = "getReportMetadata",
   CREATEDOCUMENT = "createDocument",
   UPDATEDOCUMENT = "updateDocument",
   MESSAGETEAMSCHAT = "messageTeamsChat",
@@ -5311,6 +5312,28 @@ export type salesforceGetRecordFunction = ActionFunction<
   salesforceGetRecordParamsType,
   AuthParamsType,
   salesforceGetRecordOutputType
+>;
+
+export const salesforceGetReportMetadataParamsSchema = z.object({
+  reportId: z.string().describe("Id for the report to retrieve metadata for"),
+});
+
+export type salesforceGetReportMetadataParamsType = z.infer<typeof salesforceGetReportMetadataParamsSchema>;
+
+export const salesforceGetReportMetadataOutputSchema = z.object({
+  success: z.boolean().describe("Whether the report metadata was successfully retrieved"),
+  metadata: z.record(z.string()).describe("Metadata from the report").optional(),
+  error: z
+    .string()
+    .describe("The error that occurred if the report metadata was not successfully retrieved")
+    .optional(),
+});
+
+export type salesforceGetReportMetadataOutputType = z.infer<typeof salesforceGetReportMetadataOutputSchema>;
+export type salesforceGetReportMetadataFunction = ActionFunction<
+  salesforceGetReportMetadataParamsType,
+  AuthParamsType,
+  salesforceGetReportMetadataOutputType
 >;
 
 export const microsoftCreateDocumentParamsSchema = z.object({
