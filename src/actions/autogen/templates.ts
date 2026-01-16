@@ -8374,7 +8374,7 @@ export const googleOauthGetPresentationDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthSearchDriveByKeywordsDefinition: ActionTemplate = {
-  displayName: "Search Drive by keywords",
+  displayName: "Search Drive by keyword",
   description: "Search Google Drive files that contain one or more keywords in their full text.",
   scopes: ["drive.readonly"],
   tags: [],
@@ -8518,7 +8518,7 @@ export const googleOauthSearchDriveByQueryDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: ActionTemplate = {
-  displayName: "Search Drive by keywords and get file contents",
+  displayName: "Search Drive by keyword and get file contents",
   description: "Search Google Drive with keywords and get resulting content",
   scopes: ["drive.readonly"],
   tags: [],
@@ -8703,7 +8703,7 @@ export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTem
   provider: "googleOauth",
 };
 export const googleOauthGetDriveFileContentByIdDefinition: ActionTemplate = {
-  displayName: "Get Drive File contents by ID",
+  displayName: "Fetch file contents",
   description: "Get text content of a Google Drive file by its ID.",
   scopes: ["drive.readonly"],
   tags: [],
@@ -10859,7 +10859,7 @@ export const githubListPullRequestsDefinition: ActionTemplate = {
   provider: "github",
 };
 export const githubGetPullRequestDetailsDefinition: ActionTemplate = {
-  displayName: "Get pull request details",
+  displayName: "Fetch pull request",
   description:
     "Get detailed information about a specific pull request including description, files, reviews, and status",
   scopes: [],
@@ -11141,7 +11141,7 @@ export const githubGetPullRequestDetailsDefinition: ActionTemplate = {
   provider: "github",
 };
 export const githubGetFileContentDefinition: ActionTemplate = {
-  displayName: "Get contents of a file",
+  displayName: "Fetch file contents",
   description: "Get specified file content from a GitHub repository",
   scopes: [],
   tags: [],
@@ -12783,7 +12783,7 @@ export const gitlabListDirectoryDefinition: ActionTemplate = {
   provider: "gitlab",
 };
 export const linearGetIssuesDefinition: ActionTemplate = {
-  displayName: "Get issues",
+  displayName: "List or search issues",
   description: "Get Linear issues with optional query filter",
   scopes: [],
   tags: [],
@@ -12914,7 +12914,7 @@ export const linearGetIssuesDefinition: ActionTemplate = {
   provider: "linear",
 };
 export const linearGetIssueDetailsDefinition: ActionTemplate = {
-  displayName: "Get issue details",
+  displayName: "Fetch issue",
   description: "Get detailed information about a Linear issue",
   scopes: [],
   tags: [],
@@ -13076,7 +13076,7 @@ export const linearGetIssueDetailsDefinition: ActionTemplate = {
   provider: "linear",
 };
 export const linearGetProjectsDefinition: ActionTemplate = {
-  displayName: "Get projects",
+  displayName: "Fetch projects",
   description: "Get all Linear projects",
   scopes: [],
   tags: [],
