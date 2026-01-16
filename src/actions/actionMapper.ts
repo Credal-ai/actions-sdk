@@ -264,6 +264,8 @@ import {
   slackSendDmFromBotOutputSchema,
   slackGetChannelMembersParamsSchema,
   slackGetChannelMembersOutputSchema,
+  salesforceGetReportMetadataParamsSchema,
+  salesforceGetReportMetadataOutputSchema,
 } from "./autogen/types.js";
 import validateAddress from "./providers/googlemaps/validateAddress.js";
 import add from "./providers/math/add.js";
@@ -397,6 +399,7 @@ import getOktaUserByName from "./providers/oktaOrg/getOktaUserByName.js";
 import customSearch from "./providers/googleSearch/customSearch.js";
 import searchAllSalesforceRecords from "./providers/salesforce/searchAllSalesforceRecords.js";
 import listReports from "./providers/salesforce/listReports.js";
+import getReportMetadata from "./providers/salesforce/getReportMetadata.js";
 
 type ActionTypeSchema = "read" | "write";
 
@@ -1062,6 +1065,12 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: getSalesforceRecordsByQuery,
       paramsSchema: salesforceGetSalesforceRecordsByQueryParamsSchema,
       outputSchema: salesforceGetSalesforceRecordsByQueryOutputSchema,
+      actionType: "read",
+    },
+    getReportMetadata: {
+      fn: getReportMetadata,
+      paramsSchema: salesforceGetReportMetadataParamsSchema,
+      outputSchema: salesforceGetReportMetadataOutputSchema,
       actionType: "read",
     },
   },

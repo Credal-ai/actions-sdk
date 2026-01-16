@@ -754,12 +754,12 @@ actions:
     searchSlackRTS:
       description: Search Slack messages across your organization using Slack's Real-Time Search API (assistant.search.context). Searches all conversations within the scope of permissions granted and returns relevant messages with content, author info, and permalinks.
       scopes:
-        - im:history
         - search:read.public
         - search:read.private
         - search:read.mpim
         - search:read.im
         - search:read.files
+        - search:read.users
       parameters:
         type: object
         required:
@@ -6219,6 +6219,63 @@ actions:
           error:
             type: string
             description: The error that occurred if the record was not successfully retrieved
+    getReportMetadata:
+      description: Get metadata for a given Salesforce report
+      scopes: []
+      parameters:
+        type: object
+        required: [reportId]
+        properties:
+          reportId:
+            type: string
+            description: Id for the report to retrieve metadata for
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the report metadata was successfully retrieved
+          metadata:
+            type: object
+            description: Filtered metadata from the report
+            properties:
+              reportType:
+                type: object
+                description: Report type information
+                properties:
+                  type:
+                    type: string
+                    description: The type of the report
+                  label:
+                    type: string
+                    description: The label of the report type
+              detailColumns:
+                type: array
+                description: Detail columns in the report
+                items:
+                  type: string
+              reportFilters:
+                type: array
+                description: Filters applied to the report
+              reportBooleanFilter:
+                type: string
+                description: Boolean filter logic for the report
+              standardDateFilter:
+                type: object
+                description: Standard date filter configuration
+              groupingsDown:
+                type: array
+                description: Row groupings for the report
+              groupingsAcross:
+                type: array
+                description: Column groupings for matrix reports
+              scope:
+                type: string
+                description: The scope of the report
+          error:
+            type: string
+            description: The error that occurred if the report metadata was not successfully retrieved
   microsoft:
     createDocument:
       description: Creates a new Office365 document
