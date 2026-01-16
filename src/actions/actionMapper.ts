@@ -1062,12 +1062,12 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: listReports,
       paramsSchema: salesforceListReportsParamsSchema,
       outputSchema: salesforceListReportsOutputSchema,
+      actionType: "read",
     },
     executeReport: {
       fn: executeReport,
       paramsSchema: salesforceExecuteReportParamsSchema,
       outputSchema: salesforceExecuteReportOutputSchema,
-      actionType: "read",
     },
     getSalesforceRecordsByQuery: {
       fn: getSalesforceRecordsByQuery,
