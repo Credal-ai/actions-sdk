@@ -5232,45 +5232,6 @@ export type salesforceExecuteReportParamsType = z.infer<typeof salesforceExecute
 
 export const salesforceExecuteReportOutputSchema = z.object({
   success: z.boolean().describe("Whether the report was successfully executed"),
-  reportResults: z
-    .object({
-      factMap: z
-        .record(
-          z.object({
-            aggregates: z
-              .array(
-                z.object({
-                  label: z.string().describe("Display label for the aggregate").optional(),
-                  value: z.any().describe("The aggregate value (can be number, string, or null)").optional(),
-                }),
-              )
-              .describe("Aggregate values (summaries) for this grouping")
-              .optional(),
-            rows: z
-              .array(
-                z.object({
-                  dataCells: z
-                    .array(
-                      z.object({
-                        label: z.string().describe("Display label for the cell").optional(),
-                        value: z.any().describe("The cell value (can be string, number, object, or null)").optional(),
-                      }),
-                    )
-                    .describe("Data cells in the row")
-                    .optional(),
-                }),
-              )
-              .describe("Detail rows for this grouping")
-              .optional(),
-          }),
-        )
-        .describe(
-          'Map of fact data organized by grouping keys. Contains aggregates (summaries) and rows for each grouping level. The grand total is typically at key "T!T".',
-        )
-        .optional(),
-    })
-    .describe("Results from the executed report")
-    .optional(),
   error: z.string().describe("The error that occurred if the report was not successfully executed").optional(),
 });
 

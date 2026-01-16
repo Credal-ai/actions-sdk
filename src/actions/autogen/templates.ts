@@ -10020,63 +10020,6 @@ export const salesforceExecuteReportDefinition: ActionTemplate = {
         type: "boolean",
         description: "Whether the report was successfully executed",
       },
-      reportResults: {
-        type: "object",
-        description: "Results from the executed report",
-        properties: {
-          factMap: {
-            type: "object",
-            description:
-              'Map of fact data organized by grouping keys. Contains aggregates (summaries) and rows for each grouping level. The grand total is typically at key "T!T".',
-            additionalProperties: {
-              type: "object",
-              properties: {
-                aggregates: {
-                  type: "array",
-                  description: "Aggregate values (summaries) for this grouping",
-                  items: {
-                    type: "object",
-                    properties: {
-                      label: {
-                        type: "string",
-                        description: "Display label for the aggregate",
-                      },
-                      value: {
-                        description: "The aggregate value (can be number, string, or null)",
-                      },
-                    },
-                  },
-                },
-                rows: {
-                  type: "array",
-                  description: "Detail rows for this grouping",
-                  items: {
-                    type: "object",
-                    properties: {
-                      dataCells: {
-                        type: "array",
-                        description: "Data cells in the row",
-                        items: {
-                          type: "object",
-                          properties: {
-                            label: {
-                              type: "string",
-                              description: "Display label for the cell",
-                            },
-                            value: {
-                              description: "The cell value (can be string, number, object, or null)",
-                            },
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
       error: {
         type: "string",
         description: "The error that occurred if the report was not successfully executed",
