@@ -6082,7 +6082,7 @@ actions:
             items:
               type: object
               description: A Salesforce report
-            additionalProperties: true
+              additionalProperties: true
           error:
             type: string
             description: The error that occurred if the reports were not successfully retrieved
