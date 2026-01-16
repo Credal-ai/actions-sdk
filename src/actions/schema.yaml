@@ -4956,7 +4956,7 @@ actions:
                         text: string
                         styling: string
     searchDriveByKeywords:
-      displayName: Search Drive by keywords
+      displayName: Search Drive by keyword
       description: Search Google Drive files that contain one or more keywords in their full text.
       scopes: [drive.readonly]
       parameters:
@@ -5056,7 +5056,7 @@ actions:
             type: string
             description: Error message if search failed
     searchDriveByKeywordsAndGetFileContent:
-      displayName: Search Drive by keywords and get file contents
+      displayName: Search Drive by keyword and get file contents
       description: Search Google Drive with keywords and get resulting content
       scopes: [drive.readonly]
       parameters:
@@ -5188,7 +5188,7 @@ actions:
             type: string
             description: Error message if search failed
     getDriveFileContentById:
-      displayName: Get Drive File contents by ID
+      displayName: Fetch file contents
       description: Get text content of a Google Drive file by its ID.
       scopes: [drive.readonly]
       parameters:
@@ -6703,7 +6703,7 @@ actions:
                       type: string
                       description: The description of the pull request
     getPullRequestDetails:
-      displayName: Get pull request details
+      displayName: Fetch pull request
       description: Get detailed information about a specific pull request including description, files, reviews, and status
       scopes: []
       parameters:
@@ -6906,7 +6906,7 @@ actions:
                     description: The due date of the milestone
                     nullable: true
     getFileContent:
-      displayName: Get contents of a file
+      displayName: Fetch file contents
       description: Get specified file content from a GitHub repository
       scopes: []
       parameters:
@@ -8081,7 +8081,7 @@ actions:
                       description: The URL of the file or folder in the GitLab UI
   linear:
     getIssues:
-      displayName: Get issues
+      displayName: List or search issues
       description: Get Linear issues with optional query filter
       scopes: []
       parameters:
@@ -8173,7 +8173,7 @@ actions:
                         type: string
                         description: The comment content
     getIssueDetails:
-      displayName: Get issue details
+      displayName: Fetch issue
       description: Get detailed information about a Linear issue
       scopes: []
       parameters:
@@ -8288,7 +8288,7 @@ actions:
                 type: string
                 description: The issue content
     getProjects:
-      displayName: Get projects
+      displayName: Fetch projects
       description: Get all Linear projects
       scopes: []
       parameters:
