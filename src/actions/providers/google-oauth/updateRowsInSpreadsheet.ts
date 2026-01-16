@@ -24,8 +24,15 @@ const updateRowsInSpreadsheet: googleOauthUpdateRowsInSpreadsheetFunction = asyn
 
   const { spreadsheetId, sheetName, startRow, rows } = params;
 
+  if (rows.length === 0) {
+    throw new Error("rows array cannot be empty");
+  }
+
   const values = rows.map(row => row.map(cell => cell.stringValue));
 
+  if (startRow < 1) {
+    throw new Error("startRow must be >= 1");
+  }
   const endRow = startRow + rows.length - 1;
   const range = `'${sheetName ?? "Sheet1"}'!A${startRow}:ZZ${endRow}`;
 

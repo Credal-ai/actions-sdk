@@ -828,6 +828,12 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       outputSchema: googleOauthUpdateSpreadsheetOutputSchema,
       actionType: "write",
     },
+    appendRowsToSpreadsheet: {
+      fn: appendRowsToSpreadsheet,
+      paramsSchema: googleOauthAppendRowsToSpreadsheetParamsSchema,
+      outputSchema: googleOauthAppendRowsToSpreadsheetOutputSchema,
+      actionType: "write",
+    },
     updateRowsInSpreadsheet: {
       fn: updateRowsInSpreadsheet,
       paramsSchema: googleOauthUpdateRowsInSpreadsheetParamsSchema,
