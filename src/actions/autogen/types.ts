@@ -131,6 +131,7 @@ export enum ActionName {
   GENERATESALESREPORT = "generateSalesReport",
   SEARCHALLSALESFORCERECORDS = "searchAllSalesforceRecords",
   LISTREPORTS = "listReports",
+  EXECUTEREPORT = "executeReport",
   SEARCHSALESFORCERECORDS = "searchSalesforceRecords",
   GETSALESFORCERECORDSBYQUERY = "getSalesforceRecordsByQuery",
   GETRECORD = "getRecord",
@@ -5220,6 +5221,25 @@ export type salesforceListReportsFunction = ActionFunction<
   salesforceListReportsParamsType,
   AuthParamsType,
   salesforceListReportsOutputType
+>;
+
+export const salesforceExecuteReportParamsSchema = z.object({
+  reportId: z.string().describe("Id for the report to execute"),
+  includeDetails: z.boolean().describe("Whether to include detailed report metadata in the response").optional(),
+});
+
+export type salesforceExecuteReportParamsType = z.infer<typeof salesforceExecuteReportParamsSchema>;
+
+export const salesforceExecuteReportOutputSchema = z.object({
+  success: z.boolean().describe("Whether the report was successfully executed"),
+  error: z.string().describe("The error that occurred if the report was not successfully executed").optional(),
+});
+
+export type salesforceExecuteReportOutputType = z.infer<typeof salesforceExecuteReportOutputSchema>;
+export type salesforceExecuteReportFunction = ActionFunction<
+  salesforceExecuteReportParamsType,
+  AuthParamsType,
+  salesforceExecuteReportOutputType
 >;
 
 export const salesforceSearchSalesforceRecordsParamsSchema = z.object({

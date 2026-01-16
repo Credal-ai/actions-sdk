@@ -260,6 +260,8 @@ import {
   salesforceSearchAllSalesforceRecordsOutputSchema,
   salesforceListReportsParamsSchema,
   salesforceListReportsOutputSchema,
+  salesforceExecuteReportParamsSchema,
+  salesforceExecuteReportOutputSchema,
   slackSendDmFromBotParamsSchema,
   slackSendDmFromBotOutputSchema,
   slackGetChannelMembersParamsSchema,
@@ -400,6 +402,7 @@ import customSearch from "./providers/googleSearch/customSearch.js";
 import searchAllSalesforceRecords from "./providers/salesforce/searchAllSalesforceRecords.js";
 import listReports from "./providers/salesforce/listReports.js";
 import getReportMetadata from "./providers/salesforce/getReportMetadata.js";
+import executeReport from "./providers/salesforce/executeReport.js";
 
 type ActionTypeSchema = "read" | "write";
 
@@ -1060,6 +1063,11 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       paramsSchema: salesforceListReportsParamsSchema,
       outputSchema: salesforceListReportsOutputSchema,
       actionType: "read",
+    },
+    executeReport: {
+      fn: executeReport,
+      paramsSchema: salesforceExecuteReportParamsSchema,
+      outputSchema: salesforceExecuteReportOutputSchema,
     },
     getSalesforceRecordsByQuery: {
       fn: getSalesforceRecordsByQuery,

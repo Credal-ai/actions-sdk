@@ -9994,6 +9994,41 @@ export const salesforceListReportsDefinition: ActionTemplate = {
   name: "listReports",
   provider: "salesforce",
 };
+export const salesforceExecuteReportDefinition: ActionTemplate = {
+  description: "Execute a Salesforce report and retrieve its results",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["reportId"],
+    properties: {
+      reportId: {
+        type: "string",
+        description: "Id for the report to execute",
+      },
+      includeDetails: {
+        type: "boolean",
+        description: "Whether to include detailed report metadata in the response",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the report was successfully executed",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the report was not successfully executed",
+      },
+    },
+  },
+  name: "executeReport",
+  provider: "salesforce",
+};
 export const salesforceSearchSalesforceRecordsDefinition: ActionTemplate = {
   description: "Search for Salesforce records by keyword",
   scopes: [],
