@@ -25,9 +25,13 @@ const executeReport: salesforceExecuteReportFunction = async ({
   try {
     const response = await axiosClient.get(url, { headers: { Authorization: `Bearer ${authToken}` } });
 
+    const { factMap } = response.data;
+
     return {
       success: true,
-      reportResults: response.data,
+      reportResults: {
+        factMap,
+      },
     };
   } catch (error) {
     console.error("Error executing Salesforce report:", error);
