@@ -6856,6 +6856,89 @@ export const googleOauthDeleteRowFromSpreadsheetDefinition: ActionTemplate = {
   name: "deleteRowFromSpreadsheet",
   provider: "googleOauth",
 };
+export const googleOauthUpdateRowsInSpreadsheetDefinition: ActionTemplate = {
+  description:
+    "Updates one or more rows in a Google Spreadsheet starting from a specific row number. This overwrites existing data in the specified rows.",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["spreadsheetId", "startRow", "rows"],
+    properties: {
+      spreadsheetId: {
+        type: "string",
+        description:
+          'The ID of the Google Spreadsheet. This should be provided by the user. Can be found in the URL of the spreadsheet. For example, "1bWp1w2OVwH19mkXEiLIaP8As7N-9c_3EXF_Eo5d5Nm0".',
+        tags: ["recommend-predefined"],
+      },
+      sheetName: {
+        type: "string",
+        description:
+          'The name of the SHEET to update. This should be provided by the user. For example, "Sheet1". Defaults to "Sheet1" if not provided.',
+      },
+      startRow: {
+        type: "integer",
+        description:
+          "The row number to start updating from (1-based). For example, to update starting from the first row, use 1. To start from the second row, use 2.",
+      },
+      rows: {
+        type: "array",
+        description:
+          "Rows of cells to update in the spreadsheet. Each row will be written sequentially starting from startRow.",
+        items: {
+          type: "array",
+          description: "A list of cells for this row",
+          items: {
+            type: "object",
+            required: ["stringValue"],
+            properties: {
+              stringValue: {
+                type: "string",
+                description: "The value of the cell",
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the rows were updated successfully",
+      },
+      spreadsheetUrl: {
+        type: "string",
+        description: "The URL of the updated spreadsheet",
+      },
+      updatedRange: {
+        type: "string",
+        description: "The range that was updated in A1 notation",
+      },
+      updatedRows: {
+        type: "integer",
+        description: "The number of rows that were updated",
+      },
+      updatedColumns: {
+        type: "integer",
+        description: "The number of columns that were updated",
+      },
+      updatedCells: {
+        type: "integer",
+        description: "The total number of cells that were updated",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the rows were not updated successfully",
+      },
+    },
+  },
+  name: "updateRowsInSpreadsheet",
+  provider: "googleOauth",
+};
 export const googleOauthCreatePresentationDefinition: ActionTemplate = {
   description: "Create a Google Presentation",
   scopes: [],

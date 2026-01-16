@@ -102,6 +102,7 @@ export enum ActionName {
   UPDATESPREADSHEET = "updateSpreadsheet",
   APPENDROWSTOSPREADSHEET = "appendRowsToSpreadsheet",
   DELETEROWFROMSPREADSHEET = "deleteRowFromSpreadsheet",
+  UPDATEROWSINSPREADSHEET = "updateRowsInSpreadsheet",
   CREATEPRESENTATION = "createPresentation",
   UPDATEPRESENTATION = "updatePresentation",
   GETPRESENTATION = "getPresentation",
@@ -3662,6 +3663,58 @@ export type googleOauthDeleteRowFromSpreadsheetFunction = ActionFunction<
   googleOauthDeleteRowFromSpreadsheetParamsType,
   AuthParamsType,
   googleOauthDeleteRowFromSpreadsheetOutputType
+>;
+
+export const googleOauthUpdateRowsInSpreadsheetParamsSchema = z.object({
+  spreadsheetId: z
+    .string()
+    .describe(
+      'The ID of the Google Spreadsheet. This should be provided by the user. Can be found in the URL of the spreadsheet. For example, "1bWp1w2OVwH19mkXEiLIaP8As7N-9c_3EXF_Eo5d5Nm0".',
+    ),
+  sheetName: z
+    .string()
+    .describe(
+      'The name of the SHEET to update. This should be provided by the user. For example, "Sheet1". Defaults to "Sheet1" if not provided.',
+    )
+    .optional(),
+  startRow: z
+    .number()
+    .int()
+    .describe(
+      "The row number to start updating from (1-based). For example, to update starting from the first row, use 1. To start from the second row, use 2.",
+    ),
+  rows: z
+    .array(
+      z
+        .array(z.object({ stringValue: z.string().describe("The value of the cell") }))
+        .describe("A list of cells for this row"),
+    )
+    .describe(
+      "Rows of cells to update in the spreadsheet. Each row will be written sequentially starting from startRow.",
+    ),
+});
+
+export type googleOauthUpdateRowsInSpreadsheetParamsType = z.infer<
+  typeof googleOauthUpdateRowsInSpreadsheetParamsSchema
+>;
+
+export const googleOauthUpdateRowsInSpreadsheetOutputSchema = z.object({
+  success: z.boolean().describe("Whether the rows were updated successfully"),
+  spreadsheetUrl: z.string().describe("The URL of the updated spreadsheet").optional(),
+  updatedRange: z.string().describe("The range that was updated in A1 notation").optional(),
+  updatedRows: z.number().int().describe("The number of rows that were updated").optional(),
+  updatedColumns: z.number().int().describe("The number of columns that were updated").optional(),
+  updatedCells: z.number().int().describe("The total number of cells that were updated").optional(),
+  error: z.string().describe("The error that occurred if the rows were not updated successfully").optional(),
+});
+
+export type googleOauthUpdateRowsInSpreadsheetOutputType = z.infer<
+  typeof googleOauthUpdateRowsInSpreadsheetOutputSchema
+>;
+export type googleOauthUpdateRowsInSpreadsheetFunction = ActionFunction<
+  googleOauthUpdateRowsInSpreadsheetParamsType,
+  AuthParamsType,
+  googleOauthUpdateRowsInSpreadsheetOutputType
 >;
 
 export const googleOauthCreatePresentationParamsSchema = z.object({
