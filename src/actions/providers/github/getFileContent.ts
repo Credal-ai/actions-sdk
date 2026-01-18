@@ -26,11 +26,11 @@ const getFileContent: githubGetFileContentFunction = async ({
   }
 
   const octokit = await getOctokit(authParams.authToken);
-  const { organization, repository, path } = params;
+  const { organization, repositoryName, path } = params;
 
   const contentResponse = await octokit.rest.repos.getContent({
     owner: organization,
-    repo: repository,
+    repo: repositoryName,
     path,
     headers: {
       accept: "application/vnd.github.v3.text-match+json",

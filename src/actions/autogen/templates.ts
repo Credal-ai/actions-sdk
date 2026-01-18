@@ -595,7 +595,7 @@ export const asanaGetTasksDetailsDefinition: ActionTemplate = {
   provider: "asana",
 };
 export const slackSendDmFromBotDefinition: ActionTemplate = {
-  description: "Sends a direct message to a user on Slack using a bot",
+  description: "Sends a direct message to a user on Slack from the Credal Slack bot",
   scopes: ["users:read", "channels:manage", "chat:write"],
   tags: [],
   parameters: {
@@ -608,7 +608,7 @@ export const slackSendDmFromBotDefinition: ActionTemplate = {
       },
       message: {
         type: "string",
-        description: "The message content to send",
+        description: "The message content to send. Can include Slack markdown formatting.",
       },
     },
   },
@@ -626,7 +626,7 @@ export const slackSendDmFromBotDefinition: ActionTemplate = {
       },
       channelId: {
         type: "string",
-        description: "The ID of the DM channel",
+        description: "The channel ID of the channel the DM was sent to",
       },
       timestamp: {
         type: "string",
@@ -642,7 +642,7 @@ export const slackSendDmFromBotDefinition: ActionTemplate = {
   provider: "slack",
 };
 export const slackCreateChannelDefinition: ActionTemplate = {
-  description: "Creates a new Slack channel using a bot token",
+  description: "Creates a new Slack channel",
   scopes: ["channels:manage"],
   tags: [],
   parameters: {
@@ -655,7 +655,7 @@ export const slackCreateChannelDefinition: ActionTemplate = {
       },
       isPrivate: {
         type: "boolean",
-        description: "Whether to create a private channel (defaults to false)",
+        description: "Whether the created channel should be private (defaults to false)",
       },
     },
   },
@@ -685,7 +685,7 @@ export const slackCreateChannelDefinition: ActionTemplate = {
   provider: "slack",
 };
 export const slackSendMessageDefinition: ActionTemplate = {
-  description: "Sends a message to a Slack channel",
+  description: "Sends a message to a public Slack channel",
   scopes: ["chat:write"],
   tags: [],
   parameters: {
@@ -694,15 +694,17 @@ export const slackSendMessageDefinition: ActionTemplate = {
     properties: {
       channelId: {
         type: "string",
-        description: "The ID of the channel to send the message to",
+        description:
+          "The ID of the channel to send the message to. Either the channelId or channelName must be provided.",
       },
       channelName: {
         type: "string",
-        description: "The name of the Slack channel to send the message to (e.g. general, alerts)",
+        description:
+          "The name of the Slack channel to send the message to (without '#' e.g. general, alerts). Either the channelId or channelName must be provided.",
       },
       message: {
         type: "string",
-        description: "The message content to send to Slack. Can include markdown formatting.",
+        description: "The message content to send to Slack. Can include Slack markdown formatting.",
       },
     },
   },
@@ -728,7 +730,7 @@ export const slackSendMessageDefinition: ActionTemplate = {
   provider: "slack",
 };
 export const slackGetChannelMessagesDefinition: ActionTemplate = {
-  description: "Gets messages from a Slack channel",
+  description: "Gets a continuous list of messages from a specified Slack channel",
   scopes: ["channels:history"],
   tags: [],
   parameters: {
@@ -810,7 +812,7 @@ export const slackGetChannelMessagesDefinition: ActionTemplate = {
   provider: "slack",
 };
 export const slackGetChannelMembersDefinition: ActionTemplate = {
-  description: "Gets the members of a Slack channel",
+  description: "Gets the names and emails of the members of a Slack channel",
   scopes: ["channels:read"],
   tags: [],
   parameters: {
@@ -818,11 +820,12 @@ export const slackGetChannelMembersDefinition: ActionTemplate = {
     properties: {
       channelId: {
         type: "string",
-        description: "The ID of the channel to get members from",
+        description: "The ID of the channel to get members from. Either the channelId or channelName must be provided.",
       },
       channelName: {
         type: "string",
-        description: "The name of the channel to get members from",
+        description:
+          "The name of the channel to get members from. Either the channelId or channelName must be provided.",
       },
     },
   },
@@ -1227,7 +1230,7 @@ export const mathAddDefinition: ActionTemplate = {
   provider: "math",
 };
 export const confluenceOverwritePageDefinition: ActionTemplate = {
-  description: "Updates a Confluence page with the new content specified",
+  description: "Overwrites a Confluence page with the new content specified",
   scopes: [],
   tags: [],
   parameters: {
@@ -1236,7 +1239,7 @@ export const confluenceOverwritePageDefinition: ActionTemplate = {
     properties: {
       pageId: {
         type: "string",
-        description: "The page id for the page to add content to",
+        description: "The page id for the page to add content to. This is a string of numbers.",
       },
       title: {
         type: "string",
@@ -1244,7 +1247,7 @@ export const confluenceOverwritePageDefinition: ActionTemplate = {
       },
       content: {
         type: "string",
-        description: "The new content for the page",
+        description: "The new content for the page in storage format (HTML)",
       },
     },
   },
@@ -1275,7 +1278,7 @@ export const confluenceFetchPageContentDefinition: ActionTemplate = {
     properties: {
       pageId: {
         type: "string",
-        description: "The ID of the page to fetch content from",
+        description: "The ID of the page to fetch content from. This is a string of numbers.",
       },
     },
   },
@@ -3580,7 +3583,8 @@ export const zendeskCreateZendeskTicketDefinition: ActionTemplate = {
       },
       groupId: {
         type: "number",
-        description: "The ID of the group to assign the ticket to",
+        description: "The ID of the group to assign the Zendesk ticket to",
+        tags: ["recommend-predefined"],
       },
     },
   },
@@ -3718,7 +3722,7 @@ export const zendeskAddCommentToTicketDefinition: ActionTemplate = {
       },
       body: {
         type: "string",
-        description: "The body of the comment",
+        description: "The body of the Zendesk ticket comment",
       },
       public: {
         type: "boolean",
@@ -10397,7 +10401,8 @@ export const microsoftCreateDocumentDefinition: ActionTemplate = {
     properties: {
       siteId: {
         type: "string",
-        description: "The ID of the site where the document will be created",
+        description: "The ID of the Sharepoint site where the document should be created",
+        tags: ["recommend-predefined"],
       },
       name: {
         type: "string",
@@ -10452,7 +10457,8 @@ export const microsoftUpdateDocumentDefinition: ActionTemplate = {
     properties: {
       siteId: {
         type: "string",
-        description: "The ID of the site where the document is located",
+        description: "The ID of the Sharepoint site where the document is located",
+        tags: ["recommend-predefined"],
       },
       documentId: {
         type: "string",
@@ -10539,7 +10545,7 @@ export const microsoftUpdateSpreadsheetDefinition: ActionTemplate = {
   provider: "microsoft",
 };
 export const microsoftMessageTeamsChatDefinition: ActionTemplate = {
-  description: "Sends a message to a Microsoft Teams chat",
+  description: "Sends a message to a Microsoft Teams chat on behalf of the user",
   scopes: ["ChatMessage.Send"],
   tags: [],
   parameters: {
@@ -10548,7 +10554,7 @@ export const microsoftMessageTeamsChatDefinition: ActionTemplate = {
     properties: {
       chatId: {
         type: "string",
-        description: "The chat ID of the Microsoft Teams chat",
+        description: "The chat ID of the Microsoft Teams chat to send a message to",
       },
       message: {
         type: "string",
@@ -10578,7 +10584,7 @@ export const microsoftMessageTeamsChatDefinition: ActionTemplate = {
   provider: "microsoft",
 };
 export const microsoftMessageTeamsChannelDefinition: ActionTemplate = {
-  description: "Sends a message to a Microsoft Teams channel",
+  description: "Sends a message to a Microsoft Teams channel on behalf of the user",
   scopes: ["ChannelMessage.Send"],
   tags: [],
   parameters: {
@@ -10587,11 +10593,13 @@ export const microsoftMessageTeamsChannelDefinition: ActionTemplate = {
     properties: {
       teamId: {
         type: "string",
-        description: "The team ID of the Microsoft Teams channel",
+        description: "The team ID of the Microsoft Teams channel to send a message to",
+        tags: ["recommend-predefined"],
       },
       channelId: {
         type: "string",
-        description: "The channel ID of the Microsoft Teams channel",
+        description: "The channel ID of the Microsoft Teams channel to send a message to",
+        tags: ["recommend-predefined"],
       },
       message: {
         type: "string",
@@ -10630,7 +10638,8 @@ export const microsoftGetDocumentDefinition: ActionTemplate = {
     properties: {
       siteId: {
         type: "string",
-        description: "The ID of the site where the document is located (optional for OneDrive)",
+        description: "The ID of the Sharepoint site where the fetched document is located (optional for OneDrive)",
+        tags: ["recommend-predefined"],
       },
       documentId: {
         type: "string",
@@ -10669,12 +10678,12 @@ export const githubCreateOrUpdateFileDefinition: ActionTemplate = {
     properties: {
       repositoryOwner: {
         type: "string",
-        description: "The owner of the repository",
+        description: "The owner of the GitHub repository's username",
         tags: ["recommend-predefined"],
       },
       repositoryName: {
         type: "string",
-        description: "The name of the repository",
+        description: "The name of the GitHub repository",
         tags: ["recommend-predefined"],
       },
       filePath: {
@@ -10735,12 +10744,12 @@ export const githubCreateBranchDefinition: ActionTemplate = {
     properties: {
       repositoryOwner: {
         type: "string",
-        description: "The owner of the repository",
+        description: "The owner of the GitHub repository",
         tags: ["recommend-predefined"],
       },
       repositoryName: {
         type: "string",
-        description: "The name of the repository",
+        description: "The name of the GitHub repository to create branches in",
         tags: ["recommend-predefined"],
       },
       branchName: {
@@ -10780,12 +10789,12 @@ export const githubCreatePullRequestDefinition: ActionTemplate = {
     properties: {
       repositoryOwner: {
         type: "string",
-        description: "The owner of the repository",
+        description: "The owner of the GitHub repository",
         tags: ["recommend-predefined"],
       },
       repositoryName: {
         type: "string",
-        description: "The name of the repository",
+        description: "The name of the GitHub repository to create pull requests in",
         tags: ["recommend-predefined"],
       },
       head: {
@@ -10842,12 +10851,12 @@ export const githubListPullRequestsDefinition: ActionTemplate = {
     properties: {
       repositoryOwner: {
         type: "string",
-        description: "The owner of the repository",
+        description: "The owner of the GitHub repository",
         tags: ["recommend-predefined"],
       },
       repositoryName: {
         type: "string",
-        description: "The name of the repository",
+        description: "The name of the GitHub repository to fetch pull requests from",
         tags: ["recommend-predefined"],
       },
       state: {
@@ -10943,12 +10952,12 @@ export const githubGetPullRequestDetailsDefinition: ActionTemplate = {
     properties: {
       repositoryOwner: {
         type: "string",
-        description: "The owner of the repository",
+        description: "The owner of the GitHub repository",
         tags: ["recommend-predefined"],
       },
       repositoryName: {
         type: "string",
-        description: "The name of the repository",
+        description: "The name of the GitHub repository to fetch information from",
         tags: ["recommend-predefined"],
       },
       pullRequestNumber: {
@@ -11219,16 +11228,16 @@ export const githubGetFileContentDefinition: ActionTemplate = {
   tags: [],
   parameters: {
     type: "object",
-    required: ["organization", "repository", "path"],
+    required: ["organization", "repositoryName", "path"],
     properties: {
       organization: {
         type: "string",
-        description: "The organization that owns the repository",
+        description: "The organization that owns the GitHub repository",
         tags: ["recommend-predefined"],
       },
-      repository: {
+      repositoryName: {
         type: "string",
-        description: "The repository name",
+        description: "The name of the GitHub repository",
         tags: ["recommend-predefined"],
       },
       path: {
@@ -11298,16 +11307,16 @@ export const githubListDirectoryDefinition: ActionTemplate = {
   tags: [],
   parameters: {
     type: "object",
-    required: ["organization", "repository", "path"],
+    required: ["organization", "repositoryName", "path"],
     properties: {
       organization: {
         type: "string",
-        description: "The organization that owns the repository",
+        description: "The organization that owns the GitHub repository",
         tags: ["recommend-predefined"],
       },
-      repository: {
+      repositoryName: {
         type: "string",
-        description: "The repository name",
+        description: "The name of the GitHub repository",
         tags: ["recommend-predefined"],
       },
       path: {
@@ -11380,7 +11389,7 @@ export const githubSearchOrganizationDefinition: ActionTemplate = {
     properties: {
       organization: {
         type: "string",
-        description: "The organization to search for data in",
+        description: "The GitHub organization to search for data in",
         tags: ["recommend-predefined"],
       },
       query: {
@@ -11672,12 +11681,12 @@ export const githubGetBranchDefinition: ActionTemplate = {
     properties: {
       repositoryOwner: {
         type: "string",
-        description: "The owner of the repository",
+        description: "The owner of the GitHub repository's username",
         tags: ["recommend-predefined"],
       },
       repositoryName: {
         type: "string",
-        description: "The name of the repository",
+        description: "The name of the GitHub repository",
         tags: ["recommend-predefined"],
       },
       branchName: {
@@ -11931,12 +11940,12 @@ export const githubListCommitsDefinition: ActionTemplate = {
     properties: {
       repositoryOwner: {
         type: "string",
-        description: "The owner of the repository",
+        description: "The owner of the repository's username",
         tags: ["recommend-predefined"],
       },
       repositoryName: {
         type: "string",
-        description: "The name of the repository",
+        description: "The name of the GitHub repository to fetch commits from",
         tags: ["recommend-predefined"],
       },
       branch: {
@@ -12177,12 +12186,12 @@ export const gitlabSearchGroupDefinition: ActionTemplate = {
       },
       groupId: {
         type: "string",
-        description: "The group ID of the project to search in",
+        description: "The group ID of the GitLab group to search in",
         tags: ["recommend-predefined"],
       },
       project: {
         type: "string",
-        description: "The name of the project to search in",
+        description: "The name of the GitLab project to search in",
         tags: ["recommend-predefined"],
       },
     },
@@ -12461,7 +12470,7 @@ export const gitlabGetFileContentDefinition: ActionTemplate = {
     properties: {
       project_id: {
         type: "number",
-        description: "Numeric project ID in GitLab (unique per project)",
+        description: "Numeric project ID in GitLab (unique per project) to fetch file content from",
         tags: ["recommend-predefined"],
       },
       path: {
@@ -12548,6 +12557,7 @@ export const gitlabGetMergeRequestDefinition: ActionTemplate = {
         type: "string",
         description:
           'The path of the project to search in. Either this or the project ID is required. This is the path of the project in the GitLab URL (e.g., "my-group/my-project").',
+        tags: ["recommend-predefined"],
       },
       mr_iid: {
         type: "string",
@@ -12765,7 +12775,7 @@ export const gitlabListDirectoryDefinition: ActionTemplate = {
     properties: {
       group: {
         type: "string",
-        description: 'The group or namespace that owns the project (e.g., "my-group" or "org/subgroup")',
+        description: 'The group or namespace that owns the GitLab project (e.g., "my-group" or "org/subgroup")',
         tags: ["recommend-predefined"],
       },
       project: {
