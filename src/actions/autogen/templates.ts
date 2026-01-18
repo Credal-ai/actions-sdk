@@ -59,7 +59,7 @@ export const perplexityPerplexityDeepResearchDefinition: ActionTemplate = {
       },
       result: {
         type: "object",
-        description: "The main research response/analysis",
+        description: "The main research response/analysis object",
         properties: {
           content: {
             type: "string",
@@ -331,6 +331,7 @@ export const asanaCreateTaskDefinition: ActionTemplate = {
       projectId: {
         type: "string",
         description: "Project gid the task belongs to",
+        tags: ["recommend-predefined"],
       },
       name: {
         type: "string",
@@ -808,6 +809,56 @@ export const slackGetChannelMessagesDefinition: ActionTemplate = {
   name: "getChannelMessages",
   provider: "slack",
 };
+export const slackGetChannelMembersDefinition: ActionTemplate = {
+  description: "Gets the members of a Slack channel",
+  scopes: ["channels:read"],
+  tags: [],
+  parameters: {
+    type: "object",
+    properties: {
+      channelId: {
+        type: "string",
+        description: "The ID of the channel to get members from",
+      },
+      channelName: {
+        type: "string",
+        description: "The name of the channel to get members from",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success", "members"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the members were retrieved successfully",
+      },
+      members: {
+        type: "array",
+        description: "The members of the channel",
+        items: {
+          type: "object",
+          description: "A member of the channel",
+          required: ["id", "name", "email"],
+          properties: {
+            id: {
+              type: "string",
+            },
+            name: {
+              type: "string",
+            },
+            email: {
+              type: "string",
+            },
+          },
+        },
+      },
+    },
+  },
+  name: "getChannelMembers",
+  provider: "slack",
+};
 export const slackUserSearchSlackDefinition: ActionTemplate = {
   description:
     "Search Slack (DM/MPIM by emails or channel) with optional topic/time filter. Automatically hydrates each hit (full thread if threaded, otherwise a small surrounding context).",
@@ -1000,6 +1051,150 @@ export const slackUserSearchSlackDefinition: ActionTemplate = {
   name: "searchSlack",
   provider: "slackUser",
 };
+export const slackUserSearchSlackRTSDefinition: ActionTemplate = {
+  description:
+    "Search Slack messages across your organization using Slack's Real-Time Search API (assistant.search.context). Searches all conversations within the scope of permissions granted and returns relevant messages with content, author info, and permalinks.",
+  scopes: [
+    "search:read.public",
+    "search:read.private",
+    "search:read.mpim",
+    "search:read.im",
+    "search:read.files",
+    "search:read.users",
+  ],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["query"],
+    properties: {
+      query: {
+        type: "string",
+        description:
+          'The search query string (e.g., "What is project gizmo?", "mobile UX revamp"). You can use any Slack filters directly in the query string.',
+      },
+      channelTypes: {
+        type: "array",
+        description:
+          "Filter by channel types to search. If not specified, searches all channel types the user has access to.",
+        items: {
+          type: "string",
+          enum: ["public_channel", "private_channel", "mpim", "im"],
+        },
+      },
+      contentTypes: {
+        type: "array",
+        description: "Filter by content types to include in search results.",
+        items: {
+          type: "string",
+          enum: ["messages", "files", "channels"],
+        },
+        default: ["messages", "files", "channels"],
+      },
+      includeBots: {
+        type: "boolean",
+        description: "Whether to include bot messages in search results.",
+        default: false,
+      },
+      includeContextMessages: {
+        type: "boolean",
+        description: "Whether to include contextual messages in search results.",
+        default: false,
+      },
+      limit: {
+        type: "number",
+        description: "Maximum number of results per page (max 20).",
+        minimum: 1,
+        maximum: 20,
+        default: 20,
+      },
+      before: {
+        type: "string",
+        description: "Optional UNIX timestamp filter. If present, filters for results before this date.",
+      },
+      after: {
+        type: "string",
+        description: "Optional UNIX timestamp filter. If present, filters for results after this date.",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["ok", "results"],
+    properties: {
+      ok: {
+        type: "boolean",
+        description: "Whether the request was successful.",
+      },
+      results: {
+        type: "object",
+        description: "Search results containing messages and/or files.",
+        properties: {
+          messages: {
+            type: "array",
+            description: "Array of message results matching the search query.",
+            items: {
+              type: "object",
+              required: ["author_user_id", "team_id", "channel_id", "message_ts", "content", "is_author_bot"],
+              properties: {
+                author_user_id: {
+                  type: "string",
+                  description: "User ID of the message author.",
+                },
+                team_id: {
+                  type: "string",
+                  description: "Team/workspace ID where the message was posted.",
+                },
+                channel_id: {
+                  type: "string",
+                  description: "Channel ID where the message was posted.",
+                },
+                message_ts: {
+                  type: "string",
+                  description: "Message timestamp.",
+                },
+                content: {
+                  type: "string",
+                  description: "The message content/text.",
+                },
+                is_author_bot: {
+                  type: "boolean",
+                  description: "Whether the message author is a bot.",
+                },
+                permalink: {
+                  type: "string",
+                  description: "Permalink URL to the message in Slack.",
+                },
+              },
+            },
+          },
+          files: {
+            type: "array",
+            description: "Array of file results matching the search query (if files content type was requested).",
+            items: {
+              type: "object",
+              properties: {
+                file_id: {
+                  type: "string",
+                  description: "File ID.",
+                },
+                title: {
+                  type: "string",
+                  description: "File title.",
+                },
+                permalink: {
+                  type: "string",
+                  description: "Permalink URL to the file in Slack.",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  name: "searchSlackRTS",
+  provider: "slackUser",
+};
 export const mathAddDefinition: ActionTemplate = {
   description: "Adds two numbers together",
   scopes: [],
@@ -1128,7 +1323,8 @@ export const jiraAssignJiraTicketDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to add it to",
+        description: "The key for the project you want to add the ticket to.",
+        tags: ["recommend-predefined"],
       },
       assignee: {
         type: "string",
@@ -1210,15 +1406,16 @@ export const jiraCommentJiraTicketDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project",
+        description: "The key for the project to which the ticket you want to comment on belongs.",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
-        description: "The issue ID associated with the ticket to be commented on",
+        description: "The issue ID associated with the ticket to be commented on.",
       },
       comment: {
         type: "string",
-        description: "The text to be commented on the ticket",
+        description: "The text to be commented on the ticket.",
       },
     },
   },
@@ -1253,7 +1450,8 @@ export const jiraCreateJiraTicketDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to add it to",
+        description: "The key for the project you want to add the ticket to.",
+        tags: ["recommend-predefined"],
       },
       summary: {
         type: "string",
@@ -1305,100 +1503,6 @@ export const jiraCreateJiraTicketDefinition: ActionTemplate = {
     },
   },
   name: "createJiraTicket",
-  provider: "jira",
-};
-export const jiraGetServiceDesksDefinition: ActionTemplate = {
-  description: "Get the service desks for a Jira instance",
-  scopes: [],
-  tags: [],
-  parameters: {
-    type: "object",
-    required: [],
-    properties: {},
-  },
-  output: {
-    type: "object",
-    required: ["success"],
-    properties: {
-      success: {
-        type: "boolean",
-        description: "Whether the service desks were retrieved successfully",
-      },
-      error: {
-        type: "string",
-        description: "The error that occurred if the service desks were not retrieved successfully",
-      },
-      serviceDesks: {
-        type: "array",
-        description: "The list of service desks",
-        items: {
-          type: "object",
-          description: "A service desk",
-          properties: {
-            id: {
-              type: "string",
-              description: "The ID of the service desk",
-            },
-            projectId: {
-              type: "string",
-              description: "The ID of the project",
-            },
-            projectKey: {
-              type: "string",
-              description: "The key of the project",
-            },
-            projectName: {
-              type: "string",
-              description: "The name of the service desk",
-            },
-            requestTypes: {
-              type: "array",
-              description: "The list of request types",
-              items: {
-                type: "object",
-                description: "A request type",
-                properties: {
-                  id: {
-                    type: "string",
-                    description: "The ID of the request type",
-                  },
-                  name: {
-                    type: "string",
-                    description: "The name of the request type",
-                  },
-                  description: {
-                    type: "string",
-                    description: "The description of the request type",
-                  },
-                  issueTypeId: {
-                    type: "string",
-                    description: "The ID of the issue type",
-                  },
-                  portalId: {
-                    type: "string",
-                    description: "The ID of the customer portal",
-                  },
-                  helpText: {
-                    type: "string",
-                    description: "The help text for the request type",
-                  },
-                  serviceDeskId: {
-                    type: "string",
-                    description: "The ID of the service desk",
-                  },
-                  canCreateRequest: {
-                    type: "boolean",
-                    description: "Whether the request type can be created",
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  },
-  name: "getServiceDesks",
   provider: "jira",
 };
 export const jiraCreateServiceDeskRequestDefinition: ActionTemplate = {
@@ -1470,7 +1574,8 @@ export const jiraGetJiraTicketDetailsDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project",
+        description: "The key for the project the ticket belongs to.",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -1527,7 +1632,8 @@ export const jiraGetJiraTicketHistoryDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project",
+        description: "The key for the project the ticket belongs to.",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -1566,7 +1672,8 @@ export const jiraUpdateJiraTicketDetailsDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to add it to",
+        description: "The key for the project the ticket belongs to.",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -1626,7 +1733,8 @@ export const jiraUpdateJiraTicketStatusDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to add it to",
+        description: "The key for the project you want to add the ticket to.",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -1868,7 +1976,8 @@ export const jiraOrgAssignJiraTicketDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to add it to",
+        description: "The key for the project you want to add the ticket to.",
+        tags: ["recommend-predefined"],
       },
       assignee: {
         type: "string",
@@ -1950,15 +2059,16 @@ export const jiraOrgCommentJiraTicketDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project",
+        description: "The key for the project to which the ticket you want to comment on belongs.",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
-        description: "The issue ID associated with the ticket to be commented on",
+        description: "The issue ID associated with the ticket to be commented on.",
       },
       comment: {
         type: "string",
-        description: "The text to be commented on the ticket",
+        description: "The text to be commented on the ticket.",
       },
     },
   },
@@ -1993,7 +2103,8 @@ export const jiraOrgCreateJiraTicketDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to add it to",
+        description: "The key for the project you want to add the ticket to.",
+        tags: ["recommend-predefined"],
       },
       summary: {
         type: "string",
@@ -2045,100 +2156,6 @@ export const jiraOrgCreateJiraTicketDefinition: ActionTemplate = {
     },
   },
   name: "createJiraTicket",
-  provider: "jiraOrg",
-};
-export const jiraOrgGetServiceDesksDefinition: ActionTemplate = {
-  description: "Get the service desks for a Jira instance",
-  scopes: [],
-  tags: [],
-  parameters: {
-    type: "object",
-    required: [],
-    properties: {},
-  },
-  output: {
-    type: "object",
-    required: ["success"],
-    properties: {
-      success: {
-        type: "boolean",
-        description: "Whether the service desks were retrieved successfully",
-      },
-      error: {
-        type: "string",
-        description: "The error that occurred if the service desks were not retrieved successfully",
-      },
-      serviceDesks: {
-        type: "array",
-        description: "The list of service desks",
-        items: {
-          type: "object",
-          description: "A service desk",
-          properties: {
-            id: {
-              type: "string",
-              description: "The ID of the service desk",
-            },
-            projectId: {
-              type: "string",
-              description: "The ID of the project",
-            },
-            projectKey: {
-              type: "string",
-              description: "The key of the project",
-            },
-            projectName: {
-              type: "string",
-              description: "The name of the service desk",
-            },
-            requestTypes: {
-              type: "array",
-              description: "The list of request types",
-              items: {
-                type: "object",
-                description: "A request type",
-                properties: {
-                  id: {
-                    type: "string",
-                    description: "The ID of the request type",
-                  },
-                  name: {
-                    type: "string",
-                    description: "The name of the request type",
-                  },
-                  description: {
-                    type: "string",
-                    description: "The description of the request type",
-                  },
-                  issueTypeId: {
-                    type: "string",
-                    description: "The ID of the issue type",
-                  },
-                  portalId: {
-                    type: "string",
-                    description: "The ID of the customer portal",
-                  },
-                  helpText: {
-                    type: "string",
-                    description: "The help text for the request type",
-                  },
-                  serviceDeskId: {
-                    type: "string",
-                    description: "The ID of the service desk",
-                  },
-                  canCreateRequest: {
-                    type: "boolean",
-                    description: "Whether the request type can be created",
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  },
-  name: "getServiceDesks",
   provider: "jiraOrg",
 };
 export const jiraOrgCreateServiceDeskRequestDefinition: ActionTemplate = {
@@ -2210,7 +2227,8 @@ export const jiraOrgGetJiraTicketDetailsDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project",
+        description: "The key for the project the ticket belongs to.",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -2267,7 +2285,8 @@ export const jiraOrgGetJiraTicketHistoryDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project",
+        description: "The key for the project the ticket belongs to.",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -2306,7 +2325,8 @@ export const jiraOrgUpdateJiraTicketDetailsDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to add it to",
+        description: "The key for the project the ticket belongs to.",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -2366,7 +2386,8 @@ export const jiraOrgUpdateJiraTicketStatusDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to add it to",
+        description: "The key for the project you want to add the ticket to.",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -2608,7 +2629,8 @@ export const jiraDataCenterAssignJiraTicketDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to add it to",
+        description: "The key for the project you want to add the ticket to.",
+        tags: ["recommend-predefined"],
       },
       assignee: {
         type: "string",
@@ -2690,15 +2712,16 @@ export const jiraDataCenterCommentJiraTicketDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project",
+        description: "The key for the project to which the ticket you want to comment on belongs.",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
-        description: "The issue ID associated with the ticket to be commented on",
+        description: "The issue ID associated with the ticket to be commented on.",
       },
       comment: {
         type: "string",
-        description: "The text to be commented on the ticket",
+        description: "The text to be commented on the ticket.",
       },
     },
   },
@@ -2733,7 +2756,8 @@ export const jiraDataCenterCreateJiraTicketDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to add it to",
+        description: "The key for the project you want to add the ticket to.",
+        tags: ["recommend-predefined"],
       },
       summary: {
         type: "string",
@@ -2785,100 +2809,6 @@ export const jiraDataCenterCreateJiraTicketDefinition: ActionTemplate = {
     },
   },
   name: "createJiraTicket",
-  provider: "jiraDataCenter",
-};
-export const jiraDataCenterGetServiceDesksDefinition: ActionTemplate = {
-  description: "Get the service desks for a Jira instance",
-  scopes: [],
-  tags: [],
-  parameters: {
-    type: "object",
-    required: [],
-    properties: {},
-  },
-  output: {
-    type: "object",
-    required: ["success"],
-    properties: {
-      success: {
-        type: "boolean",
-        description: "Whether the service desks were retrieved successfully",
-      },
-      error: {
-        type: "string",
-        description: "The error that occurred if the service desks were not retrieved successfully",
-      },
-      serviceDesks: {
-        type: "array",
-        description: "The list of service desks",
-        items: {
-          type: "object",
-          description: "A service desk",
-          properties: {
-            id: {
-              type: "string",
-              description: "The ID of the service desk",
-            },
-            projectId: {
-              type: "string",
-              description: "The ID of the project",
-            },
-            projectKey: {
-              type: "string",
-              description: "The key of the project",
-            },
-            projectName: {
-              type: "string",
-              description: "The name of the service desk",
-            },
-            requestTypes: {
-              type: "array",
-              description: "The list of request types",
-              items: {
-                type: "object",
-                description: "A request type",
-                properties: {
-                  id: {
-                    type: "string",
-                    description: "The ID of the request type",
-                  },
-                  name: {
-                    type: "string",
-                    description: "The name of the request type",
-                  },
-                  description: {
-                    type: "string",
-                    description: "The description of the request type",
-                  },
-                  issueTypeId: {
-                    type: "string",
-                    description: "The ID of the issue type",
-                  },
-                  portalId: {
-                    type: "string",
-                    description: "The ID of the customer portal",
-                  },
-                  helpText: {
-                    type: "string",
-                    description: "The help text for the request type",
-                  },
-                  serviceDeskId: {
-                    type: "string",
-                    description: "The ID of the service desk",
-                  },
-                  canCreateRequest: {
-                    type: "boolean",
-                    description: "Whether the request type can be created",
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  },
-  name: "getServiceDesks",
   provider: "jiraDataCenter",
 };
 export const jiraDataCenterCreateServiceDeskRequestDefinition: ActionTemplate = {
@@ -2950,7 +2880,8 @@ export const jiraDataCenterGetJiraTicketDetailsDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project",
+        description: "The key for the project the ticket belongs to.",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -3007,7 +2938,8 @@ export const jiraDataCenterGetJiraTicketHistoryDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project",
+        description: "The key for the project the ticket belongs to.",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -3046,7 +2978,8 @@ export const jiraDataCenterUpdateJiraTicketDetailsDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to add it to",
+        description: "The key for the project the ticket belongs to.",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -3106,7 +3039,8 @@ export const jiraDataCenterUpdateJiraTicketStatusDefinition: ActionTemplate = {
     properties: {
       projectKey: {
         type: "string",
-        description: "The key for the project you want to add it to",
+        description: "The key for the project you want to add the ticket to.",
+        tags: ["recommend-predefined"],
       },
       issueId: {
         type: "string",
@@ -3339,7 +3273,7 @@ export const jiraDataCenterGetJiraIssuesByQueryDefinition: ActionTemplate = {
   provider: "jiraDataCenter",
 };
 export const googlemapsValidateAddressDefinition: ActionTemplate = {
-  description: "Validate a Google Maps address",
+  description: "Validate an address using the Google Maps API",
   scopes: [],
   tags: [],
   parameters: {
@@ -3603,7 +3537,7 @@ export const bingGetTopNSearchResultUrlsDefinition: ActionTemplate = {
     properties: {
       results: {
         type: "array",
-        description: "The top five search result objects",
+        description: "The top search result objects",
         items: {
           type: "object",
           properties: {
@@ -3642,6 +3576,7 @@ export const zendeskCreateZendeskTicketDefinition: ActionTemplate = {
       subdomain: {
         type: "string",
         description: "The subdomain of the Zendesk account",
+        tags: ["recommend-predefined"],
       },
       groupId: {
         type: "number",
@@ -3677,6 +3612,7 @@ export const zendeskListZendeskTicketsDefinition: ActionTemplate = {
       subdomain: {
         type: "string",
         description: "The subdomain of the Zendesk account",
+        tags: ["recommend-predefined"],
       },
       status: {
         type: "string",
@@ -3719,6 +3655,7 @@ export const zendeskGetTicketDetailsDefinition: ActionTemplate = {
       subdomain: {
         type: "string",
         description: "The subdomain of the Zendesk account",
+        tags: ["recommend-predefined"],
       },
     },
   },
@@ -3750,6 +3687,7 @@ export const zendeskUpdateTicketStatusDefinition: ActionTemplate = {
       subdomain: {
         type: "string",
         description: "The subdomain of the Zendesk account",
+        tags: ["recommend-predefined"],
       },
       status: {
         type: "string",
@@ -3776,6 +3714,7 @@ export const zendeskAddCommentToTicketDefinition: ActionTemplate = {
       subdomain: {
         type: "string",
         description: "The subdomain of the Zendesk account",
+        tags: ["recommend-predefined"],
       },
       body: {
         type: "string",
@@ -3819,6 +3758,7 @@ export const zendeskAssignTicketDefinition: ActionTemplate = {
       subdomain: {
         type: "string",
         description: "The subdomain of the Zendesk account",
+        tags: ["recommend-predefined"],
       },
       assigneeEmail: {
         type: "string",
@@ -3840,6 +3780,7 @@ export const zendeskSearchZendeskByQueryDefinition: ActionTemplate = {
       subdomain: {
         type: "string",
         description: "The subdomain of the Zendesk account",
+        tags: ["recommend-predefined"],
       },
       query: {
         type: "string",
@@ -5721,6 +5662,7 @@ export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
       calendarId: {
         type: "string",
         description: "The ID of the calendar to schedule the meeting on",
+        tags: ["recommend-predefined"],
       },
       name: {
         type: "string",
@@ -5728,11 +5670,11 @@ export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
       },
       start: {
         type: "string",
-        description: "The start time of the meeting",
+        description: "The start time of the meeting (in datetime format)",
       },
       end: {
         type: "string",
-        description: "The end time of the meeting",
+        description: "The end time of the meeting (in datetime format)",
       },
       description: {
         type: "string",
@@ -5743,7 +5685,7 @@ export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
         description: "The attendees of the meeting",
         items: {
           type: "string",
-          description: "The email of the attendee",
+          description: "The emails of the attendees",
         },
       },
       useGoogleMeet: {
@@ -5887,6 +5829,7 @@ export const googleOauthListCalendarEventsDefinition: ActionTemplate = {
       calendarId: {
         type: "string",
         description: "The ID of the calendar to list events from",
+        tags: ["recommend-predefined"],
       },
       query: {
         type: "string",
@@ -6010,6 +5953,41 @@ export const googleOauthListCalendarEventsDefinition: ActionTemplate = {
               type: "string",
               description: "Last modification time of the event (RFC3339 timestamp)",
             },
+            attachments: {
+              type: "array",
+              description: "List of file attachments for the event",
+              items: {
+                type: "object",
+                properties: {
+                  fileId: {
+                    type: "string",
+                    description: "ID of the attached file",
+                  },
+                  fileUrl: {
+                    type: "string",
+                    description: "URL link to the attachment",
+                  },
+                  title: {
+                    type: "string",
+                    description: "Attachment title",
+                  },
+                  mimeType: {
+                    type: "string",
+                    description: "Internet media type (MIME type) of the attachment",
+                  },
+                },
+              },
+            },
+            eventType: {
+              type: "string",
+              description:
+                'Differentiate "workingLocation" events, which simply specify a location, from real meetings',
+            },
+            transparency: {
+              type: "string",
+              description:
+                'Whether the event blocks time on the calendar and is considered a "busy" time. Populated when transparent.',
+            },
           },
         },
       },
@@ -6038,6 +6016,7 @@ export const googleOauthUpdateCalendarEventDefinition: ActionTemplate = {
       calendarId: {
         type: "string",
         description: "The ID of the calendar containing the event",
+        tags: ["recommend-predefined"],
       },
       eventId: {
         type: "string",
@@ -6137,6 +6116,7 @@ export const googleOauthEditAGoogleCalendarEventDefinition: ActionTemplate = {
       calendarId: {
         type: "string",
         description: "The ID of the calendar containing the event",
+        tags: ["recommend-predefined"],
       },
       eventId: {
         type: "string",
@@ -6234,6 +6214,7 @@ export const googleOauthDeleteCalendarEventDefinition: ActionTemplate = {
       calendarId: {
         type: "string",
         description: "The ID of the calendar containing the event",
+        tags: ["recommend-predefined"],
       },
       eventId: {
         type: "string",
@@ -6758,6 +6739,204 @@ export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
     },
   },
   name: "updateSpreadsheet",
+  provider: "googleOauth",
+};
+export const googleOauthAppendRowsToSpreadsheetDefinition: ActionTemplate = {
+  description:
+    "Adds new cells after the last row with data in a sheet, inserting new rows into the sheet if necessary.",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["spreadsheetId", "rows"],
+    properties: {
+      spreadsheetId: {
+        type: "string",
+        description:
+          'The ID of the Google Spreadsheet to update. This should be provided by the user. Can be found in the URL of the spreadsheet. For example, "1bWp1w2OVwH19mkXEiLIaP8As7N-9c_3EXF_Eo5d5Nm0".',
+        tags: ["recommend-predefined"],
+      },
+      sheetName: {
+        type: "string",
+        description: 'The name of the SHEET to append to. This should be provided by the user. For example, "Sheet1".',
+      },
+      rows: {
+        type: "array",
+        description: "Rows of cells to append to the spreadsheet",
+        items: {
+          type: "array",
+          description: "A list of cells to append to the spreadsheet",
+          items: {
+            type: "object",
+            required: ["stringValue"],
+            properties: {
+              stringValue: {
+                type: "string",
+                description: "The value of the cell",
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the spreadsheet was updated successfully",
+      },
+      spreadsheetUrl: {
+        type: "string",
+        description: "The URL of the updated spreadsheet",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the spreadsheet was not updated successfully",
+      },
+    },
+  },
+  name: "appendRowsToSpreadsheet",
+  provider: "googleOauth",
+};
+export const googleOauthDeleteRowFromSpreadsheetDefinition: ActionTemplate = {
+  description:
+    "Deletes a specific row from a Google Spreadsheet by row index. Row indices are 0-based (first row is 0).",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["spreadsheetId", "sheetId", "rowIndex"],
+    properties: {
+      spreadsheetId: {
+        type: "string",
+        description:
+          'The ID of the Google Spreadsheet. This should be provided by the user. Can be found in the URL of the spreadsheet. For example, "1bWp1w2OVwH19mkXEiLIaP8As7N-9c_3EXF_Eo5d5Nm0".',
+        tags: ["recommend-predefined"],
+      },
+      sheetId: {
+        type: "integer",
+        description:
+          'The ID of the specific sheet within the spreadsheet (not the sheet name). Sheet ID is 0 for the first sheet. Can be found in the URL after "gid=". For example, if the URL is "...#gid=123456789", the sheetId is 123456789.',
+      },
+      rowIndex: {
+        type: "integer",
+        description:
+          "The 0-based index of the row to delete. For example, to delete the first row (excluding headers if row 0 is headers), use rowIndex 1. To delete the header row, use rowIndex 0.",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the row was deleted successfully",
+      },
+      spreadsheetUrl: {
+        type: "string",
+        description: "The URL of the updated spreadsheet",
+      },
+      replies: {
+        type: "array",
+        description: "The replies from the batchUpdate request",
+        items: {
+          type: "object",
+        },
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the row was not deleted successfully",
+      },
+    },
+  },
+  name: "deleteRowFromSpreadsheet",
+  provider: "googleOauth",
+};
+export const googleOauthUpdateRowsInSpreadsheetDefinition: ActionTemplate = {
+  description:
+    "Updates one or more rows in a Google Spreadsheet starting from a specific row number. This overwrites existing data in the specified rows.",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["spreadsheetId", "startRow", "rows"],
+    properties: {
+      spreadsheetId: {
+        type: "string",
+        description:
+          'The ID of the Google Spreadsheet. This should be provided by the user. Can be found in the URL of the spreadsheet. For example, "1bWp1w2OVwH19mkXEiLIaP8As7N-9c_3EXF_Eo5d5Nm0".',
+        tags: ["recommend-predefined"],
+      },
+      sheetName: {
+        type: "string",
+        description:
+          'The name of the SHEET to update. This should be provided by the user. For example, "Sheet1". Defaults to "Sheet1" if not provided.',
+      },
+      startRow: {
+        type: "integer",
+        description:
+          "The row number to start updating from (1-based). For example, to update starting from the first row, use 1. To start from the second row, use 2.",
+      },
+      rows: {
+        type: "array",
+        description:
+          "Rows of cells to update in the spreadsheet. Each row will be written sequentially starting from startRow.",
+        items: {
+          type: "array",
+          description: "A list of cells for this row",
+          items: {
+            type: "object",
+            required: ["stringValue"],
+            properties: {
+              stringValue: {
+                type: "string",
+                description: "The value of the cell",
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the rows were updated successfully",
+      },
+      spreadsheetUrl: {
+        type: "string",
+        description: "The URL of the updated spreadsheet",
+      },
+      updatedRange: {
+        type: "string",
+        description: "The range that was updated in A1 notation",
+      },
+      updatedRows: {
+        type: "integer",
+        description: "The number of rows that were updated",
+      },
+      updatedColumns: {
+        type: "integer",
+        description: "The number of columns that were updated",
+      },
+      updatedCells: {
+        type: "integer",
+        description: "The total number of cells that were updated",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the rows were not updated successfully",
+      },
+    },
+  },
+  name: "updateRowsInSpreadsheet",
   provider: "googleOauth",
 };
 export const googleOauthCreatePresentationDefinition: ActionTemplate = {
@@ -8355,6 +8534,7 @@ export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: Action
       searchDriveByDrive: {
         type: "boolean",
         description: "Search drive by drive or run a general search",
+        tags: ["recommend-predefined"],
       },
       orderByQuery: {
         type: "string",
@@ -8364,6 +8544,7 @@ export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: Action
       includeTrashed: {
         type: "boolean",
         description: "Whether to include trashed files in the search results",
+        tags: ["recommend-predefined"],
       },
     },
   },
@@ -8452,6 +8633,7 @@ export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTem
       searchDriveByDrive: {
         type: "boolean",
         description: "Search drive by drive or run a general search",
+        tags: ["recommend-predefined"],
       },
       orderByQuery: {
         type: "string",
@@ -8461,6 +8643,7 @@ export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTem
       includeTrashed: {
         type: "boolean",
         description: "Whether to include trashed files in the search results",
+        tags: ["recommend-predefined"],
       },
     },
   },
@@ -9585,11 +9768,11 @@ export const salesforceUpdateRecordDefinition: ActionTemplate = {
   tags: [],
   parameters: {
     type: "object",
-    required: ["objectType", "recordId", "fieldsToUpdate"],
+    required: ["recordType", "recordId", "fieldsToUpdate"],
     properties: {
-      objectType: {
+      recordType: {
         type: "string",
-        description: "The Salesforce object type to update (e.g., Lead, Account, Contact)",
+        description: "The Salesforce record type to update (e.g., Lead, Account, Contact)",
       },
       recordId: {
         type: "string",
@@ -9628,11 +9811,11 @@ export const salesforceCreateRecordDefinition: ActionTemplate = {
   tags: [],
   parameters: {
     type: "object",
-    required: ["objectType"],
+    required: ["recordType"],
     properties: {
-      objectType: {
+      recordType: {
         type: "string",
-        description: "The Salesforce object type to create (e.g., Lead, Account, Contact)",
+        description: "The Salesforce record type to create (e.g., Lead, Account, Contact)",
       },
       fieldsToCreate: {
         type: "object",
@@ -9786,6 +9969,7 @@ export const salesforceSearchAllSalesforceRecordsDefinition: ActionTemplate = {
       usesLightningKnowledge: {
         type: "boolean",
         description: "Whether your Salesforce instance uses lightning knowledge articles",
+        tags: ["recommend-predefined"],
       },
       limit: {
         type: "number",
@@ -9857,6 +10041,75 @@ export const salesforceSearchAllSalesforceRecordsDefinition: ActionTemplate = {
     },
   },
   name: "searchAllSalesforceRecords",
+  provider: "salesforce",
+};
+export const salesforceListReportsDefinition: ActionTemplate = {
+  description: "List all available Salesforce reports",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    properties: {},
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the reports were successfully retrieved",
+      },
+      reports: {
+        type: "array",
+        description: "List of available reports",
+        items: {
+          type: "object",
+          description: "A Salesforce report",
+          additionalProperties: true,
+        },
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the reports were not successfully retrieved",
+      },
+    },
+  },
+  name: "listReports",
+  provider: "salesforce",
+};
+export const salesforceExecuteReportDefinition: ActionTemplate = {
+  description: "Execute a Salesforce report and retrieve its results",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["reportId"],
+    properties: {
+      reportId: {
+        type: "string",
+        description: "Id for the report to execute",
+      },
+      includeDetails: {
+        type: "boolean",
+        description: "Whether to include detailed report metadata in the response",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the report was successfully executed",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the report was not successfully executed",
+      },
+    },
+  },
+  name: "executeReport",
   provider: "salesforce",
 };
 export const salesforceSearchSalesforceRecordsDefinition: ActionTemplate = {
@@ -10016,11 +10269,11 @@ export const salesforceGetRecordDefinition: ActionTemplate = {
   tags: [],
   parameters: {
     type: "object",
-    required: ["objectType", "recordId"],
+    required: ["recordType", "recordId"],
     properties: {
-      objectType: {
+      recordType: {
         type: "string",
-        description: "The Salesforce object type to retrieve (e.g., Lead, Account, Contact)",
+        description: "The Salesforce record type to retrieve (e.g., Lead, Account, Contact)",
       },
       recordId: {
         type: "string",
@@ -10050,6 +10303,88 @@ export const salesforceGetRecordDefinition: ActionTemplate = {
     },
   },
   name: "getRecord",
+  provider: "salesforce",
+};
+export const salesforceGetReportMetadataDefinition: ActionTemplate = {
+  description: "Get metadata for a given Salesforce report",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["reportId"],
+    properties: {
+      reportId: {
+        type: "string",
+        description: "Id for the report to retrieve metadata for",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the report metadata was successfully retrieved",
+      },
+      metadata: {
+        type: "object",
+        description: "Filtered metadata from the report",
+        properties: {
+          reportType: {
+            type: "object",
+            description: "Report type information",
+            properties: {
+              type: {
+                type: "string",
+                description: "The type of the report",
+              },
+              label: {
+                type: "string",
+                description: "The label of the report type",
+              },
+            },
+          },
+          detailColumns: {
+            type: "array",
+            description: "Detail columns in the report",
+            items: {
+              type: "string",
+            },
+          },
+          reportFilters: {
+            type: "array",
+            description: "Filters applied to the report",
+          },
+          reportBooleanFilter: {
+            type: "string",
+            description: "Boolean filter logic for the report",
+          },
+          standardDateFilter: {
+            type: "object",
+            description: "Standard date filter configuration",
+          },
+          groupingsDown: {
+            type: "array",
+            description: "Row groupings for the report",
+          },
+          groupingsAcross: {
+            type: "array",
+            description: "Column groupings for matrix reports",
+          },
+          scope: {
+            type: "string",
+            description: "The scope of the report",
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the report metadata was not successfully retrieved",
+      },
+    },
+  },
+  name: "getReportMetadata",
   provider: "salesforce",
 };
 export const microsoftCreateDocumentDefinition: ActionTemplate = {
@@ -11035,244 +11370,6 @@ export const githubListDirectoryDefinition: ActionTemplate = {
   name: "listDirectory",
   provider: "github",
 };
-export const githubSearchRepositoryDefinition: ActionTemplate = {
-  description: "Search for code, issues and pull requests within a repository in a GitHub organization",
-  scopes: [],
-  tags: [],
-  parameters: {
-    type: "object",
-    required: ["organization", "repository", "query"],
-    properties: {
-      organization: {
-        type: "string",
-        description: "The organization to search for data in",
-        tags: ["recommend-predefined"],
-      },
-      repository: {
-        type: "string",
-        description: "The repository to search for data in",
-        tags: ["recommend-predefined"],
-      },
-      query: {
-        type: "string",
-        description: "The query to search for in the repository",
-      },
-    },
-  },
-  output: {
-    type: "object",
-    required: ["code", "commits", "issuesAndPullRequests"],
-    properties: {
-      code: {
-        type: "array",
-        description: "A list of code results that match the query",
-        items: {
-          type: "object",
-          required: ["name", "path", "sha", "url", "score", "textMatches"],
-          properties: {
-            name: {
-              type: "string",
-              description: "The name of the file that had a match",
-            },
-            path: {
-              type: "string",
-              description: "The path of the file that had a match",
-            },
-            sha: {
-              type: "string",
-              description: "The SHA of the commit that had a match",
-            },
-            url: {
-              type: "string",
-              description: "The URL of the file that had a match",
-            },
-            score: {
-              type: "number",
-              description: "The similarity score of the match",
-            },
-            textMatches: {
-              type: "array",
-              description: "A list of text matches that match the query",
-              items: {
-                type: "object",
-                required: ["matches"],
-                properties: {
-                  object_url: {
-                    type: "string",
-                    description: "The URL of the object that had a match",
-                  },
-                  object_type: {
-                    type: "string",
-                    description: "The type of the object that had a match",
-                  },
-                  fragment: {
-                    type: "string",
-                    description: "The fragment of the text that had a match",
-                  },
-                  matches: {
-                    type: "array",
-                    description: "A list of matches that match the query",
-                    items: {
-                      type: "object",
-                      properties: {
-                        text: {
-                          type: "string",
-                          description: "The text that had a match",
-                        },
-                        indices: {
-                          type: "array",
-                          description: "The indices of the text that had a match",
-                          items: {
-                            type: "number",
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      commits: {
-        type: "array",
-        description: "A list of commits that match the query",
-        items: {
-          type: "object",
-          required: ["sha", "url", "message", "author", "committer", "parents", "tree", "commitDate"],
-          properties: {
-            sha: {
-              type: "string",
-              description: "The SHA of the commit that had a match",
-            },
-            url: {
-              type: "string",
-              description: "The URL of the commit that had a match",
-            },
-            commit: {
-              type: "object",
-              required: ["message", "author", "score", "files"],
-              properties: {
-                author: {
-                  type: "object",
-                  required: ["name", "email", "date"],
-                  properties: {
-                    name: {
-                      type: "string",
-                      description: "The name of the author",
-                    },
-                    email: {
-                      type: "string",
-                      description: "The email of the author",
-                    },
-                    date: {
-                      type: "string",
-                      description: "The date of the commit",
-                    },
-                  },
-                },
-                message: {
-                  type: "string",
-                  description: "The message of the commit",
-                },
-              },
-              score: {
-                type: "number",
-                description: "The score of the commit",
-              },
-              files: {
-                type: "array",
-                description: "A list of files that match the query",
-                items: {
-                  type: "object",
-                  required: ["filename", "status", "patch"],
-                  properties: {
-                    filename: {
-                      type: "string",
-                      description: "The filename of the file",
-                    },
-                    status: {
-                      type: "string",
-                      description: "The status of the file",
-                    },
-                    patch: {
-                      type: "string",
-                      description: "The patch of the file",
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      issuesAndPullRequests: {
-        type: "array",
-        description: "A list of issues and pull requests that match the query",
-        items: {
-          type: "object",
-          required: ["title", "url", "state", "createdAt", "updatedAt", "user"],
-          properties: {
-            number: {
-              type: "number",
-              description: "The number of the issue or pull request",
-            },
-            title: {
-              type: "string",
-              description: "The title of the issue or pull request",
-            },
-            html_url: {
-              type: "string",
-              description: "The URL of the issue or pull request",
-            },
-            state: {
-              type: "string",
-              description: "The state of the issue or pull request",
-              enum: ["open", "closed"],
-            },
-            isPullRequest: {
-              type: "boolean",
-              description: "Whether the issue or pull request is a pull request",
-            },
-            body: {
-              type: "string",
-              description: "The body of the issue or pull request",
-            },
-            score: {
-              type: "number",
-              description: "The score of the issue or pull request",
-            },
-            files: {
-              type: "array",
-              description: "A list of files that match the query",
-              items: {
-                type: "object",
-                required: ["filename", "status"],
-                properties: {
-                  filename: {
-                    type: "string",
-                    description: "The filename of the file",
-                  },
-                  status: {
-                    type: "string",
-                    description: "The status of the file",
-                  },
-                  patch: {
-                    type: "string",
-                    description: "The patch of the file",
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  },
-  name: "searchRepository",
-  provider: "github",
-};
 export const githubSearchOrganizationDefinition: ActionTemplate = {
   description: "Search for code, issues and pull requests within a GitHub organization",
   scopes: [],
@@ -12081,10 +12178,12 @@ export const gitlabSearchGroupDefinition: ActionTemplate = {
       groupId: {
         type: "string",
         description: "The group ID of the project to search in",
+        tags: ["recommend-predefined"],
       },
       project: {
         type: "string",
         description: "The name of the project to search in",
+        tags: ["recommend-predefined"],
       },
     },
   },
@@ -12363,6 +12462,7 @@ export const gitlabGetFileContentDefinition: ActionTemplate = {
       project_id: {
         type: "number",
         description: "Numeric project ID in GitLab (unique per project)",
+        tags: ["recommend-predefined"],
       },
       path: {
         type: "string",
@@ -12442,6 +12542,7 @@ export const gitlabGetMergeRequestDefinition: ActionTemplate = {
       project_id: {
         type: "number",
         description: "Numeric project ID in GitLab (unique per project). Either this or the project path is required.",
+        tags: ["recommend-predefined"],
       },
       project_path: {
         type: "string",
@@ -12665,10 +12766,12 @@ export const gitlabListDirectoryDefinition: ActionTemplate = {
       group: {
         type: "string",
         description: 'The group or namespace that owns the project (e.g., "my-group" or "org/subgroup")',
+        tags: ["recommend-predefined"],
       },
       project: {
         type: "string",
         description: 'The name of the GitLab project (e.g., "my-repo")',
+        tags: ["recommend-predefined"],
       },
       path: {
         type: "string",
@@ -13398,7 +13501,7 @@ export const hubspotGetContactsDefinition: ActionTemplate = {
     properties: {
       query: {
         type: "string",
-        description: "Optional search query to filter contacts by name, email, or other properties",
+        description: "Optional keyword search query to filter contacts by name, email, or other properties",
       },
       limit: {
         type: "number",
@@ -13462,7 +13565,8 @@ export const hubspotGetContactDetailsDefinition: ActionTemplate = {
     properties: {
       contactId: {
         type: "string",
-        description: "The ID of the HubSpot contact to retrieve",
+        description:
+          "The ID of the HubSpot contact to retrieve. If you view the contact online, the url contains record/0-1/{contactId}/.",
       },
     },
   },
@@ -13563,7 +13667,7 @@ export const hubspotGetCompaniesDefinition: ActionTemplate = {
     properties: {
       query: {
         type: "string",
-        description: "Optional search query to filter companies by name, domain, or other properties",
+        description: "Optional keyword search query to filter companies by name, domain, or other properties",
       },
       limit: {
         type: "number",
@@ -13623,7 +13727,8 @@ export const hubspotGetCompanyDetailsDefinition: ActionTemplate = {
     properties: {
       companyId: {
         type: "string",
-        description: "The ID of the HubSpot company to retrieve",
+        description:
+          "The ID of the HubSpot company to retrieve. If you view the company online, the url contains record/0-2/{companyId}/.",
       },
     },
   },
@@ -13780,7 +13885,8 @@ export const hubspotGetDealDetailsDefinition: ActionTemplate = {
     properties: {
       dealId: {
         type: "string",
-        description: "The ID of the HubSpot deal to retrieve",
+        description:
+          "The ID of the HubSpot deal to retrieve. If you view the deal online, the url contains record/0-3/{dealId}/.",
       },
     },
   },
@@ -13925,7 +14031,8 @@ export const hubspotGetTicketDetailsDefinition: ActionTemplate = {
     properties: {
       ticketId: {
         type: "string",
-        description: "The ID of the HubSpot ticket to retrieve",
+        description:
+          "The ID of the HubSpot ticket to retrieve. If you view the ticket online, the url contains record/0-5/{ticketId}/.",
       },
     },
   },

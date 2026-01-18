@@ -210,6 +210,18 @@ async function generateTypes({
     })
     .setIsExported(true);
 
+  typesFile
+    .addEnum({
+      name: "ActionName",
+      members: Array.from(new Set(Object.values(parsedConfig.actions).flatMap(provider => Object.keys(provider)))).map(
+        actionName => ({
+          name: actionName.toUpperCase().replace(/-/g, "_"),
+          value: actionName,
+        }),
+      ),
+    })
+    .setIsExported(true);
+
   // Add imports
   templatesFile.addImportDeclaration({
     moduleSpecifier: "../../actions/parse",

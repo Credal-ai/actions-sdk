@@ -35,6 +35,139 @@ export enum ProviderName {
   GITLAB = "gitlab",
   LINEAR = "linear",
   HUBSPOT = "hubspot",
+  BOXUSER = "boxUser",
+}
+
+export enum ActionName {
+  FILLTEMPLATE = "fillTemplate",
+  PERPLEXITYDEEPRESEARCH = "perplexityDeepResearch",
+  COMMENTTASK = "commentTask",
+  LISTASANATASKSBYPROJECT = "listAsanaTasksByProject",
+  CREATETASK = "createTask",
+  UPDATETASK = "updateTask",
+  SEARCHTASKS = "searchTasks",
+  GETTASKSDETAILS = "getTasksDetails",
+  SENDDMFROMBOT = "sendDmFromBot",
+  CREATECHANNEL = "createChannel",
+  SENDMESSAGE = "sendMessage",
+  GETCHANNELMESSAGES = "getChannelMessages",
+  GETCHANNELMEMBERS = "getChannelMembers",
+  SEARCHSLACK = "searchSlack",
+  SEARCHSLACKRTS = "searchSlackRTS",
+  ADD = "add",
+  OVERWRITEPAGE = "overwritePage",
+  FETCHPAGECONTENT = "fetchPageContent",
+  ASSIGNJIRATICKET = "assignJiraTicket",
+  PUBLICCOMMENTONSERVICEDESKREQUEST = "publicCommentOnServiceDeskRequest",
+  COMMENTJIRATICKET = "commentJiraTicket",
+  CREATEJIRATICKET = "createJiraTicket",
+  CREATESERVICEDESKREQUEST = "createServiceDeskRequest",
+  GETJIRATICKETDETAILS = "getJiraTicketDetails",
+  GETJIRATICKETHISTORY = "getJiraTicketHistory",
+  UPDATEJIRATICKETDETAILS = "updateJiraTicketDetails",
+  UPDATEJIRATICKETSTATUS = "updateJiraTicketStatus",
+  GETJIRAISSUESBYQUERY = "getJiraIssuesByQuery",
+  VALIDATEADDRESS = "validateAddress",
+  NEARBYSEARCHRESTAURANTS = "nearbysearchRestaurants",
+  GETTOPNSEARCHRESULTURLS = "getTopNSearchResultUrls",
+  CREATEZENDESKTICKET = "createZendeskTicket",
+  LISTZENDESKTICKETS = "listZendeskTickets",
+  GETTICKETDETAILS = "getTicketDetails",
+  UPDATETICKETSTATUS = "updateTicketStatus",
+  ADDCOMMENTTOTICKET = "addCommentToTicket",
+  ASSIGNTICKET = "assignTicket",
+  SEARCHZENDESKBYQUERY = "searchZendeskByQuery",
+  CREATESHARELINKEDINPOSTURL = "createShareLinkedinPostUrl",
+  CREATESHAREXPOSTURL = "createShareXPostUrl",
+  INSERTMONGODOC = "insertMongoDoc",
+  GETROWBYFIELDVALUE = "getRowByFieldValue",
+  RUNSNOWFLAKEQUERY = "runSnowflakeQuery",
+  GETLATITUDELONGITUDEFROMLOCATION = "getLatitudeLongitudeFromLocation",
+  GETFORECASTFORLOCATION = "getForecastForLocation",
+  DEEPRESEARCH = "deepResearch",
+  SCRAPEURL = "scrapeUrl",
+  SEARCHANDSCRAPE = "searchAndScrape",
+  SCRAPETWEETDATAWITHNITTER = "scrapeTweetDataWithNitter",
+  SENDEMAIL = "sendEmail",
+  SENDEMAILHTML = "sendEmailHtml",
+  CREATENEWGOOGLEDOC = "createNewGoogleDoc",
+  UPDATEDOC = "updateDoc",
+  SCHEDULECALENDARMEETING = "scheduleCalendarMeeting",
+  LISTCALENDARS = "listCalendars",
+  LISTCALENDAREVENTS = "listCalendarEvents",
+  UPDATECALENDAREVENT = "updateCalendarEvent",
+  EDITAGOOGLECALENDAREVENT = "editAGoogleCalendarEvent",
+  DELETECALENDAREVENT = "deleteCalendarEvent",
+  CREATESPREADSHEET = "createSpreadsheet",
+  UPDATESPREADSHEET = "updateSpreadsheet",
+  APPENDROWSTOSPREADSHEET = "appendRowsToSpreadsheet",
+  DELETEROWFROMSPREADSHEET = "deleteRowFromSpreadsheet",
+  UPDATEROWSINSPREADSHEET = "updateRowsInSpreadsheet",
+  CREATEPRESENTATION = "createPresentation",
+  UPDATEPRESENTATION = "updatePresentation",
+  GETPRESENTATION = "getPresentation",
+  SEARCHDRIVEBYKEYWORDS = "searchDriveByKeywords",
+  SEARCHDRIVEBYQUERY = "searchDriveByQuery",
+  SEARCHDRIVEBYKEYWORDSANDGETFILECONTENT = "searchDriveByKeywordsAndGetFileContent",
+  SEARCHDRIVEBYQUERYANDGETFILECONTENT = "searchDriveByQueryAndGetFileContent",
+  GETDRIVEFILECONTENTBYID = "getDriveFileContentById",
+  LISTGROUPS = "listGroups",
+  GETGROUP = "getGroup",
+  LISTGROUPMEMBERS = "listGroupMembers",
+  HASGROUPMEMBER = "hasGroupMember",
+  ADDGROUPMEMBER = "addGroupMember",
+  DELETEGROUPMEMBER = "deleteGroupMember",
+  QUERYGOOGLEBIGQUERY = "queryGoogleBigQuery",
+  SEARCHGMAILMESSAGES = "searchGmailMessages",
+  LISTGMAILTHREADS = "listGmailThreads",
+  SENDGMAIL = "sendGmail",
+  CUSTOMSEARCH = "customSearch",
+  GETOKTAUSERBYNAME = "getOktaUserByName",
+  SYMBOLLOOKUP = "symbolLookup",
+  GETBASICFINANCIALS = "getBasicFinancials",
+  ENABLEUSERBYEMAIL = "enableUserByEmail",
+  UPDATERECORD = "updateRecord",
+  CREATERECORD = "createRecord",
+  CREATECASE = "createCase",
+  GENERATESALESREPORT = "generateSalesReport",
+  SEARCHALLSALESFORCERECORDS = "searchAllSalesforceRecords",
+  LISTREPORTS = "listReports",
+  EXECUTEREPORT = "executeReport",
+  SEARCHSALESFORCERECORDS = "searchSalesforceRecords",
+  GETSALESFORCERECORDSBYQUERY = "getSalesforceRecordsByQuery",
+  GETRECORD = "getRecord",
+  GETREPORTMETADATA = "getReportMetadata",
+  CREATEDOCUMENT = "createDocument",
+  UPDATEDOCUMENT = "updateDocument",
+  MESSAGETEAMSCHAT = "messageTeamsChat",
+  MESSAGETEAMSCHANNEL = "messageTeamsChannel",
+  GETDOCUMENT = "getDocument",
+  CREATEORUPDATEFILE = "createOrUpdateFile",
+  CREATEBRANCH = "createBranch",
+  CREATEPULLREQUEST = "createPullRequest",
+  LISTPULLREQUESTS = "listPullRequests",
+  GETPULLREQUESTDETAILS = "getPullRequestDetails",
+  GETFILECONTENT = "getFileContent",
+  LISTDIRECTORY = "listDirectory",
+  SEARCHORGANIZATION = "searchOrganization",
+  GETBRANCH = "getBranch",
+  LISTCOMMITS = "listCommits",
+  SEARCHBYTITLE = "searchByTitle",
+  SEARCHGROUP = "searchGroup",
+  GETMERGEREQUEST = "getMergeRequest",
+  GETISSUES = "getIssues",
+  GETISSUEDETAILS = "getIssueDetails",
+  GETPROJECTS = "getProjects",
+  GETPROJECTDETAILS = "getProjectDetails",
+  GETTEAMDETAILS = "getTeamDetails",
+  GETTEAMS = "getTeams",
+  GETCONTACTS = "getContacts",
+  GETCONTACTDETAILS = "getContactDetails",
+  GETCOMPANIES = "getCompanies",
+  GETCOMPANYDETAILS = "getCompanyDetails",
+  GETDEALS = "getDeals",
+  GETDEALDETAILS = "getDealDetails",
+  GETTICKETS = "getTickets",
 }
 
 export type ActionFunction<P, A, O> = (input: { params: P; authParams: A }) => Promise<O>;
@@ -111,7 +244,7 @@ export const perplexityPerplexityDeepResearchOutputSchema = z.object({
         .describe("Array of source citations")
         .optional(),
     })
-    .describe("The main research response/analysis")
+    .describe("The main research response/analysis object")
     .optional(),
 });
 
@@ -478,6 +611,27 @@ export type slackGetChannelMessagesFunction = ActionFunction<
   slackGetChannelMessagesOutputType
 >;
 
+export const slackGetChannelMembersParamsSchema = z.object({
+  channelId: z.string().describe("The ID of the channel to get members from").optional(),
+  channelName: z.string().describe("The name of the channel to get members from").optional(),
+});
+
+export type slackGetChannelMembersParamsType = z.infer<typeof slackGetChannelMembersParamsSchema>;
+
+export const slackGetChannelMembersOutputSchema = z.object({
+  success: z.boolean().describe("Whether the members were retrieved successfully"),
+  members: z
+    .array(z.object({ id: z.string(), name: z.string(), email: z.string() }).describe("A member of the channel"))
+    .describe("The members of the channel"),
+});
+
+export type slackGetChannelMembersOutputType = z.infer<typeof slackGetChannelMembersOutputSchema>;
+export type slackGetChannelMembersFunction = ActionFunction<
+  slackGetChannelMembersParamsType,
+  AuthParamsType,
+  slackGetChannelMembersOutputType
+>;
+
 export const slackUserSearchSlackParamsSchema = z.object({
   emails: z
     .array(z.string().email())
@@ -571,6 +725,77 @@ export type slackUserSearchSlackFunction = ActionFunction<
   slackUserSearchSlackOutputType
 >;
 
+export const slackUserSearchSlackRTSParamsSchema = z.object({
+  query: z
+    .string()
+    .describe(
+      'The search query string (e.g., "What is project gizmo?", "mobile UX revamp"). You can use any Slack filters directly in the query string.',
+    ),
+  channelTypes: z
+    .array(z.enum(["public_channel", "private_channel", "mpim", "im"]))
+    .describe("Filter by channel types to search. If not specified, searches all channel types the user has access to.")
+    .optional(),
+  contentTypes: z
+    .array(z.enum(["messages", "files", "channels"]))
+    .describe("Filter by content types to include in search results.")
+    .default(["messages", "files", "channels"]),
+  includeBots: z.boolean().describe("Whether to include bot messages in search results.").default(false),
+  includeContextMessages: z
+    .boolean()
+    .describe("Whether to include contextual messages in search results.")
+    .default(false),
+  limit: z.number().gte(1).lte(20).describe("Maximum number of results per page (max 20).").default(20),
+  before: z
+    .string()
+    .describe("Optional UNIX timestamp filter. If present, filters for results before this date.")
+    .optional(),
+  after: z
+    .string()
+    .describe("Optional UNIX timestamp filter. If present, filters for results after this date.")
+    .optional(),
+});
+
+export type slackUserSearchSlackRTSParamsType = z.infer<typeof slackUserSearchSlackRTSParamsSchema>;
+
+export const slackUserSearchSlackRTSOutputSchema = z.object({
+  ok: z.boolean().describe("Whether the request was successful."),
+  results: z
+    .object({
+      messages: z
+        .array(
+          z.object({
+            author_user_id: z.string().describe("User ID of the message author."),
+            team_id: z.string().describe("Team/workspace ID where the message was posted."),
+            channel_id: z.string().describe("Channel ID where the message was posted."),
+            message_ts: z.string().describe("Message timestamp."),
+            content: z.string().describe("The message content/text."),
+            is_author_bot: z.boolean().describe("Whether the message author is a bot."),
+            permalink: z.string().describe("Permalink URL to the message in Slack.").optional(),
+          }),
+        )
+        .describe("Array of message results matching the search query.")
+        .optional(),
+      files: z
+        .array(
+          z.object({
+            file_id: z.string().describe("File ID.").optional(),
+            title: z.string().describe("File title.").optional(),
+            permalink: z.string().describe("Permalink URL to the file in Slack.").optional(),
+          }),
+        )
+        .describe("Array of file results matching the search query (if files content type was requested).")
+        .optional(),
+    })
+    .describe("Search results containing messages and/or files."),
+});
+
+export type slackUserSearchSlackRTSOutputType = z.infer<typeof slackUserSearchSlackRTSOutputSchema>;
+export type slackUserSearchSlackRTSFunction = ActionFunction<
+  slackUserSearchSlackRTSParamsType,
+  AuthParamsType,
+  slackUserSearchSlackRTSOutputType
+>;
+
 export const mathAddParamsSchema = z.object({
   a: z.number().describe("The first number to add"),
   b: z.number().describe("The second number to add"),
@@ -629,7 +854,7 @@ export type confluenceFetchPageContentFunction = ActionFunction<
 >;
 
 export const jiraAssignJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the project you want to add the ticket to."),
   assignee: z.string().describe("The assignee for the ticket, userID or email"),
   issueId: z.string().describe("The issue ID associated with the ticket to be assigned/re-assigned"),
 });
@@ -677,9 +902,9 @@ export type jiraPublicCommentOnServiceDeskRequestFunction = ActionFunction<
 >;
 
 export const jiraCommentJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
-  issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
-  comment: z.string().describe("The text to be commented on the ticket"),
+  projectKey: z.string().describe("The key for the project to which the ticket you want to comment on belongs."),
+  issueId: z.string().describe("The issue ID associated with the ticket to be commented on."),
+  comment: z.string().describe("The text to be commented on the ticket."),
 });
 
 export type jiraCommentJiraTicketParamsType = z.infer<typeof jiraCommentJiraTicketParamsSchema>;
@@ -698,7 +923,7 @@ export type jiraCommentJiraTicketFunction = ActionFunction<
 >;
 
 export const jiraCreateJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the project you want to add the ticket to."),
   summary: z.string().describe("The summary of the new ticket"),
   description: z.string().describe("The description for the new ticket"),
   issueType: z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."),
@@ -730,52 +955,6 @@ export type jiraCreateJiraTicketFunction = ActionFunction<
   jiraCreateJiraTicketOutputType
 >;
 
-export const jiraGetServiceDesksParamsSchema = z.object({});
-
-export type jiraGetServiceDesksParamsType = z.infer<typeof jiraGetServiceDesksParamsSchema>;
-
-export const jiraGetServiceDesksOutputSchema = z.object({
-  success: z.boolean().describe("Whether the service desks were retrieved successfully"),
-  error: z.string().describe("The error that occurred if the service desks were not retrieved successfully").optional(),
-  serviceDesks: z
-    .array(
-      z
-        .object({
-          id: z.string().describe("The ID of the service desk").optional(),
-          projectId: z.string().describe("The ID of the project").optional(),
-          projectKey: z.string().describe("The key of the project").optional(),
-          projectName: z.string().describe("The name of the service desk").optional(),
-          requestTypes: z
-            .array(
-              z
-                .object({
-                  id: z.string().describe("The ID of the request type").optional(),
-                  name: z.string().describe("The name of the request type").optional(),
-                  description: z.string().describe("The description of the request type").optional(),
-                  issueTypeId: z.string().describe("The ID of the issue type").optional(),
-                  portalId: z.string().describe("The ID of the customer portal").optional(),
-                  helpText: z.string().describe("The help text for the request type").optional(),
-                  serviceDeskId: z.string().describe("The ID of the service desk").optional(),
-                  canCreateRequest: z.boolean().describe("Whether the request type can be created").optional(),
-                })
-                .describe("A request type"),
-            )
-            .describe("The list of request types")
-            .optional(),
-        })
-        .describe("A service desk"),
-    )
-    .describe("The list of service desks")
-    .optional(),
-});
-
-export type jiraGetServiceDesksOutputType = z.infer<typeof jiraGetServiceDesksOutputSchema>;
-export type jiraGetServiceDesksFunction = ActionFunction<
-  jiraGetServiceDesksParamsType,
-  AuthParamsType,
-  jiraGetServiceDesksOutputType
->;
-
 export const jiraCreateServiceDeskRequestParamsSchema = z.object({
   serviceDeskId: z.string().describe("The ID of the service desk to create the request in"),
   requestTypeId: z.string().describe("The ID of the request type to use for the new request"),
@@ -805,7 +984,7 @@ export type jiraCreateServiceDeskRequestFunction = ActionFunction<
 >;
 
 export const jiraGetJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
+  projectKey: z.string().describe("The key for the project the ticket belongs to."),
   issueId: z.string().describe("The ID of the ticket"),
 });
 
@@ -834,7 +1013,7 @@ export type jiraGetJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraGetJiraTicketHistoryParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
+  projectKey: z.string().describe("The key for the project the ticket belongs to."),
   issueId: z.string().describe("The ID of the ticket"),
 });
 
@@ -854,7 +1033,7 @@ export type jiraGetJiraTicketHistoryFunction = ActionFunction<
 >;
 
 export const jiraUpdateJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the project the ticket belongs to."),
   issueId: z.string().describe("The issue ID associated with the ticket to be updated"),
   summary: z.string().describe("The updated summary").optional(),
   description: z.string().describe("The updated description").optional(),
@@ -883,7 +1062,7 @@ export type jiraUpdateJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraUpdateJiraTicketStatusParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the project you want to add the ticket to."),
   issueId: z.string().describe("The issue ID associated with the ticket"),
   status: z.string().describe('The status the ticket should be changed to (eg "In Progress", "Closed")'),
 });
@@ -978,7 +1157,7 @@ export type jiraGetJiraIssuesByQueryFunction = ActionFunction<
 >;
 
 export const jiraOrgAssignJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the project you want to add the ticket to."),
   assignee: z.string().describe("The assignee for the ticket, userID or email"),
   issueId: z.string().describe("The issue ID associated with the ticket to be assigned/re-assigned"),
 });
@@ -1026,9 +1205,9 @@ export type jiraOrgPublicCommentOnServiceDeskRequestFunction = ActionFunction<
 >;
 
 export const jiraOrgCommentJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
-  issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
-  comment: z.string().describe("The text to be commented on the ticket"),
+  projectKey: z.string().describe("The key for the project to which the ticket you want to comment on belongs."),
+  issueId: z.string().describe("The issue ID associated with the ticket to be commented on."),
+  comment: z.string().describe("The text to be commented on the ticket."),
 });
 
 export type jiraOrgCommentJiraTicketParamsType = z.infer<typeof jiraOrgCommentJiraTicketParamsSchema>;
@@ -1047,7 +1226,7 @@ export type jiraOrgCommentJiraTicketFunction = ActionFunction<
 >;
 
 export const jiraOrgCreateJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the project you want to add the ticket to."),
   summary: z.string().describe("The summary of the new ticket"),
   description: z.string().describe("The description for the new ticket"),
   issueType: z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."),
@@ -1079,52 +1258,6 @@ export type jiraOrgCreateJiraTicketFunction = ActionFunction<
   jiraOrgCreateJiraTicketOutputType
 >;
 
-export const jiraOrgGetServiceDesksParamsSchema = z.object({});
-
-export type jiraOrgGetServiceDesksParamsType = z.infer<typeof jiraOrgGetServiceDesksParamsSchema>;
-
-export const jiraOrgGetServiceDesksOutputSchema = z.object({
-  success: z.boolean().describe("Whether the service desks were retrieved successfully"),
-  error: z.string().describe("The error that occurred if the service desks were not retrieved successfully").optional(),
-  serviceDesks: z
-    .array(
-      z
-        .object({
-          id: z.string().describe("The ID of the service desk").optional(),
-          projectId: z.string().describe("The ID of the project").optional(),
-          projectKey: z.string().describe("The key of the project").optional(),
-          projectName: z.string().describe("The name of the service desk").optional(),
-          requestTypes: z
-            .array(
-              z
-                .object({
-                  id: z.string().describe("The ID of the request type").optional(),
-                  name: z.string().describe("The name of the request type").optional(),
-                  description: z.string().describe("The description of the request type").optional(),
-                  issueTypeId: z.string().describe("The ID of the issue type").optional(),
-                  portalId: z.string().describe("The ID of the customer portal").optional(),
-                  helpText: z.string().describe("The help text for the request type").optional(),
-                  serviceDeskId: z.string().describe("The ID of the service desk").optional(),
-                  canCreateRequest: z.boolean().describe("Whether the request type can be created").optional(),
-                })
-                .describe("A request type"),
-            )
-            .describe("The list of request types")
-            .optional(),
-        })
-        .describe("A service desk"),
-    )
-    .describe("The list of service desks")
-    .optional(),
-});
-
-export type jiraOrgGetServiceDesksOutputType = z.infer<typeof jiraOrgGetServiceDesksOutputSchema>;
-export type jiraOrgGetServiceDesksFunction = ActionFunction<
-  jiraOrgGetServiceDesksParamsType,
-  AuthParamsType,
-  jiraOrgGetServiceDesksOutputType
->;
-
 export const jiraOrgCreateServiceDeskRequestParamsSchema = z.object({
   serviceDeskId: z.string().describe("The ID of the service desk to create the request in"),
   requestTypeId: z.string().describe("The ID of the request type to use for the new request"),
@@ -1154,7 +1287,7 @@ export type jiraOrgCreateServiceDeskRequestFunction = ActionFunction<
 >;
 
 export const jiraOrgGetJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
+  projectKey: z.string().describe("The key for the project the ticket belongs to."),
   issueId: z.string().describe("The ID of the ticket"),
 });
 
@@ -1183,7 +1316,7 @@ export type jiraOrgGetJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraOrgGetJiraTicketHistoryParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
+  projectKey: z.string().describe("The key for the project the ticket belongs to."),
   issueId: z.string().describe("The ID of the ticket"),
 });
 
@@ -1203,7 +1336,7 @@ export type jiraOrgGetJiraTicketHistoryFunction = ActionFunction<
 >;
 
 export const jiraOrgUpdateJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the project the ticket belongs to."),
   issueId: z.string().describe("The issue ID associated with the ticket to be updated"),
   summary: z.string().describe("The updated summary").optional(),
   description: z.string().describe("The updated description").optional(),
@@ -1232,7 +1365,7 @@ export type jiraOrgUpdateJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraOrgUpdateJiraTicketStatusParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the project you want to add the ticket to."),
   issueId: z.string().describe("The issue ID associated with the ticket"),
   status: z.string().describe('The status the ticket should be changed to (eg "In Progress", "Closed")'),
 });
@@ -1327,7 +1460,7 @@ export type jiraOrgGetJiraIssuesByQueryFunction = ActionFunction<
 >;
 
 export const jiraDataCenterAssignJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the project you want to add the ticket to."),
   assignee: z.string().describe("The assignee for the ticket, userID or email"),
   issueId: z.string().describe("The issue ID associated with the ticket to be assigned/re-assigned"),
 });
@@ -1375,9 +1508,9 @@ export type jiraDataCenterPublicCommentOnServiceDeskRequestFunction = ActionFunc
 >;
 
 export const jiraDataCenterCommentJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
-  issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
-  comment: z.string().describe("The text to be commented on the ticket"),
+  projectKey: z.string().describe("The key for the project to which the ticket you want to comment on belongs."),
+  issueId: z.string().describe("The issue ID associated with the ticket to be commented on."),
+  comment: z.string().describe("The text to be commented on the ticket."),
 });
 
 export type jiraDataCenterCommentJiraTicketParamsType = z.infer<typeof jiraDataCenterCommentJiraTicketParamsSchema>;
@@ -1396,7 +1529,7 @@ export type jiraDataCenterCommentJiraTicketFunction = ActionFunction<
 >;
 
 export const jiraDataCenterCreateJiraTicketParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the project you want to add the ticket to."),
   summary: z.string().describe("The summary of the new ticket"),
   description: z.string().describe("The description for the new ticket"),
   issueType: z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."),
@@ -1426,52 +1559,6 @@ export type jiraDataCenterCreateJiraTicketFunction = ActionFunction<
   jiraDataCenterCreateJiraTicketParamsType,
   AuthParamsType,
   jiraDataCenterCreateJiraTicketOutputType
->;
-
-export const jiraDataCenterGetServiceDesksParamsSchema = z.object({});
-
-export type jiraDataCenterGetServiceDesksParamsType = z.infer<typeof jiraDataCenterGetServiceDesksParamsSchema>;
-
-export const jiraDataCenterGetServiceDesksOutputSchema = z.object({
-  success: z.boolean().describe("Whether the service desks were retrieved successfully"),
-  error: z.string().describe("The error that occurred if the service desks were not retrieved successfully").optional(),
-  serviceDesks: z
-    .array(
-      z
-        .object({
-          id: z.string().describe("The ID of the service desk").optional(),
-          projectId: z.string().describe("The ID of the project").optional(),
-          projectKey: z.string().describe("The key of the project").optional(),
-          projectName: z.string().describe("The name of the service desk").optional(),
-          requestTypes: z
-            .array(
-              z
-                .object({
-                  id: z.string().describe("The ID of the request type").optional(),
-                  name: z.string().describe("The name of the request type").optional(),
-                  description: z.string().describe("The description of the request type").optional(),
-                  issueTypeId: z.string().describe("The ID of the issue type").optional(),
-                  portalId: z.string().describe("The ID of the customer portal").optional(),
-                  helpText: z.string().describe("The help text for the request type").optional(),
-                  serviceDeskId: z.string().describe("The ID of the service desk").optional(),
-                  canCreateRequest: z.boolean().describe("Whether the request type can be created").optional(),
-                })
-                .describe("A request type"),
-            )
-            .describe("The list of request types")
-            .optional(),
-        })
-        .describe("A service desk"),
-    )
-    .describe("The list of service desks")
-    .optional(),
-});
-
-export type jiraDataCenterGetServiceDesksOutputType = z.infer<typeof jiraDataCenterGetServiceDesksOutputSchema>;
-export type jiraDataCenterGetServiceDesksFunction = ActionFunction<
-  jiraDataCenterGetServiceDesksParamsType,
-  AuthParamsType,
-  jiraDataCenterGetServiceDesksOutputType
 >;
 
 export const jiraDataCenterCreateServiceDeskRequestParamsSchema = z.object({
@@ -1507,7 +1594,7 @@ export type jiraDataCenterCreateServiceDeskRequestFunction = ActionFunction<
 >;
 
 export const jiraDataCenterGetJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
+  projectKey: z.string().describe("The key for the project the ticket belongs to."),
   issueId: z.string().describe("The ID of the ticket"),
 });
 
@@ -1540,7 +1627,7 @@ export type jiraDataCenterGetJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraDataCenterGetJiraTicketHistoryParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project"),
+  projectKey: z.string().describe("The key for the project the ticket belongs to."),
   issueId: z.string().describe("The ID of the ticket"),
 });
 
@@ -1564,7 +1651,7 @@ export type jiraDataCenterGetJiraTicketHistoryFunction = ActionFunction<
 >;
 
 export const jiraDataCenterUpdateJiraTicketDetailsParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the project the ticket belongs to."),
   issueId: z.string().describe("The issue ID associated with the ticket to be updated"),
   summary: z.string().describe("The updated summary").optional(),
   description: z.string().describe("The updated description").optional(),
@@ -1597,7 +1684,7 @@ export type jiraDataCenterUpdateJiraTicketDetailsFunction = ActionFunction<
 >;
 
 export const jiraDataCenterUpdateJiraTicketStatusParamsSchema = z.object({
-  projectKey: z.string().describe("The key for the project you want to add it to"),
+  projectKey: z.string().describe("The key for the project you want to add the ticket to."),
   issueId: z.string().describe("The issue ID associated with the ticket"),
   status: z.string().describe('The status the ticket should be changed to (eg "In Progress", "Closed")'),
 });
@@ -1826,7 +1913,7 @@ export const bingGetTopNSearchResultUrlsOutputSchema = z.object({
         url: z.string().describe("The URL of the search result").optional(),
       }),
     )
-    .describe("The top five search result objects"),
+    .describe("The top search result objects"),
 });
 
 export type bingGetTopNSearchResultUrlsOutputType = z.infer<typeof bingGetTopNSearchResultUrlsOutputSchema>;
@@ -2925,11 +3012,11 @@ export type googleOauthUpdateDocFunction = ActionFunction<
 export const googleOauthScheduleCalendarMeetingParamsSchema = z.object({
   calendarId: z.string().describe("The ID of the calendar to schedule the meeting on"),
   name: z.string().describe("The name of the meeting"),
-  start: z.string().describe("The start time of the meeting"),
-  end: z.string().describe("The end time of the meeting"),
+  start: z.string().describe("The start time of the meeting (in datetime format)"),
+  end: z.string().describe("The end time of the meeting (in datetime format)"),
   description: z.string().describe("The description of the meeting").optional(),
   attendees: z
-    .array(z.string().describe("The email of the attendee"))
+    .array(z.string().describe("The emails of the attendees"))
     .describe("The attendees of the meeting")
     .optional(),
   useGoogleMeet: z.boolean().describe("Whether to use Google Meet for the meeting").optional(),
@@ -3066,6 +3153,27 @@ export const googleOauthListCalendarEventsOutputSchema = z.object({
           hangoutLink: z.string().describe("Google Meet link for the event, if available").optional(),
           created: z.string().describe("Creation time of the event (RFC3339 timestamp)").optional(),
           updated: z.string().describe("Last modification time of the event (RFC3339 timestamp)").optional(),
+          attachments: z
+            .array(
+              z.object({
+                fileId: z.string().describe("ID of the attached file").optional(),
+                fileUrl: z.string().describe("URL link to the attachment").optional(),
+                title: z.string().describe("Attachment title").optional(),
+                mimeType: z.string().describe("Internet media type (MIME type) of the attachment").optional(),
+              }),
+            )
+            .describe("List of file attachments for the event")
+            .optional(),
+          eventType: z
+            .string()
+            .describe('Differentiate "workingLocation" events, which simply specify a location, from real meetings')
+            .optional(),
+          transparency: z
+            .string()
+            .describe(
+              'Whether the event blocks time on the calendar and is considered a "busy" time. Populated when transparent.',
+            )
+            .optional(),
         })
         .describe("A calendar event"),
     )
@@ -3477,6 +3585,136 @@ export type googleOauthUpdateSpreadsheetFunction = ActionFunction<
   googleOauthUpdateSpreadsheetParamsType,
   AuthParamsType,
   googleOauthUpdateSpreadsheetOutputType
+>;
+
+export const googleOauthAppendRowsToSpreadsheetParamsSchema = z.object({
+  spreadsheetId: z
+    .string()
+    .describe(
+      'The ID of the Google Spreadsheet to update. This should be provided by the user. Can be found in the URL of the spreadsheet. For example, "1bWp1w2OVwH19mkXEiLIaP8As7N-9c_3EXF_Eo5d5Nm0".',
+    ),
+  sheetName: z
+    .string()
+    .describe('The name of the SHEET to append to. This should be provided by the user. For example, "Sheet1".')
+    .optional(),
+  rows: z
+    .array(
+      z
+        .array(z.object({ stringValue: z.string().describe("The value of the cell") }))
+        .describe("A list of cells to append to the spreadsheet"),
+    )
+    .describe("Rows of cells to append to the spreadsheet"),
+});
+
+export type googleOauthAppendRowsToSpreadsheetParamsType = z.infer<
+  typeof googleOauthAppendRowsToSpreadsheetParamsSchema
+>;
+
+export const googleOauthAppendRowsToSpreadsheetOutputSchema = z.object({
+  success: z.boolean().describe("Whether the spreadsheet was updated successfully"),
+  spreadsheetUrl: z.string().describe("The URL of the updated spreadsheet").optional(),
+  error: z.string().describe("The error that occurred if the spreadsheet was not updated successfully").optional(),
+});
+
+export type googleOauthAppendRowsToSpreadsheetOutputType = z.infer<
+  typeof googleOauthAppendRowsToSpreadsheetOutputSchema
+>;
+export type googleOauthAppendRowsToSpreadsheetFunction = ActionFunction<
+  googleOauthAppendRowsToSpreadsheetParamsType,
+  AuthParamsType,
+  googleOauthAppendRowsToSpreadsheetOutputType
+>;
+
+export const googleOauthDeleteRowFromSpreadsheetParamsSchema = z.object({
+  spreadsheetId: z
+    .string()
+    .describe(
+      'The ID of the Google Spreadsheet. This should be provided by the user. Can be found in the URL of the spreadsheet. For example, "1bWp1w2OVwH19mkXEiLIaP8As7N-9c_3EXF_Eo5d5Nm0".',
+    ),
+  sheetId: z
+    .number()
+    .int()
+    .describe(
+      'The ID of the specific sheet within the spreadsheet (not the sheet name). Sheet ID is 0 for the first sheet. Can be found in the URL after "gid=". For example, if the URL is "...#gid=123456789", the sheetId is 123456789.',
+    ),
+  rowIndex: z
+    .number()
+    .int()
+    .describe(
+      "The 0-based index of the row to delete. For example, to delete the first row (excluding headers if row 0 is headers), use rowIndex 1. To delete the header row, use rowIndex 0.",
+    ),
+});
+
+export type googleOauthDeleteRowFromSpreadsheetParamsType = z.infer<
+  typeof googleOauthDeleteRowFromSpreadsheetParamsSchema
+>;
+
+export const googleOauthDeleteRowFromSpreadsheetOutputSchema = z.object({
+  success: z.boolean().describe("Whether the row was deleted successfully"),
+  spreadsheetUrl: z.string().describe("The URL of the updated spreadsheet").optional(),
+  replies: z.array(z.object({}).catchall(z.any())).describe("The replies from the batchUpdate request").optional(),
+  error: z.string().describe("The error that occurred if the row was not deleted successfully").optional(),
+});
+
+export type googleOauthDeleteRowFromSpreadsheetOutputType = z.infer<
+  typeof googleOauthDeleteRowFromSpreadsheetOutputSchema
+>;
+export type googleOauthDeleteRowFromSpreadsheetFunction = ActionFunction<
+  googleOauthDeleteRowFromSpreadsheetParamsType,
+  AuthParamsType,
+  googleOauthDeleteRowFromSpreadsheetOutputType
+>;
+
+export const googleOauthUpdateRowsInSpreadsheetParamsSchema = z.object({
+  spreadsheetId: z
+    .string()
+    .describe(
+      'The ID of the Google Spreadsheet. This should be provided by the user. Can be found in the URL of the spreadsheet. For example, "1bWp1w2OVwH19mkXEiLIaP8As7N-9c_3EXF_Eo5d5Nm0".',
+    ),
+  sheetName: z
+    .string()
+    .describe(
+      'The name of the SHEET to update. This should be provided by the user. For example, "Sheet1". Defaults to "Sheet1" if not provided.',
+    )
+    .optional(),
+  startRow: z
+    .number()
+    .int()
+    .describe(
+      "The row number to start updating from (1-based). For example, to update starting from the first row, use 1. To start from the second row, use 2.",
+    ),
+  rows: z
+    .array(
+      z
+        .array(z.object({ stringValue: z.string().describe("The value of the cell") }))
+        .describe("A list of cells for this row"),
+    )
+    .describe(
+      "Rows of cells to update in the spreadsheet. Each row will be written sequentially starting from startRow.",
+    ),
+});
+
+export type googleOauthUpdateRowsInSpreadsheetParamsType = z.infer<
+  typeof googleOauthUpdateRowsInSpreadsheetParamsSchema
+>;
+
+export const googleOauthUpdateRowsInSpreadsheetOutputSchema = z.object({
+  success: z.boolean().describe("Whether the rows were updated successfully"),
+  spreadsheetUrl: z.string().describe("The URL of the updated spreadsheet").optional(),
+  updatedRange: z.string().describe("The range that was updated in A1 notation").optional(),
+  updatedRows: z.number().int().describe("The number of rows that were updated").optional(),
+  updatedColumns: z.number().int().describe("The number of columns that were updated").optional(),
+  updatedCells: z.number().int().describe("The total number of cells that were updated").optional(),
+  error: z.string().describe("The error that occurred if the rows were not updated successfully").optional(),
+});
+
+export type googleOauthUpdateRowsInSpreadsheetOutputType = z.infer<
+  typeof googleOauthUpdateRowsInSpreadsheetOutputSchema
+>;
+export type googleOauthUpdateRowsInSpreadsheetFunction = ActionFunction<
+  googleOauthUpdateRowsInSpreadsheetParamsType,
+  AuthParamsType,
+  googleOauthUpdateRowsInSpreadsheetOutputType
 >;
 
 export const googleOauthCreatePresentationParamsSchema = z.object({
@@ -4871,7 +5109,7 @@ export type lookerEnableUserByEmailFunction = ActionFunction<
 >;
 
 export const salesforceUpdateRecordParamsSchema = z.object({
-  objectType: z.string().describe("The Salesforce object type to update (e.g., Lead, Account, Contact)"),
+  recordType: z.string().describe("The Salesforce record type to update (e.g., Lead, Account, Contact)"),
   recordId: z.string().describe("The ID of the record to update"),
   fieldsToUpdate: z
     .record(z.string())
@@ -4895,7 +5133,7 @@ export type salesforceUpdateRecordFunction = ActionFunction<
 >;
 
 export const salesforceCreateRecordParamsSchema = z.object({
-  objectType: z.string().describe("The Salesforce object type to create (e.g., Lead, Account, Contact)"),
+  recordType: z.string().describe("The Salesforce record type to create (e.g., Lead, Account, Contact)"),
   fieldsToCreate: z.record(z.string()).describe("The fields to create on the record").optional(),
 });
 
@@ -5018,6 +5256,45 @@ export type salesforceSearchAllSalesforceRecordsFunction = ActionFunction<
   salesforceSearchAllSalesforceRecordsOutputType
 >;
 
+export const salesforceListReportsParamsSchema = z.object({});
+
+export type salesforceListReportsParamsType = z.infer<typeof salesforceListReportsParamsSchema>;
+
+export const salesforceListReportsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the reports were successfully retrieved"),
+  reports: z
+    .array(z.object({}).catchall(z.any()).describe("A Salesforce report"))
+    .describe("List of available reports")
+    .optional(),
+  error: z.string().describe("The error that occurred if the reports were not successfully retrieved").optional(),
+});
+
+export type salesforceListReportsOutputType = z.infer<typeof salesforceListReportsOutputSchema>;
+export type salesforceListReportsFunction = ActionFunction<
+  salesforceListReportsParamsType,
+  AuthParamsType,
+  salesforceListReportsOutputType
+>;
+
+export const salesforceExecuteReportParamsSchema = z.object({
+  reportId: z.string().describe("Id for the report to execute"),
+  includeDetails: z.boolean().describe("Whether to include detailed report metadata in the response").optional(),
+});
+
+export type salesforceExecuteReportParamsType = z.infer<typeof salesforceExecuteReportParamsSchema>;
+
+export const salesforceExecuteReportOutputSchema = z.object({
+  success: z.boolean().describe("Whether the report was successfully executed"),
+  error: z.string().describe("The error that occurred if the report was not successfully executed").optional(),
+});
+
+export type salesforceExecuteReportOutputType = z.infer<typeof salesforceExecuteReportOutputSchema>;
+export type salesforceExecuteReportFunction = ActionFunction<
+  salesforceExecuteReportParamsType,
+  AuthParamsType,
+  salesforceExecuteReportOutputType
+>;
+
 export const salesforceSearchSalesforceRecordsParamsSchema = z.object({
   keyword: z.string().describe("The keyword to search for"),
   recordType: z.string().describe("The type of record to search for"),
@@ -5091,7 +5368,7 @@ export type salesforceGetSalesforceRecordsByQueryFunction = ActionFunction<
 >;
 
 export const salesforceGetRecordParamsSchema = z.object({
-  objectType: z.string().describe("The Salesforce object type to retrieve (e.g., Lead, Account, Contact)"),
+  recordType: z.string().describe("The Salesforce record type to retrieve (e.g., Lead, Account, Contact)"),
   recordId: z.string().describe("The ID of the record to retrieve"),
 });
 
@@ -5108,6 +5385,46 @@ export type salesforceGetRecordFunction = ActionFunction<
   salesforceGetRecordParamsType,
   AuthParamsType,
   salesforceGetRecordOutputType
+>;
+
+export const salesforceGetReportMetadataParamsSchema = z.object({
+  reportId: z.string().describe("Id for the report to retrieve metadata for"),
+});
+
+export type salesforceGetReportMetadataParamsType = z.infer<typeof salesforceGetReportMetadataParamsSchema>;
+
+export const salesforceGetReportMetadataOutputSchema = z.object({
+  success: z.boolean().describe("Whether the report metadata was successfully retrieved"),
+  metadata: z
+    .object({
+      reportType: z
+        .object({
+          type: z.string().describe("The type of the report").optional(),
+          label: z.string().describe("The label of the report type").optional(),
+        })
+        .describe("Report type information")
+        .optional(),
+      detailColumns: z.array(z.string()).describe("Detail columns in the report").optional(),
+      reportFilters: z.array(z.any()).describe("Filters applied to the report").optional(),
+      reportBooleanFilter: z.string().describe("Boolean filter logic for the report").optional(),
+      standardDateFilter: z.object({}).catchall(z.any()).describe("Standard date filter configuration").optional(),
+      groupingsDown: z.array(z.any()).describe("Row groupings for the report").optional(),
+      groupingsAcross: z.array(z.any()).describe("Column groupings for matrix reports").optional(),
+      scope: z.string().describe("The scope of the report").optional(),
+    })
+    .describe("Filtered metadata from the report")
+    .optional(),
+  error: z
+    .string()
+    .describe("The error that occurred if the report metadata was not successfully retrieved")
+    .optional(),
+});
+
+export type salesforceGetReportMetadataOutputType = z.infer<typeof salesforceGetReportMetadataOutputSchema>;
+export type salesforceGetReportMetadataFunction = ActionFunction<
+  salesforceGetReportMetadataParamsType,
+  AuthParamsType,
+  salesforceGetReportMetadataOutputType
 >;
 
 export const microsoftCreateDocumentParamsSchema = z.object({
@@ -5537,93 +5854,6 @@ export type githubListDirectoryFunction = ActionFunction<
   githubListDirectoryParamsType,
   AuthParamsType,
   githubListDirectoryOutputType
->;
-
-export const githubSearchRepositoryParamsSchema = z.object({
-  organization: z.string().describe("The organization to search for data in"),
-  repository: z.string().describe("The repository to search for data in"),
-  query: z.string().describe("The query to search for in the repository"),
-});
-
-export type githubSearchRepositoryParamsType = z.infer<typeof githubSearchRepositoryParamsSchema>;
-
-export const githubSearchRepositoryOutputSchema = z.object({
-  code: z
-    .array(
-      z.object({
-        name: z.string().describe("The name of the file that had a match"),
-        path: z.string().describe("The path of the file that had a match"),
-        sha: z.string().describe("The SHA of the commit that had a match"),
-        url: z.string().describe("The URL of the file that had a match"),
-        score: z.number().describe("The similarity score of the match"),
-        textMatches: z
-          .array(
-            z.object({
-              object_url: z.string().describe("The URL of the object that had a match").optional(),
-              object_type: z.string().describe("The type of the object that had a match").optional(),
-              fragment: z.string().describe("The fragment of the text that had a match").optional(),
-              matches: z
-                .array(
-                  z.object({
-                    text: z.string().describe("The text that had a match").optional(),
-                    indices: z.array(z.number()).describe("The indices of the text that had a match").optional(),
-                  }),
-                )
-                .describe("A list of matches that match the query"),
-            }),
-          )
-          .describe("A list of text matches that match the query"),
-      }),
-    )
-    .describe("A list of code results that match the query"),
-  commits: z
-    .array(
-      z.object({
-        sha: z.string().describe("The SHA of the commit that had a match"),
-        url: z.string().describe("The URL of the commit that had a match"),
-        commit: z
-          .object({
-            author: z.object({
-              name: z.string().describe("The name of the author"),
-              email: z.string().describe("The email of the author"),
-              date: z.string().describe("The date of the commit"),
-            }),
-            message: z.string().describe("The message of the commit"),
-          })
-          .optional(),
-      }),
-    )
-    .describe("A list of commits that match the query"),
-  issuesAndPullRequests: z
-    .array(
-      z.object({
-        number: z.number().describe("The number of the issue or pull request").optional(),
-        title: z.string().describe("The title of the issue or pull request"),
-        html_url: z.string().describe("The URL of the issue or pull request").optional(),
-        state: z.enum(["open", "closed"]).describe("The state of the issue or pull request"),
-        isPullRequest: z.boolean().describe("Whether the issue or pull request is a pull request").optional(),
-        body: z.string().describe("The body of the issue or pull request").optional(),
-        score: z.number().describe("The score of the issue or pull request").optional(),
-        files: z
-          .array(
-            z.object({
-              filename: z.string().describe("The filename of the file"),
-              status: z.string().describe("The status of the file"),
-              patch: z.string().describe("The patch of the file").optional(),
-            }),
-          )
-          .describe("A list of files that match the query")
-          .optional(),
-      }),
-    )
-    .describe("A list of issues and pull requests that match the query"),
-});
-
-export type githubSearchRepositoryOutputType = z.infer<typeof githubSearchRepositoryOutputSchema>;
-export type githubSearchRepositoryFunction = ActionFunction<
-  githubSearchRepositoryParamsType,
-  AuthParamsType,
-  githubSearchRepositoryOutputType
 >;
 
 export const githubSearchOrganizationParamsSchema = z.object({
@@ -6559,7 +6789,10 @@ export type linearGetTeamsOutputType = z.infer<typeof linearGetTeamsOutputSchema
 export type linearGetTeamsFunction = ActionFunction<linearGetTeamsParamsType, AuthParamsType, linearGetTeamsOutputType>;
 
 export const hubspotGetContactsParamsSchema = z.object({
-  query: z.string().describe("Optional search query to filter contacts by name, email, or other properties").optional(),
+  query: z
+    .string()
+    .describe("Optional keyword search query to filter contacts by name, email, or other properties")
+    .optional(),
   limit: z.number().describe("Maximum number of contacts to return (default 100, max 100)").optional(),
 });
 
@@ -6590,7 +6823,11 @@ export type hubspotGetContactsFunction = ActionFunction<
 >;
 
 export const hubspotGetContactDetailsParamsSchema = z.object({
-  contactId: z.string().describe("The ID of the HubSpot contact to retrieve"),
+  contactId: z
+    .string()
+    .describe(
+      "The ID of the HubSpot contact to retrieve. If you view the contact online, the url contains record/0-1/{contactId}/.",
+    ),
 });
 
 export type hubspotGetContactDetailsParamsType = z.infer<typeof hubspotGetContactDetailsParamsSchema>;
@@ -6631,7 +6868,7 @@ export type hubspotGetContactDetailsFunction = ActionFunction<
 export const hubspotGetCompaniesParamsSchema = z.object({
   query: z
     .string()
-    .describe("Optional search query to filter companies by name, domain, or other properties")
+    .describe("Optional keyword search query to filter companies by name, domain, or other properties")
     .optional(),
   limit: z.number().describe("Maximum number of companies to return (default 100, max 100)").optional(),
 });
@@ -6662,7 +6899,11 @@ export type hubspotGetCompaniesFunction = ActionFunction<
 >;
 
 export const hubspotGetCompanyDetailsParamsSchema = z.object({
-  companyId: z.string().describe("The ID of the HubSpot company to retrieve"),
+  companyId: z
+    .string()
+    .describe(
+      "The ID of the HubSpot company to retrieve. If you view the company online, the url contains record/0-2/{companyId}/.",
+    ),
 });
 
 export type hubspotGetCompanyDetailsParamsType = z.infer<typeof hubspotGetCompanyDetailsParamsSchema>;
@@ -6730,7 +6971,11 @@ export type hubspotGetDealsFunction = ActionFunction<
 >;
 
 export const hubspotGetDealDetailsParamsSchema = z.object({
-  dealId: z.string().describe("The ID of the HubSpot deal to retrieve"),
+  dealId: z
+    .string()
+    .describe(
+      "The ID of the HubSpot deal to retrieve. If you view the deal online, the url contains record/0-3/{dealId}/.",
+    ),
 });
 
 export type hubspotGetDealDetailsParamsType = z.infer<typeof hubspotGetDealDetailsParamsSchema>;
@@ -6798,7 +7043,11 @@ export type hubspotGetTicketsFunction = ActionFunction<
 >;
 
 export const hubspotGetTicketDetailsParamsSchema = z.object({
-  ticketId: z.string().describe("The ID of the HubSpot ticket to retrieve"),
+  ticketId: z
+    .string()
+    .describe(
+      "The ID of the HubSpot ticket to retrieve. If you view the ticket online, the url contains record/0-5/{ticketId}/.",
+    ),
 });
 
 export type hubspotGetTicketDetailsParamsType = z.infer<typeof hubspotGetTicketDetailsParamsSchema>;

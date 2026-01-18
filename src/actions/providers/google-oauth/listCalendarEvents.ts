@@ -78,6 +78,8 @@ const listCalendarEvents: googleOauthListCalendarEventsFunction = async ({
             created,
             updated,
             attachments,
+            eventType,
+            transparency,
           }) => ({
             id,
             status,
@@ -113,6 +115,8 @@ const listCalendarEvents: googleOauthListCalendarEventsFunction = async ({
                   mimeType,
                 }))
               : [],
+            ...(eventType === "workingLocation" && { eventType }),
+            ...(transparency === "transparent" && { transparency: "free" }),
           }),
         ),
       );
