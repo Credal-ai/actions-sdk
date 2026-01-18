@@ -9955,7 +9955,8 @@ export const salesforceGenerateSalesReportDefinition: ActionTemplate = {
   provider: "salesforce",
 };
 export const salesforceSearchAllSalesforceRecordsDefinition: ActionTemplate = {
-  description: "Search for all Salesforce records by keyword",
+  description:
+    "Search through all Salesforce records by keyword. This works best for searching the content of text fields across all records. For example, searching for any description fields that contain a specific keyword.",
   scopes: [],
   tags: [],
   parameters: {
@@ -10113,7 +10114,8 @@ export const salesforceExecuteReportDefinition: ActionTemplate = {
   provider: "salesforce",
 };
 export const salesforceSearchSalesforceRecordsDefinition: ActionTemplate = {
-  description: "Search for Salesforce records by keyword",
+  description:
+    "Search for Salesforce records by keyword. This works best for searching the content of text fields on a specific object. For example, searching for Case descriptions that mention a specific keyword.",
   scopes: [],
   tags: [],
   parameters: {
@@ -10127,6 +10129,7 @@ export const salesforceSearchSalesforceRecordsDefinition: ActionTemplate = {
       recordType: {
         type: "string",
         description: "The type of record to search for",
+        tags: ["recommend-predefined"],
       },
       fieldsToSearch: {
         type: "array",
@@ -10208,7 +10211,8 @@ export const salesforceSearchSalesforceRecordsDefinition: ActionTemplate = {
   provider: "salesforce",
 };
 export const salesforceGetSalesforceRecordsByQueryDefinition: ActionTemplate = {
-  description: "Retrieve Salesforce records by SOQL query",
+  description:
+    'Retrieve Salesforce records by SOQL query. This works best for structured queries that depend on specific fields, for example "Find all Opportunities associated with the Acme Account" or "Find all contacts with the last name \'Smith\'".',
   scopes: [],
   tags: [],
   parameters: {
