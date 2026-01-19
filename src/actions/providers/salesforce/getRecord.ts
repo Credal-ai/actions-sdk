@@ -14,7 +14,7 @@ const getRecord: salesforceGetRecordFunction = async ({
   authParams: AuthParamsType;
 }): Promise<salesforceGetRecordOutputType> => {
   const { authToken, baseUrl } = authParams;
-  const { objectType, recordId } = params;
+  const { recordType, recordId } = params;
 
   if (!authToken || !baseUrl) {
     return {
@@ -23,7 +23,7 @@ const getRecord: salesforceGetRecordFunction = async ({
     };
   }
 
-  const url = `${baseUrl}/services/data/v56.0/sobjects/${objectType}/${recordId}`;
+  const url = `${baseUrl}/services/data/v56.0/sobjects/${recordType}/${recordId}`;
 
   try {
     const response = await axiosClient.get(url, {

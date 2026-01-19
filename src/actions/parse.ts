@@ -30,6 +30,7 @@ type JsonObjectSchema = z.infer<typeof jsonObjectSchema>;
 const parameterTagEnum = z.enum([...parameterTagValues]);
 const actionTagEnum = z.enum([...actionTagValues]);
 const actionSchema = z.object({
+  displayName: z.string(),
   description: z.string(),
   scopes: z.array(z.string()),
   tags: z.array(actionTagEnum).optional().default([]),
@@ -207,6 +208,18 @@ async function generateTypes({
         name: providerName.toUpperCase().replace(/-/g, "_"),
         value: providerName,
       })),
+    })
+    .setIsExported(true);
+
+  typesFile
+    .addEnum({
+      name: "ActionName",
+      members: Array.from(new Set(Object.values(parsedConfig.actions).flatMap(provider => Object.keys(provider)))).map(
+        actionName => ({
+          name: actionName.toUpperCase().replace(/-/g, "_"),
+          value: actionName,
+        }),
+      ),
     })
     .setIsExported(true);
 

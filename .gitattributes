@@ -1,0 +1,2 @@
+# Mark autogen directory as generated code
+src/autogen/** linguist-generated=true

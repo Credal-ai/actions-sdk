@@ -49,8 +49,6 @@ import {
   jiraUpdateJiraTicketDetailsOutputSchema,
   jiraUpdateJiraTicketStatusParamsSchema,
   jiraUpdateJiraTicketStatusOutputSchema,
-  jiraGetServiceDesksParamsSchema,
-  jiraGetServiceDesksOutputSchema,
   jiraCreateServiceDeskRequestParamsSchema,
   jiraCreateServiceDeskRequestOutputSchema,
   openstreetmapGetLatitudeLongitudeFromLocationParamsSchema,
@@ -87,6 +85,10 @@ import {
   googleOauthCreateSpreadsheetOutputSchema,
   googleOauthUpdateSpreadsheetParamsSchema,
   googleOauthUpdateSpreadsheetOutputSchema,
+  googleOauthAppendRowsToSpreadsheetParamsSchema,
+  googleOauthAppendRowsToSpreadsheetOutputSchema,
+  googleOauthDeleteRowFromSpreadsheetParamsSchema,
+  googleOauthDeleteRowFromSpreadsheetOutputSchema,
   googleOauthScheduleCalendarMeetingParamsSchema,
   googleOauthScheduleCalendarMeetingOutputSchema,
   googleOauthListCalendarsParamsSchema,
@@ -178,8 +180,6 @@ import {
   type ProviderName,
   gitlabSearchGroupOutputSchema,
   gitlabSearchGroupParamsSchema,
-  githubSearchRepositoryOutputSchema,
-  githubSearchRepositoryParamsSchema,
   githubSearchOrganizationOutputSchema,
   githubSearchOrganizationParamsSchema,
   salesforceSearchSalesforceRecordsParamsSchema,
@@ -250,16 +250,26 @@ import {
   perplexityPerplexityDeepResearchOutputSchema,
   slackUserSearchSlackParamsSchema,
   slackUserSearchSlackOutputSchema,
+  slackUserSearchSlackRTSParamsSchema,
+  slackUserSearchSlackRTSOutputSchema,
   oktaOrgGetOktaUserByNameParamsSchema,
   oktaOrgGetOktaUserByNameOutputSchema,
   googleSearchCustomSearchParamsSchema,
   googleSearchCustomSearchOutputSchema,
   salesforceSearchAllSalesforceRecordsParamsSchema,
   salesforceSearchAllSalesforceRecordsOutputSchema,
+  salesforceListReportsParamsSchema,
+  salesforceListReportsOutputSchema,
+  salesforceExecuteReportParamsSchema,
+  salesforceExecuteReportOutputSchema,
   slackSendDmFromBotParamsSchema,
   slackSendDmFromBotOutputSchema,
   slackGetChannelMembersParamsSchema,
   slackGetChannelMembersOutputSchema,
+  salesforceGetReportMetadataParamsSchema,
+  salesforceGetReportMetadataOutputSchema,
+  googleOauthUpdateRowsInSpreadsheetParamsSchema,
+  googleOauthUpdateRowsInSpreadsheetOutputSchema,
 } from "./autogen/types.js";
 import validateAddress from "./providers/googlemaps/validateAddress.js";
 import add from "./providers/math/add.js";
@@ -313,6 +323,9 @@ import deleteCalendarEvent from "./providers/google-oauth/deleteCalendarEvent.js
 import editAGoogleCalendarEvent from "./providers/google-oauth/editAGoogleCalendarEvent.js";
 import createSpreadsheet from "./providers/google-oauth/createSpreadsheet.js";
 import updateSpreadsheet from "./providers/google-oauth/updateSpreadsheet.js";
+import appendRowsToSpreadsheet from "./providers/google-oauth/appendRowsToSpreadsheet.js";
+import deleteRowFromSpreadsheet from "./providers/google-oauth/deleteRowFromSpreadsheet.js";
+import updateRowsInSpreadsheet from "./providers/google-oauth/updateRowsInSpreadsheet.js";
 import createPresentation from "./providers/google-oauth/createPresentation.js";
 import updatePresentation from "./providers/google-oauth/updatePresentation.js";
 import getPresentation from "./providers/google-oauth/getPresentation.js";
@@ -349,9 +362,7 @@ import addGroupMember from "./providers/google-oauth/addGroupMember.js";
 import deleteGroupMember from "./providers/google-oauth/deleteGroupMember.js";
 import createChannel from "./providers/slack/createChannel.js";
 import searchGroup from "./providers/gitlab/searchGroup.js";
-import searchRepository from "./providers/github/searchRepository.js";
 import searchOrganization from "./providers/github/searchOrganization.js";
-import getServiceDesks from "./providers/jira/getServiceDesks.js";
 import createServiceDeskRequest from "./providers/jira/createServiceDeskRequest.js";
 import searchSalesforceRecords from "./providers/salesforce/searchSalesforceRecords.js";
 import getDriveFileContentById from "./providers/google-oauth/getDriveFileContentById.js";
@@ -387,10 +398,14 @@ import firecrawlGetTopNSearchResultUrls from "./providers/firecrawl/getTopNSearc
 import searchDriveByKeywordsAndGetFileContent from "./providers/google-oauth/searchDriveByKeywordsAndGetFileContent.js";
 import perplexityDeepResearch from "./providers/perplexity/perplexityDeepResearch.js";
 import searchSlack from "./providers/slackUser/searchSlack.js";
+import searchSlackRTS from "./providers/slackUser/searchSlackRTS.js";
 import sendDmFromBot from "./providers/slack/sendDmFromBot.js";
 import getOktaUserByName from "./providers/oktaOrg/getOktaUserByName.js";
 import customSearch from "./providers/googleSearch/customSearch.js";
 import searchAllSalesforceRecords from "./providers/salesforce/searchAllSalesforceRecords.js";
+import listReports from "./providers/salesforce/listReports.js";
+import getReportMetadata from "./providers/salesforce/getReportMetadata.js";
+import executeReport from "./providers/salesforce/executeReport.js";
 
 type ActionTypeSchema = "read" | "write";
 
@@ -456,12 +471,6 @@ const jiraActions = {
     paramsSchema: jiraUpdateJiraTicketStatusParamsSchema,
     outputSchema: jiraUpdateJiraTicketStatusOutputSchema,
     actionType: "write",
-  },
-  getServiceDesks: {
-    fn: getServiceDesks,
-    paramsSchema: jiraGetServiceDesksParamsSchema,
-    outputSchema: jiraGetServiceDesksOutputSchema,
-    actionType: "read",
   },
   createServiceDeskRequest: {
     fn: createServiceDeskRequest,
@@ -568,6 +577,12 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: searchSlack,
       paramsSchema: slackUserSearchSlackParamsSchema,
       outputSchema: slackUserSearchSlackOutputSchema,
+      actionType: "read",
+    },
+    searchSlackRTS: {
+      fn: searchSlackRTS,
+      paramsSchema: slackUserSearchSlackRTSParamsSchema,
+      outputSchema: slackUserSearchSlackRTSOutputSchema,
       actionType: "read",
     },
   },
@@ -680,7 +695,7 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
   jira: jiraActions,
   jiraOrg: jiraActions,
   jiraDataCenter: {
-    // Exclude Service Desk: getServiceDesks, createServiceDeskRequest, publicCommentOnServiceDeskRequest
+    // Exclude Service Desk: createServiceDeskRequest, publicCommentOnServiceDeskRequest
     getJiraIssuesByQuery: {
       fn: getJiraDCIssuesByQuery,
       paramsSchema: jiraGetJiraIssuesByQueryParamsSchema,
@@ -814,6 +829,24 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: updateSpreadsheet,
       paramsSchema: googleOauthUpdateSpreadsheetParamsSchema,
       outputSchema: googleOauthUpdateSpreadsheetOutputSchema,
+      actionType: "write",
+    },
+    appendRowsToSpreadsheet: {
+      fn: appendRowsToSpreadsheet,
+      paramsSchema: googleOauthAppendRowsToSpreadsheetParamsSchema,
+      outputSchema: googleOauthAppendRowsToSpreadsheetOutputSchema,
+      actionType: "write",
+    },
+    updateRowsInSpreadsheet: {
+      fn: updateRowsInSpreadsheet,
+      paramsSchema: googleOauthUpdateRowsInSpreadsheetParamsSchema,
+      outputSchema: googleOauthUpdateRowsInSpreadsheetOutputSchema,
+      actionType: "write",
+    },
+    deleteRowFromSpreadsheet: {
+      fn: deleteRowFromSpreadsheet,
+      paramsSchema: googleOauthDeleteRowFromSpreadsheetParamsSchema,
+      outputSchema: googleOauthDeleteRowFromSpreadsheetOutputSchema,
       actionType: "write",
     },
     createPresentation: {
@@ -1034,10 +1067,27 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       outputSchema: salesforceSearchAllSalesforceRecordsOutputSchema,
       actionType: "read",
     },
+    listReports: {
+      fn: listReports,
+      paramsSchema: salesforceListReportsParamsSchema,
+      outputSchema: salesforceListReportsOutputSchema,
+      actionType: "read",
+    },
+    executeReport: {
+      fn: executeReport,
+      paramsSchema: salesforceExecuteReportParamsSchema,
+      outputSchema: salesforceExecuteReportOutputSchema,
+    },
     getSalesforceRecordsByQuery: {
       fn: getSalesforceRecordsByQuery,
       paramsSchema: salesforceGetSalesforceRecordsByQueryParamsSchema,
       outputSchema: salesforceGetSalesforceRecordsByQueryOutputSchema,
+      actionType: "read",
+    },
+    getReportMetadata: {
+      fn: getReportMetadata,
+      paramsSchema: salesforceGetReportMetadataParamsSchema,
+      outputSchema: salesforceGetReportMetadataOutputSchema,
       actionType: "read",
     },
   },
@@ -1084,12 +1134,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: searchOrganization,
       paramsSchema: githubSearchOrganizationParamsSchema,
       outputSchema: githubSearchOrganizationOutputSchema,
-      actionType: "read",
-    },
-    searchRepository: {
-      fn: searchRepository,
-      paramsSchema: githubSearchRepositoryParamsSchema,
-      outputSchema: githubSearchRepositoryOutputSchema,
       actionType: "read",
     },
     createOrUpdateFile: {
@@ -1277,4 +1321,5 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       actionType: "read",
     },
   },
+  boxUser: {},
 };
