@@ -3905,7 +3905,7 @@ actions:
             type: string
             description: The error that occurred if the spreadsheet was not updated successfully
     appendRowsToSpreadsheet:
-      displayName: Append rows to a spreadsheet
+      displayName: Add rows to a spreadsheet
       description: Adds new cells after the last row with data in a sheet, inserting new rows into the sheet if necessary.
       scopes: []
       parameters:

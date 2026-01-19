@@ -6824,7 +6824,7 @@ export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthAppendRowsToSpreadsheetDefinition: ActionTemplate = {
-  displayName: "Append rows to a spreadsheet",
+  displayName: "Add rows to a spreadsheet",
   description:
     "Adds new cells after the last row with data in a sheet, inserting new rows into the sheet if necessary.",
   scopes: [],
