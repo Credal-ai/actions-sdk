@@ -5012,7 +5012,7 @@ actions:
                         text: string
                         styling: string
     searchDriveByKeywords:
-      displayName: Search Drive by keyword
+      displayName: Search Drive by keyword (legacy)
       description: Search Google Drive files that contain one or more keywords in their full text.
       scopes: [drive.readonly]
       parameters:
@@ -5060,7 +5060,7 @@ actions:
             type: string
             description: Error message if search failed
     searchDriveByQuery:
-      displayName: Search Drive with a query
+      displayName: Search Drive with a query (legacy)
       description: Search Google Drive files based on a google drive query provided.
       scopes: [drive.readonly]
       parameters:
@@ -5112,7 +5112,7 @@ actions:
             type: string
             description: Error message if search failed
     searchDriveByKeywordsAndGetFileContent:
-      displayName: Search Drive by keyword and get file contents
+      displayName: Search Drive by keyword
       description: Search Google Drive with keywords and get resulting content
       scopes: [drive.readonly]
       parameters:
@@ -5184,7 +5184,7 @@ actions:
             description: Error message if search failed
 
     searchDriveByQueryAndGetFileContent:
-      displayName: Search Drive with a query and get file contents
+      displayName: Search Drive with a query and get file contents (legacy)
       description: Search Google Drive with Google Drive query syntax and get resulting content
       scopes: [drive.readonly]
       parameters:

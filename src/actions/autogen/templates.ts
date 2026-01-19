@@ -8458,7 +8458,7 @@ export const googleOauthGetPresentationDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthSearchDriveByKeywordsDefinition: ActionTemplate = {
-  displayName: "Search Drive by keyword",
+  displayName: "Search Drive by keyword (legacy)",
   description: "Search Google Drive files that contain one or more keywords in their full text.",
   scopes: ["drive.readonly"],
   tags: [],
@@ -8527,7 +8527,7 @@ export const googleOauthSearchDriveByKeywordsDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthSearchDriveByQueryDefinition: ActionTemplate = {
-  displayName: "Search Drive with a query",
+  displayName: "Search Drive with a query (legacy)",
   description: "Search Google Drive files based on a google drive query provided.",
   scopes: ["drive.readonly"],
   tags: [],
@@ -8602,7 +8602,7 @@ export const googleOauthSearchDriveByQueryDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: ActionTemplate = {
-  displayName: "Search Drive by keyword and get file contents",
+  displayName: "Search Drive by keyword",
   description: "Search Google Drive with keywords and get resulting content",
   scopes: ["drive.readonly"],
   tags: [],
@@ -8702,7 +8702,7 @@ export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: Action
   provider: "googleOauth",
 };
 export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTemplate = {
-  displayName: "Search Drive with a query and get file contents",
+  displayName: "Search Drive with a query and get file contents (legacy)",
   description: "Search Google Drive with Google Drive query syntax and get resulting content",
   scopes: ["drive.readonly"],
   tags: [],
