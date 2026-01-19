@@ -1070,12 +1070,12 @@ export const slackUserSearchSlackRTSDefinition: ActionTemplate = {
   description:
     "Search Slack messages across your organization using Slack's Real-Time Search API (assistant.search.context). Searches all conversations within the scope of permissions granted and returns relevant messages with content, author info, and permalinks.",
   scopes: [
-    "im:history",
     "search:read.public",
     "search:read.private",
     "search:read.mpim",
     "search:read.im",
     "search:read.files",
+    "search:read.users",
   ],
   tags: [],
   parameters: {
@@ -6940,6 +6940,90 @@ export const googleOauthDeleteRowFromSpreadsheetDefinition: ActionTemplate = {
   name: "deleteRowFromSpreadsheet",
   provider: "googleOauth",
 };
+export const googleOauthUpdateRowsInSpreadsheetDefinition: ActionTemplate = {
+  displayName: "Update rows in a spreadsheet",
+  description:
+    "Updates one or more rows in a Google Spreadsheet starting from a specific row number. This overwrites existing data in the specified rows.",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["spreadsheetId", "startRow", "rows"],
+    properties: {
+      spreadsheetId: {
+        type: "string",
+        description:
+          'The ID of the Google Spreadsheet. This should be provided by the user. Can be found in the URL of the spreadsheet. For example, "1bWp1w2OVwH19mkXEiLIaP8As7N-9c_3EXF_Eo5d5Nm0".',
+        tags: ["recommend-predefined"],
+      },
+      sheetName: {
+        type: "string",
+        description:
+          'The name of the SHEET to update. This should be provided by the user. For example, "Sheet1". Defaults to "Sheet1" if not provided.',
+      },
+      startRow: {
+        type: "integer",
+        description:
+          "The row number to start updating from (1-based). For example, to update starting from the first row, use 1. To start from the second row, use 2.",
+      },
+      rows: {
+        type: "array",
+        description:
+          "Rows of cells to update in the spreadsheet. Each row will be written sequentially starting from startRow.",
+        items: {
+          type: "array",
+          description: "A list of cells for this row",
+          items: {
+            type: "object",
+            required: ["stringValue"],
+            properties: {
+              stringValue: {
+                type: "string",
+                description: "The value of the cell",
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the rows were updated successfully",
+      },
+      spreadsheetUrl: {
+        type: "string",
+        description: "The URL of the updated spreadsheet",
+      },
+      updatedRange: {
+        type: "string",
+        description: "The range that was updated in A1 notation",
+      },
+      updatedRows: {
+        type: "integer",
+        description: "The number of rows that were updated",
+      },
+      updatedColumns: {
+        type: "integer",
+        description: "The number of columns that were updated",
+      },
+      updatedCells: {
+        type: "integer",
+        description: "The total number of cells that were updated",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the rows were not updated successfully",
+      },
+    },
+  },
+  name: "updateRowsInSpreadsheet",
+  provider: "googleOauth",
+};
 export const googleOauthCreatePresentationDefinition: ActionTemplate = {
   displayName: "Create a presentation",
   description: "Create a Google Presentation",
@@ -10107,6 +10191,42 @@ export const salesforceListReportsDefinition: ActionTemplate = {
   name: "listReports",
   provider: "salesforce",
 };
+export const salesforceExecuteReportDefinition: ActionTemplate = {
+  displayName: "Execute a Salesforce report",
+  description: "Execute a Salesforce report and retrieve its results",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["reportId"],
+    properties: {
+      reportId: {
+        type: "string",
+        description: "Id for the report to execute",
+      },
+      includeDetails: {
+        type: "boolean",
+        description: "Whether to include detailed report metadata in the response",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the report was successfully executed",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the report was not successfully executed",
+      },
+    },
+  },
+  name: "executeReport",
+  provider: "salesforce",
+};
 export const salesforceSearchSalesforceRecordsDefinition: ActionTemplate = {
   displayName: "Search Salesforce records",
   description: "Search for Salesforce records by keyword",
@@ -10301,6 +10421,89 @@ export const salesforceGetRecordDefinition: ActionTemplate = {
     },
   },
   name: "getRecord",
+  provider: "salesforce",
+};
+export const salesforceGetReportMetadataDefinition: ActionTemplate = {
+  displayName: "Get Salesforce report metadata",
+  description: "Get metadata for a given Salesforce report",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["reportId"],
+    properties: {
+      reportId: {
+        type: "string",
+        description: "Id for the report to retrieve metadata for",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the report metadata was successfully retrieved",
+      },
+      metadata: {
+        type: "object",
+        description: "Filtered metadata from the report",
+        properties: {
+          reportType: {
+            type: "object",
+            description: "Report type information",
+            properties: {
+              type: {
+                type: "string",
+                description: "The type of the report",
+              },
+              label: {
+                type: "string",
+                description: "The label of the report type",
+              },
+            },
+          },
+          detailColumns: {
+            type: "array",
+            description: "Detail columns in the report",
+            items: {
+              type: "string",
+            },
+          },
+          reportFilters: {
+            type: "array",
+            description: "Filters applied to the report",
+          },
+          reportBooleanFilter: {
+            type: "string",
+            description: "Boolean filter logic for the report",
+          },
+          standardDateFilter: {
+            type: "object",
+            description: "Standard date filter configuration",
+          },
+          groupingsDown: {
+            type: "array",
+            description: "Row groupings for the report",
+          },
+          groupingsAcross: {
+            type: "array",
+            description: "Column groupings for matrix reports",
+          },
+          scope: {
+            type: "string",
+            description: "The scope of the report",
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the report metadata was not successfully retrieved",
+      },
+    },
+  },
+  name: "getReportMetadata",
   provider: "salesforce",
 };
 export const microsoftCreateDocumentDefinition: ActionTemplate = {

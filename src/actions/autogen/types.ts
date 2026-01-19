@@ -102,6 +102,7 @@ export enum ActionName {
   UPDATESPREADSHEET = "updateSpreadsheet",
   APPENDROWSTOSPREADSHEET = "appendRowsToSpreadsheet",
   DELETEROWFROMSPREADSHEET = "deleteRowFromSpreadsheet",
+  UPDATEROWSINSPREADSHEET = "updateRowsInSpreadsheet",
   CREATEPRESENTATION = "createPresentation",
   UPDATEPRESENTATION = "updatePresentation",
   GETPRESENTATION = "getPresentation",
@@ -131,9 +132,11 @@ export enum ActionName {
   GENERATESALESREPORT = "generateSalesReport",
   SEARCHALLSALESFORCERECORDS = "searchAllSalesforceRecords",
   LISTREPORTS = "listReports",
+  EXECUTEREPORT = "executeReport",
   SEARCHSALESFORCERECORDS = "searchSalesforceRecords",
   GETSALESFORCERECORDSBYQUERY = "getSalesforceRecordsByQuery",
   GETRECORD = "getRecord",
+  GETREPORTMETADATA = "getReportMetadata",
   CREATEDOCUMENT = "createDocument",
   UPDATEDOCUMENT = "updateDocument",
   MESSAGETEAMSCHAT = "messageTeamsChat",
@@ -3662,6 +3665,58 @@ export type googleOauthDeleteRowFromSpreadsheetFunction = ActionFunction<
   googleOauthDeleteRowFromSpreadsheetOutputType
 >;
 
+export const googleOauthUpdateRowsInSpreadsheetParamsSchema = z.object({
+  spreadsheetId: z
+    .string()
+    .describe(
+      'The ID of the Google Spreadsheet. This should be provided by the user. Can be found in the URL of the spreadsheet. For example, "1bWp1w2OVwH19mkXEiLIaP8As7N-9c_3EXF_Eo5d5Nm0".',
+    ),
+  sheetName: z
+    .string()
+    .describe(
+      'The name of the SHEET to update. This should be provided by the user. For example, "Sheet1". Defaults to "Sheet1" if not provided.',
+    )
+    .optional(),
+  startRow: z
+    .number()
+    .int()
+    .describe(
+      "The row number to start updating from (1-based). For example, to update starting from the first row, use 1. To start from the second row, use 2.",
+    ),
+  rows: z
+    .array(
+      z
+        .array(z.object({ stringValue: z.string().describe("The value of the cell") }))
+        .describe("A list of cells for this row"),
+    )
+    .describe(
+      "Rows of cells to update in the spreadsheet. Each row will be written sequentially starting from startRow.",
+    ),
+});
+
+export type googleOauthUpdateRowsInSpreadsheetParamsType = z.infer<
+  typeof googleOauthUpdateRowsInSpreadsheetParamsSchema
+>;
+
+export const googleOauthUpdateRowsInSpreadsheetOutputSchema = z.object({
+  success: z.boolean().describe("Whether the rows were updated successfully"),
+  spreadsheetUrl: z.string().describe("The URL of the updated spreadsheet").optional(),
+  updatedRange: z.string().describe("The range that was updated in A1 notation").optional(),
+  updatedRows: z.number().int().describe("The number of rows that were updated").optional(),
+  updatedColumns: z.number().int().describe("The number of columns that were updated").optional(),
+  updatedCells: z.number().int().describe("The total number of cells that were updated").optional(),
+  error: z.string().describe("The error that occurred if the rows were not updated successfully").optional(),
+});
+
+export type googleOauthUpdateRowsInSpreadsheetOutputType = z.infer<
+  typeof googleOauthUpdateRowsInSpreadsheetOutputSchema
+>;
+export type googleOauthUpdateRowsInSpreadsheetFunction = ActionFunction<
+  googleOauthUpdateRowsInSpreadsheetParamsType,
+  AuthParamsType,
+  googleOauthUpdateRowsInSpreadsheetOutputType
+>;
+
 export const googleOauthCreatePresentationParamsSchema = z.object({
   title: z.string().describe("The title of the presentation"),
   pageSize: z
@@ -5221,6 +5276,25 @@ export type salesforceListReportsFunction = ActionFunction<
   salesforceListReportsOutputType
 >;
 
+export const salesforceExecuteReportParamsSchema = z.object({
+  reportId: z.string().describe("Id for the report to execute"),
+  includeDetails: z.boolean().describe("Whether to include detailed report metadata in the response").optional(),
+});
+
+export type salesforceExecuteReportParamsType = z.infer<typeof salesforceExecuteReportParamsSchema>;
+
+export const salesforceExecuteReportOutputSchema = z.object({
+  success: z.boolean().describe("Whether the report was successfully executed"),
+  error: z.string().describe("The error that occurred if the report was not successfully executed").optional(),
+});
+
+export type salesforceExecuteReportOutputType = z.infer<typeof salesforceExecuteReportOutputSchema>;
+export type salesforceExecuteReportFunction = ActionFunction<
+  salesforceExecuteReportParamsType,
+  AuthParamsType,
+  salesforceExecuteReportOutputType
+>;
+
 export const salesforceSearchSalesforceRecordsParamsSchema = z.object({
   keyword: z.string().describe("The keyword to search for"),
   recordType: z.string().describe("The type of record to search for"),
@@ -5311,6 +5385,46 @@ export type salesforceGetRecordFunction = ActionFunction<
   salesforceGetRecordParamsType,
   AuthParamsType,
   salesforceGetRecordOutputType
+>;
+
+export const salesforceGetReportMetadataParamsSchema = z.object({
+  reportId: z.string().describe("Id for the report to retrieve metadata for"),
+});
+
+export type salesforceGetReportMetadataParamsType = z.infer<typeof salesforceGetReportMetadataParamsSchema>;
+
+export const salesforceGetReportMetadataOutputSchema = z.object({
+  success: z.boolean().describe("Whether the report metadata was successfully retrieved"),
+  metadata: z
+    .object({
+      reportType: z
+        .object({
+          type: z.string().describe("The type of the report").optional(),
+          label: z.string().describe("The label of the report type").optional(),
+        })
+        .describe("Report type information")
+        .optional(),
+      detailColumns: z.array(z.string()).describe("Detail columns in the report").optional(),
+      reportFilters: z.array(z.any()).describe("Filters applied to the report").optional(),
+      reportBooleanFilter: z.string().describe("Boolean filter logic for the report").optional(),
+      standardDateFilter: z.object({}).catchall(z.any()).describe("Standard date filter configuration").optional(),
+      groupingsDown: z.array(z.any()).describe("Row groupings for the report").optional(),
+      groupingsAcross: z.array(z.any()).describe("Column groupings for matrix reports").optional(),
+      scope: z.string().describe("The scope of the report").optional(),
+    })
+    .describe("Filtered metadata from the report")
+    .optional(),
+  error: z
+    .string()
+    .describe("The error that occurred if the report metadata was not successfully retrieved")
+    .optional(),
+});
+
+export type salesforceGetReportMetadataOutputType = z.infer<typeof salesforceGetReportMetadataOutputSchema>;
+export type salesforceGetReportMetadataFunction = ActionFunction<
+  salesforceGetReportMetadataParamsType,
+  AuthParamsType,
+  salesforceGetReportMetadataOutputType
 >;
 
 export const microsoftCreateDocumentParamsSchema = z.object({

@@ -260,10 +260,16 @@ import {
   salesforceSearchAllSalesforceRecordsOutputSchema,
   salesforceListReportsParamsSchema,
   salesforceListReportsOutputSchema,
+  salesforceExecuteReportParamsSchema,
+  salesforceExecuteReportOutputSchema,
   slackSendDmFromBotParamsSchema,
   slackSendDmFromBotOutputSchema,
   slackGetChannelMembersParamsSchema,
   slackGetChannelMembersOutputSchema,
+  salesforceGetReportMetadataParamsSchema,
+  salesforceGetReportMetadataOutputSchema,
+  googleOauthUpdateRowsInSpreadsheetParamsSchema,
+  googleOauthUpdateRowsInSpreadsheetOutputSchema,
 } from "./autogen/types.js";
 import validateAddress from "./providers/googlemaps/validateAddress.js";
 import add from "./providers/math/add.js";
@@ -319,6 +325,7 @@ import createSpreadsheet from "./providers/google-oauth/createSpreadsheet.js";
 import updateSpreadsheet from "./providers/google-oauth/updateSpreadsheet.js";
 import appendRowsToSpreadsheet from "./providers/google-oauth/appendRowsToSpreadsheet.js";
 import deleteRowFromSpreadsheet from "./providers/google-oauth/deleteRowFromSpreadsheet.js";
+import updateRowsInSpreadsheet from "./providers/google-oauth/updateRowsInSpreadsheet.js";
 import createPresentation from "./providers/google-oauth/createPresentation.js";
 import updatePresentation from "./providers/google-oauth/updatePresentation.js";
 import getPresentation from "./providers/google-oauth/getPresentation.js";
@@ -397,6 +404,8 @@ import getOktaUserByName from "./providers/oktaOrg/getOktaUserByName.js";
 import customSearch from "./providers/googleSearch/customSearch.js";
 import searchAllSalesforceRecords from "./providers/salesforce/searchAllSalesforceRecords.js";
 import listReports from "./providers/salesforce/listReports.js";
+import getReportMetadata from "./providers/salesforce/getReportMetadata.js";
+import executeReport from "./providers/salesforce/executeReport.js";
 
 type ActionTypeSchema = "read" | "write";
 
@@ -828,6 +837,12 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       outputSchema: googleOauthAppendRowsToSpreadsheetOutputSchema,
       actionType: "write",
     },
+    updateRowsInSpreadsheet: {
+      fn: updateRowsInSpreadsheet,
+      paramsSchema: googleOauthUpdateRowsInSpreadsheetParamsSchema,
+      outputSchema: googleOauthUpdateRowsInSpreadsheetOutputSchema,
+      actionType: "write",
+    },
     deleteRowFromSpreadsheet: {
       fn: deleteRowFromSpreadsheet,
       paramsSchema: googleOauthDeleteRowFromSpreadsheetParamsSchema,
@@ -1058,10 +1073,21 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       outputSchema: salesforceListReportsOutputSchema,
       actionType: "read",
     },
+    executeReport: {
+      fn: executeReport,
+      paramsSchema: salesforceExecuteReportParamsSchema,
+      outputSchema: salesforceExecuteReportOutputSchema,
+    },
     getSalesforceRecordsByQuery: {
       fn: getSalesforceRecordsByQuery,
       paramsSchema: salesforceGetSalesforceRecordsByQueryParamsSchema,
       outputSchema: salesforceGetSalesforceRecordsByQueryOutputSchema,
+      actionType: "read",
+    },
+    getReportMetadata: {
+      fn: getReportMetadata,
+      paramsSchema: salesforceGetReportMetadataParamsSchema,
+      outputSchema: salesforceGetReportMetadataOutputSchema,
       actionType: "read",
     },
   },
