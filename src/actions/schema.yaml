@@ -2157,8 +2157,10 @@ actions:
         required: [to, subject, content]
         properties:
           to:
-            type: string
-            description: The email address to send the email to
+            type: array
+            items:
+              type: string
+            description: The email address(es) to send the email to
           subject:
             type: string
             description: The subject of the email
@@ -2183,8 +2185,10 @@ actions:
         required: [to, subject, content]
         properties:
           to:
-            type: string
-            description: The email address to send the email to
+            type: array
+            items:
+              type: string
+            description: The email address(es) to send the email to
           subject:
             type: string
             description: The subject of the email
