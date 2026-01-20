@@ -47,6 +47,7 @@ async function runTest() {
 
   // Test 2: Send HTML email to multiple recipients
   console.log("\nTest 2: Sending HTML email to multiple recipients...");
+  const splitEmail = process.env.RESEND_EMAIL_TO?.split("@");
   const result2 = await runAction(
     "sendEmailHtml",
     "resend",
@@ -56,7 +57,6 @@ async function runTest() {
       emailReplyTo: process.env.RESEND_EMAIL_REPLY_TO!,
     },
     {
-      const splitEmail = process.env.RESEND_EMAIL_TO?.split("@");
       to: [
         `${splitEmail?.[0]}+1@${splitEmail?.[1]}`,
         `${splitEmail?.[0]}+2@${splitEmail?.[1]}`,
