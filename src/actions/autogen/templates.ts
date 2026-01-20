@@ -4501,8 +4501,11 @@ export const resendSendEmailDefinition: ActionTemplate = {
     required: ["to", "subject", "content"],
     properties: {
       to: {
-        type: "string",
-        description: "The email address to send the email to",
+        type: "array",
+        items: {
+          type: "string",
+        },
+        description: "The email address(es) to send the email to",
       },
       subject: {
         type: "string",
@@ -4541,8 +4544,11 @@ export const resendSendEmailHtmlDefinition: ActionTemplate = {
     required: ["to", "subject", "content"],
     properties: {
       to: {
-        type: "string",
-        description: "The email address to send the email to",
+        type: "array",
+        items: {
+          type: "string",
+        },
+        description: "The email address(es) to send the email to",
       },
       subject: {
         type: "string",

@@ -2400,7 +2400,7 @@ export type firecrawlScrapeTweetDataWithNitterFunction = ActionFunction<
 >;
 
 export const resendSendEmailParamsSchema = z.object({
-  to: z.string().describe("The email address to send the email to"),
+  to: z.array(z.string()).describe("The email address(es) to send the email to"),
   subject: z.string().describe("The subject of the email"),
   content: z.string().describe("The content of the email"),
 });
@@ -2420,7 +2420,7 @@ export type resendSendEmailFunction = ActionFunction<
 >;
 
 export const resendSendEmailHtmlParamsSchema = z.object({
-  to: z.string().describe("The email address to send the email to"),
+  to: z.array(z.string()).describe("The email address(es) to send the email to"),
   subject: z.string().describe("The subject of the email"),
   content: z.string().describe("The HTML content of the email to be sent"),
 });
