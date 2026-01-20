@@ -56,10 +56,11 @@ async function runTest() {
       emailReplyTo: process.env.RESEND_EMAIL_REPLY_TO!,
     },
     {
+      const splitEmail = process.env.RESEND_EMAIL_TO?.split("@");
       to: [
-        "recipient1@example.com",
-        "recipient2@example.com",
-        "recipient3@example.com",
+        `${splitEmail?.[0]}+1@${splitEmail?.[1]}`,
+        `${splitEmail?.[0]}+2@${splitEmail?.[1]}`,
+        `${splitEmail?.[0]}+3@${splitEmail?.[1]}`,
       ],
       subject: "Test HTML Email to Multiple Recipients",
       content:
