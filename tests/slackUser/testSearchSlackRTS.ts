@@ -74,6 +74,26 @@ async function runTest() {
     }
   )) as slackUserSearchSlackRTSOutputType;
 
+  const rawFromUsers: string[] = [/* fill in with emails */];
+  const fromUsers = rawFromUsers
+    ? rawFromUsers
+        .map(s => s.trim())
+        .filter(Boolean)
+    : null;
+
+  const result7 = fromUsers && fromUsers.length > 0
+    ? ((await runAction(
+        "searchSlackRTS",
+        "slackUser",
+        { authToken: process.env.SLACK_AUTH_TOKEN },
+        {
+          query: "project",
+          fromUsers,
+          limit: 5,
+        }
+      )) as slackUserSearchSlackRTSOutputType)
+    : null;
+
   console.log(
     "Search Test Response 1 (Basic): " + JSON.stringify(result1, null, 2)
   );
@@ -96,6 +116,10 @@ async function runTest() {
 
   console.log(
     "Search Test Response 6 (Files): " + JSON.stringify(result6, null, 2)
+  );
+
+  console.log(
+    "Search Test Response 7 (From User): " + JSON.stringify(result7, null, 2)
   );
 
 }

@@ -10,6 +10,27 @@ import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 /* ===================== Types ===================== */
 
+async function resolveSlackUserId(client: WebClient, raw: string): Promise<string | null> {
+  const s = raw.trim();
+  if (!s) return null;
+
+  try {
+    const res = await client.users.lookupByEmail({ email: s });
+    if (res.user?.id) return res.user.id;
+  } catch {
+    // ignore and fall back
+  }
+  return null;
+}
+
+function appendToQuery(query: string, suffix: string): string {
+  const q = query.trim();
+  const s = suffix.trim();
+  if (!q) return s;
+  if (!s) return q;
+  return `${q} ${s}`;
+}
+
 interface AssistantSearchContextResponse {
   ok: boolean;
   results?: {
@@ -48,6 +69,7 @@ const searchSlackRTS: slackUserSearchSlackRTSFunction = async ({
 
   const {
     query,
+    fromUsers,
     channelTypes,
     contentTypes = ["messages", "files", "channels"],
     includeBots = false,
@@ -57,9 +79,23 @@ const searchSlackRTS: slackUserSearchSlackRTSFunction = async ({
     after,
   } = params;
 
+  let finalQuery = query;
+
+  if (fromUsers !== undefined && fromUsers.length > 0) {
+    const settled = await Promise.allSettled(fromUsers.map((u: string) => resolveSlackUserId(client, u)));
+    const fulfilled = settled.filter((r): r is PromiseFulfilledResult<string | null> => r.status === "fulfilled");
+    const ids = fulfilled.map(r => r.value).filter((id): id is string => Boolean(id));
+
+    if (ids.length > 0) {
+      // Slack expects IDs in angle brackets, e.g. from:<@U123> from:<@U456>
+      const filter = ids.map(id => `from:<@${id}>`).join(" ");
+      finalQuery = appendToQuery(finalQuery, filter);
+    }
+  }
+
   // Build the request parameters for assistant.search.context
   const requestParams: Record<string, unknown> = {
-    query,
+    query: finalQuery,
   };
 
   // Add optional parameters if provided

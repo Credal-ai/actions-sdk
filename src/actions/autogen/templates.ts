@@ -1087,6 +1087,14 @@ export const slackUserSearchSlackRTSDefinition: ActionTemplate = {
         description:
           'The search query string (e.g., "What is project gizmo?", "mobile UX revamp"). You can use any Slack filters directly in the query string.',
       },
+      fromUsers: {
+        type: "array",
+        description:
+          'Optional. Users to filter messages from. Each value should be a plain-text email (e.g. "user@company.com"). Will be resolved to a Slack user ID and formatted into the query as from:<@U...>.',
+        items: {
+          type: "string",
+        },
+      },
       channelTypes: {
         type: "array",
         description:
