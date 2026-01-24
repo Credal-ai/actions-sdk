@@ -7054,15 +7054,15 @@ actions:
       scopes: []
       parameters:
         type: object
-        required: [organization, repository, path]
+        required: [organization, repositoryName, path]
         properties:
           organization:
             type: string
             description: The organization that owns the repository
             tags: [recommend-predefined]
-          repository:
+          repositoryName:
             type: string
-            description: The repository name
+            description: The name of the repository
             tags: [recommend-predefined]
           path:
             type: string
@@ -7116,9 +7116,9 @@ actions:
             type: string
             description: The organization that owns the repository
             tags: [recommend-predefined]
-          repository:
+          repositoryName:
             type: string
-            description: The repository name
+            description: The name of the repository
             tags: [recommend-predefined]
           path:
             type: string
@@ -7175,9 +7175,9 @@ actions:
           query:
             type: string
             description: The query to search for within the organization
-          repository:
+          repositoryName:
             type: string
-            description: The repository to search for data in
+            description: The name of the repository to search for data in
       output:
         type: object
         required: [success]
