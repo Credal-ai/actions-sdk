@@ -74,21 +74,21 @@ async function runTest() {
     }
   )) as slackUserSearchSlackRTSOutputType;
 
-  const rawFromUsers: string[] = [/* fill in with emails */];
-  const fromUsers = rawFromUsers
-    ? rawFromUsers
+  const rawUserEmails: string[] = [/* fill in with emails */];
+  const userEmails = rawUserEmails.length > 0
+    ? rawUserEmails
         .map(s => s.trim())
         .filter(Boolean)
     : null;
 
-  const result7 = fromUsers && fromUsers.length > 0
+  const result7 = userEmails && userEmails.length > 0
     ? ((await runAction(
         "searchSlackRTS",
         "slackUser",
         { authToken: process.env.SLACK_AUTH_TOKEN },
         {
           query: "project",
-          fromUsers,
+          userEmails,
           limit: 5,
         }
       )) as slackUserSearchSlackRTSOutputType)
