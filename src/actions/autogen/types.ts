@@ -731,7 +731,7 @@ export const slackUserSearchSlackRTSParamsSchema = z.object({
     .describe(
       'The search query string (e.g., "What is project gizmo?", "mobile UX revamp"). You can use any Slack filters directly in the query string.',
     ),
-  fromUsers: z
+  userEmails: z
     .array(z.string())
     .describe(
       'Optional. Users to filter messages from. Each value should be a plain-text email (e.g. "user@company.com"). Will be resolved to a Slack user ID and formatted into the query as from:<@U...>.',

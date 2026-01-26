@@ -69,7 +69,7 @@ const searchSlackRTS: slackUserSearchSlackRTSFunction = async ({
 
   const {
     query,
-    fromUsers,
+    userEmails,
     channelTypes,
     contentTypes = ["messages", "files", "channels"],
     includeBots = false,
@@ -81,8 +81,8 @@ const searchSlackRTS: slackUserSearchSlackRTSFunction = async ({
 
   let finalQuery = query;
 
-  if (fromUsers !== undefined && fromUsers.length > 0) {
-    const settled = await Promise.allSettled(fromUsers.map((u: string) => resolveSlackUserId(client, u)));
+  if (userEmails != undefined && userEmails.length > 0) {
+    const settled = await Promise.allSettled(userEmails.map((u: string) => resolveSlackUserId(client, u)));
     const fulfilled = settled.filter((r): r is PromiseFulfilledResult<string | null> => r.status === "fulfilled");
     const ids = fulfilled.map(r => r.value).filter((id): id is string => Boolean(id));
 
