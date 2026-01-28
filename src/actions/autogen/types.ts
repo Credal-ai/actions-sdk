@@ -731,6 +731,12 @@ export const slackUserSearchSlackRTSParamsSchema = z.object({
     .describe(
       'The search query string (e.g., "What is project gizmo?", "mobile UX revamp"). You can use any Slack filters directly in the query string.',
     ),
+  userEmails: z
+    .array(z.string())
+    .describe(
+      'Optional. Users to filter messages from. Each value should be a plain-text email (e.g. "user@company.com"). Will be resolved to a Slack user ID and formatted into the query as from:<@U...>.',
+    )
+    .optional(),
   channelTypes: z
     .array(z.enum(["public_channel", "private_channel", "mpim", "im"]))
     .describe("Filter by channel types to search. If not specified, searches all channel types the user has access to.")
@@ -2400,7 +2406,7 @@ export type firecrawlScrapeTweetDataWithNitterFunction = ActionFunction<
 >;
 
 export const resendSendEmailParamsSchema = z.object({
-  to: z.string().describe("The email address to send the email to"),
+  to: z.array(z.string()).describe("The email address(es) to send the email to"),
   subject: z.string().describe("The subject of the email"),
   content: z.string().describe("The content of the email"),
 });
@@ -2420,7 +2426,7 @@ export type resendSendEmailFunction = ActionFunction<
 >;
 
 export const resendSendEmailHtmlParamsSchema = z.object({
-  to: z.string().describe("The email address to send the email to"),
+  to: z.array(z.string()).describe("The email address(es) to send the email to"),
   subject: z.string().describe("The subject of the email"),
   content: z.string().describe("The HTML content of the email to be sent"),
 });

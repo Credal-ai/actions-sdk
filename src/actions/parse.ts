@@ -30,6 +30,7 @@ type JsonObjectSchema = z.infer<typeof jsonObjectSchema>;
 const parameterTagEnum = z.enum([...parameterTagValues]);
 const actionTagEnum = z.enum([...actionTagValues]);
 const actionSchema = z.object({
+  displayName: z.string(),
   description: z.string(),
   scopes: z.array(z.string()),
   tags: z.array(actionTagEnum).optional().default([]),

@@ -1,6 +1,7 @@
 import { ActionTemplate } from "../../actions/parse";
 
 export const genericFillTemplateDefinition: ActionTemplate = {
+  displayName: "Fill a template",
   description: "Simple utility that takes a template and returns it filled in",
   scopes: [],
   tags: [],
@@ -28,6 +29,7 @@ export const genericFillTemplateDefinition: ActionTemplate = {
   provider: "generic",
 };
 export const perplexityPerplexityDeepResearchDefinition: ActionTemplate = {
+  displayName: "Perplexity Deep Research",
   description: "Performs deep research using Perplexity AI",
   scopes: [],
   tags: [],
@@ -110,6 +112,7 @@ export const perplexityPerplexityDeepResearchDefinition: ActionTemplate = {
   provider: "perplexity",
 };
 export const asanaCommentTaskDefinition: ActionTemplate = {
+  displayName: "Comment on a task",
   description: "Comments on an Asana task with specified content",
   scopes: [],
   tags: [],
@@ -153,6 +156,7 @@ export const asanaCommentTaskDefinition: ActionTemplate = {
   provider: "asana",
 };
 export const asanaListAsanaTasksByProjectDefinition: ActionTemplate = {
+  displayName: "List Asana Tasks by project",
   description: "List all tasks associated with an Asana project and their data",
   scopes: [],
   tags: [],
@@ -321,6 +325,7 @@ export const asanaListAsanaTasksByProjectDefinition: ActionTemplate = {
   provider: "asana",
 };
 export const asanaCreateTaskDefinition: ActionTemplate = {
+  displayName: "Create task",
   description: "Create an Asana task with specified content using optional template",
   scopes: [],
   tags: [],
@@ -386,6 +391,7 @@ export const asanaCreateTaskDefinition: ActionTemplate = {
   provider: "asana",
 };
 export const asanaUpdateTaskDefinition: ActionTemplate = {
+  displayName: "Update task",
   description: "Updates a Asana task with specified content",
   scopes: [],
   tags: [],
@@ -450,6 +456,7 @@ export const asanaUpdateTaskDefinition: ActionTemplate = {
   provider: "asana",
 };
 export const asanaSearchTasksDefinition: ActionTemplate = {
+  displayName: "Search tasks",
   description: "List all tasks associated with search query",
   scopes: [],
   tags: [],
@@ -504,6 +511,7 @@ export const asanaSearchTasksDefinition: ActionTemplate = {
   provider: "asana",
 };
 export const asanaGetTasksDetailsDefinition: ActionTemplate = {
+  displayName: "Get details of tasks",
   description: "Retrieve detailed information (assignee, comments, description, title, etc.) for a list of task IDs",
   scopes: [],
   tags: [],
@@ -595,6 +603,7 @@ export const asanaGetTasksDetailsDefinition: ActionTemplate = {
   provider: "asana",
 };
 export const slackSendDmFromBotDefinition: ActionTemplate = {
+  displayName: "Send DM from bot",
   description: "Sends a direct message to a user on Slack using a bot",
   scopes: ["users:read", "channels:manage", "chat:write"],
   tags: [],
@@ -642,6 +651,7 @@ export const slackSendDmFromBotDefinition: ActionTemplate = {
   provider: "slack",
 };
 export const slackCreateChannelDefinition: ActionTemplate = {
+  displayName: "Create a channel",
   description: "Creates a new Slack channel using a bot token",
   scopes: ["channels:manage"],
   tags: [],
@@ -685,6 +695,7 @@ export const slackCreateChannelDefinition: ActionTemplate = {
   provider: "slack",
 };
 export const slackSendMessageDefinition: ActionTemplate = {
+  displayName: "Send a message",
   description: "Sends a message to a Slack channel",
   scopes: ["chat:write"],
   tags: [],
@@ -728,6 +739,7 @@ export const slackSendMessageDefinition: ActionTemplate = {
   provider: "slack",
 };
 export const slackGetChannelMessagesDefinition: ActionTemplate = {
+  displayName: "Get messages in a channel",
   description: "Gets messages from a Slack channel",
   scopes: ["channels:history"],
   tags: [],
@@ -810,6 +822,7 @@ export const slackGetChannelMessagesDefinition: ActionTemplate = {
   provider: "slack",
 };
 export const slackGetChannelMembersDefinition: ActionTemplate = {
+  displayName: "Get members of a channel",
   description: "Gets the members of a Slack channel",
   scopes: ["channels:read"],
   tags: [],
@@ -860,6 +873,7 @@ export const slackGetChannelMembersDefinition: ActionTemplate = {
   provider: "slack",
 };
 export const slackUserSearchSlackDefinition: ActionTemplate = {
+  displayName: "Search Slack",
   description:
     "Search Slack (DM/MPIM by emails or channel) with optional topic/time filter. Automatically hydrates each hit (full thread if threaded, otherwise a small surrounding context).",
   scopes: [
@@ -1052,6 +1066,7 @@ export const slackUserSearchSlackDefinition: ActionTemplate = {
   provider: "slackUser",
 };
 export const slackUserSearchSlackRTSDefinition: ActionTemplate = {
+  displayName: "Search Slack with Real-Time Search",
   description:
     "Search Slack messages across your organization using Slack's Real-Time Search API (assistant.search.context). Searches all conversations within the scope of permissions granted and returns relevant messages with content, author info, and permalinks.",
   scopes: [
@@ -1071,6 +1086,14 @@ export const slackUserSearchSlackRTSDefinition: ActionTemplate = {
         type: "string",
         description:
           'The search query string (e.g., "What is project gizmo?", "mobile UX revamp"). You can use any Slack filters directly in the query string.',
+      },
+      userEmails: {
+        type: "array",
+        description:
+          'Optional. Users to filter messages from. Each value should be a plain-text email (e.g. "user@company.com"). Will be resolved to a Slack user ID and formatted into the query as from:<@U...>.',
+        items: {
+          type: "string",
+        },
       },
       channelTypes: {
         type: "array",
@@ -1196,6 +1219,7 @@ export const slackUserSearchSlackRTSDefinition: ActionTemplate = {
   provider: "slackUser",
 };
 export const mathAddDefinition: ActionTemplate = {
+  displayName: "Add numbers",
   description: "Adds two numbers together",
   scopes: [],
   tags: [],
@@ -1227,6 +1251,7 @@ export const mathAddDefinition: ActionTemplate = {
   provider: "math",
 };
 export const confluenceOverwritePageDefinition: ActionTemplate = {
+  displayName: "Overwrite a page",
   description: "Updates a Confluence page with the new content specified",
   scopes: [],
   tags: [],
@@ -1266,6 +1291,7 @@ export const confluenceOverwritePageDefinition: ActionTemplate = {
   provider: "confluence",
 };
 export const confluenceFetchPageContentDefinition: ActionTemplate = {
+  displayName: "Fetch page content",
   description: "Fetches content from a Confluence page",
   scopes: [],
   tags: [],
@@ -1314,6 +1340,7 @@ export const confluenceFetchPageContentDefinition: ActionTemplate = {
   provider: "confluence",
 };
 export const jiraAssignJiraTicketDefinition: ActionTemplate = {
+  displayName: "Assign a Jira ticket",
   description: "Assigns/Reassigns a Jira ticket to a specified user",
   scopes: ["write:jira-work", "read:jira-user"],
   tags: [],
@@ -1358,6 +1385,7 @@ export const jiraAssignJiraTicketDefinition: ActionTemplate = {
   provider: "jira",
 };
 export const jiraPublicCommentOnServiceDeskRequestDefinition: ActionTemplate = {
+  displayName: "Publicly comment on a service desk request",
   description: "Comments publicly on a Jira service desk request with specified content",
   scopes: ["write:comment:jira"],
   tags: [],
@@ -1397,6 +1425,7 @@ export const jiraPublicCommentOnServiceDeskRequestDefinition: ActionTemplate = {
   provider: "jira",
 };
 export const jiraCommentJiraTicketDefinition: ActionTemplate = {
+  displayName: "Comment on a Jira ticket",
   description: "Comments on a Jira ticket with specified content",
   scopes: ["write:comment:jira"],
   tags: [],
@@ -1441,6 +1470,7 @@ export const jiraCommentJiraTicketDefinition: ActionTemplate = {
   provider: "jira",
 };
 export const jiraCreateJiraTicketDefinition: ActionTemplate = {
+  displayName: "Create a Jira ticket",
   description: "Create a jira ticket with new content specified",
   scopes: [],
   tags: [],
@@ -1506,6 +1536,7 @@ export const jiraCreateJiraTicketDefinition: ActionTemplate = {
   provider: "jira",
 };
 export const jiraCreateServiceDeskRequestDefinition: ActionTemplate = {
+  displayName: "Create a service desk request",
   description: "Create a jira service desk request with specified content",
   scopes: [],
   tags: [],
@@ -1565,6 +1596,7 @@ export const jiraCreateServiceDeskRequestDefinition: ActionTemplate = {
   provider: "jira",
 };
 export const jiraGetJiraTicketDetailsDefinition: ActionTemplate = {
+  displayName: "Get Jira ticket details",
   description: "Get details of a ticket in Jira",
   scopes: ["read:jira-work"],
   tags: [],
@@ -1623,6 +1655,7 @@ export const jiraGetJiraTicketDetailsDefinition: ActionTemplate = {
   provider: "jira",
 };
 export const jiraGetJiraTicketHistoryDefinition: ActionTemplate = {
+  displayName: "Get Jira ticket history",
   description: "Get ticket history of a ticket in Jira",
   scopes: ["read:jira-work"],
   tags: [],
@@ -1663,6 +1696,7 @@ export const jiraGetJiraTicketHistoryDefinition: ActionTemplate = {
   provider: "jira",
 };
 export const jiraUpdateJiraTicketDetailsDefinition: ActionTemplate = {
+  displayName: "Update Jira ticket details",
   description: "Update a Jira ticket with new content specified",
   scopes: ["write:jira-work"],
   tags: [],
@@ -1724,6 +1758,7 @@ export const jiraUpdateJiraTicketDetailsDefinition: ActionTemplate = {
   provider: "jira",
 };
 export const jiraUpdateJiraTicketStatusDefinition: ActionTemplate = {
+  displayName: "Update Jira ticket status",
   description: "Updates the status of Jira ticket with specified status",
   scopes: ["read:jira-work", "write:jira-work"],
   tags: [],
@@ -1768,6 +1803,7 @@ export const jiraUpdateJiraTicketStatusDefinition: ActionTemplate = {
   provider: "jira",
 };
 export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
+  displayName: "Get Jira issues with a query",
   description: "Retrieve Jira Issues by JQL query",
   scopes: [],
   tags: [],
@@ -1967,6 +2003,7 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
   provider: "jira",
 };
 export const jiraOrgAssignJiraTicketDefinition: ActionTemplate = {
+  displayName: "Assign a Jira ticket",
   description: "Assigns/Reassigns a Jira ticket to a specified user",
   scopes: ["write:jira-work", "read:jira-user"],
   tags: [],
@@ -2011,6 +2048,7 @@ export const jiraOrgAssignJiraTicketDefinition: ActionTemplate = {
   provider: "jiraOrg",
 };
 export const jiraOrgPublicCommentOnServiceDeskRequestDefinition: ActionTemplate = {
+  displayName: "Publicly comment on a service desk request",
   description: "Comments publicly on a Jira service desk request with specified content",
   scopes: ["write:comment:jira"],
   tags: [],
@@ -2050,6 +2088,7 @@ export const jiraOrgPublicCommentOnServiceDeskRequestDefinition: ActionTemplate 
   provider: "jiraOrg",
 };
 export const jiraOrgCommentJiraTicketDefinition: ActionTemplate = {
+  displayName: "Comment on a Jira ticket",
   description: "Comments on a Jira ticket with specified content",
   scopes: ["write:comment:jira"],
   tags: [],
@@ -2094,6 +2133,7 @@ export const jiraOrgCommentJiraTicketDefinition: ActionTemplate = {
   provider: "jiraOrg",
 };
 export const jiraOrgCreateJiraTicketDefinition: ActionTemplate = {
+  displayName: "Create a Jira ticket",
   description: "Create a jira ticket with new content specified",
   scopes: [],
   tags: [],
@@ -2159,6 +2199,7 @@ export const jiraOrgCreateJiraTicketDefinition: ActionTemplate = {
   provider: "jiraOrg",
 };
 export const jiraOrgCreateServiceDeskRequestDefinition: ActionTemplate = {
+  displayName: "Create a service desk request",
   description: "Create a jira service desk request with specified content",
   scopes: [],
   tags: [],
@@ -2218,6 +2259,7 @@ export const jiraOrgCreateServiceDeskRequestDefinition: ActionTemplate = {
   provider: "jiraOrg",
 };
 export const jiraOrgGetJiraTicketDetailsDefinition: ActionTemplate = {
+  displayName: "Get Jira ticket details",
   description: "Get details of a ticket in Jira",
   scopes: ["read:jira-work"],
   tags: [],
@@ -2276,6 +2318,7 @@ export const jiraOrgGetJiraTicketDetailsDefinition: ActionTemplate = {
   provider: "jiraOrg",
 };
 export const jiraOrgGetJiraTicketHistoryDefinition: ActionTemplate = {
+  displayName: "Get Jira ticket history",
   description: "Get ticket history of a ticket in Jira",
   scopes: ["read:jira-work"],
   tags: [],
@@ -2316,6 +2359,7 @@ export const jiraOrgGetJiraTicketHistoryDefinition: ActionTemplate = {
   provider: "jiraOrg",
 };
 export const jiraOrgUpdateJiraTicketDetailsDefinition: ActionTemplate = {
+  displayName: "Update Jira ticket details",
   description: "Update a Jira ticket with new content specified",
   scopes: ["write:jira-work"],
   tags: [],
@@ -2377,6 +2421,7 @@ export const jiraOrgUpdateJiraTicketDetailsDefinition: ActionTemplate = {
   provider: "jiraOrg",
 };
 export const jiraOrgUpdateJiraTicketStatusDefinition: ActionTemplate = {
+  displayName: "Update Jira ticket status",
   description: "Updates the status of Jira ticket with specified status",
   scopes: ["read:jira-work", "write:jira-work"],
   tags: [],
@@ -2421,6 +2466,7 @@ export const jiraOrgUpdateJiraTicketStatusDefinition: ActionTemplate = {
   provider: "jiraOrg",
 };
 export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
+  displayName: "Get Jira issues with a query",
   description: "Retrieve Jira Issues by JQL query",
   scopes: [],
   tags: [],
@@ -2620,6 +2666,7 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
   provider: "jiraOrg",
 };
 export const jiraDataCenterAssignJiraTicketDefinition: ActionTemplate = {
+  displayName: "Assign a Jira ticket",
   description: "Assigns/Reassigns a Jira ticket to a specified user",
   scopes: ["write:jira-work", "read:jira-user"],
   tags: [],
@@ -2664,6 +2711,7 @@ export const jiraDataCenterAssignJiraTicketDefinition: ActionTemplate = {
   provider: "jiraDataCenter",
 };
 export const jiraDataCenterPublicCommentOnServiceDeskRequestDefinition: ActionTemplate = {
+  displayName: "Publicly comment on a service desk request",
   description: "Comments publicly on a Jira service desk request with specified content",
   scopes: ["write:comment:jira"],
   tags: [],
@@ -2703,6 +2751,7 @@ export const jiraDataCenterPublicCommentOnServiceDeskRequestDefinition: ActionTe
   provider: "jiraDataCenter",
 };
 export const jiraDataCenterCommentJiraTicketDefinition: ActionTemplate = {
+  displayName: "Comment on a Jira ticket",
   description: "Comments on a Jira ticket with specified content",
   scopes: ["write:comment:jira"],
   tags: [],
@@ -2747,6 +2796,7 @@ export const jiraDataCenterCommentJiraTicketDefinition: ActionTemplate = {
   provider: "jiraDataCenter",
 };
 export const jiraDataCenterCreateJiraTicketDefinition: ActionTemplate = {
+  displayName: "Create a Jira ticket",
   description: "Create a jira ticket with new content specified",
   scopes: [],
   tags: [],
@@ -2812,6 +2862,7 @@ export const jiraDataCenterCreateJiraTicketDefinition: ActionTemplate = {
   provider: "jiraDataCenter",
 };
 export const jiraDataCenterCreateServiceDeskRequestDefinition: ActionTemplate = {
+  displayName: "Create a service desk request",
   description: "Create a jira service desk request with specified content",
   scopes: [],
   tags: [],
@@ -2871,6 +2922,7 @@ export const jiraDataCenterCreateServiceDeskRequestDefinition: ActionTemplate = 
   provider: "jiraDataCenter",
 };
 export const jiraDataCenterGetJiraTicketDetailsDefinition: ActionTemplate = {
+  displayName: "Get Jira ticket details",
   description: "Get details of a ticket in Jira",
   scopes: ["read:jira-work"],
   tags: [],
@@ -2929,6 +2981,7 @@ export const jiraDataCenterGetJiraTicketDetailsDefinition: ActionTemplate = {
   provider: "jiraDataCenter",
 };
 export const jiraDataCenterGetJiraTicketHistoryDefinition: ActionTemplate = {
+  displayName: "Get Jira ticket history",
   description: "Get ticket history of a ticket in Jira",
   scopes: ["read:jira-work"],
   tags: [],
@@ -2969,6 +3022,7 @@ export const jiraDataCenterGetJiraTicketHistoryDefinition: ActionTemplate = {
   provider: "jiraDataCenter",
 };
 export const jiraDataCenterUpdateJiraTicketDetailsDefinition: ActionTemplate = {
+  displayName: "Update Jira ticket details",
   description: "Update a Jira ticket with new content specified",
   scopes: ["write:jira-work"],
   tags: [],
@@ -3030,6 +3084,7 @@ export const jiraDataCenterUpdateJiraTicketDetailsDefinition: ActionTemplate = {
   provider: "jiraDataCenter",
 };
 export const jiraDataCenterUpdateJiraTicketStatusDefinition: ActionTemplate = {
+  displayName: "Update Jira ticket status",
   description: "Updates the status of Jira ticket with specified status",
   scopes: ["read:jira-work", "write:jira-work"],
   tags: [],
@@ -3074,6 +3129,7 @@ export const jiraDataCenterUpdateJiraTicketStatusDefinition: ActionTemplate = {
   provider: "jiraDataCenter",
 };
 export const jiraDataCenterGetJiraIssuesByQueryDefinition: ActionTemplate = {
+  displayName: "Get Jira issues with a query",
   description: "Retrieve Jira Issues by JQL query",
   scopes: [],
   tags: [],
@@ -3273,6 +3329,7 @@ export const jiraDataCenterGetJiraIssuesByQueryDefinition: ActionTemplate = {
   provider: "jiraDataCenter",
 };
 export const googlemapsValidateAddressDefinition: ActionTemplate = {
+  displayName: "Validate an address",
   description: "Validate an address using the Google Maps API",
   scopes: [],
   tags: [],
@@ -3441,6 +3498,7 @@ export const googlemapsValidateAddressDefinition: ActionTemplate = {
   provider: "googlemaps",
 };
 export const googlemapsNearbysearchRestaurantsDefinition: ActionTemplate = {
+  displayName: "Search for nearby places",
   description: "Search for nearby places using Google Maps",
   scopes: [],
   tags: [],
@@ -3509,7 +3567,8 @@ export const googlemapsNearbysearchRestaurantsDefinition: ActionTemplate = {
   provider: "googlemaps",
 };
 export const bingGetTopNSearchResultUrlsDefinition: ActionTemplate = {
-  description: "Get the top five search result URLs from Bing",
+  displayName: "Get top search result URLs",
+  description: "Get the top search result URLs from Bing",
   scopes: [],
   tags: [],
   parameters: {
@@ -3558,6 +3617,7 @@ export const bingGetTopNSearchResultUrlsDefinition: ActionTemplate = {
   provider: "bing",
 };
 export const zendeskCreateZendeskTicketDefinition: ActionTemplate = {
+  displayName: "Create a Zendesk ticket",
   description: "Create a ticket in Zendesk",
   scopes: [],
   tags: [],
@@ -3602,6 +3662,7 @@ export const zendeskCreateZendeskTicketDefinition: ActionTemplate = {
   provider: "zendesk",
 };
 export const zendeskListZendeskTicketsDefinition: ActionTemplate = {
+  displayName: "List Zendesk tickets",
   description: "List tickets in Zendesk from the past 3 months",
   scopes: [],
   tags: [],
@@ -3641,6 +3702,7 @@ export const zendeskListZendeskTicketsDefinition: ActionTemplate = {
   provider: "zendesk",
 };
 export const zendeskGetTicketDetailsDefinition: ActionTemplate = {
+  displayName: "Get ticket details",
   description: "Get details of a ticket in Zendesk",
   scopes: [],
   tags: [],
@@ -3673,6 +3735,7 @@ export const zendeskGetTicketDetailsDefinition: ActionTemplate = {
   provider: "zendesk",
 };
 export const zendeskUpdateTicketStatusDefinition: ActionTemplate = {
+  displayName: "Update ticket status",
   description: "Update the status of a ticket in Zendesk",
   scopes: [],
   tags: [],
@@ -3700,6 +3763,7 @@ export const zendeskUpdateTicketStatusDefinition: ActionTemplate = {
   provider: "zendesk",
 };
 export const zendeskAddCommentToTicketDefinition: ActionTemplate = {
+  displayName: "Add comment to ticket",
   description: "Add a comment to a ticket in Zendesk",
   scopes: [],
   tags: [],
@@ -3744,6 +3808,7 @@ export const zendeskAddCommentToTicketDefinition: ActionTemplate = {
   provider: "zendesk",
 };
 export const zendeskAssignTicketDefinition: ActionTemplate = {
+  displayName: "Assign a ticket",
   description: "Assign a ticket in Zendesk to a specific user",
   scopes: [],
   tags: [],
@@ -3770,6 +3835,7 @@ export const zendeskAssignTicketDefinition: ActionTemplate = {
   provider: "zendesk",
 };
 export const zendeskSearchZendeskByQueryDefinition: ActionTemplate = {
+  displayName: "Search Zendesk with a query",
   description: "Search Zendesk objects by query with flexible filtering options",
   scopes: [],
   tags: [],
@@ -3819,7 +3885,8 @@ export const zendeskSearchZendeskByQueryDefinition: ActionTemplate = {
   provider: "zendesk",
 };
 export const linkedinCreateShareLinkedinPostUrlDefinition: ActionTemplate = {
-  description: "Create a share linkedin post link",
+  displayName: "Create a share LinkedIn post URL",
+  description: "Create a share LinkedIn post link",
   scopes: [],
   tags: [],
   parameters: {
@@ -3850,6 +3917,7 @@ export const linkedinCreateShareLinkedinPostUrlDefinition: ActionTemplate = {
   provider: "linkedin",
 };
 export const xCreateShareXPostUrlDefinition: ActionTemplate = {
+  displayName: "Create a share X post URL",
   description: "Create a share X (formerly twitter) post link",
   scopes: [],
   tags: [],
@@ -3896,6 +3964,7 @@ export const xCreateShareXPostUrlDefinition: ActionTemplate = {
   provider: "x",
 };
 export const mongoInsertMongoDocDefinition: ActionTemplate = {
+  displayName: "Insert a Mongo document",
   description: "Insert a document into a MongoDB collection",
   scopes: [],
   tags: [],
@@ -3931,6 +4000,7 @@ export const mongoInsertMongoDocDefinition: ActionTemplate = {
   provider: "mongo",
 };
 export const snowflakeGetRowByFieldValueDefinition: ActionTemplate = {
+  displayName: "Get a row by field value",
   description: "Get a row from a Snowflake table by a field value",
   scopes: [],
   tags: [],
@@ -3988,6 +4058,7 @@ export const snowflakeGetRowByFieldValueDefinition: ActionTemplate = {
   provider: "snowflake",
 };
 export const snowflakeRunSnowflakeQueryDefinition: ActionTemplate = {
+  displayName: "Run a Snowflake query",
   description: "Execute a Snowflake query and return output.",
   scopes: [],
   tags: [],
@@ -4067,6 +4138,7 @@ export const snowflakeRunSnowflakeQueryDefinition: ActionTemplate = {
   provider: "snowflake",
 };
 export const openstreetmapGetLatitudeLongitudeFromLocationDefinition: ActionTemplate = {
+  displayName: "Get latitude and longitude from location",
   description: "Get the latitude and longitude of a location",
   scopes: [],
   tags: [],
@@ -4112,6 +4184,7 @@ export const openstreetmapGetLatitudeLongitudeFromLocationDefinition: ActionTemp
   provider: "openstreetmap",
 };
 export const nwsGetForecastForLocationDefinition: ActionTemplate = {
+  displayName: "Get forecast for location",
   description: "Get the weather forecast for a location using latitude and longitude",
   scopes: [],
   tags: [],
@@ -4161,6 +4234,7 @@ export const nwsGetForecastForLocationDefinition: ActionTemplate = {
   provider: "nws",
 };
 export const firecrawlDeepResearchDefinition: ActionTemplate = {
+  displayName: "Deep Research",
   description: "Deep research on a topic using Firecrawl",
   scopes: [],
   tags: [],
@@ -4222,6 +4296,7 @@ export const firecrawlDeepResearchDefinition: ActionTemplate = {
   provider: "firecrawl",
 };
 export const firecrawlScrapeUrlDefinition: ActionTemplate = {
+  displayName: "Scrape URL",
   description: "Scrape a URL and get website content using Firecrawl",
   scopes: [],
   tags: [],
@@ -4292,6 +4367,7 @@ export const firecrawlScrapeUrlDefinition: ActionTemplate = {
   provider: "firecrawl",
 };
 export const firecrawlSearchAndScrapeDefinition: ActionTemplate = {
+  displayName: "Search and scrape",
   description: "Search and scrape the web using Firecrawl",
   scopes: [],
   tags: [],
@@ -4346,6 +4422,7 @@ export const firecrawlSearchAndScrapeDefinition: ActionTemplate = {
   provider: "firecrawl",
 };
 export const firecrawlGetTopNSearchResultUrlsDefinition: ActionTemplate = {
+  displayName: "Get top search result URLs",
   description: "Get the top five search result URLs from Firecrawl",
   scopes: [],
   tags: [],
@@ -4395,7 +4472,8 @@ export const firecrawlGetTopNSearchResultUrlsDefinition: ActionTemplate = {
   provider: "firecrawl",
 };
 export const firecrawlScrapeTweetDataWithNitterDefinition: ActionTemplate = {
-  description: "Given A tweet URL scrape the tweet data with nitter+firecrawl",
+  displayName: "Scrape tweet data with nitter",
+  description: "Given a tweet URL, scrape the tweet data with nitter+firecrawl",
   scopes: [],
   tags: [],
   parameters: {
@@ -4422,6 +4500,7 @@ export const firecrawlScrapeTweetDataWithNitterDefinition: ActionTemplate = {
   provider: "firecrawl",
 };
 export const resendSendEmailDefinition: ActionTemplate = {
+  displayName: "Send an email",
   description: "Send an email using Resend",
   scopes: [],
   tags: [],
@@ -4430,8 +4509,11 @@ export const resendSendEmailDefinition: ActionTemplate = {
     required: ["to", "subject", "content"],
     properties: {
       to: {
-        type: "string",
-        description: "The email address to send the email to",
+        type: "array",
+        items: {
+          type: "string",
+        },
+        description: "The email address(es) to send the email to",
       },
       subject: {
         type: "string",
@@ -4461,6 +4543,7 @@ export const resendSendEmailDefinition: ActionTemplate = {
   provider: "resend",
 };
 export const resendSendEmailHtmlDefinition: ActionTemplate = {
+  displayName: "Send an HTML email",
   description: "Send an HTML email using Resend",
   scopes: [],
   tags: [],
@@ -4469,8 +4552,11 @@ export const resendSendEmailHtmlDefinition: ActionTemplate = {
     required: ["to", "subject", "content"],
     properties: {
       to: {
-        type: "string",
-        description: "The email address to send the email to",
+        type: "array",
+        items: {
+          type: "string",
+        },
+        description: "The email address(es) to send the email to",
       },
       subject: {
         type: "string",
@@ -4500,6 +4586,7 @@ export const resendSendEmailHtmlDefinition: ActionTemplate = {
   provider: "resend",
 };
 export const googleOauthCreateNewGoogleDocDefinition: ActionTemplate = {
+  displayName: "Create a new Google Doc",
   description: "Create a new Google Docs document using OAuth authentication",
   scopes: [],
   tags: [],
@@ -4539,6 +4626,7 @@ export const googleOauthCreateNewGoogleDocDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthUpdateDocDefinition: ActionTemplate = {
+  displayName: "Update a Google Doc",
   description: "Update an existing Google Docs document using OAuth authentication with batch requests",
   scopes: [],
   tags: [],
@@ -5652,7 +5740,8 @@ export const googleOauthUpdateDocDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
-  description: "Schedule a meeting on google calendar using OAuth authentication",
+  displayName: "Schedule a Calendar meeting",
+  description: "Schedule a meeting on Google Calendar using OAuth authentication",
   scopes: [],
   tags: [],
   parameters: {
@@ -5770,6 +5859,7 @@ export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthListCalendarsDefinition: ActionTemplate = {
+  displayName: "List calendars",
   description: "List all Google Calendars for the authenticated user",
   scopes: ["https://www.googleapis.com/auth/calendar.readonly"],
   tags: [],
@@ -5819,6 +5909,7 @@ export const googleOauthListCalendarsDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthListCalendarEventsDefinition: ActionTemplate = {
+  displayName: "List Calendar events",
   description: "List events on a Google Calendar, optionally searching by query.",
   scopes: ["https://www.googleapis.com/auth/calendar.readonly"],
   tags: [],
@@ -6006,6 +6097,7 @@ export const googleOauthListCalendarEventsDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthUpdateCalendarEventDefinition: ActionTemplate = {
+  displayName: "Update a Calendar event",
   description: "Update an event on a Google Calendar using OAuth authentication",
   scopes: ["https://www.googleapis.com/auth/calendar"],
   tags: [],
@@ -6106,6 +6198,7 @@ export const googleOauthUpdateCalendarEventDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthEditAGoogleCalendarEventDefinition: ActionTemplate = {
+  displayName: "Edit a Google Calendar event",
   description: "Edit an existing Google Calendar event using OAuth authentication",
   scopes: ["https://www.googleapis.com/auth/calendar"],
   tags: [],
@@ -6204,6 +6297,7 @@ export const googleOauthEditAGoogleCalendarEventDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthDeleteCalendarEventDefinition: ActionTemplate = {
+  displayName: "Delete a Calendar event",
   description: "Delete an event from a Google Calendar using OAuth authentication",
   scopes: ["https://www.googleapis.com/auth/calendar"],
   tags: [],
@@ -6240,6 +6334,7 @@ export const googleOauthDeleteCalendarEventDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthCreateSpreadsheetDefinition: ActionTemplate = {
+  displayName: "Create a spreadsheet",
   description: "Create a new Google Spreadsheet using OAuth authentication",
   scopes: [],
   tags: [],
@@ -6353,6 +6448,7 @@ export const googleOauthCreateSpreadsheetDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
+  displayName: "Update a spreadsheet",
   description: "Update a Google Spreadsheet with new content specified",
   scopes: [],
   tags: [],
@@ -6742,6 +6838,7 @@ export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthAppendRowsToSpreadsheetDefinition: ActionTemplate = {
+  displayName: "Add rows to a spreadsheet",
   description:
     "Adds new cells after the last row with data in a sheet, inserting new rows into the sheet if necessary.",
   scopes: [],
@@ -6802,6 +6899,7 @@ export const googleOauthAppendRowsToSpreadsheetDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthDeleteRowFromSpreadsheetDefinition: ActionTemplate = {
+  displayName: "Delete a row from a spreadsheet",
   description:
     "Deletes a specific row from a Google Spreadsheet by row index. Row indices are 0-based (first row is 0).",
   scopes: [],
@@ -6857,6 +6955,7 @@ export const googleOauthDeleteRowFromSpreadsheetDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthUpdateRowsInSpreadsheetDefinition: ActionTemplate = {
+  displayName: "Update rows in a spreadsheet",
   description:
     "Updates one or more rows in a Google Spreadsheet starting from a specific row number. This overwrites existing data in the specified rows.",
   scopes: [],
@@ -6940,6 +7039,7 @@ export const googleOauthUpdateRowsInSpreadsheetDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthCreatePresentationDefinition: ActionTemplate = {
+  displayName: "Create a presentation",
   description: "Create a Google Presentation",
   scopes: [],
   tags: [],
@@ -7014,6 +7114,7 @@ export const googleOauthCreatePresentationDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
+  displayName: "Update a presentation",
   description: "Update a Google Presentation",
   scopes: [],
   tags: [],
@@ -8313,6 +8414,7 @@ export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthGetPresentationDefinition: ActionTemplate = {
+  displayName: "Get a presentation",
   description: "Get a presentation by ID",
   scopes: ["slides.readonly"],
   tags: [],
@@ -8370,6 +8472,7 @@ export const googleOauthGetPresentationDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthSearchDriveByKeywordsDefinition: ActionTemplate = {
+  displayName: "Search Drive by keyword (legacy)",
   description: "Search Google Drive files that contain one or more keywords in their full text.",
   scopes: ["drive.readonly"],
   tags: [],
@@ -8438,6 +8541,7 @@ export const googleOauthSearchDriveByKeywordsDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthSearchDriveByQueryDefinition: ActionTemplate = {
+  displayName: "Search Drive with a query (legacy)",
   description: "Search Google Drive files based on a google drive query provided.",
   scopes: ["drive.readonly"],
   tags: [],
@@ -8512,6 +8616,7 @@ export const googleOauthSearchDriveByQueryDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: ActionTemplate = {
+  displayName: "Search Drive by keyword",
   description: "Search Google Drive with keywords and get resulting content",
   scopes: ["drive.readonly"],
   tags: [],
@@ -8611,6 +8716,7 @@ export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: Action
   provider: "googleOauth",
 };
 export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTemplate = {
+  displayName: "Search Drive with a query and get file contents (legacy)",
   description: "Search Google Drive with Google Drive query syntax and get resulting content",
   scopes: ["drive.readonly"],
   tags: [],
@@ -8695,6 +8801,7 @@ export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTem
   provider: "googleOauth",
 };
 export const googleOauthGetDriveFileContentByIdDefinition: ActionTemplate = {
+  displayName: "Fetch file contents",
   description: "Get text content of a Google Drive file by its ID.",
   scopes: ["drive.readonly"],
   tags: [],
@@ -8774,6 +8881,7 @@ export const googleOauthGetDriveFileContentByIdDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthListGroupsDefinition: ActionTemplate = {
+  displayName: "List Groups",
   description: "List all Google Groups for the customer.",
   scopes: ["https://www.googleapis.com/auth/admin.directory.group.readonly"],
   tags: [],
@@ -8831,6 +8939,7 @@ export const googleOauthListGroupsDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthGetGroupDefinition: ActionTemplate = {
+  displayName: "Get a Group",
   description: "Get details for a specific Google Group by group email or ID.",
   scopes: ["https://www.googleapis.com/auth/admin.directory.group.readonly"],
   tags: [],
@@ -8884,6 +8993,7 @@ export const googleOauthGetGroupDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthListGroupMembersDefinition: ActionTemplate = {
+  displayName: "List Group members",
   description: "List all members of a Google Group.",
   scopes: ["https://www.googleapis.com/auth/admin.directory.group.member.readonly"],
   tags: [],
@@ -8945,6 +9055,7 @@ export const googleOauthListGroupMembersDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthHasGroupMemberDefinition: ActionTemplate = {
+  displayName: "Check if a user is a Group member",
   description: "Check if a user is a member of a Google Group.",
   scopes: ["https://www.googleapis.com/auth/admin.directory.group.member.readonly"],
   tags: [],
@@ -8984,6 +9095,7 @@ export const googleOauthHasGroupMemberDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthAddGroupMemberDefinition: ActionTemplate = {
+  displayName: "Add a Group member",
   description: "Add a member to a Google Group.",
   scopes: ["https://www.googleapis.com/auth/admin.directory.group.member"],
   tags: [],
@@ -9023,6 +9135,7 @@ export const googleOauthAddGroupMemberDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthDeleteGroupMemberDefinition: ActionTemplate = {
+  displayName: "Delete a Group member",
   description: "Remove a member from a Google Group.",
   scopes: ["https://www.googleapis.com/auth/admin.directory.group.member"],
   tags: [],
@@ -9058,6 +9171,7 @@ export const googleOauthDeleteGroupMemberDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthQueryGoogleBigQueryDefinition: ActionTemplate = {
+  displayName: "Query Google BigQuery",
   description: "Execute read only SQL queries on Google BigQuery datasets",
   scopes: ["https://www.googleapis.com/auth/bigquery.readonly"],
   tags: [],
@@ -9138,6 +9252,7 @@ export const googleOauthQueryGoogleBigQueryDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googlemailSearchGmailMessagesDefinition: ActionTemplate = {
+  displayName: "Search Gmail messages",
   description: "Search Gmail messages in a user's inbox using a query string.",
   scopes: ["https://www.googleapis.com/auth/gmail.readonly"],
   tags: [],
@@ -9255,6 +9370,7 @@ export const googlemailSearchGmailMessagesDefinition: ActionTemplate = {
   provider: "googlemail",
 };
 export const googlemailListGmailThreadsDefinition: ActionTemplate = {
+  displayName: "List Gmail threads",
   description: "List Gmail threads in a user's inbox using a query string.",
   scopes: ["https://www.googleapis.com/auth/gmail.readonly"],
   tags: [],
@@ -9338,6 +9454,7 @@ export const googlemailListGmailThreadsDefinition: ActionTemplate = {
   provider: "googlemail",
 };
 export const googlemailSendGmailDefinition: ActionTemplate = {
+  displayName: "Send email with Gmail",
   description: "Send an email through Gmail with support for to, cc, bcc, subject, and content.",
   scopes: ["https://www.googleapis.com/auth/gmail.send"],
   tags: [],
@@ -9402,6 +9519,7 @@ export const googlemailSendGmailDefinition: ActionTemplate = {
   provider: "googlemail",
 };
 export const googleSearchCustomSearchDefinition: ActionTemplate = {
+  displayName: "Custom Search",
   description: "Search for information using the Google Custom Search API",
   scopes: [],
   tags: [],
@@ -9510,6 +9628,7 @@ export const googleSearchCustomSearchDefinition: ActionTemplate = {
   provider: "googleSearch",
 };
 export const oktaOrgGetOktaUserByNameDefinition: ActionTemplate = {
+  displayName: "Get Okta User by name",
   description: "Retrieve details of a specific Okta user by their name.",
   scopes: ["okta.users.read"],
   tags: [],
@@ -9567,6 +9686,7 @@ export const oktaOrgGetOktaUserByNameDefinition: ActionTemplate = {
   provider: "oktaOrg",
 };
 export const finnhubSymbolLookupDefinition: ActionTemplate = {
+  displayName: "Look up a stock symbol",
   description: "Look up a stock symbol by name",
   scopes: [],
   tags: [],
@@ -9608,6 +9728,7 @@ export const finnhubSymbolLookupDefinition: ActionTemplate = {
   provider: "finnhub",
 };
 export const finnhubGetBasicFinancialsDefinition: ActionTemplate = {
+  displayName: "Get basic financials",
   description: "Get company basic financials such as margin, P/E ratio, 52-week high/low etc.",
   scopes: [],
   tags: [],
@@ -9701,6 +9822,7 @@ export const finnhubGetBasicFinancialsDefinition: ActionTemplate = {
   provider: "finnhub",
 };
 export const lookerEnableUserByEmailDefinition: ActionTemplate = {
+  displayName: "Enable user by email",
   description: "Search for a Looker user by email and enable them if disabled",
   scopes: [],
   tags: [],
@@ -9763,6 +9885,7 @@ export const lookerEnableUserByEmailDefinition: ActionTemplate = {
   provider: "looker",
 };
 export const salesforceUpdateRecordDefinition: ActionTemplate = {
+  displayName: "Update a record",
   description: "Update a record in Salesforce",
   scopes: [],
   tags: [],
@@ -9806,6 +9929,7 @@ export const salesforceUpdateRecordDefinition: ActionTemplate = {
   provider: "salesforce",
 };
 export const salesforceCreateRecordDefinition: ActionTemplate = {
+  displayName: "Create a record",
   description: "Create a record in Salesforce",
   scopes: [],
   tags: [],
@@ -9848,6 +9972,7 @@ export const salesforceCreateRecordDefinition: ActionTemplate = {
   provider: "salesforce",
 };
 export const salesforceCreateCaseDefinition: ActionTemplate = {
+  displayName: "Create a case",
   description: "Create a case or support ticket in Salesforce",
   scopes: [],
   tags: [],
@@ -9902,6 +10027,7 @@ export const salesforceCreateCaseDefinition: ActionTemplate = {
   provider: "salesforce",
 };
 export const salesforceGenerateSalesReportDefinition: ActionTemplate = {
+  displayName: "Generate a sales report",
   description: "Generate a sales report from Salesforce",
   scopes: [],
   tags: [],
@@ -9955,7 +10081,9 @@ export const salesforceGenerateSalesReportDefinition: ActionTemplate = {
   provider: "salesforce",
 };
 export const salesforceSearchAllSalesforceRecordsDefinition: ActionTemplate = {
-  description: "Search for all Salesforce records by keyword",
+  displayName: "Search all salesforce records",
+  description:
+    "Search through all Salesforce records by keyword. This works best for searching the content of text fields across all records. For example, searching for any description fields that contain a specific keyword.",
   scopes: [],
   tags: [],
   parameters: {
@@ -10044,6 +10172,7 @@ export const salesforceSearchAllSalesforceRecordsDefinition: ActionTemplate = {
   provider: "salesforce",
 };
 export const salesforceListReportsDefinition: ActionTemplate = {
+  displayName: "List reports",
   description: "List all available Salesforce reports",
   scopes: [],
   tags: [],
@@ -10078,6 +10207,7 @@ export const salesforceListReportsDefinition: ActionTemplate = {
   provider: "salesforce",
 };
 export const salesforceExecuteReportDefinition: ActionTemplate = {
+  displayName: "Execute a Salesforce report",
   description: "Execute a Salesforce report and retrieve its results",
   scopes: [],
   tags: [],
@@ -10113,7 +10243,9 @@ export const salesforceExecuteReportDefinition: ActionTemplate = {
   provider: "salesforce",
 };
 export const salesforceSearchSalesforceRecordsDefinition: ActionTemplate = {
-  description: "Search for Salesforce records by keyword",
+  displayName: "Search Salesforce records",
+  description:
+    "Search for Salesforce records by keyword. This works best for searching the content of text fields on a specific object. For example, searching for Case descriptions that mention a specific keyword.",
   scopes: [],
   tags: [],
   parameters: {
@@ -10127,6 +10259,7 @@ export const salesforceSearchSalesforceRecordsDefinition: ActionTemplate = {
       recordType: {
         type: "string",
         description: "The type of record to search for",
+        tags: ["recommend-predefined"],
       },
       fieldsToSearch: {
         type: "array",
@@ -10208,7 +10341,9 @@ export const salesforceSearchSalesforceRecordsDefinition: ActionTemplate = {
   provider: "salesforce",
 };
 export const salesforceGetSalesforceRecordsByQueryDefinition: ActionTemplate = {
-  description: "Retrieve Salesforce records by SOQL query",
+  displayName: "Get Salesforce records with a query",
+  description:
+    'Retrieve Salesforce records by SOQL query. This works best for structured queries that depend on specific fields, for example "Find all Opportunities associated with the Acme Account" or "Find all contacts with the last name \'Smith\'".',
   scopes: [],
   tags: [],
   parameters: {
@@ -10264,6 +10399,7 @@ export const salesforceGetSalesforceRecordsByQueryDefinition: ActionTemplate = {
   provider: "salesforce",
 };
 export const salesforceGetRecordDefinition: ActionTemplate = {
+  displayName: "Get a record",
   description: "Retrieve a record from Salesforce",
   scopes: [],
   tags: [],
@@ -10306,6 +10442,7 @@ export const salesforceGetRecordDefinition: ActionTemplate = {
   provider: "salesforce",
 };
 export const salesforceGetReportMetadataDefinition: ActionTemplate = {
+  displayName: "Get Salesforce report metadata",
   description: "Get metadata for a given Salesforce report",
   scopes: [],
   tags: [],
@@ -10388,6 +10525,7 @@ export const salesforceGetReportMetadataDefinition: ActionTemplate = {
   provider: "salesforce",
 };
 export const microsoftCreateDocumentDefinition: ActionTemplate = {
+  displayName: "Create a document",
   description: "Creates a new Office365 document",
   scopes: ["Files.ReadWrite", "Sites.Manage.All", "Sites.ReadWrite.All"],
   tags: [],
@@ -10443,6 +10581,7 @@ export const microsoftCreateDocumentDefinition: ActionTemplate = {
   provider: "microsoft",
 };
 export const microsoftUpdateDocumentDefinition: ActionTemplate = {
+  displayName: "Update a document",
   description: "Updates a Office365 document",
   scopes: ["Files.ReadWrite", "Sites.ReadWrite.All"],
   tags: [],
@@ -10486,6 +10625,7 @@ export const microsoftUpdateDocumentDefinition: ActionTemplate = {
   provider: "microsoft",
 };
 export const microsoftUpdateSpreadsheetDefinition: ActionTemplate = {
+  displayName: "Update a spreadsheet",
   description: "Updates a Microsoft Excel spreadsheet",
   scopes: ["Files.ReadWrite", "Sites.ReadWrite.All"],
   tags: [],
@@ -10539,6 +10679,7 @@ export const microsoftUpdateSpreadsheetDefinition: ActionTemplate = {
   provider: "microsoft",
 };
 export const microsoftMessageTeamsChatDefinition: ActionTemplate = {
+  displayName: "Message a Teams chat",
   description: "Sends a message to a Microsoft Teams chat",
   scopes: ["ChatMessage.Send"],
   tags: [],
@@ -10578,6 +10719,7 @@ export const microsoftMessageTeamsChatDefinition: ActionTemplate = {
   provider: "microsoft",
 };
 export const microsoftMessageTeamsChannelDefinition: ActionTemplate = {
+  displayName: "Message a Teams channel",
   description: "Sends a message to a Microsoft Teams channel",
   scopes: ["ChannelMessage.Send"],
   tags: [],
@@ -10621,6 +10763,7 @@ export const microsoftMessageTeamsChannelDefinition: ActionTemplate = {
   provider: "microsoft",
 };
 export const microsoftGetDocumentDefinition: ActionTemplate = {
+  displayName: "Get a document",
   description: "Retrieves the content of a Microsoft Office document",
   scopes: ["Files.ReadWrite", "Sites.ReadWrite.All"],
   tags: [],
@@ -10660,6 +10803,7 @@ export const microsoftGetDocumentDefinition: ActionTemplate = {
   provider: "microsoft",
 };
 export const githubCreateOrUpdateFileDefinition: ActionTemplate = {
+  displayName: "Create or update a file",
   description: "Create or update a file in a GitHub repository",
   scopes: [],
   tags: [],
@@ -10726,6 +10870,7 @@ export const githubCreateOrUpdateFileDefinition: ActionTemplate = {
   provider: "github",
 };
 export const githubCreateBranchDefinition: ActionTemplate = {
+  displayName: "Create a branch",
   description: "Create a new branch in a GitHub repository",
   scopes: [],
   tags: [],
@@ -10771,6 +10916,7 @@ export const githubCreateBranchDefinition: ActionTemplate = {
   provider: "github",
 };
 export const githubCreatePullRequestDefinition: ActionTemplate = {
+  displayName: "Create a pull request",
   description: "Create a pull request in a GitHub repository",
   scopes: [],
   tags: [],
@@ -10833,6 +10979,7 @@ export const githubCreatePullRequestDefinition: ActionTemplate = {
   provider: "github",
 };
 export const githubListPullRequestsDefinition: ActionTemplate = {
+  displayName: "List pull requests",
   description: "List pull requests in a GitHub repository",
   scopes: [],
   tags: [],
@@ -10933,6 +11080,7 @@ export const githubListPullRequestsDefinition: ActionTemplate = {
   provider: "github",
 };
 export const githubGetPullRequestDetailsDefinition: ActionTemplate = {
+  displayName: "Fetch pull request",
   description:
     "Get detailed information about a specific pull request including description, files, reviews, and status",
   scopes: [],
@@ -11214,6 +11362,7 @@ export const githubGetPullRequestDetailsDefinition: ActionTemplate = {
   provider: "github",
 };
 export const githubGetFileContentDefinition: ActionTemplate = {
+  displayName: "Fetch file contents",
   description: "Get specified file content from a GitHub repository",
   scopes: [],
   tags: [],
@@ -11293,6 +11442,7 @@ export const githubGetFileContentDefinition: ActionTemplate = {
   provider: "github",
 };
 export const githubListDirectoryDefinition: ActionTemplate = {
+  displayName: "List contents of a directory",
   description: "List directory contents of a path in a GitHub repository",
   scopes: [],
   tags: [],
@@ -11371,6 +11521,7 @@ export const githubListDirectoryDefinition: ActionTemplate = {
   provider: "github",
 };
 export const githubSearchOrganizationDefinition: ActionTemplate = {
+  displayName: "Search an organization",
   description: "Search for code, issues and pull requests within a GitHub organization",
   scopes: [],
   tags: [],
@@ -11663,6 +11814,7 @@ export const githubSearchOrganizationDefinition: ActionTemplate = {
   provider: "github",
 };
 export const githubGetBranchDefinition: ActionTemplate = {
+  displayName: "Get a branch",
   description: "Get a branch in a GitHub repository",
   scopes: [],
   tags: [],
@@ -11922,6 +12074,7 @@ export const githubGetBranchDefinition: ActionTemplate = {
   provider: "github",
 };
 export const githubListCommitsDefinition: ActionTemplate = {
+  displayName: "List commits",
   description: "List commits in a GitHub repository with optional date filtering and pagination",
   scopes: [],
   tags: [],
@@ -12109,6 +12262,7 @@ export const githubListCommitsDefinition: ActionTemplate = {
   provider: "github",
 };
 export const notionSearchByTitleDefinition: ActionTemplate = {
+  displayName: "Search by title",
   description: "Search Notion pages and databases by title",
   scopes: [],
   tags: [],
@@ -12163,6 +12317,7 @@ export const notionSearchByTitleDefinition: ActionTemplate = {
   provider: "notion",
 };
 export const gitlabSearchGroupDefinition: ActionTemplate = {
+  displayName: "Search a group",
   description:
     "Searches gitlab for details about a query. This will return a list of merge requests and blobs that match the query.",
   scopes: [],
@@ -12452,6 +12607,7 @@ export const gitlabSearchGroupDefinition: ActionTemplate = {
   provider: "gitlab",
 };
 export const gitlabGetFileContentDefinition: ActionTemplate = {
+  displayName: "Get file content",
   description: "Get specified file content from a GitLab repository",
   scopes: [],
   tags: [],
@@ -12532,6 +12688,7 @@ export const gitlabGetFileContentDefinition: ActionTemplate = {
   provider: "gitlab",
 };
 export const gitlabGetMergeRequestDefinition: ActionTemplate = {
+  displayName: "Get merge request",
   description: "Get specified merge request from a GitLab repository",
   scopes: [],
   tags: [],
@@ -12756,6 +12913,7 @@ export const gitlabGetMergeRequestDefinition: ActionTemplate = {
   provider: "gitlab",
 };
 export const gitlabListDirectoryDefinition: ActionTemplate = {
+  displayName: "List contents of a directory",
   description: "List directory contents of a path in a GitLab repository",
   scopes: [],
   tags: [],
@@ -12846,6 +13004,7 @@ export const gitlabListDirectoryDefinition: ActionTemplate = {
   provider: "gitlab",
 };
 export const linearGetIssuesDefinition: ActionTemplate = {
+  displayName: "List or search issues",
   description: "Get Linear issues with optional query filter",
   scopes: [],
   tags: [],
@@ -12976,6 +13135,7 @@ export const linearGetIssuesDefinition: ActionTemplate = {
   provider: "linear",
 };
 export const linearGetIssueDetailsDefinition: ActionTemplate = {
+  displayName: "Fetch issue",
   description: "Get detailed information about a Linear issue",
   scopes: [],
   tags: [],
@@ -13137,6 +13297,7 @@ export const linearGetIssueDetailsDefinition: ActionTemplate = {
   provider: "linear",
 };
 export const linearGetProjectsDefinition: ActionTemplate = {
+  displayName: "Fetch projects",
   description: "Get all Linear projects",
   scopes: [],
   tags: [],
@@ -13235,6 +13396,7 @@ export const linearGetProjectsDefinition: ActionTemplate = {
   provider: "linear",
 };
 export const linearGetProjectDetailsDefinition: ActionTemplate = {
+  displayName: "Get project details",
   description: "Get detailed information about a Linear project",
   scopes: [],
   tags: [],
@@ -13382,6 +13544,7 @@ export const linearGetProjectDetailsDefinition: ActionTemplate = {
   provider: "linear",
 };
 export const linearGetTeamDetailsDefinition: ActionTemplate = {
+  displayName: "Get team details",
   description: "Get detailed information about a Linear team",
   scopes: [],
   tags: [],
@@ -13449,6 +13612,7 @@ export const linearGetTeamDetailsDefinition: ActionTemplate = {
   provider: "linear",
 };
 export const linearGetTeamsDefinition: ActionTemplate = {
+  displayName: "Get teams",
   description: "Get all teams in Linear",
   scopes: [],
   tags: [],
@@ -13492,6 +13656,7 @@ export const linearGetTeamsDefinition: ActionTemplate = {
   provider: "linear",
 };
 export const hubspotGetContactsDefinition: ActionTemplate = {
+  displayName: "Get contacts",
   description: "List or search HubSpot contacts by optional query",
   scopes: ["oauth crm.objects.contacts.read"],
   tags: [],
@@ -13556,6 +13721,7 @@ export const hubspotGetContactsDefinition: ActionTemplate = {
   provider: "hubspot",
 };
 export const hubspotGetContactDetailsDefinition: ActionTemplate = {
+  displayName: "Get details of a contact",
   description: "Get detailed information about a specific HubSpot contact",
   scopes: ["oauth crm.objects.contacts.read"],
   tags: [],
@@ -13658,6 +13824,7 @@ export const hubspotGetContactDetailsDefinition: ActionTemplate = {
   provider: "hubspot",
 };
 export const hubspotGetCompaniesDefinition: ActionTemplate = {
+  displayName: "Get companies",
   description: "List or search HubSpot companies by optional query",
   scopes: ["oauth crm.objects.companies.read"],
   tags: [],
@@ -13718,6 +13885,7 @@ export const hubspotGetCompaniesDefinition: ActionTemplate = {
   provider: "hubspot",
 };
 export const hubspotGetCompanyDetailsDefinition: ActionTemplate = {
+  displayName: "Get details of a company",
   description: "Get detailed information about a specific HubSpot company",
   scopes: ["oauth crm.objects.companies.read"],
   tags: [],
@@ -13812,6 +13980,7 @@ export const hubspotGetCompanyDetailsDefinition: ActionTemplate = {
   provider: "hubspot",
 };
 export const hubspotGetDealsDefinition: ActionTemplate = {
+  displayName: "Get deals",
   description: "List or search HubSpot deals by optional query",
   scopes: ["oauth crm.objects.deals.read"],
   tags: [],
@@ -13876,6 +14045,7 @@ export const hubspotGetDealsDefinition: ActionTemplate = {
   provider: "hubspot",
 };
 export const hubspotGetDealDetailsDefinition: ActionTemplate = {
+  displayName: "Get details of a deal",
   description: "Get detailed information about a specific HubSpot deal",
   scopes: ["oauth crm.objects.deals.read"],
   tags: [],
@@ -13962,6 +14132,7 @@ export const hubspotGetDealDetailsDefinition: ActionTemplate = {
   provider: "hubspot",
 };
 export const hubspotGetTicketsDefinition: ActionTemplate = {
+  displayName: "Get tickets",
   description: "List or search HubSpot tickets by optional query",
   scopes: ["oauth crm.objects.tickets.read"],
   tags: [],
@@ -14022,6 +14193,7 @@ export const hubspotGetTicketsDefinition: ActionTemplate = {
   provider: "hubspot",
 };
 export const hubspotGetTicketDetailsDefinition: ActionTemplate = {
+  displayName: "Get details of a ticket",
   description: "Get detailed information about a specific HubSpot ticket",
   scopes: ["oauth crm.objects.tickets.read"],
   tags: [],
