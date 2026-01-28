@@ -91,6 +91,7 @@ export enum ActionName {
   SENDEMAIL = "sendEmail",
   SENDEMAILHTML = "sendEmailHtml",
   CREATENEWGOOGLEDOC = "createNewGoogleDoc",
+  ADDTEXTTOTOPOFDOC = "addTextToTopOfDoc",
   UPDATEDOC = "updateDoc",
   SCHEDULECALENDARMEETING = "scheduleCalendarMeeting",
   LISTCALENDARS = "listCalendars",
@@ -2463,6 +2464,27 @@ export type googleOauthCreateNewGoogleDocFunction = ActionFunction<
   googleOauthCreateNewGoogleDocParamsType,
   AuthParamsType,
   googleOauthCreateNewGoogleDocOutputType
+>;
+
+export const googleOauthAddTextToTopOfDocParamsSchema = z.object({
+  documentId: z.string().describe("The ID of the Google Doc to update"),
+  text: z.string().describe("The text to insert at the beginning of the document"),
+});
+
+export type googleOauthAddTextToTopOfDocParamsType = z.infer<typeof googleOauthAddTextToTopOfDocParamsSchema>;
+
+export const googleOauthAddTextToTopOfDocOutputSchema = z.object({
+  success: z.boolean().describe("Whether the document was updated successfully"),
+  documentId: z.string().describe("The ID of the updated Google Doc").optional(),
+  documentUrl: z.string().describe("The URL to access the updated Google Doc").optional(),
+  error: z.string().describe("The error message if the update failed").optional(),
+});
+
+export type googleOauthAddTextToTopOfDocOutputType = z.infer<typeof googleOauthAddTextToTopOfDocOutputSchema>;
+export type googleOauthAddTextToTopOfDocFunction = ActionFunction<
+  googleOauthAddTextToTopOfDocParamsType,
+  AuthParamsType,
+  googleOauthAddTextToTopOfDocOutputType
 >;
 
 export const googleOauthUpdateDocParamsSchema = z.object({
