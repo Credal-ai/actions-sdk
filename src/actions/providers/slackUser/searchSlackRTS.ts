@@ -23,6 +23,23 @@ async function resolveSlackUserId(client: WebClient, raw: string): Promise<strin
   return null;
 }
 
+function normalizeChannelOperand(raw: string): string | null {
+  const s = raw.trim();
+  if (!s) return null;
+
+  // Accept inputs like "C123", "#C123", "<#C123>", "<#C123|name>", "general", or "#general"
+  const m = s.match(/<#(C[A-Z0-9]+)(?:\|[^>]+)?>/i);
+  if (m?.[1]) return `<#${m[1]}>`;
+
+  const stripped = s.replace(/^#/, "");
+
+  if (/^C[A-Z0-9]+$/i.test(stripped)) return `<#${stripped}>`;
+
+  if (/^[a-z0-9._-]+$/i.test(stripped)) return `#${stripped}`;
+
+  return null;
+}
+
 function appendToQuery(query: string, suffix: string): string {
   const q = query.trim();
   const s = suffix.trim();
@@ -70,6 +87,7 @@ const searchSlackRTS: slackUserSearchSlackRTSFunction = async ({
   const {
     query,
     userEmails,
+    channelIds,
     channelTypes,
     contentTypes = ["messages", "files", "channels"],
     includeBots = false,
@@ -79,7 +97,11 @@ const searchSlackRTS: slackUserSearchSlackRTSFunction = async ({
     after,
   } = params;
 
-  let finalQuery = query;
+  if (!userEmails && !channelIds && !query) {
+    throw new Error("If query is left blank, you must provide at least one userEmail or channelId to filter by.");
+  }
+
+  let finalQuery = query ?? "";
 
   if (userEmails != undefined && userEmails.length > 0) {
     const settled = await Promise.allSettled(userEmails.map((u: string) => resolveSlackUserId(client, u)));
@@ -89,6 +111,14 @@ const searchSlackRTS: slackUserSearchSlackRTSFunction = async ({
     if (ids.length > 0) {
       // Slack expects IDs in angle brackets, e.g. from:<@U123> from:<@U456>
       const filter = ids.map(id => `from:<@${id}>`).join(" ");
+      finalQuery = appendToQuery(finalQuery, filter);
+    }
+  }
+
+  if (channelIds != undefined && channelIds.length > 0) {
+    const operands = channelIds.map(normalizeChannelOperand).filter((operand): operand is string => Boolean(operand));
+    if (operands.length > 0) {
+      const filter = operands.map(op => `in:${op}`).join(" ");
       finalQuery = appendToQuery(finalQuery, filter);
     }
   }

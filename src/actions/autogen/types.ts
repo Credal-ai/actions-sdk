@@ -729,12 +729,19 @@ export const slackUserSearchSlackRTSParamsSchema = z.object({
   query: z
     .string()
     .describe(
-      'The search query string (e.g., "What is project gizmo?", "mobile UX revamp"). You can use any Slack filters directly in the query string.',
-    ),
+      'The search query string (e.g., "What is project gizmo?", "mobile UX revamp"). Leave empty if you only want to filter by user or channel.',
+    )
+    .optional(),
   userEmails: z
     .array(z.string())
     .describe(
       'Optional. Users to filter messages from. Each value should be a plain-text email (e.g. "user@company.com"). Will be resolved to a Slack user ID and formatted into the query as from:<@U...>.',
+    )
+    .optional(),
+  channelIds: z
+    .array(z.string())
+    .describe(
+      'Optional. Channels to restrict results to. Each value can be a Slack channel ID like "C12345678" (or "<#C123...>") OR a channel name like "general" / "#general". Values are formatted into the query as in:<#C...> (ID) or in:#channel-name (name).',
     )
     .optional(),
   channelTypes: z
