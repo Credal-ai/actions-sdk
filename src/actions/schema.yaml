@@ -2361,6 +2361,100 @@ actions:
           documentUrl:
             type: string
             description: The URL to access the created Google Doc
+    readCommentsOnDoc:
+      displayName: Read comments on a Google Doc
+      description: List comments (and replies) on a Google Doc using the Google Drive API
+      scopes: [https://www.googleapis.com/auth/drive.readonly]
+      parameters:
+        type: object
+        required: [documentId]
+        properties:
+          documentId:
+            type: string
+            description: The ID of the Google Doc to read comments from
+            tags: [recommend-predefined]
+          pageSize:
+            type: number
+            description: The maximum number of comments to return in a single page
+          includeDeleted:
+            type: boolean
+            description: Whether to include deleted comments
+      output:
+        type: object
+        required: [success, comments]
+        properties:
+          success:
+            type: boolean
+            description: Whether the comments were retrieved successfully
+          comments:
+            type: array
+            description: List of comments on the document
+            items:
+              type: object
+              required: [commentId]
+              properties:
+                commentId:
+                  type: string
+                  description: The comment ID
+                content:
+                  type: string
+                  description: The comment content
+                createdTime:
+                  type: string
+                  description: The time the comment was created
+                modifiedTime:
+                  type: string
+                  description: The time the comment was last modified
+                resolved:
+                  type: boolean
+                  description: Whether the comment thread is resolved
+                quotedFileContent:
+                  type: object
+                  description: Content quoted from the file, if present
+                  properties:
+                    value:
+                      type: string
+                      description: The quoted content
+                author:
+                  type: object
+                  description: The author of the comment
+                  properties:
+                    displayName:
+                      type: string
+                    emailAddress:
+                      type: string
+                    me:
+                      type: boolean
+                replies:
+                  type: array
+                  description: Replies to the comment
+                  items:
+                    type: object
+                    required: [replyId]
+                    properties:
+                      replyId:
+                        type: string
+                      content:
+                        type: string
+                      createdTime:
+                        type: string
+                      modifiedTime:
+                        type: string
+                      author:
+                        type: object
+                        properties:
+                          displayName:
+                            type: string
+                          emailAddress:
+                            type: string
+                          me:
+                            type: boolean
+          nextPageToken:
+            type: string
+            description: Token for fetching the next page of results
+          error:
+            type: string
+            description: Error message if retrieval failed
     updateDoc:
       displayName: Update a Google Doc
       description: Update an existing Google Docs document using OAuth authentication with batch requests
