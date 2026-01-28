@@ -7,6 +7,7 @@ import {
   type AuthParamsType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { normalizeChannelOperand } from "./utils.js";
 
 /* ===================== Types ===================== */
 
@@ -20,23 +21,6 @@ async function resolveSlackUserId(client: WebClient, raw: string): Promise<strin
   } catch {
     // ignore and fall back
   }
-  return null;
-}
-
-function normalizeChannelOperand(raw: string): string | null {
-  const s = raw.trim();
-  if (!s) return null;
-
-  // Accept inputs like "C123", "#C123", "<#C123>", "<#C123|name>", "general", or "#general"
-  const m = s.match(/<#(C[A-Z0-9]+)(?:\|[^>]+)?>/i);
-  if (m?.[1]) return `<#${m[1]}>`;
-
-  const stripped = s.replace(/^#/, "");
-
-  if (/^C[A-Z0-9]+$/i.test(stripped)) return `<#${stripped}>`;
-
-  if (/^[a-z0-9._-]+$/i.test(stripped)) return `#${stripped}`;
-
   return null;
 }
 
@@ -97,7 +81,7 @@ const searchSlackRTS: slackUserSearchSlackRTSFunction = async ({
     after,
   } = params;
 
-  if (!userEmails && !channelIds && !query) {
+  if ((!query || query === "") && (!userEmails || userEmails.length === 0) && (!channelIds || channelIds.length === 0)) {
     throw new Error("If query is left blank, you must provide at least one userEmail or channelId to filter by.");
   }
 

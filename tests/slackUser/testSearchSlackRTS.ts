@@ -1,7 +1,7 @@
-import assert from "node:assert";
 import type { slackUserSearchSlackRTSOutputType } from "../../src/actions/autogen/types.js";
 import { runAction } from "../../src/app.js";
 import dotenv from "dotenv";
+import assert from "node:assert";
 
 dotenv.config();
 
