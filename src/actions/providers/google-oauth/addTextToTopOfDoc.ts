@@ -1,4 +1,4 @@
-import axios from "axios";
+import { axiosClient } from "../../util/axiosClient.js";
 import type {
   AuthParamsType,
   googleOauthAddTextToTopOfDocFunction,
@@ -26,7 +26,7 @@ const addTextToTopOfDoc: googleOauthAddTextToTopOfDocFunction = async ({
   const baseApiUrl = "https://docs.googleapis.com/v1/documents";
 
   try {
-    const response = await axios.post(
+    await axiosClient.post(
       `${baseApiUrl}/${documentId}:batchUpdate`,
       {
         requests: [
@@ -47,13 +47,6 @@ const addTextToTopOfDoc: googleOauthAddTextToTopOfDocFunction = async ({
       },
     );
 
-    if (response.status < 200 || response.status >= 300) {
-      return {
-        success: false,
-        error: `${response.statusText}: ${JSON.stringify(response.data)}`,
-      };
-    }
-
     const documentUrl = `https://docs.google.com/document/d/${documentId}/edit`;
 
     return {
@@ -62,7 +55,6 @@ const addTextToTopOfDoc: googleOauthAddTextToTopOfDocFunction = async ({
       documentUrl,
     };
   } catch (error) {
-    console.error("Error appending text to top of document:", error);
     return {
       success: false,
       documentId,
