@@ -35,7 +35,7 @@ const addTextToTopOfDoc: googleOauthAddTextToTopOfDocFunction = async ({
               location: {
                 index: 1,
               },
-              text,
+              text: text + "\n",
             },
           },
         ],
