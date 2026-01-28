@@ -91,6 +91,7 @@ export enum ActionName {
   SENDEMAIL = "sendEmail",
   SENDEMAILHTML = "sendEmailHtml",
   CREATENEWGOOGLEDOC = "createNewGoogleDoc",
+  READCOMMENTSONDOC = "readCommentsOnDoc",
   UPDATEDOC = "updateDoc",
   SCHEDULECALENDARMEETING = "scheduleCalendarMeeting",
   LISTCALENDARS = "listCalendars",
@@ -2463,6 +2464,68 @@ export type googleOauthCreateNewGoogleDocFunction = ActionFunction<
   googleOauthCreateNewGoogleDocParamsType,
   AuthParamsType,
   googleOauthCreateNewGoogleDocOutputType
+>;
+
+export const googleOauthReadCommentsOnDocParamsSchema = z.object({
+  documentId: z.string().describe("The ID of the Google Doc to read comments from"),
+  pageSize: z.number().describe("The maximum number of comments to return in a single page").optional(),
+  includeDeleted: z.boolean().describe("Whether to include deleted comments").optional(),
+});
+
+export type googleOauthReadCommentsOnDocParamsType = z.infer<typeof googleOauthReadCommentsOnDocParamsSchema>;
+
+export const googleOauthReadCommentsOnDocOutputSchema = z.object({
+  success: z.boolean().describe("Whether the comments were retrieved successfully"),
+  comments: z
+    .array(
+      z.object({
+        commentId: z.string().describe("The comment ID"),
+        content: z.string().describe("The comment content").optional(),
+        createdTime: z.string().describe("The time the comment was created").optional(),
+        modifiedTime: z.string().describe("The time the comment was last modified").optional(),
+        resolved: z.boolean().describe("Whether the comment thread is resolved").optional(),
+        quotedFileContent: z
+          .object({ value: z.string().describe("The quoted content").optional() })
+          .describe("Content quoted from the file, if present")
+          .optional(),
+        author: z
+          .object({
+            displayName: z.string().optional(),
+            emailAddress: z.string().optional(),
+            me: z.boolean().optional(),
+          })
+          .describe("The author of the comment")
+          .optional(),
+        replies: z
+          .array(
+            z.object({
+              replyId: z.string(),
+              content: z.string().optional(),
+              createdTime: z.string().optional(),
+              modifiedTime: z.string().optional(),
+              author: z
+                .object({
+                  displayName: z.string().optional(),
+                  emailAddress: z.string().optional(),
+                  me: z.boolean().optional(),
+                })
+                .optional(),
+            }),
+          )
+          .describe("Replies to the comment")
+          .optional(),
+      }),
+    )
+    .describe("List of comments on the document"),
+  nextPageToken: z.string().describe("Token for fetching the next page of results").optional(),
+  error: z.string().describe("Error message if retrieval failed").optional(),
+});
+
+export type googleOauthReadCommentsOnDocOutputType = z.infer<typeof googleOauthReadCommentsOnDocOutputSchema>;
+export type googleOauthReadCommentsOnDocFunction = ActionFunction<
+  googleOauthReadCommentsOnDocParamsType,
+  AuthParamsType,
+  googleOauthReadCommentsOnDocOutputType
 >;
 
 export const googleOauthUpdateDocParamsSchema = z.object({

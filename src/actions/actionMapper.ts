@@ -81,6 +81,8 @@ import {
   lookerEnableUserByEmailOutputSchema,
   googleOauthUpdateDocParamsSchema,
   googleOauthUpdateDocOutputSchema,
+  googleOauthReadCommentsOnDocParamsSchema,
+  googleOauthReadCommentsOnDocOutputSchema,
   googleOauthCreateSpreadsheetParamsSchema,
   googleOauthCreateSpreadsheetOutputSchema,
   googleOauthUpdateSpreadsheetParamsSchema,
@@ -315,6 +317,7 @@ import confluenceFetchPageContent from "./providers/confluence/fetchPageContent.
 import runSnowflakeQuery from "./providers/snowflake/runSnowflakeQuery.js";
 import enableUserByEmail from "./providers/looker/enableUserByEmail.js";
 import updateDoc from "./providers/google-oauth/updateDoc.js";
+import readCommentsOnDoc from "./providers/google-oauth/readCommentsOnDoc.js";
 import scheduleCalendarMeeting from "./providers/google-oauth/scheduleCalendarMeeting.js";
 import listCalendars from "./providers/google-oauth/listCalendars.js";
 import listCalendarEvents from "./providers/google-oauth/listCalendarEvents.js";
@@ -806,6 +809,12 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       paramsSchema: googleOauthCreateNewGoogleDocParamsSchema,
       outputSchema: googleOauthCreateNewGoogleDocOutputSchema,
       actionType: "write",
+    },
+    readCommentsOnDoc: {
+      fn: readCommentsOnDoc,
+      paramsSchema: googleOauthReadCommentsOnDocParamsSchema,
+      outputSchema: googleOauthReadCommentsOnDocOutputSchema,
+      actionType: "read",
     },
     updateDoc: {
       fn: updateDoc,
