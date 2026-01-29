@@ -777,15 +777,18 @@ actions:
         - search:read.users
       parameters:
         type: object
-        required:
-          - query
         properties:
           query:
             type: string
-            description: The search query string (e.g., "What is project gizmo?", "mobile UX revamp"). You can use any Slack filters directly in the query string.
+            description: The search query string (e.g., "What is project gizmo?", "mobile UX revamp"). Leave empty if you only want to filter by user or channel.
           userEmails:
             type: array
             description: Optional. Users to filter messages from. Each value should be a plain-text email (e.g. "user@company.com"). Will be resolved to a Slack user ID and formatted into the query as from:<@U...>.
+            items:
+              type: string
+          channelIds:
+            type: array
+            description: Optional. Channels to restrict results to. Each value can be a Slack channel ID like "C12345678" (or "<#C123...>") OR a channel name like "general" / "#general". Values are formatted into the query as in:<#C...> (ID) or in:#channel-name (name).
             items:
               type: string
           channelTypes:
