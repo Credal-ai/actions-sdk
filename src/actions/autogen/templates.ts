@@ -4625,6 +4625,51 @@ export const googleOauthCreateNewGoogleDocDefinition: ActionTemplate = {
   name: "createNewGoogleDoc",
   provider: "googleOauth",
 };
+export const googleOauthAddTextToTopOfDocDefinition: ActionTemplate = {
+  displayName: "Append text to the top of a Google Doc",
+  description: "Insert the provided text at the very top of an existing Google Doc using OAuth authentication",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["documentId", "text"],
+    properties: {
+      documentId: {
+        type: "string",
+        description: "The ID of the Google Doc to update",
+        tags: ["recommend-predefined"],
+      },
+      text: {
+        type: "string",
+        description: "The text to insert at the beginning of the document",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the document was updated successfully",
+      },
+      documentId: {
+        type: "string",
+        description: "The ID of the updated Google Doc",
+      },
+      documentUrl: {
+        type: "string",
+        description: "The URL to access the updated Google Doc",
+      },
+      error: {
+        type: "string",
+        description: "The error message if the update failed",
+      },
+    },
+  },
+  name: "addTextToTopOfDoc",
+  provider: "googleOauth",
+};
 export const googleOauthUpdateDocDefinition: ActionTemplate = {
   displayName: "Update a Google Doc",
   description: "Update an existing Google Docs document using OAuth authentication with batch requests",
