@@ -81,7 +81,11 @@ const searchSlackRTS: slackUserSearchSlackRTSFunction = async ({
     after,
   } = params;
 
-  if ((!query || query === "") && (!userEmails || userEmails.length === 0) && (!channelIds || channelIds.length === 0)) {
+  if (
+    (!query || query === "") &&
+    (!userEmails || userEmails.length === 0) &&
+    (!channelIds || channelIds.length === 0)
+  ) {
     throw new Error("If query is left blank, you must provide at least one userEmail or channelId to filter by.");
   }
 

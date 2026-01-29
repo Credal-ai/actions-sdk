@@ -1,4 +1,3 @@
-
 export function normalizeChannelOperand(raw: string): string | undefined {
   const s = raw.trim();
   if (!s) return;
