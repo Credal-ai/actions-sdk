@@ -494,6 +494,7 @@ actions:
           channelName:
             type: string
             description: The name of the Slack channel to send the message to (e.g. general, alerts)
+            tags: [recommend-enum]
           message:
             type: string
             description: The message content to send to Slack. Can include markdown formatting.
@@ -525,6 +526,7 @@ actions:
           channelName:
             type: string
             description: Name of the channel to summarize. Either the channelId or channelName must be provided.
+            tags: [recommend-enum]
           oldest:
             type: string
             description: Only messages after this Unix timestamp will be included in results
@@ -581,6 +583,7 @@ actions:
           channelName:
             type: string
             description: The name of the channel to get members from
+            tags: [recommend-enum]
       output:
         type: object
         required: [success, members]
@@ -637,6 +640,7 @@ actions:
           channel:
             type: string
             description: Channel name or ID. Examples - "#eng-updates", "eng-updates", "C01234567".
+            tags: [recommend-enum]
           topic:
             type: string
             description: Keyword(s) to search for (e.g., "jogging decision").
