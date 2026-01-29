@@ -15,6 +15,7 @@ import {
   simplifyFile,
   type SlackMessage,
 } from "../slack/messageTransformers.js";
+import { normalizeChannelOperand } from "./utils.js";
 
 /* ===================== Constants ===================== */
 
@@ -89,12 +90,6 @@ class SlackUserCache {
 }
 
 /* ===================== Helpers ===================== */
-
-function normalizeChannelOperand(ch: string): string {
-  const s = ch.trim();
-  if (/^[CGD][A-Z0-9]/i.test(s)) return s;
-  return s.replace(/^#/, "");
-}
 
 function getMessageTypeFilter(messageType: string | undefined): string | undefined {
   // This converts the LLM readable message type to the Slack search API message type (e.g. "channel" -> "message")

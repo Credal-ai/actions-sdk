@@ -7,6 +7,7 @@ import {
   type AuthParamsType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { normalizeChannelOperand } from "./utils.js";
 
 /* ===================== Types ===================== */
 
@@ -70,6 +71,7 @@ const searchSlackRTS: slackUserSearchSlackRTSFunction = async ({
   const {
     query,
     userEmails,
+    channelIds,
     channelTypes,
     contentTypes = ["messages", "files", "channels"],
     includeBots = false,
@@ -79,7 +81,15 @@ const searchSlackRTS: slackUserSearchSlackRTSFunction = async ({
     after,
   } = params;
 
-  let finalQuery = query;
+  if (
+    (!query || query === "") &&
+    (!userEmails || userEmails.length === 0) &&
+    (!channelIds || channelIds.length === 0)
+  ) {
+    throw new Error("If query is left blank, you must provide at least one userEmail or channelId to filter by.");
+  }
+
+  let finalQuery = query ?? "";
 
   if (userEmails != undefined && userEmails.length > 0) {
     const settled = await Promise.allSettled(userEmails.map((u: string) => resolveSlackUserId(client, u)));
@@ -89,6 +99,14 @@ const searchSlackRTS: slackUserSearchSlackRTSFunction = async ({
     if (ids.length > 0) {
       // Slack expects IDs in angle brackets, e.g. from:<@U123> from:<@U456>
       const filter = ids.map(id => `from:<@${id}>`).join(" ");
+      finalQuery = appendToQuery(finalQuery, filter);
+    }
+  }
+
+  if (channelIds != undefined && channelIds.length > 0) {
+    const operands = channelIds.map(normalizeChannelOperand).filter((operand): operand is string => Boolean(operand));
+    if (operands.length > 0) {
+      const filter = operands.map(op => `in:${op}`).join(" ");
       finalQuery = appendToQuery(finalQuery, filter);
     }
   }
