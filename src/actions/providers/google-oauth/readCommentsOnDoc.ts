@@ -28,10 +28,11 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({
         Authorization: `Bearer ${authParams.authToken}`,
       },
       params: {
+        supportsAllDrives: true,
         pageSize,
         includeDeleted,
         fields:
-          "comments(commentId,content,createdTime,modifiedTime,resolved,quotedFileContent,author(displayName,emailAddress,me),replies(replyId,content,createdTime,modifiedTime,author(displayName,emailAddress,me))),nextPageToken",
+          "comments(id,content,createdTime,modifiedTime,resolved,quotedFileContent,author(displayName,emailAddress,me),replies(id,content,createdTime,modifiedTime,author(displayName,emailAddress,me))),nextPageToken",
       },
     });
 

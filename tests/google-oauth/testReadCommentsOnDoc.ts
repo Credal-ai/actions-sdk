@@ -1,5 +1,8 @@
 import { runAction } from "../../src/app.js";
 import assert from "node:assert";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const authToken = process.env.GOOGLE_OAUTH_TOKEN;
 const documentId = process.env.GOOGLE_DOC_ID;
