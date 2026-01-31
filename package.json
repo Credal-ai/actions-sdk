@@ -76,7 +76,7 @@
     "p-limit": "^7.1.1",
     "papaparse": "^5.5.3",
     "resend": "^4.7.0",
-    "snowflake-sdk": "^2.0.2",
+    "snowflake-sdk": "^2.3.3",
     "ts-node": "^10.9.2",
     "unpdf": "^1.2.2",
     "uuid": "^11.1.0",
