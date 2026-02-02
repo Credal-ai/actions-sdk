@@ -1312,6 +1312,42 @@ actions:
           ticketUrl:
             type: string
             description: The url to the Jira ticket
+    moveJiraTicketToProject:
+      displayName: "Move Jira ticket to another project"
+      description: Moves a Jira ticket from one project to another, optionally updating the issue type. Note: This action only works with Jira Cloud, not Jira Data Center.
+      scopes:
+        - write:jira-work
+        - read:jira-work
+      parameters:
+        type: object
+        required: [issueId, targetProjectKey]
+        properties:
+          issueId:
+            type: string
+            description: The issue ID or key of the ticket to move (e.g. "PROJ-123")
+          targetProjectKey:
+            type: string
+            description: The key of the project to move the ticket to (e.g. "NEWPROJ")
+            tags: [recommend-predefined]
+          targetIssueType:
+            type: string
+            description: The issue type in the target project (e.g. "Task", "Bug"). If not provided, will attempt to use the same issue type.
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the ticket was successfully moved
+          newTicketKey:
+            type: string
+            description: The new issue key after moving (e.g. "NEWPROJ-456")
+          ticketUrl:
+            type: string
+            description: The url to the moved Jira ticket
+          error:
+            type: string
+            description: Error message if the move failed
     getJiraIssuesByQuery:
       displayName: Get Jira issues with a query
       description: Retrieve Jira Issues by JQL query
