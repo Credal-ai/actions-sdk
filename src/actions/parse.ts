@@ -17,6 +17,7 @@ const actionTagValues = [
 
 const parameterTagValues = [
   "recommend-predefined", // we recommend that this parameter is predefined by the user versus AI generated at runtime
+  "recommend-enum", // we recommend that this parameter is an enum
 ] as const;
 
 const jsonObjectSchema = z.object({

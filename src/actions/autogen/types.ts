@@ -202,11 +202,11 @@ export const ActionTagSchema = z.enum(["read", "write"]);
 export type ActionTag = z.infer<typeof ActionTagSchema>;
 
 export const ACTION_TAGS = ["read", "write"] as const;
-export const ParameterTagSchema = z.enum(["recommend-predefined"]);
+export const ParameterTagSchema = z.enum(["recommend-predefined", "recommend-enum"]);
 
 export type ParameterTag = z.infer<typeof ParameterTagSchema>;
 
-export const PARAMETER_TAGS = ["recommend-predefined"] as const;
+export const PARAMETER_TAGS = ["recommend-predefined", "recommend-enum"] as const;
 export const genericFillTemplateParamsSchema = z.object({
   template: z.string().describe("The template string to be processed and returned"),
 });
