@@ -195,7 +195,7 @@ const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
         } else if (taskStatus.status === "FAILED" || taskStatus.status === "CANCELLED" || taskStatus.status === "DEAD") {
           return {
             success: false,
-            error: `Move task failed with status: ${taskStatus.status}. ${taskStatus.message || ""}`,
+            error: `Move task failed with status: ${taskStatus.status}. ${taskStatus.message ?? ""}`,
           };
         }
       } catch (pollError: unknown) {
@@ -207,7 +207,7 @@ const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
     if (!taskStatus || taskStatus.status !== "COMPLETE") {
       return {
         success: false,
-        error: `Move task did not complete within ${MAX_POLL_ATTEMPTS} seconds. Last status: ${taskStatus?.status || "unknown"}`,
+        error: `Move task did not complete within ${MAX_POLL_ATTEMPTS} seconds. Last status: ${taskStatus?.status ?? "unknown"}`,
       };
     }
 
