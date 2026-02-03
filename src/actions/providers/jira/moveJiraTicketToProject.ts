@@ -92,7 +92,7 @@ const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
           Authorization: `Bearer ${authToken}`,
           Accept: "application/json",
         },
-      }
+      },
     );
 
     const targetIssueTypes = issueTypesResponse.data.issueTypes;
@@ -108,7 +108,7 @@ const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
 
     if (targetIssueType) {
       issueTypeToUse = targetIssueTypes.find(
-        it => it.name.toLowerCase() === targetIssueType.toLowerCase() || it.id === targetIssueType
+        it => it.name.toLowerCase() === targetIssueType.toLowerCase() || it.id === targetIssueType,
       );
       if (!issueTypeToUse) {
         return {
@@ -132,7 +132,7 @@ const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
     // Build payload per official Atlassian docs:
     // The key in targetToSourcesMapping is "PROJECT_KEY,ISSUE_TYPE_ID"
     const mappingKey = `${targetProjectKey},${issueTypeToUse.id}`;
-    
+
     const movePayload = {
       sendBulkNotification: true,
       targetToSourcesMapping: {
@@ -146,28 +146,18 @@ const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
       },
     };
 
-
     let taskId: string;
     try {
-      const response = await axiosClient.post<BulkMoveResponse>(
-        `${apiUrl}/bulk/issues/move`,
-        movePayload,
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await axiosClient.post<BulkMoveResponse>(`${apiUrl}/bulk/issues/move`, movePayload, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      });
       taskId = response.data.taskId;
-
     } catch (moveError: unknown) {
-
-      if (moveError && typeof moveError === "object") {
-        const err = moveError as { response?: { status?: number; data?: unknown }; message?: string };
-        console.error("Error message:", err.message);
-      }
+     
       const availableTypes = targetIssueTypes.map(t => `${t.name} (id: ${t.id})`).join(", ");
       return {
         success: false,
@@ -189,10 +179,13 @@ const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
         });
         taskStatus = taskResponse.data;
 
-        
         if (taskStatus.status === "COMPLETE") {
           break;
-        } else if (taskStatus.status === "FAILED" || taskStatus.status === "CANCELLED" || taskStatus.status === "DEAD") {
+        } else if (
+          taskStatus.status === "FAILED" ||
+          taskStatus.status === "CANCELLED" ||
+          taskStatus.status === "DEAD"
+        ) {
           return {
             success: false,
             error: `Move task failed with status: ${taskStatus.status}`,
@@ -213,15 +206,12 @@ const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
     // Fetch the updated issue to get the new key (use immutable id since key changes on project move)
     let newKey = currentIssueKey;
     try {
-      const updatedIssueResponse = await axiosClient.get<IssueDetailsResponse>(
-        `${apiUrl}/issue/${issueInternalId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            Accept: "application/json",
-          },
-        }
-      );
+      const updatedIssueResponse = await axiosClient.get<IssueDetailsResponse>(`${apiUrl}/issue/${issueInternalId}`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          Accept: "application/json",
+        },
+      });
       newKey = updatedIssueResponse.data.key;
     } catch {
       // Continue with original key
