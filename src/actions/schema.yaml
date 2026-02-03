@@ -1313,8 +1313,8 @@ actions:
             type: string
             description: The url to the Jira ticket
     moveJiraTicketToProject:
-      displayName: "Move Jira ticket to another project"
-      description: Moves a Jira ticket from one project to another, optionally updating the issue type. Note: This action only works with Jira Cloud, not Jira Data Center.
+      displayName: Move Jira ticket to another project
+      description: "Moves a single Jira ticket from one project to another, optionally updating the issue type. Note: This action only works with Jira Cloud, not Jira Data Center."
       scopes:
         - write:jira-work
         - read:jira-work

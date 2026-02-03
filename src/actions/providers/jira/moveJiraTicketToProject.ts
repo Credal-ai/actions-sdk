@@ -29,6 +29,22 @@ interface IssueDetailsResponse {
   };
 }
 
+interface BulkMoveResponse {
+  taskId: string;
+}
+
+interface TaskStatusResponse {
+  id: string;
+  status: "ENQUEUED" | "RUNNING" | "COMPLETE" | "FAILED" | "CANCEL_REQUESTED" | "CANCELLED" | "DEAD";
+  progress: number;
+  result?: string;
+  message?: string;
+}
+
+// Polling configuration
+const POLL_INTERVAL_MS = 1000;
+const MAX_POLL_ATTEMPTS = 30; // 30 seconds max wait
+
 const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
   params,
   authParams,
@@ -128,20 +144,10 @@ const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
       },
     };
 
-    // Debug logging
-    console.log("=== JIRA MOVE DEBUG ===");
-    console.log("API URL:", `${apiUrl}/bulk/issues/move`);
-    console.log("Current Issue Key:", currentIssueKey);
-    console.log("Current Project:", currentProjectKey);
-    console.log("Current Issue Type:", currentIssueTypeName);
-    console.log("Target Project:", targetProjectKey);
-    console.log("Target Issue Type:", issueTypeToUse.name, "(id:", issueTypeToUse.id + ")");
-    console.log("Mapping Key:", mappingKey);
-    console.log("Payload:", JSON.stringify(movePayload, null, 2));
-    console.log("=======================");
 
+    let taskId: string;
     try {
-      const response = await axiosClient.post(
+      const response = await axiosClient.post<BulkMoveResponse>(
         `${apiUrl}/bulk/issues/move`,
         movePayload,
         {
@@ -152,10 +158,10 @@ const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
           },
         }
       );
-      console.log("Move response:", JSON.stringify(response.data, null, 2));
+      taskId = response.data.taskId;
+      console.log("Move initiated, taskId:", taskId);
     } catch (moveError: unknown) {
       console.log("Move error:", moveError);
-      // Log full error details
       if (moveError && typeof moveError === "object") {
         const err = moveError as { status?: number; data?: unknown; message?: string };
         console.log("Error status:", err.status);
@@ -169,28 +175,57 @@ const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
       };
     }
 
-    // Wait for Jira to process, then verify
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Poll the task until it completes
+    let taskStatus: TaskStatusResponse | undefined;
+    for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
+      await new Promise(resolve => setTimeout(resolve, POLL_INTERVAL_MS));
 
-    // Verify the move
-    const updatedIssueResponse = await axiosClient.get<IssueDetailsResponse>(
-      `${apiUrl}/issue/${currentIssueKey}`,
-      {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          Accept: "application/json",
-        },
+      try {
+        const taskResponse = await axiosClient.get<TaskStatusResponse>(`${apiUrl}/task/${taskId}`, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            Accept: "application/json",
+          },
+        });
+        taskStatus = taskResponse.data;
+        console.log(`Task poll attempt ${attempt + 1}: status=${taskStatus.status}, progress=${taskStatus.progress}%`);
+
+        if (taskStatus.status === "COMPLETE") {
+          break;
+        } else if (taskStatus.status === "FAILED" || taskStatus.status === "CANCELLED" || taskStatus.status === "DEAD") {
+          return {
+            success: false,
+            error: `Move task failed with status: ${taskStatus.status}. ${taskStatus.message || ""}`,
+          };
+        }
+      } catch (pollError: unknown) {
+        console.warn(`Task poll attempt ${attempt + 1} failed:`, getErrorMessage(pollError));
+        // Continue polling on transient errors
       }
-    );
+    }
 
-    const newKey = updatedIssueResponse.data.key;
-    const newProjectKey = updatedIssueResponse.data.fields.project.key;
-
-    if (newProjectKey !== targetProjectKey) {
+    if (!taskStatus || taskStatus.status !== "COMPLETE") {
       return {
         success: false,
-        error: `Move was initiated but ticket is still in project ${newProjectKey}. This may be a Jira configuration issue or the move is processing asynchronously.`,
+        error: `Move task did not complete within ${MAX_POLL_ATTEMPTS} seconds. Last status: ${taskStatus?.status || "unknown"}`,
       };
+    }
+
+    // Fetch the updated issue to get the new key
+    let newKey = currentIssueKey;
+    try {
+      const updatedIssueResponse = await axiosClient.get<IssueDetailsResponse>(
+        `${apiUrl}/issue/${currentIssueKey}`,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            Accept: "application/json",
+          },
+        }
+      );
+      newKey = updatedIssueResponse.data.key;
+    } catch (fetchError: unknown) {
+      console.warn(`Could not fetch updated issue: ${getErrorMessage(fetchError)}. Using original key.`);
     }
 
     return {
