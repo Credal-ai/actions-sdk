@@ -199,7 +199,6 @@ const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
           };
         }
       } catch {
-        console.warn(`Task poll attempt ${attempt + 1} failed:`);
         // Continue polling on transient errors
       }
     }
@@ -225,7 +224,7 @@ const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
       );
       newKey = updatedIssueResponse.data.key;
     } catch {
-      console.warn(`Could not fetch updated issue. Using original key.`);
+      // Continue with original key
     }
 
     return {
