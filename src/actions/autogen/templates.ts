@@ -710,6 +710,7 @@ export const slackSendMessageDefinition: ActionTemplate = {
       channelName: {
         type: "string",
         description: "The name of the Slack channel to send the message to (e.g. general, alerts)",
+        tags: ["recommend-enum"],
       },
       message: {
         type: "string",
@@ -755,6 +756,7 @@ export const slackGetChannelMessagesDefinition: ActionTemplate = {
       channelName: {
         type: "string",
         description: "Name of the channel to summarize. Either the channelId or channelName must be provided.",
+        tags: ["recommend-enum"],
       },
       oldest: {
         type: "string",
@@ -836,6 +838,7 @@ export const slackGetChannelMembersDefinition: ActionTemplate = {
       channelName: {
         type: "string",
         description: "The name of the channel to get members from",
+        tags: ["recommend-enum"],
       },
     },
   },
@@ -905,6 +908,7 @@ export const slackUserSearchSlackDefinition: ActionTemplate = {
       channel: {
         type: "string",
         description: 'Channel name or ID. Examples - "#eng-updates", "eng-updates", "C01234567".',
+        tags: ["recommend-enum"],
       },
       topic: {
         type: "string",
