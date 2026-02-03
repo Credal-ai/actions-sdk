@@ -195,7 +195,7 @@ const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
         } else if (taskStatus.status === "FAILED" || taskStatus.status === "CANCELLED" || taskStatus.status === "DEAD") {
           return {
             success: false,
-            error: `Move task failed with status: ${taskStatus.status}. ${taskStatus.message ?? ""}`,
+            error: `Move task failed with status: ${taskStatus.status}`,
           };
         }
       } catch (pollError: unknown) {
