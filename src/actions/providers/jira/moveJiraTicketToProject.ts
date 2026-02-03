@@ -161,14 +161,12 @@ const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
         }
       );
       taskId = response.data.taskId;
-      console.log("Move initiated, taskId:", taskId);
+
     } catch (moveError: unknown) {
-      console.log("Move error:", moveError);
+
       if (moveError && typeof moveError === "object") {
         const err = moveError as { response?: { status?: number; data?: unknown }; message?: string };
-        console.log("Error status:", err.response?.status);
-        console.log("Error data:", JSON.stringify(err.response?.data, null, 2));
-        console.log("Error message:", err.message);
+        console.error("Error message:", err.message);
       }
       const availableTypes = targetIssueTypes.map(t => `${t.name} (id: ${t.id})`).join(", ");
       return {
@@ -190,8 +188,8 @@ const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
           },
         });
         taskStatus = taskResponse.data;
-        console.log(`Task poll attempt ${attempt + 1}: status=${taskStatus.status}, progress=${taskStatus.progress}%`);
 
+        
         if (taskStatus.status === "COMPLETE") {
           break;
         } else if (taskStatus.status === "FAILED" || taskStatus.status === "CANCELLED" || taskStatus.status === "DEAD") {
@@ -200,8 +198,8 @@ const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
             error: `Move task failed with status: ${taskStatus.status}`,
           };
         }
-      } catch (pollError: unknown) {
-        console.warn(`Task poll attempt ${attempt + 1} failed:`, getErrorMessage(pollError));
+      } catch {
+        console.warn(`Task poll attempt ${attempt + 1} failed:`);
         // Continue polling on transient errors
       }
     }
@@ -226,8 +224,8 @@ const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
         }
       );
       newKey = updatedIssueResponse.data.key;
-    } catch (fetchError: unknown) {
-      console.warn(`Could not fetch updated issue: ${getErrorMessage(fetchError)}. Using original key.`);
+    } catch {
+      console.warn(`Could not fetch updated issue. Using original key.`);
     }
 
     return {
