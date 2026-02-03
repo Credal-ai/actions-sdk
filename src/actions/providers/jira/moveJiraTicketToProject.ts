@@ -157,7 +157,6 @@ const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
       });
       taskId = response.data.taskId;
     } catch (moveError: unknown) {
-     
       const availableTypes = targetIssueTypes.map(t => `${t.name} (id: ${t.id})`).join(", ");
       return {
         success: false,
