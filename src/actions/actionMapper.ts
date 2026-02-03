@@ -756,12 +756,7 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       outputSchema: jiraUpdateJiraTicketStatusOutputSchema,
       actionType: "write",
     },
-    moveJiraTicketToProject: {
-      fn: moveJiraTicketToProject,
-      paramsSchema: jiraMoveJiraTicketToProjectParamsSchema,
-      outputSchema: jiraMoveJiraTicketToProjectOutputSchema,
-      actionType: "write",
-    },
+    // moveJiraTicketToProject intentionally excluded - requires Jira Cloud APIs
   },
   openstreetmap: {
     getLatitudeLongitudeFromLocation: {

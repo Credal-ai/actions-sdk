@@ -17,6 +17,7 @@ interface CreateMetaIssueTypesResponse {
 }
 
 interface IssueDetailsResponse {
+  id: string;
   key: string;
   fields: {
     issuetype: {
@@ -69,6 +70,7 @@ const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
       },
     });
 
+    const issueInternalId = issueResponse.data.id;
     const currentIssueKey = issueResponse.data.key;
     const currentIssueTypeName = issueResponse.data.fields.issuetype.name;
     const currentProjectKey = issueResponse.data.fields.project.key;
@@ -163,9 +165,9 @@ const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
     } catch (moveError: unknown) {
       console.log("Move error:", moveError);
       if (moveError && typeof moveError === "object") {
-        const err = moveError as { status?: number; data?: unknown; message?: string };
-        console.log("Error status:", err.status);
-        console.log("Error data:", JSON.stringify(err.data, null, 2));
+        const err = moveError as { response?: { status?: number; data?: unknown }; message?: string };
+        console.log("Error status:", err.response?.status);
+        console.log("Error data:", JSON.stringify(err.response?.data, null, 2));
         console.log("Error message:", err.message);
       }
       const availableTypes = targetIssueTypes.map(t => `${t.name} (id: ${t.id})`).join(", ");
@@ -211,11 +213,11 @@ const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
       };
     }
 
-    // Fetch the updated issue to get the new key
+    // Fetch the updated issue to get the new key (use immutable id since key changes on project move)
     let newKey = currentIssueKey;
     try {
       const updatedIssueResponse = await axiosClient.get<IssueDetailsResponse>(
-        `${apiUrl}/issue/${currentIssueKey}`,
+        `${apiUrl}/issue/${issueInternalId}`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
