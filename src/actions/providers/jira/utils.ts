@@ -1,6 +1,13 @@
 import type { AxiosError } from "axios";
 import type { Version3Client } from "jira.js";
+import { markdownToAdf } from "marklassian";
 import { axiosClient } from "../../util/axiosClient.js";
+
+
+export interface JiraErrorResponse {
+  errorMessages?: string[];
+  errors?: Record<string, string>;
+}
 
 export interface JiraApiConfig {
   apiUrl: string;
@@ -47,21 +54,7 @@ export interface JiraPlatformStrategy {
 }
 
 const cloudStrategy: JiraPlatformStrategy = {
-  formatText: (text: string) => ({
-    type: "doc",
-    version: 1,
-    content: [
-      {
-        type: "paragraph",
-        content: [
-          {
-            type: "text",
-            text: text,
-          },
-        ],
-      },
-    ],
-  }),
+  formatText: (text: string) => markdownToAdf(text),
 
   formatUser: (userId: string | null) => {
     if (!userId) return null;
@@ -194,6 +187,38 @@ export async function getUserAccountIdFromEmail(
 }
 
 export function getErrorMessage(error: unknown): string {
+  // Handle ApiError from axiosClient which includes response data
+  if (error && typeof error === "object" && "data" in error) {
+    const apiError = error as { message?: string; data?: JiraErrorResponse };
+    if (apiError.data) {
+      const data = apiError.data;
+      const messages: string[] = [];
+
+      // Jira returns errorMessages array for general errors
+      if (data.errorMessages && Array.isArray(data.errorMessages)) {
+        messages.push(...data.errorMessages.filter((m): m is string => typeof m === "string"));
+      }
+
+      // Jira returns errors object for field-specific errors
+      if (data.errors && typeof data.errors === "object") {
+        for (const [field, message] of Object.entries(data.errors)) {
+          if (typeof message === "string") {
+            messages.push(`${field}: ${message}`);
+          }
+        }
+      }
+
+      if (messages.length > 0) {
+        return messages.join("; ");
+      }
+    }
+
+    // Fall back to the message if no detailed errors found
+    if (apiError.message) {
+      return apiError.message;
+    }
+  }
+
   if (error instanceof Error) return error.message;
   return String(error);
 }
@@ -328,4 +353,79 @@ export function extractPlainText(adf: unknown): string {
     })
     .join("\n")
     .trim();
+}
+
+/**
+ * Attempts to parse a string as JSON.
+ * Returns the parsed object/array if successful, or null if it's not valid JSON.
+ */
+function tryParseJson(value: string): unknown | null {
+  // Quick check: only try parsing if it looks like JSON (starts with { or [)
+  const trimmed = value.trim();
+  if (!trimmed.startsWith("{") && !trimmed.startsWith("[")) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Formats custom field values for Jira API compatibility.
+ *
+ * For Jira Cloud (API v3), many field types require specific formats:
+ * - Select fields: { value: "option" } or { id: "optionId" }
+ * - Multi-select fields: [{ value: "option1" }, { value: "option2" }]
+ * - User fields: { accountId: "..." }
+ * - Number fields: number
+ * - Date fields: "YYYY-MM-DD" string
+ *
+ * This function handles values that may come as:
+ * - JSON strings like '{ "value": "High" }' - these are parsed into objects
+ * - Objects/arrays - passed through as-is
+ * - Plain strings - passed through as-is (user is responsible for correct format)
+ * - Numbers/booleans - passed through as-is
+ */
+export function formatCustomFieldsForApi(
+  customFields: Record<string, unknown> | undefined,
+  _isDataCenter: boolean,
+): Record<string, unknown> | undefined {
+  if (!customFields) {
+    return undefined;
+  }
+
+  const formattedFields: Record<string, unknown> = {};
+
+  for (const [fieldId, value] of Object.entries(customFields)) {
+    if (value === null || value === undefined) {
+      // Pass through null/undefined to clear fields
+      formattedFields[fieldId] = value;
+    } else if (typeof value === "object") {
+      // Objects and arrays are passed through as-is
+      // User is expected to provide the correct format
+      formattedFields[fieldId] = value;
+    } else if (typeof value === "number" || typeof value === "boolean") {
+      // Numbers and booleans are passed through as-is
+      formattedFields[fieldId] = value;
+    } else if (typeof value === "string") {
+      // Check if the string is JSON (e.g., '{ "value": "High" }')
+      const parsed = tryParseJson(value);
+      if (parsed !== null) {
+        // String was valid JSON, use the parsed value
+        formattedFields[fieldId] = parsed;
+      } else {
+        // Plain string - pass through as-is
+        // User is responsible for providing the correct format for their field type
+        formattedFields[fieldId] = value;
+      }
+    } else {
+      // Fallback: pass through as-is
+      formattedFields[fieldId] = value;
+    }
+  }
+
+  return formattedFields;
 }
