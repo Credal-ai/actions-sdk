@@ -1,6 +1,7 @@
 import type { AxiosError } from "axios";
 import type { Version3Client } from "jira.js";
 import { axiosClient } from "../../util/axiosClient.js";
+import { markdownToAdf } from "marklassian";
 
 export interface JiraApiConfig {
   apiUrl: string;
@@ -47,21 +48,7 @@ export interface JiraPlatformStrategy {
 }
 
 const cloudStrategy: JiraPlatformStrategy = {
-  formatText: (text: string) => ({
-    type: "doc",
-    version: 1,
-    content: [
-      {
-        type: "paragraph",
-        content: [
-          {
-            type: "text",
-            text: text,
-          },
-        ],
-      },
-    ],
-  }),
+  formatText: (text: string) => markdownToAdf(text),
 
   formatUser: (userId: string | null) => {
     if (!userId) return null;
