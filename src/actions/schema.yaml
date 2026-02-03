@@ -5159,7 +5159,7 @@ actions:
             type: string
             description: Error message if search failed
     searchDriveByKeywordsAndGetFileContent:
-      displayName: Search Drive by keyword
+      displayName: Search all of Google Drive
       description: Search Google Drive with keywords and get resulting content
       scopes: [drive.readonly]
       parameters:
