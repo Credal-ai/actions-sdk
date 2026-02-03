@@ -48,7 +48,18 @@ export interface JiraPlatformStrategy {
 }
 
 const cloudStrategy: JiraPlatformStrategy = {
-  formatText: (text: string) => markdownToAdf(text),
+  formatText: (text: string) => {
+    try {
+      return markdownToAdf(text);
+    } catch {
+      // Fallback to plain text ADF if markdown parsing fails
+      return {
+        type: "doc",
+        version: 1,
+        content: [{ type: "paragraph", content: [{ type: "text", text }] }],
+      };
+    }
+  },
 
   formatUser: (userId: string | null) => {
     if (!userId) return null;
