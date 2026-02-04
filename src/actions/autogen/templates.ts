@@ -1072,7 +1072,7 @@ export const slackUserSearchSlackDefinition: ActionTemplate = {
 export const slackUserSearchSlackRTSDefinition: ActionTemplate = {
   displayName: "Search Slack with Real-Time Search",
   description:
-    "Search Slack messages across your organization using Slack's Real-Time Search API (assistant.search.context). Searches all conversations within the scope of permissions granted and returns relevant messages with content, author info, and permalinks.",
+    "Search Slack messages across your organization using Slack's Real-Time Search API. Searches all conversations within the scope of permissions granted and returns relevant messages with content, author info, and permalinks.",
   scopes: [
     "search:read.public",
     "search:read.private",
@@ -1088,12 +1088,12 @@ export const slackUserSearchSlackRTSDefinition: ActionTemplate = {
       query: {
         type: "string",
         description:
-          'The search query string (e.g., "What is project gizmo?", "mobile UX revamp"). Leave empty if you only want to filter by user or channel.',
+          'The search query string (e.g., "What is project gizmo?", "mobile UX revamp"). If you want to filter by user or channel, leave this field empty and use the userEmails and channelIds fields.',
       },
       userEmails: {
         type: "array",
         description:
-          'Optional. Users to filter messages from. Each value should be a plain-text email (e.g. "user@company.com"). Will be resolved to a Slack user ID and formatted into the query as from:<@U...>.',
+          'Optional. Users that you want to see messages from. Each value should be a plain-text email (e.g. "user@company.com"). Will be resolved to a Slack user ID and formatted into the query as from:<@U...>.',
         items: {
           type: "string",
         },
@@ -1101,7 +1101,7 @@ export const slackUserSearchSlackRTSDefinition: ActionTemplate = {
       channelIds: {
         type: "array",
         description:
-          'Optional. Channels to restrict results to. Each value can be a Slack channel ID like "C12345678" (or "<#C123...>") OR a channel name like "general" / "#general". Values are formatted into the query as in:<#C...> (ID) or in:#channel-name (name).',
+          'Optional. Channels that you want to see messages from. Each value can be a Slack channel ID like "C12345678" (or "<#C123...>") OR a channel name like "general" / "#general". Values are formatted into the query as in:<#C...> (ID) or in:#channel-name (name).',
         items: {
           type: "string",
         },
@@ -1109,7 +1109,7 @@ export const slackUserSearchSlackRTSDefinition: ActionTemplate = {
       channelTypes: {
         type: "array",
         description:
-          "Filter by channel types to search. If not specified, searches all channel types the user has access to.",
+          "Filter by channel types to search (e.g., public_channel, private_channel, mpim, im). If not specified, searches all channel types the user has access to.",
         items: {
           type: "string",
           enum: ["public_channel", "private_channel", "mpim", "im"],
@@ -1117,7 +1117,8 @@ export const slackUserSearchSlackRTSDefinition: ActionTemplate = {
       },
       contentTypes: {
         type: "array",
-        description: "Filter by content types to include in search results.",
+        description:
+          "Filter by content types to include in search results (e.g., messages, files, channels). If not specified, searches all content types the user has access to.",
         items: {
           type: "string",
           enum: ["messages", "files", "channels"],
@@ -1143,11 +1144,13 @@ export const slackUserSearchSlackRTSDefinition: ActionTemplate = {
       },
       before: {
         type: "string",
-        description: "Optional UNIX timestamp filter. If present, filters for results before this date.",
+        description:
+          "Optional UNIX timestamp filter. If present, filters for results before this date. Use this field when you want to find messages in a specific date/time range.",
       },
       after: {
         type: "string",
-        description: "Optional UNIX timestamp filter. If present, filters for results after this date.",
+        description:
+          "Optional UNIX timestamp filter. If present, filters for results after this date. Use this field when you want to find messages in a specific date/time range.",
       },
     },
   },
