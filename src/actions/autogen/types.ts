@@ -5249,7 +5249,7 @@ export const salesforceSearchAllSalesforceRecordsParamsSchema = z.object({
   keyword: z.string().describe("The keyword to search for"),
   usesLightningKnowledge: z
     .boolean()
-    .describe("Whether your Salesforce instance uses lightning knowledge articles")
+    .describe('Whether your Salesforce instance uses lightning knowledge articles ("true" or "false")')
     .optional(),
   limit: z.number().describe("The maximum number of records to return").optional(),
   maxLimit: z.number().describe("The absolute maximum limit for records that can be returned").optional(),
@@ -5599,7 +5599,7 @@ export type microsoftGetDocumentFunction = ActionFunction<
 >;
 
 export const githubCreateOrUpdateFileParamsSchema = z.object({
-  repositoryOwner: z.string().describe("The owner of the repository"),
+  repositoryOwner: z.string().describe("The owner of the repository, this is a GitHub username"),
   repositoryName: z.string().describe("The name of the repository"),
   filePath: z.string().describe("The path of the file to create or update"),
   branch: z.string().describe("The branch where the file will be created or updated"),
@@ -5625,7 +5625,7 @@ export type githubCreateOrUpdateFileFunction = ActionFunction<
 >;
 
 export const githubCreateBranchParamsSchema = z.object({
-  repositoryOwner: z.string().describe("The owner of the repository"),
+  repositoryOwner: z.string().describe("The owner of the repository, this is a GitHub username"),
   repositoryName: z.string().describe("The name of the repository"),
   branchName: z.string().describe("The name of the new branch to create"),
   baseRefOrHash: z.string().describe("The ref or hash of the base commit to create the new branch from"),
@@ -5646,7 +5646,7 @@ export type githubCreateBranchFunction = ActionFunction<
 >;
 
 export const githubCreatePullRequestParamsSchema = z.object({
-  repositoryOwner: z.string().describe("The owner of the repository"),
+  repositoryOwner: z.string().describe("The owner of the repository, this is a GitHub username"),
   repositoryName: z.string().describe("The name of the repository"),
   head: z
     .string()
@@ -5675,7 +5675,7 @@ export type githubCreatePullRequestFunction = ActionFunction<
 >;
 
 export const githubListPullRequestsParamsSchema = z.object({
-  repositoryOwner: z.string().describe("The owner of the repository"),
+  repositoryOwner: z.string().describe("The owner of the repository, this is a GitHub username"),
   repositoryName: z.string().describe("The name of the repository"),
   state: z.string().describe("The state of the pull requests to list (e.g., open, closed)").optional(),
 });
@@ -5720,7 +5720,7 @@ export type githubListPullRequestsFunction = ActionFunction<
 >;
 
 export const githubGetPullRequestDetailsParamsSchema = z.object({
-  repositoryOwner: z.string().describe("The owner of the repository"),
+  repositoryOwner: z.string().describe("The owner of the repository, this is a GitHub username"),
   repositoryName: z.string().describe("The name of the repository"),
   pullRequestNumber: z.number().describe("The number of the pull request to get details for"),
 });
@@ -6034,7 +6034,7 @@ export type githubSearchOrganizationFunction = ActionFunction<
 >;
 
 export const githubGetBranchParamsSchema = z.object({
-  repositoryOwner: z.string().describe("The owner of the repository"),
+  repositoryOwner: z.string().describe("The owner of the repository, this is a GitHub username"),
   repositoryName: z.string().describe("The name of the repository"),
   branchName: z.string().describe("The name of the branch to retrieve"),
 });
@@ -6147,7 +6147,7 @@ export type githubGetBranchFunction = ActionFunction<
 >;
 
 export const githubListCommitsParamsSchema = z.object({
-  repositoryOwner: z.string().describe("The owner of the repository"),
+  repositoryOwner: z.string().describe("The owner of the repository, this is a GitHub username"),
   repositoryName: z.string().describe("The name of the repository"),
   branch: z.string().describe("The branch to list commits from (defaults to default branch)").optional(),
   since: z
