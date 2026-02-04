@@ -187,11 +187,12 @@ const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
         ) {
           return {
             success: false,
-            error: `Move task failed with status: ${taskStatus.status}`,
+            error: `Move task failed`,
           };
         }
       } catch {
         // Continue polling on transient errors
+        console.error("Error polling task status");
       }
     }
 
@@ -214,6 +215,7 @@ const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
       newKey = updatedIssueResponse.data.key;
     } catch {
       // Continue with original key
+      console.error("Error fetching updated issue");
     }
 
     return {
