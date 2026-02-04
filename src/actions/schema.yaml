@@ -5178,7 +5178,6 @@ actions:
           searchDriveByDrive:
             type: boolean
             description: Search drive by drive or run a general search
-            tags: [recommend-predefined]
           orderByQuery:
             type: string
             description: The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'
@@ -6207,7 +6206,7 @@ actions:
             description: The keyword to search for
           usesLightningKnowledge:
             type: boolean
-            description: Whether your Salesforce instance uses lightning knowledge articles
+            description: Whether your Salesforce instance uses lightning knowledge articles ("true" or "false")
             tags: [recommend-predefined]
           limit:
             type: number
@@ -6703,7 +6702,7 @@ actions:
         properties:
           repositoryOwner:
             type: string
-            description: The owner of the repository
+            description: The owner of the repository, this is a GitHub username
             tags: [recommend-predefined]
           repositoryName:
             type: string
@@ -6751,7 +6750,7 @@ actions:
         properties:
           repositoryOwner:
             type: string
-            description: The owner of the repository
+            description: The owner of the repository, this is a GitHub username
             tags: [recommend-predefined]
           repositoryName:
             type: string
@@ -6783,7 +6782,7 @@ actions:
         properties:
           repositoryOwner:
             type: string
-            description: The owner of the repository
+            description: The owner of the repository, this is a GitHub username
             tags: [recommend-predefined]
           repositoryName:
             type: string
@@ -6827,7 +6826,7 @@ actions:
         properties:
           repositoryOwner:
             type: string
-            description: The owner of the repository
+            description: The owner of the repository, this is a GitHub username
             tags: [recommend-predefined]
           repositoryName:
             type: string
@@ -6898,7 +6897,7 @@ actions:
         properties:
           repositoryOwner:
             type: string
-            description: The owner of the repository
+            description: The owner of the repository, this is a GitHub username
             tags: [recommend-predefined]
           repositoryName:
             type: string
@@ -7423,7 +7422,7 @@ actions:
         properties:
           repositoryOwner:
             type: string
-            description: The owner of the repository
+            description: The owner of the repository, this is a GitHub username
             tags: [recommend-predefined]
           repositoryName:
             type: string
@@ -7604,7 +7603,7 @@ actions:
         properties:
           repositoryOwner:
             type: string
-            description: The owner of the repository
+            description: The owner of the repository, this is a GitHub username
             tags: [recommend-predefined]
           repositoryName:
             type: string

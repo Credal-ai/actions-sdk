@@ -8672,7 +8672,7 @@ export const googleOauthSearchDriveByQueryDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: ActionTemplate = {
-  displayName: "Search Drive by keyword",
+  displayName: "Search all of Google Drive",
   description: "Search Google Drive with keywords and get resulting content",
   scopes: ["drive.readonly"],
   tags: [],
@@ -8695,7 +8695,6 @@ export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: Action
       searchDriveByDrive: {
         type: "boolean",
         description: "Search drive by drive or run a general search",
-        tags: ["recommend-predefined"],
       },
       orderByQuery: {
         type: "string",
@@ -10152,7 +10151,7 @@ export const salesforceSearchAllSalesforceRecordsDefinition: ActionTemplate = {
       },
       usesLightningKnowledge: {
         type: "boolean",
-        description: "Whether your Salesforce instance uses lightning knowledge articles",
+        description: 'Whether your Salesforce instance uses lightning knowledge articles ("true" or "false")',
         tags: ["recommend-predefined"],
       },
       limit: {
@@ -10869,7 +10868,7 @@ export const githubCreateOrUpdateFileDefinition: ActionTemplate = {
     properties: {
       repositoryOwner: {
         type: "string",
-        description: "The owner of the repository",
+        description: "The owner of the repository, this is a GitHub username",
         tags: ["recommend-predefined"],
       },
       repositoryName: {
@@ -10936,7 +10935,7 @@ export const githubCreateBranchDefinition: ActionTemplate = {
     properties: {
       repositoryOwner: {
         type: "string",
-        description: "The owner of the repository",
+        description: "The owner of the repository, this is a GitHub username",
         tags: ["recommend-predefined"],
       },
       repositoryName: {
@@ -10982,7 +10981,7 @@ export const githubCreatePullRequestDefinition: ActionTemplate = {
     properties: {
       repositoryOwner: {
         type: "string",
-        description: "The owner of the repository",
+        description: "The owner of the repository, this is a GitHub username",
         tags: ["recommend-predefined"],
       },
       repositoryName: {
@@ -11045,7 +11044,7 @@ export const githubListPullRequestsDefinition: ActionTemplate = {
     properties: {
       repositoryOwner: {
         type: "string",
-        description: "The owner of the repository",
+        description: "The owner of the repository, this is a GitHub username",
         tags: ["recommend-predefined"],
       },
       repositoryName: {
@@ -11147,7 +11146,7 @@ export const githubGetPullRequestDetailsDefinition: ActionTemplate = {
     properties: {
       repositoryOwner: {
         type: "string",
-        description: "The owner of the repository",
+        description: "The owner of the repository, this is a GitHub username",
         tags: ["recommend-predefined"],
       },
       repositoryName: {
@@ -11880,7 +11879,7 @@ export const githubGetBranchDefinition: ActionTemplate = {
     properties: {
       repositoryOwner: {
         type: "string",
-        description: "The owner of the repository",
+        description: "The owner of the repository, this is a GitHub username",
         tags: ["recommend-predefined"],
       },
       repositoryName: {
@@ -12140,7 +12139,7 @@ export const githubListCommitsDefinition: ActionTemplate = {
     properties: {
       repositoryOwner: {
         type: "string",
-        description: "The owner of the repository",
+        description: "The owner of the repository, this is a GitHub username",
         tags: ["recommend-predefined"],
       },
       repositoryName: {
