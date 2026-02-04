@@ -512,7 +512,7 @@ actions:
             type: string
             description: The ID of the message that was sent
     getChannelMessages:
-      displayName: Get messages in a channel
+      displayName: List messages in a channel
       description: Gets messages from a Slack channel
       scopes:
         - channels:history
@@ -570,7 +570,7 @@ actions:
             type: string
             description: Cursor to use for fetching the next page of results. Only present when hasMore is true.
     getChannelMembers:
-      displayName: Get members of a channel
+      displayName: List members of a channel
       description: Gets the members of a Slack channel
       scopes:
         - channels:read
@@ -5019,7 +5019,7 @@ actions:
             type: string
             description: The URL of the created presentation
     getPresentation:
-      displayName: Get a presentation
+      displayName: Fetch a presentation
       description: Get a presentation by ID
       scopes: [slides.readonly]
       parameters:
@@ -5290,7 +5290,7 @@ actions:
             type: string
             description: Error message if search failed
     getDriveFileContentById:
-      displayName: Fetch file contents
+      displayName: Fetch full file contents
       description: Get text content of a Google Drive file by its ID.
       scopes: [drive.readonly]
       parameters:
@@ -5387,7 +5387,7 @@ actions:
             type: string
             description: The error that occurred if the groups could not be listed
     getGroup:
-      displayName: Get a Group
+      displayName: Get Group details
       description: Get details for a specific Google Group by group email or ID.
       scopes:
         - https://www.googleapis.com/auth/admin.directory.group.readonly
@@ -6665,7 +6665,7 @@ actions:
             type: string
             description: The ID of the message that was sent
     getDocument:
-      displayName: Get a document
+      displayName: Fetch a document
       description: Retrieves the content of a Microsoft Office document
       scopes: [Files.ReadWrite, Sites.ReadWrite.All]
       parameters:
@@ -6888,7 +6888,7 @@ actions:
                       type: string
                       description: The description of the pull request
     getPullRequestDetails:
-      displayName: Fetch pull request
+      displayName: Fetch pull request details
       description: Get detailed information about a specific pull request including description, files, reviews, and status
       scopes: []
       parameters:
@@ -7413,7 +7413,7 @@ actions:
                                 type: string
                                 description: Diff patch content (truncated).
     getBranch:
-      displayName: Get a branch
+      displayName: Get branch details
       description: Get a branch in a GitHub repository
       scopes: []
       parameters:
@@ -8033,7 +8033,7 @@ actions:
                       type: string
                       description: The URL of the file in the GitLab UI
     getMergeRequest:
-      displayName: Get merge request
+      displayName: Get merge request details
       description: Get specified merge request from a GitLab repository
       scopes: []
       parameters:
@@ -8358,7 +8358,7 @@ actions:
                         type: string
                         description: The comment content
     getIssueDetails:
-      displayName: Fetch issue
+      displayName: Fetch issue details
       description: Get detailed information about a Linear issue
       scopes: []
       parameters:
@@ -8473,7 +8473,7 @@ actions:
                 type: string
                 description: The issue content
     getProjects:
-      displayName: Fetch projects
+      displayName: List all projects
       description: Get all Linear projects
       scopes: []
       parameters:
@@ -8694,7 +8694,7 @@ actions:
                     email:
                       type: string
     getTeams:
-      displayName: Get teams
+      displayName: List all teams
       description: Get all teams in Linear
       scopes: []
       parameters:
@@ -8725,7 +8725,7 @@ actions:
                   description: The team name
   hubspot:
     getContacts:
-      displayName: Get contacts
+      displayName: List all contacts
       description: List or search HubSpot contacts by optional query
       scopes: [oauth crm.objects.contacts.read]
       parameters:
@@ -8770,7 +8770,7 @@ actions:
                   type: string
                   description: When the contact was created
     getContactDetails:
-      displayName: Get details of a contact
+      displayName: Get contact details
       description: Get detailed information about a specific HubSpot contact
       scopes: [oauth crm.objects.contacts.read]
       parameters:
@@ -8843,7 +8843,7 @@ actions:
                 type: boolean
                 description: Whether the contact is archived
     getCompanies:
-      displayName: Get companies
+      displayName: List all companies
       description: List or search HubSpot companies by optional query
       scopes: [oauth crm.objects.companies.read]
       parameters:
@@ -8885,7 +8885,7 @@ actions:
                   type: string
                   description: When the company was created
     getCompanyDetails:
-      displayName: Get details of a company
+      displayName: Get company details
       description: Get detailed information about a specific HubSpot company
       scopes: [oauth crm.objects.companies.read]
       parameters:
@@ -8952,7 +8952,7 @@ actions:
                 type: boolean
                 description: Whether the company is archived
     getDeals:
-      displayName: Get deals
+      displayName: List all deals
       description: List or search HubSpot deals by optional query
       scopes: [oauth crm.objects.deals.read]
       parameters:
@@ -8997,7 +8997,7 @@ actions:
                   type: string
                   description: When the deal was created
     getDealDetails:
-      displayName: Get details of a deal
+      displayName: Get deal details
       description: Get detailed information about a specific HubSpot deal
       scopes: [oauth crm.objects.deals.read]
       parameters:
@@ -9058,7 +9058,7 @@ actions:
                 type: boolean
                 description: Whether the deal is archived
     getTickets:
-      displayName: Get tickets
+      displayName: List all tickets
       description: List or search HubSpot tickets by optional query
       scopes: [oauth crm.objects.tickets.read]
       parameters:
@@ -9100,7 +9100,7 @@ actions:
                   type: string
                   description: When the ticket was created
     getTicketDetails:
-      displayName: Get details of a ticket
+      displayName: Get ticket details
       description: Get detailed information about a specific HubSpot ticket
       scopes: [oauth crm.objects.tickets.read]
       parameters:
