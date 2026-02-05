@@ -1709,6 +1709,56 @@ export const jiraGetJiraTicketHistoryDefinition: ActionTemplate = {
   name: "getJiraTicketHistory",
   provider: "jira",
 };
+export const jiraMoveJiraTicketToProjectDefinition: ActionTemplate = {
+  displayName: "[BETA] Move Jira ticket to another project",
+  description:
+    "Moves a Jira ticket from one project to another, optionally updating the issue type. Note: This action only works with Jira Cloud, not Jira Data Center.",
+  scopes: ["write:jira-work", "read:jira-work"],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["issueId", "targetProjectKey"],
+    properties: {
+      issueId: {
+        type: "string",
+        description: 'The issue ID or key of the ticket to move (e.g. "PROJ-123")',
+      },
+      targetProjectKey: {
+        type: "string",
+        description: 'The key of the project to move the ticket to (e.g. "NEWPROJ")',
+      },
+      targetIssueType: {
+        type: "string",
+        description:
+          'The issue type in the target project (e.g. "Task", "Bug"). If not provided, will attempt to use the same issue type.',
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the ticket was successfully moved",
+      },
+      newTicketKey: {
+        type: "string",
+        description: 'The new issue key after moving (e.g. "NEWPROJ-456")',
+      },
+      ticketUrl: {
+        type: "string",
+        description: "The url to the moved Jira ticket",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the move failed",
+      },
+    },
+  },
+  name: "moveJiraTicketToProject",
+  provider: "jira",
+};
 export const jiraUpdateJiraTicketDetailsDefinition: ActionTemplate = {
   displayName: "Update Jira ticket details",
   description: "Update a Jira ticket with new content specified",
@@ -2372,6 +2422,56 @@ export const jiraOrgGetJiraTicketHistoryDefinition: ActionTemplate = {
   name: "getJiraTicketHistory",
   provider: "jiraOrg",
 };
+export const jiraOrgMoveJiraTicketToProjectDefinition: ActionTemplate = {
+  displayName: "[BETA] Move Jira ticket to another project",
+  description:
+    "Moves a Jira ticket from one project to another, optionally updating the issue type. Note: This action only works with Jira Cloud, not Jira Data Center.",
+  scopes: ["write:jira-work", "read:jira-work"],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["issueId", "targetProjectKey"],
+    properties: {
+      issueId: {
+        type: "string",
+        description: 'The issue ID or key of the ticket to move (e.g. "PROJ-123")',
+      },
+      targetProjectKey: {
+        type: "string",
+        description: 'The key of the project to move the ticket to (e.g. "NEWPROJ")',
+      },
+      targetIssueType: {
+        type: "string",
+        description:
+          'The issue type in the target project (e.g. "Task", "Bug"). If not provided, will attempt to use the same issue type.',
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the ticket was successfully moved",
+      },
+      newTicketKey: {
+        type: "string",
+        description: 'The new issue key after moving (e.g. "NEWPROJ-456")',
+      },
+      ticketUrl: {
+        type: "string",
+        description: "The url to the moved Jira ticket",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the move failed",
+      },
+    },
+  },
+  name: "moveJiraTicketToProject",
+  provider: "jiraOrg",
+};
 export const jiraOrgUpdateJiraTicketDetailsDefinition: ActionTemplate = {
   displayName: "Update Jira ticket details",
   description: "Update a Jira ticket with new content specified",
@@ -3033,6 +3133,56 @@ export const jiraDataCenterGetJiraTicketHistoryDefinition: ActionTemplate = {
     },
   },
   name: "getJiraTicketHistory",
+  provider: "jiraDataCenter",
+};
+export const jiraDataCenterMoveJiraTicketToProjectDefinition: ActionTemplate = {
+  displayName: "[BETA] Move Jira ticket to another project",
+  description:
+    "Moves a Jira ticket from one project to another, optionally updating the issue type. Note: This action only works with Jira Cloud, not Jira Data Center.",
+  scopes: ["write:jira-work", "read:jira-work"],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["issueId", "targetProjectKey"],
+    properties: {
+      issueId: {
+        type: "string",
+        description: 'The issue ID or key of the ticket to move (e.g. "PROJ-123")',
+      },
+      targetProjectKey: {
+        type: "string",
+        description: 'The key of the project to move the ticket to (e.g. "NEWPROJ")',
+      },
+      targetIssueType: {
+        type: "string",
+        description:
+          'The issue type in the target project (e.g. "Task", "Bug"). If not provided, will attempt to use the same issue type.',
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the ticket was successfully moved",
+      },
+      newTicketKey: {
+        type: "string",
+        description: 'The new issue key after moving (e.g. "NEWPROJ-456")',
+      },
+      ticketUrl: {
+        type: "string",
+        description: "The url to the moved Jira ticket",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the move failed",
+      },
+    },
+  },
+  name: "moveJiraTicketToProject",
   provider: "jiraDataCenter",
 };
 export const jiraDataCenterUpdateJiraTicketDetailsDefinition: ActionTemplate = {

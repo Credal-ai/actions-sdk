@@ -45,6 +45,8 @@ import {
   jiraGetJiraTicketDetailsOutputSchema,
   jiraGetJiraTicketHistoryParamsSchema,
   jiraGetJiraTicketHistoryOutputSchema,
+  jiraMoveJiraTicketToProjectParamsSchema,
+  jiraMoveJiraTicketToProjectOutputSchema,
   jiraUpdateJiraTicketDetailsParamsSchema,
   jiraUpdateJiraTicketDetailsOutputSchema,
   jiraUpdateJiraTicketStatusParamsSchema,
@@ -293,6 +295,7 @@ import commentJiraTicket from "./providers/jira/commentJiraTicket.js";
 import createJiraTicket from "./providers/jira/createJiraTicket.js";
 import getJiraTicketDetails from "./providers/jira/getJiraTicketDetails.js";
 import getJiraTicketHistory from "./providers/jira/getJiraTicketHistory.js";
+import moveJiraTicketToProject from "./providers/jira/moveJiraTicketToProject.js";
 import updateJiraTicketDetails from "./providers/jira/updateJiraTicketDetails.js";
 import updateJiraTicketStatus from "./providers/jira/updateJiraTicketStatus.js";
 import getLatitudeLongitudeFromLocation from "./providers/openstreetmap/getLatitudeLongitudeFromLocation.js";
@@ -462,6 +465,12 @@ const jiraActions = {
     paramsSchema: jiraGetJiraTicketHistoryParamsSchema,
     outputSchema: jiraGetJiraTicketHistoryOutputSchema,
     actionType: "read",
+  },
+  moveJiraTicketToProject: {
+    fn: moveJiraTicketToProject,
+    paramsSchema: jiraMoveJiraTicketToProjectParamsSchema,
+    outputSchema: jiraMoveJiraTicketToProjectOutputSchema,
+    actionType: "write",
   },
   updateJiraTicketDetails: {
     fn: updateJiraTicketDetails,

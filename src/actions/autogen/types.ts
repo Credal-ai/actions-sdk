@@ -64,6 +64,7 @@ export enum ActionName {
   CREATESERVICEDESKREQUEST = "createServiceDeskRequest",
   GETJIRATICKETDETAILS = "getJiraTicketDetails",
   GETJIRATICKETHISTORY = "getJiraTicketHistory",
+  MOVEJIRATICKETTOPROJECT = "moveJiraTicketToProject",
   UPDATEJIRATICKETDETAILS = "updateJiraTicketDetails",
   UPDATEJIRATICKETSTATUS = "updateJiraTicketStatus",
   GETJIRAISSUESBYQUERY = "getJiraIssuesByQuery",
@@ -1054,6 +1055,33 @@ export type jiraGetJiraTicketHistoryFunction = ActionFunction<
   jiraGetJiraTicketHistoryOutputType
 >;
 
+export const jiraMoveJiraTicketToProjectParamsSchema = z.object({
+  issueId: z.string().describe('The issue ID or key of the ticket to move (e.g. "PROJ-123")'),
+  targetProjectKey: z.string().describe('The key of the project to move the ticket to (e.g. "NEWPROJ")'),
+  targetIssueType: z
+    .string()
+    .describe(
+      'The issue type in the target project (e.g. "Task", "Bug"). If not provided, will attempt to use the same issue type.',
+    )
+    .optional(),
+});
+
+export type jiraMoveJiraTicketToProjectParamsType = z.infer<typeof jiraMoveJiraTicketToProjectParamsSchema>;
+
+export const jiraMoveJiraTicketToProjectOutputSchema = z.object({
+  success: z.boolean().describe("Whether the ticket was successfully moved"),
+  newTicketKey: z.string().describe('The new issue key after moving (e.g. "NEWPROJ-456")').optional(),
+  ticketUrl: z.string().describe("The url to the moved Jira ticket").optional(),
+  error: z.string().describe("Error message if the move failed").optional(),
+});
+
+export type jiraMoveJiraTicketToProjectOutputType = z.infer<typeof jiraMoveJiraTicketToProjectOutputSchema>;
+export type jiraMoveJiraTicketToProjectFunction = ActionFunction<
+  jiraMoveJiraTicketToProjectParamsType,
+  AuthParamsType,
+  jiraMoveJiraTicketToProjectOutputType
+>;
+
 export const jiraUpdateJiraTicketDetailsParamsSchema = z.object({
   projectKey: z.string().describe("The key for the project the ticket belongs to."),
   issueId: z.string().describe("The issue ID associated with the ticket to be updated"),
@@ -1355,6 +1383,33 @@ export type jiraOrgGetJiraTicketHistoryFunction = ActionFunction<
   jiraOrgGetJiraTicketHistoryParamsType,
   AuthParamsType,
   jiraOrgGetJiraTicketHistoryOutputType
+>;
+
+export const jiraOrgMoveJiraTicketToProjectParamsSchema = z.object({
+  issueId: z.string().describe('The issue ID or key of the ticket to move (e.g. "PROJ-123")'),
+  targetProjectKey: z.string().describe('The key of the project to move the ticket to (e.g. "NEWPROJ")'),
+  targetIssueType: z
+    .string()
+    .describe(
+      'The issue type in the target project (e.g. "Task", "Bug"). If not provided, will attempt to use the same issue type.',
+    )
+    .optional(),
+});
+
+export type jiraOrgMoveJiraTicketToProjectParamsType = z.infer<typeof jiraOrgMoveJiraTicketToProjectParamsSchema>;
+
+export const jiraOrgMoveJiraTicketToProjectOutputSchema = z.object({
+  success: z.boolean().describe("Whether the ticket was successfully moved"),
+  newTicketKey: z.string().describe('The new issue key after moving (e.g. "NEWPROJ-456")').optional(),
+  ticketUrl: z.string().describe("The url to the moved Jira ticket").optional(),
+  error: z.string().describe("Error message if the move failed").optional(),
+});
+
+export type jiraOrgMoveJiraTicketToProjectOutputType = z.infer<typeof jiraOrgMoveJiraTicketToProjectOutputSchema>;
+export type jiraOrgMoveJiraTicketToProjectFunction = ActionFunction<
+  jiraOrgMoveJiraTicketToProjectParamsType,
+  AuthParamsType,
+  jiraOrgMoveJiraTicketToProjectOutputType
 >;
 
 export const jiraOrgUpdateJiraTicketDetailsParamsSchema = z.object({
@@ -1670,6 +1725,37 @@ export type jiraDataCenterGetJiraTicketHistoryFunction = ActionFunction<
   jiraDataCenterGetJiraTicketHistoryParamsType,
   AuthParamsType,
   jiraDataCenterGetJiraTicketHistoryOutputType
+>;
+
+export const jiraDataCenterMoveJiraTicketToProjectParamsSchema = z.object({
+  issueId: z.string().describe('The issue ID or key of the ticket to move (e.g. "PROJ-123")'),
+  targetProjectKey: z.string().describe('The key of the project to move the ticket to (e.g. "NEWPROJ")'),
+  targetIssueType: z
+    .string()
+    .describe(
+      'The issue type in the target project (e.g. "Task", "Bug"). If not provided, will attempt to use the same issue type.',
+    )
+    .optional(),
+});
+
+export type jiraDataCenterMoveJiraTicketToProjectParamsType = z.infer<
+  typeof jiraDataCenterMoveJiraTicketToProjectParamsSchema
+>;
+
+export const jiraDataCenterMoveJiraTicketToProjectOutputSchema = z.object({
+  success: z.boolean().describe("Whether the ticket was successfully moved"),
+  newTicketKey: z.string().describe('The new issue key after moving (e.g. "NEWPROJ-456")').optional(),
+  ticketUrl: z.string().describe("The url to the moved Jira ticket").optional(),
+  error: z.string().describe("Error message if the move failed").optional(),
+});
+
+export type jiraDataCenterMoveJiraTicketToProjectOutputType = z.infer<
+  typeof jiraDataCenterMoveJiraTicketToProjectOutputSchema
+>;
+export type jiraDataCenterMoveJiraTicketToProjectFunction = ActionFunction<
+  jiraDataCenterMoveJiraTicketToProjectParamsType,
+  AuthParamsType,
+  jiraDataCenterMoveJiraTicketToProjectOutputType
 >;
 
 export const jiraDataCenterUpdateJiraTicketDetailsParamsSchema = z.object({
