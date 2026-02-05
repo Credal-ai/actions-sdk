@@ -740,7 +740,7 @@ export const slackSendMessageDefinition: ActionTemplate = {
   provider: "slack",
 };
 export const slackGetChannelMessagesDefinition: ActionTemplate = {
-  displayName: "Get messages in a channel",
+  displayName: "List messages in a channel",
   description: "Gets messages from a Slack channel",
   scopes: ["channels:history"],
   tags: [],
@@ -824,7 +824,7 @@ export const slackGetChannelMessagesDefinition: ActionTemplate = {
   provider: "slack",
 };
 export const slackGetChannelMembersDefinition: ActionTemplate = {
-  displayName: "Get members of a channel",
+  displayName: "List members of a channel",
   description: "Gets the members of a Slack channel",
   scopes: ["channels:read"],
   tags: [],
@@ -8473,7 +8473,7 @@ export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthGetPresentationDefinition: ActionTemplate = {
-  displayName: "Get a presentation",
+  displayName: "Fetch a presentation",
   description: "Get a presentation by ID",
   scopes: ["slides.readonly"],
   tags: [],
@@ -8859,7 +8859,7 @@ export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTem
   provider: "googleOauth",
 };
 export const googleOauthGetDriveFileContentByIdDefinition: ActionTemplate = {
-  displayName: "Fetch file contents",
+  displayName: "Fetch full file contents",
   description: "Get text content of a Google Drive file by its ID.",
   scopes: ["drive.readonly"],
   tags: [],
@@ -8997,7 +8997,7 @@ export const googleOauthListGroupsDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthGetGroupDefinition: ActionTemplate = {
-  displayName: "Get a Group",
+  displayName: "Get Group details",
   description: "Get details for a specific Google Group by group email or ID.",
   scopes: ["https://www.googleapis.com/auth/admin.directory.group.readonly"],
   tags: [],
@@ -10821,7 +10821,7 @@ export const microsoftMessageTeamsChannelDefinition: ActionTemplate = {
   provider: "microsoft",
 };
 export const microsoftGetDocumentDefinition: ActionTemplate = {
-  displayName: "Get a document",
+  displayName: "Fetch a document",
   description: "Retrieves the content of a Microsoft Office document",
   scopes: ["Files.ReadWrite", "Sites.ReadWrite.All"],
   tags: [],
@@ -11138,7 +11138,7 @@ export const githubListPullRequestsDefinition: ActionTemplate = {
   provider: "github",
 };
 export const githubGetPullRequestDetailsDefinition: ActionTemplate = {
-  displayName: "Fetch pull request",
+  displayName: "Fetch pull request details",
   description:
     "Get detailed information about a specific pull request including description, files, reviews, and status",
   scopes: [],
@@ -11872,7 +11872,7 @@ export const githubSearchOrganizationDefinition: ActionTemplate = {
   provider: "github",
 };
 export const githubGetBranchDefinition: ActionTemplate = {
-  displayName: "Get a branch",
+  displayName: "Get branch details",
   description: "Get a branch in a GitHub repository",
   scopes: [],
   tags: [],
@@ -12746,7 +12746,7 @@ export const gitlabGetFileContentDefinition: ActionTemplate = {
   provider: "gitlab",
 };
 export const gitlabGetMergeRequestDefinition: ActionTemplate = {
-  displayName: "Get merge request",
+  displayName: "Get merge request details",
   description: "Get specified merge request from a GitLab repository",
   scopes: [],
   tags: [],
@@ -13193,7 +13193,7 @@ export const linearGetIssuesDefinition: ActionTemplate = {
   provider: "linear",
 };
 export const linearGetIssueDetailsDefinition: ActionTemplate = {
-  displayName: "Fetch issue",
+  displayName: "Fetch issue details",
   description: "Get detailed information about a Linear issue",
   scopes: [],
   tags: [],
@@ -13355,7 +13355,7 @@ export const linearGetIssueDetailsDefinition: ActionTemplate = {
   provider: "linear",
 };
 export const linearGetProjectsDefinition: ActionTemplate = {
-  displayName: "Fetch projects",
+  displayName: "List all projects",
   description: "Get all Linear projects",
   scopes: [],
   tags: [],
@@ -13670,7 +13670,7 @@ export const linearGetTeamDetailsDefinition: ActionTemplate = {
   provider: "linear",
 };
 export const linearGetTeamsDefinition: ActionTemplate = {
-  displayName: "Get teams",
+  displayName: "List all teams",
   description: "Get all teams in Linear",
   scopes: [],
   tags: [],
@@ -13714,7 +13714,7 @@ export const linearGetTeamsDefinition: ActionTemplate = {
   provider: "linear",
 };
 export const hubspotGetContactsDefinition: ActionTemplate = {
-  displayName: "Get contacts",
+  displayName: "List all contacts",
   description: "List or search HubSpot contacts by optional query",
   scopes: ["oauth crm.objects.contacts.read"],
   tags: [],
@@ -13779,7 +13779,7 @@ export const hubspotGetContactsDefinition: ActionTemplate = {
   provider: "hubspot",
 };
 export const hubspotGetContactDetailsDefinition: ActionTemplate = {
-  displayName: "Get details of a contact",
+  displayName: "Get contact details",
   description: "Get detailed information about a specific HubSpot contact",
   scopes: ["oauth crm.objects.contacts.read"],
   tags: [],
@@ -13882,7 +13882,7 @@ export const hubspotGetContactDetailsDefinition: ActionTemplate = {
   provider: "hubspot",
 };
 export const hubspotGetCompaniesDefinition: ActionTemplate = {
-  displayName: "Get companies",
+  displayName: "List all companies",
   description: "List or search HubSpot companies by optional query",
   scopes: ["oauth crm.objects.companies.read"],
   tags: [],
@@ -13943,7 +13943,7 @@ export const hubspotGetCompaniesDefinition: ActionTemplate = {
   provider: "hubspot",
 };
 export const hubspotGetCompanyDetailsDefinition: ActionTemplate = {
-  displayName: "Get details of a company",
+  displayName: "Get company details",
   description: "Get detailed information about a specific HubSpot company",
   scopes: ["oauth crm.objects.companies.read"],
   tags: [],
@@ -14038,7 +14038,7 @@ export const hubspotGetCompanyDetailsDefinition: ActionTemplate = {
   provider: "hubspot",
 };
 export const hubspotGetDealsDefinition: ActionTemplate = {
-  displayName: "Get deals",
+  displayName: "List all deals",
   description: "List or search HubSpot deals by optional query",
   scopes: ["oauth crm.objects.deals.read"],
   tags: [],
@@ -14103,7 +14103,7 @@ export const hubspotGetDealsDefinition: ActionTemplate = {
   provider: "hubspot",
 };
 export const hubspotGetDealDetailsDefinition: ActionTemplate = {
-  displayName: "Get details of a deal",
+  displayName: "Get deal details",
   description: "Get detailed information about a specific HubSpot deal",
   scopes: ["oauth crm.objects.deals.read"],
   tags: [],
@@ -14190,7 +14190,7 @@ export const hubspotGetDealDetailsDefinition: ActionTemplate = {
   provider: "hubspot",
 };
 export const hubspotGetTicketsDefinition: ActionTemplate = {
-  displayName: "Get tickets",
+  displayName: "List all tickets",
   description: "List or search HubSpot tickets by optional query",
   scopes: ["oauth crm.objects.tickets.read"],
   tags: [],
@@ -14251,7 +14251,7 @@ export const hubspotGetTicketsDefinition: ActionTemplate = {
   provider: "hubspot",
 };
 export const hubspotGetTicketDetailsDefinition: ActionTemplate = {
-  displayName: "Get details of a ticket",
+  displayName: "Get ticket details",
   description: "Get detailed information about a specific HubSpot ticket",
   scopes: ["oauth crm.objects.tickets.read"],
   tags: [],
