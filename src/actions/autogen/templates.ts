@@ -8702,7 +8702,8 @@ export const googleOauthSearchDriveByKeywordsDefinition: ActionTemplate = {
       },
       includeTrashed: {
         type: "boolean",
-        description: "Whether to include trashed files in the search results",
+        description:
+          "Whether to include trashed files in the search results. Usually false unless otherwise noted by the user.",
       },
     },
   },
@@ -8768,7 +8769,8 @@ export const googleOauthSearchDriveByQueryDefinition: ActionTemplate = {
       },
       searchDriveByDrive: {
         type: "boolean",
-        description: "Whether we should search drive by drive or run a general search",
+        description:
+          "Whether we should search drive by drive or run a general search. Usually false unless otherwise noted by the user.",
       },
       orderByQuery: {
         type: "string",
@@ -8777,7 +8779,8 @@ export const googleOauthSearchDriveByQueryDefinition: ActionTemplate = {
       },
       includeTrashed: {
         type: "boolean",
-        description: "Whether to include trashed files in the search results",
+        description:
+          "Whether to include trashed files in the search results. Usually false unless otherwise noted by the user.",
       },
     },
   },
@@ -8847,7 +8850,7 @@ export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: Action
       },
       searchDriveByDrive: {
         type: "boolean",
-        description: "Search drive by drive or run a general search",
+        description: "Search drive by drive or run a general search. Usually false unless otherwise noted by the user.",
       },
       orderByQuery: {
         type: "string",
@@ -8856,7 +8859,8 @@ export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: Action
       },
       includeTrashed: {
         type: "boolean",
-        description: "Whether to include trashed files in the search results",
+        description:
+          "Whether to include trashed files in the search results. Usually false unless otherwise noted by the user.",
       },
     },
   },
@@ -8945,7 +8949,7 @@ export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTem
       },
       searchDriveByDrive: {
         type: "boolean",
-        description: "Search drive by drive or run a general search",
+        description: "Search drive by drive or run a general search. Usually false unless otherwise noted by the user.",
       },
       orderByQuery: {
         type: "string",
@@ -8954,7 +8958,8 @@ export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTem
       },
       includeTrashed: {
         type: "boolean",
-        description: "Whether to include trashed files in the search results",
+        description:
+          "Whether to include trashed files in the search results. Usually false unless otherwise noted by the user.",
       },
     },
   },
@@ -10301,7 +10306,8 @@ export const salesforceSearchAllSalesforceRecordsDefinition: ActionTemplate = {
       },
       usesLightningKnowledge: {
         type: "boolean",
-        description: 'Whether your Salesforce instance uses lightning knowledge articles ("true" or "false")',
+        description:
+          'Whether your Salesforce instance uses lightning knowledge articles ("true" or "false"). Ask the user if unsure.',
       },
       limit: {
         type: "number",
