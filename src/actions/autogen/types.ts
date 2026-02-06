@@ -4544,7 +4544,12 @@ export type googleOauthGetPresentationFunction = ActionFunction<
 export const googleOauthSearchDriveByKeywordsParamsSchema = z.object({
   keywords: z.array(z.string()).describe("List of keywords to search for in file contents."),
   limit: z.number().describe("The maximum number of files to return").optional(),
-  includeTrashed: z.boolean().describe("Whether to include trashed files in the search results").optional(),
+  includeTrashed: z
+    .boolean()
+    .describe(
+      "Whether to include trashed files in the search results. Usually false unless otherwise noted by the user.",
+    )
+    .optional(),
 });
 
 export type googleOauthSearchDriveByKeywordsParamsType = z.infer<typeof googleOauthSearchDriveByKeywordsParamsSchema>;
@@ -4575,14 +4580,23 @@ export type googleOauthSearchDriveByKeywordsFunction = ActionFunction<
 export const googleOauthSearchDriveByQueryParamsSchema = z.object({
   query: z.string().describe("The query to search for in file contents."),
   limit: z.number().describe("The maximum number of files to return").optional(),
-  searchDriveByDrive: z.boolean().describe("Whether we should search drive by drive or run a general search"),
+  searchDriveByDrive: z
+    .boolean()
+    .describe(
+      "Whether we should search drive by drive or run a general search. Usually false unless otherwise noted by the user.",
+    ),
   orderByQuery: z
     .string()
     .describe(
       "The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'",
     )
     .optional(),
-  includeTrashed: z.boolean().describe("Whether to include trashed files in the search results").optional(),
+  includeTrashed: z
+    .boolean()
+    .describe(
+      "Whether to include trashed files in the search results. Usually false unless otherwise noted by the user.",
+    )
+    .optional(),
 });
 
 export type googleOauthSearchDriveByQueryParamsType = z.infer<typeof googleOauthSearchDriveByQueryParamsSchema>;
@@ -4614,14 +4628,21 @@ export const googleOauthSearchDriveByKeywordsAndGetFileContentParamsSchema = z.o
   searchQuery: z.string().describe("The query input to Google Drive search"),
   limit: z.number().describe("The maximum number of files to return").optional(),
   fileSizeLimit: z.number().describe("The maximum length of a file in characters").optional(),
-  searchDriveByDrive: z.boolean().describe("Search drive by drive or run a general search"),
+  searchDriveByDrive: z
+    .boolean()
+    .describe("Search drive by drive or run a general search. Usually false unless otherwise noted by the user."),
   orderByQuery: z
     .string()
     .describe(
       "The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'",
     )
     .optional(),
-  includeTrashed: z.boolean().describe("Whether to include trashed files in the search results").optional(),
+  includeTrashed: z
+    .boolean()
+    .describe(
+      "Whether to include trashed files in the search results. Usually false unless otherwise noted by the user.",
+    )
+    .optional(),
 });
 
 export type googleOauthSearchDriveByKeywordsAndGetFileContentParamsType = z.infer<
@@ -4664,14 +4685,21 @@ export const googleOauthSearchDriveByQueryAndGetFileContentParamsSchema = z.obje
   query: z.string().describe("Google Drive API search syntax, eg \"fullText contains 'Valentine\\'s Day'\""),
   limit: z.number().describe("The maximum number of files to return").optional(),
   fileSizeLimit: z.number().describe("The maximum length of a file in characters").optional(),
-  searchDriveByDrive: z.boolean().describe("Search drive by drive or run a general search"),
+  searchDriveByDrive: z
+    .boolean()
+    .describe("Search drive by drive or run a general search. Usually false unless otherwise noted by the user."),
   orderByQuery: z
     .string()
     .describe(
       "The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'",
     )
     .optional(),
-  includeTrashed: z.boolean().describe("Whether to include trashed files in the search results").optional(),
+  includeTrashed: z
+    .boolean()
+    .describe(
+      "Whether to include trashed files in the search results. Usually false unless otherwise noted by the user.",
+    )
+    .optional(),
 });
 
 export type googleOauthSearchDriveByQueryAndGetFileContentParamsType = z.infer<
@@ -5335,7 +5363,9 @@ export const salesforceSearchAllSalesforceRecordsParamsSchema = z.object({
   keyword: z.string().describe("The keyword to search for"),
   usesLightningKnowledge: z
     .boolean()
-    .describe('Whether your Salesforce instance uses lightning knowledge articles ("true" or "false")')
+    .describe(
+      'Whether your Salesforce instance uses lightning knowledge articles ("true" or "false"). Ask the user if unsure.',
+    )
     .optional(),
   limit: z.number().describe("The maximum number of records to return").optional(),
   maxLimit: z.number().describe("The absolute maximum limit for records that can be returned").optional(),
