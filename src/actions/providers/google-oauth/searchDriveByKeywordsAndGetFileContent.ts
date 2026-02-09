@@ -9,28 +9,6 @@ import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import searchDriveByQuery from "./searchDriveByQuery.js";
 import getDriveFileContentById from "./getDriveFileContentById.js";
 
-// Helper function to process files in batches with concurrency control
-const processBatch = async <T, R>(
-  items: T[],
-  processor: (item: T) => Promise<R>,
-  batchSize: number = 3,
-): Promise<R[]> => {
-  const results: R[] = [];
-
-  for (let i = 0; i < items.length; i += batchSize) {
-    const batch = items.slice(i, i + batchSize);
-    const batchResults = await Promise.allSettled(batch.map(processor));
-
-    for (const result of batchResults) {
-      if (result.status === "fulfilled") {
-        results.push(result.value);
-      }
-    }
-  }
-
-  return results;
-};
-
 const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAndGetFileContentFunction = async ({
   params,
   authParams,
@@ -50,6 +28,11 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
     fileSizeLimit: maxChars,
     includeTrashed = false,
   } = params;
+
+  // Hard limit on TOTAL characters across all files to prevent returning too much content
+  const MAX_TOTAL_CHARS_LIMIT = 50000;
+  const effectiveTotalMaxChars = maxChars ? Math.min(maxChars, MAX_TOTAL_CHARS_LIMIT) : MAX_TOTAL_CHARS_LIMIT;
+  const PER_FILE_LIMIT = 10000; // Max chars to fetch per individual file
 
   const query = searchQuery
     .split(" ")
@@ -85,39 +68,60 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
     .slice(0, limit)
     .filter(file => file.id && file.name && !problematicMimeTypes.has(file.mimeType));
 
-  // Process only valid files in smaller batches to avoid overwhelming the API
-  const filesWithContent = await processBatch(
-    validFiles,
-    async file => {
-      try {
-        // Add timeout for individual file content requests with shorter timeout
-        const contentResult = await getDriveFileContentById({
-          params: {
-            fileId: file.id,
-            limit: maxChars,
-            timeoutLimit: 2,
-          },
-          authParams,
-        });
-        return {
-          id: file.id,
-          name: file.name,
-          mimeType: file.mimeType,
-          url: file.url,
-          content: contentResult.success ? contentResult.results?.[0]?.contents?.content : undefined,
-        };
-      } catch {
-        return {
-          id: file.id,
-          name: file.name,
-          mimeType: file.mimeType,
-          url: file.url,
-          content: undefined, // Gracefully handle errors
-        };
-      }
-    },
-    5, // Reduced to 5 files concurrently for better stability
-  );
+  // Process only valid files and track total character count
+  const filesWithContent: Array<{
+    id: string;
+    name: string;
+    mimeType: string;
+    url: string;
+    content?: string;
+  }> = [];
+  let totalCharCount = 0;
+
+  for (const file of validFiles) {
+    // Stop if we've already hit the total character limit
+    if (totalCharCount >= effectiveTotalMaxChars) {
+      break;
+    }
+
+    try {
+      // Calculate how many chars we can still fetch
+      const remainingChars = effectiveTotalMaxChars - totalCharCount;
+      const fetchLimit = Math.min(PER_FILE_LIMIT, remainingChars);
+
+      const contentResult = await getDriveFileContentById({
+        params: {
+          fileId: file.id,
+          limit: fetchLimit, // Limit to the smaller of per-file max or remaining chars
+          timeoutLimit: 2,
+        },
+        authParams,
+      });
+
+      const content = contentResult.success ? contentResult.results?.[0]?.contents?.content : undefined;
+
+      const contentLength = content?.length ?? 0;
+
+      filesWithContent.push({
+        id: file.id,
+        name: file.name,
+        mimeType: file.mimeType,
+        url: file.url,
+        content,
+      });
+
+      totalCharCount += contentLength;
+    } catch {
+      // Gracefully handle errors - add file without content
+      filesWithContent.push({
+        id: file.id,
+        name: file.name,
+        mimeType: file.mimeType,
+        url: file.url,
+        content: undefined,
+      });
+    }
+  }
 
   // Return combined results
   return {
