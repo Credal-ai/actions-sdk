@@ -30,7 +30,7 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
   } = params;
 
   // Hard limit on TOTAL characters across all files to prevent returning too much content
-  const MAX_TOTAL_CHARS_LIMIT = 50000;
+  const MAX_TOTAL_CHARS_LIMIT = 100000;
   const MAX_CHARS_PER_FILE = maxCharsPerFile ?? 10000;
 
   const query = searchQuery
