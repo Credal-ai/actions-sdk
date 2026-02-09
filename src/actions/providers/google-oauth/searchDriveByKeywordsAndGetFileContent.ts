@@ -25,14 +25,13 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
     limit,
     searchDriveByDrive,
     orderByQuery,
-    fileSizeLimit: maxChars,
+    fileSizeLimit: maxCharsPerFile,
     includeTrashed = false,
   } = params;
 
   // Hard limit on TOTAL characters across all files to prevent returning too much content
   const MAX_TOTAL_CHARS_LIMIT = 50000;
-  const effectiveTotalMaxChars = maxChars ? Math.min(maxChars, MAX_TOTAL_CHARS_LIMIT) : MAX_TOTAL_CHARS_LIMIT;
-  const PER_FILE_LIMIT = 10000; // Max chars to fetch per individual file
+  const MAX_CHARS_PER_FILE = maxCharsPerFile ?? 10000;
 
   const query = searchQuery
     .split(" ")
@@ -80,14 +79,14 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
 
   for (const file of validFiles) {
     // Stop if we've already hit the total character limit
-    if (totalCharCount >= effectiveTotalMaxChars) {
+    if (totalCharCount >= MAX_TOTAL_CHARS_LIMIT) {
       break;
     }
 
     try {
       // Calculate how many chars we can still fetch
-      const remainingChars = effectiveTotalMaxChars - totalCharCount;
-      const fetchLimit = Math.min(PER_FILE_LIMIT, remainingChars);
+      const remainingChars = MAX_TOTAL_CHARS_LIMIT - totalCharCount;
+      const fetchLimit = Math.min(MAX_CHARS_PER_FILE, remainingChars);
 
       const contentResult = await getDriveFileContentById({
         params: {
