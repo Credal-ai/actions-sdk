@@ -61,6 +61,19 @@ async function runTest() {
     }
   )) as slackUserSearchSlackRTSOutputType;
 
+  // Search with time filters using date strings (non-unix input)
+  const result4b = (await runAction(
+    "searchSlackRTS",
+    "slackUser",
+    { authToken: process.env.SLACK_AUTH_TOKEN },
+    {
+      query: "temporal",
+      before: "2026-02-06T00:00:00Z",
+      after: "2026-02-05T00:00:00Z",
+      limit: 10,
+    }
+  )) as slackUserSearchSlackRTSOutputType;
+
   // Search including bot messages
   const result5 = (await runAction(
     "searchSlackRTS",
@@ -173,6 +186,10 @@ async function runTest() {
 
   console.log(
     "Search Test Response 4 (Time Filters): " + JSON.stringify(result4, null, 2)
+  );
+
+  console.log(
+    "Search Test Response 4b (Time Filters - Date Strings): " + JSON.stringify(result4b, null, 2)
   );
 
   console.log(
