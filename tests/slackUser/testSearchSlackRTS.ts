@@ -183,7 +183,7 @@ async function runTest() {
   assert(result9?.ok, "Channel name filtered search should succeed");
   assert(result10?.ok, "Blank query + channel filter search should succeed");
   assert(blankAllFiltersThrew, "Blank query with no filters should throw");
-  assert(result11?.ok && result11?.results.messages && result11?.results?.messages?.length > 0, "Blank query + channel filter + time window search should succeed");
+  assert(result11?.ok && result11?.results.messages && result11?.results?.messages?.length > 0, "Blank query + private channel search should succeed and not be blank");
 
   console.log(
     "Search Test Response 1 (Basic): " + JSON.stringify(result1, null, 2)
