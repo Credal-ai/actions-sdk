@@ -32,6 +32,15 @@ function appendToQuery(query: string, suffix: string): string {
   return `${q} ${s}`;
 }
 
+function normalizeUnixSecondsInput(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  if (!Number.isNaN(Number(value))) return value;
+
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return undefined;
+  return String(Math.floor(date.getTime() / 1000));
+}
+
 interface AssistantSearchContextResponse {
   ok: boolean;
   results?: {
@@ -137,12 +146,14 @@ const searchSlackRTS: slackUserSearchSlackRTSFunction = async ({
     requestParams.include_context_messages = includeContextMessages;
   }
 
-  if (before) {
-    requestParams.before = before;
+  const normalizedBefore = normalizeUnixSecondsInput(before);
+  if (normalizedBefore) {
+    requestParams.before = normalizedBefore;
   }
 
-  if (after) {
-    requestParams.after = after;
+  const normalizedAfter = normalizeUnixSecondsInput(after);
+  if (normalizedAfter) {
+    requestParams.after = normalizedAfter;
   }
 
   try {
