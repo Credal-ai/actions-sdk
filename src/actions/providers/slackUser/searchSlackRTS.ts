@@ -36,12 +36,9 @@ function normalizeUnixSecondsInput(value: string | undefined): string | undefine
   if (!value) return undefined;
   if (!Number.isNaN(Number(value))) return value;
 
-  try {
-    const date = new Date(value);
-    return String(Math.floor(date.getTime() / 1000));
-  } catch {
-    return undefined;
-  }
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return undefined;
+  return String(Math.floor(date.getTime() / 1000));
 }
 
 interface AssistantSearchContextResponse {
