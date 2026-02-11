@@ -230,7 +230,7 @@ async function runTest() {
   );
 
   console.log(
-    "Search Test Response 11 (Blank Query + Channel ID + Time Window): " + JSON.stringify(result11, null, 2)
+    "Search Test Response 11 (Blank Query + PrivateChannel ID): " + JSON.stringify(result11, null, 2)
   );
 
 }
