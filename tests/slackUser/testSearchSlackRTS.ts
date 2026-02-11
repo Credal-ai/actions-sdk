@@ -167,10 +167,23 @@ async function runTest() {
     );
   }
 
+  const result11 = (await runAction(
+    "searchSlackRTS",
+    "slackUser",
+    { authToken: process.env.SLACK_AUTH_TOKEN },
+    {
+      channelIds: [process.env.SLACK_TEST_PRIVATE_CHANNEL_ID],
+      query: "",
+      contentTypes: ["messages"],
+      limit: 5,
+    }
+  )) as slackUserSearchSlackRTSOutputType;
+
   assert(result8?.ok, "Channel ID filtered search should succeed");
   assert(result9?.ok, "Channel name filtered search should succeed");
   assert(result10?.ok, "Blank query + channel filter search should succeed");
   assert(blankAllFiltersThrew, "Blank query with no filters should throw");
+  assert(result11?.ok && result11?.results.messages && result11?.results?.messages?.length > 0, "Blank query + private channel search should succeed and not be blank");
 
   console.log(
     "Search Test Response 1 (Basic): " + JSON.stringify(result1, null, 2)
@@ -214,6 +227,10 @@ async function runTest() {
 
   console.log(
     "Search Test Response 10 (Blank Query + Channel ID): " + JSON.stringify(result10, null, 2)
+  );
+
+  console.log(
+    "Search Test Response 11 (Blank Query + PrivateChannel ID): " + JSON.stringify(result11, null, 2)
   );
 
 }

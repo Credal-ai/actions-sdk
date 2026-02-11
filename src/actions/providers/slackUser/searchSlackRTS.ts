@@ -126,7 +126,10 @@ const searchSlackRTS: slackUserSearchSlackRTSFunction = async ({
   };
 
   // Add optional parameters if provided
-  if (channelTypes && channelTypes.length > 0) {
+  if (!channelTypes || channelTypes.length === 0) {
+    // Default is only public channels, which is unhelpful bc many people want to search private channels
+    requestParams.channel_types = ["public_channel", "private_channel", "im"];
+  } else {
     requestParams.channel_types = channelTypes;
   }
 
