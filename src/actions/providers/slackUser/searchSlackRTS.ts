@@ -7,6 +7,7 @@ import {
   type AuthParamsType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { normalizeChannelOperand } from "./utils.js";
 
 /* ===================== Types ===================== */
 
@@ -29,6 +30,15 @@ function appendToQuery(query: string, suffix: string): string {
   if (!q) return s;
   if (!s) return q;
   return `${q} ${s}`;
+}
+
+function normalizeUnixSecondsInput(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  if (!Number.isNaN(Number(value))) return value;
+
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return undefined;
+  return String(Math.floor(date.getTime() / 1000));
 }
 
 interface AssistantSearchContextResponse {
@@ -70,6 +80,7 @@ const searchSlackRTS: slackUserSearchSlackRTSFunction = async ({
   const {
     query,
     userEmails,
+    channelIds,
     channelTypes,
     contentTypes = ["messages", "files", "channels"],
     includeBots = false,
@@ -79,7 +90,15 @@ const searchSlackRTS: slackUserSearchSlackRTSFunction = async ({
     after,
   } = params;
 
-  let finalQuery = query;
+  if (
+    (!query || query === "") &&
+    (!userEmails || userEmails.length === 0) &&
+    (!channelIds || channelIds.length === 0)
+  ) {
+    throw new Error("If query is left blank, you must provide at least one userEmail or channelId to filter by.");
+  }
+
+  let finalQuery = query ?? "";
 
   if (userEmails != undefined && userEmails.length > 0) {
     const settled = await Promise.allSettled(userEmails.map((u: string) => resolveSlackUserId(client, u)));
@@ -93,13 +112,24 @@ const searchSlackRTS: slackUserSearchSlackRTSFunction = async ({
     }
   }
 
+  if (channelIds != undefined && channelIds.length > 0) {
+    const operands = channelIds.map(normalizeChannelOperand).filter((operand): operand is string => Boolean(operand));
+    if (operands.length > 0) {
+      const filter = operands.map(op => `in:${op}`).join(" ");
+      finalQuery = appendToQuery(finalQuery, filter);
+    }
+  }
+
   // Build the request parameters for assistant.search.context
   const requestParams: Record<string, unknown> = {
     query: finalQuery,
   };
 
   // Add optional parameters if provided
-  if (channelTypes && channelTypes.length > 0) {
+  if (!channelTypes || channelTypes.length === 0) {
+    // Default is only public channels, which is unhelpful bc many people want to search private channels
+    requestParams.channel_types = ["public_channel", "private_channel", "im"];
+  } else {
     requestParams.channel_types = channelTypes;
   }
 
@@ -119,12 +149,14 @@ const searchSlackRTS: slackUserSearchSlackRTSFunction = async ({
     requestParams.include_context_messages = includeContextMessages;
   }
 
-  if (before) {
-    requestParams.before = before;
+  const normalizedBefore = normalizeUnixSecondsInput(before);
+  if (normalizedBefore) {
+    requestParams.before = normalizedBefore;
   }
 
-  if (after) {
-    requestParams.after = after;
+  const normalizedAfter = normalizeUnixSecondsInput(after);
+  if (normalizedAfter) {
+    requestParams.after = normalizedAfter;
   }
 
   try {

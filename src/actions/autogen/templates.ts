@@ -710,6 +710,7 @@ export const slackSendMessageDefinition: ActionTemplate = {
       channelName: {
         type: "string",
         description: "The name of the Slack channel to send the message to (e.g. general, alerts)",
+        tags: ["recommend-enum"],
       },
       message: {
         type: "string",
@@ -739,7 +740,7 @@ export const slackSendMessageDefinition: ActionTemplate = {
   provider: "slack",
 };
 export const slackGetChannelMessagesDefinition: ActionTemplate = {
-  displayName: "Get messages in a channel",
+  displayName: "List messages in a channel",
   description: "Gets messages from a Slack channel",
   scopes: ["channels:history"],
   tags: [],
@@ -755,6 +756,7 @@ export const slackGetChannelMessagesDefinition: ActionTemplate = {
       channelName: {
         type: "string",
         description: "Name of the channel to summarize. Either the channelId or channelName must be provided.",
+        tags: ["recommend-enum"],
       },
       oldest: {
         type: "string",
@@ -822,7 +824,7 @@ export const slackGetChannelMessagesDefinition: ActionTemplate = {
   provider: "slack",
 };
 export const slackGetChannelMembersDefinition: ActionTemplate = {
-  displayName: "Get members of a channel",
+  displayName: "List members of a channel",
   description: "Gets the members of a Slack channel",
   scopes: ["channels:read"],
   tags: [],
@@ -836,6 +838,7 @@ export const slackGetChannelMembersDefinition: ActionTemplate = {
       channelName: {
         type: "string",
         description: "The name of the channel to get members from",
+        tags: ["recommend-enum"],
       },
     },
   },
@@ -905,6 +908,7 @@ export const slackUserSearchSlackDefinition: ActionTemplate = {
       channel: {
         type: "string",
         description: 'Channel name or ID. Examples - "#eng-updates", "eng-updates", "C01234567".',
+        tags: ["recommend-enum"],
       },
       topic: {
         type: "string",
@@ -1068,7 +1072,7 @@ export const slackUserSearchSlackDefinition: ActionTemplate = {
 export const slackUserSearchSlackRTSDefinition: ActionTemplate = {
   displayName: "Search Slack with Real-Time Search",
   description:
-    "Search Slack messages across your organization using Slack's Real-Time Search API (assistant.search.context). Searches all conversations within the scope of permissions granted and returns relevant messages with content, author info, and permalinks.",
+    "Search Slack messages across your organization using Slack's Real-Time Search API. Searches all conversations within the scope of permissions granted and returns relevant messages with content, author info, and permalinks.",
   scopes: [
     "search:read.public",
     "search:read.private",
@@ -1080,17 +1084,24 @@ export const slackUserSearchSlackRTSDefinition: ActionTemplate = {
   tags: [],
   parameters: {
     type: "object",
-    required: ["query"],
     properties: {
       query: {
         type: "string",
         description:
-          'The search query string (e.g., "What is project gizmo?", "mobile UX revamp"). You can use any Slack filters directly in the query string.',
+          'The search query string (e.g., "What is project gizmo?", "mobile UX revamp"). If you want to filter by user or channel, leave this field empty and use the userEmails and channelIds fields.',
       },
       userEmails: {
         type: "array",
         description:
-          'Optional. Users to filter messages from. Each value should be a plain-text email (e.g. "user@company.com"). Will be resolved to a Slack user ID and formatted into the query as from:<@U...>.',
+          'Optional. Users that you want to see messages from. Each value should be a plain-text email (e.g. "user@company.com"). Will be resolved to a Slack user ID and formatted into the query as from:<@U...>.',
+        items: {
+          type: "string",
+        },
+      },
+      channelIds: {
+        type: "array",
+        description:
+          'Optional. Channels that you want to see messages from. Each value can be a Slack channel ID like "C12345678" (or "<#C123...>") OR a channel name like "general" / "#general". Values are formatted into the query as in:<#C...> (ID) or in:#channel-name (name).',
         items: {
           type: "string",
         },
@@ -1098,7 +1109,7 @@ export const slackUserSearchSlackRTSDefinition: ActionTemplate = {
       channelTypes: {
         type: "array",
         description:
-          "Filter by channel types to search. If not specified, searches all channel types the user has access to.",
+          "Filter by channel types to search (e.g., public_channel, private_channel, mpim, im). If not specified, searches all channel types the user has access to.",
         items: {
           type: "string",
           enum: ["public_channel", "private_channel", "mpim", "im"],
@@ -1106,7 +1117,8 @@ export const slackUserSearchSlackRTSDefinition: ActionTemplate = {
       },
       contentTypes: {
         type: "array",
-        description: "Filter by content types to include in search results.",
+        description:
+          "Filter by content types to include in search results (e.g., messages, files, channels). If not specified, searches all content types the user has access to.",
         items: {
           type: "string",
           enum: ["messages", "files", "channels"],
@@ -1132,11 +1144,13 @@ export const slackUserSearchSlackRTSDefinition: ActionTemplate = {
       },
       before: {
         type: "string",
-        description: "Optional UNIX timestamp filter. If present, filters for results before this date.",
+        description:
+          "Optional UNIX timestamp filter. If present, filters for results before this date. Use this field when you want to find messages in a specific date/time range.",
       },
       after: {
         type: "string",
-        description: "Optional UNIX timestamp filter. If present, filters for results after this date.",
+        description:
+          "Optional UNIX timestamp filter. If present, filters for results after this date. Use this field when you want to find messages in a specific date/time range.",
       },
     },
   },
@@ -1693,6 +1707,56 @@ export const jiraGetJiraTicketHistoryDefinition: ActionTemplate = {
     },
   },
   name: "getJiraTicketHistory",
+  provider: "jira",
+};
+export const jiraMoveJiraTicketToProjectDefinition: ActionTemplate = {
+  displayName: "Move Jira ticket to another project",
+  description:
+    "Moves a single Jira ticket from one project to another, optionally updating the issue type. Note: This action only works with Jira Cloud, not Jira Data Center.",
+  scopes: ["write:jira-work", "read:jira-work"],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["issueId", "targetProjectKey"],
+    properties: {
+      issueId: {
+        type: "string",
+        description: 'The issue ID or key of the ticket to move (e.g. "PROJ-123")',
+      },
+      targetProjectKey: {
+        type: "string",
+        description: 'The key of the project to move the ticket to (e.g. "NEWPROJ")',
+      },
+      targetIssueType: {
+        type: "string",
+        description:
+          'The issue type in the target project (e.g. "Task", "Bug"). If not provided, will attempt to use the same issue type.',
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the ticket was successfully moved",
+      },
+      newTicketKey: {
+        type: "string",
+        description: 'The new issue key after moving (e.g. "NEWPROJ-456")',
+      },
+      ticketUrl: {
+        type: "string",
+        description: "The url to the moved Jira ticket",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the move failed",
+      },
+    },
+  },
+  name: "moveJiraTicketToProject",
   provider: "jira",
 };
 export const jiraUpdateJiraTicketDetailsDefinition: ActionTemplate = {
@@ -2358,6 +2422,56 @@ export const jiraOrgGetJiraTicketHistoryDefinition: ActionTemplate = {
   name: "getJiraTicketHistory",
   provider: "jiraOrg",
 };
+export const jiraOrgMoveJiraTicketToProjectDefinition: ActionTemplate = {
+  displayName: "Move Jira ticket to another project",
+  description:
+    "Moves a single Jira ticket from one project to another, optionally updating the issue type. Note: This action only works with Jira Cloud, not Jira Data Center.",
+  scopes: ["write:jira-work", "read:jira-work"],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["issueId", "targetProjectKey"],
+    properties: {
+      issueId: {
+        type: "string",
+        description: 'The issue ID or key of the ticket to move (e.g. "PROJ-123")',
+      },
+      targetProjectKey: {
+        type: "string",
+        description: 'The key of the project to move the ticket to (e.g. "NEWPROJ")',
+      },
+      targetIssueType: {
+        type: "string",
+        description:
+          'The issue type in the target project (e.g. "Task", "Bug"). If not provided, will attempt to use the same issue type.',
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the ticket was successfully moved",
+      },
+      newTicketKey: {
+        type: "string",
+        description: 'The new issue key after moving (e.g. "NEWPROJ-456")',
+      },
+      ticketUrl: {
+        type: "string",
+        description: "The url to the moved Jira ticket",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the move failed",
+      },
+    },
+  },
+  name: "moveJiraTicketToProject",
+  provider: "jiraOrg",
+};
 export const jiraOrgUpdateJiraTicketDetailsDefinition: ActionTemplate = {
   displayName: "Update Jira ticket details",
   description: "Update a Jira ticket with new content specified",
@@ -3019,6 +3133,56 @@ export const jiraDataCenterGetJiraTicketHistoryDefinition: ActionTemplate = {
     },
   },
   name: "getJiraTicketHistory",
+  provider: "jiraDataCenter",
+};
+export const jiraDataCenterMoveJiraTicketToProjectDefinition: ActionTemplate = {
+  displayName: "Move Jira ticket to another project",
+  description:
+    "Moves a single Jira ticket from one project to another, optionally updating the issue type. Note: This action only works with Jira Cloud, not Jira Data Center.",
+  scopes: ["write:jira-work", "read:jira-work"],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["issueId", "targetProjectKey"],
+    properties: {
+      issueId: {
+        type: "string",
+        description: 'The issue ID or key of the ticket to move (e.g. "PROJ-123")',
+      },
+      targetProjectKey: {
+        type: "string",
+        description: 'The key of the project to move the ticket to (e.g. "NEWPROJ")',
+      },
+      targetIssueType: {
+        type: "string",
+        description:
+          'The issue type in the target project (e.g. "Task", "Bug"). If not provided, will attempt to use the same issue type.',
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the ticket was successfully moved",
+      },
+      newTicketKey: {
+        type: "string",
+        description: 'The new issue key after moving (e.g. "NEWPROJ-456")',
+      },
+      ticketUrl: {
+        type: "string",
+        description: "The url to the moved Jira ticket",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the move failed",
+      },
+    },
+  },
+  name: "moveJiraTicketToProject",
   provider: "jiraDataCenter",
 };
 export const jiraDataCenterUpdateJiraTicketDetailsDefinition: ActionTemplate = {
@@ -4623,6 +4787,51 @@ export const googleOauthCreateNewGoogleDocDefinition: ActionTemplate = {
     },
   },
   name: "createNewGoogleDoc",
+  provider: "googleOauth",
+};
+export const googleOauthAddTextToTopOfDocDefinition: ActionTemplate = {
+  displayName: "Append text to the top of a Google Doc",
+  description: "Insert the provided text at the very top of an existing Google Doc using OAuth authentication",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["documentId", "text"],
+    properties: {
+      documentId: {
+        type: "string",
+        description: "The ID of the Google Doc to update",
+        tags: ["recommend-predefined"],
+      },
+      text: {
+        type: "string",
+        description: "The text to insert at the beginning of the document",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the document was updated successfully",
+      },
+      documentId: {
+        type: "string",
+        description: "The ID of the updated Google Doc",
+      },
+      documentUrl: {
+        type: "string",
+        description: "The URL to access the updated Google Doc",
+      },
+      error: {
+        type: "string",
+        description: "The error message if the update failed",
+      },
+    },
+  },
+  name: "addTextToTopOfDoc",
   provider: "googleOauth",
 };
 export const googleOauthUpdateDocDefinition: ActionTemplate = {
@@ -8414,7 +8623,7 @@ export const googleOauthUpdatePresentationDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthGetPresentationDefinition: ActionTemplate = {
-  displayName: "Get a presentation",
+  displayName: "Fetch a presentation",
   description: "Get a presentation by ID",
   scopes: ["slides.readonly"],
   tags: [],
@@ -8493,7 +8702,8 @@ export const googleOauthSearchDriveByKeywordsDefinition: ActionTemplate = {
       },
       includeTrashed: {
         type: "boolean",
-        description: "Whether to include trashed files in the search results",
+        description:
+          "Whether to include trashed files in the search results. Usually false unless otherwise noted by the user.",
       },
     },
   },
@@ -8559,7 +8769,8 @@ export const googleOauthSearchDriveByQueryDefinition: ActionTemplate = {
       },
       searchDriveByDrive: {
         type: "boolean",
-        description: "Whether we should search drive by drive or run a general search",
+        description:
+          "Whether we should search drive by drive or run a general search. Usually false unless otherwise noted by the user.",
       },
       orderByQuery: {
         type: "string",
@@ -8568,7 +8779,8 @@ export const googleOauthSearchDriveByQueryDefinition: ActionTemplate = {
       },
       includeTrashed: {
         type: "boolean",
-        description: "Whether to include trashed files in the search results",
+        description:
+          "Whether to include trashed files in the search results. Usually false unless otherwise noted by the user.",
       },
     },
   },
@@ -8616,7 +8828,7 @@ export const googleOauthSearchDriveByQueryDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: ActionTemplate = {
-  displayName: "Search Drive by keyword",
+  displayName: "Search all of Google Drive",
   description: "Search Google Drive with keywords and get resulting content",
   scopes: ["drive.readonly"],
   tags: [],
@@ -8638,8 +8850,7 @@ export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: Action
       },
       searchDriveByDrive: {
         type: "boolean",
-        description: "Search drive by drive or run a general search",
-        tags: ["recommend-predefined"],
+        description: "Search drive by drive or run a general search. Usually false unless otherwise noted by the user.",
       },
       orderByQuery: {
         type: "string",
@@ -8648,8 +8859,8 @@ export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: Action
       },
       includeTrashed: {
         type: "boolean",
-        description: "Whether to include trashed files in the search results",
-        tags: ["recommend-predefined"],
+        description:
+          "Whether to include trashed files in the search results. Usually false unless otherwise noted by the user.",
       },
     },
   },
@@ -8738,8 +8949,7 @@ export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTem
       },
       searchDriveByDrive: {
         type: "boolean",
-        description: "Search drive by drive or run a general search",
-        tags: ["recommend-predefined"],
+        description: "Search drive by drive or run a general search. Usually false unless otherwise noted by the user.",
       },
       orderByQuery: {
         type: "string",
@@ -8748,8 +8958,8 @@ export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTem
       },
       includeTrashed: {
         type: "boolean",
-        description: "Whether to include trashed files in the search results",
-        tags: ["recommend-predefined"],
+        description:
+          "Whether to include trashed files in the search results. Usually false unless otherwise noted by the user.",
       },
     },
   },
@@ -8801,7 +9011,7 @@ export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTem
   provider: "googleOauth",
 };
 export const googleOauthGetDriveFileContentByIdDefinition: ActionTemplate = {
-  displayName: "Fetch file contents",
+  displayName: "Fetch full file contents",
   description: "Get text content of a Google Drive file by its ID.",
   scopes: ["drive.readonly"],
   tags: [],
@@ -8939,7 +9149,7 @@ export const googleOauthListGroupsDefinition: ActionTemplate = {
   provider: "googleOauth",
 };
 export const googleOauthGetGroupDefinition: ActionTemplate = {
-  displayName: "Get a Group",
+  displayName: "Get Group details",
   description: "Get details for a specific Google Group by group email or ID.",
   scopes: ["https://www.googleapis.com/auth/admin.directory.group.readonly"],
   tags: [],
@@ -10096,8 +10306,8 @@ export const salesforceSearchAllSalesforceRecordsDefinition: ActionTemplate = {
       },
       usesLightningKnowledge: {
         type: "boolean",
-        description: "Whether your Salesforce instance uses lightning knowledge articles",
-        tags: ["recommend-predefined"],
+        description:
+          'Whether your Salesforce instance uses lightning knowledge articles ("true" or "false"). Ask the user if unsure.',
       },
       limit: {
         type: "number",
@@ -10763,7 +10973,7 @@ export const microsoftMessageTeamsChannelDefinition: ActionTemplate = {
   provider: "microsoft",
 };
 export const microsoftGetDocumentDefinition: ActionTemplate = {
-  displayName: "Get a document",
+  displayName: "Fetch a document",
   description: "Retrieves the content of a Microsoft Office document",
   scopes: ["Files.ReadWrite", "Sites.ReadWrite.All"],
   tags: [],
@@ -10813,7 +11023,7 @@ export const githubCreateOrUpdateFileDefinition: ActionTemplate = {
     properties: {
       repositoryOwner: {
         type: "string",
-        description: "The owner of the repository",
+        description: "The owner of the repository, this is a GitHub username",
         tags: ["recommend-predefined"],
       },
       repositoryName: {
@@ -10880,7 +11090,7 @@ export const githubCreateBranchDefinition: ActionTemplate = {
     properties: {
       repositoryOwner: {
         type: "string",
-        description: "The owner of the repository",
+        description: "The owner of the repository, this is a GitHub username",
         tags: ["recommend-predefined"],
       },
       repositoryName: {
@@ -10926,7 +11136,7 @@ export const githubCreatePullRequestDefinition: ActionTemplate = {
     properties: {
       repositoryOwner: {
         type: "string",
-        description: "The owner of the repository",
+        description: "The owner of the repository, this is a GitHub username",
         tags: ["recommend-predefined"],
       },
       repositoryName: {
@@ -10989,7 +11199,7 @@ export const githubListPullRequestsDefinition: ActionTemplate = {
     properties: {
       repositoryOwner: {
         type: "string",
-        description: "The owner of the repository",
+        description: "The owner of the repository, this is a GitHub username",
         tags: ["recommend-predefined"],
       },
       repositoryName: {
@@ -11080,7 +11290,7 @@ export const githubListPullRequestsDefinition: ActionTemplate = {
   provider: "github",
 };
 export const githubGetPullRequestDetailsDefinition: ActionTemplate = {
-  displayName: "Fetch pull request",
+  displayName: "Fetch pull request details",
   description:
     "Get detailed information about a specific pull request including description, files, reviews, and status",
   scopes: [],
@@ -11091,7 +11301,7 @@ export const githubGetPullRequestDetailsDefinition: ActionTemplate = {
     properties: {
       repositoryOwner: {
         type: "string",
-        description: "The owner of the repository",
+        description: "The owner of the repository, this is a GitHub username",
         tags: ["recommend-predefined"],
       },
       repositoryName: {
@@ -11814,7 +12024,7 @@ export const githubSearchOrganizationDefinition: ActionTemplate = {
   provider: "github",
 };
 export const githubGetBranchDefinition: ActionTemplate = {
-  displayName: "Get a branch",
+  displayName: "Get branch details",
   description: "Get a branch in a GitHub repository",
   scopes: [],
   tags: [],
@@ -11824,7 +12034,7 @@ export const githubGetBranchDefinition: ActionTemplate = {
     properties: {
       repositoryOwner: {
         type: "string",
-        description: "The owner of the repository",
+        description: "The owner of the repository, this is a GitHub username",
         tags: ["recommend-predefined"],
       },
       repositoryName: {
@@ -12084,7 +12294,7 @@ export const githubListCommitsDefinition: ActionTemplate = {
     properties: {
       repositoryOwner: {
         type: "string",
-        description: "The owner of the repository",
+        description: "The owner of the repository, this is a GitHub username",
         tags: ["recommend-predefined"],
       },
       repositoryName: {
@@ -12688,7 +12898,7 @@ export const gitlabGetFileContentDefinition: ActionTemplate = {
   provider: "gitlab",
 };
 export const gitlabGetMergeRequestDefinition: ActionTemplate = {
-  displayName: "Get merge request",
+  displayName: "Get merge request details",
   description: "Get specified merge request from a GitLab repository",
   scopes: [],
   tags: [],
@@ -13135,7 +13345,7 @@ export const linearGetIssuesDefinition: ActionTemplate = {
   provider: "linear",
 };
 export const linearGetIssueDetailsDefinition: ActionTemplate = {
-  displayName: "Fetch issue",
+  displayName: "Fetch issue details",
   description: "Get detailed information about a Linear issue",
   scopes: [],
   tags: [],
@@ -13297,7 +13507,7 @@ export const linearGetIssueDetailsDefinition: ActionTemplate = {
   provider: "linear",
 };
 export const linearGetProjectsDefinition: ActionTemplate = {
-  displayName: "Fetch projects",
+  displayName: "List all projects",
   description: "Get all Linear projects",
   scopes: [],
   tags: [],
@@ -13612,7 +13822,7 @@ export const linearGetTeamDetailsDefinition: ActionTemplate = {
   provider: "linear",
 };
 export const linearGetTeamsDefinition: ActionTemplate = {
-  displayName: "Get teams",
+  displayName: "List all teams",
   description: "Get all teams in Linear",
   scopes: [],
   tags: [],
@@ -13656,7 +13866,7 @@ export const linearGetTeamsDefinition: ActionTemplate = {
   provider: "linear",
 };
 export const hubspotGetContactsDefinition: ActionTemplate = {
-  displayName: "Get contacts",
+  displayName: "List all contacts",
   description: "List or search HubSpot contacts by optional query",
   scopes: ["oauth crm.objects.contacts.read"],
   tags: [],
@@ -13721,7 +13931,7 @@ export const hubspotGetContactsDefinition: ActionTemplate = {
   provider: "hubspot",
 };
 export const hubspotGetContactDetailsDefinition: ActionTemplate = {
-  displayName: "Get details of a contact",
+  displayName: "Get contact details",
   description: "Get detailed information about a specific HubSpot contact",
   scopes: ["oauth crm.objects.contacts.read"],
   tags: [],
@@ -13824,7 +14034,7 @@ export const hubspotGetContactDetailsDefinition: ActionTemplate = {
   provider: "hubspot",
 };
 export const hubspotGetCompaniesDefinition: ActionTemplate = {
-  displayName: "Get companies",
+  displayName: "List all companies",
   description: "List or search HubSpot companies by optional query",
   scopes: ["oauth crm.objects.companies.read"],
   tags: [],
@@ -13885,7 +14095,7 @@ export const hubspotGetCompaniesDefinition: ActionTemplate = {
   provider: "hubspot",
 };
 export const hubspotGetCompanyDetailsDefinition: ActionTemplate = {
-  displayName: "Get details of a company",
+  displayName: "Get company details",
   description: "Get detailed information about a specific HubSpot company",
   scopes: ["oauth crm.objects.companies.read"],
   tags: [],
@@ -13980,7 +14190,7 @@ export const hubspotGetCompanyDetailsDefinition: ActionTemplate = {
   provider: "hubspot",
 };
 export const hubspotGetDealsDefinition: ActionTemplate = {
-  displayName: "Get deals",
+  displayName: "List all deals",
   description: "List or search HubSpot deals by optional query",
   scopes: ["oauth crm.objects.deals.read"],
   tags: [],
@@ -14045,7 +14255,7 @@ export const hubspotGetDealsDefinition: ActionTemplate = {
   provider: "hubspot",
 };
 export const hubspotGetDealDetailsDefinition: ActionTemplate = {
-  displayName: "Get details of a deal",
+  displayName: "Get deal details",
   description: "Get detailed information about a specific HubSpot deal",
   scopes: ["oauth crm.objects.deals.read"],
   tags: [],
@@ -14132,7 +14342,7 @@ export const hubspotGetDealDetailsDefinition: ActionTemplate = {
   provider: "hubspot",
 };
 export const hubspotGetTicketsDefinition: ActionTemplate = {
-  displayName: "Get tickets",
+  displayName: "List all tickets",
   description: "List or search HubSpot tickets by optional query",
   scopes: ["oauth crm.objects.tickets.read"],
   tags: [],
@@ -14193,7 +14403,7 @@ export const hubspotGetTicketsDefinition: ActionTemplate = {
   provider: "hubspot",
 };
 export const hubspotGetTicketDetailsDefinition: ActionTemplate = {
-  displayName: "Get details of a ticket",
+  displayName: "Get ticket details",
   description: "Get detailed information about a specific HubSpot ticket",
   scopes: ["oauth crm.objects.tickets.read"],
   tags: [],

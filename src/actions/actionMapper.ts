@@ -45,6 +45,8 @@ import {
   jiraGetJiraTicketDetailsOutputSchema,
   jiraGetJiraTicketHistoryParamsSchema,
   jiraGetJiraTicketHistoryOutputSchema,
+  jiraMoveJiraTicketToProjectParamsSchema,
+  jiraMoveJiraTicketToProjectOutputSchema,
   jiraUpdateJiraTicketDetailsParamsSchema,
   jiraUpdateJiraTicketDetailsOutputSchema,
   jiraUpdateJiraTicketStatusParamsSchema,
@@ -81,6 +83,8 @@ import {
   lookerEnableUserByEmailOutputSchema,
   googleOauthUpdateDocParamsSchema,
   googleOauthUpdateDocOutputSchema,
+  googleOauthAddTextToTopOfDocParamsSchema,
+  googleOauthAddTextToTopOfDocOutputSchema,
   googleOauthCreateSpreadsheetParamsSchema,
   googleOauthCreateSpreadsheetOutputSchema,
   googleOauthUpdateSpreadsheetParamsSchema,
@@ -291,6 +295,7 @@ import commentJiraTicket from "./providers/jira/commentJiraTicket.js";
 import createJiraTicket from "./providers/jira/createJiraTicket.js";
 import getJiraTicketDetails from "./providers/jira/getJiraTicketDetails.js";
 import getJiraTicketHistory from "./providers/jira/getJiraTicketHistory.js";
+import moveJiraTicketToProject from "./providers/jira/moveJiraTicketToProject.js";
 import updateJiraTicketDetails from "./providers/jira/updateJiraTicketDetails.js";
 import updateJiraTicketStatus from "./providers/jira/updateJiraTicketStatus.js";
 import getLatitudeLongitudeFromLocation from "./providers/openstreetmap/getLatitudeLongitudeFromLocation.js";
@@ -315,6 +320,7 @@ import confluenceFetchPageContent from "./providers/confluence/fetchPageContent.
 import runSnowflakeQuery from "./providers/snowflake/runSnowflakeQuery.js";
 import enableUserByEmail from "./providers/looker/enableUserByEmail.js";
 import updateDoc from "./providers/google-oauth/updateDoc.js";
+import addTextToTopOfDoc from "./providers/google-oauth/addTextToTopOfDoc.js";
 import scheduleCalendarMeeting from "./providers/google-oauth/scheduleCalendarMeeting.js";
 import listCalendars from "./providers/google-oauth/listCalendars.js";
 import listCalendarEvents from "./providers/google-oauth/listCalendarEvents.js";
@@ -459,6 +465,12 @@ const jiraActions = {
     paramsSchema: jiraGetJiraTicketHistoryParamsSchema,
     outputSchema: jiraGetJiraTicketHistoryOutputSchema,
     actionType: "read",
+  },
+  moveJiraTicketToProject: {
+    fn: moveJiraTicketToProject,
+    paramsSchema: jiraMoveJiraTicketToProjectParamsSchema,
+    outputSchema: jiraMoveJiraTicketToProjectOutputSchema,
+    actionType: "write",
   },
   updateJiraTicketDetails: {
     fn: updateJiraTicketDetails,
@@ -805,6 +817,12 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: createNewGoogleDoc,
       paramsSchema: googleOauthCreateNewGoogleDocParamsSchema,
       outputSchema: googleOauthCreateNewGoogleDocOutputSchema,
+      actionType: "write",
+    },
+    addTextToTopOfDoc: {
+      fn: addTextToTopOfDoc,
+      paramsSchema: googleOauthAddTextToTopOfDocParamsSchema,
+      outputSchema: googleOauthAddTextToTopOfDocOutputSchema,
       actionType: "write",
     },
     updateDoc: {

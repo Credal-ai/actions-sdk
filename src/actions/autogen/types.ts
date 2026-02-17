@@ -64,6 +64,7 @@ export enum ActionName {
   CREATESERVICEDESKREQUEST = "createServiceDeskRequest",
   GETJIRATICKETDETAILS = "getJiraTicketDetails",
   GETJIRATICKETHISTORY = "getJiraTicketHistory",
+  MOVEJIRATICKETTOPROJECT = "moveJiraTicketToProject",
   UPDATEJIRATICKETDETAILS = "updateJiraTicketDetails",
   UPDATEJIRATICKETSTATUS = "updateJiraTicketStatus",
   GETJIRAISSUESBYQUERY = "getJiraIssuesByQuery",
@@ -91,6 +92,7 @@ export enum ActionName {
   SENDEMAIL = "sendEmail",
   SENDEMAILHTML = "sendEmailHtml",
   CREATENEWGOOGLEDOC = "createNewGoogleDoc",
+  ADDTEXTTOTOPOFDOC = "addTextToTopOfDoc",
   UPDATEDOC = "updateDoc",
   SCHEDULECALENDARMEETING = "scheduleCalendarMeeting",
   LISTCALENDARS = "listCalendars",
@@ -201,11 +203,11 @@ export const ActionTagSchema = z.enum(["read", "write"]);
 export type ActionTag = z.infer<typeof ActionTagSchema>;
 
 export const ACTION_TAGS = ["read", "write"] as const;
-export const ParameterTagSchema = z.enum(["recommend-predefined"]);
+export const ParameterTagSchema = z.enum(["recommend-predefined", "recommend-enum"]);
 
 export type ParameterTag = z.infer<typeof ParameterTagSchema>;
 
-export const PARAMETER_TAGS = ["recommend-predefined"] as const;
+export const PARAMETER_TAGS = ["recommend-predefined", "recommend-enum"] as const;
 export const genericFillTemplateParamsSchema = z.object({
   template: z.string().describe("The template string to be processed and returned"),
 });
@@ -729,21 +731,32 @@ export const slackUserSearchSlackRTSParamsSchema = z.object({
   query: z
     .string()
     .describe(
-      'The search query string (e.g., "What is project gizmo?", "mobile UX revamp"). You can use any Slack filters directly in the query string.',
-    ),
+      'The search query string (e.g., "What is project gizmo?", "mobile UX revamp"). If you want to filter by user or channel, leave this field empty and use the userEmails and channelIds fields.',
+    )
+    .optional(),
   userEmails: z
     .array(z.string())
     .describe(
-      'Optional. Users to filter messages from. Each value should be a plain-text email (e.g. "user@company.com"). Will be resolved to a Slack user ID and formatted into the query as from:<@U...>.',
+      'Optional. Users that you want to see messages from. Each value should be a plain-text email (e.g. "user@company.com"). Will be resolved to a Slack user ID and formatted into the query as from:<@U...>.',
+    )
+    .optional(),
+  channelIds: z
+    .array(z.string())
+    .describe(
+      'Optional. Channels that you want to see messages from. Each value can be a Slack channel ID like "C12345678" (or "<#C123...>") OR a channel name like "general" / "#general". Values are formatted into the query as in:<#C...> (ID) or in:#channel-name (name).',
     )
     .optional(),
   channelTypes: z
     .array(z.enum(["public_channel", "private_channel", "mpim", "im"]))
-    .describe("Filter by channel types to search. If not specified, searches all channel types the user has access to.")
+    .describe(
+      "Filter by channel types to search (e.g., public_channel, private_channel, mpim, im). If not specified, searches all channel types the user has access to.",
+    )
     .optional(),
   contentTypes: z
     .array(z.enum(["messages", "files", "channels"]))
-    .describe("Filter by content types to include in search results.")
+    .describe(
+      "Filter by content types to include in search results (e.g., messages, files, channels). If not specified, searches all content types the user has access to.",
+    )
     .default(["messages", "files", "channels"]),
   includeBots: z.boolean().describe("Whether to include bot messages in search results.").default(false),
   includeContextMessages: z
@@ -753,11 +766,15 @@ export const slackUserSearchSlackRTSParamsSchema = z.object({
   limit: z.number().gte(1).lte(20).describe("Maximum number of results per page (max 20).").default(20),
   before: z
     .string()
-    .describe("Optional UNIX timestamp filter. If present, filters for results before this date.")
+    .describe(
+      "Optional UNIX timestamp filter. If present, filters for results before this date. Use this field when you want to find messages in a specific date/time range.",
+    )
     .optional(),
   after: z
     .string()
-    .describe("Optional UNIX timestamp filter. If present, filters for results after this date.")
+    .describe(
+      "Optional UNIX timestamp filter. If present, filters for results after this date. Use this field when you want to find messages in a specific date/time range.",
+    )
     .optional(),
 });
 
@@ -1036,6 +1053,33 @@ export type jiraGetJiraTicketHistoryFunction = ActionFunction<
   jiraGetJiraTicketHistoryParamsType,
   AuthParamsType,
   jiraGetJiraTicketHistoryOutputType
+>;
+
+export const jiraMoveJiraTicketToProjectParamsSchema = z.object({
+  issueId: z.string().describe('The issue ID or key of the ticket to move (e.g. "PROJ-123")'),
+  targetProjectKey: z.string().describe('The key of the project to move the ticket to (e.g. "NEWPROJ")'),
+  targetIssueType: z
+    .string()
+    .describe(
+      'The issue type in the target project (e.g. "Task", "Bug"). If not provided, will attempt to use the same issue type.',
+    )
+    .optional(),
+});
+
+export type jiraMoveJiraTicketToProjectParamsType = z.infer<typeof jiraMoveJiraTicketToProjectParamsSchema>;
+
+export const jiraMoveJiraTicketToProjectOutputSchema = z.object({
+  success: z.boolean().describe("Whether the ticket was successfully moved"),
+  newTicketKey: z.string().describe('The new issue key after moving (e.g. "NEWPROJ-456")').optional(),
+  ticketUrl: z.string().describe("The url to the moved Jira ticket").optional(),
+  error: z.string().describe("Error message if the move failed").optional(),
+});
+
+export type jiraMoveJiraTicketToProjectOutputType = z.infer<typeof jiraMoveJiraTicketToProjectOutputSchema>;
+export type jiraMoveJiraTicketToProjectFunction = ActionFunction<
+  jiraMoveJiraTicketToProjectParamsType,
+  AuthParamsType,
+  jiraMoveJiraTicketToProjectOutputType
 >;
 
 export const jiraUpdateJiraTicketDetailsParamsSchema = z.object({
@@ -1339,6 +1383,33 @@ export type jiraOrgGetJiraTicketHistoryFunction = ActionFunction<
   jiraOrgGetJiraTicketHistoryParamsType,
   AuthParamsType,
   jiraOrgGetJiraTicketHistoryOutputType
+>;
+
+export const jiraOrgMoveJiraTicketToProjectParamsSchema = z.object({
+  issueId: z.string().describe('The issue ID or key of the ticket to move (e.g. "PROJ-123")'),
+  targetProjectKey: z.string().describe('The key of the project to move the ticket to (e.g. "NEWPROJ")'),
+  targetIssueType: z
+    .string()
+    .describe(
+      'The issue type in the target project (e.g. "Task", "Bug"). If not provided, will attempt to use the same issue type.',
+    )
+    .optional(),
+});
+
+export type jiraOrgMoveJiraTicketToProjectParamsType = z.infer<typeof jiraOrgMoveJiraTicketToProjectParamsSchema>;
+
+export const jiraOrgMoveJiraTicketToProjectOutputSchema = z.object({
+  success: z.boolean().describe("Whether the ticket was successfully moved"),
+  newTicketKey: z.string().describe('The new issue key after moving (e.g. "NEWPROJ-456")').optional(),
+  ticketUrl: z.string().describe("The url to the moved Jira ticket").optional(),
+  error: z.string().describe("Error message if the move failed").optional(),
+});
+
+export type jiraOrgMoveJiraTicketToProjectOutputType = z.infer<typeof jiraOrgMoveJiraTicketToProjectOutputSchema>;
+export type jiraOrgMoveJiraTicketToProjectFunction = ActionFunction<
+  jiraOrgMoveJiraTicketToProjectParamsType,
+  AuthParamsType,
+  jiraOrgMoveJiraTicketToProjectOutputType
 >;
 
 export const jiraOrgUpdateJiraTicketDetailsParamsSchema = z.object({
@@ -1654,6 +1725,37 @@ export type jiraDataCenterGetJiraTicketHistoryFunction = ActionFunction<
   jiraDataCenterGetJiraTicketHistoryParamsType,
   AuthParamsType,
   jiraDataCenterGetJiraTicketHistoryOutputType
+>;
+
+export const jiraDataCenterMoveJiraTicketToProjectParamsSchema = z.object({
+  issueId: z.string().describe('The issue ID or key of the ticket to move (e.g. "PROJ-123")'),
+  targetProjectKey: z.string().describe('The key of the project to move the ticket to (e.g. "NEWPROJ")'),
+  targetIssueType: z
+    .string()
+    .describe(
+      'The issue type in the target project (e.g. "Task", "Bug"). If not provided, will attempt to use the same issue type.',
+    )
+    .optional(),
+});
+
+export type jiraDataCenterMoveJiraTicketToProjectParamsType = z.infer<
+  typeof jiraDataCenterMoveJiraTicketToProjectParamsSchema
+>;
+
+export const jiraDataCenterMoveJiraTicketToProjectOutputSchema = z.object({
+  success: z.boolean().describe("Whether the ticket was successfully moved"),
+  newTicketKey: z.string().describe('The new issue key after moving (e.g. "NEWPROJ-456")').optional(),
+  ticketUrl: z.string().describe("The url to the moved Jira ticket").optional(),
+  error: z.string().describe("Error message if the move failed").optional(),
+});
+
+export type jiraDataCenterMoveJiraTicketToProjectOutputType = z.infer<
+  typeof jiraDataCenterMoveJiraTicketToProjectOutputSchema
+>;
+export type jiraDataCenterMoveJiraTicketToProjectFunction = ActionFunction<
+  jiraDataCenterMoveJiraTicketToProjectParamsType,
+  AuthParamsType,
+  jiraDataCenterMoveJiraTicketToProjectOutputType
 >;
 
 export const jiraDataCenterUpdateJiraTicketDetailsParamsSchema = z.object({
@@ -2463,6 +2565,27 @@ export type googleOauthCreateNewGoogleDocFunction = ActionFunction<
   googleOauthCreateNewGoogleDocParamsType,
   AuthParamsType,
   googleOauthCreateNewGoogleDocOutputType
+>;
+
+export const googleOauthAddTextToTopOfDocParamsSchema = z.object({
+  documentId: z.string().describe("The ID of the Google Doc to update"),
+  text: z.string().describe("The text to insert at the beginning of the document"),
+});
+
+export type googleOauthAddTextToTopOfDocParamsType = z.infer<typeof googleOauthAddTextToTopOfDocParamsSchema>;
+
+export const googleOauthAddTextToTopOfDocOutputSchema = z.object({
+  success: z.boolean().describe("Whether the document was updated successfully"),
+  documentId: z.string().describe("The ID of the updated Google Doc").optional(),
+  documentUrl: z.string().describe("The URL to access the updated Google Doc").optional(),
+  error: z.string().describe("The error message if the update failed").optional(),
+});
+
+export type googleOauthAddTextToTopOfDocOutputType = z.infer<typeof googleOauthAddTextToTopOfDocOutputSchema>;
+export type googleOauthAddTextToTopOfDocFunction = ActionFunction<
+  googleOauthAddTextToTopOfDocParamsType,
+  AuthParamsType,
+  googleOauthAddTextToTopOfDocOutputType
 >;
 
 export const googleOauthUpdateDocParamsSchema = z.object({
@@ -4421,7 +4544,12 @@ export type googleOauthGetPresentationFunction = ActionFunction<
 export const googleOauthSearchDriveByKeywordsParamsSchema = z.object({
   keywords: z.array(z.string()).describe("List of keywords to search for in file contents."),
   limit: z.number().describe("The maximum number of files to return").optional(),
-  includeTrashed: z.boolean().describe("Whether to include trashed files in the search results").optional(),
+  includeTrashed: z
+    .boolean()
+    .describe(
+      "Whether to include trashed files in the search results. Usually false unless otherwise noted by the user.",
+    )
+    .optional(),
 });
 
 export type googleOauthSearchDriveByKeywordsParamsType = z.infer<typeof googleOauthSearchDriveByKeywordsParamsSchema>;
@@ -4452,14 +4580,23 @@ export type googleOauthSearchDriveByKeywordsFunction = ActionFunction<
 export const googleOauthSearchDriveByQueryParamsSchema = z.object({
   query: z.string().describe("The query to search for in file contents."),
   limit: z.number().describe("The maximum number of files to return").optional(),
-  searchDriveByDrive: z.boolean().describe("Whether we should search drive by drive or run a general search"),
+  searchDriveByDrive: z
+    .boolean()
+    .describe(
+      "Whether we should search drive by drive or run a general search. Usually false unless otherwise noted by the user.",
+    ),
   orderByQuery: z
     .string()
     .describe(
       "The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'",
     )
     .optional(),
-  includeTrashed: z.boolean().describe("Whether to include trashed files in the search results").optional(),
+  includeTrashed: z
+    .boolean()
+    .describe(
+      "Whether to include trashed files in the search results. Usually false unless otherwise noted by the user.",
+    )
+    .optional(),
 });
 
 export type googleOauthSearchDriveByQueryParamsType = z.infer<typeof googleOauthSearchDriveByQueryParamsSchema>;
@@ -4491,14 +4628,21 @@ export const googleOauthSearchDriveByKeywordsAndGetFileContentParamsSchema = z.o
   searchQuery: z.string().describe("The query input to Google Drive search"),
   limit: z.number().describe("The maximum number of files to return").optional(),
   fileSizeLimit: z.number().describe("The maximum length of a file in characters").optional(),
-  searchDriveByDrive: z.boolean().describe("Search drive by drive or run a general search"),
+  searchDriveByDrive: z
+    .boolean()
+    .describe("Search drive by drive or run a general search. Usually false unless otherwise noted by the user."),
   orderByQuery: z
     .string()
     .describe(
       "The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'",
     )
     .optional(),
-  includeTrashed: z.boolean().describe("Whether to include trashed files in the search results").optional(),
+  includeTrashed: z
+    .boolean()
+    .describe(
+      "Whether to include trashed files in the search results. Usually false unless otherwise noted by the user.",
+    )
+    .optional(),
 });
 
 export type googleOauthSearchDriveByKeywordsAndGetFileContentParamsType = z.infer<
@@ -4541,14 +4685,21 @@ export const googleOauthSearchDriveByQueryAndGetFileContentParamsSchema = z.obje
   query: z.string().describe("Google Drive API search syntax, eg \"fullText contains 'Valentine\\'s Day'\""),
   limit: z.number().describe("The maximum number of files to return").optional(),
   fileSizeLimit: z.number().describe("The maximum length of a file in characters").optional(),
-  searchDriveByDrive: z.boolean().describe("Search drive by drive or run a general search"),
+  searchDriveByDrive: z
+    .boolean()
+    .describe("Search drive by drive or run a general search. Usually false unless otherwise noted by the user."),
   orderByQuery: z
     .string()
     .describe(
       "The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'",
     )
     .optional(),
-  includeTrashed: z.boolean().describe("Whether to include trashed files in the search results").optional(),
+  includeTrashed: z
+    .boolean()
+    .describe(
+      "Whether to include trashed files in the search results. Usually false unless otherwise noted by the user.",
+    )
+    .optional(),
 });
 
 export type googleOauthSearchDriveByQueryAndGetFileContentParamsType = z.infer<
@@ -5212,7 +5363,9 @@ export const salesforceSearchAllSalesforceRecordsParamsSchema = z.object({
   keyword: z.string().describe("The keyword to search for"),
   usesLightningKnowledge: z
     .boolean()
-    .describe("Whether your Salesforce instance uses lightning knowledge articles")
+    .describe(
+      'Whether your Salesforce instance uses lightning knowledge articles ("true" or "false"). Ask the user if unsure.',
+    )
     .optional(),
   limit: z.number().describe("The maximum number of records to return").optional(),
   maxLimit: z.number().describe("The absolute maximum limit for records that can be returned").optional(),
@@ -5562,7 +5715,7 @@ export type microsoftGetDocumentFunction = ActionFunction<
 >;
 
 export const githubCreateOrUpdateFileParamsSchema = z.object({
-  repositoryOwner: z.string().describe("The owner of the repository"),
+  repositoryOwner: z.string().describe("The owner of the repository, this is a GitHub username"),
   repositoryName: z.string().describe("The name of the repository"),
   filePath: z.string().describe("The path of the file to create or update"),
   branch: z.string().describe("The branch where the file will be created or updated"),
@@ -5588,7 +5741,7 @@ export type githubCreateOrUpdateFileFunction = ActionFunction<
 >;
 
 export const githubCreateBranchParamsSchema = z.object({
-  repositoryOwner: z.string().describe("The owner of the repository"),
+  repositoryOwner: z.string().describe("The owner of the repository, this is a GitHub username"),
   repositoryName: z.string().describe("The name of the repository"),
   branchName: z.string().describe("The name of the new branch to create"),
   baseRefOrHash: z.string().describe("The ref or hash of the base commit to create the new branch from"),
@@ -5609,7 +5762,7 @@ export type githubCreateBranchFunction = ActionFunction<
 >;
 
 export const githubCreatePullRequestParamsSchema = z.object({
-  repositoryOwner: z.string().describe("The owner of the repository"),
+  repositoryOwner: z.string().describe("The owner of the repository, this is a GitHub username"),
   repositoryName: z.string().describe("The name of the repository"),
   head: z
     .string()
@@ -5638,7 +5791,7 @@ export type githubCreatePullRequestFunction = ActionFunction<
 >;
 
 export const githubListPullRequestsParamsSchema = z.object({
-  repositoryOwner: z.string().describe("The owner of the repository"),
+  repositoryOwner: z.string().describe("The owner of the repository, this is a GitHub username"),
   repositoryName: z.string().describe("The name of the repository"),
   state: z.string().describe("The state of the pull requests to list (e.g., open, closed)").optional(),
 });
@@ -5683,7 +5836,7 @@ export type githubListPullRequestsFunction = ActionFunction<
 >;
 
 export const githubGetPullRequestDetailsParamsSchema = z.object({
-  repositoryOwner: z.string().describe("The owner of the repository"),
+  repositoryOwner: z.string().describe("The owner of the repository, this is a GitHub username"),
   repositoryName: z.string().describe("The name of the repository"),
   pullRequestNumber: z.number().describe("The number of the pull request to get details for"),
 });
@@ -5997,7 +6150,7 @@ export type githubSearchOrganizationFunction = ActionFunction<
 >;
 
 export const githubGetBranchParamsSchema = z.object({
-  repositoryOwner: z.string().describe("The owner of the repository"),
+  repositoryOwner: z.string().describe("The owner of the repository, this is a GitHub username"),
   repositoryName: z.string().describe("The name of the repository"),
   branchName: z.string().describe("The name of the branch to retrieve"),
 });
@@ -6110,7 +6263,7 @@ export type githubGetBranchFunction = ActionFunction<
 >;
 
 export const githubListCommitsParamsSchema = z.object({
-  repositoryOwner: z.string().describe("The owner of the repository"),
+  repositoryOwner: z.string().describe("The owner of the repository, this is a GitHub username"),
   repositoryName: z.string().describe("The name of the repository"),
   branch: z.string().describe("The branch to list commits from (defaults to default branch)").optional(),
   since: z
