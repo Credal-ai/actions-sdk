@@ -5111,7 +5111,7 @@ actions:
             description: The maximum number of files to return
           includeTrashed:
             type: boolean
-            description: Whether to include trashed files in the search results
+            description: Whether to include trashed files in the search results. Usually false unless otherwise noted by the user.
       output:
         type: object
         required: [success]
@@ -5157,13 +5157,13 @@ actions:
             description: The maximum number of files to return
           searchDriveByDrive:
             type: boolean
-            description: Whether we should search drive by drive or run a general search
+            description: Whether we should search drive by drive or run a general search. Usually false unless otherwise noted by the user.
           orderByQuery:
             type: string
             description: The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'
           includeTrashed:
             type: boolean
-            description: Whether to include trashed files in the search results
+            description: Whether to include trashed files in the search results. Usually false unless otherwise noted by the user.
       output:
         type: object
         required: [success]
@@ -5212,14 +5212,13 @@ actions:
             description: The maximum length of a file in characters
           searchDriveByDrive:
             type: boolean
-            description: Search drive by drive or run a general search
+            description: Search drive by drive or run a general search. Usually false unless otherwise noted by the user.
           orderByQuery:
             type: string
             description: The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'
           includeTrashed:
             type: boolean
-            description: Whether to include trashed files in the search results
-            tags: [recommend-predefined]
+            description: Whether to include trashed files in the search results. Usually false unless otherwise noted by the user.
       output:
         type: object
         required: [success]
@@ -5283,15 +5282,13 @@ actions:
             description: The maximum length of a file in characters
           searchDriveByDrive:
             type: boolean
-            description: Search drive by drive or run a general search
-            tags: [recommend-predefined]
+            description: Search drive by drive or run a general search. Usually false unless otherwise noted by the user.
           orderByQuery:
             type: string
             description: The orderBy query for sorting results (e.g., 'modifiedTime desc', 'name', 'createdTime desc'). Defaults to 'modifiedTime desc'
           includeTrashed:
             type: boolean
-            description: Whether to include trashed files in the search results
-            tags: [recommend-predefined]
+            description: Whether to include trashed files in the search results. Usually false unless otherwise noted by the user.
       output:
         type: object
         required: [success]
@@ -6241,8 +6238,7 @@ actions:
             description: The keyword to search for
           usesLightningKnowledge:
             type: boolean
-            description: Whether your Salesforce instance uses lightning knowledge articles ("true" or "false")
-            tags: [recommend-predefined]
+            description: Whether your Salesforce instance uses lightning knowledge articles ("true" or "false"). Ask the user if unsure.
           limit:
             type: number
             description: The maximum number of records to return

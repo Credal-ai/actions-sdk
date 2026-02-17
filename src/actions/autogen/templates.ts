@@ -1710,9 +1710,9 @@ export const jiraGetJiraTicketHistoryDefinition: ActionTemplate = {
   provider: "jira",
 };
 export const jiraMoveJiraTicketToProjectDefinition: ActionTemplate = {
-  displayName: "[BETA] Move Jira ticket to another project",
+  displayName: "Move Jira ticket to another project",
   description:
-    "Moves a Jira ticket from one project to another, optionally updating the issue type. Note: This action only works with Jira Cloud, not Jira Data Center.",
+    "Moves a single Jira ticket from one project to another, optionally updating the issue type. Note: This action only works with Jira Cloud, not Jira Data Center.",
   scopes: ["write:jira-work", "read:jira-work"],
   tags: [],
   parameters: {
@@ -2423,9 +2423,9 @@ export const jiraOrgGetJiraTicketHistoryDefinition: ActionTemplate = {
   provider: "jiraOrg",
 };
 export const jiraOrgMoveJiraTicketToProjectDefinition: ActionTemplate = {
-  displayName: "[BETA] Move Jira ticket to another project",
+  displayName: "Move Jira ticket to another project",
   description:
-    "Moves a Jira ticket from one project to another, optionally updating the issue type. Note: This action only works with Jira Cloud, not Jira Data Center.",
+    "Moves a single Jira ticket from one project to another, optionally updating the issue type. Note: This action only works with Jira Cloud, not Jira Data Center.",
   scopes: ["write:jira-work", "read:jira-work"],
   tags: [],
   parameters: {
@@ -3136,9 +3136,9 @@ export const jiraDataCenterGetJiraTicketHistoryDefinition: ActionTemplate = {
   provider: "jiraDataCenter",
 };
 export const jiraDataCenterMoveJiraTicketToProjectDefinition: ActionTemplate = {
-  displayName: "[BETA] Move Jira ticket to another project",
+  displayName: "Move Jira ticket to another project",
   description:
-    "Moves a Jira ticket from one project to another, optionally updating the issue type. Note: This action only works with Jira Cloud, not Jira Data Center.",
+    "Moves a single Jira ticket from one project to another, optionally updating the issue type. Note: This action only works with Jira Cloud, not Jira Data Center.",
   scopes: ["write:jira-work", "read:jira-work"],
   tags: [],
   parameters: {
@@ -8702,7 +8702,8 @@ export const googleOauthSearchDriveByKeywordsDefinition: ActionTemplate = {
       },
       includeTrashed: {
         type: "boolean",
-        description: "Whether to include trashed files in the search results",
+        description:
+          "Whether to include trashed files in the search results. Usually false unless otherwise noted by the user.",
       },
     },
   },
@@ -8768,7 +8769,8 @@ export const googleOauthSearchDriveByQueryDefinition: ActionTemplate = {
       },
       searchDriveByDrive: {
         type: "boolean",
-        description: "Whether we should search drive by drive or run a general search",
+        description:
+          "Whether we should search drive by drive or run a general search. Usually false unless otherwise noted by the user.",
       },
       orderByQuery: {
         type: "string",
@@ -8777,7 +8779,8 @@ export const googleOauthSearchDriveByQueryDefinition: ActionTemplate = {
       },
       includeTrashed: {
         type: "boolean",
-        description: "Whether to include trashed files in the search results",
+        description:
+          "Whether to include trashed files in the search results. Usually false unless otherwise noted by the user.",
       },
     },
   },
@@ -8847,7 +8850,7 @@ export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: Action
       },
       searchDriveByDrive: {
         type: "boolean",
-        description: "Search drive by drive or run a general search",
+        description: "Search drive by drive or run a general search. Usually false unless otherwise noted by the user.",
       },
       orderByQuery: {
         type: "string",
@@ -8856,8 +8859,8 @@ export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: Action
       },
       includeTrashed: {
         type: "boolean",
-        description: "Whether to include trashed files in the search results",
-        tags: ["recommend-predefined"],
+        description:
+          "Whether to include trashed files in the search results. Usually false unless otherwise noted by the user.",
       },
     },
   },
@@ -8946,8 +8949,7 @@ export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTem
       },
       searchDriveByDrive: {
         type: "boolean",
-        description: "Search drive by drive or run a general search",
-        tags: ["recommend-predefined"],
+        description: "Search drive by drive or run a general search. Usually false unless otherwise noted by the user.",
       },
       orderByQuery: {
         type: "string",
@@ -8956,8 +8958,8 @@ export const googleOauthSearchDriveByQueryAndGetFileContentDefinition: ActionTem
       },
       includeTrashed: {
         type: "boolean",
-        description: "Whether to include trashed files in the search results",
-        tags: ["recommend-predefined"],
+        description:
+          "Whether to include trashed files in the search results. Usually false unless otherwise noted by the user.",
       },
     },
   },
@@ -10304,8 +10306,8 @@ export const salesforceSearchAllSalesforceRecordsDefinition: ActionTemplate = {
       },
       usesLightningKnowledge: {
         type: "boolean",
-        description: 'Whether your Salesforce instance uses lightning knowledge articles ("true" or "false")',
-        tags: ["recommend-predefined"],
+        description:
+          'Whether your Salesforce instance uses lightning knowledge articles ("true" or "false"). Ask the user if unsure.',
       },
       limit: {
         type: "number",
