@@ -15,7 +15,7 @@ const updateSpreadsheet: microsoftUpdateSpreadsheetFunction = async ({
 }): Promise<microsoftUpdateSpreadsheetOutputType> => {
   const { spreadsheetId, range, values, siteId } = params; // Added siteId to destructured params
 
-  let client = undefined;
+  let client;
   try {
     client = await getGraphClient(authParams);
   } catch (error) {

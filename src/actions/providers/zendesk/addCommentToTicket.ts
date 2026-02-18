@@ -49,6 +49,7 @@ const addCommentToTicket: zendeskAddCommentToTicketFunction = async ({
     console.error("Failed to add comment to Zendesk ticket:", error);
     throw new Error(
       `Failed to add comment to ticket ${ticketId}: ${error instanceof Error ? error.message : "Unknown error"}`,
+      { cause: error },
     );
   }
 };

@@ -483,7 +483,7 @@ export async function getGoogleDocContent(
   } catch (docsError) {
     if (isAxiosTimeoutError(docsError)) {
       console.log("Request timed out using Google Docs API - dont retry");
-      throw new Error("Request timed out using Google Docs API");
+      throw new Error("Request timed out using Google Docs API", { cause: docsError });
     } else {
       console.log("Error using Google Docs API", docsError);
 
@@ -492,7 +492,7 @@ export async function getGoogleDocContent(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const status = (docsError as any).status;
         if (status === 404 || status === 403) {
-          throw new Error(`File not accessible (${status}): ${fileId}`);
+          throw new Error(`File not accessible (${status}): ${fileId}`, { cause: docsError });
         }
       }
 
@@ -538,7 +538,7 @@ export async function getGoogleSheetContent(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const status = (exportError as any).status;
       if (status === 404 || status === 403) {
-        throw new Error(`Spreadsheet not accessible (${status}): ${fileId}`);
+        throw new Error(`Spreadsheet not accessible (${status}): ${fileId}`, { cause: exportError });
       }
     }
 
@@ -553,9 +553,9 @@ export async function getGoogleSheetContent(
       return parseGoogleSheetsFromRawContentToPlainText(sheetsRes.data);
     } catch (sheetsError) {
       if (isAxiosTimeoutError(sheetsError)) {
-        throw new Error("Request timed out using Google Sheets API");
+        throw new Error("Request timed out using Google Sheets API", { cause: sheetsError });
       }
-      throw new Error(`Unable to access spreadsheet content: ${fileId}`);
+      throw new Error(`Unable to access spreadsheet content: ${fileId}`, { cause: sheetsError });
     }
   }
 }
@@ -577,7 +577,7 @@ export async function getGoogleSlidesContent(
   } catch (slidesError) {
     if (isAxiosTimeoutError(slidesError)) {
       console.log("Request timed out using Google Slides API - dont retry");
-      throw new Error("Request timed out using Google Slides API");
+      throw new Error("Request timed out using Google Slides API", { cause: slidesError });
     } else {
       console.log("Error using Google Slides API", slidesError);
       const exportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/plain${sharedDriveParams}`;

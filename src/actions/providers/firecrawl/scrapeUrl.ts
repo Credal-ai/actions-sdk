@@ -32,7 +32,7 @@ const scrapeUrl: firecrawlScrapeUrlFunction = async ({
   });
 
   // Extract content based on requested formats
-  let content = "";
+  let content: string;
   if (params.formats && params.formats.length > 0) {
     const contentParts: string[] = [];
 
