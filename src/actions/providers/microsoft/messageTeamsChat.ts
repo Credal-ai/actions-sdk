@@ -16,7 +16,7 @@ const sendMessageToTeamsChat: microsoftMessageTeamsChatFunction = async ({
 }): Promise<microsoftMessageTeamsChatOutputType> => {
   const { chatId, message } = params;
 
-  let client;
+  let client = undefined;
   try {
     client = await getGraphClient(authParams);
   } catch (error) {

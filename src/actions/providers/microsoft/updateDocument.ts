@@ -15,7 +15,7 @@ const updateDocument: microsoftUpdateDocumentFunction = async ({
 }): Promise<microsoftUpdateDocumentOutputType> => {
   const { documentId, content, siteId } = params;
 
-  let client;
+  let client = undefined;
   try {
     client = await getGraphClient(authParams);
   } catch (error) {

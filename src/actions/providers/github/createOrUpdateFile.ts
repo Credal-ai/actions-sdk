@@ -27,8 +27,8 @@ const createOrUpdateFile: githubCreateOrUpdateFileFunction = async ({
 
   const { repositoryOwner, repositoryName, filePath, branch, fileContent, commitMessage } = params;
 
-  let fileSha;
-  let operationPreformed;
+  let fileSha = undefined;
+  let operationPreformed = undefined;
   try {
     const { data: fileData } = await octokit.rest.repos.getContent({
       owner: repositoryOwner,

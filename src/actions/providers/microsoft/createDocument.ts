@@ -15,7 +15,7 @@ const createDocument: microsoftCreateDocumentFunction = async ({
 }): Promise<microsoftCreateDocumentOutputType> => {
   const { folderId, name, content, siteId } = params;
 
-  let client;
+  let client = undefined;
   try {
     client = await getGraphClient(authParams);
   } catch (error) {

@@ -408,7 +408,7 @@ const searchSlack: slackUserSearchSlackFunction = async ({
             : [[], m.permalink ?? (await getPermalink(client, m.channel.id, m.ts))];
 
         // filter logic
-        let passesFilter: boolean;
+        let passesFilter = false;
         if (channelInfo.isIm || channelInfo.isMpim) {
           const overlap = filteredTargetIds.filter(id => channelInfo!.members.includes(id)).length;
           passesFilter = overlap >= 1;

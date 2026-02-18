@@ -16,7 +16,7 @@ const sendMessageToTeamsChannel: microsoftMessageTeamsChannelFunction = async ({
 }): Promise<microsoftMessageTeamsChannelOutputType> => {
   const { channelId, teamId, message } = params;
 
-  let client;
+  let client = undefined;
   try {
     client = await getGraphClient(authParams);
   } catch (error) {
