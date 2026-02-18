@@ -85,7 +85,7 @@ const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
         console.log("Failed to disconnect from Snowflake:", err);
       }
     });
-    throw Error(`An error occurred: ${error}`);
+    throw Error(`An error occurred: ${error}`, { cause: error });
   }
 };
 

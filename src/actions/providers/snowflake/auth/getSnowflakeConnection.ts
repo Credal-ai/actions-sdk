@@ -11,7 +11,7 @@ const getPrivateKeyCorrectFormat = (privateKey: string): string => {
     return forge.pem.encode(pemKey);
   } catch (error) {
     console.error("Error processing private key:", error);
-    throw new Error("Invalid private key format. Please check the key format and try again.");
+    throw new Error("Invalid private key format. Please check the key format and try again.", { cause: error });
   }
 };
 
