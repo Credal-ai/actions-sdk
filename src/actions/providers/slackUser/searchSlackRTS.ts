@@ -181,7 +181,7 @@ const searchSlackRTS: slackUserSearchSlackRTSFunction = async ({
   } catch (error) {
     // Handle errors gracefully
     const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-    throw new Error(`Failed to search Slack using RTS API: ${errorMessage}`);
+    throw new Error(`Failed to search Slack using RTS API: ${errorMessage}`, { cause: error });
   }
 };
 

@@ -47,7 +47,7 @@ const scrapeTweetDataWithNitter: firecrawlScrapeTweetDataWithNitterFunction = as
       text: tweetContent || "Error scraping with firecrawl",
     };
   } catch (error) {
-    throw new Error(`Error scraping tweet: ${error instanceof Error ? error.message : error}`);
+    throw new Error(`Error scraping tweet: ${error instanceof Error ? error.message : error}`, { cause: error });
   }
 };
 
