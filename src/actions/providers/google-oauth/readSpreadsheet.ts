@@ -38,9 +38,12 @@ const readSpreadsheet: googleOauthReadSpreadsheetFunction = async ({
         Authorization: `Bearer ${authParams.authToken}`,
       },
       params: {
-        // Include additional query parameters for better data handling
-        valueRenderOption: "FORMATTED_VALUE", // Get formatted values (dates, numbers as displayed)
-        dateTimeRenderOption: "FORMATTED_STRING", // Get dates as formatted strings
+        // Get formatted values (dates, numbers as displayed to users)
+        valueRenderOption: "FORMATTED_VALUE",
+        // Explicitly specify row-major dimension for clarity
+        majorDimension: "ROWS",
+        // Note: dateTimeRenderOption is ignored when valueRenderOption=FORMATTED_VALUE
+        // FORMATTED_VALUE already handles date/time formatting appropriately
       },
     });
 
