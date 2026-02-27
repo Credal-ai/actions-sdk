@@ -13,14 +13,15 @@ async function runTest() {
     cc: ["cc@example.com"], // optional field
     bcc: ["bcc@example.com"], // optional field
     subject: "Test Email from Gmail API",
-    content: "<html><body><h1>Test Email</h1><p>This is a <strong>test email</strong> sent through the Gmail API with <em>HTML content</em>. Please ignore this message.</p></body></html>",
-    threadId: "" // optional threadID
+    content:
+      "<html><body><h1>Test Email</h1><p>This is a <strong>test email</strong> sent through the Gmail API with <em>HTML content</em>. Please ignore this message.</p></body></html>",
+    threadId: "", // optional threadID
   };
 
   const result = await runAction(
     "sendGmail",
     "googlemail",
-    { authToken: process.env.GOOGLE_OAUTH_SEND_EMAIL_SCOPE },  // https://www.googleapis.com/auth/gmail.send
+    { authToken: process.env.GOOGLE_OAUTH_SEND_EMAIL_SCOPE }, // https://www.googleapis.com/auth/gmail.send
     params,
   );
 
@@ -29,7 +30,10 @@ async function runTest() {
 
   assert.strictEqual(result.success, true, "Email send should be successful");
   assert(typeof result.messageId === "string", "Should return a message ID");
-  assert(result.messageId && result.messageId.length > 0, "Message ID should not be empty");
+  assert(
+    result.messageId && result.messageId.length > 0,
+    "Message ID should not be empty",
+  );
 }
 
 runTest().catch((error) => {

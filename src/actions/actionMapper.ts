@@ -242,6 +242,8 @@ import {
   jiraPublicCommentOnServiceDeskRequestOutputSchema,
   googlemailSendGmailParamsSchema,
   googlemailSendGmailOutputSchema,
+  googlemailReplyToGmailParamsSchema,
+  googlemailReplyToGmailOutputSchema,
   gitlabListDirectoryParamsSchema,
   gitlabListDirectoryOutputSchema,
   firecrawlSearchAndScrapeOutputSchema,
@@ -399,6 +401,7 @@ import gitlabGetMergeRequest from "./providers/gitlab/getMergeRequest.js";
 import gitlabListDirectory from "./providers/gitlab/listDirectory.js";
 import publicCommentOnServiceDeskRequest from "./providers/jira/publicCommentOnServiceDeskRequest.js";
 import sendGmail from "./providers/googlemail/sendGmail.js";
+import replyToGmail from "./providers/googlemail/replyToGmail.js";
 import searchAndScrape from "./providers/firecrawl/searchAndScrape.js";
 import firecrawlGetTopNSearchResultUrls from "./providers/firecrawl/getTopNSearchResultUrls.js";
 import searchDriveByKeywordsAndGetFileContent from "./providers/google-oauth/searchDriveByKeywordsAndGetFileContent.js";
@@ -1005,6 +1008,12 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: sendGmail,
       paramsSchema: googlemailSendGmailParamsSchema,
       outputSchema: googlemailSendGmailOutputSchema,
+      actionType: "write",
+    },
+    replyToGmail: {
+      fn: replyToGmail,
+      paramsSchema: googlemailReplyToGmailParamsSchema,
+      outputSchema: googlemailReplyToGmailOutputSchema,
       actionType: "write",
     },
   },

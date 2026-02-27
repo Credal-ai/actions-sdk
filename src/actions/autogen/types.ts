@@ -123,6 +123,7 @@ export enum ActionName {
   SEARCHGMAILMESSAGES = "searchGmailMessages",
   LISTGMAILTHREADS = "listGmailThreads",
   SENDGMAIL = "sendGmail",
+  REPLYTOGMAIL = "replyToGmail",
   CUSTOMSEARCH = "customSearch",
   GETOKTAUSERBYNAME = "getOktaUserByName",
   SYMBOLLOOKUP = "symbolLookup",
@@ -5060,6 +5061,35 @@ export type googlemailSendGmailFunction = ActionFunction<
   googlemailSendGmailParamsType,
   AuthParamsType,
   googlemailSendGmailOutputType
+>;
+
+export const googlemailReplyToGmailParamsSchema = z.object({
+  threadId: z.string().describe("The Gmail thread ID to reply to"),
+  to: z
+    .array(z.string())
+    .describe(
+      "List of recipient email addresses. If not provided, the reply will be sent to the sender of the last message in the thread.",
+    )
+    .optional(),
+  cc: z.array(z.string()).describe("List of CC recipient email addresses (optional)").optional(),
+  bcc: z.array(z.string()).describe("List of BCC recipient email addresses (optional)").optional(),
+  content: z.string().describe("Email body content in HTML format"),
+});
+
+export type googlemailReplyToGmailParamsType = z.infer<typeof googlemailReplyToGmailParamsSchema>;
+
+export const googlemailReplyToGmailOutputSchema = z.object({
+  success: z.boolean().describe("Whether the reply was sent successfully"),
+  messageId: z.string().describe("The ID of the sent message").optional(),
+  threadId: z.string().describe("The thread ID of the reply").optional(),
+  error: z.string().describe("Error message if sending failed").optional(),
+});
+
+export type googlemailReplyToGmailOutputType = z.infer<typeof googlemailReplyToGmailOutputSchema>;
+export type googlemailReplyToGmailFunction = ActionFunction<
+  googlemailReplyToGmailParamsType,
+  AuthParamsType,
+  googlemailReplyToGmailOutputType
 >;
 
 export const googleSearchCustomSearchParamsSchema = z.object({

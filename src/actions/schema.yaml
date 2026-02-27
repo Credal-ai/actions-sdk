@@ -5829,6 +5829,53 @@ actions:
           error:
             type: string
             description: Error message if sending failed
+    replyToGmail:
+      displayName: Reply to email thread with Gmail
+      description: Reply to an existing Gmail email thread. Automatically handles threading headers and subject line.
+      scopes:
+        - https://www.googleapis.com/auth/gmail.send
+        - https://www.googleapis.com/auth/gmail.readonly
+      parameters:
+        type: object
+        required: [threadId, content]
+        properties:
+          threadId:
+            type: string
+            description: The Gmail thread ID to reply to
+          to:
+            type: array
+            description: List of recipient email addresses. If not provided, the reply will be sent to the sender of the last message in the thread.
+            items:
+              type: string
+          cc:
+            type: array
+            description: List of CC recipient email addresses (optional)
+            items:
+              type: string
+          bcc:
+            type: array
+            description: List of BCC recipient email addresses (optional)
+            items:
+              type: string
+          content:
+            type: string
+            description: Email body content in HTML format
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the reply was sent successfully
+          messageId:
+            type: string
+            description: The ID of the sent message
+          threadId:
+            type: string
+            description: The thread ID of the reply
+          error:
+            type: string
+            description: Error message if sending failed
   googleSearch:
     customSearch:
       displayName: Custom Search
