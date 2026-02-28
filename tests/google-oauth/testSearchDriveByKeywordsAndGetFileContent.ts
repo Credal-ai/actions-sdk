@@ -20,13 +20,14 @@ async function runTest() {
       authToken: process.env.GOOGLE_OAUTH_TOKEN!,
     },
     {
-      searchQuery: "Japan travel expense",
+      searchQuery: "a",
       searchDriveByDrive: false,
       limit: 5,
     } as googleOauthSearchDriveByKeywordsAndGetFileContentParamsType
   )) as googleOauthSearchDriveByKeywordsAndGetFileContentOutputType;
 
   console.log("Found files with content:", result.results);
+  console.log("Total character count:", result.results?.reduce((total, file) => total + (file.contents?.content?.length ?? 0), 0));
 
   // Validate the result
   assert.strictEqual(result.success, true, "Search should be successful");
