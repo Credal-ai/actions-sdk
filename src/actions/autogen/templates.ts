@@ -10856,6 +10856,61 @@ export const microsoftCreateDocumentDefinition: ActionTemplate = {
   name: "createDocument",
   provider: "microsoft",
 };
+export const microsoftSendOutlookEmailDefinition: ActionTemplate = {
+  description: "Sends an email using Outlook",
+  scopes: ["Mail.ReadWrite"],
+  parameters: {
+    type: "object",
+    required: ["toRecipients", "subject", "body"],
+    properties: {
+      toRecipients: {
+        type: "array",
+        description: "The recipients of the email",
+        items: {
+          type: "string",
+        },
+      },
+      subject: {
+        type: "string",
+        description: "The subject of the email",
+      },
+      body: {
+        type: "string",
+        description: "The body of the email",
+      },
+      ccRecipients: {
+        type: "array",
+        description: "The recipients to cc on the email",
+        items: {
+          type: "string",
+        },
+      },
+      bccRecipients: {
+        type: "array",
+        description: "The recipients to bcc on the email",
+        items: {
+          type: "string",
+        },
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the email was sent successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the email was not sent successfully",
+      },
+    },
+  },
+  name: "sendOutlookEmail",
+  provider: "microsoft",
+};
 export const microsoftUpdateDocumentDefinition: ActionTemplate = {
   displayName: "Update a document",
   description: "Updates a Office365 document",

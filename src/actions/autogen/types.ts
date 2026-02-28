@@ -5640,6 +5640,28 @@ export type microsoftCreateDocumentFunction = ActionFunction<
   microsoftCreateDocumentOutputType
 >;
 
+export const microsoftSendOutlookEmailParamsSchema = z.object({
+  toRecipients: z.array(z.string()).describe("The recipients of the email"),
+  subject: z.string().describe("The subject of the email"),
+  body: z.string().describe("The body of the email"),
+  ccRecipients: z.array(z.string()).describe("The recipients to cc on the email").optional(),
+  bccRecipients: z.array(z.string()).describe("The recipients to bcc on the email").optional(),
+});
+
+export type microsoftSendOutlookEmailParamsType = z.infer<typeof microsoftSendOutlookEmailParamsSchema>;
+
+export const microsoftSendOutlookEmailOutputSchema = z.object({
+  success: z.boolean().describe("Whether the email was sent successfully"),
+  error: z.string().describe("The error that occurred if the email was not sent successfully").optional(),
+});
+
+export type microsoftSendOutlookEmailOutputType = z.infer<typeof microsoftSendOutlookEmailOutputSchema>;
+export type microsoftSendOutlookEmailFunction = ActionFunction<
+  microsoftSendOutlookEmailParamsType,
+  AuthParamsType,
+  microsoftSendOutlookEmailOutputType
+>;
+
 export const microsoftUpdateDocumentParamsSchema = z.object({
   siteId: z.string().describe("The ID of the site where the document is located").optional(),
   documentId: z.string().describe("The ID of the document"),
