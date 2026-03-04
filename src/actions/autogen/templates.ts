@@ -2069,7 +2069,7 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
 export const jiraLinkJiraIssuesDefinition: ActionTemplate = {
   displayName: "Link two Jira issues",
   description:
-    "Creates a link between two Jira issues using the dedicated issue link endpoint (e.g. Blocks, Clones, Duplicate, Relates)",
+    "Creates a link between two Jira issues using the dedicated issue link endpoint (e.g. Blocks, Cloners, Duplicate, Relates)",
   scopes: ["write:jira-work"],
   tags: [],
   parameters: {
@@ -2829,7 +2829,7 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
 export const jiraOrgLinkJiraIssuesDefinition: ActionTemplate = {
   displayName: "Link two Jira issues",
   description:
-    "Creates a link between two Jira issues using the dedicated issue link endpoint (e.g. Blocks, Clones, Duplicate, Relates)",
+    "Creates a link between two Jira issues using the dedicated issue link endpoint (e.g. Blocks, Cloners, Duplicate, Relates)",
   scopes: ["write:jira-work"],
   tags: [],
   parameters: {
@@ -3589,7 +3589,7 @@ export const jiraDataCenterGetJiraIssuesByQueryDefinition: ActionTemplate = {
 export const jiraDataCenterLinkJiraIssuesDefinition: ActionTemplate = {
   displayName: "Link two Jira issues",
   description:
-    "Creates a link between two Jira issues using the dedicated issue link endpoint (e.g. Blocks, Clones, Duplicate, Relates)",
+    "Creates a link between two Jira issues using the dedicated issue link endpoint (e.g. Blocks, Cloners, Duplicate, Relates)",
   scopes: ["write:jira-work"],
   tags: [],
   parameters: {

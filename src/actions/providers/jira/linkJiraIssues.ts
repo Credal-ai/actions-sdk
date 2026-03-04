@@ -14,13 +14,8 @@ const linkJiraIssues: jiraLinkJiraIssuesFunction = async ({
   params: jiraLinkJiraIssuesParamsType;
   authParams: AuthParamsType;
 }): Promise<jiraLinkJiraIssuesOutputType> => {
-  const { authToken } = authParams;
   const { inwardIssueKey, outwardIssueKey, linkTypeName, comment } = params;
   const { apiUrl, strategy } = getJiraApiConfig(authParams);
-
-  if (!authToken) {
-    throw new Error("Auth token is required");
-  }
 
   // The issue link endpoint is /rest/api/3/issueLink (Cloud) or /rest/api/2/issueLink (Data Center)
   const issueLinkUrl = `${apiUrl}/issueLink`;
@@ -48,7 +43,7 @@ const linkJiraIssues: jiraLinkJiraIssuesFunction = async ({
   try {
     await axiosClient.post(issueLinkUrl, payload, {
       headers: {
-        Authorization: `Bearer ${authToken}`,
+        Authorization: `Bearer ${authParams.authToken}`,
         Accept: "application/json",
         "Content-Type": "application/json",
       },

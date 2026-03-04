@@ -1496,7 +1496,7 @@ actions:
             description: The error that occurred if the records were not successfully retrieved
     linkJiraIssues:
       displayName: Link two Jira issues
-      description: Creates a link between two Jira issues using the dedicated issue link endpoint (e.g. Blocks, Clones, Duplicate, Relates)
+      description: Creates a link between two Jira issues using the dedicated issue link endpoint (e.g. Blocks, Cloners, Duplicate, Relates)
       scopes:
         - write:jira-work
       parameters:
