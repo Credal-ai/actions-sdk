@@ -2066,6 +2066,52 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
   name: "getJiraIssuesByQuery",
   provider: "jira",
 };
+export const jiraLinkJiraIssuesDefinition: ActionTemplate = {
+  displayName: "Link two Jira issues",
+  description:
+    "Creates a link between two Jira issues using the dedicated issue link endpoint (e.g. Blocks, Cloners, Duplicate, Relates)",
+  scopes: ["write:jira-work"],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["inwardIssueKey", "outwardIssueKey", "linkTypeName"],
+    properties: {
+      inwardIssueKey: {
+        type: "string",
+        description: 'The issue key for the inward issue of the link (e.g. "PROJ-123"). This is the source issue.',
+      },
+      outwardIssueKey: {
+        type: "string",
+        description:
+          'The issue key for the outward issue of the link (e.g. "PROJ-456"). This is the destination issue.',
+      },
+      linkTypeName: {
+        type: "string",
+        description: 'The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)',
+      },
+      comment: {
+        type: "string",
+        description: "An optional comment to add to the inward (source) issue when creating the link",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the issue link was successfully created",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the link creation failed (only present if success is false)",
+      },
+    },
+  },
+  name: "linkJiraIssues",
+  provider: "jira",
+};
 export const jiraOrgAssignJiraTicketDefinition: ActionTemplate = {
   displayName: "Assign a Jira ticket",
   description: "Assigns/Reassigns a Jira ticket to a specified user",
@@ -2779,6 +2825,52 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
   name: "getJiraIssuesByQuery",
   provider: "jiraOrg",
 };
+export const jiraOrgLinkJiraIssuesDefinition: ActionTemplate = {
+  displayName: "Link two Jira issues",
+  description:
+    "Creates a link between two Jira issues using the dedicated issue link endpoint (e.g. Blocks, Cloners, Duplicate, Relates)",
+  scopes: ["write:jira-work"],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["inwardIssueKey", "outwardIssueKey", "linkTypeName"],
+    properties: {
+      inwardIssueKey: {
+        type: "string",
+        description: 'The issue key for the inward issue of the link (e.g. "PROJ-123"). This is the source issue.',
+      },
+      outwardIssueKey: {
+        type: "string",
+        description:
+          'The issue key for the outward issue of the link (e.g. "PROJ-456"). This is the destination issue.',
+      },
+      linkTypeName: {
+        type: "string",
+        description: 'The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)',
+      },
+      comment: {
+        type: "string",
+        description: "An optional comment to add to the inward (source) issue when creating the link",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the issue link was successfully created",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the link creation failed (only present if success is false)",
+      },
+    },
+  },
+  name: "linkJiraIssues",
+  provider: "jiraOrg",
+};
 export const jiraDataCenterAssignJiraTicketDefinition: ActionTemplate = {
   displayName: "Assign a Jira ticket",
   description: "Assigns/Reassigns a Jira ticket to a specified user",
@@ -3490,6 +3582,52 @@ export const jiraDataCenterGetJiraIssuesByQueryDefinition: ActionTemplate = {
     },
   },
   name: "getJiraIssuesByQuery",
+  provider: "jiraDataCenter",
+};
+export const jiraDataCenterLinkJiraIssuesDefinition: ActionTemplate = {
+  displayName: "Link two Jira issues",
+  description:
+    "Creates a link between two Jira issues using the dedicated issue link endpoint (e.g. Blocks, Cloners, Duplicate, Relates)",
+  scopes: ["write:jira-work"],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["inwardIssueKey", "outwardIssueKey", "linkTypeName"],
+    properties: {
+      inwardIssueKey: {
+        type: "string",
+        description: 'The issue key for the inward issue of the link (e.g. "PROJ-123"). This is the source issue.',
+      },
+      outwardIssueKey: {
+        type: "string",
+        description:
+          'The issue key for the outward issue of the link (e.g. "PROJ-456"). This is the destination issue.',
+      },
+      linkTypeName: {
+        type: "string",
+        description: 'The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)',
+      },
+      comment: {
+        type: "string",
+        description: "An optional comment to add to the inward (source) issue when creating the link",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the issue link was successfully created",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the link creation failed (only present if success is false)",
+      },
+    },
+  },
+  name: "linkJiraIssues",
   provider: "jiraDataCenter",
 };
 export const googlemapsValidateAddressDefinition: ActionTemplate = {
