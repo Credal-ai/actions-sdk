@@ -2087,8 +2087,7 @@ export const jiraLinkJiraIssuesDefinition: ActionTemplate = {
       },
       linkTypeName: {
         type: "string",
-        description:
-          'The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)',
+        description: 'The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)',
       },
       comment: {
         type: "string",
@@ -2847,8 +2846,7 @@ export const jiraOrgLinkJiraIssuesDefinition: ActionTemplate = {
       },
       linkTypeName: {
         type: "string",
-        description:
-          'The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)',
+        description: 'The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)',
       },
       comment: {
         type: "string",
@@ -3607,8 +3605,7 @@ export const jiraDataCenterLinkJiraIssuesDefinition: ActionTemplate = {
       },
       linkTypeName: {
         type: "string",
-        description:
-          'The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)',
+        description: 'The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)',
       },
       comment: {
         type: "string",
