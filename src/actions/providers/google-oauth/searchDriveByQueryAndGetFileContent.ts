@@ -2,12 +2,12 @@
 import type {
   AuthParamsType,
   googleOauthSearchDriveByQueryAndGetFileContentFunction,
-  googleOauthSearchDriveByQueryAndGetFileContentParamsType,
   googleOauthSearchDriveByQueryAndGetFileContentOutputType,
+  googleOauthSearchDriveByQueryAndGetFileContentParamsType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
-import searchDriveByQuery from "./searchDriveByQuery.js";
 import getDriveFileContentById from "./getDriveFileContentById.js";
+import searchDriveByQuery from "./searchDriveByQuery.js";
 
 const searchDriveByQueryAndGetFileContent: googleOauthSearchDriveByQueryAndGetFileContentFunction = async ({
   params,

@@ -9,7 +9,10 @@ import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import searchDriveByQuery from "./searchDriveByQuery.js";
 import getDriveFileContentById from "./getDriveFileContentById.js";
 
-// Helper function to process files in batches with concurrency control
+const TOP_N = 5;
+const MAX_CONTENT_LENGTH = 3000;
+const PROCESSING_LIMIT = 20;
+
 const processBatch = async <T, R>(
   items: T[],
   processor: (item: T) => Promise<R>,
@@ -29,6 +32,63 @@ const processBatch = async <T, R>(
   }
 
   return results;
+};
+
+
+const scoreFileByKeywords = (
+  searchQuery: string,
+  fileName: string,
+  content: string | undefined,
+): { score: number; keywordCoverage: number; rawTermFrequency: number; nameMatchCount: number } => {
+  const keywords = searchQuery
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(kw => kw.length > 0);
+
+  if (keywords.length === 0) {
+    return { score: 0, keywordCoverage: 0, rawTermFrequency: 0, nameMatchCount: 0 };
+  }
+
+  const lowerContent = (content ?? "").toLowerCase();
+  const lowerName = fileName.toLowerCase();
+
+  let matchedKeywords = 0;
+  let rawTermFrequency = 0;
+  let nameMatchCount = 0;
+
+  for (const kw of keywords) {
+    const contentMatches = lowerContent.split(kw).length - 1;
+    if (contentMatches > 0) {
+      matchedKeywords++;
+      rawTermFrequency += contentMatches;
+    }
+
+    if (lowerName.includes(kw)) {
+      nameMatchCount++;
+    }
+  }
+
+  // Fraction of search keywords found in file content (0 to 1).
+  // Weighted at 15x so a file matching all keywords (15 pts) far outranks
+  // one matching a third (5 pts), even if the partial match has high frequency.
+  const keywordCoverage = matchedKeywords / keywords.length;
+
+  // 10 pts per keyword found in the file name. This is the strongest signal —
+  // a file literally named after the search terms is almost certainly what the
+  // user wants, and should outweigh any amount of content frequency.
+  const nameMatchBonus = nameMatchCount * 10;
+
+  // Flat 10-pt bonus when ALL keywords appear somewhere in the file's content,
+  // to decisively separate full matches from partial ones.
+  const fullCoverageBonus = keywordCoverage === 1 ? 10 : 0;
+
+  // Log-scaled frequency as a tiebreaker only. No multiplier so even 300
+  // occurrences (≈8.2 pts) can't outweigh a single name match (10 pts).
+  const frequencyScore = Math.log2(rawTermFrequency + 1);
+
+  const score = keywordCoverage * 15 + frequencyScore + nameMatchBonus + fullCoverageBonus;
+
+  return { score, keywordCoverage, rawTermFrequency, nameMatchCount };
 };
 
 const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAndGetFileContentFunction = async ({
@@ -51,22 +111,43 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
     includeTrashed = false,
   } = params;
 
-  const query = searchQuery
-    .split(" ")
-    .map(kw => kw.replace(/'/g, "\\'"))
-    .map(kw => `fullText contains '${kw}' or name contains '${kw}'`)
-    .join(" or ");
-  const searchResult = await searchDriveByQuery({
-    params: { query, limit, searchDriveByDrive, orderByQuery, includeTrashed },
-    authParams,
-  });
 
-  // If search failed, return error
-  if (!searchResult.success) {
-    return { success: false, error: searchResult.error };
+  const keywords = searchQuery
+    .split(/\s+/)
+    .filter(kw => kw.length > 0)
+    .map(kw => kw.replace(/'/g, "\\'"));
+
+  const fetchLimit = Math.max(limit ?? PROCESSING_LIMIT, PROCESSING_LIMIT);
+
+  const andQuery = keywords.map(kw => `(fullText contains '${kw}')`).join(" and ");
+  const orQuery = keywords.map(kw => `fullText contains '${kw}'`).join(" or ");
+
+  const [andResult, orResult] = await Promise.all([
+    searchDriveByQuery({
+      params: { query: andQuery, limit: fetchLimit, searchDriveByDrive, orderByQuery, includeTrashed },
+      authParams,
+    }),
+    searchDriveByQuery({
+      params: { query: orQuery, limit: fetchLimit, searchDriveByDrive, orderByQuery, includeTrashed },
+      authParams,
+    }),
+  ]);
+
+  const andFiles = andResult.success ? (andResult.files ?? []) : [];
+  const orFiles = orResult.success ? (orResult.files ?? []) : [];
+
+  const seenIds = new Set<string>();
+  const files: typeof andFiles = [];
+  for (const file of [...andFiles, ...orFiles]) {
+    if (!seenIds.has(file.id)) {
+      seenIds.add(file.id);
+      files.push(file);
+    }
   }
 
-  const files = searchResult.files ?? [];
+  if (files.length === 0 && !andResult.success) {
+    return { success: false, error: andResult.error };
+  }
 
   // File types that are likely to fail or have no useful text content
   const problematicMimeTypes = new Set([
@@ -80,10 +161,9 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
     "application/vnd.ms-excel",
   ]);
 
-  // Filter out problematic files BEFORE processing to avoid wasting resources
   const validFiles = files
-    .slice(0, limit)
-    .filter(file => file.id && file.name && !problematicMimeTypes.has(file.mimeType));
+    .filter(file => file.id && file.name && !problematicMimeTypes.has(file.mimeType))
+    .slice(0, PROCESSING_LIMIT);
 
   // Process only valid files in smaller batches to avoid overwhelming the API
   const filesWithContent = await processBatch(
@@ -119,13 +199,24 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
     5, // Reduced to 5 files concurrently for better stability
   );
 
-  // Return combined results
+  // Score each file by keyword relevance and take the top N
+  const scoredFiles = filesWithContent
+    .map(file => ({
+      ...file,
+      ...scoreFileByKeywords(searchQuery, file.name, file.content),
+    }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit ?? TOP_N);
+
   return {
     success: true,
-    results: filesWithContent.map(file => ({
+    results: scoredFiles.map(file => ({
       name: file.name,
       url: file.url,
-      contents: file,
+      contents: {
+        ...file,
+        content: file.content?.slice(0, MAX_CONTENT_LENGTH),
+      },
     })),
   };
 };

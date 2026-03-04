@@ -5194,7 +5194,7 @@ actions:
             type: string
             description: Error message if search failed
     searchDriveByKeywordsAndGetFileContent:
-      displayName: Search all of Google Drive
+      displayName: Search all of Foo-gle Drive
       description: Search Google Drive with keywords and get resulting content
       scopes: [drive.readonly]
       parameters:
