@@ -6,11 +6,11 @@ import type {
   googleOauthSearchDriveByKeywordsAndGetFileContentOutputType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { summarizeContent, MAX_INPUT_CHARS } from "../../util/llmClient.js";
 import searchDriveByQuery from "./searchDriveByQuery.js";
 import getDriveFileContentById from "./getDriveFileContentById.js";
 
 const TOP_N = 5;
-const MAX_CONTENT_LENGTH = 3000;
 const PROCESSING_LIMIT = 20;
 
 const processBatch = async <T, R>(
@@ -107,7 +107,7 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
     limit,
     searchDriveByDrive,
     orderByQuery,
-    fileSizeLimit: maxChars,
+    summarySizeLimit,
     includeTrashed = false,
   } = params;
 
@@ -174,7 +174,7 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
         const contentResult = await getDriveFileContentById({
           params: {
             fileId: file.id,
-            limit: maxChars,
+            limit: MAX_INPUT_CHARS,
             timeoutLimit: 2,
           },
           authParams,
@@ -208,14 +208,24 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
     .sort((a, b) => b.score - a.score)
     .slice(0, limit ?? TOP_N);
 
+  const summarizedFiles = await processBatch(
+    scoredFiles,
+    async file => ({
+      ...file,
+      content: file.content
+        ? await summarizeContent(file.content, file.name, summarySizeLimit ?? 3000) // 3000 as a temp value for now
+        : undefined,
+    }),
+    3, // not sure if this would cause rate limiting erors
+  );
+
   return {
     success: true,
-    results: scoredFiles.map(file => ({
+    results: summarizedFiles.map(file => ({
       name: file.name,
       url: file.url,
       contents: {
         ...file,
-        content: file.content?.slice(0, MAX_CONTENT_LENGTH),
       },
     })),
   };
