@@ -68,6 +68,7 @@ export enum ActionName {
   UPDATEJIRATICKETDETAILS = "updateJiraTicketDetails",
   UPDATEJIRATICKETSTATUS = "updateJiraTicketStatus",
   GETJIRAISSUESBYQUERY = "getJiraIssuesByQuery",
+  LINKJIRAISSUES = "linkJiraIssues",
   VALIDATEADDRESS = "validateAddress",
   NEARBYSEARCHRESTAURANTS = "nearbysearchRestaurants",
   GETTOPNSEARCHRESULTURLS = "getTopNSearchResultUrls",
@@ -1207,6 +1208,36 @@ export type jiraGetJiraIssuesByQueryFunction = ActionFunction<
   jiraGetJiraIssuesByQueryOutputType
 >;
 
+export const jiraLinkJiraIssuesParamsSchema = z.object({
+  inwardIssueKey: z
+    .string()
+    .describe('The issue key for the inward issue of the link (e.g. "PROJ-123"). This is the source issue.'),
+  outwardIssueKey: z
+    .string()
+    .describe('The issue key for the outward issue of the link (e.g. "PROJ-456"). This is the destination issue.'),
+  linkTypeName: z
+    .string()
+    .describe('The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)'),
+  comment: z
+    .string()
+    .describe("An optional comment to add to the inward (source) issue when creating the link")
+    .optional(),
+});
+
+export type jiraLinkJiraIssuesParamsType = z.infer<typeof jiraLinkJiraIssuesParamsSchema>;
+
+export const jiraLinkJiraIssuesOutputSchema = z.object({
+  success: z.boolean().describe("Whether the issue link was successfully created"),
+  error: z.string().describe("Error message if the link creation failed (only present if success is false)").optional(),
+});
+
+export type jiraLinkJiraIssuesOutputType = z.infer<typeof jiraLinkJiraIssuesOutputSchema>;
+export type jiraLinkJiraIssuesFunction = ActionFunction<
+  jiraLinkJiraIssuesParamsType,
+  AuthParamsType,
+  jiraLinkJiraIssuesOutputType
+>;
+
 export const jiraOrgAssignJiraTicketParamsSchema = z.object({
   projectKey: z.string().describe("The key for the project you want to add the ticket to."),
   assignee: z.string().describe("The assignee for the ticket, userID or email"),
@@ -1535,6 +1566,36 @@ export type jiraOrgGetJiraIssuesByQueryFunction = ActionFunction<
   jiraOrgGetJiraIssuesByQueryParamsType,
   AuthParamsType,
   jiraOrgGetJiraIssuesByQueryOutputType
+>;
+
+export const jiraOrgLinkJiraIssuesParamsSchema = z.object({
+  inwardIssueKey: z
+    .string()
+    .describe('The issue key for the inward issue of the link (e.g. "PROJ-123"). This is the source issue.'),
+  outwardIssueKey: z
+    .string()
+    .describe('The issue key for the outward issue of the link (e.g. "PROJ-456"). This is the destination issue.'),
+  linkTypeName: z
+    .string()
+    .describe('The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)'),
+  comment: z
+    .string()
+    .describe("An optional comment to add to the inward (source) issue when creating the link")
+    .optional(),
+});
+
+export type jiraOrgLinkJiraIssuesParamsType = z.infer<typeof jiraOrgLinkJiraIssuesParamsSchema>;
+
+export const jiraOrgLinkJiraIssuesOutputSchema = z.object({
+  success: z.boolean().describe("Whether the issue link was successfully created"),
+  error: z.string().describe("Error message if the link creation failed (only present if success is false)").optional(),
+});
+
+export type jiraOrgLinkJiraIssuesOutputType = z.infer<typeof jiraOrgLinkJiraIssuesOutputSchema>;
+export type jiraOrgLinkJiraIssuesFunction = ActionFunction<
+  jiraOrgLinkJiraIssuesParamsType,
+  AuthParamsType,
+  jiraOrgLinkJiraIssuesOutputType
 >;
 
 export const jiraDataCenterAssignJiraTicketParamsSchema = z.object({
@@ -1893,6 +1954,36 @@ export type jiraDataCenterGetJiraIssuesByQueryFunction = ActionFunction<
   jiraDataCenterGetJiraIssuesByQueryParamsType,
   AuthParamsType,
   jiraDataCenterGetJiraIssuesByQueryOutputType
+>;
+
+export const jiraDataCenterLinkJiraIssuesParamsSchema = z.object({
+  inwardIssueKey: z
+    .string()
+    .describe('The issue key for the inward issue of the link (e.g. "PROJ-123"). This is the source issue.'),
+  outwardIssueKey: z
+    .string()
+    .describe('The issue key for the outward issue of the link (e.g. "PROJ-456"). This is the destination issue.'),
+  linkTypeName: z
+    .string()
+    .describe('The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)'),
+  comment: z
+    .string()
+    .describe("An optional comment to add to the inward (source) issue when creating the link")
+    .optional(),
+});
+
+export type jiraDataCenterLinkJiraIssuesParamsType = z.infer<typeof jiraDataCenterLinkJiraIssuesParamsSchema>;
+
+export const jiraDataCenterLinkJiraIssuesOutputSchema = z.object({
+  success: z.boolean().describe("Whether the issue link was successfully created"),
+  error: z.string().describe("Error message if the link creation failed (only present if success is false)").optional(),
+});
+
+export type jiraDataCenterLinkJiraIssuesOutputType = z.infer<typeof jiraDataCenterLinkJiraIssuesOutputSchema>;
+export type jiraDataCenterLinkJiraIssuesFunction = ActionFunction<
+  jiraDataCenterLinkJiraIssuesParamsType,
+  AuthParamsType,
+  jiraDataCenterLinkJiraIssuesOutputType
 >;
 
 export const googlemapsValidateAddressParamsSchema = z.object({
