@@ -50,6 +50,11 @@ export async function summarizeContent(content: string, fileName: string, maxLen
     const result: OpenAIResponse = await response.json();
     const summary = result.choices?.[0]?.message?.content;
 
+    // Appending a note of truncation and at what length
+    if (summary && summary.length > maxLength) {
+      const suffix = `...(truncated@${maxLength})`;
+      return summary.slice(0, maxLength - suffix.length) + suffix;
+    }
     return summary ?? content.slice(0, maxLength);
   } catch (error) {
     console.error("Failed to summarize content:", error instanceof Error ? error.message : error);

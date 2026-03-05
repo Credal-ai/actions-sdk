@@ -39,6 +39,7 @@ export enum ProviderName {
 }
 
 export enum ActionName {
+<<<<<<< HEAD
     FILLTEMPLATE = "fillTemplate",
     PERPLEXITYDEEPRESEARCH = "perplexityDeepResearch",
     COMMENTTASK = "commentTask",
@@ -171,6 +172,141 @@ export enum ActionName {
     GETDEALS = "getDeals",
     GETDEALDETAILS = "getDealDetails",
     GETTICKETS = "getTickets"
+=======
+  FILLTEMPLATE = "fillTemplate",
+  PERPLEXITYDEEPRESEARCH = "perplexityDeepResearch",
+  COMMENTTASK = "commentTask",
+  LISTASANATASKSBYPROJECT = "listAsanaTasksByProject",
+  CREATETASK = "createTask",
+  UPDATETASK = "updateTask",
+  SEARCHTASKS = "searchTasks",
+  GETTASKSDETAILS = "getTasksDetails",
+  SENDDMFROMBOT = "sendDmFromBot",
+  CREATECHANNEL = "createChannel",
+  SENDMESSAGE = "sendMessage",
+  GETCHANNELMESSAGES = "getChannelMessages",
+  GETCHANNELMEMBERS = "getChannelMembers",
+  SEARCHSLACK = "searchSlack",
+  SEARCHSLACKRTS = "searchSlackRTS",
+  ADD = "add",
+  OVERWRITEPAGE = "overwritePage",
+  FETCHPAGECONTENT = "fetchPageContent",
+  ASSIGNJIRATICKET = "assignJiraTicket",
+  PUBLICCOMMENTONSERVICEDESKREQUEST = "publicCommentOnServiceDeskRequest",
+  COMMENTJIRATICKET = "commentJiraTicket",
+  CREATEJIRATICKET = "createJiraTicket",
+  CREATESERVICEDESKREQUEST = "createServiceDeskRequest",
+  GETJIRATICKETDETAILS = "getJiraTicketDetails",
+  GETJIRATICKETHISTORY = "getJiraTicketHistory",
+  MOVEJIRATICKETTOPROJECT = "moveJiraTicketToProject",
+  UPDATEJIRATICKETDETAILS = "updateJiraTicketDetails",
+  UPDATEJIRATICKETSTATUS = "updateJiraTicketStatus",
+  GETJIRAISSUESBYQUERY = "getJiraIssuesByQuery",
+  LINKJIRAISSUES = "linkJiraIssues",
+  VALIDATEADDRESS = "validateAddress",
+  NEARBYSEARCHRESTAURANTS = "nearbysearchRestaurants",
+  GETTOPNSEARCHRESULTURLS = "getTopNSearchResultUrls",
+  CREATEZENDESKTICKET = "createZendeskTicket",
+  LISTZENDESKTICKETS = "listZendeskTickets",
+  GETTICKETDETAILS = "getTicketDetails",
+  UPDATETICKETSTATUS = "updateTicketStatus",
+  ADDCOMMENTTOTICKET = "addCommentToTicket",
+  ASSIGNTICKET = "assignTicket",
+  SEARCHZENDESKBYQUERY = "searchZendeskByQuery",
+  CREATESHARELINKEDINPOSTURL = "createShareLinkedinPostUrl",
+  CREATESHAREXPOSTURL = "createShareXPostUrl",
+  INSERTMONGODOC = "insertMongoDoc",
+  GETROWBYFIELDVALUE = "getRowByFieldValue",
+  RUNSNOWFLAKEQUERY = "runSnowflakeQuery",
+  GETLATITUDELONGITUDEFROMLOCATION = "getLatitudeLongitudeFromLocation",
+  GETFORECASTFORLOCATION = "getForecastForLocation",
+  DEEPRESEARCH = "deepResearch",
+  SCRAPEURL = "scrapeUrl",
+  SEARCHANDSCRAPE = "searchAndScrape",
+  SCRAPETWEETDATAWITHNITTER = "scrapeTweetDataWithNitter",
+  SENDEMAIL = "sendEmail",
+  SENDEMAILHTML = "sendEmailHtml",
+  CREATENEWGOOGLEDOC = "createNewGoogleDoc",
+  ADDTEXTTOTOPOFDOC = "addTextToTopOfDoc",
+  UPDATEDOC = "updateDoc",
+  SCHEDULECALENDARMEETING = "scheduleCalendarMeeting",
+  LISTCALENDARS = "listCalendars",
+  LISTCALENDAREVENTS = "listCalendarEvents",
+  UPDATECALENDAREVENT = "updateCalendarEvent",
+  EDITAGOOGLECALENDAREVENT = "editAGoogleCalendarEvent",
+  DELETECALENDAREVENT = "deleteCalendarEvent",
+  CREATESPREADSHEET = "createSpreadsheet",
+  UPDATESPREADSHEET = "updateSpreadsheet",
+  APPENDROWSTOSPREADSHEET = "appendRowsToSpreadsheet",
+  DELETEROWFROMSPREADSHEET = "deleteRowFromSpreadsheet",
+  UPDATEROWSINSPREADSHEET = "updateRowsInSpreadsheet",
+  CREATEPRESENTATION = "createPresentation",
+  UPDATEPRESENTATION = "updatePresentation",
+  GETPRESENTATION = "getPresentation",
+  SEARCHDRIVEBYKEYWORDS = "searchDriveByKeywords",
+  SEARCHDRIVEBYQUERY = "searchDriveByQuery",
+  SEARCHDRIVEBYKEYWORDSANDGETFILECONTENT = "searchDriveByKeywordsAndGetFileContent",
+  SEARCHDRIVEBYQUERYANDGETFILECONTENT = "searchDriveByQueryAndGetFileContent",
+  GETDRIVEFILECONTENTBYID = "getDriveFileContentById",
+  LISTGROUPS = "listGroups",
+  GETGROUP = "getGroup",
+  LISTGROUPMEMBERS = "listGroupMembers",
+  HASGROUPMEMBER = "hasGroupMember",
+  ADDGROUPMEMBER = "addGroupMember",
+  DELETEGROUPMEMBER = "deleteGroupMember",
+  QUERYGOOGLEBIGQUERY = "queryGoogleBigQuery",
+  SEARCHGMAILMESSAGES = "searchGmailMessages",
+  LISTGMAILTHREADS = "listGmailThreads",
+  SENDGMAIL = "sendGmail",
+  REPLYTOGMAIL = "replyToGmail",
+  CUSTOMSEARCH = "customSearch",
+  GETOKTAUSERBYNAME = "getOktaUserByName",
+  SYMBOLLOOKUP = "symbolLookup",
+  GETBASICFINANCIALS = "getBasicFinancials",
+  ENABLEUSERBYEMAIL = "enableUserByEmail",
+  UPDATERECORD = "updateRecord",
+  CREATERECORD = "createRecord",
+  CREATECASE = "createCase",
+  GENERATESALESREPORT = "generateSalesReport",
+  SEARCHALLSALESFORCERECORDS = "searchAllSalesforceRecords",
+  LISTREPORTS = "listReports",
+  EXECUTEREPORT = "executeReport",
+  SEARCHSALESFORCERECORDS = "searchSalesforceRecords",
+  GETSALESFORCERECORDSBYQUERY = "getSalesforceRecordsByQuery",
+  GETRECORD = "getRecord",
+  GETREPORTMETADATA = "getReportMetadata",
+  CREATEDOCUMENT = "createDocument",
+  UPDATEDOCUMENT = "updateDocument",
+  MESSAGETEAMSCHAT = "messageTeamsChat",
+  MESSAGETEAMSCHANNEL = "messageTeamsChannel",
+  GETDOCUMENT = "getDocument",
+  CREATEORUPDATEFILE = "createOrUpdateFile",
+  CREATEBRANCH = "createBranch",
+  CREATEPULLREQUEST = "createPullRequest",
+  LISTPULLREQUESTS = "listPullRequests",
+  GETPULLREQUESTDETAILS = "getPullRequestDetails",
+  GETFILECONTENT = "getFileContent",
+  LISTDIRECTORY = "listDirectory",
+  SEARCHORGANIZATION = "searchOrganization",
+  GETBRANCH = "getBranch",
+  LISTCOMMITS = "listCommits",
+  SEARCHBYTITLE = "searchByTitle",
+  SEARCHGROUP = "searchGroup",
+  GETMERGEREQUEST = "getMergeRequest",
+  GETISSUES = "getIssues",
+  GETISSUEDETAILS = "getIssueDetails",
+  GETPROJECTS = "getProjects",
+  GETPROJECTDETAILS = "getProjectDetails",
+  GETTEAMDETAILS = "getTeamDetails",
+  GETTEAMS = "getTeams",
+  GETCONTACTS = "getContacts",
+  GETCONTACTDETAILS = "getContactDetails",
+  GETCOMPANIES = "getCompanies",
+  GETCOMPANYDETAILS = "getCompanyDetails",
+  GETDEALS = "getDeals",
+  GETDEALDETAILS = "getDealDetails",
+  GETTICKETS = "getTickets",
+>>>>>>> main
 }
 
 export type ActionFunction<P, A, O> = (input: {params: P, authParams: A}) => Promise<O>;
@@ -472,7 +608,45 @@ export const jiraGetJiraIssuesByQueryOutputSchema = z.object({ "results": z.arra
 export type jiraGetJiraIssuesByQueryOutputType = z.infer<typeof jiraGetJiraIssuesByQueryOutputSchema>;
 export type jiraGetJiraIssuesByQueryFunction = ActionFunction<jiraGetJiraIssuesByQueryParamsType, AuthParamsType, jiraGetJiraIssuesByQueryOutputType>;
 
+<<<<<<< HEAD
 export const jiraOrgAssignJiraTicketParamsSchema = z.object({ "projectKey": z.string().describe("The key for the project you want to add the ticket to."), "assignee": z.string().describe("The assignee for the ticket, userID or email"), "issueId": z.string().describe("The issue ID associated with the ticket to be assigned/re-assigned") });
+=======
+export const jiraLinkJiraIssuesParamsSchema = z.object({
+  inwardIssueKey: z
+    .string()
+    .describe('The issue key for the inward issue of the link (e.g. "PROJ-123"). This is the source issue.'),
+  outwardIssueKey: z
+    .string()
+    .describe('The issue key for the outward issue of the link (e.g. "PROJ-456"). This is the destination issue.'),
+  linkTypeName: z
+    .string()
+    .describe('The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)'),
+  comment: z
+    .string()
+    .describe("An optional comment to add to the inward (source) issue when creating the link")
+    .optional(),
+});
+
+export type jiraLinkJiraIssuesParamsType = z.infer<typeof jiraLinkJiraIssuesParamsSchema>;
+
+export const jiraLinkJiraIssuesOutputSchema = z.object({
+  success: z.boolean().describe("Whether the issue link was successfully created"),
+  error: z.string().describe("Error message if the link creation failed (only present if success is false)").optional(),
+});
+
+export type jiraLinkJiraIssuesOutputType = z.infer<typeof jiraLinkJiraIssuesOutputSchema>;
+export type jiraLinkJiraIssuesFunction = ActionFunction<
+  jiraLinkJiraIssuesParamsType,
+  AuthParamsType,
+  jiraLinkJiraIssuesOutputType
+>;
+
+export const jiraOrgAssignJiraTicketParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project you want to add the ticket to."),
+  assignee: z.string().describe("The assignee for the ticket, userID or email"),
+  issueId: z.string().describe("The issue ID associated with the ticket to be assigned/re-assigned"),
+});
+>>>>>>> main
 
 export type jiraOrgAssignJiraTicketParamsType = z.infer<typeof jiraOrgAssignJiraTicketParamsSchema>;
 
@@ -571,7 +745,45 @@ export const jiraOrgGetJiraIssuesByQueryOutputSchema = z.object({ "results": z.a
 export type jiraOrgGetJiraIssuesByQueryOutputType = z.infer<typeof jiraOrgGetJiraIssuesByQueryOutputSchema>;
 export type jiraOrgGetJiraIssuesByQueryFunction = ActionFunction<jiraOrgGetJiraIssuesByQueryParamsType, AuthParamsType, jiraOrgGetJiraIssuesByQueryOutputType>;
 
+<<<<<<< HEAD
 export const jiraDataCenterAssignJiraTicketParamsSchema = z.object({ "projectKey": z.string().describe("The key for the project you want to add the ticket to."), "assignee": z.string().describe("The assignee for the ticket, userID or email"), "issueId": z.string().describe("The issue ID associated with the ticket to be assigned/re-assigned") });
+=======
+export const jiraOrgLinkJiraIssuesParamsSchema = z.object({
+  inwardIssueKey: z
+    .string()
+    .describe('The issue key for the inward issue of the link (e.g. "PROJ-123"). This is the source issue.'),
+  outwardIssueKey: z
+    .string()
+    .describe('The issue key for the outward issue of the link (e.g. "PROJ-456"). This is the destination issue.'),
+  linkTypeName: z
+    .string()
+    .describe('The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)'),
+  comment: z
+    .string()
+    .describe("An optional comment to add to the inward (source) issue when creating the link")
+    .optional(),
+});
+
+export type jiraOrgLinkJiraIssuesParamsType = z.infer<typeof jiraOrgLinkJiraIssuesParamsSchema>;
+
+export const jiraOrgLinkJiraIssuesOutputSchema = z.object({
+  success: z.boolean().describe("Whether the issue link was successfully created"),
+  error: z.string().describe("Error message if the link creation failed (only present if success is false)").optional(),
+});
+
+export type jiraOrgLinkJiraIssuesOutputType = z.infer<typeof jiraOrgLinkJiraIssuesOutputSchema>;
+export type jiraOrgLinkJiraIssuesFunction = ActionFunction<
+  jiraOrgLinkJiraIssuesParamsType,
+  AuthParamsType,
+  jiraOrgLinkJiraIssuesOutputType
+>;
+
+export const jiraDataCenterAssignJiraTicketParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project you want to add the ticket to."),
+  assignee: z.string().describe("The assignee for the ticket, userID or email"),
+  issueId: z.string().describe("The issue ID associated with the ticket to be assigned/re-assigned"),
+});
+>>>>>>> main
 
 export type jiraDataCenterAssignJiraTicketParamsType = z.infer<typeof jiraDataCenterAssignJiraTicketParamsSchema>;
 
@@ -670,7 +882,53 @@ export const jiraDataCenterGetJiraIssuesByQueryOutputSchema = z.object({ "result
 export type jiraDataCenterGetJiraIssuesByQueryOutputType = z.infer<typeof jiraDataCenterGetJiraIssuesByQueryOutputSchema>;
 export type jiraDataCenterGetJiraIssuesByQueryFunction = ActionFunction<jiraDataCenterGetJiraIssuesByQueryParamsType, AuthParamsType, jiraDataCenterGetJiraIssuesByQueryOutputType>;
 
+<<<<<<< HEAD
 export const googlemapsValidateAddressParamsSchema = z.object({ "regionCode": z.string().describe("The country of the address being verified."), "locality": z.string().describe("The locality of the address being verified. This is likely a city."), "postalCode": z.string().describe("The postal code of the address being verified."), "addressLines": z.array(z.string()).describe("A list of lines of the address. These should be in order as they would appear on an envelope."), "addressType": z.enum(["residential","business","poBox"]).describe("The type of address being validated.").optional(), "allowFuzzyMatches": z.boolean().describe("Whether to allow fuzzy matches in the address validation by inferring components.").optional() });
+=======
+export const jiraDataCenterLinkJiraIssuesParamsSchema = z.object({
+  inwardIssueKey: z
+    .string()
+    .describe('The issue key for the inward issue of the link (e.g. "PROJ-123"). This is the source issue.'),
+  outwardIssueKey: z
+    .string()
+    .describe('The issue key for the outward issue of the link (e.g. "PROJ-456"). This is the destination issue.'),
+  linkTypeName: z
+    .string()
+    .describe('The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)'),
+  comment: z
+    .string()
+    .describe("An optional comment to add to the inward (source) issue when creating the link")
+    .optional(),
+});
+
+export type jiraDataCenterLinkJiraIssuesParamsType = z.infer<typeof jiraDataCenterLinkJiraIssuesParamsSchema>;
+
+export const jiraDataCenterLinkJiraIssuesOutputSchema = z.object({
+  success: z.boolean().describe("Whether the issue link was successfully created"),
+  error: z.string().describe("Error message if the link creation failed (only present if success is false)").optional(),
+});
+
+export type jiraDataCenterLinkJiraIssuesOutputType = z.infer<typeof jiraDataCenterLinkJiraIssuesOutputSchema>;
+export type jiraDataCenterLinkJiraIssuesFunction = ActionFunction<
+  jiraDataCenterLinkJiraIssuesParamsType,
+  AuthParamsType,
+  jiraDataCenterLinkJiraIssuesOutputType
+>;
+
+export const googlemapsValidateAddressParamsSchema = z.object({
+  regionCode: z.string().describe("The country of the address being verified."),
+  locality: z.string().describe("The locality of the address being verified. This is likely a city."),
+  postalCode: z.string().describe("The postal code of the address being verified."),
+  addressLines: z
+    .array(z.string())
+    .describe("A list of lines of the address. These should be in order as they would appear on an envelope."),
+  addressType: z.enum(["residential", "business", "poBox"]).describe("The type of address being validated.").optional(),
+  allowFuzzyMatches: z
+    .boolean()
+    .describe("Whether to allow fuzzy matches in the address validation by inferring components.")
+    .optional(),
+});
+>>>>>>> main
 
 export type googlemapsValidateAddressParamsType = z.infer<typeof googlemapsValidateAddressParamsSchema>;
 
