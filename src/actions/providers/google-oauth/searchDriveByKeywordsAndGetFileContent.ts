@@ -34,7 +34,7 @@ const CONTENTS_SIZE_LIMIT = 6000;
 // Cons:
 // * Introduces significant latency costs, which could be ameliorated with storage, but
 // that's a whole thing.
-// * 1200 is a very short summary that can be very lossy. 
+// * 1200 is a very short summary that can be very lossy.
 const SUMMARY_SIZE_LIMIT = 1200;
 
 const processBatch = async <T, R>(
@@ -60,12 +60,12 @@ const processBatch = async <T, R>(
 
 // This function is not perfect.
 // At the moment, it is not taking into account the context of the keywords.
-// For example, it doesn't consider that a keyword like "Chloe", a name, is more important 
+// For example, it doesn't consider that a keyword like "Chloe", a name, is more important
 // than a keyword like "like."
 //
 // We could potentially use something like TF-IDF to determine this semantic importance
 // by deducing that a rare keyword is more important than a common one, but at this point,
-// I'd rather just use a reranker or something. 
+// I'd rather just use a reranker or something.
 const scoreFileByKeywords = (
   searchQuery: string,
   fileName: string,
@@ -133,15 +133,7 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
     return { success: false, error: MISSING_AUTH_TOKEN };
   }
 
-  const {
-    searchQuery,
-    limit,
-    searchDriveByDrive,
-    orderByQuery,
-    summarySizeLimit,
-    includeTrashed = false,
-  } = params;
-
+  const { searchQuery, limit, searchDriveByDrive, orderByQuery, summarySizeLimit, includeTrashed = false } = params;
 
   const keywords = searchQuery
     .split(/\s+/)
@@ -150,7 +142,7 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
 
   const fetchLimit = Math.max(limit ?? PROCESSING_LIMIT, PROCESSING_LIMIT);
 
-  // Here, what we are doing is first performing a search for all files that contain 
+  // Here, what we are doing is first performing a search for all files that contain
   // all of the keywords.
   // Then, we perform a search for all files that contain any of the keywords.
   // We then combine the results of the two searches and deduplicate the files.
@@ -248,9 +240,10 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
     scoredFiles,
     async file => ({
       ...file,
-      content: file.content && file.content.length > CONTENTS_SIZE_LIMIT
-        ? await summarizeContent(file.content, file.name, summarySizeLimit ?? SUMMARY_SIZE_LIMIT)
-        : file.content,
+      content:
+        file.content && file.content.length > CONTENTS_SIZE_LIMIT
+          ? await summarizeContent(file.content, file.name, summarySizeLimit ?? SUMMARY_SIZE_LIMIT)
+          : file.content,
     }),
     3, // not sure if this would cause rate limiting erors
   );
