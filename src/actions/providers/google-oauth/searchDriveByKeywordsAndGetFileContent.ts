@@ -10,8 +10,32 @@ import { summarizeContent, MAX_INPUT_CHARS } from "../../util/llmClient.js";
 import searchDriveByQuery from "./searchDriveByQuery.js";
 import getDriveFileContentById from "./getDriveFileContentById.js";
 
-const TOP_N = 5;
+// We use this const in our search GDrive query; 20 is somewhat arbitrary
 const PROCESSING_LIMIT = 20;
+
+// This is the default "limit" for when "limit" is not provided in the call
+const TOP_N = 5;
+
+// This is the threshold for which we would attempt to shorten by way of summarization.
+// 6000 is derived from TOP_N being 5; the context window of GPT-4o is about 30K.
+// If we return 5 results * 6000 = 30K, we could fit it.
+// Additionally, this threshold being smaller may start trading off valuable context
+const CONTENTS_SIZE_LIMIT = 6000;
+
+// This number is unfortunately due to the latency that's introduced when summarizing
+// large(r) files. The latency of an LLM call is affected by both input AND output tokens.
+// If this limit were larger, we would timeout.
+//
+// The summary size limit is, in a sense, similar to truncation except:
+// Pros:
+// * The limit is much smaller (a fifth) than CONTENTS_SIZE_LIMIT, which means we can
+// have 5x the amount of turns as its upper bound.
+// * The hope is that summaries are more packed with greater semantic meaning.
+// Cons:
+// * Introduces significant latency costs, which could be ameliorated with storage, but
+// that's a whole thing.
+// * 1200 is a very short summary that can be very lossy. 
+const SUMMARY_SIZE_LIMIT = 1200;
 
 const processBatch = async <T, R>(
   items: T[],
@@ -34,7 +58,14 @@ const processBatch = async <T, R>(
   return results;
 };
 
-
+// This function is not perfect.
+// At the moment, it is not taking into account the context of the keywords.
+// For example, it doesn't consider that a keyword like "Chloe", a name, is more important 
+// than a keyword like "like."
+//
+// We could potentially use something like TF-IDF to determine this semantic importance
+// by deducing that a rare keyword is more important than a common one, but at this point,
+// I'd rather just use a reranker or something. 
 const scoreFileByKeywords = (
   searchQuery: string,
   fileName: string,
@@ -119,6 +150,10 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
 
   const fetchLimit = Math.max(limit ?? PROCESSING_LIMIT, PROCESSING_LIMIT);
 
+  // Here, what we are doing is first performing a search for all files that contain 
+  // all of the keywords.
+  // Then, we perform a search for all files that contain any of the keywords.
+  // We then combine the results of the two searches and deduplicate the files.
   const andQuery = keywords.map(kw => `(fullText contains '${kw}')`).join(" and ");
   const orQuery = keywords.map(kw => `fullText contains '${kw}'`).join(" or ");
 
@@ -145,6 +180,7 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
     }
   }
 
+  // If we have no files, return error
   if (files.length === 0 && !andResult.success) {
     return { success: false, error: andResult.error };
   }
@@ -212,9 +248,9 @@ const searchDriveByKeywordsAndGetFileContent: googleOauthSearchDriveByKeywordsAn
     scoredFiles,
     async file => ({
       ...file,
-      content: file.content
-        ? await summarizeContent(file.content, file.name, summarySizeLimit ?? 3000) // 3000 as a temp value for now
-        : undefined,
+      content: file.content && file.content.length > CONTENTS_SIZE_LIMIT
+        ? await summarizeContent(file.content, file.name, summarySizeLimit ?? SUMMARY_SIZE_LIMIT)
+        : file.content,
     }),
     3, // not sure if this would cause rate limiting erors
   );

@@ -10057,7 +10057,7 @@ export const googleOauthSearchDriveByQueryDefinition: ActionTemplate = {
         "provider": "googleOauth"
     };
 export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: ActionTemplate = {
-        "displayName": "Search all of Foo-gle Drive",
+        "displayName": "Search all of Google Drive",
         "description": "Search Google Drive with keywords and get resulting content",
         "scopes": [
             "drive.readonly"
