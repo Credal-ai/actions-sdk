@@ -2112,6 +2112,66 @@ export const jiraLinkJiraIssuesDefinition: ActionTemplate = {
   name: "linkJiraIssues",
   provider: "jira",
 };
+export const jiraLinkAndAssignJiraIssuesDefinition: ActionTemplate = {
+  displayName: "Link two Jira issues and assign the linked issue's reporter",
+  description:
+    "Creates a link between two Jira issues and then assigns the reporter of the outward (destination) issue to the inward (source) issue",
+  scopes: ["write:jira-work", "read:jira-work", "read:jira-user"],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["inwardIssueKey", "outwardIssueKey", "linkTypeName"],
+    properties: {
+      inwardIssueKey: {
+        type: "string",
+        description:
+          'The issue key for the inward issue of the link (e.g. "PROJ-123"). This is the source issue that will be assigned the reporter.',
+      },
+      outwardIssueKey: {
+        type: "string",
+        description:
+          'The issue key for the outward issue of the link (e.g. "PROJ-456"). This is the destination issue whose reporter will be assigned.',
+      },
+      linkTypeName: {
+        type: "string",
+        description:
+          'The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)',
+      },
+      comment: {
+        type: "string",
+        description: "An optional comment to add to the inward (source) issue when creating the link",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the issue link and assignment were both successfully completed",
+      },
+      linkSuccess: {
+        type: "boolean",
+        description: "Whether the issue link was successfully created",
+      },
+      assignSuccess: {
+        type: "boolean",
+        description: "Whether the reporter was successfully assigned to the inward issue",
+      },
+      assignedReporter: {
+        type: "string",
+        description: "The account ID or username of the reporter that was assigned",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the operation failed (only present if success is false)",
+      },
+    },
+  },
+  name: "linkAndAssignJiraIssues",
+  provider: "jira",
+};
 export const jiraOrgAssignJiraTicketDefinition: ActionTemplate = {
   displayName: "Assign a Jira ticket",
   description: "Assigns/Reassigns a Jira ticket to a specified user",
@@ -2871,6 +2931,66 @@ export const jiraOrgLinkJiraIssuesDefinition: ActionTemplate = {
   name: "linkJiraIssues",
   provider: "jiraOrg",
 };
+export const jiraOrgLinkAndAssignJiraIssuesDefinition: ActionTemplate = {
+  displayName: "Link two Jira issues and assign the linked issue's reporter",
+  description:
+    "Creates a link between two Jira issues and then assigns the reporter of the outward (destination) issue to the inward (source) issue",
+  scopes: ["write:jira-work", "read:jira-work", "read:jira-user"],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["inwardIssueKey", "outwardIssueKey", "linkTypeName"],
+    properties: {
+      inwardIssueKey: {
+        type: "string",
+        description:
+          'The issue key for the inward issue of the link (e.g. "PROJ-123"). This is the source issue that will be assigned the reporter.',
+      },
+      outwardIssueKey: {
+        type: "string",
+        description:
+          'The issue key for the outward issue of the link (e.g. "PROJ-456"). This is the destination issue whose reporter will be assigned.',
+      },
+      linkTypeName: {
+        type: "string",
+        description:
+          'The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)',
+      },
+      comment: {
+        type: "string",
+        description: "An optional comment to add to the inward (source) issue when creating the link",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the issue link and assignment were both successfully completed",
+      },
+      linkSuccess: {
+        type: "boolean",
+        description: "Whether the issue link was successfully created",
+      },
+      assignSuccess: {
+        type: "boolean",
+        description: "Whether the reporter was successfully assigned to the inward issue",
+      },
+      assignedReporter: {
+        type: "string",
+        description: "The account ID or username of the reporter that was assigned",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the operation failed (only present if success is false)",
+      },
+    },
+  },
+  name: "linkAndAssignJiraIssues",
+  provider: "jiraOrg",
+};
 export const jiraDataCenterAssignJiraTicketDefinition: ActionTemplate = {
   displayName: "Assign a Jira ticket",
   description: "Assigns/Reassigns a Jira ticket to a specified user",
@@ -3628,6 +3748,66 @@ export const jiraDataCenterLinkJiraIssuesDefinition: ActionTemplate = {
     },
   },
   name: "linkJiraIssues",
+  provider: "jiraDataCenter",
+};
+export const jiraDataCenterLinkAndAssignJiraIssuesDefinition: ActionTemplate = {
+  displayName: "Link two Jira issues and assign the linked issue's reporter",
+  description:
+    "Creates a link between two Jira issues and then assigns the reporter of the outward (destination) issue to the inward (source) issue",
+  scopes: ["write:jira-work", "read:jira-work", "read:jira-user"],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["inwardIssueKey", "outwardIssueKey", "linkTypeName"],
+    properties: {
+      inwardIssueKey: {
+        type: "string",
+        description:
+          'The issue key for the inward issue of the link (e.g. "PROJ-123"). This is the source issue that will be assigned the reporter.',
+      },
+      outwardIssueKey: {
+        type: "string",
+        description:
+          'The issue key for the outward issue of the link (e.g. "PROJ-456"). This is the destination issue whose reporter will be assigned.',
+      },
+      linkTypeName: {
+        type: "string",
+        description:
+          'The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)',
+      },
+      comment: {
+        type: "string",
+        description: "An optional comment to add to the inward (source) issue when creating the link",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the issue link and assignment were both successfully completed",
+      },
+      linkSuccess: {
+        type: "boolean",
+        description: "Whether the issue link was successfully created",
+      },
+      assignSuccess: {
+        type: "boolean",
+        description: "Whether the reporter was successfully assigned to the inward issue",
+      },
+      assignedReporter: {
+        type: "string",
+        description: "The account ID or username of the reporter that was assigned",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the operation failed (only present if success is false)",
+      },
+    },
+  },
+  name: "linkAndAssignJiraIssues",
   provider: "jiraDataCenter",
 };
 export const googlemapsValidateAddressDefinition: ActionTemplate = {

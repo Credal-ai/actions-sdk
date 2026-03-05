@@ -69,6 +69,7 @@ export enum ActionName {
   UPDATEJIRATICKETSTATUS = "updateJiraTicketStatus",
   GETJIRAISSUESBYQUERY = "getJiraIssuesByQuery",
   LINKJIRAISSUES = "linkJiraIssues",
+  LINKANDASSIGNJIRAISSUES = "linkAndAssignJiraIssues",
   VALIDATEADDRESS = "validateAddress",
   NEARBYSEARCHRESTAURANTS = "nearbysearchRestaurants",
   GETTOPNSEARCHRESULTURLS = "getTopNSearchResultUrls",
@@ -1238,6 +1239,45 @@ export type jiraLinkJiraIssuesFunction = ActionFunction<
   jiraLinkJiraIssuesOutputType
 >;
 
+export const jiraLinkAndAssignJiraIssuesParamsSchema = z.object({
+  inwardIssueKey: z
+    .string()
+    .describe(
+      'The issue key for the inward issue of the link (e.g. "PROJ-123"). This is the source issue that will be assigned the reporter.',
+    ),
+  outwardIssueKey: z
+    .string()
+    .describe(
+      'The issue key for the outward issue of the link (e.g. "PROJ-456"). This is the destination issue whose reporter will be assigned.',
+    ),
+  linkTypeName: z
+    .string()
+    .describe(
+      'The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)',
+    ),
+  comment: z
+    .string()
+    .describe("An optional comment to add to the inward (source) issue when creating the link")
+    .optional(),
+});
+
+export type jiraLinkAndAssignJiraIssuesParamsType = z.infer<typeof jiraLinkAndAssignJiraIssuesParamsSchema>;
+
+export const jiraLinkAndAssignJiraIssuesOutputSchema = z.object({
+  success: z.boolean().describe("Whether the issue link and assignment were both successfully completed"),
+  linkSuccess: z.boolean().describe("Whether the issue link was successfully created").optional(),
+  assignSuccess: z.boolean().describe("Whether the reporter was successfully assigned to the inward issue").optional(),
+  assignedReporter: z.string().describe("The account ID or username of the reporter that was assigned").optional(),
+  error: z.string().describe("Error message if the operation failed (only present if success is false)").optional(),
+});
+
+export type jiraLinkAndAssignJiraIssuesOutputType = z.infer<typeof jiraLinkAndAssignJiraIssuesOutputSchema>;
+export type jiraLinkAndAssignJiraIssuesFunction = ActionFunction<
+  jiraLinkAndAssignJiraIssuesParamsType,
+  AuthParamsType,
+  jiraLinkAndAssignJiraIssuesOutputType
+>;
+
 export const jiraOrgAssignJiraTicketParamsSchema = z.object({
   projectKey: z.string().describe("The key for the project you want to add the ticket to."),
   assignee: z.string().describe("The assignee for the ticket, userID or email"),
@@ -1596,6 +1636,45 @@ export type jiraOrgLinkJiraIssuesFunction = ActionFunction<
   jiraOrgLinkJiraIssuesParamsType,
   AuthParamsType,
   jiraOrgLinkJiraIssuesOutputType
+>;
+
+export const jiraOrgLinkAndAssignJiraIssuesParamsSchema = z.object({
+  inwardIssueKey: z
+    .string()
+    .describe(
+      'The issue key for the inward issue of the link (e.g. "PROJ-123"). This is the source issue that will be assigned the reporter.',
+    ),
+  outwardIssueKey: z
+    .string()
+    .describe(
+      'The issue key for the outward issue of the link (e.g. "PROJ-456"). This is the destination issue whose reporter will be assigned.',
+    ),
+  linkTypeName: z
+    .string()
+    .describe(
+      'The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)',
+    ),
+  comment: z
+    .string()
+    .describe("An optional comment to add to the inward (source) issue when creating the link")
+    .optional(),
+});
+
+export type jiraOrgLinkAndAssignJiraIssuesParamsType = z.infer<typeof jiraOrgLinkAndAssignJiraIssuesParamsSchema>;
+
+export const jiraOrgLinkAndAssignJiraIssuesOutputSchema = z.object({
+  success: z.boolean().describe("Whether the issue link and assignment were both successfully completed"),
+  linkSuccess: z.boolean().describe("Whether the issue link was successfully created").optional(),
+  assignSuccess: z.boolean().describe("Whether the reporter was successfully assigned to the inward issue").optional(),
+  assignedReporter: z.string().describe("The account ID or username of the reporter that was assigned").optional(),
+  error: z.string().describe("Error message if the operation failed (only present if success is false)").optional(),
+});
+
+export type jiraOrgLinkAndAssignJiraIssuesOutputType = z.infer<typeof jiraOrgLinkAndAssignJiraIssuesOutputSchema>;
+export type jiraOrgLinkAndAssignJiraIssuesFunction = ActionFunction<
+  jiraOrgLinkAndAssignJiraIssuesParamsType,
+  AuthParamsType,
+  jiraOrgLinkAndAssignJiraIssuesOutputType
 >;
 
 export const jiraDataCenterAssignJiraTicketParamsSchema = z.object({
@@ -1984,6 +2063,45 @@ export type jiraDataCenterLinkJiraIssuesFunction = ActionFunction<
   jiraDataCenterLinkJiraIssuesParamsType,
   AuthParamsType,
   jiraDataCenterLinkJiraIssuesOutputType
+>;
+
+export const jiraDataCenterLinkAndAssignJiraIssuesParamsSchema = z.object({
+  inwardIssueKey: z
+    .string()
+    .describe(
+      'The issue key for the inward issue of the link (e.g. "PROJ-123"). This is the source issue that will be assigned the reporter.',
+    ),
+  outwardIssueKey: z
+    .string()
+    .describe(
+      'The issue key for the outward issue of the link (e.g. "PROJ-456"). This is the destination issue whose reporter will be assigned.',
+    ),
+  linkTypeName: z
+    .string()
+    .describe(
+      'The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)',
+    ),
+  comment: z
+    .string()
+    .describe("An optional comment to add to the inward (source) issue when creating the link")
+    .optional(),
+});
+
+export type jiraDataCenterLinkAndAssignJiraIssuesParamsType = z.infer<typeof jiraDataCenterLinkAndAssignJiraIssuesParamsSchema>;
+
+export const jiraDataCenterLinkAndAssignJiraIssuesOutputSchema = z.object({
+  success: z.boolean().describe("Whether the issue link and assignment were both successfully completed"),
+  linkSuccess: z.boolean().describe("Whether the issue link was successfully created").optional(),
+  assignSuccess: z.boolean().describe("Whether the reporter was successfully assigned to the inward issue").optional(),
+  assignedReporter: z.string().describe("The account ID or username of the reporter that was assigned").optional(),
+  error: z.string().describe("Error message if the operation failed (only present if success is false)").optional(),
+});
+
+export type jiraDataCenterLinkAndAssignJiraIssuesOutputType = z.infer<typeof jiraDataCenterLinkAndAssignJiraIssuesOutputSchema>;
+export type jiraDataCenterLinkAndAssignJiraIssuesFunction = ActionFunction<
+  jiraDataCenterLinkAndAssignJiraIssuesParamsType,
+  AuthParamsType,
+  jiraDataCenterLinkAndAssignJiraIssuesOutputType
 >;
 
 export const googlemapsValidateAddressParamsSchema = z.object({

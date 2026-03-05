@@ -55,6 +55,8 @@ import {
   jiraCreateServiceDeskRequestOutputSchema,
   jiraLinkJiraIssuesParamsSchema,
   jiraLinkJiraIssuesOutputSchema,
+  jiraLinkAndAssignJiraIssuesParamsSchema,
+  jiraLinkAndAssignJiraIssuesOutputSchema,
   openstreetmapGetLatitudeLongitudeFromLocationParamsSchema,
   openstreetmapGetLatitudeLongitudeFromLocationOutputSchema,
   nwsGetForecastForLocationParamsSchema,
@@ -375,6 +377,7 @@ import searchGroup from "./providers/gitlab/searchGroup.js";
 import searchOrganization from "./providers/github/searchOrganization.js";
 import createServiceDeskRequest from "./providers/jira/createServiceDeskRequest.js";
 import linkJiraIssues from "./providers/jira/linkJiraIssues.js";
+import linkAndAssignJiraIssues from "./providers/jira/linkAndAssignJiraIssues.js";
 import searchSalesforceRecords from "./providers/salesforce/searchSalesforceRecords.js";
 import getDriveFileContentById from "./providers/google-oauth/getDriveFileContentById.js";
 import searchDriveByQuery from "./providers/google-oauth/searchDriveByQuery.js";
@@ -500,6 +503,12 @@ const jiraActions = {
     fn: linkJiraIssues,
     paramsSchema: jiraLinkJiraIssuesParamsSchema,
     outputSchema: jiraLinkJiraIssuesOutputSchema,
+    actionType: "write",
+  },
+  linkAndAssignJiraIssues: {
+    fn: linkAndAssignJiraIssues,
+    paramsSchema: jiraLinkAndAssignJiraIssuesParamsSchema,
+    outputSchema: jiraLinkAndAssignJiraIssuesOutputSchema,
     actionType: "write",
   },
 } satisfies Record<string, ActionFunctionComponents>;
@@ -772,6 +781,12 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: linkJiraIssues,
       paramsSchema: jiraLinkJiraIssuesParamsSchema,
       outputSchema: jiraLinkJiraIssuesOutputSchema,
+      actionType: "write",
+    },
+    linkAndAssignJiraIssues: {
+      fn: linkAndAssignJiraIssues,
+      paramsSchema: jiraLinkAndAssignJiraIssuesParamsSchema,
+      outputSchema: jiraLinkAndAssignJiraIssuesOutputSchema,
       actionType: "write",
     },
   },
