@@ -1252,9 +1252,7 @@ export const jiraLinkAndAssignJiraIssuesParamsSchema = z.object({
     ),
   linkTypeName: z
     .string()
-    .describe(
-      'The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)',
-    ),
+    .describe('The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)'),
   comment: z
     .string()
     .describe("An optional comment to add to the inward (source) issue when creating the link")
@@ -1651,9 +1649,7 @@ export const jiraOrgLinkAndAssignJiraIssuesParamsSchema = z.object({
     ),
   linkTypeName: z
     .string()
-    .describe(
-      'The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)',
-    ),
+    .describe('The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)'),
   comment: z
     .string()
     .describe("An optional comment to add to the inward (source) issue when creating the link")
@@ -2078,16 +2074,16 @@ export const jiraDataCenterLinkAndAssignJiraIssuesParamsSchema = z.object({
     ),
   linkTypeName: z
     .string()
-    .describe(
-      'The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)',
-    ),
+    .describe('The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)'),
   comment: z
     .string()
     .describe("An optional comment to add to the inward (source) issue when creating the link")
     .optional(),
 });
 
-export type jiraDataCenterLinkAndAssignJiraIssuesParamsType = z.infer<typeof jiraDataCenterLinkAndAssignJiraIssuesParamsSchema>;
+export type jiraDataCenterLinkAndAssignJiraIssuesParamsType = z.infer<
+  typeof jiraDataCenterLinkAndAssignJiraIssuesParamsSchema
+>;
 
 export const jiraDataCenterLinkAndAssignJiraIssuesOutputSchema = z.object({
   success: z.boolean().describe("Whether the issue link and assignment were both successfully completed"),
@@ -2097,7 +2093,9 @@ export const jiraDataCenterLinkAndAssignJiraIssuesOutputSchema = z.object({
   error: z.string().describe("Error message if the operation failed (only present if success is false)").optional(),
 });
 
-export type jiraDataCenterLinkAndAssignJiraIssuesOutputType = z.infer<typeof jiraDataCenterLinkAndAssignJiraIssuesOutputSchema>;
+export type jiraDataCenterLinkAndAssignJiraIssuesOutputType = z.infer<
+  typeof jiraDataCenterLinkAndAssignJiraIssuesOutputSchema
+>;
 export type jiraDataCenterLinkAndAssignJiraIssuesFunction = ActionFunction<
   jiraDataCenterLinkAndAssignJiraIssuesParamsType,
   AuthParamsType,

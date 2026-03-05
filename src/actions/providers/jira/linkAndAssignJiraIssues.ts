@@ -7,34 +7,6 @@ import type {
 import { axiosClient } from "../../util/axiosClient.js";
 import { getJiraApiConfig, getErrorMessage } from "./utils.js";
 
-/**
- * Build the Authorization header. When `userEmail` is present the token is
- * treated as an Atlassian API token and Basic auth is used; otherwise the
- * token is treated as an OAuth 2.0 access token and Bearer auth is used.
- */
-function getAuthHeader(authToken: string, userEmail?: string): string {
-  if (userEmail) {
-    const encoded = Buffer.from(`${userEmail}:${authToken}`).toString("base64");
-    return `Basic ${encoded}`;
-  }
-  return `Bearer ${authToken}`;
-}
-
-/**
- * Resolve the API base URL.  When the caller supplies a `userEmail` (API-token
- * flow) the Atlassian cloud gateway (`api.atlassian.com`) cannot be used, so
- * we fall back to `baseUrl/rest/api/3`.
- */
-function resolveApiUrl(authParams: AuthParamsType): { apiUrl: string; strategy: ReturnType<typeof getJiraApiConfig>["strategy"] } {
-  if (authParams.userEmail && authParams.baseUrl) {
-    const { strategy } = getJiraApiConfig(authParams);
-    const trimmedUrl = authParams.baseUrl.endsWith("/") ? authParams.baseUrl.slice(0, -1) : authParams.baseUrl;
-    return { apiUrl: `${trimmedUrl}/rest/api/3`, strategy };
-  }
-  const { apiUrl, strategy } = getJiraApiConfig(authParams);
-  return { apiUrl, strategy };
-}
-
 const linkAndAssignJiraIssues: jiraLinkAndAssignJiraIssuesFunction = async ({
   params,
   authParams,
@@ -49,11 +21,10 @@ const linkAndAssignJiraIssues: jiraLinkAndAssignJiraIssuesFunction = async ({
     throw new Error("Auth token is required");
   }
 
-  const { apiUrl, strategy } = resolveApiUrl(authParams);
-  const authorization = getAuthHeader(authToken, authParams.userEmail);
+  const { apiUrl, strategy } = getJiraApiConfig(authParams);
 
   const headers = {
-    Authorization: authorization,
+    Authorization: `Bearer ${authToken}`,
     Accept: "application/json",
     "Content-Type": "application/json",
   };
@@ -93,7 +64,7 @@ const linkAndAssignJiraIssues: jiraLinkAndAssignJiraIssuesFunction = async ({
   try {
     const issueResponse = await axiosClient.get(`${apiUrl}/issue/${outwardIssueKey}`, {
       headers: {
-        Authorization: authorization,
+        Authorization: `Bearer ${authToken}`,
         Accept: "application/json",
       },
     });
@@ -146,7 +117,6 @@ const linkAndAssignJiraIssues: jiraLinkAndAssignJiraIssuesFunction = async ({
       success: false,
       linkSuccess: true,
       assignSuccess: false,
-      assignedReporter: reporterId,
       error: `Issue link was created, but failed to assign reporter: ${getErrorMessage(error)}`,
     };
   }
