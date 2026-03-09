@@ -31,9 +31,5 @@ async function runTest() {
 
 runTest().catch((error) => {
   console.error("Test failed:", error);
-  if (error.response) {
-    console.error("API response:", error.response.data);
-    console.error("Status code:", error.response.status);
-  }
   process.exit(1);
 });
