@@ -7192,6 +7192,9 @@ export const linearCreateIssueParamsSchema = z.object({
   assigneeId: z.string().describe("The ID of the user to assign the issue to").optional(),
   priority: z
     .number()
+    .int()
+    .min(0)
+    .max(4)
     .describe("The priority of the issue: 0 = No priority, 1 = Urgent, 2 = High, 3 = Medium, 4 = Low")
     .optional(),
   projectId: z.string().describe("The ID of the project to associate the issue with").optional(),
