@@ -14266,10 +14266,12 @@ export const linearCreateIssueDefinition: ActionTemplate = {
       teamId: {
         type: "string",
         description: "The ID of the team to create the issue for",
+        tags: ["recommend-predefined"],
       },
       assigneeId: {
         type: "string",
         description: "The ID of the user to assign the issue to",
+        tags: ["recommend-predefined"],
       },
       priority: {
         type: "number",
@@ -14278,6 +14280,7 @@ export const linearCreateIssueDefinition: ActionTemplate = {
       projectId: {
         type: "string",
         description: "The ID of the project to associate the issue with",
+        tags: ["recommend-predefined"],
       },
       dueDate: {
         type: "string",
