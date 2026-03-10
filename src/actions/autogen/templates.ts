@@ -14246,6 +14246,98 @@ export const linearGetTeamsDefinition: ActionTemplate = {
   name: "getTeams",
   provider: "linear",
 };
+export const linearCreateIssueDefinition: ActionTemplate = {
+  displayName: "Create a Linear issue",
+  description: "Create a new issue in Linear",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["title", "teamId"],
+    properties: {
+      title: {
+        type: "string",
+        description: "The title of the issue to create",
+      },
+      description: {
+        type: "string",
+        description: "The description of the issue in markdown format",
+      },
+      teamId: {
+        type: "string",
+        description: "The ID of the team to create the issue for",
+        tags: ["recommend-predefined"],
+      },
+      assigneeId: {
+        type: "string",
+        description: "The ID of the user to assign the issue to",
+        tags: ["recommend-predefined"],
+      },
+      priority: {
+        type: "number",
+        description: "The priority of the issue: 0 = No priority, 1 = Urgent, 2 = High, 3 = Medium, 4 = Low",
+      },
+      projectId: {
+        type: "string",
+        description: "The ID of the project to associate the issue with",
+        tags: ["recommend-predefined"],
+      },
+      dueDate: {
+        type: "string",
+        description: "The due date of the issue in ISO 8601 format (e.g. 2024-12-31)",
+      },
+      labelIds: {
+        type: "array",
+        description: "Array of label IDs to apply to the issue",
+        items: {
+          type: "string",
+        },
+      },
+      estimate: {
+        type: "number",
+        description: "The estimate in story points for the issue",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the issue was created successfully",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the issue creation failed",
+      },
+      issue: {
+        type: "object",
+        description: "The created issue details",
+        properties: {
+          id: {
+            type: "string",
+            description: "The created issue ID",
+          },
+          title: {
+            type: "string",
+            description: "The created issue title",
+          },
+          url: {
+            type: "string",
+            description: "The URL of the created issue",
+          },
+          identifier: {
+            type: "string",
+            description: "The issue identifier (e.g. ENG-123)",
+          },
+        },
+      },
+    },
+  },
+  name: "createIssue",
+  provider: "linear",
+};
 export const hubspotGetContactsDefinition: ActionTemplate = {
   displayName: "List all contacts",
   description: "List or search HubSpot contacts by optional query",

@@ -166,6 +166,7 @@ export enum ActionName {
   GETPROJECTDETAILS = "getProjectDetails",
   GETTEAMDETAILS = "getTeamDetails",
   GETTEAMS = "getTeams",
+  CREATEISSUE = "createIssue",
   GETCONTACTS = "getContacts",
   GETCONTACTDETAILS = "getContactDetails",
   GETCOMPANIES = "getCompanies",
@@ -7183,6 +7184,47 @@ export const linearGetTeamsOutputSchema = z.object({
 
 export type linearGetTeamsOutputType = z.infer<typeof linearGetTeamsOutputSchema>;
 export type linearGetTeamsFunction = ActionFunction<linearGetTeamsParamsType, AuthParamsType, linearGetTeamsOutputType>;
+
+export const linearCreateIssueParamsSchema = z.object({
+  title: z.string().describe("The title of the issue to create"),
+  description: z.string().describe("The description of the issue in markdown format").optional(),
+  teamId: z.string().describe("The ID of the team to create the issue for"),
+  assigneeId: z.string().describe("The ID of the user to assign the issue to").optional(),
+  priority: z
+    .number()
+    .int()
+    .min(0)
+    .max(4)
+    .describe("The priority of the issue: 0 = No priority, 1 = Urgent, 2 = High, 3 = Medium, 4 = Low")
+    .optional(),
+  projectId: z.string().describe("The ID of the project to associate the issue with").optional(),
+  dueDate: z.string().describe("The due date of the issue in ISO 8601 format (e.g. 2024-12-31)").optional(),
+  labelIds: z.array(z.string()).describe("Array of label IDs to apply to the issue").optional(),
+  estimate: z.number().describe("The estimate in story points for the issue").optional(),
+});
+
+export type linearCreateIssueParamsType = z.infer<typeof linearCreateIssueParamsSchema>;
+
+export const linearCreateIssueOutputSchema = z.object({
+  success: z.boolean().describe("Whether the issue was created successfully"),
+  error: z.string().describe("Error message if the issue creation failed").optional(),
+  issue: z
+    .object({
+      id: z.string().describe("The created issue ID").optional(),
+      title: z.string().describe("The created issue title").optional(),
+      url: z.string().describe("The URL of the created issue").optional(),
+      identifier: z.string().describe("The issue identifier (e.g. ENG-123)").optional(),
+    })
+    .describe("The created issue details")
+    .optional(),
+});
+
+export type linearCreateIssueOutputType = z.infer<typeof linearCreateIssueOutputSchema>;
+export type linearCreateIssueFunction = ActionFunction<
+  linearCreateIssueParamsType,
+  AuthParamsType,
+  linearCreateIssueOutputType
+>;
 
 export const hubspotGetContactsParamsSchema = z.object({
   query: z
