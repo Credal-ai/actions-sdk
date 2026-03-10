@@ -5083,7 +5083,12 @@ export const googleOauthCreateNewGoogleDocDefinition: ActionTemplate = {
       },
       usesHtml: {
         type: "boolean",
-        description: "Whether to interpret the content as HTML",
+        description: "Whether to interpret the content as HTML. Deprecated in favor of contentFormat.",
+      },
+      contentFormat: {
+        type: "string",
+        enum: ["plain", "markdown", "html"],
+        description: "How to interpret the content param. Defaults to plain. When set, takes precedence over usesHtml.",
       },
     },
   },
