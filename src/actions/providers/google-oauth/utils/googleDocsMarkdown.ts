@@ -164,6 +164,17 @@ export function parseHtmlContent(html: string): TextWithFormatting[] {
       continue;
     }
 
+    // Pre-formatted blocks: same monospace treatment as <code>, with trailing newline on close
+    if (segment.match(/<\s*pre[^>]*>/i)) {
+      currentFormatting.weightedFontFamily = { fontFamily: "Courier New" };
+      continue;
+    }
+    if (segment.match(/<\/\s*pre\s*>/i)) {
+      delete currentFormatting.weightedFontFamily;
+      result.push({ text: "\n" });
+      continue;
+    }
+
     // --- Lists: stack-based to handle nesting (e.g. <ul> inside <ol>) ---
     if (segment.match(/<\s*ul[^>]*>/i)) {
       listStack.push(BULLET_PRESET.UNORDERED);
@@ -221,6 +232,7 @@ export function parseHtmlContent(html: string): TextWithFormatting[] {
     }
     if (segment.match(/<\/\s*a\s*>/i)) {
       delete currentFormatting.link;
+      continue;
     }
   }
 
