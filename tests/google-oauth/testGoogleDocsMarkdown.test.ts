@@ -956,4 +956,90 @@ Use \`code\` for technical terms.
     expect(text).not.toContain("`");
     expect(text).not.toContain("[link]");
   });
+
+  it("does not produce extra blank lines between list items", () => {
+    const md = "- item1\n- item2\n- item3";
+    const requests = markdownToDocRequests(md);
+    const texts = getInsertTexts(requests);
+
+    const nonWhitespaceTexts = texts.filter((t) => t.trim().length > 0);
+    expect(nonWhitespaceTexts).toEqual(["item1", "item2", "item3"]);
+
+    // Only structural newlines: one after each </li> (×3) + one after </ul> (×1)
+    const newlineTexts = texts.filter((t) => t === "\n");
+    expect(newlineTexts).toHaveLength(4);
+  });
+
+  it("does not produce extra blank lines between headings and paragraphs", () => {
+    const md = "# Title\n\nSome text\n\n## Subtitle";
+    const requests = markdownToDocRequests(md);
+    const texts = getInsertTexts(requests);
+
+    const nonWhitespaceTexts = texts.filter((t) => t.trim().length > 0);
+    expect(nonWhitespaceTexts).toEqual(["Title", "Some text", "Subtitle"]);
+  });
+
+  it("does not produce empty bullet points from marked whitespace", () => {
+    const md = "- a\n- b\n- c";
+    const requests = markdownToDocRequests(md);
+    const bulletRequests = requests.filter((r) => r.createParagraphBullets);
+
+    // Each bullet should cover a real text segment, not an artifact newline
+    expect(bulletRequests.length).toBe(3);
+    for (const br of bulletRequests) {
+      const range = br.createParagraphBullets!.range!;
+      const start = range.startIndex!;
+      const end = range.endIndex!;
+      expect(end - start).toBeGreaterThanOrEqual(1);
+    }
+  });
+});
+
+describe("URL sanitization", () => {
+  it("allows http and https links", () => {
+    const result = parseHtmlContent('<a href="https://credal.ai">safe</a>');
+    const linked = result.find((r) => r.formatting?.link);
+    expect(linked).toBeDefined();
+    expect(linked!.formatting!.link!.url).toBe("https://credal.ai");
+  });
+
+  it("allows http links", () => {
+    const result = parseHtmlContent('<a href="http://example.com">ok</a>');
+    const linked = result.find((r) => r.formatting?.link);
+    expect(linked).toBeDefined();
+    expect(linked!.formatting!.link!.url).toBe("http://example.com");
+  });
+
+  it("rejects javascript: URIs", () => {
+    const result = parseHtmlContent(
+      '<a href="javascript:alert(1)">xss</a>',
+    );
+    const linked = result.find((r) => r.formatting?.link);
+    expect(linked).toBeUndefined();
+  });
+
+  it("rejects data: URIs", () => {
+    const result = parseHtmlContent(
+      '<a href="data:text/html,<script>alert(1)</script>">xss</a>',
+    );
+    const linked = result.find((r) => r.formatting?.link);
+    expect(linked).toBeUndefined();
+  });
+
+  it("rejects javascript: with mixed case", () => {
+    const result = parseHtmlContent(
+      '<a href="JaVaScRiPt:alert(1)">xss</a>',
+    );
+    const linked = result.find((r) => r.formatting?.link);
+    expect(linked).toBeUndefined();
+  });
+
+  it("preserves link text even when URL is rejected", () => {
+    const result = parseHtmlContent(
+      '<a href="javascript:void(0)">click me</a>',
+    );
+    const textSegment = result.find((r) => r.text === "click me");
+    expect(textSegment).toBeDefined();
+    expect(textSegment!.formatting?.link).toBeUndefined();
+  });
 });

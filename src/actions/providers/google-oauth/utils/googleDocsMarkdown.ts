@@ -62,6 +62,13 @@ function fieldMaskFromTextStyle(style: docs_v1.Schema$TextStyle): string {
   return Object.keys(style).join(",");
 }
 
+const ALLOWED_URL_SCHEMES = /^https?:\/\//i;
+
+/** Returns true if the URL uses a safe scheme (http/https). Rejects javascript:, data:, etc. */
+function isSafeUrl(url: string): boolean {
+  return ALLOWED_URL_SCHEMES.test(url.trim());
+}
+
 /** Removes all HTML tags and decodes entities. Used as a last-resort fallback when parsing yields no segments. */
 function stripHtmlTags(content: string): string {
   return decodeHtmlEntities(content.replace(/<[^>]*>/g, ""));
@@ -115,6 +122,11 @@ export function parseHtmlContent(html: string): TextWithFormatting[] {
     if (!segment.startsWith("<")) {
       const decodedText = decodeHtmlEntities(segment);
       if (!decodedText) {
+        continue;
+      }
+      // Skip newline-only text nodes — these are HTML formatting artifacts
+      // We preserve spaces (e.g. " " between inline elements like </b> and <a>).
+      if (/^\n+$/.test(decodedText)) {
         continue;
       }
       result.push({
@@ -227,7 +239,11 @@ export function parseHtmlContent(html: string): TextWithFormatting[] {
     // --- Links: extract href on open, clear on close ---
     const linkStart = segment.match(/<\s*a[^>]*href=["']([^"']+)["'][^>]*>/i);
     if (linkStart) {
-      currentFormatting.link = { url: decodeHtmlEntities(linkStart[1]) };
+      const url = decodeHtmlEntities(linkStart[1]);
+      if (isSafeUrl(url)) {
+        // allow safe links only (javascript:, data:, etc. are rejected)
+        currentFormatting.link = { url };
+      }
       continue;
     }
     if (segment.match(/<\/\s*a\s*>/i)) {
