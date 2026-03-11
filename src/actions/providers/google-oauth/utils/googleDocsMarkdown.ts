@@ -356,8 +356,9 @@ export function parseHtmlToDocRequests(htmlContent: string): docs_v1.Schema$Requ
  */
 export function markdownToDocRequests(markdown: string): docs_v1.Schema$Request[] {
   try {
-    const html = marked.parse(markdown, { async: false });
-    return parseHtmlToDocRequests(typeof html === "string" ? html : markdown);
+    // async: false guarantees a synchronous string return from marked.parse()
+    const html = marked.parse(markdown, { async: false }) as string;
+    return parseHtmlToDocRequests(html);
   } catch {
     return plainTextToDocRequests(markdown);
   }
