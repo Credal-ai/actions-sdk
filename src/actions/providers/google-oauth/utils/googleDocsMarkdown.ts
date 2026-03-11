@@ -46,7 +46,13 @@ function decodeHtmlEntities(text: string): string {
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'");
+    .replace(/&#39;/g, "'")
+    .replace(/&mdash;/g, "\u2014")
+    .replace(/&ndash;/g, "\u2013")
+    .replace(/&hellip;/g, "\u2026")
+    .replace(/&copy;/g, "\u00A9")
+    .replace(/&trade;/g, "\u2122")
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)));
 }
 
 /** Maps a heading level (1–6) to the corresponding Google Docs `namedStyleType` (e.g. 3 → "HEADING_3"). */
@@ -355,13 +361,14 @@ export function parseHtmlToDocRequests(htmlContent: string): docs_v1.Schema$Requ
  * Falls back to plain-text insertion if `marked` throws.
  */
 export function markdownToDocRequests(markdown: string): docs_v1.Schema$Request[] {
+  let html: string;
   try {
-    // async: false guarantees a synchronous string return from marked.parse()
-    const html = marked.parse(markdown, { async: false }) as string;
-    return parseHtmlToDocRequests(html);
+    html = marked.parse(markdown, { async: false }) as string;
   } catch {
+    // if marked.parse() throws, fallback to plain text insertion
     return plainTextToDocRequests(markdown);
   }
+  return parseHtmlToDocRequests(html);
 }
 
 /**
