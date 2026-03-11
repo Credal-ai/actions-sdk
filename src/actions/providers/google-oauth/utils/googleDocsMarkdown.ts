@@ -252,8 +252,7 @@ export function parseHtmlContent(html: string): TextWithFormatting[] {
     // --- Links: extract href on open, clear on close ---
     // Two regexes so a double-quoted href can contain ' and vice versa
     const linkStart =
-      segment.match(/<\s*a[^>]*href="([^"]*)"[^>]*>/i) ??
-      segment.match(/<\s*a[^>]*href='([^']*)'[^>]*>/i);
+      segment.match(/<\s*a[^>]*href="([^"]*)"[^>]*>/i) ?? segment.match(/<\s*a[^>]*href='([^']*)'[^>]*>/i);
     if (linkStart) {
       const url = decodeHtmlEntities(linkStart[1]);
       if (isSafeUrl(url)) {

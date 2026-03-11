@@ -1011,9 +1011,7 @@ describe("URL sanitization", () => {
   });
 
   it("rejects javascript: URIs", () => {
-    const result = parseHtmlContent(
-      '<a href="javascript:alert(1)">xss</a>',
-    );
+    const result = parseHtmlContent('<a href="javascript:alert(1)">xss</a>');
     const linked = result.find((r) => r.formatting?.link);
     expect(linked).toBeUndefined();
   });
@@ -1027,9 +1025,7 @@ describe("URL sanitization", () => {
   });
 
   it("rejects javascript: with mixed case", () => {
-    const result = parseHtmlContent(
-      '<a href="JaVaScRiPt:alert(1)">xss</a>',
-    );
+    const result = parseHtmlContent('<a href="JaVaScRiPt:alert(1)">xss</a>');
     const linked = result.find((r) => r.formatting?.link);
     expect(linked).toBeUndefined();
   });
@@ -1055,9 +1051,7 @@ describe("parseHtmlContent — <pre> handling", () => {
   });
 
   it("keeps monospace after </code> when still inside <pre>", () => {
-    const result = parseHtmlContent(
-      "<pre><code>x = 1</code>\nfooter</pre>",
-    );
+    const result = parseHtmlContent("<pre><code>x = 1</code>\nfooter</pre>");
     const codeSegment = result.find((r) => r.text === "x = 1");
     const footer = result.find((r) => r.text?.includes("footer"));
     expect(codeSegment!.formatting?.weightedFontFamily?.fontFamily).toBe(
