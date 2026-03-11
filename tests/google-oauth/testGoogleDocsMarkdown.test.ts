@@ -1043,3 +1043,42 @@ describe("URL sanitization", () => {
     expect(textSegment!.formatting?.link).toBeUndefined();
   });
 });
+
+describe("parseHtmlContent — <pre> handling", () => {
+  it("applies monospace to <pre> without inner <code>", () => {
+    const result = parseHtmlContent("<pre>some code</pre>");
+    const code = result.find((r) => r.text === "some code");
+    expect(code).toBeDefined();
+    expect(code!.formatting?.weightedFontFamily?.fontFamily).toBe(
+      "Courier New",
+    );
+  });
+
+  it("keeps monospace after </code> when still inside <pre>", () => {
+    const result = parseHtmlContent(
+      "<pre><code>x = 1</code>\nfooter</pre>",
+    );
+    const codeSegment = result.find((r) => r.text === "x = 1");
+    const footer = result.find((r) => r.text?.includes("footer"));
+    expect(codeSegment!.formatting?.weightedFontFamily?.fontFamily).toBe(
+      "Courier New",
+    );
+    expect(footer!.formatting?.weightedFontFamily?.fontFamily).toBe(
+      "Courier New",
+    );
+  });
+
+  it("clears monospace after </pre>", () => {
+    const result = parseHtmlContent("<pre>code</pre><p>normal</p>");
+    const normal = result.find((r) => r.text === "normal");
+    expect(normal).toBeDefined();
+    expect(normal!.formatting?.weightedFontFamily).toBeUndefined();
+  });
+
+  it("clears monospace on </code> outside <pre>", () => {
+    const result = parseHtmlContent("<code>inline</code> after");
+    const after = result.find((r) => r.text?.includes("after"));
+    expect(after).toBeDefined();
+    expect(after!.formatting?.weightedFontFamily).toBeUndefined();
+  });
+});

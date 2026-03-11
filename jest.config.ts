@@ -115,7 +115,10 @@ const config: Config = {
 
   transform: {
     "^.+\\.tsx?$": "ts-jest",
-    "node_modules/marked/.+\\.js$": "ts-jest",
+    "node_modules/marked/.+\\.js$": [
+      "ts-jest",
+      { tsconfig: { allowJs: true } },
+    ],
   },
 
   transformIgnorePatterns: ["/node_modules/(?!marked/)"],

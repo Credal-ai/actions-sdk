@@ -122,6 +122,7 @@ export function parseHtmlContent(html: string): TextWithFormatting[] {
   // Stack to support nested lists — top of stack is the active bullet preset
   const listStack: BulletPreset[] = [];
   let currentHeadingLevel: HeadingLevel | undefined;
+  let insidePre = false;
 
   for (const segment of segments) {
     // --- Text node: emit with a snapshot of the current formatting state ---
@@ -178,16 +179,22 @@ export function parseHtmlContent(html: string): TextWithFormatting[] {
       continue;
     }
     if (segment.match(/<\/\s*code\s*>/i)) {
-      delete currentFormatting.weightedFontFamily;
+      // Only clear monospace if we're not inside a <pre> block —
+      // <pre><code>...</code>text</pre> should keep text monospaced
+      if (!insidePre) {
+        delete currentFormatting.weightedFontFamily;
+      }
       continue;
     }
 
     // Pre-formatted blocks: same monospace treatment as <code>, with trailing newline on close
     if (segment.match(/<\s*pre[^>]*>/i)) {
+      insidePre = true;
       currentFormatting.weightedFontFamily = { fontFamily: "Courier New" };
       continue;
     }
     if (segment.match(/<\/\s*pre\s*>/i)) {
+      insidePre = false;
       delete currentFormatting.weightedFontFamily;
       result.push({ text: "\n" });
       continue;
