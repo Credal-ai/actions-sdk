@@ -5284,9 +5284,9 @@ actions:
           limit:
             type: number
             description: The maximum number of files to return
-          fileSizeLimit:
+          summarySizeLimit:
             type: number
-            description: The maximum length of a file in characters
+            description: The maximum length of the summary returned for each file, in characters
           searchDriveByDrive:
             type: boolean
             description: Search drive by drive or run a general search. Usually false unless otherwise noted by the user.
@@ -5335,7 +5335,7 @@ actions:
                       description: The web link to view the file
                     content:
                       type: string
-                      description: The data returned from the file, subject to fileSizeLimit
+                      description: The data returned from the file, subject to summarySizeLimit
           error:
             type: string
             description: Error message if search failed
