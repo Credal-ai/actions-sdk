@@ -216,6 +216,88 @@ describe("addTextToTopOfDoc", () => {
     expect(result.success).toBe(false);
     expect(result.error).toBe("Network error");
   });
+
+  it("inserts markdown-formatted content when contentFormat is markdown", async () => {
+    mockPost.mockResolvedValueOnce({ data: {} });
+
+    const result = await addTextToTopOfDoc({
+      params: {
+        documentId: "doc-md",
+        text: "**bold text**",
+        contentFormat: "markdown",
+      },
+      authParams: AUTH,
+    });
+
+    expect(result.success).toBe(true);
+
+    const [, body] = mockPost.mock.calls[0];
+    const inserts = body.requests.filter(
+      (r: Record<string, unknown>) => r.insertText,
+    );
+    const styles = body.requests.filter(
+      (r: Record<string, unknown>) => r.updateTextStyle,
+    );
+
+    const text = inserts
+      .map((r: { insertText: { text: string } }) => r.insertText.text)
+      .join("");
+    expect(text).toContain("bold text");
+    expect(text).not.toContain("**");
+
+    expect(styles.length).toBeGreaterThan(0);
+    expect(styles[0].updateTextStyle.textStyle.bold).toBe(true);
+  });
+
+  it("inserts html-formatted content when contentFormat is html", async () => {
+    mockPost.mockResolvedValueOnce({ data: {} });
+
+    const result = await addTextToTopOfDoc({
+      params: {
+        documentId: "doc-html",
+        text: "<i>italic</i>",
+        contentFormat: "html",
+      },
+      authParams: AUTH,
+    });
+
+    expect(result.success).toBe(true);
+
+    const [, body] = mockPost.mock.calls[0];
+    const inserts = body.requests.filter(
+      (r: Record<string, unknown>) => r.insertText,
+    );
+    const styles = body.requests.filter(
+      (r: Record<string, unknown>) => r.updateTextStyle,
+    );
+
+    const text = inserts
+      .map((r: { insertText: { text: string } }) => r.insertText.text)
+      .join("");
+    expect(text).toContain("italic");
+
+    expect(styles.length).toBeGreaterThan(0);
+    expect(styles[0].updateTextStyle.textStyle.italic).toBe(true);
+  });
+
+  it("defaults to plain text when contentFormat is not set", async () => {
+    mockPost.mockResolvedValueOnce({ data: {} });
+
+    await addTextToTopOfDoc({
+      params: { documentId: "doc-default", text: "**not bold**" },
+      authParams: AUTH,
+    });
+
+    const [, body] = mockPost.mock.calls[0];
+    expect(body.requests).toEqual([
+      {
+        insertText: {
+          location: { index: 1 },
+          text: "**not bold**\n",
+        },
+      },
+    ]);
+  });
 });
 
 describe("updateDoc", () => {
