@@ -6,6 +6,7 @@ import type {
   googleOauthAddTextToTopOfDocOutputType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { resolveContentFormat, contentToDocRequests } from "./utils/googleDocsMarkdown.js";
 
 const addTextToTopOfDoc: googleOauthAddTextToTopOfDocFunction = async ({
   params,
@@ -22,24 +23,16 @@ const addTextToTopOfDoc: googleOauthAddTextToTopOfDocFunction = async ({
     };
   }
 
-  const { documentId, text } = params;
+  const { documentId, text, contentFormat } = params;
   const baseApiUrl = "https://docs.googleapis.com/v1/documents";
+  const resolvedFormat = resolveContentFormat({ contentFormat });
 
   try {
+    const requests = contentToDocRequests({ content: text + "\n", format: resolvedFormat });
+
     await axiosClient.post(
       `${baseApiUrl}/${documentId}:batchUpdate`,
-      {
-        requests: [
-          {
-            insertText: {
-              location: {
-                index: 1,
-              },
-              text: text + "\n",
-            },
-          },
-        ],
-      },
+      { requests },
       {
         headers: {
           Authorization: `Bearer ${authParams.authToken}`,
