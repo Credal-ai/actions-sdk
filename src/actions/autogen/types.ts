@@ -2786,6 +2786,10 @@ export type googleOauthCreateNewGoogleDocFunction = ActionFunction<
 export const googleOauthAddTextToTopOfDocParamsSchema = z.object({
   documentId: z.string().describe("The ID of the Google Doc to update"),
   text: z.string().describe("The text to insert at the beginning of the document"),
+  contentFormat: z
+    .enum(["plain", "markdown", "html"])
+    .describe("How to interpret the text param. Defaults to plain.")
+    .optional(),
 });
 
 export type googleOauthAddTextToTopOfDocParamsType = z.infer<typeof googleOauthAddTextToTopOfDocParamsSchema>;
@@ -7199,9 +7203,6 @@ export const linearCreateIssueParamsSchema = z.object({
   assigneeId: z.string().describe("The ID of the user to assign the issue to").optional(),
   priority: z
     .number()
-    .int()
-    .min(0)
-    .max(4)
     .describe("The priority of the issue: 0 = No priority, 1 = Urgent, 2 = High, 3 = Medium, 4 = Low")
     .optional(),
   projectId: z.string().describe("The ID of the project to associate the issue with").optional(),

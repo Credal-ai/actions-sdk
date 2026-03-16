@@ -5127,6 +5127,11 @@ export const googleOauthAddTextToTopOfDocDefinition: ActionTemplate = {
         type: "string",
         description: "The text to insert at the beginning of the document",
       },
+      contentFormat: {
+        type: "string",
+        enum: ["plain", "markdown", "html"],
+        description: "How to interpret the text param. Defaults to plain.",
+      },
     },
   },
   output: {
