@@ -19,10 +19,6 @@ const commentJiraTicketWithMentions: jiraCommentJiraTicketFunction = async ({
   const { apiUrl, browseUrl, strategy } = getJiraApiConfig(authParams);
   const { issueId, comment } = params;
 
-  if (!authToken) {
-    throw new Error("Auth token is required");
-  }
-
   try {
     const formatted = strategy.formatText(comment);
     // convertMentionsInAdf only applies to ADF (Cloud). Data Center returns a plain

@@ -1,5 +1,5 @@
-const JIRA_MENTION_TEST = /\[~accountid:([^\]]+)\]/;
-const JIRA_MENTION_GLOBAL = /\[~accountid:([^\]]+)\]/g;
+const JIRA_MENTION_SOURCE = "\\[~accountid:([^\\]]+)\\]";
+const JIRA_MENTION_TEST = new RegExp(JIRA_MENTION_SOURCE);
 
 /**
  * Walks an ADF tree and converts [~accountid:XXXXX] text patterns into
@@ -37,7 +37,7 @@ function splitTextNodeWithMentions(node: Record<string, unknown>): Record<string
   const results: Record<string, unknown>[] = [];
   let lastIndex = 0;
 
-  const regex = new RegExp(JIRA_MENTION_GLOBAL.source, "g");
+  const regex = new RegExp(JIRA_MENTION_SOURCE, "g");
   let match: RegExpExecArray | null;
 
   while ((match = regex.exec(text)) !== null) {
