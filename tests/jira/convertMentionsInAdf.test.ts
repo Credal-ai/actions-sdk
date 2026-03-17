@@ -49,7 +49,7 @@ describe("convertMentionsInAdf", () => {
       type: "mention",
       attrs: {
         id: "712020:40f20a8b-4aba-4b8c-881f-b94e5ef918a6",
-        text: "@712020:40f20a8b-4aba-4b8c-881f-b94e5ef918a6",
+        text: "@mentioned-user",
         accessLevel: "",
       },
     });
@@ -81,12 +81,12 @@ describe("convertMentionsInAdf", () => {
     expect(inlineNodes[0]).toEqual({ type: "text", text: "cc " });
     expect(inlineNodes[1]).toEqual({
       type: "mention",
-      attrs: { id: "aaa-111", text: "@aaa-111", accessLevel: "" },
+      attrs: { id: "aaa-111", text: "@mentioned-user", accessLevel: "" },
     });
     expect(inlineNodes[2]).toEqual({ type: "text", text: " and " });
     expect(inlineNodes[3]).toEqual({
       type: "mention",
-      attrs: { id: "bbb-222", text: "@bbb-222", accessLevel: "" },
+      attrs: { id: "bbb-222", text: "@mentioned-user", accessLevel: "" },
     });
     expect(inlineNodes[4]).toEqual({ type: "text", text: " for review" });
   });
@@ -110,7 +110,7 @@ describe("convertMentionsInAdf", () => {
     expect(inlineNodes).toHaveLength(2);
     expect(inlineNodes[0]).toEqual({
       type: "mention",
-      attrs: { id: "abc-123", text: "@abc-123", accessLevel: "" },
+      attrs: { id: "abc-123", text: "@mentioned-user", accessLevel: "" },
     });
     expect(inlineNodes[1]).toEqual({ type: "text", text: " please review" });
   });
@@ -135,7 +135,7 @@ describe("convertMentionsInAdf", () => {
     expect(inlineNodes[0]).toEqual({ type: "text", text: "assigned to " });
     expect(inlineNodes[1]).toEqual({
       type: "mention",
-      attrs: { id: "abc-123", text: "@abc-123", accessLevel: "" },
+      attrs: { id: "abc-123", text: "@mentioned-user", accessLevel: "" },
     });
   });
 
@@ -158,7 +158,7 @@ describe("convertMentionsInAdf", () => {
     expect(inlineNodes).toHaveLength(1);
     expect(inlineNodes[0]).toEqual({
       type: "mention",
-      attrs: { id: "abc-123", text: "@abc-123", accessLevel: "" },
+      attrs: { id: "abc-123", text: "@mentioned-user", accessLevel: "" },
     });
   });
 
@@ -192,7 +192,7 @@ describe("convertMentionsInAdf", () => {
     });
     expect(inlineNodes[1]).toEqual({
       type: "mention",
-      attrs: { id: "abc-123", text: "@abc-123", accessLevel: "" },
+      attrs: { id: "abc-123", text: "@mentioned-user", accessLevel: "" },
     });
     expect(inlineNodes[2]).toEqual({
       type: "text",
@@ -247,7 +247,7 @@ describe("convertMentionsInAdf", () => {
     expect(inlineNodes[0]).toEqual({ type: "text", text: "FYI " });
     expect(inlineNodes[1]).toEqual({
       type: "mention",
-      attrs: { id: "nested-id", text: "@nested-id", accessLevel: "" },
+      attrs: { id: "nested-id", text: "@mentioned-user", accessLevel: "" },
     });
     expect(inlineNodes[2]).toEqual({ type: "text", text: " check this" });
   });

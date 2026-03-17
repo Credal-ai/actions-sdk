@@ -1,4 +1,5 @@
-const JIRA_MENTION_PATTERN = /\[~accountid:([^\]]+)\]/;
+const JIRA_MENTION_TEST = /\[~accountid:([^\]]+)\]/;
+const JIRA_MENTION_GLOBAL = /\[~accountid:([^\]]+)\]/g;
 
 /**
  * Walks an ADF tree and converts [~accountid:XXXXX] text patterns into
@@ -10,7 +11,7 @@ export function convertMentionsInAdf(adf: unknown): unknown {
 
   const node = adf as Record<string, unknown>;
 
-  if (node.type === "text" && typeof node.text === "string" && JIRA_MENTION_PATTERN.test(node.text)) {
+  if (node.type === "text" && typeof node.text === "string" && JIRA_MENTION_TEST.test(node.text)) {
     return splitTextNodeWithMentions(node);
   }
 
@@ -36,7 +37,7 @@ function splitTextNodeWithMentions(node: Record<string, unknown>): Record<string
   const results: Record<string, unknown>[] = [];
   let lastIndex = 0;
 
-  const regex = new RegExp(JIRA_MENTION_PATTERN.source, "g");
+  const regex = new RegExp(JIRA_MENTION_GLOBAL.source, "g");
   let match: RegExpExecArray | null;
 
   while ((match = regex.exec(text)) !== null) {
@@ -50,7 +51,7 @@ function splitTextNodeWithMentions(node: Record<string, unknown>): Record<string
       type: "mention",
       attrs: {
         id: match[1],
-        text: `@${match[1]}`,
+        text: "@mentioned-user",
         accessLevel: "",
       },
     });

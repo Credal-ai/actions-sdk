@@ -25,6 +25,8 @@ const commentJiraTicketWithMentions: jiraCommentJiraTicketFunction = async ({
 
   try {
     const formatted = strategy.formatText(comment);
+    // convertMentionsInAdf only applies to ADF (Cloud). Data Center returns a plain
+    // string using wiki-markup, where mention conversion is not applicable.
     const body = typeof formatted === "object" ? convertMentionsInAdf(formatted) : formatted;
 
     const response = await axiosClient.post(
