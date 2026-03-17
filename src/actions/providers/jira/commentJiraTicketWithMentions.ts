@@ -1,20 +1,20 @@
 import type {
   AuthParamsType,
-  jiraCommentJiraTicketFunction,
-  jiraCommentJiraTicketOutputType,
-  jiraCommentJiraTicketParamsType,
+  jiraCommentJiraTicketWithMentionsFunction,
+  jiraCommentJiraTicketWithMentionsOutputType,
+  jiraCommentJiraTicketWithMentionsParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
 import { getJiraApiConfig, getErrorMessage } from "./utils.js";
 import { convertMentionsInAdf } from "./convertMentionsInAdf.js";
 
-const commentJiraTicketWithMentions: jiraCommentJiraTicketFunction = async ({
+const commentJiraTicketWithMentions: jiraCommentJiraTicketWithMentionsFunction = async ({
   params,
   authParams,
 }: {
-  params: jiraCommentJiraTicketParamsType;
+  params: jiraCommentJiraTicketWithMentionsParamsType;
   authParams: AuthParamsType;
-}): Promise<jiraCommentJiraTicketOutputType> => {
+}): Promise<jiraCommentJiraTicketWithMentionsOutputType> => {
   const { authToken } = authParams;
   const { apiUrl, browseUrl, strategy } = getJiraApiConfig(authParams);
   const { issueId, comment } = params;

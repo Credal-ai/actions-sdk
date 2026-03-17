@@ -39,6 +39,8 @@ import {
   jiraAssignJiraTicketOutputSchema,
   jiraCommentJiraTicketParamsSchema,
   jiraCommentJiraTicketOutputSchema,
+  jiraCommentJiraTicketWithMentionsParamsSchema,
+  jiraCommentJiraTicketWithMentionsOutputSchema,
   jiraCreateJiraTicketParamsSchema,
   jiraCreateJiraTicketOutputSchema,
   jiraGetJiraTicketDetailsParamsSchema,
@@ -457,8 +459,8 @@ const jiraActions = {
   },
   commentJiraTicketWithMentions: {
     fn: commentJiraTicketWithMentions,
-    paramsSchema: jiraCommentJiraTicketParamsSchema,
-    outputSchema: jiraCommentJiraTicketOutputSchema,
+    paramsSchema: jiraCommentJiraTicketWithMentionsParamsSchema,
+    outputSchema: jiraCommentJiraTicketWithMentionsOutputSchema,
     actionType: "write",
   },
   publicCommentOnServiceDeskRequest: {
@@ -759,8 +761,8 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
     },
     commentJiraTicketWithMentions: {
       fn: commentJiraTicketWithMentions,
-      paramsSchema: jiraCommentJiraTicketParamsSchema,
-      outputSchema: jiraCommentJiraTicketOutputSchema,
+      paramsSchema: jiraCommentJiraTicketWithMentionsParamsSchema,
+      outputSchema: jiraCommentJiraTicketWithMentionsOutputSchema,
       actionType: "write",
     },
     createJiraTicket: {
