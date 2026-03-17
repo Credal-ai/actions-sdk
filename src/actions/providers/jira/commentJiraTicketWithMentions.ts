@@ -39,6 +39,7 @@ const commentJiraTicketWithMentions: jiraCommentJiraTicketFunction = async ({
 
     return {
       success: true,
+      // focusedCommentId may not auto-scroll on all Data Center versions/themes
       commentUrl: `${browseUrl}/browse/${issueId}?focusedCommentId=${response.data.id}`,
     };
   } catch (error: unknown) {
