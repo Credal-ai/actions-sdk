@@ -1080,7 +1080,7 @@ actions:
             description: The url to the created Jira comment
     commentJiraTicketWithMentions:
       displayName: Comment on a Jira ticket with @mention support
-      description: Comments on a Jira ticket, converting [~accountid:ID] patterns into clickable @mentions (Jira Cloud only).
+      description: Comments on a Jira ticket, converting [~accountid:ID] patterns into clickable @mentions. On Jira Cloud, mentions render as clickable user tags. On Data Center, the comment is posted as plain text (mention conversion is not applicable).
       scopes:
         - write:comment:jira
       parameters:
@@ -1096,7 +1096,7 @@ actions:
             description: The issue ID associated with the ticket to be commented on.
           comment:
             type: string
-            description: The text to be commented on the ticket. Use [~accountid:ATLASSIAN_ACCOUNT_ID] to @mention users.
+            description: The text to be commented on the ticket. Use [~accountid:ATLASSIAN_ACCOUNT_ID] to @mention users (Jira Cloud only).
       output:
         type: object
         required: [success]
