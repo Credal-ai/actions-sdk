@@ -3213,53 +3213,6 @@ export const jiraDataCenterCommentJiraTicketDefinition: ActionTemplate = {
   name: "commentJiraTicket",
   provider: "jiraDataCenter",
 };
-export const jiraDataCenterCommentJiraTicketWithMentionsDefinition: ActionTemplate = {
-  displayName: "Comment on a Jira ticket with @mention support",
-  description:
-    "Comments on a Jira ticket, converting [~accountid:ID] patterns into clickable @mentions (Jira Cloud only).",
-  scopes: ["write:comment:jira"],
-  tags: [],
-  parameters: {
-    type: "object",
-    required: ["projectKey", "issueId", "comment"],
-    properties: {
-      projectKey: {
-        type: "string",
-        description: "The key for the project to which the ticket you want to comment on belongs.",
-        tags: ["recommend-predefined"],
-      },
-      issueId: {
-        type: "string",
-        description: "The issue ID associated with the ticket to be commented on.",
-      },
-      comment: {
-        type: "string",
-        description:
-          "The text to be commented on the ticket. Use [~accountid:ATLASSIAN_ACCOUNT_ID] to @mention users.",
-      },
-    },
-  },
-  output: {
-    type: "object",
-    required: ["success"],
-    properties: {
-      success: {
-        type: "boolean",
-        description: "Whether the comment was sent successfully",
-      },
-      error: {
-        type: "string",
-        description: "The error that occurred if the comment was not sent successfully",
-      },
-      commentUrl: {
-        type: "string",
-        description: "The url to the created Jira comment",
-      },
-    },
-  },
-  name: "commentJiraTicketWithMentions",
-  provider: "jiraDataCenter",
-};
 export const jiraDataCenterCreateJiraTicketDefinition: ActionTemplate = {
   displayName: "Create a Jira ticket",
   description: "Create a jira ticket with new content specified",

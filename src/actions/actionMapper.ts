@@ -757,12 +757,6 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       outputSchema: jiraCommentJiraTicketOutputSchema,
       actionType: "write",
     },
-    commentJiraTicketWithMentions: {
-      fn: commentJiraTicketWithMentions,
-      paramsSchema: jiraCommentJiraTicketParamsSchema,
-      outputSchema: jiraCommentJiraTicketOutputSchema,
-      actionType: "write",
-    },
     createJiraTicket: {
       fn: createJiraTicket,
       paramsSchema: jiraCreateJiraTicketParamsSchema,
