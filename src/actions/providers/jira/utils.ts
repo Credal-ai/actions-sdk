@@ -311,6 +311,8 @@ export async function getUserInfoFromAccountId(
   }
 }
 
+export { convertMentionsInAdf } from "./convertMentionsInAdf.js";
+
 export function extractPlainText(adf: unknown): string {
   if (!adf || typeof adf !== "object") return "";
 
