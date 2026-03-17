@@ -7,7 +7,10 @@ const JIRA_MENTION_TEST = new RegExp(JIRA_MENTION_SOURCE);
  */
 export function convertMentionsInAdf(adf: unknown): unknown {
   if (!adf || typeof adf !== "object") return adf;
-  if (Array.isArray(adf)) return adf.map(convertMentionsInAdf);
+  if (Array.isArray(adf)) return adf.flatMap(item => {
+    const result = convertMentionsInAdf(item);
+    return Array.isArray(result) ? result : [result];
+  });
 
   const node = adf as Record<string, unknown>;
 
