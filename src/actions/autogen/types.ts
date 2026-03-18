@@ -60,6 +60,7 @@ export enum ActionName {
   ASSIGNJIRATICKET = "assignJiraTicket",
   PUBLICCOMMENTONSERVICEDESKREQUEST = "publicCommentOnServiceDeskRequest",
   COMMENTJIRATICKET = "commentJiraTicket",
+  COMMENTJIRATICKETWITHMENTIONS = "commentJiraTicketWithMentions",
   CREATEJIRATICKET = "createJiraTicket",
   CREATESERVICEDESKREQUEST = "createServiceDeskRequest",
   GETJIRATICKETDETAILS = "getJiraTicketDetails",
@@ -947,6 +948,31 @@ export type jiraCommentJiraTicketFunction = ActionFunction<
   jiraCommentJiraTicketParamsType,
   AuthParamsType,
   jiraCommentJiraTicketOutputType
+>;
+
+export const jiraCommentJiraTicketWithMentionsParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project to which the ticket you want to comment on belongs."),
+  issueId: z.string().describe("The issue ID associated with the ticket to be commented on."),
+  comment: z
+    .string()
+    .describe(
+      "The text to be commented on the ticket. Use [~accountid:ATLASSIAN_ACCOUNT_ID] to @mention users (Jira Cloud only).",
+    ),
+});
+
+export type jiraCommentJiraTicketWithMentionsParamsType = z.infer<typeof jiraCommentJiraTicketWithMentionsParamsSchema>;
+
+export const jiraCommentJiraTicketWithMentionsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the comment was sent successfully"),
+  error: z.string().describe("The error that occurred if the comment was not sent successfully").optional(),
+  commentUrl: z.string().describe("The url to the created Jira comment").optional(),
+});
+
+export type jiraCommentJiraTicketWithMentionsOutputType = z.infer<typeof jiraCommentJiraTicketWithMentionsOutputSchema>;
+export type jiraCommentJiraTicketWithMentionsFunction = ActionFunction<
+  jiraCommentJiraTicketWithMentionsParamsType,
+  AuthParamsType,
+  jiraCommentJiraTicketWithMentionsOutputType
 >;
 
 export const jiraCreateJiraTicketParamsSchema = z.object({
