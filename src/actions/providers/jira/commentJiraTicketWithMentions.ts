@@ -17,18 +17,19 @@ const commentJiraTicketWithMentions: jiraCommentJiraTicketWithMentionsFunction =
   authParams: AuthParamsType;
 }): Promise<jiraCommentJiraTicketWithMentionsOutputType> => {
   const { authToken } = authParams;
-  const { apiUrl, browseUrl, isDataCenter } = getJiraApiConfig(authParams);
   const { issueId, comment } = params;
 
-  if (isDataCenter) {
-    return {
-      success: false,
-      error:
-        "commentJiraTicketWithMentions is only supported on Jira Cloud. Use commentJiraTicket for Jira Data Center.",
-    };
-  }
-
   try {
+    const { apiUrl, browseUrl, isDataCenter } = getJiraApiConfig(authParams);
+
+    if (isDataCenter) {
+      return {
+        success: false,
+        error:
+          "commentJiraTicketWithMentions is only supported on Jira Cloud. Use commentJiraTicket for Jira Data Center.",
+      };
+    }
+
     const { sanitized, mentions } = extractMentions(comment);
     const adf = markdownToAdf(sanitized);
     const body = insertMentionNodes(adf, mentions);
