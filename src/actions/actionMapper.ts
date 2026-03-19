@@ -39,6 +39,8 @@ import {
   jiraAssignJiraTicketOutputSchema,
   jiraCommentJiraTicketParamsSchema,
   jiraCommentJiraTicketOutputSchema,
+  jiraCommentJiraTicketWithMentionsParamsSchema,
+  jiraCommentJiraTicketWithMentionsOutputSchema,
   jiraCreateJiraTicketParamsSchema,
   jiraCreateJiraTicketOutputSchema,
   jiraGetJiraTicketDetailsParamsSchema,
@@ -300,6 +302,7 @@ import listZendeskTickets from "./providers/zendesk/listTickets.js";
 import searchZendeskByQuery from "./providers/zendesk/searchZendeskByQuery.js";
 import assignJiraTicket from "./providers/jira/assignJiraTicket.js";
 import commentJiraTicket from "./providers/jira/commentJiraTicket.js";
+import commentJiraTicketWithMentions from "./providers/jira/commentJiraTicketWithMentions.js";
 import createJiraTicket from "./providers/jira/createJiraTicket.js";
 import getJiraTicketDetails from "./providers/jira/getJiraTicketDetails.js";
 import getJiraTicketHistory from "./providers/jira/getJiraTicketHistory.js";
@@ -452,6 +455,12 @@ const jiraActions = {
     fn: commentJiraTicket,
     paramsSchema: jiraCommentJiraTicketParamsSchema,
     outputSchema: jiraCommentJiraTicketOutputSchema,
+    actionType: "write",
+  },
+  commentJiraTicketWithMentions: {
+    fn: commentJiraTicketWithMentions,
+    paramsSchema: jiraCommentJiraTicketWithMentionsParamsSchema,
+    outputSchema: jiraCommentJiraTicketWithMentionsOutputSchema,
     actionType: "write",
   },
   publicCommentOnServiceDeskRequest: {
