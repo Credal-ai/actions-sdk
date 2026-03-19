@@ -48,10 +48,10 @@
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.2",
-    "typescript-eslint": "^8.56.0",
-    "@googleapis/docs": "^9.2.1"
+    "typescript-eslint": "^8.56.0"
   },
   "dependencies": {
+    "@googleapis/docs": "^9.2.1",
     "@mendable/firecrawl-js": "^4.3.4",
     "@microsoft/microsoft-graph-client": "^3.0.7",
     "@octokit/core": "^6.1.6",
