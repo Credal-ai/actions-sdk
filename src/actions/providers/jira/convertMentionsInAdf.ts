@@ -124,7 +124,7 @@ function splitTextNodeWithMentions(
       type: "mention",
       attrs: {
         id: resolveId(match[0], match.slice(1)),
-        text: "@mentioned-user",
+        text: `@${resolveId(match[0], match.slice(1))}`,
         accessLevel: "",
       },
     });
