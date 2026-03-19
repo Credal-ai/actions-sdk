@@ -1485,7 +1485,7 @@ export const jiraCommentJiraTicketDefinition: ActionTemplate = {
 };
 export const jiraCommentJiraTicketWithMentionsDefinition: ActionTemplate = {
   displayName: "Comment on a Jira ticket with @mentions",
-  description: "Comments on a Jira ticket with specified content, converting [~accountid:ID] patterns to @mentions",
+  description: "Comments on a Jira ticket, converting [~accountid:ID] patterns into clickable @mentions (Jira Cloud only).",
   scopes: ["write:comment:jira"],
   tags: [],
   parameters: {
@@ -2349,7 +2349,7 @@ export const jiraOrgCommentJiraTicketDefinition: ActionTemplate = {
 };
 export const jiraOrgCommentJiraTicketWithMentionsDefinition: ActionTemplate = {
   displayName: "Comment on a Jira ticket with @mentions",
-  description: "Comments on a Jira ticket with specified content, converting [~accountid:ID] patterns to @mentions",
+  description: "Comments on a Jira ticket, converting [~accountid:ID] patterns into clickable @mentions (Jira Cloud only).",
   scopes: ["write:comment:jira"],
   tags: [],
   parameters: {
