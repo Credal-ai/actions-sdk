@@ -25,9 +25,7 @@ export function extractMentions(text: string): { sanitized: string; mentions: st
  */
 export function insertMentionNodes(adf: unknown, mentions: string[]): unknown {
   if (mentions.length === 0) return adf;
-  const placeholderRegex = new RegExp(
-    `${escapeRegex(PLACEHOLDER_PREFIX)}(\\d+)${escapeRegex(PLACEHOLDER_SUFFIX)}`,
-  );
+  const placeholderRegex = new RegExp(`${escapeRegex(PLACEHOLDER_PREFIX)}(\\d+)${escapeRegex(PLACEHOLDER_SUFFIX)}`);
   return walkAndReplace(adf, placeholderRegex, mentions);
 }
 
@@ -38,10 +36,11 @@ export function insertMentionNodes(adf: unknown, mentions: string[]): unknown {
  */
 export function convertMentionsInAdf(adf: unknown): unknown {
   if (!adf || typeof adf !== "object") return adf;
-  if (Array.isArray(adf)) return adf.flatMap(item => {
-    const result = convertMentionsInAdf(item);
-    return Array.isArray(result) ? result : [result];
-  });
+  if (Array.isArray(adf))
+    return adf.flatMap(item => {
+      const result = convertMentionsInAdf(item);
+      return Array.isArray(result) ? result : [result];
+    });
 
   const node = adf as Record<string, unknown>;
 
@@ -71,10 +70,11 @@ export function convertMentionsInAdf(adf: unknown): unknown {
 
 function walkAndReplace(adf: unknown, regex: RegExp, mentions: string[]): unknown {
   if (!adf || typeof adf !== "object") return adf;
-  if (Array.isArray(adf)) return adf.flatMap(item => {
-    const result = walkAndReplace(item, regex, mentions);
-    return Array.isArray(result) ? result : [result];
-  });
+  if (Array.isArray(adf))
+    return adf.flatMap(item => {
+      const result = walkAndReplace(item, regex, mentions);
+      return Array.isArray(result) ? result : [result];
+    });
 
   const node = adf as Record<string, unknown>;
 

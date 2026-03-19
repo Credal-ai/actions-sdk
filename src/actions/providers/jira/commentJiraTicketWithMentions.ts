@@ -23,7 +23,8 @@ const commentJiraTicketWithMentions: jiraCommentJiraTicketWithMentionsFunction =
   if (isDataCenter) {
     return {
       success: false,
-      error: "commentJiraTicketWithMentions is only supported on Jira Cloud. Use commentJiraTicket for Jira Data Center.",
+      error:
+        "commentJiraTicketWithMentions is only supported on Jira Cloud. Use commentJiraTicket for Jira Data Center.",
     };
   }
 
