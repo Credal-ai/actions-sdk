@@ -1372,6 +1372,35 @@ export type jiraOrgCommentJiraTicketFunction = ActionFunction<
   jiraOrgCommentJiraTicketOutputType
 >;
 
+export const jiraOrgCommentJiraTicketWithMentionsParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project to which the ticket you want to comment on belongs."),
+  issueId: z.string().describe("The issue ID associated with the ticket to be commented on."),
+  comment: z
+    .string()
+    .describe(
+      "The text to be commented on the ticket. Use [~accountid:ATLASSIAN_ACCOUNT_ID] to @mention users (Jira Cloud only).",
+    ),
+});
+
+export type jiraOrgCommentJiraTicketWithMentionsParamsType = z.infer<
+  typeof jiraOrgCommentJiraTicketWithMentionsParamsSchema
+>;
+
+export const jiraOrgCommentJiraTicketWithMentionsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the comment was sent successfully"),
+  error: z.string().describe("The error that occurred if the comment was not sent successfully").optional(),
+  commentUrl: z.string().describe("The url to the created Jira comment").optional(),
+});
+
+export type jiraOrgCommentJiraTicketWithMentionsOutputType = z.infer<
+  typeof jiraOrgCommentJiraTicketWithMentionsOutputSchema
+>;
+export type jiraOrgCommentJiraTicketWithMentionsFunction = ActionFunction<
+  jiraOrgCommentJiraTicketWithMentionsParamsType,
+  AuthParamsType,
+  jiraOrgCommentJiraTicketWithMentionsOutputType
+>;
+
 export const jiraOrgCreateJiraTicketParamsSchema = z.object({
   projectKey: z.string().describe("The key for the project you want to add the ticket to."),
   summary: z.string().describe("The summary of the new ticket"),
@@ -1767,6 +1796,35 @@ export type jiraDataCenterCommentJiraTicketFunction = ActionFunction<
   jiraDataCenterCommentJiraTicketParamsType,
   AuthParamsType,
   jiraDataCenterCommentJiraTicketOutputType
+>;
+
+export const jiraDataCenterCommentJiraTicketWithMentionsParamsSchema = z.object({
+  projectKey: z.string().describe("The key for the project to which the ticket you want to comment on belongs."),
+  issueId: z.string().describe("The issue ID associated with the ticket to be commented on."),
+  comment: z
+    .string()
+    .describe(
+      "The text to be commented on the ticket. Use [~accountid:ATLASSIAN_ACCOUNT_ID] to @mention users (Jira Cloud only).",
+    ),
+});
+
+export type jiraDataCenterCommentJiraTicketWithMentionsParamsType = z.infer<
+  typeof jiraDataCenterCommentJiraTicketWithMentionsParamsSchema
+>;
+
+export const jiraDataCenterCommentJiraTicketWithMentionsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the comment was sent successfully"),
+  error: z.string().describe("The error that occurred if the comment was not sent successfully").optional(),
+  commentUrl: z.string().describe("The url to the created Jira comment").optional(),
+});
+
+export type jiraDataCenterCommentJiraTicketWithMentionsOutputType = z.infer<
+  typeof jiraDataCenterCommentJiraTicketWithMentionsOutputSchema
+>;
+export type jiraDataCenterCommentJiraTicketWithMentionsFunction = ActionFunction<
+  jiraDataCenterCommentJiraTicketWithMentionsParamsType,
+  AuthParamsType,
+  jiraDataCenterCommentJiraTicketWithMentionsOutputType
 >;
 
 export const jiraDataCenterCreateJiraTicketParamsSchema = z.object({
@@ -5719,6 +5777,11 @@ export type salesforceExecuteReportParamsType = z.infer<typeof salesforceExecute
 
 export const salesforceExecuteReportOutputSchema = z.object({
   success: z.boolean().describe("Whether the report was successfully executed"),
+  reportData: z
+    .object({})
+    .catchall(z.any())
+    .describe("The report data returned by Salesforce, including factMap with aggregates and row-level details")
+    .optional(),
   error: z.string().describe("The error that occurred if the report was not successfully executed").optional(),
 });
 

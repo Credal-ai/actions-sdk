@@ -1484,7 +1484,7 @@ export const jiraCommentJiraTicketDefinition: ActionTemplate = {
   provider: "jira",
 };
 export const jiraCommentJiraTicketWithMentionsDefinition: ActionTemplate = {
-  displayName: "Comment on a Jira ticket with @mentions",
+  displayName: "Comment on a Jira ticket with @mention support",
   description:
     "Comments on a Jira ticket, converting [~accountid:ID] patterns into clickable @mentions (Jira Cloud only).",
   scopes: ["write:comment:jira"],
@@ -2349,7 +2349,7 @@ export const jiraOrgCommentJiraTicketDefinition: ActionTemplate = {
   provider: "jiraOrg",
 };
 export const jiraOrgCommentJiraTicketWithMentionsDefinition: ActionTemplate = {
-  displayName: "Comment on a Jira ticket with @mentions",
+  displayName: "Comment on a Jira ticket with @mention support",
   description:
     "Comments on a Jira ticket, converting [~accountid:ID] patterns into clickable @mentions (Jira Cloud only).",
   scopes: ["write:comment:jira"],
@@ -3211,6 +3211,53 @@ export const jiraDataCenterCommentJiraTicketDefinition: ActionTemplate = {
     },
   },
   name: "commentJiraTicket",
+  provider: "jiraDataCenter",
+};
+export const jiraDataCenterCommentJiraTicketWithMentionsDefinition: ActionTemplate = {
+  displayName: "Comment on a Jira ticket with @mention support",
+  description:
+    "Comments on a Jira ticket, converting [~accountid:ID] patterns into clickable @mentions (Jira Cloud only).",
+  scopes: ["write:comment:jira"],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["projectKey", "issueId", "comment"],
+    properties: {
+      projectKey: {
+        type: "string",
+        description: "The key for the project to which the ticket you want to comment on belongs.",
+        tags: ["recommend-predefined"],
+      },
+      issueId: {
+        type: "string",
+        description: "The issue ID associated with the ticket to be commented on.",
+      },
+      comment: {
+        type: "string",
+        description:
+          "The text to be commented on the ticket. Use [~accountid:ATLASSIAN_ACCOUNT_ID] to @mention users (Jira Cloud only).",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the comment was sent successfully",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the comment was not sent successfully",
+      },
+      commentUrl: {
+        type: "string",
+        description: "The url to the created Jira comment",
+      },
+    },
+  },
+  name: "commentJiraTicketWithMentions",
   provider: "jiraDataCenter",
 };
 export const jiraDataCenterCreateJiraTicketDefinition: ActionTemplate = {
@@ -10927,6 +10974,11 @@ export const salesforceExecuteReportDefinition: ActionTemplate = {
       success: {
         type: "boolean",
         description: "Whether the report was successfully executed",
+      },
+      reportData: {
+        type: "object",
+        description: "The report data returned by Salesforce, including factMap with aggregates and row-level details",
+        additionalProperties: true,
       },
       error: {
         type: "string",
