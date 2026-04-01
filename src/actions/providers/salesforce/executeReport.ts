@@ -23,10 +23,11 @@ const executeReport: salesforceExecuteReportFunction = async ({
   const url = `${baseUrl}/services/data/v65.0/analytics/reports/${reportId}${includeDetails ? "?includeDetails=true" : ""}`;
 
   try {
-    await axiosClient.get(url, { headers: { Authorization: `Bearer ${authToken}` } });
+    const response = await axiosClient.get(url, { headers: { Authorization: `Bearer ${authToken}` } });
 
     return {
       success: true,
+      reportData: response.data,
     };
   } catch (error) {
     console.error("Error executing Salesforce report:", error);
