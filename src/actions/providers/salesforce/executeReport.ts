@@ -27,7 +27,7 @@ const executeReport: salesforceExecuteReportFunction = async ({
 
     return {
       success: true,
-      reportData: response,
+      reportData: includeDetails ? response.data : undefined,
     };
   } catch (error) {
     console.error("Error executing Salesforce report:", error);
