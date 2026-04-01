@@ -104,6 +104,25 @@ const config: Config = {
   // A preset that is used as a base for Jest's configuration
   preset: "ts-jest",
 
+  // `marked` is ESM-only ("type": "module"). Jest runs in CJS mode by default and
+  // skips node_modules, have to do this ugly thing where we:
+  // 1. strip .js extensions from relative imports,
+  // 2. transpile marked's ESM files via ts-jest,
+  // 3. exclude marked from the ignore list.
+  moduleNameMapper: {
+    "^(\\.{1,2}/.*)\\.js$": "$1",
+  },
+
+  transform: {
+    "^.+\\.tsx?$": "ts-jest",
+    "node_modules/marked/.+\\.js$": [
+      "ts-jest",
+      { tsconfig: { allowJs: true } },
+    ],
+  },
+
+  transformIgnorePatterns: ["/node_modules/(?!marked/)"],
+
   // Run tests from one or more projects
   // projects: undefined,
 

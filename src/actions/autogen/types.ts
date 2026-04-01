@@ -60,6 +60,7 @@ export enum ActionName {
     ASSIGNJIRATICKET = "assignJiraTicket",
     PUBLICCOMMENTONSERVICEDESKREQUEST = "publicCommentOnServiceDeskRequest",
     COMMENTJIRATICKET = "commentJiraTicket",
+    COMMENTJIRATICKETWITHMENTIONS = "commentJiraTicketWithMentions",
     CREATEJIRATICKET = "createJiraTicket",
     CREATESERVICEDESKREQUEST = "createServiceDeskRequest",
     GETJIRATICKETDETAILS = "getJiraTicketDetails",
@@ -166,6 +167,7 @@ export enum ActionName {
     GETPROJECTDETAILS = "getProjectDetails",
     GETTEAMDETAILS = "getTeamDetails",
     GETTEAMS = "getTeams",
+    CREATEISSUE = "createIssue",
     GETCONTACTS = "getContacts",
     GETCONTACTDETAILS = "getContactDetails",
     GETCOMPANIES = "getCompanies",
@@ -402,6 +404,15 @@ export const jiraCommentJiraTicketOutputSchema = z.object({ "success": z.boolean
 export type jiraCommentJiraTicketOutputType = z.infer<typeof jiraCommentJiraTicketOutputSchema>;
 export type jiraCommentJiraTicketFunction = ActionFunction<jiraCommentJiraTicketParamsType, AuthParamsType, jiraCommentJiraTicketOutputType>;
 
+export const jiraCommentJiraTicketWithMentionsParamsSchema = z.object({ "projectKey": z.string().describe("The key for the project to which the ticket you want to comment on belongs."), "issueId": z.string().describe("The issue ID associated with the ticket to be commented on."), "comment": z.string().describe("The text to be commented on the ticket. Use [~accountid:ATLASSIAN_ACCOUNT_ID] to @mention users (Jira Cloud only).") });
+
+export type jiraCommentJiraTicketWithMentionsParamsType = z.infer<typeof jiraCommentJiraTicketWithMentionsParamsSchema>;
+
+export const jiraCommentJiraTicketWithMentionsOutputSchema = z.object({ "success": z.boolean().describe("Whether the comment was sent successfully"), "error": z.string().describe("The error that occurred if the comment was not sent successfully").optional(), "commentUrl": z.string().describe("The url to the created Jira comment").optional() });
+
+export type jiraCommentJiraTicketWithMentionsOutputType = z.infer<typeof jiraCommentJiraTicketWithMentionsOutputSchema>;
+export type jiraCommentJiraTicketWithMentionsFunction = ActionFunction<jiraCommentJiraTicketWithMentionsParamsType, AuthParamsType, jiraCommentJiraTicketWithMentionsOutputType>;
+
 export const jiraCreateJiraTicketParamsSchema = z.object({ "projectKey": z.string().describe("The key for the project you want to add the ticket to."), "summary": z.string().describe("The summary of the new ticket"), "description": z.string().describe("The description for the new ticket"), "issueType": z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."), "reporter": z.string().describe("The reporter for the new ticket creation").optional(), "assignee": z.string().describe("The assignee for the new ticket creation").optional(), "requestTypeId": z.string().describe("The request type ID for Jira Service Management tickets").optional(), "customFields": z.object({}).catchall(z.any()).describe("Custom fields to be set on the create ticket request").optional() });
 
 export type jiraCreateJiraTicketParamsType = z.infer<typeof jiraCreateJiraTicketParamsSchema>;
@@ -519,6 +530,15 @@ export const jiraOrgCommentJiraTicketOutputSchema = z.object({ "success": z.bool
 export type jiraOrgCommentJiraTicketOutputType = z.infer<typeof jiraOrgCommentJiraTicketOutputSchema>;
 export type jiraOrgCommentJiraTicketFunction = ActionFunction<jiraOrgCommentJiraTicketParamsType, AuthParamsType, jiraOrgCommentJiraTicketOutputType>;
 
+export const jiraOrgCommentJiraTicketWithMentionsParamsSchema = z.object({ "projectKey": z.string().describe("The key for the project to which the ticket you want to comment on belongs."), "issueId": z.string().describe("The issue ID associated with the ticket to be commented on."), "comment": z.string().describe("The text to be commented on the ticket. Use [~accountid:ATLASSIAN_ACCOUNT_ID] to @mention users (Jira Cloud only).") });
+
+export type jiraOrgCommentJiraTicketWithMentionsParamsType = z.infer<typeof jiraOrgCommentJiraTicketWithMentionsParamsSchema>;
+
+export const jiraOrgCommentJiraTicketWithMentionsOutputSchema = z.object({ "success": z.boolean().describe("Whether the comment was sent successfully"), "error": z.string().describe("The error that occurred if the comment was not sent successfully").optional(), "commentUrl": z.string().describe("The url to the created Jira comment").optional() });
+
+export type jiraOrgCommentJiraTicketWithMentionsOutputType = z.infer<typeof jiraOrgCommentJiraTicketWithMentionsOutputSchema>;
+export type jiraOrgCommentJiraTicketWithMentionsFunction = ActionFunction<jiraOrgCommentJiraTicketWithMentionsParamsType, AuthParamsType, jiraOrgCommentJiraTicketWithMentionsOutputType>;
+
 export const jiraOrgCreateJiraTicketParamsSchema = z.object({ "projectKey": z.string().describe("The key for the project you want to add the ticket to."), "summary": z.string().describe("The summary of the new ticket"), "description": z.string().describe("The description for the new ticket"), "issueType": z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."), "reporter": z.string().describe("The reporter for the new ticket creation").optional(), "assignee": z.string().describe("The assignee for the new ticket creation").optional(), "requestTypeId": z.string().describe("The request type ID for Jira Service Management tickets").optional(), "customFields": z.object({}).catchall(z.any()).describe("Custom fields to be set on the create ticket request").optional() });
 
 export type jiraOrgCreateJiraTicketParamsType = z.infer<typeof jiraOrgCreateJiraTicketParamsSchema>;
@@ -635,6 +655,15 @@ export const jiraDataCenterCommentJiraTicketOutputSchema = z.object({ "success":
 
 export type jiraDataCenterCommentJiraTicketOutputType = z.infer<typeof jiraDataCenterCommentJiraTicketOutputSchema>;
 export type jiraDataCenterCommentJiraTicketFunction = ActionFunction<jiraDataCenterCommentJiraTicketParamsType, AuthParamsType, jiraDataCenterCommentJiraTicketOutputType>;
+
+export const jiraDataCenterCommentJiraTicketWithMentionsParamsSchema = z.object({ "projectKey": z.string().describe("The key for the project to which the ticket you want to comment on belongs."), "issueId": z.string().describe("The issue ID associated with the ticket to be commented on."), "comment": z.string().describe("The text to be commented on the ticket. Use [~accountid:ATLASSIAN_ACCOUNT_ID] to @mention users (Jira Cloud only).") });
+
+export type jiraDataCenterCommentJiraTicketWithMentionsParamsType = z.infer<typeof jiraDataCenterCommentJiraTicketWithMentionsParamsSchema>;
+
+export const jiraDataCenterCommentJiraTicketWithMentionsOutputSchema = z.object({ "success": z.boolean().describe("Whether the comment was sent successfully"), "error": z.string().describe("The error that occurred if the comment was not sent successfully").optional(), "commentUrl": z.string().describe("The url to the created Jira comment").optional() });
+
+export type jiraDataCenterCommentJiraTicketWithMentionsOutputType = z.infer<typeof jiraDataCenterCommentJiraTicketWithMentionsOutputSchema>;
+export type jiraDataCenterCommentJiraTicketWithMentionsFunction = ActionFunction<jiraDataCenterCommentJiraTicketWithMentionsParamsType, AuthParamsType, jiraDataCenterCommentJiraTicketWithMentionsOutputType>;
 
 export const jiraDataCenterCreateJiraTicketParamsSchema = z.object({ "projectKey": z.string().describe("The key for the project you want to add the ticket to."), "summary": z.string().describe("The summary of the new ticket"), "description": z.string().describe("The description for the new ticket"), "issueType": z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."), "reporter": z.string().describe("The reporter for the new ticket creation").optional(), "assignee": z.string().describe("The assignee for the new ticket creation").optional(), "requestTypeId": z.string().describe("The request type ID for Jira Service Management tickets").optional(), "customFields": z.object({}).catchall(z.any()).describe("Custom fields to be set on the create ticket request").optional() });
 
@@ -942,7 +971,7 @@ export const resendSendEmailHtmlOutputSchema = z.object({ "success": z.boolean()
 export type resendSendEmailHtmlOutputType = z.infer<typeof resendSendEmailHtmlOutputSchema>;
 export type resendSendEmailHtmlFunction = ActionFunction<resendSendEmailHtmlParamsType, AuthParamsType, resendSendEmailHtmlOutputType>;
 
-export const googleOauthCreateNewGoogleDocParamsSchema = z.object({ "title": z.string().describe("The title of the new Google Doc"), "content": z.string().describe("The content to add to the new Google Doc").optional(), "usesHtml": z.boolean().describe("Whether to interpret the content as HTML").optional() });
+export const googleOauthCreateNewGoogleDocParamsSchema = z.object({ "title": z.string().describe("The title of the new Google Doc"), "content": z.string().describe("The content to add to the new Google Doc").optional(), "usesHtml": z.boolean().describe("Whether to interpret the content as HTML. Deprecated in favor of contentFormat.").optional(), "contentFormat": z.enum(["plain","markdown","html"]).describe("How to interpret the content param. Defaults to plain. When set, takes precedence over usesHtml.").optional() });
 
 export type googleOauthCreateNewGoogleDocParamsType = z.infer<typeof googleOauthCreateNewGoogleDocParamsSchema>;
 
@@ -951,7 +980,7 @@ export const googleOauthCreateNewGoogleDocOutputSchema = z.object({ "documentId"
 export type googleOauthCreateNewGoogleDocOutputType = z.infer<typeof googleOauthCreateNewGoogleDocOutputSchema>;
 export type googleOauthCreateNewGoogleDocFunction = ActionFunction<googleOauthCreateNewGoogleDocParamsType, AuthParamsType, googleOauthCreateNewGoogleDocOutputType>;
 
-export const googleOauthAddTextToTopOfDocParamsSchema = z.object({ "documentId": z.string().describe("The ID of the Google Doc to update"), "text": z.string().describe("The text to insert at the beginning of the document") });
+export const googleOauthAddTextToTopOfDocParamsSchema = z.object({ "documentId": z.string().describe("The ID of the Google Doc to update"), "text": z.string().describe("The text to insert at the beginning of the document"), "contentFormat": z.enum(["plain","markdown","html"]).describe("How to interpret the text param. Defaults to plain.").optional() });
 
 export type googleOauthAddTextToTopOfDocParamsType = z.infer<typeof googleOauthAddTextToTopOfDocParamsSchema>;
 
@@ -1715,6 +1744,15 @@ export const linearGetTeamsOutputSchema = z.object({ "success": z.boolean().desc
 
 export type linearGetTeamsOutputType = z.infer<typeof linearGetTeamsOutputSchema>;
 export type linearGetTeamsFunction = ActionFunction<linearGetTeamsParamsType, AuthParamsType, linearGetTeamsOutputType>;
+
+export const linearCreateIssueParamsSchema = z.object({ "title": z.string().describe("The title of the issue to create"), "description": z.string().describe("The description of the issue in markdown format").optional(), "teamId": z.string().describe("The ID of the team to create the issue for"), "assigneeId": z.string().describe("The ID of the user to assign the issue to").optional(), "priority": z.number().describe("The priority of the issue: 0 = No priority, 1 = Urgent, 2 = High, 3 = Medium, 4 = Low").optional(), "projectId": z.string().describe("The ID of the project to associate the issue with").optional(), "dueDate": z.string().describe("The due date of the issue in ISO 8601 format (e.g. 2024-12-31)").optional(), "labelIds": z.array(z.string()).describe("Array of label IDs to apply to the issue").optional(), "estimate": z.number().describe("The estimate in story points for the issue").optional() });
+
+export type linearCreateIssueParamsType = z.infer<typeof linearCreateIssueParamsSchema>;
+
+export const linearCreateIssueOutputSchema = z.object({ "success": z.boolean().describe("Whether the issue was created successfully"), "error": z.string().describe("Error message if the issue creation failed").optional(), "issue": z.object({ "id": z.string().describe("The created issue ID").optional(), "title": z.string().describe("The created issue title").optional(), "url": z.string().describe("The URL of the created issue").optional(), "identifier": z.string().describe("The issue identifier (e.g. ENG-123)").optional() }).describe("The created issue details").optional() });
+
+export type linearCreateIssueOutputType = z.infer<typeof linearCreateIssueOutputSchema>;
+export type linearCreateIssueFunction = ActionFunction<linearCreateIssueParamsType, AuthParamsType, linearCreateIssueOutputType>;
 
 export const hubspotGetContactsParamsSchema = z.object({ "query": z.string().describe("Optional keyword search query to filter contacts by name, email, or other properties").optional(), "limit": z.number().describe("Maximum number of contacts to return (default 100, max 100)").optional() });
 

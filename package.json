@@ -48,7 +48,8 @@
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.2",
-    "typescript-eslint": "^8.56.0"
+    "typescript-eslint": "^8.56.0",
+    "@googleapis/docs": "^9.2.1"
   },
   "dependencies": {
     "@mendable/firecrawl-js": "^4.3.4",
@@ -69,6 +70,7 @@
     "jsonwebtoken": "^9.0.2",
     "limiter": "^3.0.0",
     "mammoth": "^1.11.00",
+    "marked": "^16.3.0",
     "marklassian": "^1.1.0",
     "mongodb": "^6.13.1",
     "node-forge": "^1.3.3",
