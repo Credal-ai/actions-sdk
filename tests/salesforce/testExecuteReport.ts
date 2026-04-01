@@ -31,6 +31,8 @@ async function runTest() {
   // Validate the response
   assert(result, "Response should not be null");
   assert(result.success, "Response should indicate success");
+  assert(result.reportData, "Response should include reportData");
+  assert(typeof result.reportData === "object", "reportData should be an object");
   console.log("Report successfully executed.");
 }
 
