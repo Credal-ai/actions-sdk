@@ -6493,6 +6493,10 @@ actions:
           success:
             type: boolean
             description: Whether the report was successfully executed
+          reportData:
+            type: object
+            description: The report data returned by Salesforce, including factMap with aggregates and row-level details
+            additionalProperties: true
           error:
             type: string
             description: The error that occurred if the report was not successfully executed
