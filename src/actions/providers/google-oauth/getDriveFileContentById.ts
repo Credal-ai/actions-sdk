@@ -8,9 +8,13 @@ import type {
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import { extractTextFromPdf } from "../../../utils/pdf.js";
-import { getGoogleDocContent, getGoogleSheetContent, getGoogleSlidesContent } from "../../../utils/google.js";
+import {
+  getGoogleDocContent,
+  getGoogleSheetContent,
+  getGoogleSlidesContent,
+  parseWorkbookBufferToPlainText,
+} from "../../../utils/google.js";
 import type { DriveFileMetadata } from "./common.js";
-import { read, utils } from "xlsx";
 import officeParser from "officeparser";
 
 const BASE_WEB_URL = "https://drive.google.com/file/d/";
@@ -139,26 +143,7 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
         headers,
         responseType: "arraybuffer",
       });
-
-      // 1. Read the buffer into a workbook
-      const workbook = read(downloadRes.data, { type: "buffer", sheetStubs: false });
-
-      // Convert sheets to CSV with early termination if charLimit is set
-      const sheetTexts: string[] = [];
-      let totalLength = 0;
-      const effectiveLimit = charLimit ? charLimit * 1.5 : 100000; // Process 1.5x limit for safety
-
-      // 2. Convert all sheets to plain text (CSV-style)
-      for (const sheetName of workbook.SheetNames) {
-        if (totalLength >= effectiveLimit) break; // Early termination
-
-        const sheet = workbook.Sheets[sheetName];
-        const csv = utils.sheet_to_csv(sheet);
-        sheetTexts.push(`--- Sheet: ${sheetName} ---\n${csv}`);
-        totalLength += csv.length;
-      }
-
-      content = sheetTexts.join("\n").trim();
+      content = parseWorkbookBufferToPlainText(downloadRes.data, charLimit);
     } else if (mimeType === "application/vnd.openxmlformats-officedocument.presentationml.presentation") {
       // Handle modern PowerPoint files (.pptx only)
       const downloadUrl = `${BASE_API_URL}${encodeURIComponent(params.fileId)}?alt=media${sharedDriveParam}`;
