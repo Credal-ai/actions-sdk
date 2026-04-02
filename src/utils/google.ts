@@ -1,5 +1,6 @@
 import type { AxiosInstance } from "axios";
 import Papa from "papaparse";
+import { read, utils } from "xlsx";
 import { isAxiosTimeoutError } from "../actions/util/axiosClient.js";
 
 // Custom interfaces to replace googleapis types
@@ -295,6 +296,26 @@ function parseCSVToSheetJson(csvData: string, sheetName: string = "Sheet1"): str
   return JSON.stringify([{ sheetName, headers, rows }]);
 }
 
+export function parseWorkbookBufferToPlainText(data: ArrayBuffer | Buffer, charLimit?: number): string {
+  const workbook = read(data, { type: "buffer", sheetStubs: false });
+  const sheetTexts: string[] = [];
+  let totalLength = 0;
+  const effectiveLimit = charLimit ? charLimit * 1.5 : Number.POSITIVE_INFINITY;
+
+  for (const sheetName of workbook.SheetNames) {
+    if (totalLength >= effectiveLimit) {
+      break;
+    }
+
+    const sheet = workbook.Sheets[sheetName];
+    const csv = utils.sheet_to_csv(sheet);
+    sheetTexts.push(`--- Sheet: ${sheetName} ---\n${csv}`);
+    totalLength += csv.length;
+  }
+
+  return sheetTexts.join("\n").trim();
+}
+
 export function parseGoogleSheetsFromRawContentToPlainText(snapshotRawContent: GoogleSheetsSpreadsheet): string {
   if (!snapshotRawContent.sheets) return "[]";
 
@@ -517,21 +538,14 @@ export async function getGoogleSheetContent(
   axiosClient: AxiosInstance,
   sharedDriveParams: string,
 ): Promise<string> {
-  // Use CSV export as primary method - it's much faster and more reliable for large sheets
-  // The Sheets API with includeGridData can timeout on large spreadsheets
+  // Prefer XLSX export so native Google Sheets follow the same workbook parsing path as uploaded Excel files.
   try {
-    const exportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/csv${sharedDriveParams}`;
+    const exportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet${sharedDriveParams}`;
     const exportRes = await axiosClient.get(exportUrl, {
       headers: { Authorization: `Bearer ${authToken}` },
-      responseType: "text",
+      responseType: "arraybuffer",
     });
-    // Clean up trailing commas and convert to JSON format
-    const cleanedCsv = exportRes.data
-      .split("\n")
-      .map((line: string) => line.replace(/,+$/, ""))
-      .map((line: string) => line.replace(/,{2,}/g, ","))
-      .join("\n");
-    return parseCSVToSheetJson(cleanedCsv);
+    return parseWorkbookBufferToPlainText(exportRes.data);
   } catch (exportError) {
     // Check if it's a 404 or permission error
     if (exportError && typeof exportError === "object" && "status" in exportError) {
@@ -542,20 +556,34 @@ export async function getGoogleSheetContent(
       }
     }
 
-    // If CSV export fails, try the Sheets API as fallback (but this is slower)
+    // If XLSX export fails, fall back to the prior CSV-first behavior.
     try {
-      const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${fileId}?includeGridData=true`;
-      const sheetsRes = await axiosClient.get(sheetsUrl, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
+      const csvExportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/csv${sharedDriveParams}`;
+      const csvExportRes = await axiosClient.get(csvExportUrl, {
+        headers: { Authorization: `Bearer ${authToken}` },
+        responseType: "text",
       });
-      return parseGoogleSheetsFromRawContentToPlainText(sheetsRes.data);
-    } catch (sheetsError) {
-      if (isAxiosTimeoutError(sheetsError)) {
-        throw new Error("Request timed out using Google Sheets API", { cause: sheetsError });
+      const cleanedCsv = csvExportRes.data
+        .split("\n")
+        .map((line: string) => line.replace(/,+$/, ""))
+        .map((line: string) => line.replace(/,{2,}/g, ","))
+        .join("\n");
+      return parseCSVToSheetJson(cleanedCsv);
+    } catch {
+      try {
+        const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${fileId}?includeGridData=true`;
+        const sheetsRes = await axiosClient.get(sheetsUrl, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+        return parseGoogleSheetsFromRawContentToPlainText(sheetsRes.data);
+      } catch (sheetsError) {
+        if (isAxiosTimeoutError(sheetsError)) {
+          throw new Error("Request timed out using Google Sheets API", { cause: sheetsError });
+        }
+        throw new Error(`Unable to access spreadsheet content: ${fileId}`, { cause: sheetsError });
       }
-      throw new Error(`Unable to access spreadsheet content: ${fileId}`, { cause: sheetsError });
     }
   }
 }
