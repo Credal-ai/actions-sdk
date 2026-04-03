@@ -104,6 +104,7 @@ export enum ActionName {
   EDITAGOOGLECALENDAREVENT = "editAGoogleCalendarEvent",
   DELETECALENDAREVENT = "deleteCalendarEvent",
   CREATESPREADSHEET = "createSpreadsheet",
+  GETSPREADSHEETMETADATA = "getSpreadsheetMetadata",
   UPDATESPREADSHEET = "updateSpreadsheet",
   APPENDROWSTOSPREADSHEET = "appendRowsToSpreadsheet",
   DELETEROWFROMSPREADSHEET = "deleteRowFromSpreadsheet",
@@ -3795,6 +3796,37 @@ export type googleOauthCreateSpreadsheetFunction = ActionFunction<
   googleOauthCreateSpreadsheetParamsType,
   AuthParamsType,
   googleOauthCreateSpreadsheetOutputType
+>;
+
+export const googleOauthGetSpreadsheetMetadataParamsSchema = z.object({
+  spreadsheetId: z.string().describe("The ID of the Google Spreadsheet to fetch metadata for"),
+});
+
+export type googleOauthGetSpreadsheetMetadataParamsType = z.infer<typeof googleOauthGetSpreadsheetMetadataParamsSchema>;
+
+export const googleOauthGetSpreadsheetMetadataOutputSchema = z.object({
+  success: z.boolean().describe("Whether spreadsheet metadata was fetched successfully"),
+  spreadsheetId: z.string().describe("The spreadsheet ID").optional(),
+  spreadsheetTitle: z.string().describe("The spreadsheet title").optional(),
+  sheets: z
+    .array(
+      z.object({
+        sheetId: z.number().describe("The ID of the sheet").optional(),
+        title: z.string().describe("The sheet title").optional(),
+        index: z.number().describe("The sheet index").optional(),
+        gid: z.number().describe("The gid used in Google Sheets URLs (same value as sheetId)").optional(),
+      }),
+    )
+    .describe("The list of sheets in the spreadsheet")
+    .optional(),
+  error: z.string().describe("The error that occurred if metadata retrieval failed").optional(),
+});
+
+export type googleOauthGetSpreadsheetMetadataOutputType = z.infer<typeof googleOauthGetSpreadsheetMetadataOutputSchema>;
+export type googleOauthGetSpreadsheetMetadataFunction = ActionFunction<
+  googleOauthGetSpreadsheetMetadataParamsType,
+  AuthParamsType,
+  googleOauthGetSpreadsheetMetadataOutputType
 >;
 
 export const googleOauthUpdateSpreadsheetParamsSchema = z.object({
