@@ -301,7 +301,7 @@ export function parseWorkbookBufferToPlainText(data: ArrayBuffer | Buffer, charL
   const sheetTexts: string[] = [];
   let totalLength = 0;
   // charLimit here is a soft parsing budget; downstream callers may still apply a hard final slice.
-  const effectiveLimit = charLimit ? charLimit * 1.5 : Number.POSITIVE_INFINITY;
+  const effectiveLimit = charLimit ? charLimit * 1.5 : 100_000;
 
   for (const sheetName of workbook.SheetNames) {
     if (totalLength >= effectiveLimit) {
