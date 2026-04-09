@@ -9310,9 +9310,9 @@ export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: Action
         type: "number",
         description: "The maximum number of files to return",
       },
-      fileSizeLimit: {
+      summarySizeLimit: {
         type: "number",
-        description: "The maximum length of a file in characters",
+        description: "The maximum length of the summary returned for each file, in characters",
       },
       searchDriveByDrive: {
         type: "boolean",
@@ -9376,7 +9376,7 @@ export const googleOauthSearchDriveByKeywordsAndGetFileContentDefinition: Action
                 },
                 content: {
                   type: "string",
-                  description: "The data returned from the file, subject to fileSizeLimit",
+                  description: "The data returned from the file, subject to summarySizeLimit",
                 },
               },
             },
