@@ -13,7 +13,8 @@ async function runTest() {
     throw new Error("Missing required environment variables: SALESFORCE_AUTH_TOKEN, SALESFORCE_URL, SALESFORCE_REPORT_ID");
   }
 
-  const result = await runAction(
+  console.log("Test 1: Execute report with details and summary");
+  const resultWithSummary = await runAction(
     "executeReport",
     "salesforce",
     {
@@ -23,17 +24,46 @@ async function runTest() {
     {
       reportId: reportId,
       includeDetails: true,
+      includeSummary: true,
     }
   );
 
-  console.log(JSON.stringify(result, null, 2));
+  console.log(JSON.stringify(resultWithSummary, null, 2));
 
-  // Validate the response
-  assert(result, "Response should not be null");
-  assert(result.success, "Response should indicate success");
-  assert(result.reportData, "Response should include reportData");
-  assert(typeof result.reportData === "object", "reportData should be an object");
-  console.log("Report successfully executed.");
+  // Validate the response with summary
+  assert(resultWithSummary, "Response should not be null");
+  assert(resultWithSummary.success, "Response should indicate success");
+  assert(resultWithSummary.reportData, "Response should include reportData");
+  assert(typeof resultWithSummary.reportData === "object", "reportData should be an object");
+  assert(resultWithSummary.summary, "Response should include summary when includeSummary is true");
+  assert(typeof resultWithSummary.summary === "object", "summary should be an object");
+  console.log("✓ Test 1 passed: Report with summary executed successfully");
+
+  console.log("\nTest 2: Execute report without summary");
+  const resultWithoutSummary = await runAction(
+    "executeReport",
+    "salesforce",
+    {
+      authToken: accessToken,
+      baseUrl: instanceUrl,
+    },
+    {
+      reportId: reportId,
+      includeDetails: true,
+      includeSummary: false,
+    }
+  );
+
+  console.log(JSON.stringify(resultWithoutSummary, null, 2));
+
+  // Validate the response without summary
+  assert(resultWithoutSummary, "Response should not be null");
+  assert(resultWithoutSummary.success, "Response should indicate success");
+  assert(resultWithoutSummary.reportData, "Response should include reportData");
+  assert(!resultWithoutSummary.summary, "Response should not include summary when includeSummary is false");
+  console.log("✓ Test 2 passed: Report without summary executed successfully");
+
+  console.log("\n✓ All tests passed!");
 }
 
 runTest().catch((error) => {
