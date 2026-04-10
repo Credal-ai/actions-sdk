@@ -5771,12 +5771,18 @@ export type salesforceListReportsFunction = ActionFunction<
 export const salesforceExecuteReportParamsSchema = z.object({
   reportId: z.string().describe("Id for the report to execute"),
   includeDetails: z.boolean().describe("Whether to include detailed report metadata in the response").optional(),
+  includeSummary: z.boolean().describe("Whether to include summary/aggregate data (totals, counts, etc.)").optional(),
 });
 
 export type salesforceExecuteReportParamsType = z.infer<typeof salesforceExecuteReportParamsSchema>;
 
 export const salesforceExecuteReportOutputSchema = z.object({
   success: z.boolean().describe("Whether the report was successfully executed"),
+  summary: z
+    .object({})
+    .catchall(z.any())
+    .describe("Summary/aggregate data from the report (totals, counts, averages, etc.)")
+    .optional(),
   reportData: z
     .object({})
     .catchall(z.any())
