@@ -5778,15 +5778,15 @@ export type salesforceExecuteReportParamsType = z.infer<typeof salesforceExecute
 
 export const salesforceExecuteReportOutputSchema = z.object({
   success: z.boolean().describe("Whether the report was successfully executed"),
-  reportData: z
-    .object({})
-    .catchall(z.any())
-    .describe("The report data returned by Salesforce, including factMap with aggregates and row-level details")
-    .optional(),
   summary: z
     .object({})
     .catchall(z.any())
     .describe("Summary/aggregate data from the report (totals, counts, averages, etc.)")
+    .optional(),
+  reportData: z
+    .object({})
+    .catchall(z.any())
+    .describe("The report data returned by Salesforce, including factMap with aggregates and row-level details")
     .optional(),
   error: z.string().describe("The error that occurred if the report was not successfully executed").optional(),
 });

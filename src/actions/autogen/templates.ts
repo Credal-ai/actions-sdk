@@ -10979,14 +10979,14 @@ export const salesforceExecuteReportDefinition: ActionTemplate = {
         type: "boolean",
         description: "Whether the report was successfully executed",
       },
-      reportData: {
-        type: "object",
-        description: "The report data returned by Salesforce, including factMap with aggregates and row-level details",
-        additionalProperties: true,
-      },
       summary: {
         type: "object",
         description: "Summary/aggregate data from the report (totals, counts, averages, etc.)",
+        additionalProperties: true,
+      },
+      reportData: {
+        type: "object",
+        description: "The report data returned by Salesforce, including factMap with aggregates and row-level details",
         additionalProperties: true,
       },
       error: {
