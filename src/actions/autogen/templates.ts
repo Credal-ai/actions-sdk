@@ -10965,6 +10965,10 @@ export const salesforceExecuteReportDefinition: ActionTemplate = {
         type: "boolean",
         description: "Whether to include detailed report metadata in the response",
       },
+      includeSummary: {
+        type: "boolean",
+        description: "Whether to include summary/aggregate data (totals, counts, etc.)",
+      },
     },
   },
   output: {
@@ -10978,6 +10982,11 @@ export const salesforceExecuteReportDefinition: ActionTemplate = {
       reportData: {
         type: "object",
         description: "The report data returned by Salesforce, including factMap with aggregates and row-level details",
+        additionalProperties: true,
+      },
+      summary: {
+        type: "object",
+        description: "Summary/aggregate data from the report (totals, counts, averages, etc.)",
         additionalProperties: true,
       },
       error: {

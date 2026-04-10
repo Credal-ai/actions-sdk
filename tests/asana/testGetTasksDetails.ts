@@ -3,10 +3,10 @@ import { runAction } from "../../src/app.js";
 
 async function runTest() {
   const result = await runAction(
-    "getTasksDetails", 
+    "getTasksDetails",
     "asana",
-    { authToken: "insert-auth-token-here" }, 
-    { taskIds: ["taskId"], },
+    { authToken: "insert-auth-token-here" },
+    { taskIds: ["taskId"] },
   );
   assert(result, "Response should not be null");
   assert(result.success, "Success should be true");

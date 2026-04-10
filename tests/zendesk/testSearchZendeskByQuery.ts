@@ -12,7 +12,7 @@ async function runTest() {
       query: "status:closed priority:high",
       objectType: "ticket",
       limit: 5,
-    }
+    },
   );
 
   console.log("Output:", output);

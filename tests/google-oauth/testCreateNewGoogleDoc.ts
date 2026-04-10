@@ -8,7 +8,7 @@ async function runTest() {
   console.log("Running test for Google OAuth createNewGoogleDoc");
 
   const authToken = "insert-token-here";
-  
+
   const result1 = await runAction(
     "createNewGoogleDoc",
     "googleOauth",

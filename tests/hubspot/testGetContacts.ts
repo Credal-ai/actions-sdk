@@ -18,7 +18,7 @@ async function runTest() {
     { authToken },
     {
       query: "",
-      limit: 250, 
+      limit: 250,
     },
   );
 
@@ -26,7 +26,10 @@ async function runTest() {
 
   assert(result, "Response should not be null");
   assert(result.success, "Response should indicate success");
-  assert(Array.isArray(result.contacts), "Response should contain contacts array");
+  assert(
+    Array.isArray(result.contacts),
+    "Response should contain contacts array",
+  );
 }
 
 runTest().catch((error) => {
@@ -36,4 +39,4 @@ runTest().catch((error) => {
     console.error("Status code:", error.response.status);
   }
   process.exit(1);
-}); 
+});

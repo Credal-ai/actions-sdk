@@ -19,7 +19,7 @@ async function runTest() {
     },
     {
       keywords: ["replace-me", "with-keywords", "to-search-for"],
-    } as googleOauthSearchDriveByKeywordsParamsType
+    } as googleOauthSearchDriveByKeywordsParamsType,
   );
 
   // Validate the result
@@ -52,7 +52,7 @@ async function runTestIncludeTrashed() {
     {
       keywords: ["replace-me-trash"],
       includeTrashed: true,
-    } as googleOauthSearchDriveByKeywordsParamsType
+    } as googleOauthSearchDriveByKeywordsParamsType,
   );
 
   // Validate the result

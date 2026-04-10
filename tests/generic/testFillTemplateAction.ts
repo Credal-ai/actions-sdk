@@ -15,7 +15,11 @@ async function runTest() {
 
   assert(result, "Response should not be null");
   assert(result.result, "Response should contain a result");
-  assert.strictEqual(result.result, template, "Template should be returned as-is");
+  assert.strictEqual(
+    result.result,
+    template,
+    "Template should be returned as-is",
+  );
 
   console.log("Successfully tested fillTemplate");
 }

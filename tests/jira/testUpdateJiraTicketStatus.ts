@@ -26,7 +26,9 @@ async function testUpdateJiraTicketStatus(config: JiraTestConfig) {
   assert(result.ticketUrl, "Response should contain a ticket URL");
 }
 
-runJiraTest("Update Jira Ticket Status", testUpdateJiraTicketStatus).catch((error) => {
-  console.error("Test failed:", error);
-  process.exit(1);
-});
+runJiraTest("Update Jira Ticket Status", testUpdateJiraTicketStatus).catch(
+  (error) => {
+    console.error("Test failed:", error);
+    process.exit(1);
+  },
+);

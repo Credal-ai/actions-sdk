@@ -12,7 +12,7 @@ async function runTests() {
     {
       groupKey: process.env.GOOGLE_GROUP_KEY!,
       memberKey: process.env.GOOGLE_GROUP_MEMBER_KEY!, // Set GOOGLE_GROUP_MEMBER_KEY in your .env
-    }
+    },
   );
   assert(result, "Should return a result");
   assert(result.success, "Should be successful");

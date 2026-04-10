@@ -19,7 +19,7 @@ async function runTest() {
       maxResults: 50,
       timeMin: weekBeg.toISOString(),
       timeMax: weekEnd.toISOString(),
-    }
+    },
   );
 
   assert(result, "Response should not be null");
@@ -30,7 +30,7 @@ async function runTest() {
   if (first) {
     assert(
       typeof first.id === "string" && first.id.length > 0,
-      "Event should have an id"
+      "Event should have an id",
     );
     assert(typeof first.title === "string", "Event should have a title");
     assert(typeof first.status === "string", "Event should have a status");
@@ -38,12 +38,12 @@ async function runTest() {
     assert(typeof first.start === "string", "Event should have a start");
     assert(
       typeof first.startDayOfWeek === "string",
-      "Event should have a startDayOfWeek"
+      "Event should have a startDayOfWeek",
     );
     assert(typeof first.end === "string", "Event should have an end");
     assert(
       typeof first.endDayOfWeek === "string",
-      "Event should have an endDayOfWeek"
+      "Event should have an endDayOfWeek",
     );
   }
 

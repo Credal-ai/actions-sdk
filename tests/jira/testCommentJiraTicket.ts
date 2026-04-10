@@ -15,18 +15,13 @@ async function testCommentJiraTicket(config: JiraTestConfig) {
     authParams.cloudId = cloudId;
   }
 
-  const result = await runAction(
-    "commentJiraTicket",
-    provider,
-    authParams,
-    {
-      projectKey,
-      comment: `Test comment made on ${new Date().toISOString()}`,
-      issueId: issueId,
-    },
-  );
+  const result = await runAction("commentJiraTicket", provider, authParams, {
+    projectKey,
+    comment: `Test comment made on ${new Date().toISOString()}`,
+    issueId: issueId,
+  });
 
-  console.log('Response: ', JSON.stringify(result, null, 2));
+  console.log("Response: ", JSON.stringify(result, null, 2));
 
   // Validate response
   assert(result, "Response should not be null");

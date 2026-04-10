@@ -10,7 +10,7 @@ async function runTest() {
     "searchSlack",
     "slackUser",
     { authToken: process.env.SLACK_AUTH_TOKEN },
-    { emails: ["jack@credal.ai"], limit: 10, topic: "flatiron" }
+    { emails: ["jack@credal.ai"], limit: 10, topic: "flatiron" },
   )) as slackUserSearchSlackOutputType;
 
   // Multiple person DM
@@ -22,7 +22,7 @@ async function runTest() {
       emails: ["jack@credal.ai", "ravin@credal.ai"],
       limit: 1,
       topic: "good to know",
-    }
+    },
   )) as slackUserSearchSlackOutputType;
 
   // Channel
@@ -30,7 +30,7 @@ async function runTest() {
     "searchSlack",
     "slackUser",
     { authToken: process.env.SLACK_AUTH_TOKEN },
-    { channel: "general", limit: 1, topic: "welcome" }
+    { channel: "general", limit: 1, topic: "welcome" },
   )) as slackUserSearchSlackOutputType;
 
   // DM with no topic
@@ -38,7 +38,7 @@ async function runTest() {
     "searchSlack",
     "slackUser",
     { authToken: process.env.SLACK_AUTH_TOKEN },
-    { emails: ["jack@credal.ai"], limit: 10 }
+    { emails: ["jack@credal.ai"], limit: 10 },
   )) as slackUserSearchSlackOutputType;
 
   // Channel no topic
@@ -46,7 +46,7 @@ async function runTest() {
     "searchSlack",
     "slackUser",
     { authToken: process.env.SLACK_AUTH_TOKEN },
-    { channel: "general", limit: 1, timeRange: "all" }
+    { channel: "general", limit: 1, timeRange: "all" },
   )) as slackUserSearchSlackOutputType;
 
   // Timerange only
@@ -54,7 +54,7 @@ async function runTest() {
     "searchSlack",
     "slackUser",
     { authToken: process.env.SLACK_AUTH_TOKEN },
-    { limit: 1, timeRange: "yesterday" }
+    { limit: 1, timeRange: "yesterday" },
   )) as slackUserSearchSlackOutputType;
 
   // Timerange only with only IMs
@@ -62,35 +62,35 @@ async function runTest() {
     "searchSlack",
     "slackUser",
     { authToken: process.env.SLACK_AUTH_TOKEN },
-    { limit: 10, timeRange: "yesterday", messageType: "im" }
+    { limit: 10, timeRange: "yesterday", messageType: "im" },
   )) as slackUserSearchSlackOutputType;
 
   console.log(
-    "Send Message Test Response 1: " + JSON.stringify(result1, null, 2)
+    "Send Message Test Response 1: " + JSON.stringify(result1, null, 2),
   );
 
   console.log(
-    "Send Message Test Response 2: " + JSON.stringify(result2, null, 2)
+    "Send Message Test Response 2: " + JSON.stringify(result2, null, 2),
   );
 
   console.log(
-    "Send Message Test Response 3: " + JSON.stringify(result3, null, 2)
+    "Send Message Test Response 3: " + JSON.stringify(result3, null, 2),
   );
 
   console.log(
-    "Send Message Test Response 4: " + JSON.stringify(result4, null, 2)
+    "Send Message Test Response 4: " + JSON.stringify(result4, null, 2),
   );
 
   console.log(
-    "Send Message Test Response 5: " + JSON.stringify(result5, null, 2)
+    "Send Message Test Response 5: " + JSON.stringify(result5, null, 2),
   );
 
   console.log(
-    "Send Message Test Response 6: " + JSON.stringify(result6, null, 2)
+    "Send Message Test Response 6: " + JSON.stringify(result6, null, 2),
   );
 
-   console.log(
-    "Send Message Test Response 7: " + JSON.stringify(result7, null, 2)
+  console.log(
+    "Send Message Test Response 7: " + JSON.stringify(result7, null, 2),
   );
 }
 

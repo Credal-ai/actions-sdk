@@ -9,7 +9,7 @@ async function runTest() {
     "getTeamDetails",
     "linear",
     { authToken: process.env.LINEAR_AUTH_TOKEN! },
-    { teamId: process.env.LINEAR_TEAM_ID! }
+    { teamId: process.env.LINEAR_TEAM_ID! },
   );
 
   assert(result, "Response should not be null");
@@ -28,4 +28,4 @@ runTest().catch((error) => {
     console.error("Status code:", error.response.status);
   }
   process.exit(1);
-}); 
+});

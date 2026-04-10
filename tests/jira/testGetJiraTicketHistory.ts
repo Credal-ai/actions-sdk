@@ -15,26 +15,22 @@ async function testGetJiraTicketHistory(config: JiraTestConfig) {
     authParams.cloudId = cloudId;
   }
 
-  const result = await runAction(
-    "getJiraTicketHistory",
-    provider,
-    authParams,
-    {
-      projectKey,
-      issueId,
-    },
-  );
+  const result = await runAction("getJiraTicketHistory", provider, authParams, {
+    projectKey,
+    issueId,
+  });
 
-  console.log('Response: ', JSON.stringify(result, null, 2));
+  console.log("Response: ", JSON.stringify(result, null, 2));
 
   // Validate response
   assert(result, "Response should not be null");
   assert(result.success, "Response should indicate success");
   assert(Array.isArray(result.history), "Ticket history should be an array");
-
 }
 
-runJiraTest("Get Jira Ticket History", testGetJiraTicketHistory).catch((error) => {
-  console.error("Test failed:", error);
-  process.exit(1);
-});
+runJiraTest("Get Jira Ticket History", testGetJiraTicketHistory).catch(
+  (error) => {
+    console.error("Test failed:", error);
+    process.exit(1);
+  },
+);

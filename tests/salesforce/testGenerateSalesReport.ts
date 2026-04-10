@@ -21,7 +21,7 @@ async function runTest() {
       filters: {
         StageName: "Closed Won",
       },
-    }
+    },
   );
 
   console.log(JSON.stringify(result, null, 2));

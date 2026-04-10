@@ -25,11 +25,23 @@ async function runTestProjectId() {
   assert(typeof result === "object", "Result should be an object");
   assert("success" in result, "Result should have 'success'");
   if (result.success) {
-    assert(typeof result.results?.[0]?.metadata?.title === "string", "Title should be a string");
-    assert(typeof result.results?.[0]?.changes[0]?.diff === "string", "Diff should be a string");
-    assert(typeof result.results?.[0]?.commits[0]?.message === "string", "Message should be a string");
+    assert(
+      typeof result.results?.[0]?.metadata?.title === "string",
+      "Title should be a string",
+    );
+    assert(
+      typeof result.results?.[0]?.changes[0]?.diff === "string",
+      "Diff should be a string",
+    );
+    assert(
+      typeof result.results?.[0]?.commits[0]?.message === "string",
+      "Message should be a string",
+    );
   } else {
-    assert(typeof result.error === "string", "Error should be a string when not successful");
+    assert(
+      typeof result.error === "string",
+      "Error should be a string when not successful",
+    );
     console.error("Failed to get merge request:", result.error);
   }
 }
@@ -54,11 +66,23 @@ async function runTestProjectPath() {
   assert(typeof result === "object", "Result should be an object");
   assert("success" in result, "Result should have 'success'");
   if (result.success) {
-    assert(typeof result.results?.[0]?.metadata?.title === "string", "Title should be a string");
-    assert(typeof result.results?.[0]?.changes[0]?.diff === "string", "Diff should be a string");
-    assert(typeof result.results?.[0]?.commits[0]?.message === "string", "Message should be a string");
+    assert(
+      typeof result.results?.[0]?.metadata?.title === "string",
+      "Title should be a string",
+    );
+    assert(
+      typeof result.results?.[0]?.changes[0]?.diff === "string",
+      "Diff should be a string",
+    );
+    assert(
+      typeof result.results?.[0]?.commits[0]?.message === "string",
+      "Message should be a string",
+    );
   } else {
-    assert(typeof result.error === "string", "Error should be a string when not successful");
+    assert(
+      typeof result.error === "string",
+      "Error should be a string when not successful",
+    );
     console.error("Failed to get merge request:", result.error);
   }
 }

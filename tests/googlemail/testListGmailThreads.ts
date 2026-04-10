@@ -13,7 +13,7 @@ async function runTest() {
   const result = await runAction(
     "listGmailThreads",
     "googlemail",
-    { authToken: "insert-access-token-with-gmail-ready-only-scope" }, 
+    { authToken: "insert-access-token-with-gmail-ready-only-scope" },
     params,
   );
   console.log("Resulting payload:");
@@ -25,14 +25,18 @@ async function runTest() {
     const firstThread = result.threads[0];
     assert(firstThread.id, "First thread should have an id");
     // Check for snippet in the first message of the first thread
-    const firstMsg = Array.isArray(firstThread.messages) && firstThread.messages.length > 0
-      ? firstThread.messages[0]
-      : null;
+    const firstMsg =
+      Array.isArray(firstThread.messages) && firstThread.messages.length > 0
+        ? firstThread.messages[0]
+        : null;
     assert(
       firstMsg && typeof firstMsg.snippet === "string",
-      "First message of first thread should have a snippet"
+      "First message of first thread should have a snippet",
     );
-    assert(Array.isArray(firstThread.messages), "Thread should have messages array");
+    assert(
+      Array.isArray(firstThread.messages),
+      "Thread should have messages array",
+    );
   }
 }
 

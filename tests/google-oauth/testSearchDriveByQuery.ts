@@ -22,7 +22,7 @@ async function runTest() {
       searchDriveByDrive: false,
       orderByQuery: "modifiedTime desc",
       limit: 5,
-    } as googleOauthSearchDriveByQueryParamsType
+    } as googleOauthSearchDriveByQueryParamsType,
   );
 
   // Validate the result
@@ -58,14 +58,14 @@ async function runTrashedTest() {
       searchDriveByDrive: false,
       limit: 5,
       includeTrashed: true, // Include trashed files in the search
-    } as googleOauthSearchDriveByQueryParamsType
+    } as googleOauthSearchDriveByQueryParamsType,
   );
 
   // Validate the result
   assert.strictEqual(
     result.success,
     true,
-    "Trashed files search should be successful"
+    "Trashed files search should be successful",
   );
   assert(Array.isArray(result.files), "Files should be an array");
   assert(result.files.length <= 5, "There should be at most 5 files");

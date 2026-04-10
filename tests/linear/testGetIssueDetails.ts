@@ -9,12 +9,12 @@ async function runTest() {
     "getIssueDetails",
     "linear",
     { authToken: process.env.LINEAR_AUTH_TOKEN! },
-    { issueId: process.env.LINEAR_TEST_ISSUE_ID! }
+    { issueId: process.env.LINEAR_TEST_ISSUE_ID! },
   );
 
   assert(result.success, result.error || "getIssueDetails did not succeed");
   assert(result.issue, "Issue should be present");
-  
+
   const issue = result.issue;
   assert(issue.id, "Issue should have an id");
   assert(issue.title, "Issue should have a title");
@@ -22,7 +22,7 @@ async function runTest() {
   assert(Array.isArray(issue.labels), "Issue should have labels array");
   assert(typeof issue.url === "string", "Issue should have a url");
   assert(Array.isArray(issue.comments), "Issue should have comments array");
-  
+
   // Check object format for assignee, creator, team, project
   if (issue.assignee) {
     assert(issue.assignee.id, "Assignee should have an id");
@@ -51,4 +51,4 @@ runTest().catch((error) => {
     console.error("Status code:", error.response.status);
   }
   process.exit(1);
-}); 
+});

@@ -16,7 +16,6 @@ We strongly encourage you to develop actions that rely on oauth based credential
 6. In `package.json` and `package-lock.json` (which must be updated in two places), bump the version number.
 7. Run `npm publish --access public` to publish the new version to npm. (Need to be logged in via `npm login`)
 
-
 ## Writing good action parameter descriptions
 
 When adding new actions to the SDK, follow these guidelines to ensure agents can use them effectively:
@@ -27,11 +26,12 @@ Parameter descriptions should be specific and unambiguous for an LLM agent that 
 
 - **Avoid pronouns like "it"** — explicitly name the entity (e.g., "the ticket", "the project", "the message")
 - **Be specific about ownership/relationships** — say "the owner's username" instead of just "owner"
-- **Include context about what the action does** — e.g., clarify that `sendDmFromBot` sends a message *on behalf of the Credal bot*
+- **Include context about what the action does** — e.g., clarify that `sendDmFromBot` sends a message _on behalf of the Credal bot_
 
 ### 2. Specify Formatting Requirements for Content Inputs
 
 For parameters that accept blob/rich content, explicitly state the expected format:
+
 - "HTML-formatted content"
 - "Markdown-formatted text"
 - "Plain text only"
@@ -44,7 +44,6 @@ For any given provider, use the exact same parameter name across all actions tha
 
 If a parameter value should come from the user rather than being inferred (e.g., sheet name in Google Sheets, channel name in Slack), say so explicitly in the description. Otherwise the LLM may hallucinate default values like `Sheet1`.
 
-
 ## Usage
 
 Invoking an action:
@@ -56,7 +55,7 @@ const result = await runAction(
   "listConversations",
   "slack",
   { authToken: "xoxb-..." },
-  {}
+  {},
 );
 ```
 
@@ -65,6 +64,7 @@ const result = await runAction(
 ```
 npm run test tests/math/testRunMathAction.ts
 ```
+
 ## Secret Scanning (TruffleHog)
 
 We run TruffleHog on every pull request that actually changes at least one file.

@@ -5,9 +5,9 @@ async function runTest() {
   const result = await runAction(
     "createTicket",
     "zendesk",
-    { 
+    {
       apiKey: "insert-your-api-key",
-      username: "insert-your-username"
+      username: "insert-your-username",
     }, // authParams
     {
       subject: "Test ticket",

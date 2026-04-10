@@ -9,7 +9,9 @@ async function runTest() {
   const baseUrl = process.env.SALESFORCE_URL;
 
   if (!authToken || !baseUrl) {
-    throw new Error("Missing required environment variables: SALESFORCE_AUTH_TOKEN, SALESFORCE_URL");
+    throw new Error(
+      "Missing required environment variables: SALESFORCE_AUTH_TOKEN, SALESFORCE_URL",
+    );
   }
 
   const result = await runAction(
@@ -19,7 +21,7 @@ async function runTest() {
       authToken: authToken,
       baseUrl: baseUrl,
     },
-    {}
+    {},
   );
 
   console.log(JSON.stringify(result, null, 2));

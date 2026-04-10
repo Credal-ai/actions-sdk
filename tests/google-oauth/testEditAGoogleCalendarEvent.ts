@@ -10,7 +10,7 @@ async function runTest() {
     { authToken: process.env.GOOGLE_OAUTH_EDIT_EVENT_SCOPE },
     {
       calendarId: "primary",
-      eventId: "19ta0khreli30ib22n2c2717vd", 
+      eventId: "19ta0khreli30ib22n2c2717vd",
       title: "Edited Event Title",
       description: "Edited event description",
       start: new Date(Date.now() + 3600 * 1000).toISOString(),
@@ -24,9 +24,18 @@ async function runTest() {
 
   assert(result, "Response should not be null");
   assert(result.success, "Success should be true");
-  assert(typeof result.eventId === "string" && result.eventId.length > 0, "Should return eventId");
-  assert(typeof result.eventUrl === "string" && result.eventUrl.length > 0, "Should return eventUrl");
-  assert(typeof result.eventDayOfWeek === "string", "Should return eventDayOfWeek");
+  assert(
+    typeof result.eventId === "string" && result.eventId.length > 0,
+    "Should return eventId",
+  );
+  assert(
+    typeof result.eventUrl === "string" && result.eventUrl.length > 0,
+    "Should return eventUrl",
+  );
+  assert(
+    typeof result.eventDayOfWeek === "string",
+    "Should return eventDayOfWeek",
+  );
   console.log(`Successfully edited event: ${result.eventId}`);
   console.log("Event Day of Week: ", result.eventDayOfWeek);
   console.log("Response: ", result);

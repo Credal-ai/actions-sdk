@@ -32,7 +32,7 @@ async function runBasicTest() {
       attendees: ["test@test.com", "test2@test.com"],
       useGoogleMeet: true,
       timeZone: "America/New_York",
-    } as googleOauthScheduleCalendarMeetingParamsType
+    } as googleOauthScheduleCalendarMeetingParamsType,
   );
 
   console.log("Basic test result:", result);
@@ -41,7 +41,10 @@ async function runBasicTest() {
   assert(result.eventId, "Result should be successful");
   assert(result.success, "Result should contain an eventId");
   assert(result.eventDayOfWeek, "Result should contain eventDayOfWeek");
-  assert(typeof result.eventDayOfWeek === "string", "eventDayOfWeek should be a string");
+  assert(
+    typeof result.eventDayOfWeek === "string",
+    "eventDayOfWeek should be a string",
+  );
 
   console.log("Link to Google Calendar Event: ", result.eventUrl);
   console.log("Event Day of Week: ", result.eventDayOfWeek);
@@ -73,7 +76,7 @@ async function testDailyRecurrence() {
         interval: 1,
         count: 10, // 10 occurrences
       },
-    } as googleOauthScheduleCalendarMeetingParamsType
+    } as googleOauthScheduleCalendarMeetingParamsType,
   );
 
   console.log("Daily recurrence result:", result);
@@ -107,10 +110,10 @@ async function testWeeklyRecurrence() {
         interval: 1,
         byDay: ["MO", "WE", "FR"],
         until: new Date(
-          new Date().getTime() + 1000 * 60 * 60 * 24 * 90
+          new Date().getTime() + 1000 * 60 * 60 * 24 * 90,
         ).toISOString(), // 90 days from now
       },
-    } as googleOauthScheduleCalendarMeetingParamsType
+    } as googleOauthScheduleCalendarMeetingParamsType,
   );
 
   console.log("Weekly recurrence result:", result);
@@ -145,7 +148,7 @@ async function testMonthlyRecurrence() {
         byMonthDay: [15], // 15th of each month
         count: 12, // 12 months
       },
-    } as googleOauthScheduleCalendarMeetingParamsType
+    } as googleOauthScheduleCalendarMeetingParamsType,
   );
 
   console.log("Monthly recurrence result:", result);
@@ -160,7 +163,7 @@ async function testMonthlyRecurrence() {
  */
 async function runAllTests() {
   console.log(
-    "=== Running Google OAuth Schedule Meeting Tests (Basic + Recurrence) ===\n"
+    "=== Running Google OAuth Schedule Meeting Tests (Basic + Recurrence) ===\n",
   );
 
   const tests = [

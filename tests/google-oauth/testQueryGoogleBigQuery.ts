@@ -20,7 +20,7 @@ async function runTest() {
       timeoutMs: 30000,
       maximumBytesProcessed: "1000000000", // 1GB limit for this test
       projectId: "ornate-entropy-468019-e6",
-    } as googleOauthQueryGoogleBigQueryParamsType
+    } as googleOauthQueryGoogleBigQueryParamsType,
   );
 
   // Validate the result
@@ -51,7 +51,7 @@ async function runTest() {
   if (result.totalRows) {
     assert(
       typeof result.totalRows === "string",
-      "Total rows should be a string"
+      "Total rows should be a string",
     );
     console.log("Total rows:", result.totalRows);
   }

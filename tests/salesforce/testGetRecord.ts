@@ -18,7 +18,7 @@ async function runTest() {
     {
       objectType: "Lead", // Replace with the object type you want to retrieve
       recordId: "00Qfj000004TxnBEAS", // Replace with a valid record ID
-    }
+    },
   );
 
   console.log(JSON.stringify(result, null, 2));

@@ -17,7 +17,7 @@ async function runTest() {
   const result = await runAction(
     "listDirectory",
     "gitlab",
-    { authToken: process.env.GITLAB_ACCESS_TOKEN }, 
+    { authToken: process.env.GITLAB_ACCESS_TOKEN },
     params,
   );
   console.log("Resulting payload:");

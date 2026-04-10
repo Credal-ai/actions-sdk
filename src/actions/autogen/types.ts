@@ -5771,6 +5771,7 @@ export type salesforceListReportsFunction = ActionFunction<
 export const salesforceExecuteReportParamsSchema = z.object({
   reportId: z.string().describe("Id for the report to execute"),
   includeDetails: z.boolean().describe("Whether to include detailed report metadata in the response").optional(),
+  includeSummary: z.boolean().describe("Whether to include summary/aggregate data (totals, counts, etc.)").optional(),
 });
 
 export type salesforceExecuteReportParamsType = z.infer<typeof salesforceExecuteReportParamsSchema>;
@@ -5781,6 +5782,11 @@ export const salesforceExecuteReportOutputSchema = z.object({
     .object({})
     .catchall(z.any())
     .describe("The report data returned by Salesforce, including factMap with aggregates and row-level details")
+    .optional(),
+  summary: z
+    .object({})
+    .catchall(z.any())
+    .describe("Summary/aggregate data from the report (totals, counts, averages, etc.)")
     .optional(),
   error: z.string().describe("The error that occurred if the report was not successfully executed").optional(),
 });

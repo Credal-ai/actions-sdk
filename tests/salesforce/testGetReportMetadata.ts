@@ -17,7 +17,7 @@ async function runTest() {
     },
     {
       reportId: process.env.SALESFORCE_REPORT_ID,
-    }
+    },
   );
 
   console.log(JSON.stringify(result, null, 2));

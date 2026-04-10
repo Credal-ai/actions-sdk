@@ -20,7 +20,7 @@ async function runTest() {
     {
       query: "SELECT Id FROM Account",
       limit: 10,
-    }
+    },
   )) as salesforceGetSalesforceRecordsByQueryOutputType;
   console.log(JSON.stringify(regularQueryResult, null, 2));
   assert.strictEqual(regularQueryResult.success, true);
@@ -37,7 +37,7 @@ async function runTest() {
     {
       query: "SELECT COUNT(Id) FROM Account",
       limit: 10,
-    }
+    },
   )) as salesforceGetSalesforceRecordsByQueryOutputType;
   console.log(JSON.stringify(aggregateQueryResult, null, 2));
   assert.strictEqual(aggregateQueryResult.success, true);
@@ -54,7 +54,7 @@ async function runTest() {
     {
       query: "SELECT COUNT(Id), Industry FROM Account GROUP BY Industry",
       limit: 10,
-    }
+    },
   )) as salesforceGetSalesforceRecordsByQueryOutputType;
   assert.strictEqual(groupByQueryResult.success, true);
   assert.ok(groupByQueryResult.results?.length ?? 0 > 0);
@@ -62,11 +62,11 @@ async function runTest() {
   const resultWithIndustry = groupByQueryResult.results?.find(
     (r) =>
       (r as { content?: { Industry?: string | null } }).content?.Industry !==
-      null
+      null,
   );
   assert.ok(
     (resultWithIndustry as { content?: { Industry?: string | null } })?.content
-      ?.Industry !== undefined
+      ?.Industry !== undefined,
   );
 
   // Test 4: Query with existing LIMIT clause and no limit parameter - should keep existing limit if < 2000
@@ -79,7 +79,7 @@ async function runTest() {
     },
     {
       query: "SELECT Id FROM Account LIMIT 5",
-    }
+    },
   )) as salesforceGetSalesforceRecordsByQueryOutputType;
   assert.strictEqual(existingLimitQueryResult.success, true);
   assert.ok(existingLimitQueryResult.results?.length ?? 0 <= 5);
@@ -94,7 +94,7 @@ async function runTest() {
     },
     {
       query: "SELECT Id FROM Account LIMIT 3000",
-    }
+    },
   )) as salesforceGetSalesforceRecordsByQueryOutputType;
   assert.strictEqual(highLimitQueryResult.success, true);
   // Should be capped at 2000 or whatever records exist
@@ -110,7 +110,7 @@ async function runTest() {
     {
       query: "SELECT Id FROM Account LIMIT 100",
       limit: 3,
-    }
+    },
   )) as salesforceGetSalesforceRecordsByQueryOutputType;
   assert.strictEqual(overrideLimitQueryResult.success, true);
   assert.ok(overrideLimitQueryResult.results?.length ?? 0 <= 3);
@@ -126,7 +126,7 @@ async function runTest() {
     {
       query: "SELECT Id FROM Account LIMIT 50",
       limit: 3000,
-    }
+    },
   )) as salesforceGetSalesforceRecordsByQueryOutputType;
   assert.strictEqual(capLimitQueryResult.success, true);
   // Should be capped at 2000
@@ -141,7 +141,7 @@ async function runTest() {
     },
     {
       query: "SELECT Id FROM Account limit 7",
-    }
+    },
   )) as salesforceGetSalesforceRecordsByQueryOutputType;
   assert.strictEqual(caseLimitQueryResult.success, true);
   assert.ok(caseLimitQueryResult.results?.length ?? 0 <= 7);
@@ -157,7 +157,7 @@ async function runTest() {
     {
       query: "SELECT Id FROM Account   LIMIT   15   ",
       limit: 4,
-    }
+    },
   )) as salesforceGetSalesforceRecordsByQueryOutputType;
   assert.strictEqual(whitespaceLimitQueryResult.success, true);
   assert.ok(whitespaceLimitQueryResult.results?.length ?? 0 <= 4);

@@ -22,7 +22,7 @@ async function runTest() {
       organization: "Credal-ai",
       repository: "actions-sdk",
       path: "src",
-    }
+    },
   );
 
   const typedResult = result as githubListDirectoryOutputType;

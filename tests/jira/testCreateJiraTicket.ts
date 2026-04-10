@@ -4,7 +4,15 @@ import type { JiraTestConfig } from "./utils.js";
 import { runJiraTest } from "./testRunner.js";
 
 async function testCreateJiraTicket(config: JiraTestConfig) {
-  const { authToken, cloudId, baseUrl, assignee, projectKey, requestTypeId, provider } = config;
+  const {
+    authToken,
+    cloudId,
+    baseUrl,
+    assignee,
+    projectKey,
+    requestTypeId,
+    provider,
+  } = config;
 
   const authParams: {
     authToken: string;
@@ -19,21 +27,16 @@ async function testCreateJiraTicket(config: JiraTestConfig) {
     authParams.cloudId = cloudId;
   }
 
-  const result = await runAction(
-    "createJiraTicket",
-    provider,
-    authParams,
-    {
-      projectKey,
-      summary: `Credal - Test Ticket ${new Date().toISOString()}`,
-      description: `Credal - Test Ticket Description ${new Date().toISOString()}`,
-      issueType: "Task", // Adjust based on available issue types in your Jira
-      reporter: "", // Optional - (defaults to the authenticated user related to the oauth token)
-      assignee: assignee, // Optional
-      //customFields: { customfield_10200: "High" }, // Example of custom fields setting
-      requestTypeId, // JSM request type from environment
-    },
-  );
+  const result = await runAction("createJiraTicket", provider, authParams, {
+    projectKey,
+    summary: `Credal - Test Ticket ${new Date().toISOString()}`,
+    description: `Credal - Test Ticket Description ${new Date().toISOString()}`,
+    issueType: "Task", // Adjust based on available issue types in your Jira
+    reporter: "", // Optional - (defaults to the authenticated user related to the oauth token)
+    assignee: assignee, // Optional
+    //customFields: { customfield_10200: "High" }, // Example of custom fields setting
+    requestTypeId, // JSM request type from environment
+  });
 
   console.log(JSON.stringify(result, null, 2));
 
@@ -57,7 +60,6 @@ async function testCreateJiraTicket(config: JiraTestConfig) {
       "Cloud ticket URL should contain /browse/",
     );
   }
-
 }
 
 runJiraTest("Create Jira Ticket", testCreateJiraTicket).catch((error) => {

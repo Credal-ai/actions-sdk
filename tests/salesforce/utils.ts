@@ -23,7 +23,7 @@ dotenv.config();
 // The private key of the connected app in pkcs8 format, base64 encoded
 const PRIVATE_KEY = Buffer.from(
   process.env.SALESFORCE_PRIVATE_KEY_BASE64!,
-  "base64"
+  "base64",
 ).toString("utf-8");
 // The client ID of the connected app
 const CLIENT_ID = process.env.SALESFORCE_CONSUMER_KEY!;
@@ -56,7 +56,7 @@ export async function authenticateWithJWT(): Promise<{
           grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
           assertion: signedJWT,
         },
-      }
+      },
     );
 
     return {

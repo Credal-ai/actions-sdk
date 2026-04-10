@@ -19,7 +19,7 @@ async function runTest() {
       "fetchPageContent",
       "confluence",
       authParams,
-      pageParams
+      pageParams,
     );
 
     console.log("Confluence page content fetched successfully!");
@@ -29,7 +29,7 @@ async function runTest() {
     // Validate the result
     assert(
       result.pageId === pageParams.pageId,
-      "Result should contain matching page ID"
+      "Result should contain matching page ID",
     );
     assert(result.title, "Result should contain a page title");
     assert(result.content, "Result should contain page content");

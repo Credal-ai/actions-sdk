@@ -42,7 +42,10 @@ async function testUpdateJiraTicketDetails(config: JiraTestConfig) {
     },
   );
 
-  console.log("Partial update result:", JSON.stringify(partialUpdateResult, null, 2));
+  console.log(
+    "Partial update result:",
+    JSON.stringify(partialUpdateResult, null, 2),
+  );
 
   // Validate successful response
   assert(partialUpdateResult, "Response should not be null");
@@ -52,7 +55,9 @@ async function testUpdateJiraTicketDetails(config: JiraTestConfig) {
   );
 }
 
-runJiraTest("Update Jira Ticket Details", testUpdateJiraTicketDetails).catch((error) => {
-  console.error("Test failed:", error);
-  process.exit(1);
-});
+runJiraTest("Update Jira Ticket Details", testUpdateJiraTicketDetails).catch(
+  (error) => {
+    console.error("Test failed:", error);
+    process.exit(1);
+  },
+);

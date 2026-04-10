@@ -18,7 +18,7 @@ async function testAssignJiraTicket(config: JiraTestConfig) {
     },
   );
 
-  console.log('Result: ', JSON.stringify(result, null, 2));
+  console.log("Result: ", JSON.stringify(result, null, 2));
 
   // Validate response
   assert(result, "Response should not be null");

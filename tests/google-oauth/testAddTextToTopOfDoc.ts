@@ -17,9 +17,15 @@ async function runTest() {
     },
   );
 
-  assert(result.success, "Add text to top of document operation should be successful");
+  assert(
+    result.success,
+    "Add text to top of document operation should be successful",
+  );
   assert(result.documentUrl, "Result should contain a documentUrl");
-  assert(result.documentUrl.includes(documentId), "Document URL should contain the document ID");
+  assert(
+    result.documentUrl.includes(documentId),
+    "Document URL should contain the document ID",
+  );
 
   console.log("Result:", result);
 }

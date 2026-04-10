@@ -9,18 +9,30 @@ async function runTests() {
     "getGroup",
     "googleOauth",
     { authToken: process.env.GOOGLE_OAUTH_TOKEN! },
-    { groupKey: process.env.GOOGLE_GROUP_KEY! } // Set GOOGLE_GROUP_KEY in your .env
+    { groupKey: process.env.GOOGLE_GROUP_KEY! }, // Set GOOGLE_GROUP_KEY in your .env
   );
   assert(result, "Should return a result");
   assert(result.success, "Should be successful");
   assert(result.group, "Should return group object");
   if (result.success) {
     const { id, email, name, description } = result.group;
-    assert(typeof id === "string" && id.length > 0, "Group should have a valid id");
-    assert(typeof email === "string" && email.length > 0, "Group should have a valid email");
-    assert(typeof name === "string" && name.length > 0, "Group should have a valid name");
+    assert(
+      typeof id === "string" && id.length > 0,
+      "Group should have a valid id",
+    );
+    assert(
+      typeof email === "string" && email.length > 0,
+      "Group should have a valid email",
+    );
+    assert(
+      typeof name === "string" && name.length > 0,
+      "Group should have a valid name",
+    );
     if (description !== undefined) {
-      assert(typeof description === "string", "Group description should be a string if present");
+      assert(
+        typeof description === "string",
+        "Group description should be a string if present",
+      );
     }
   }
   console.log("Get Group Test Result:", result);

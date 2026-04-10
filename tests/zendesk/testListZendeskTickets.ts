@@ -13,7 +13,7 @@ async function runTest() {
         body: "This is a test private comment",
         public: true,
       },
-    }
+    },
   );
 
   console.log("Output:", output);

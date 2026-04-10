@@ -15,7 +15,7 @@ async function runTest() {
       waitMs: 2000, // Wait 2 seconds before scraping
       onlyMainContent: true, // Test the new optional parameter
       formats: [], // Test the new optional parameter
-    }
+    },
   )) as firecrawlScrapeUrlOutputType;
   console.log(result);
   assert(result.results, "Results should be an array");

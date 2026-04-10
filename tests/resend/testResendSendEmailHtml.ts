@@ -17,7 +17,7 @@ async function runTest() {
   for (const envVar of requiredEnvVars) {
     if (!process.env[envVar]) {
       throw new Error(
-        `Missing required environment variable: ${envVar}. Please check your .env file.`
+        `Missing required environment variable: ${envVar}. Please check your .env file.`,
       );
     }
   }
@@ -37,12 +37,12 @@ async function runTest() {
       subject: "Test HTML Email",
       content:
         "<h1>This is a test HTML email</h1><p>This email contains <strong>HTML content</strong>.</p>",
-    }
+    },
   );
   console.log(result1);
   assert(
     result1.success,
-    "HTML email to single recipient was not sent successfully"
+    "HTML email to single recipient was not sent successfully",
   );
 
   // Test 2: Send HTML email to multiple recipients
@@ -65,12 +65,12 @@ async function runTest() {
       subject: "Test HTML Email to Multiple Recipients",
       content:
         "<h1>Test HTML Email</h1><p>This HTML email is sent to <strong>multiple recipients</strong>.</p>",
-    }
+    },
   );
   console.log(result2);
   assert(
     result2.success,
-    "HTML email to multiple recipients was not sent successfully"
+    "HTML email to multiple recipients was not sent successfully",
   );
 
   console.log("\n✅ All tests passed!");

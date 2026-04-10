@@ -27,7 +27,11 @@ async function runTest() {
       sheetName,
       startRow: 2,
       rows: [
-        [{ stringValue: "Updated Name" }, { stringValue: "updated@example.com" }, { stringValue: "555-0000" }],
+        [
+          { stringValue: "Updated Name" },
+          { stringValue: "updated@example.com" },
+          { stringValue: "555-0000" },
+        ],
       ],
     },
   );
@@ -59,9 +63,21 @@ async function runUpdateMultipleRowsTest() {
       sheetName: "Sheet1",
       startRow: 3,
       rows: [
-        [{ stringValue: "John Doe" }, { stringValue: "john@example.com" }, { stringValue: "555-1234" }],
-        [{ stringValue: "Jane Smith" }, { stringValue: "jane@example.com" }, { stringValue: "555-5678" }],
-        [{ stringValue: "Bob Wilson" }, { stringValue: "bob@example.com" }, { stringValue: "555-9012" }],
+        [
+          { stringValue: "John Doe" },
+          { stringValue: "john@example.com" },
+          { stringValue: "555-1234" },
+        ],
+        [
+          { stringValue: "Jane Smith" },
+          { stringValue: "jane@example.com" },
+          { stringValue: "555-5678" },
+        ],
+        [
+          { stringValue: "Bob Wilson" },
+          { stringValue: "bob@example.com" },
+          { stringValue: "555-9012" },
+        ],
       ],
     },
   );

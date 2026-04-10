@@ -32,7 +32,7 @@ async function runTest() {
     {
       keyword: "Health",
       limit: 1,
-    }
+    },
   );
   console.log("LIMIT 1 results:", JSON.stringify(result1, null, 2));
 
@@ -48,7 +48,7 @@ async function runTest() {
     {
       keyword: "Health",
       limit: 10,
-    }
+    },
   );
   console.log("LIMIT 10 results:", JSON.stringify(result10, null, 2));
 
@@ -56,13 +56,13 @@ async function runTest() {
   assert.equal(
     salesforceSearchAllSalesforceRecordsOutputSchema.safeParse(result10)
       .success,
-    true
+    true,
   );
 
   // Verify we get results with higher limit
   assert.ok(
     result10.searchRecords.length >= 1,
-    "Should find at least 1 result with LIMIT 10"
+    "Should find at least 1 result with LIMIT 10",
   );
 
   console.log("All tests passed!");

@@ -23,7 +23,11 @@ async function runTest() {
       spreadsheetId,
       sheetName,
       rows: [
-        [{ stringValue: "Name" }, { stringValue: "Email" }, { stringValue: "Phone" }],
+        [
+          { stringValue: "Name" },
+          { stringValue: "Email" },
+          { stringValue: "Phone" },
+        ],
       ],
     },
   );
@@ -51,9 +55,21 @@ async function runAppendMultipleRowsTest() {
       spreadsheetId,
       sheetName: "Sheet1",
       rows: [
-        [{ stringValue: "John Doe" }, { stringValue: "john@example.com" }, { stringValue: "555-1234" }],
-        [{ stringValue: "Jane Smith" }, { stringValue: "jane@example.com" }, { stringValue: "555-5678" }],
-        [{ stringValue: "Bob Wilson" }, { stringValue: "bob@example.com" }, { stringValue: "555-9012" }],
+        [
+          { stringValue: "John Doe" },
+          { stringValue: "john@example.com" },
+          { stringValue: "555-1234" },
+        ],
+        [
+          { stringValue: "Jane Smith" },
+          { stringValue: "jane@example.com" },
+          { stringValue: "555-5678" },
+        ],
+        [
+          { stringValue: "Bob Wilson" },
+          { stringValue: "bob@example.com" },
+          { stringValue: "555-9012" },
+        ],
       ],
     },
   );
@@ -68,4 +84,3 @@ runTest().catch((error) => {
   console.error("Test execution failed:", error);
   process.exit(1);
 });
-

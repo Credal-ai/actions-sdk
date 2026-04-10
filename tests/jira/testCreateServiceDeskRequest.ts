@@ -4,7 +4,8 @@ import { jiraConfig } from "./utils.js";
 import { jiraCreateServiceDeskRequestOutputSchema } from "../../src/actions/autogen/types.js";
 
 async function runTest() {
-  const { authToken, cloudId, baseUrl, serviceDeskId, requestTypeId } = jiraConfig;
+  const { authToken, cloudId, baseUrl, serviceDeskId, requestTypeId } =
+    jiraConfig;
 
   const result = await runAction(
     "createServiceDeskRequest",
@@ -19,7 +20,7 @@ async function runTest() {
       requestTypeId,
       summary: "Test Summary",
       description: "Test Description",
-    //   reporter: "Test Reporter",
+      //   reporter: "Test Reporter",
     },
   );
 
@@ -28,12 +29,11 @@ async function runTest() {
   // Validate response
   console.dir(result, { depth: 4 });
 
-  const validatedResult = jiraCreateServiceDeskRequestOutputSchema.safeParse(result);
+  const validatedResult =
+    jiraCreateServiceDeskRequestOutputSchema.safeParse(result);
   assert(validatedResult.success, "Response should be valid");
 
-  console.log(
-    `Successfully created Jira service desk request`,
-  );
+  console.log(`Successfully created Jira service desk request`);
 }
 
 runTest().catch((error) => {

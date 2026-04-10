@@ -10,7 +10,9 @@ async function runTest() {
   const reportId = process.env.SALESFORCE_REPORT_ID;
 
   if (!accessToken || !instanceUrl || !reportId) {
-    throw new Error("Missing required environment variables: SALESFORCE_AUTH_TOKEN, SALESFORCE_URL, SALESFORCE_REPORT_ID");
+    throw new Error(
+      "Missing required environment variables: SALESFORCE_AUTH_TOKEN, SALESFORCE_URL, SALESFORCE_REPORT_ID",
+    );
   }
 
   const result = await runAction(
@@ -23,7 +25,7 @@ async function runTest() {
     {
       reportId: reportId,
       includeDetails: true,
-    }
+    },
   );
 
   console.log(JSON.stringify(result, null, 2));
@@ -32,7 +34,10 @@ async function runTest() {
   assert(result, "Response should not be null");
   assert(result.success, "Response should indicate success");
   assert(result.reportData, "Response should include reportData");
-  assert(typeof result.reportData === "object", "reportData should be an object");
+  assert(
+    typeof result.reportData === "object",
+    "reportData should be an object",
+  );
   console.log("Report successfully executed.");
 }
 

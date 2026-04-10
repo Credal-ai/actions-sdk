@@ -36,7 +36,7 @@ function createJiraConfig(): JiraTestConfig {
       provider: "jiraDataCenter",
       name: "Jira Data Center",
     };
-  } 
+  }
   return {
     ...baseConfig,
     cloudId: process.env.JIRA_CLOUD_ID!,
@@ -62,4 +62,3 @@ export const jiraConfig = createJiraConfig();
 
 // For backward compatibility
 export const provider = "jiraOrg";
-

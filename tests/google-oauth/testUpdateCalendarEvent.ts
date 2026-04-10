@@ -8,7 +8,7 @@ async function runTest() {
     { authToken: "auth-token-with-calendar-scope-here" },
     {
       calendarId: "primary",
-      eventId: "event-id-here", 
+      eventId: "event-id-here",
       updates: {
         title: "Updated Event Title",
         description: "Updated event description",
@@ -23,8 +23,14 @@ async function runTest() {
 
   assert(result, "Response should not be null");
   assert(result.success, "Success should be true");
-  assert(typeof result.eventId === "string" && result.eventId.length > 0, "Should return eventId");
-  assert(typeof result.eventUrl === "string" && result.eventUrl.length > 0, "Should return eventUrl");
+  assert(
+    typeof result.eventId === "string" && result.eventId.length > 0,
+    "Should return eventId",
+  );
+  assert(
+    typeof result.eventUrl === "string" && result.eventUrl.length > 0,
+    "Should return eventUrl",
+  );
   console.log(`Successfully updated event: ${result.eventId}`);
   console.log("Response: ", result);
 }

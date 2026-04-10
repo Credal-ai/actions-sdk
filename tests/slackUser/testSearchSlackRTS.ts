@@ -6,7 +6,10 @@ import assert from "node:assert";
 dotenv.config();
 
 async function runTest() {
-  assert(process.env.SLACK_AUTH_TOKEN, "SLACK_AUTH_TOKEN must be set to run this test");
+  assert(
+    process.env.SLACK_AUTH_TOKEN,
+    "SLACK_AUTH_TOKEN must be set to run this test",
+  );
   assert(
     process.env.SLACK_TEST_PUBLIC_CHANNEL_ID,
     "SLACK_TEST_PUBLIC_CHANNEL_ID must be set to run channel filter tests",
@@ -21,7 +24,7 @@ async function runTest() {
     "searchSlackRTS",
     "slackUser",
     { authToken: process.env.SLACK_AUTH_TOKEN },
-    { query: "project update" }
+    { query: "project update" },
   )) as slackUserSearchSlackRTSOutputType;
 
   // Search with channel type filters
@@ -33,7 +36,7 @@ async function runTest() {
       query: "meeting notes",
       channelTypes: ["public_channel", "private_channel"],
       limit: 5,
-    }
+    },
   )) as slackUserSearchSlackRTSOutputType;
 
   // Search in DMs only
@@ -45,7 +48,7 @@ async function runTest() {
       query: "project",
       channelTypes: ["im"],
       limit: 3,
-    }
+    },
   )) as slackUserSearchSlackRTSOutputType;
 
   // Search with time filters
@@ -56,9 +59,11 @@ async function runTest() {
     {
       query: "deployment",
       before: Math.floor(Date.now() / 1000).toString(),
-      after: Math.floor((Date.now() - 7 * 24 * 60 * 60 * 1000) / 1000).toString(),
+      after: Math.floor(
+        (Date.now() - 7 * 24 * 60 * 60 * 1000) / 1000,
+      ).toString(),
       limit: 10,
-    }
+    },
   )) as slackUserSearchSlackRTSOutputType;
 
   // Search with time filters using date strings (non-unix input)
@@ -71,7 +76,7 @@ async function runTest() {
       before: "2026-02-06T00:00:00Z",
       after: "2026-02-05T00:00:00Z",
       limit: 10,
-    }
+    },
   )) as slackUserSearchSlackRTSOutputType;
 
   // Search including bot messages
@@ -83,7 +88,7 @@ async function runTest() {
       query: "alert",
       includeBots: true,
       limit: 5,
-    }
+    },
   )) as slackUserSearchSlackRTSOutputType;
 
   // Search for files
@@ -95,28 +100,30 @@ async function runTest() {
       query: "document",
       contentTypes: ["messages", "files"],
       limit: 5,
-    }
+    },
   )) as slackUserSearchSlackRTSOutputType;
 
-  const rawUserEmails: string[] = [/* fill in with emails */];
-  const userEmails = rawUserEmails.length > 0
-    ? rawUserEmails
-        .map(s => s.trim())
-        .filter(Boolean)
-    : null;
+  const rawUserEmails: string[] = [
+    /* fill in with emails */
+  ];
+  const userEmails =
+    rawUserEmails.length > 0
+      ? rawUserEmails.map((s) => s.trim()).filter(Boolean)
+      : null;
 
-  const result7 = userEmails && userEmails.length > 0
-    ? ((await runAction(
-        "searchSlackRTS",
-        "slackUser",
-        { authToken: process.env.SLACK_AUTH_TOKEN },
-        {
-          query: "project",
-          userEmails,
-          limit: 5,
-        }
-      )) as slackUserSearchSlackRTSOutputType)
-    : null;
+  const result7 =
+    userEmails && userEmails.length > 0
+      ? ((await runAction(
+          "searchSlackRTS",
+          "slackUser",
+          { authToken: process.env.SLACK_AUTH_TOKEN },
+          {
+            query: "project",
+            userEmails,
+            limit: 5,
+          },
+        )) as slackUserSearchSlackRTSOutputType)
+      : null;
 
   const result8 = (await runAction(
     "searchSlackRTS",
@@ -126,7 +133,7 @@ async function runTest() {
       query: "project",
       channelIds: [process.env.SLACK_TEST_PUBLIC_CHANNEL_ID],
       limit: 5,
-    }
+    },
   )) as slackUserSearchSlackRTSOutputType;
 
   const result9 = (await runAction(
@@ -137,7 +144,7 @@ async function runTest() {
       query: "project",
       channelIds: [process.env.SLACK_TEST_PUBLIC_CHANNEL_NAME],
       limit: 5,
-    }
+    },
   )) as slackUserSearchSlackRTSOutputType;
 
   const result10 = (await runAction(
@@ -147,7 +154,7 @@ async function runTest() {
     {
       channelIds: [process.env.SLACK_TEST_PUBLIC_CHANNEL_ID],
       limit: 5,
-    }
+    },
   )) as slackUserSearchSlackRTSOutputType;
 
   let blankAllFiltersThrew = false;
@@ -176,63 +183,74 @@ async function runTest() {
       query: "",
       contentTypes: ["messages"],
       limit: 5,
-    }
+    },
   )) as slackUserSearchSlackRTSOutputType;
 
   assert(result8?.ok, "Channel ID filtered search should succeed");
   assert(result9?.ok, "Channel name filtered search should succeed");
   assert(result10?.ok, "Blank query + channel filter search should succeed");
   assert(blankAllFiltersThrew, "Blank query with no filters should throw");
-  assert(result11?.ok && result11?.results.messages && result11?.results?.messages?.length > 0, "Blank query + private channel search should succeed and not be blank");
-
-  console.log(
-    "Search Test Response 1 (Basic): " + JSON.stringify(result1, null, 2)
+  assert(
+    result11?.ok &&
+      result11?.results.messages &&
+      result11?.results?.messages?.length > 0,
+    "Blank query + private channel search should succeed and not be blank",
   );
 
   console.log(
-    "Search Test Response 2 (Channel Filters): " + JSON.stringify(result2, null, 2)
+    "Search Test Response 1 (Basic): " + JSON.stringify(result1, null, 2),
   );
 
   console.log(
-    "Search Test Response 3 (DMs Only): " + JSON.stringify(result3, null, 2)
+    "Search Test Response 2 (Channel Filters): " +
+      JSON.stringify(result2, null, 2),
   );
 
   console.log(
-    "Search Test Response 4 (Time Filters): " + JSON.stringify(result4, null, 2)
+    "Search Test Response 3 (DMs Only): " + JSON.stringify(result3, null, 2),
   );
 
   console.log(
-    "Search Test Response 4b (Time Filters - Date Strings): " + JSON.stringify(result4b, null, 2)
+    "Search Test Response 4 (Time Filters): " +
+      JSON.stringify(result4, null, 2),
   );
 
   console.log(
-    "Search Test Response 5 (Include Bots): " + JSON.stringify(result5, null, 2)
+    "Search Test Response 4b (Time Filters - Date Strings): " +
+      JSON.stringify(result4b, null, 2),
   );
 
   console.log(
-    "Search Test Response 6 (Files): " + JSON.stringify(result6, null, 2)
+    "Search Test Response 5 (Include Bots): " +
+      JSON.stringify(result5, null, 2),
   );
 
   console.log(
-    "Search Test Response 7 (From User): " + JSON.stringify(result7, null, 2)
+    "Search Test Response 6 (Files): " + JSON.stringify(result6, null, 2),
   );
 
   console.log(
-    "Search Test Response 8 (Channel ID): " + JSON.stringify(result8, null, 2)
+    "Search Test Response 7 (From User): " + JSON.stringify(result7, null, 2),
   );
 
   console.log(
-    "Search Test Response 9 (Channel Name): " + JSON.stringify(result9, null, 2)
+    "Search Test Response 8 (Channel ID): " + JSON.stringify(result8, null, 2),
   );
 
   console.log(
-    "Search Test Response 10 (Blank Query + Channel ID): " + JSON.stringify(result10, null, 2)
+    "Search Test Response 9 (Channel Name): " +
+      JSON.stringify(result9, null, 2),
   );
 
   console.log(
-    "Search Test Response 11 (Blank Query + PrivateChannel ID): " + JSON.stringify(result11, null, 2)
+    "Search Test Response 10 (Blank Query + Channel ID): " +
+      JSON.stringify(result10, null, 2),
   );
 
+  console.log(
+    "Search Test Response 11 (Blank Query + PrivateChannel ID): " +
+      JSON.stringify(result11, null, 2),
+  );
 }
 
 runTest().catch((error) => {

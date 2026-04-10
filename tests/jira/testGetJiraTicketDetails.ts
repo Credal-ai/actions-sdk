@@ -15,7 +15,7 @@ async function testGetJiraTicketDetails(config: JiraTestConfig) {
     {
       projectKey,
       issueId,
-    }
+    },
   )) as jiraGetJiraTicketDetailsOutputType;
 
   console.log(JSON.stringify(result, null, 2));
@@ -27,12 +27,13 @@ async function testGetJiraTicketDetails(config: JiraTestConfig) {
   assert(result.results[0].contents.key, "Ticket data should include a key");
   assert(
     result.results[0].contents.fields,
-    "Ticket data should include fields"
+    "Ticket data should include fields",
   );
-
 }
 
-runJiraTest("Get Jira Ticket Details", testGetJiraTicketDetails).catch((error) => {
-  console.error("Test failed:", error);
-  process.exit(1);
-});
+runJiraTest("Get Jira Ticket Details", testGetJiraTicketDetails).catch(
+  (error) => {
+    console.error("Test failed:", error);
+    process.exit(1);
+  },
+);

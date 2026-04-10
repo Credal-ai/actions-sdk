@@ -29,7 +29,7 @@ async function runTest() {
       objectType,
       recordId,
       fieldsToUpdate,
-    }
+    },
   );
 
   console.log(JSON.stringify(result, null, 2));

@@ -10,10 +10,10 @@ async function runTest() {
     "sendDmFromBot",
     "slack",
     { authToken: process.env.SLACK_AUTH_TOKEN },
-    { 
-      email: "livia@credal.ai", 
-      message: "Test message from sendDm action - simple test" 
-    }
+    {
+      email: "livia@credal.ai",
+      message: "Test message from sendDm action - simple test",
+    },
   )) as slackSendDmFromBotOutputType;
 
   // Test 2: Send to non-existent user (should fail gracefully)
@@ -24,15 +24,14 @@ async function runTest() {
     {
       email: "nonexistent@credal.ai",
       message: "This should fail",
-    }
+    },
   )) as slackSendDmFromBotOutputType;
 
-  console.log(
-    "Send DM Test Response 1: " + JSON.stringify(result1, null, 2)
-  );
+  console.log("Send DM Test Response 1: " + JSON.stringify(result1, null, 2));
 
   console.log(
-    "Send DM Test Response 2 (should fail): " + JSON.stringify(result2, null, 2)
+    "Send DM Test Response 2 (should fail): " +
+      JSON.stringify(result2, null, 2),
   );
 }
 
