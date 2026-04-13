@@ -716,6 +716,10 @@ export const slackSendMessageDefinition: ActionTemplate = {
         type: "string",
         description: "The message content to send to Slack. Can include markdown formatting.",
       },
+      unfurlLinks: {
+        type: "boolean",
+        description: "Whether to enable unfurling of links in the message (defaults to true)",
+      },
     },
   },
   output: {

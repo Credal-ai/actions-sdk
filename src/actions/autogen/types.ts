@@ -537,6 +537,10 @@ export const slackSendMessageParamsSchema = z.object({
     .describe("The name of the Slack channel to send the message to (e.g. general, alerts)")
     .optional(),
   message: z.string().describe("The message content to send to Slack. Can include markdown formatting."),
+  unfurlLinks: z
+    .boolean()
+    .describe("Whether to enable unfurling of links in the message (defaults to true)")
+    .optional(),
 });
 
 export type slackSendMessageParamsType = z.infer<typeof slackSendMessageParamsSchema>;

@@ -20,7 +20,7 @@ const sendMessage: slackSendMessageFunction = async ({
     throw new Error(MISSING_AUTH_TOKEN);
   }
 
-  const { channelId: inputChannelId, channelName, message } = params;
+  const { channelId: inputChannelId, channelName, message, unfurlLinks } = params;
   if (!inputChannelId && !channelName) {
     throw Error("Either channelId or channelName must be provided");
   }
@@ -41,6 +41,7 @@ const sendMessage: slackSendMessageFunction = async ({
     await client.chat.postMessage({
       channel: channelId,
       text: message, // Fallback text for notifications/clients that don't render blocks
+      unfurl_links: unfurlLinks,
       blocks: [
         {
           type: "section",
@@ -60,6 +61,7 @@ const sendMessage: slackSendMessageFunction = async ({
       await client.chat.postMessage({
         channel: channelId,
         text: message,
+        unfurl_links: unfurlLinks,
       });
       return slackSendMessageOutputSchema.parse({ success: true });
     } catch (retryError) {
