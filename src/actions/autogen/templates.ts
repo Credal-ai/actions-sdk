@@ -7122,6 +7122,72 @@ export const googleOauthCreateSpreadsheetDefinition: ActionTemplate = {
   name: "createSpreadsheet",
   provider: "googleOauth",
 };
+export const googleOauthGetSpreadsheetMetadataDefinition: ActionTemplate = {
+  displayName: "Get spreadsheet metadata",
+  description: "Get lightweight metadata for an existing Google Spreadsheet including sheet IDs and titles",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["spreadsheetId"],
+    properties: {
+      spreadsheetId: {
+        type: "string",
+        description: "The ID of the Google Spreadsheet to fetch metadata for",
+        tags: ["recommend-predefined"],
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether spreadsheet metadata was fetched successfully",
+      },
+      spreadsheetId: {
+        type: "string",
+        description: "The spreadsheet ID",
+      },
+      spreadsheetTitle: {
+        type: "string",
+        description: "The spreadsheet title",
+      },
+      sheets: {
+        type: "array",
+        description: "The list of sheets in the spreadsheet",
+        items: {
+          type: "object",
+          properties: {
+            sheetId: {
+              type: "number",
+              description: "The ID of the sheet",
+            },
+            title: {
+              type: "string",
+              description: "The sheet title",
+            },
+            index: {
+              type: "number",
+              description: "The sheet index",
+            },
+            gid: {
+              type: "number",
+              description: "The gid used in Google Sheets URLs (same value as sheetId)",
+            },
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if metadata retrieval failed",
+      },
+    },
+  },
+  name: "getSpreadsheetMetadata",
+  provider: "googleOauth",
+};
 export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
   displayName: "Update a spreadsheet",
   description: "Update a Google Spreadsheet with new content specified",
