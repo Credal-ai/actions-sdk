@@ -36,36 +36,65 @@ const sendMessage: slackSendMessageFunction = async ({
     throw Error(`Channel with name ${channelName} not found`);
   }
 
-  const threadArgs: Partial<{ thread_ts: string; reply_broadcast: boolean }> = threadTs
-    ? replyBroadcast
-      ? { thread_ts: threadTs, reply_broadcast: true }
-      : { thread_ts: threadTs }
-    : {};
+  const baseArgs = {
+    channel: channelId!,
+    text: message,
+    unfurl_links: unfurlLinks,
+  };
 
   const postAsBlocks = () =>
-    client.chat.postMessage({
-      channel: channelId!,
-      text: message,
-      unfurl_links: unfurlLinks,
-      ...threadArgs,
-      blocks: [
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: message,
+    client.chat.postMessage(
+      threadTs
+        ? replyBroadcast
+          ? {
+              ...baseArgs,
+              thread_ts: threadTs,
+              reply_broadcast: true,
+              blocks: [
+                {
+                  type: "section",
+                  text: {
+                    type: "mrkdwn",
+                    text: message,
+                  },
+                },
+              ],
+            }
+          : {
+              ...baseArgs,
+              thread_ts: threadTs,
+              blocks: [
+                {
+                  type: "section",
+                  text: {
+                    type: "mrkdwn",
+                    text: message,
+                  },
+                },
+              ],
+            }
+        : {
+            ...baseArgs,
+            blocks: [
+              {
+                type: "section",
+                text: {
+                  type: "mrkdwn",
+                  text: message,
+                },
+              },
+            ],
           },
-        },
-      ],
-    });
+    );
 
   const postAsPlainText = () =>
-    client.chat.postMessage({
-      channel: channelId!,
-      text: message,
-      unfurl_links: unfurlLinks,
-      ...threadArgs,
-    });
+    client.chat.postMessage(
+      threadTs
+        ? replyBroadcast
+          ? { ...baseArgs, thread_ts: threadTs, reply_broadcast: true }
+          : { ...baseArgs, thread_ts: threadTs }
+        : baseArgs,
+    );
 
   const buildSuccess = async (result: Awaited<ReturnType<typeof postAsBlocks>>) => {
     const ts = result.ts;
