@@ -41,6 +41,15 @@ const sendMessage: slackSendMessageFunction = async ({
     text: message,
     unfurl_links: unfurlLinks,
   };
+  const messageBlocks = [
+    {
+      type: "section" as const,
+      text: {
+        type: "mrkdwn" as const,
+        text: message,
+      },
+    },
+  ];
 
   const postAsBlocks = () =>
     client.chat.postMessage(
@@ -50,40 +59,16 @@ const sendMessage: slackSendMessageFunction = async ({
               ...baseArgs,
               thread_ts: threadTs,
               reply_broadcast: true,
-              blocks: [
-                {
-                  type: "section",
-                  text: {
-                    type: "mrkdwn",
-                    text: message,
-                  },
-                },
-              ],
+              blocks: messageBlocks,
             }
           : {
               ...baseArgs,
               thread_ts: threadTs,
-              blocks: [
-                {
-                  type: "section",
-                  text: {
-                    type: "mrkdwn",
-                    text: message,
-                  },
-                },
-              ],
+              blocks: messageBlocks,
             }
         : {
             ...baseArgs,
-            blocks: [
-              {
-                type: "section",
-                text: {
-                  type: "mrkdwn",
-                  text: message,
-                },
-              },
-            ],
+            blocks: messageBlocks,
           },
     );
 
