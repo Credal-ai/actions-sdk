@@ -36,36 +36,50 @@ const sendMessage: slackSendMessageFunction = async ({
     throw Error(`Channel with name ${channelName} not found`);
   }
 
-  const threadArgs: { thread_ts: string; reply_broadcast: boolean } | { thread_ts: string } | object = threadTs
-    ? replyBroadcast
-      ? { thread_ts: threadTs, reply_broadcast: true }
-      : { thread_ts: threadTs }
-    : {};
+  const baseArgs = {
+    channel: channelId!,
+    text: message,
+    unfurl_links: unfurlLinks,
+  };
+  const messageBlocks = [
+    {
+      type: "section" as const,
+      text: {
+        type: "mrkdwn" as const,
+        text: message,
+      },
+    },
+  ];
 
   const postAsBlocks = () =>
-    client.chat.postMessage({
-      channel: channelId!,
-      text: message,
-      unfurl_links: unfurlLinks,
-      ...threadArgs,
-      blocks: [
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: message,
+    client.chat.postMessage(
+      threadTs
+        ? replyBroadcast
+          ? {
+              ...baseArgs,
+              thread_ts: threadTs,
+              reply_broadcast: true,
+              blocks: messageBlocks,
+            }
+          : {
+              ...baseArgs,
+              thread_ts: threadTs,
+              blocks: messageBlocks,
+            }
+        : {
+            ...baseArgs,
+            blocks: messageBlocks,
           },
-        },
-      ],
-    });
+    );
 
   const postAsPlainText = () =>
-    client.chat.postMessage({
-      channel: channelId!,
-      text: message,
-      unfurl_links: unfurlLinks,
-      ...threadArgs,
-    });
+    client.chat.postMessage(
+      threadTs
+        ? replyBroadcast
+          ? { ...baseArgs, thread_ts: threadTs, reply_broadcast: true }
+          : { ...baseArgs, thread_ts: threadTs }
+        : baseArgs,
+    );
 
   const buildSuccess = async (result: Awaited<ReturnType<typeof postAsBlocks>>) => {
     const ts = result.ts;
