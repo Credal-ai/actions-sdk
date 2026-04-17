@@ -541,6 +541,16 @@ export const slackSendMessageParamsSchema = z.object({
     .boolean()
     .describe("Whether to enable unfurling of links in the message (defaults to true)")
     .optional(),
+  threadTs: z
+    .string()
+    .describe(
+      "The timestamp (ts) of a parent message to reply to in a thread. Obtain this from the `timestamp` field returned by a previous sendMessage call, or from the trailing path segment of a Slack message permalink (e.g. `p1234567890123456` → `1234567890.123456`).",
+    )
+    .optional(),
+  replyBroadcast: z
+    .boolean()
+    .describe("When replying in a thread (threadTs provided), also post the reply to the channel. Defaults to false.")
+    .optional(),
 });
 
 export type slackSendMessageParamsType = z.infer<typeof slackSendMessageParamsSchema>;
@@ -548,7 +558,18 @@ export type slackSendMessageParamsType = z.infer<typeof slackSendMessageParamsSc
 export const slackSendMessageOutputSchema = z.object({
   success: z.boolean().describe("Whether the message was sent successfully"),
   error: z.string().describe("The error that occurred if the message was not sent successfully").optional(),
-  messageId: z.string().describe("The ID of the message that was sent").optional(),
+  channelId: z.string().describe("The ID of the channel the message was sent to").optional(),
+  timestamp: z
+    .string()
+    .describe(
+      "The Slack timestamp (ts) of the sent message. Use this as `threadTs` on a subsequent sendMessage call to reply in a thread.",
+    )
+    .optional(),
+  threadTs: z
+    .string()
+    .describe("The timestamp of the parent message, if this message was sent as a threaded reply")
+    .optional(),
+  permalink: z.string().describe("The permalink URL to the sent message").optional(),
 });
 
 export type slackSendMessageOutputType = z.infer<typeof slackSendMessageOutputSchema>;
