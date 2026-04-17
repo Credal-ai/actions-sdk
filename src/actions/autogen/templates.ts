@@ -696,7 +696,7 @@ export const slackCreateChannelDefinition: ActionTemplate = {
 };
 export const slackSendMessageDefinition: ActionTemplate = {
   displayName: "Send a message",
-  description: "Sends a message to a Slack channel",
+  description: "Sends a message to a Slack channel, optionally as a reply in a thread",
   scopes: ["chat:write"],
   tags: [],
   parameters: {
@@ -720,6 +720,16 @@ export const slackSendMessageDefinition: ActionTemplate = {
         type: "boolean",
         description: "Whether to enable unfurling of links in the message (defaults to true)",
       },
+      threadTs: {
+        type: "string",
+        description:
+          "The timestamp (ts) of a parent message to reply to in a thread. Obtain this from the `timestamp` field returned by a previous sendMessage call, or from the trailing path segment of a Slack message permalink (e.g. `p1234567890123456` → `1234567890.123456`).",
+      },
+      replyBroadcast: {
+        type: "boolean",
+        description:
+          "When replying in a thread (threadTs provided), also post the reply to the channel. Defaults to false.",
+      },
     },
   },
   output: {
@@ -734,9 +744,22 @@ export const slackSendMessageDefinition: ActionTemplate = {
         type: "string",
         description: "The error that occurred if the message was not sent successfully",
       },
-      messageId: {
+      channelId: {
         type: "string",
-        description: "The ID of the message that was sent",
+        description: "The ID of the channel the message was sent to",
+      },
+      timestamp: {
+        type: "string",
+        description:
+          "The Slack timestamp (ts) of the sent message. Use this as `threadTs` on a subsequent sendMessage call to reply in a thread.",
+      },
+      threadTs: {
+        type: "string",
+        description: "The timestamp of the parent message, if this message was sent as a threaded reply",
+      },
+      permalink: {
+        type: "string",
+        description: "The permalink URL to the sent message",
       },
     },
   },
