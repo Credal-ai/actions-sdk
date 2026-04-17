@@ -36,7 +36,7 @@ const sendMessage: slackSendMessageFunction = async ({
     throw Error(`Channel with name ${channelName} not found`);
   }
 
-  const threadArgs: { thread_ts: string; reply_broadcast: boolean } | { thread_ts: string } | object = threadTs
+  const threadArgs: Partial<{ thread_ts: string; reply_broadcast: boolean }> = threadTs
     ? replyBroadcast
       ? { thread_ts: threadTs, reply_broadcast: true }
       : { thread_ts: threadTs }
