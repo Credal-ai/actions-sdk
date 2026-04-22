@@ -61,11 +61,10 @@ async function runTest() {
   // Check that at least one result has a non-null Industry (skip null values from GROUP BY)
   const resultWithIndustry = groupByQueryResult.results?.find(
     (r) =>
-      (r as { content?: { Industry?: string | null } }).content?.Industry !==
-      null
+      (r as { contents?: { Industry?: string | null } }).contents?.Industry != null
   );
   assert.ok(
-    (resultWithIndustry as { content?: { Industry?: string | null } })?.content
+    (resultWithIndustry as { contents?: { Industry?: string | null } })?.contents
       ?.Industry !== undefined
   );
 
@@ -161,6 +160,37 @@ async function runTest() {
   )) as salesforceGetSalesforceRecordsByQueryOutputType;
   assert.strictEqual(whitespaceLimitQueryResult.success, true);
   assert.ok(whitespaceLimitQueryResult.results?.length ?? 0 <= 4);
+
+  // Test 10: Query with LIMIT inside a subquery and no trailing LIMIT.
+  // The inner LIMIT must be preserved (not stripped) and an outer LIMIT added.
+  const subqueryLimitResult = (await runAction(
+    "getSalesforceRecordsByQuery",
+    "salesforce",
+    {
+      authToken: accessToken,
+      baseUrl: instanceUrl,
+    },
+    {
+      query:
+        "SELECT Id, Name, (SELECT Id, Name FROM Contacts LIMIT 2) FROM Account ORDER BY Name ASC",
+      limit: 3,
+    }
+  )) as salesforceGetSalesforceRecordsByQueryOutputType;
+  assert.strictEqual(subqueryLimitResult.success, true);
+  // Outer LIMIT applied
+  assert.ok((subqueryLimitResult.results?.length ?? 0) <= 3);
+  // Inner LIMIT preserved: each account's Contacts subquery should have <= 2 records
+  for (const r of subqueryLimitResult.results ?? []) {
+    const contacts = (
+      r as { contents?: { Contacts?: { records?: unknown[] } | null } }
+    ).contents?.Contacts;
+    if (contacts && Array.isArray(contacts.records)) {
+      assert.ok(
+        contacts.records.length <= 2,
+        `Inner LIMIT was not preserved: got ${contacts.records.length} contacts`
+      );
+    }
+  }
 
   console.log("All tests passed!");
 }
