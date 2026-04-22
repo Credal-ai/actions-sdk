@@ -6173,6 +6173,9 @@ actions:
               department:
                 type: string
                 description: The user's department
+              location:
+                type: string
+                description: The user's location
           error:
             type: string
             description: Error message if retrieval failed.
