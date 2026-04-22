@@ -10509,6 +10509,10 @@ export const oktaOrgGetOktaUserByNameDefinition: ActionTemplate = {
             type: "string",
             description: "The user's department",
           },
+          location: {
+            type: "string",
+            description: "The user's location",
+          },
         },
       },
       error: {

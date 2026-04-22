@@ -5526,6 +5526,7 @@ export const oktaOrgGetOktaUserByNameOutputSchema = z.object({
       title: z.string().describe("The user's title").optional(),
       division: z.string().describe("The user's division").optional(),
       department: z.string().describe("The user's department").optional(),
+      location: z.string().describe("The user's location").optional(),
     })
     .optional(),
   error: z.string().describe("Error message if retrieval failed.").optional(),
