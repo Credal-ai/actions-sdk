@@ -22,15 +22,17 @@ async function runTest() {
     );
 
     console.log("Confluence Data Center page content fetched successfully!");
-    console.log("Page title:", result.title);
-    console.log("Content", `${result.content.substring(0, 100)}..`);
+    assert(result.success, "Action should report success");
+    assert(result.data, "Result should contain a data payload");
+    console.log("Page title:", result.data.title);
+    console.log("Content", `${result.data.content.substring(0, 100)}..`);
 
     assert(
-      result.pageId === pageParams.pageId,
+      result.data.pageId === pageParams.pageId,
       "Result should contain matching page ID"
     );
-    assert(result.title, "Result should contain a page title");
-    assert(result.content, "Result should contain page content");
+    assert(result.data.title, "Result should contain a page title");
+    assert(result.data.content, "Result should contain page content");
 
     return result;
   } catch (error) {
