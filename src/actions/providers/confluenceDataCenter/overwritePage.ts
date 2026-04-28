@@ -18,10 +18,7 @@ const confluenceDataCenterOverwritePage: confluenceDataCenterOverwritePageFuncti
   const { baseUrl, config } = getConfluenceApi(authParams);
 
   try {
-    const response = await axiosClient.get(
-      `${baseUrl}/content/${pageId}?expand=version`,
-      config,
-    );
+    const response = await axiosClient.get(`${baseUrl}/content/${pageId}?expand=version`, config);
     const currVersion = response.data.version.number;
 
     const payload = {

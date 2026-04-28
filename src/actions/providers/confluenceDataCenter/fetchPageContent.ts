@@ -18,10 +18,7 @@ const confluenceDataCenterFetchPageContent: confluenceDataCenterFetchPageContent
   const { baseUrl, config } = getConfluenceApi(authParams);
 
   try {
-    const response = await axiosClient.get(
-      `${baseUrl}/content/${pageId}?expand=body.storage,version`,
-      config,
-    );
+    const response = await axiosClient.get(`${baseUrl}/content/${pageId}?expand=body.storage,version`, config);
 
     const title = response.data.title;
     const content = response.data.body?.storage?.value || "";

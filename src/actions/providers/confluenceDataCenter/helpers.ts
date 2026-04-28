@@ -1,9 +1,9 @@
 import type { AxiosRequestConfig } from "axios";
 
-export function getConfluenceApi(authParams: {
-  baseUrl?: string;
-  authToken?: string;
-}): { baseUrl: string; config: AxiosRequestConfig } {
+export function getConfluenceApi(authParams: { baseUrl?: string; authToken?: string }): {
+  baseUrl: string;
+  config: AxiosRequestConfig;
+} {
   const { baseUrl, authToken } = authParams;
 
   if (!authToken) {
