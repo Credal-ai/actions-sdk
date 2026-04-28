@@ -15,9 +15,9 @@ const confluenceDataCenterFetchPageContent: confluenceDataCenterFetchPageContent
   authParams: AuthParamsType;
 }): Promise<confluenceDataCenterFetchPageContentOutputType> => {
   const { pageId } = params;
-  const { baseUrl, config } = getConfluenceApi(authParams);
 
   try {
+    const { baseUrl, config } = getConfluenceApi(authParams);
     const response = await axiosClient.get(`${baseUrl}/content/${pageId}?expand=body.storage,version`, config);
 
     const title = response.data.title;
