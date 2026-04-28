@@ -766,7 +766,7 @@ export const slackCreateChannelDefinition: ActionTemplate = {
     };
 export const slackSendMessageDefinition: ActionTemplate = {
         "displayName": "Send a message",
-        "description": "Sends a message to a Slack channel",
+        "description": "Sends a message to a Slack channel, optionally as a reply in a thread",
         "scopes": [
             "chat:write"
         ],
@@ -791,6 +791,18 @@ export const slackSendMessageDefinition: ActionTemplate = {
                 "message": {
                     "type": "string",
                     "description": "The message content to send to Slack. Can include markdown formatting."
+                },
+                "unfurlLinks": {
+                    "type": "boolean",
+                    "description": "Whether to enable unfurling of links in the message (defaults to true)"
+                },
+                "threadTs": {
+                    "type": "string",
+                    "description": "The timestamp (ts) of a parent message to reply to in a thread. Obtain this from the `timestamp` field returned by a previous sendMessage call, or from the trailing path segment of a Slack message permalink (e.g. `p1234567890123456` → `1234567890.123456`)."
+                },
+                "replyBroadcast": {
+                    "type": "boolean",
+                    "description": "When replying in a thread (threadTs provided), also post the reply to the channel. Defaults to false."
                 }
             }
         },
@@ -808,9 +820,21 @@ export const slackSendMessageDefinition: ActionTemplate = {
                     "type": "string",
                     "description": "The error that occurred if the message was not sent successfully"
                 },
-                "messageId": {
+                "channelId": {
                     "type": "string",
-                    "description": "The ID of the message that was sent"
+                    "description": "The ID of the channel the message was sent to"
+                },
+                "timestamp": {
+                    "type": "string",
+                    "description": "The Slack timestamp (ts) of the sent message. Use this as `threadTs` on a subsequent sendMessage call to reply in a thread."
+                },
+                "threadTs": {
+                    "type": "string",
+                    "description": "The timestamp of the parent message, if this message was sent as a threaded reply"
+                },
+                "permalink": {
+                    "type": "string",
+                    "description": "The permalink URL to the sent message"
                 }
             }
         },
@@ -8190,6 +8214,78 @@ export const googleOauthCreateSpreadsheetDefinition: ActionTemplate = {
         "name": "createSpreadsheet",
         "provider": "googleOauth"
     };
+export const googleOauthGetSpreadsheetMetadataDefinition: ActionTemplate = {
+        "displayName": "Get spreadsheet metadata",
+        "description": "Get lightweight metadata for an existing Google Spreadsheet including sheet IDs and titles",
+        "scopes": [],
+        "tags": [],
+        "parameters": {
+            "type": "object",
+            "required": [
+                "spreadsheetId"
+            ],
+            "properties": {
+                "spreadsheetId": {
+                    "type": "string",
+                    "description": "The ID of the Google Spreadsheet to fetch metadata for",
+                    "tags": [
+                        "recommend-predefined"
+                    ]
+                }
+            }
+        },
+        "output": {
+            "type": "object",
+            "required": [
+                "success"
+            ],
+            "properties": {
+                "success": {
+                    "type": "boolean",
+                    "description": "Whether spreadsheet metadata was fetched successfully"
+                },
+                "spreadsheetId": {
+                    "type": "string",
+                    "description": "The spreadsheet ID"
+                },
+                "spreadsheetTitle": {
+                    "type": "string",
+                    "description": "The spreadsheet title"
+                },
+                "sheets": {
+                    "type": "array",
+                    "description": "The list of sheets in the spreadsheet",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "sheetId": {
+                                "type": "number",
+                                "description": "The ID of the sheet"
+                            },
+                            "title": {
+                                "type": "string",
+                                "description": "The sheet title"
+                            },
+                            "index": {
+                                "type": "number",
+                                "description": "The sheet index"
+                            },
+                            "gid": {
+                                "type": "number",
+                                "description": "The gid used in Google Sheets URLs (same value as sheetId)"
+                            }
+                        }
+                    }
+                },
+                "error": {
+                    "type": "string",
+                    "description": "The error that occurred if metadata retrieval failed"
+                }
+            }
+        },
+        "name": "getSpreadsheetMetadata",
+        "provider": "googleOauth"
+    };
 export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
         "displayName": "Update a spreadsheet",
         "description": "Update a Google Spreadsheet with new content specified",
@@ -11973,6 +12069,10 @@ export const oktaOrgGetOktaUserByNameDefinition: ActionTemplate = {
                         "department": {
                             "type": "string",
                             "description": "The user's department"
+                        },
+                        "location": {
+                            "type": "string",
+                            "description": "The user's location"
                         }
                     }
                 },
@@ -12571,6 +12671,10 @@ export const salesforceExecuteReportDefinition: ActionTemplate = {
                 "includeDetails": {
                     "type": "boolean",
                     "description": "Whether to include detailed report metadata in the response"
+                },
+                "includeSummary": {
+                    "type": "boolean",
+                    "description": "Whether to include summary/aggregate data (totals, counts, etc.)"
                 }
             }
         },
@@ -12583,6 +12687,11 @@ export const salesforceExecuteReportDefinition: ActionTemplate = {
                 "success": {
                     "type": "boolean",
                     "description": "Whether the report was successfully executed"
+                },
+                "summary": {
+                    "type": "object",
+                    "description": "Summary/aggregate data from the report (totals, counts, averages, etc.)",
+                    "additionalProperties": true
                 },
                 "reportData": {
                     "type": "object",

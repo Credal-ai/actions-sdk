@@ -20,7 +20,7 @@ const sendMessage: slackSendMessageFunction = async ({
     throw new Error(MISSING_AUTH_TOKEN);
   }
 
-  const { channelId: inputChannelId, channelName, message } = params;
+  const { channelId: inputChannelId, channelName, message, unfurlLinks, threadTs, replyBroadcast } = params;
   if (!inputChannelId && !channelName) {
     throw Error("Either channelId or channelName must be provided");
   }
@@ -36,32 +36,84 @@ const sendMessage: slackSendMessageFunction = async ({
     throw Error(`Channel with name ${channelName} not found`);
   }
 
-  try {
-    // First try sending as Markdown blocks (mrkdwn)
-    await client.chat.postMessage({
-      channel: channelId,
-      text: message, // Fallback text for notifications/clients that don't render blocks
-      blocks: [
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: message,
+  const baseArgs = {
+    channel: channelId!,
+    text: message,
+    unfurl_links: unfurlLinks,
+  };
+  const messageBlocks = [
+    {
+      type: "section" as const,
+      text: {
+        type: "mrkdwn" as const,
+        text: message,
+      },
+    },
+  ];
+
+  const postAsBlocks = () =>
+    client.chat.postMessage(
+      threadTs
+        ? replyBroadcast
+          ? {
+              ...baseArgs,
+              thread_ts: threadTs,
+              reply_broadcast: true,
+              blocks: messageBlocks,
+            }
+          : {
+              ...baseArgs,
+              thread_ts: threadTs,
+              blocks: messageBlocks,
+            }
+        : {
+            ...baseArgs,
+            blocks: messageBlocks,
           },
-        },
-      ],
-    });
+    );
+
+  const postAsPlainText = () =>
+    client.chat.postMessage(
+      threadTs
+        ? replyBroadcast
+          ? { ...baseArgs, thread_ts: threadTs, reply_broadcast: true }
+          : { ...baseArgs, thread_ts: threadTs }
+        : baseArgs,
+    );
+
+  const buildSuccess = async (result: Awaited<ReturnType<typeof postAsBlocks>>) => {
+    const ts = result.ts;
+    const resolvedChannelId = result.channel ?? channelId!;
+
+    let permalink: string | undefined;
+    if (ts) {
+      try {
+        const permalinkResult = await client.chat.getPermalink({
+          channel: resolvedChannelId,
+          message_ts: ts,
+        });
+        permalink = permalinkResult.permalink;
+      } catch {
+        // Permalink fetch failed, but the message was sent successfully
+      }
+    }
+
     return slackSendMessageOutputSchema.parse({
       success: true,
+      channelId: resolvedChannelId,
+      timestamp: ts,
+      threadTs: threadTs,
+      permalink,
     });
+  };
+
+  try {
+    const result = await postAsBlocks();
+    return await buildSuccess(result);
   } catch {
-    // On any error, retry once with plain text only (no blocks)
     try {
-      await client.chat.postMessage({
-        channel: channelId,
-        text: message,
-      });
-      return slackSendMessageOutputSchema.parse({ success: true });
+      const result = await postAsPlainText();
+      return await buildSuccess(result);
     } catch (retryError) {
       return slackSendMessageOutputSchema.parse({
         success: false,

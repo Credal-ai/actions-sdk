@@ -74,6 +74,7 @@ const getOktaUserByName: oktaOrgGetOktaUserByNameFunction = async ({
         title: user.profile.title,
         division: user.profile.division,
         department: user.profile.department,
+        location: user.profile.location,
       },
     };
   } catch (error) {

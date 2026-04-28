@@ -97,6 +97,8 @@ import {
   googleOauthAddTextToTopOfDocOutputSchema,
   googleOauthCreateSpreadsheetParamsSchema,
   googleOauthCreateSpreadsheetOutputSchema,
+  googleOauthGetSpreadsheetMetadataParamsSchema,
+  googleOauthGetSpreadsheetMetadataOutputSchema,
   googleOauthUpdateSpreadsheetParamsSchema,
   googleOauthUpdateSpreadsheetOutputSchema,
   googleOauthAppendRowsToSpreadsheetParamsSchema,
@@ -345,6 +347,7 @@ import updateCalendarEvent from "./providers/google-oauth/updateCalendarEvent.js
 import deleteCalendarEvent from "./providers/google-oauth/deleteCalendarEvent.js";
 import editAGoogleCalendarEvent from "./providers/google-oauth/editAGoogleCalendarEvent.js";
 import createSpreadsheet from "./providers/google-oauth/createSpreadsheet.js";
+import getSpreadsheetMetadata from "./providers/google-oauth/getSpreadsheetMetadata.js";
 import updateSpreadsheet from "./providers/google-oauth/updateSpreadsheet.js";
 import appendRowsToSpreadsheet from "./providers/google-oauth/appendRowsToSpreadsheet.js";
 import deleteRowFromSpreadsheet from "./providers/google-oauth/deleteRowFromSpreadsheet.js";
@@ -907,6 +910,12 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       paramsSchema: googleOauthCreateSpreadsheetParamsSchema,
       outputSchema: googleOauthCreateSpreadsheetOutputSchema,
       actionType: "write",
+    },
+    getSpreadsheetMetadata: {
+      fn: getSpreadsheetMetadata,
+      paramsSchema: googleOauthGetSpreadsheetMetadataParamsSchema,
+      outputSchema: googleOauthGetSpreadsheetMetadataOutputSchema,
+      actionType: "read",
     },
     updateSpreadsheet: {
       fn: updateSpreadsheet,

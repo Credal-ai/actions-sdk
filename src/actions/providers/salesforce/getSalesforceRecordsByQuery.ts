@@ -29,11 +29,13 @@ const getSalesforceRecordsByQuery: salesforceGetSalesforceRecordsByQueryFunction
   let finalQuery = query;
 
   if (!containsAggregateFunction) {
-    // Strip out existing LIMIT clause if it exists
-    const limitRegex = /\bLIMIT\s+(\d+)\b/i;
-    const existingLimitMatch = query.match(limitRegex);
+    // Strip out existing LIMIT clause only if it's at the end of the query
+    // (so we don't remove LIMITs inside subqueries). Allow an optional trailing
+    // OFFSET clause and trailing whitespace/semicolons.
+    const trailingLimitRegex = /\bLIMIT\s+(\d+)(\s+OFFSET\s+\d+)?\s*;?\s*$/i;
+    const existingLimitMatch = query.match(trailingLimitRegex);
     const queryLimit = existingLimitMatch ? parseInt(existingLimitMatch[1], 10) : null;
-    const queryWithoutLimit = query.replace(limitRegex, "").trim();
+    const queryWithoutLimit = query.replace(trailingLimitRegex, "").trim();
 
     // Recompute final limit
     const finalLimit = Math.min(limit ?? queryLimit ?? MAX_RECORDS_LIMIT, MAX_RECORDS_LIMIT);
