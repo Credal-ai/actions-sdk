@@ -1380,6 +1380,95 @@ export const confluenceFetchPageContentDefinition: ActionTemplate = {
   name: "fetchPageContent",
   provider: "confluence",
 };
+export const confluenceDataCenterOverwritePageDefinition: ActionTemplate = {
+  displayName: "Overwrite a page",
+  description: "Updates a Confluence page with the new content specified",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["pageId", "title", "content"],
+    properties: {
+      pageId: {
+        type: "string",
+        description: "The page id for the page to add content to",
+      },
+      title: {
+        type: "string",
+        description: "The title of the page that should be updated",
+      },
+      content: {
+        type: "string",
+        description: "The new content for the page",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the page was successfully updated",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the page was not successfully updated",
+      },
+    },
+  },
+  name: "overwritePage",
+  provider: "confluenceDataCenter",
+};
+export const confluenceDataCenterFetchPageContentDefinition: ActionTemplate = {
+  displayName: "Fetch page content",
+  description: "Fetches content from a Confluence page",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["pageId"],
+    properties: {
+      pageId: {
+        type: "string",
+        description: "The ID of the page to fetch content from",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the page content was successfully retrieved",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the page content was not successfully retrieved",
+      },
+      data: {
+        type: "object",
+        properties: {
+          pageId: {
+            type: "string",
+            description: "The ID of the page",
+          },
+          title: {
+            type: "string",
+            description: "The title of the page",
+          },
+          content: {
+            type: "string",
+            description: "The content of the page in storage format (HTML)",
+          },
+        },
+      },
+    },
+  },
+  name: "fetchPageContent",
+  provider: "confluenceDataCenter",
+};
 export const jiraAssignJiraTicketDefinition: ActionTemplate = {
   displayName: "Assign a Jira ticket",
   description: "Assigns/Reassigns a Jira ticket to a specified user",

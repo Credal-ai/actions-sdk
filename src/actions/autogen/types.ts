@@ -8,6 +8,7 @@ export enum ProviderName {
   SLACKUSER = "slackUser",
   MATH = "math",
   CONFLUENCE = "confluence",
+  CONFLUENCEDATACENTER = "confluenceDataCenter",
   JIRA = "jira",
   JIRAORG = "jiraOrg",
   JIRADATACENTER = "jiraDataCenter",
@@ -905,6 +906,55 @@ export type confluenceFetchPageContentFunction = ActionFunction<
   confluenceFetchPageContentParamsType,
   AuthParamsType,
   confluenceFetchPageContentOutputType
+>;
+
+export const confluenceDataCenterOverwritePageParamsSchema = z.object({
+  pageId: z.string().describe("The page id for the page to add content to"),
+  title: z.string().describe("The title of the page that should be updated"),
+  content: z.string().describe("The new content for the page"),
+});
+
+export type confluenceDataCenterOverwritePageParamsType = z.infer<typeof confluenceDataCenterOverwritePageParamsSchema>;
+
+export const confluenceDataCenterOverwritePageOutputSchema = z.object({
+  success: z.boolean().describe("Whether the page was successfully updated"),
+  error: z.string().describe("The error that occurred if the page was not successfully updated").optional(),
+});
+
+export type confluenceDataCenterOverwritePageOutputType = z.infer<typeof confluenceDataCenterOverwritePageOutputSchema>;
+export type confluenceDataCenterOverwritePageFunction = ActionFunction<
+  confluenceDataCenterOverwritePageParamsType,
+  AuthParamsType,
+  confluenceDataCenterOverwritePageOutputType
+>;
+
+export const confluenceDataCenterFetchPageContentParamsSchema = z.object({
+  pageId: z.string().describe("The ID of the page to fetch content from"),
+});
+
+export type confluenceDataCenterFetchPageContentParamsType = z.infer<
+  typeof confluenceDataCenterFetchPageContentParamsSchema
+>;
+
+export const confluenceDataCenterFetchPageContentOutputSchema = z.object({
+  success: z.boolean().describe("Whether the page content was successfully retrieved"),
+  error: z.string().describe("The error that occurred if the page content was not successfully retrieved").optional(),
+  data: z
+    .object({
+      pageId: z.string().describe("The ID of the page").optional(),
+      title: z.string().describe("The title of the page").optional(),
+      content: z.string().describe("The content of the page in storage format (HTML)").optional(),
+    })
+    .optional(),
+});
+
+export type confluenceDataCenterFetchPageContentOutputType = z.infer<
+  typeof confluenceDataCenterFetchPageContentOutputSchema
+>;
+export type confluenceDataCenterFetchPageContentFunction = ActionFunction<
+  confluenceDataCenterFetchPageContentParamsType,
+  AuthParamsType,
+  confluenceDataCenterFetchPageContentOutputType
 >;
 
 export const jiraAssignJiraTicketParamsSchema = z.object({

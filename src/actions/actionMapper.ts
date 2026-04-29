@@ -83,6 +83,10 @@ import {
   finnhubGetBasicFinancialsOutputSchema,
   confluenceFetchPageContentParamsSchema,
   confluenceFetchPageContentOutputSchema,
+  confluenceDataCenterOverwritePageParamsSchema,
+  confluenceDataCenterOverwritePageOutputSchema,
+  confluenceDataCenterFetchPageContentParamsSchema,
+  confluenceDataCenterFetchPageContentOutputSchema,
   snowflakeRunSnowflakeQueryParamsSchema,
   snowflakeRunSnowflakeQueryOutputSchema,
   lookerEnableUserByEmailParamsSchema,
@@ -330,6 +334,8 @@ import symbolLookup from "./providers/finnhub/symbolLookup.js";
 import getBasicFinancials from "./providers/finnhub/getBasicFinancials.js";
 import confluenceOverwritePage from "./providers/confluence/overwritePage.js";
 import confluenceFetchPageContent from "./providers/confluence/fetchPageContent.js";
+import confluenceDataCenterOverwritePage from "./providers/confluenceDataCenter/overwritePage.js";
+import confluenceDataCenterFetchPageContent from "./providers/confluenceDataCenter/fetchPageContent.js";
 import runSnowflakeQuery from "./providers/snowflake/runSnowflakeQuery.js";
 import enableUserByEmail from "./providers/looker/enableUserByEmail.js";
 import updateDoc from "./providers/google-oauth/updateDoc.js";
@@ -645,6 +651,20 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: confluenceFetchPageContent,
       paramsSchema: confluenceFetchPageContentParamsSchema,
       outputSchema: confluenceFetchPageContentOutputSchema,
+      actionType: "read",
+    },
+  },
+  confluenceDataCenter: {
+    overwritePage: {
+      fn: confluenceDataCenterOverwritePage,
+      paramsSchema: confluenceDataCenterOverwritePageParamsSchema,
+      outputSchema: confluenceDataCenterOverwritePageOutputSchema,
+      actionType: "write",
+    },
+    fetchPageContent: {
+      fn: confluenceDataCenterFetchPageContent,
+      paramsSchema: confluenceDataCenterFetchPageContentParamsSchema,
+      outputSchema: confluenceDataCenterFetchPageContentOutputSchema,
       actionType: "read",
     },
   },
