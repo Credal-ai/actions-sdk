@@ -4,6 +4,7 @@ import type {
   linearGetIssuesOutputType,
   linearGetIssuesParamsType,
 } from "../../autogen/types";
+import { log } from "../../../utils/logger.js";
 
 type IssueNode = {
   id: string;
@@ -194,7 +195,7 @@ const getIssues: linearGetIssuesFunction = async ({
       }),
     };
   } catch (error) {
-    console.error("Error retrieving Linear issues: ", error);
+    log.error("Error retrieving Linear issues: ", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

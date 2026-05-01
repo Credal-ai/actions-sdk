@@ -4,6 +4,7 @@ import type {
   linearGetProjectsOutputType,
   linearGetProjectsParamsType,
 } from "../../autogen/types";
+import { log } from "../../../utils/logger.js";
 
 type ProjectNode = {
   id: string;
@@ -108,7 +109,7 @@ const getProjects: linearGetProjectsFunction = async ({
       }),
     };
   } catch (error) {
-    console.error("Error retrieving Linear projects: ", error);
+    log.error("Error retrieving Linear projects: ", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

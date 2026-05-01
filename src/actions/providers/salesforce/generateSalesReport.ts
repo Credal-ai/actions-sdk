@@ -5,6 +5,7 @@ import type {
   salesforceGenerateSalesReportParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
+import { log } from "../../../utils/logger.js";
 
 const generateSalesReport: salesforceGenerateSalesReportFunction = async ({
   params,
@@ -50,7 +51,7 @@ const generateSalesReport: salesforceGenerateSalesReportFunction = async ({
       reportData: response.data.records,
     };
   } catch (error) {
-    console.error("Error generating Salesforce sales report:", error);
+    log.error("Error generating Salesforce sales report:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "An unknown error occurred",

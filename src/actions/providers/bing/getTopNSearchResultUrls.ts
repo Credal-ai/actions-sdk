@@ -6,6 +6,7 @@ import {
   bingGetTopNSearchResultUrlsOutputSchema,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
+import { log } from "../../../utils/logger.js";
 
 const getTopNSearchResultUrls: bingGetTopNSearchResultUrlsFunction = async ({
   params,
@@ -46,7 +47,7 @@ const getTopNSearchResultUrls: bingGetTopNSearchResultUrlsFunction = async ({
       results: searchResults,
     });
   } catch (error) {
-    console.error("Error fetching search results from Bing:", error);
+    log.error("Error fetching search results from Bing:", error);
     throw error;
   }
 };

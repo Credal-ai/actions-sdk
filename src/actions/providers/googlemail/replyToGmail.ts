@@ -6,6 +6,7 @@ import type {
   googlemailReplyToGmailParamsType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { log } from "../../../utils/logger.js";
 
 interface GmailHeader {
   name: string;
@@ -133,7 +134,7 @@ const replyToGmail: googlemailReplyToGmailFunction = async ({
       threadId: response.data.threadId,
     };
   } catch (error) {
-    console.error("Gmail reply error:", error);
+    log.error("Gmail reply error:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error sending reply",

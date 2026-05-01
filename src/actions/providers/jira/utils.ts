@@ -2,6 +2,7 @@ import type { AxiosError } from "axios";
 import type { Version3Client } from "jira.js";
 import { axiosClient } from "../../util/axiosClient.js";
 import { markdownToAdf } from "marklassian";
+import { log } from "../../../utils/logger.js";
 
 export interface JiraApiConfig {
   apiUrl: string;
@@ -186,7 +187,7 @@ export async function getUserAccountIdFromEmail(
     return null;
   } catch (error) {
     const axiosError = error as AxiosError;
-    console.error("Error finding user:", axiosError.message);
+    log.error("Error finding user:", axiosError.message);
     return null;
   }
 }
@@ -282,7 +283,7 @@ export async function getUserEmailFromAccountId(
     return userEmail.emailAddress;
   } catch (error) {
     const axiosError = error as AxiosError;
-    console.error("Error fetching user email:", axiosError.message);
+    log.error("Error fetching user email:", axiosError.message);
     return undefined;
   }
 }
@@ -306,7 +307,7 @@ export async function getUserInfoFromAccountId(
     };
   } catch (error) {
     const axiosError = error as AxiosError;
-    console.error("Error fetching user info:", axiosError.message);
+    log.error("Error fetching user info:", axiosError.message);
     return null;
   }
 }

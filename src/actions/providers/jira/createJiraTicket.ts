@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
 import { resolveAccountIdIfEmail, resolveRequestTypeField, getJiraApiConfig, getErrorMessage } from "./utils.js";
+import { log } from "../../../utils/logger.js";
 
 const createJiraTicket: jiraCreateJiraTicketFunction = async ({
   params,
@@ -69,7 +70,7 @@ const createJiraTicket: jiraCreateJiraTicketFunction = async ({
           "Received HTML response instead of JSON - this usually indicates authentication failed or the server redirected to a login page",
         );
       }
-      console.error("No ticket key in response:", JSON.stringify(response.data, null, 2));
+      log.error("No ticket key in response:", JSON.stringify(response.data, null, 2));
       throw new Error("Failed to get ticket key from Jira response");
     }
 

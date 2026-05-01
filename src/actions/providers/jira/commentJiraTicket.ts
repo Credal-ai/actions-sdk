@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
 import { getJiraApiConfig, getErrorMessage } from "./utils.js";
+import { log } from "../../../utils/logger.js";
 
 const commentJiraTicket: jiraCommentJiraTicketFunction = async ({
   params,
@@ -42,7 +43,7 @@ const commentJiraTicket: jiraCommentJiraTicketFunction = async ({
       commentUrl: `${browseUrl}/browse/${issueId}?focusedCommentId=${response.data.id}`,
     };
   } catch (error: unknown) {
-    console.error("Error commenting on Jira ticket: ", error);
+    log.error("Error commenting on Jira ticket: ", error);
     return {
       success: false,
       error: getErrorMessage(error),

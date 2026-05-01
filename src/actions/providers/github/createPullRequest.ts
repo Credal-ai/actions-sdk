@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import { getOctokit } from "./utils.js";
+import { log } from "../../../utils/logger.js";
 
 /**
  * Creates a pull request in a GitHub repository
@@ -44,10 +45,10 @@ const createPullRequest: githubCreatePullRequestFunction = async ({
     };
   } catch (error) {
     if (error instanceof RequestError) {
-      console.error("GitHub API error:", error.message);
+      log.error("GitHub API error:", error.message);
       return { success: false, error: error.message };
     }
-    console.error("Unexpected error:", error);
+    log.error("Unexpected error:", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 };

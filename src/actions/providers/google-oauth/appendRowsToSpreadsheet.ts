@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { log } from "../../../utils/logger.js";
 
 /**
  * Appends rows to a Google Spreadsheet using OAuth authentication
@@ -65,7 +66,7 @@ const appendRowsToSpreadsheet: googleOauthAppendRowsToSpreadsheetFunction = asyn
       spreadsheetUrl,
     };
   } catch (error) {
-    console.error("Error appending rows to spreadsheet", error);
+    log.error("Error appending rows to spreadsheet", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

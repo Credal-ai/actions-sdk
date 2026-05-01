@@ -8,6 +8,7 @@ import type {
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import type { DriveFile, DriveInfo } from "./common.js";
 import { dedupeByIdKeepFirst, filterReadableFiles } from "./utils.js";
+import { log } from "../../../utils/logger.js";
 
 const searchDriveByQuery: googleOauthSearchDriveByQueryFunction = async ({
   params,
@@ -34,7 +35,7 @@ const searchDriveByQuery: googleOauthSearchDriveByQueryFunction = async ({
       return await searchAllDrivesAtOnce(finalQuery, authParams.authToken, limit, safeOrderBy);
     }
   } catch (error) {
-    console.error("Error searching Google Drive", error);
+    log.error("Error searching Google Drive", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -137,7 +138,7 @@ const searchAllDrivesIndividually = async (
         // Filter out images and folders before adding to results
         return filterReadableFiles(driveFiles);
       } catch (error) {
-        console.error(`Error searching drive ${drive.name} (${drive.id}):`, error);
+        log.error(`Error searching drive ${drive.name} (${drive.id}):`, error);
         return [];
       }
     }),

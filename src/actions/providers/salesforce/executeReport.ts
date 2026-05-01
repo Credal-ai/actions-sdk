@@ -5,6 +5,7 @@ import type {
   salesforceExecuteReportParamsType,
 } from "../../autogen/types.js";
 import { ApiError, axiosClient } from "../../util/axiosClient.js";
+import { log } from "../../../utils/logger.js";
 
 interface SalesforceGrouping {
   label: string;
@@ -58,7 +59,7 @@ const executeReport: salesforceExecuteReportFunction = async ({
       reportData: includeDetails ? response.data : undefined,
     };
   } catch (error) {
-    console.error("Error executing Salesforce report:", error);
+    log.error("Error executing Salesforce report:", error);
     return {
       success: false,
       error:

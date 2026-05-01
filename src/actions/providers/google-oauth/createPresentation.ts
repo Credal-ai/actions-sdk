@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { log } from "../../../utils/logger.js";
 
 /**
  * Creates a new Google Slides presentation using OAuth authentication
@@ -53,7 +54,7 @@ const createPresentation: googleOauthCreatePresentationFunction = async ({
       presentationUrl,
     };
   } catch (error) {
-    console.error("Error creating presentation:", error);
+    log.error("Error creating presentation:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

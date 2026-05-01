@@ -7,6 +7,7 @@ import type {
 import { asanaGetTasksDetailsOutputSchema } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { log } from "../../../utils/logger.js";
 
 // Define interfaces for better type safety
 interface AsanaStoryResponse {
@@ -119,7 +120,7 @@ const getTasksDetails: asanaGetTasksDetailsFunction = async ({
 
       tasks.push(taskDetails);
     } catch (error) {
-      console.warn(`Error getting details for task ${taskId}:`, error);
+      log.warn(`Error getting details for task ${taskId}:`, error);
       errors.push(JSON.stringify(error));
     }
   }

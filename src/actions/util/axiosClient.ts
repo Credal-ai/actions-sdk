@@ -3,6 +3,7 @@ import type { AxiosInstance, AxiosResponse } from "axios";
 import type { AxiosError } from "axios";
 import axios from "axios";
 import axiosRetry from "axios-retry";
+import { log } from "../../utils/logger.js";
 
 export class ApiError extends Error {
   status?: number;
@@ -31,7 +32,7 @@ function createAxiosClient(timeout?: number): AxiosInstance {
       return config;
     },
     error => {
-      console.error("Request setup error:", error.message);
+      log.error("Request setup error:", error.message);
       return Promise.reject(error);
     },
   );
@@ -42,7 +43,7 @@ function createAxiosClient(timeout?: number): AxiosInstance {
     },
     (error: AxiosError) => {
       if (error.response) {
-        console.error(`API error:`, error.response.status, error.response.data);
+        log.error(`API error:`, error.response.status, error.response.data);
         return Promise.reject(
           new ApiError(
             `Request failed with status ${error.response.status}`,
@@ -51,12 +52,12 @@ function createAxiosClient(timeout?: number): AxiosInstance {
           ),
         );
       } else if (error.request) {
-        console.error(`No response received:`, error.config?.url);
+        log.error(`No response received:`, error.config?.url);
         return Promise.reject(
           new ApiError(`No response received from server for ${error.config?.url || "unknown endpoint"}`),
         );
       } else {
-        console.error(`Request setup error:`, error.message);
+        log.error(`Request setup error:`, error.message);
         return Promise.reject(new ApiError(`Error making request: ${error.message}`));
       }
     },
@@ -84,7 +85,7 @@ export function createAxiosClientWithRetries(args: { timeout: number; retryCount
       return status === 408 || status === 429 || status >= 500;
     },
     onRetry: (retryCount, error) => {
-      console.log(`Retry ${retryCount}: ${error.response?.status || "Network Error"} - ${error.config?.url}`);
+      log.info(`Retry ${retryCount}: ${error.response?.status || "Network Error"} - ${error.config?.url}`);
     },
   });
 

@@ -5,6 +5,7 @@ import type {
   snowflakeGetRowByFieldValueParamsType,
 } from "../../autogen/types.js";
 import { getSnowflakeConnection } from "./auth/getSnowflakeConnection.js";
+import { log } from "../../../utils/logger.js";
 
 const getRowByFieldValue: snowflakeGetRowByFieldValueFunction = async ({
   params,
@@ -38,10 +39,10 @@ const getRowByFieldValue: snowflakeGetRowByFieldValueFunction = async ({
     await new Promise((resolve, reject) => {
       connection.connect((err, conn) => {
         if (err) {
-          console.error("Unable to connect:", err.message);
+          log.error("Unable to connect:", err.message);
           return reject(err);
         }
-        console.log("Successfully connected to Snowflake.");
+        log.info("Successfully connected to Snowflake.");
         resolve(conn);
       });
     });
@@ -73,14 +74,14 @@ const getRowByFieldValue: snowflakeGetRowByFieldValueFunction = async ({
       });
     });
   } catch (error) {
-    console.error("An error occurred while executing the query:", error);
+    log.error("An error occurred while executing the query:", error);
     throw error;
   } finally {
     connection.destroy(err => {
       if (err) {
-        console.log("Failed to disconnect:", err);
+        log.info("Failed to disconnect:", err);
       } else {
-        console.log("Disconnected from Snowflake.");
+        log.info("Disconnected from Snowflake.");
       }
     });
   }

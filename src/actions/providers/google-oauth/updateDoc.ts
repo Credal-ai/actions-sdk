@@ -6,6 +6,7 @@ import type {
   googleOauthUpdateDocOutputType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { log } from "../../../utils/logger.js";
 
 /**
  * Updates an existing Google Docs document using OAuth authentication with batch requests
@@ -65,7 +66,7 @@ const updateDoc: googleOauthUpdateDocFunction = async ({
       };
     }
   } catch (error) {
-    console.error("Error updating document:", error);
+    log.error("Error updating document:", error);
     return {
       success: false,
       documentId,

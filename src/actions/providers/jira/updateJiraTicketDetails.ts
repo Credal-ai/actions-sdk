@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
 import { resolveRequestTypeField, getJiraApiConfig, getErrorMessage } from "./utils.js";
+import { log } from "../../../utils/logger.js";
 
 const updateJiraTicketDetails: jiraUpdateJiraTicketDetailsFunction = async ({
   params,
@@ -54,7 +55,7 @@ const updateJiraTicketDetails: jiraUpdateJiraTicketDetailsFunction = async ({
       ...(partialUpdateMessage && { error: partialUpdateMessage }),
     };
   } catch (error: unknown) {
-    console.error("Error updating Jira ticket:", error);
+    log.error("Error updating Jira ticket:", error);
     return {
       success: false,
       error: getErrorMessage(error),

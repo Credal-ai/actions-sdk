@@ -5,6 +5,7 @@ import type {
   salesforceSearchAllSalesforceRecordsParamsType,
 } from "../../autogen/types.js";
 import { ApiError, axiosClient } from "../../util/axiosClient.js";
+import { log } from "../../../utils/logger.js";
 
 const searchAllSalesforceRecords: salesforceSearchAllSalesforceRecordsFunction = async ({
   params,
@@ -83,7 +84,7 @@ const searchAllSalesforceRecords: salesforceSearchAllSalesforceRecordsFunction =
       }),
     };
   } catch (error) {
-    console.error("Error retrieving Salesforce record:", error);
+    log.error("Error retrieving Salesforce record:", error);
     return {
       success: false,
       error:

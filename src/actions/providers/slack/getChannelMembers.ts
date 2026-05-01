@@ -7,6 +7,7 @@ import type {
 } from "../../autogen/types.js";
 import { getSlackChannels } from "./helpers.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { log } from "../../../utils/logger.js";
 
 const getChannelMembers: slackGetChannelMembersFunction = async ({
   params,
@@ -60,7 +61,7 @@ const getChannelMembers: slackGetChannelMembersFunction = async ({
           };
         }
       } catch (error) {
-        console.error(`Failed to fetch user info for ${userId}:`, error);
+        log.error(`Failed to fetch user info for ${userId}:`, error);
       }
       // Return basic info if user fetch fails
       return {

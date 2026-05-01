@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
 import { getJiraApiConfig, getErrorMessage } from "./utils.js";
+import { log } from "../../../utils/logger.js";
 
 const linkJiraIssues: jiraLinkJiraIssuesFunction = async ({
   params,
@@ -53,7 +54,7 @@ const linkJiraIssues: jiraLinkJiraIssuesFunction = async ({
       success: true,
     };
   } catch (error: unknown) {
-    console.error("Error linking Jira issues:", error);
+    log.error("Error linking Jira issues:", error);
     return {
       success: false,
       error: getErrorMessage(error),

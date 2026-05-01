@@ -8,6 +8,7 @@ import { axiosClient } from "../../util/axiosClient.js";
 import { getJiraApiConfig, getErrorMessage } from "./utils.js";
 import { extractMentions, insertMentionNodes } from "./convertMentionsInAdf.js";
 import { markdownToAdf } from "marklassian";
+import { log } from "../../../utils/logger.js";
 
 const commentJiraTicketWithMentions: jiraCommentJiraTicketWithMentionsFunction = async ({
   params,
@@ -51,7 +52,7 @@ const commentJiraTicketWithMentions: jiraCommentJiraTicketWithMentionsFunction =
       commentUrl: `${browseUrl}/browse/${issueId}?focusedCommentId=${response.data.id}`,
     };
   } catch (error: unknown) {
-    console.error("Error commenting on Jira ticket with mentions: ", error);
+    log.error("Error commenting on Jira ticket with mentions: ", error);
     return {
       success: false,
       error: getErrorMessage(error),
