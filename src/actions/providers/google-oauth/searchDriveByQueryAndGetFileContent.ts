@@ -8,6 +8,7 @@ import type {
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import searchDriveByQuery from "./searchDriveByQuery.js";
 import getDriveFileContentById from "./getDriveFileContentById.js";
+import { log } from "../../../utils/logger.js";
 
 const searchDriveByQueryAndGetFileContent: googleOauthSearchDriveByQueryAndGetFileContentFunction = async ({
   params,
@@ -49,7 +50,7 @@ const searchDriveByQueryAndGetFileContent: googleOauthSearchDriveByQueryAndGetFi
         content: contentResult.success ? contentResult.results?.[0]?.contents?.content : undefined,
       };
     } catch (error) {
-      console.error(`Error fetching content for file ${file.id}:`, error);
+      log.error(`Error fetching content for file ${file.id}:`, error);
       return {
         id: file.id,
         name: file.name,

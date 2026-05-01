@@ -2,6 +2,7 @@ import type { AxiosInstance } from "axios";
 import Papa from "papaparse";
 import { read, utils } from "xlsx";
 import { isAxiosTimeoutError } from "../actions/util/axiosClient.js";
+import { log } from "./logger.js";
 
 // Custom interfaces to replace googleapis types
 interface GoogleDocsDocument {
@@ -504,10 +505,10 @@ export async function getGoogleDocContent(
     return await getGoogleDocContentNoExport(fileId, authToken, axiosClient);
   } catch (docsError) {
     if (isAxiosTimeoutError(docsError)) {
-      console.log("Request timed out using Google Docs API - dont retry");
+      log.info("Request timed out using Google Docs API - dont retry");
       throw new Error("Request timed out using Google Docs API", { cause: docsError });
     } else {
-      console.log("Error using Google Docs API", docsError);
+      log.info("Error using Google Docs API", docsError);
 
       // Check if it's a 404 or permission error - don't retry these
       if (docsError && typeof docsError === "object" && "status" in docsError) {
@@ -605,10 +606,10 @@ export async function getGoogleSlidesContent(
     return parseGoogleSlidesFromRawContentToPlainText(slidesRes.data);
   } catch (slidesError) {
     if (isAxiosTimeoutError(slidesError)) {
-      console.log("Request timed out using Google Slides API - dont retry");
+      log.info("Request timed out using Google Slides API - dont retry");
       throw new Error("Request timed out using Google Slides API", { cause: slidesError });
     } else {
-      console.log("Error using Google Slides API", slidesError);
+      log.info("Error using Google Slides API", slidesError);
       const exportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/plain${sharedDriveParams}`;
       const exportRes = await axiosClient.get(exportUrl, {
         headers: { Authorization: `Bearer ${authToken}` },

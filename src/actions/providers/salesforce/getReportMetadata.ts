@@ -5,6 +5,7 @@ import type {
   salesforceGetReportMetadataParamsType,
 } from "../../autogen/types.js";
 import { ApiError, axiosClient } from "../../util/axiosClient.js";
+import { log } from "../../../utils/logger.js";
 
 const getReportMetadata: salesforceGetReportMetadataFunction = async ({
   params,
@@ -47,7 +48,7 @@ const getReportMetadata: salesforceGetReportMetadataFunction = async ({
       metadata: filteredMetadata,
     };
   } catch (error) {
-    console.error("Error retrieving Salesforce report metadata:", error);
+    log.error("Error retrieving Salesforce report metadata:", error);
     return {
       success: false,
       error:

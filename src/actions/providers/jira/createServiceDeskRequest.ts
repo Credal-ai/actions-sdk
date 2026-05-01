@@ -5,6 +5,7 @@ import type {
   jiraCreateServiceDeskRequestParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
+import { log } from "../../../utils/logger.js";
 
 const createServiceDeskRequest: jiraCreateServiceDeskRequestFunction = async ({
   params,
@@ -56,7 +57,7 @@ const createServiceDeskRequest: jiraCreateServiceDeskRequestFunction = async ({
       issueKey: response.data.issueKey,
     };
   } catch (error) {
-    console.error("Error creating service desk request: ", error);
+    log.error("Error creating service desk request: ", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

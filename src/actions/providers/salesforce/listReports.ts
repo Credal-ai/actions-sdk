@@ -4,6 +4,7 @@ import type {
   salesforceListReportsOutputType,
 } from "../../autogen/types.js";
 import { ApiError, axiosClient } from "../../util/axiosClient.js";
+import { log } from "../../../utils/logger.js";
 
 const listReports: salesforceListReportsFunction = async ({
   authParams,
@@ -26,7 +27,7 @@ const listReports: salesforceListReportsFunction = async ({
       reports: response.data,
     };
   } catch (error) {
-    console.error("Error listing Salesforce reports:", error);
+    log.error("Error listing Salesforce reports:", error);
     return {
       success: false,
       error:

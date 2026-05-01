@@ -5,6 +5,7 @@ import type {
   microsoftUpdateSpreadsheetParamsType,
 } from "../../autogen/types.js";
 import { getGraphClient } from "./utils.js";
+import { log } from "../../../utils/logger.js";
 
 const updateSpreadsheet: microsoftUpdateSpreadsheetFunction = async ({
   params,
@@ -51,7 +52,7 @@ const updateSpreadsheet: microsoftUpdateSpreadsheetFunction = async ({
       updatedRange: response.address,
     };
   } catch (error) {
-    console.error("Error updating spreadsheet:", error);
+    log.error("Error updating spreadsheet:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error occurred",

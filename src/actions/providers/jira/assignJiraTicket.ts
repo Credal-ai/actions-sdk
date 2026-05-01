@@ -6,6 +6,7 @@ import type {
   jiraAssignJiraTicketParamsType,
 } from "../../autogen/types.js";
 import { getUserAccountIdFromEmail, getJiraApiConfig, getErrorMessage } from "./utils.js";
+import { log } from "../../../utils/logger.js";
 
 const assignJiraTicket: jiraAssignJiraTicketFunction = async ({
   params,
@@ -50,7 +51,7 @@ const assignJiraTicket: jiraAssignJiraTicketFunction = async ({
       ticketUrl: `${browseUrl}/browse/${issueId}`,
     };
   } catch (error: unknown) {
-    console.error("Error assigning issue:", error);
+    log.error("Error assigning issue:", error);
     return {
       success: false,
       error: getErrorMessage(error),

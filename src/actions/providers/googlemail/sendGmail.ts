@@ -6,6 +6,7 @@ import type {
   googlemailSendGmailParamsType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { log } from "../../../utils/logger.js";
 
 // Gmail API types
 interface GmailHeader {
@@ -97,7 +98,7 @@ const sendGmail: googlemailSendGmailFunction = async ({
           }
         }
       } catch (threadError) {
-        console.warn("Could not fetch thread details for proper reply formatting:", threadError);
+        log.warn("Could not fetch thread details for proper reply formatting:", threadError);
         // When threadId is provided but thread fetch fails, still ignore the subject param
         formattedSubject = "Re: (no subject)";
       }
@@ -167,7 +168,7 @@ const sendGmail: googlemailSendGmailFunction = async ({
       messageId: response.data.id,
     };
   } catch (error) {
-    console.error("Gmail send error:", error);
+    log.error("Gmail send error:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error sending email",

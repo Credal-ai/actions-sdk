@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { log } from "../../../utils/logger.js";
 
 /**
  * Updates an existing Google Slides presentation using OAuth authentication with batch requests
@@ -64,7 +65,7 @@ const updatePresentation: googleOauthUpdatePresentationFunction = async ({
       };
     }
   } catch (error) {
-    console.error("Error updating presentation:", error);
+    log.error("Error updating presentation:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

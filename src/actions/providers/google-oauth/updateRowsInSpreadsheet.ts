@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { log } from "../../../utils/logger.js";
 
 /**
  * Updates one or more rows in a Google Spreadsheet using OAuth authentication
@@ -68,7 +69,7 @@ const updateRowsInSpreadsheet: googleOauthUpdateRowsInSpreadsheetFunction = asyn
       updatedCells: response.data.updatedCells,
     };
   } catch (error) {
-    console.error("Error updating rows in spreadsheet", error);
+    log.error("Error updating rows in spreadsheet", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

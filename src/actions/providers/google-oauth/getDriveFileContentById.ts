@@ -16,6 +16,7 @@ import {
 } from "../../../utils/google.js";
 import type { DriveFileMetadata } from "./common.js";
 import officeParser from "officeparser";
+import { log } from "../../../utils/logger.js";
 
 const BASE_WEB_URL = "https://drive.google.com/file/d/";
 const BASE_API_URL = "https://www.googleapis.com/drive/v3/files/";
@@ -186,7 +187,7 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
       ],
     };
   } catch (error) {
-    console.error("Error getting Google Drive file content", error);
+    log.error("Error getting Google Drive file content", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

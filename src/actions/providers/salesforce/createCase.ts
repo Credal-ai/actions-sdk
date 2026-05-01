@@ -5,6 +5,7 @@ import type {
   salesforceCreateCaseParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
+import { log } from "../../../utils/logger.js";
 
 const createCase: salesforceCreateCaseFunction = async ({
   params,
@@ -46,7 +47,7 @@ const createCase: salesforceCreateCaseFunction = async ({
       caseId: response.data.id,
     };
   } catch (error) {
-    console.error("Error creating Salesforce case:", error);
+    log.error("Error creating Salesforce case:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "An unknown error occurred",

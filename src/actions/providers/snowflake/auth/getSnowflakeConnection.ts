@@ -2,6 +2,7 @@ import type { AuthParamsType } from "../../../autogen/types.js";
 import type { Connection } from "snowflake-sdk";
 import snowflake from "snowflake-sdk";
 import forge from "node-forge";
+import { log } from "../../../../utils/logger.js";
 
 const getPrivateKeyCorrectFormat = (privateKey: string): string => {
   try {
@@ -10,7 +11,7 @@ const getPrivateKeyCorrectFormat = (privateKey: string): string => {
     // Re-encode it properly with correct formatting
     return forge.pem.encode(pemKey);
   } catch (error) {
-    console.error("Error processing private key:", error);
+    log.error("Error processing private key:", error);
     throw new Error("Invalid private key format. Please check the key format and try again.", { cause: error });
   }
 };
@@ -59,7 +60,7 @@ export async function connectToSnowflakeAndWarehouse(connection: Connection, war
   await new Promise((resolve, reject) => {
     connection.connect((err, conn) => {
       if (err) {
-        console.error("Unable to connect to Snowflake:", err.message);
+        log.error("Unable to connect to Snowflake:", err.message);
         return reject(err);
       }
       resolve(conn);
@@ -72,7 +73,7 @@ export async function connectToSnowflakeAndWarehouse(connection: Connection, war
         sqlText: `USE WAREHOUSE ${warehouse}`,
         complete: (err, stmt, rows) => {
           if (err) {
-            console.error("Unable to use warehouse:", err.message);
+            log.error("Unable to use warehouse:", err.message);
             return reject(err);
           }
           resolve(rows);

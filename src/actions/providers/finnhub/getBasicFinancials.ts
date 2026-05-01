@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { finnhubGetBasicFinancialsOutputSchema } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
+import { log } from "../../../utils/logger.js";
 
 interface FinancialMetricData {
   period: string;
@@ -51,7 +52,7 @@ const getBasicFinancials: finnhubGetBasicFinancialsFunction = async ({
       },
     });
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return finnhubGetBasicFinancialsOutputSchema.parse({
       result: {},
     });

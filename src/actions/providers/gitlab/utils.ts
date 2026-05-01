@@ -1,3 +1,4 @@
+import { log } from "../../../utils/logger.js";
 export async function gitlabFetch<T = unknown>(endpoint: string, authToken: string): Promise<T> {
   const res = await fetch(endpoint, { headers: { Authorization: `Bearer ${authToken}` } });
   if (!res.ok) throw new Error(`GitLab API error: ${res.status} ${res.statusText}`);
@@ -17,7 +18,7 @@ export async function getProjectPath(
     if (projectPathCache) projectPathCache.set(projectId, path);
     return path;
   } catch (error) {
-    console.warn(`Failed to fetch project path for project ${projectId}:`, error);
+    log.warn(`Failed to fetch project path for project ${projectId}:`, error);
     return `project-${projectId}`;
   }
 }

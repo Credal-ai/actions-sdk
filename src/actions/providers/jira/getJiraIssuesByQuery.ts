@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { Version3Client, type Version3Models } from "jira.js";
 import { getJiraApiConfig, getErrorMessage, extractPlainText, getUserInfoFromAccountId } from "./utils.js";
+import { log } from "../../../utils/logger.js";
 
 const DEFAULT_LIMIT = 100;
 
@@ -149,7 +150,7 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
 
     return { results };
   } catch (error: unknown) {
-    console.error("Error retrieving Jira issues:", error);
+    log.error("Error retrieving Jira issues:", error);
     return {
       results: [],
       error: getErrorMessage(error),

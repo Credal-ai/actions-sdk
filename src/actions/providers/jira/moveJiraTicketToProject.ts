@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
 import { getJiraApiConfig, getErrorMessage } from "./utils.js";
+import { log } from "../../../utils/logger.js";
 
 interface IssueType {
   id: string;
@@ -192,7 +193,7 @@ const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
         }
       } catch {
         // Continue polling on transient errors
-        console.error("Error polling task status");
+        log.error("Error polling task status");
       }
     }
 
@@ -215,7 +216,7 @@ const moveJiraTicketToProject: jiraMoveJiraTicketToProjectFunction = async ({
       newKey = updatedIssueResponse.data.key;
     } catch {
       // Continue with original key
-      console.error("Error fetching updated issue");
+      log.error("Error fetching updated issue");
     }
 
     return {

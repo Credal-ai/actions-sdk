@@ -7,6 +7,7 @@ import type {
   asanaListAsanaTasksByProjectFunction,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { log } from "../../../utils/logger.js";
 
 const TaskSchema = z
   .object({
@@ -189,7 +190,7 @@ const listAsanaTasksByProject: asanaListAsanaTasksByProjectFunction = async ({
       tasks,
     };
   } catch (error) {
-    console.error("Error listing asana tasks:", error);
+    log.error("Error listing asana tasks:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

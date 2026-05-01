@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import { getOctokit } from "./utils.js";
+import { log } from "../../../utils/logger.js";
 
 /**
  * Creates a new branch in a GitHub repository
@@ -63,10 +64,10 @@ const createBranch: githubCreateBranchFunction = async ({
     return { success: true };
   } catch (error) {
     if (error instanceof RequestError) {
-      console.error("GitHub API error:", error.message);
+      log.error("GitHub API error:", error.message);
       return { success: false, error: error.message };
     }
-    console.error("Unexpected error:", error);
+    log.error("Unexpected error:", error);
     return { success: false, error: error instanceof Error ? error.message : "An unexpected error occurred" };
   }
 };

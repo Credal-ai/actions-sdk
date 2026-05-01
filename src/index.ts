@@ -3,6 +3,7 @@
 export { runAction, getActions, getActionByProviderAndName } from "./app.js";
 export { ActionMapper } from "./actions/actionMapper.js";
 export { ActionTemplate } from "./actions/parse.js";
+export { setLogLevel, getLogLevel, type LogLevel } from "./utils/logger.js";
 
 export * from "./actions/autogen/templates.js";
 export * from "./actions/autogen/types.js";

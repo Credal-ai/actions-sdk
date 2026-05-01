@@ -6,6 +6,7 @@ import type { SourceFile } from "ts-morph";
 import { Project, VariableDeclarationKind } from "ts-morph";
 import { z } from "zod";
 import { snakeToPascal } from "../utils/string.js";
+import { log } from "../utils/logger.js";
 
 // TODO support oneOf correctly
 
@@ -380,10 +381,10 @@ async function generateTypes({
 }
 
 generateTypes({}).catch(error => {
-  console.error("Error generating types:", error);
+  log.error("Error generating types:", error);
   if (error instanceof Error) {
-    console.error(error.message);
-    console.error(error.stack);
+    log.error(error.message);
+    log.error(error.stack);
   }
   process.exit(1);
 });
