@@ -86,9 +86,9 @@
     "zod": "^3.25.0"
   },
   "overrides": {
-    "@xmldom/xmldom": "0.8.13",
-    "axios": "1.15.2",
-    "fast-xml-parser": "5.7.0",
+    "@xmldom/xmldom": "^0.8.13",
+    "axios": "^1.15.2",
+    "fast-xml-parser": "^5.7.0",
     "minimatch": "^10.2.1",
     "file-type": "^22.0.0"
   }
