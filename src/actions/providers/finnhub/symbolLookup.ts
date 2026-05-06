@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { finnhubSymbolLookupOutputSchema } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
+import { log } from "../../../utils/logger.js";
 
 const symbolLookup: finnhubSymbolLookupFunction = async ({
   params,
@@ -26,7 +27,7 @@ const symbolLookup: finnhubSymbolLookupFunction = async ({
       result: result.data.result,
     });
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return finnhubSymbolLookupOutputSchema.parse({
       result: [],
     });

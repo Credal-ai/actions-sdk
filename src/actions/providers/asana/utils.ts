@@ -1,8 +1,9 @@
 import { axiosClient } from "../../util/axiosClient.js";
+import { log } from "../../../utils/logger.js";
 
 export async function getWorkspaceIdFromProject(projectId: string, authToken: string): Promise<string | null> {
   if (!projectId || !authToken) {
-    console.error("Project ID and authToken are required");
+    log.error("Project ID and authToken are required");
     return null;
   }
 
@@ -13,7 +14,7 @@ export async function getWorkspaceIdFromProject(projectId: string, authToken: st
 
     return response.data?.data?.workspace?.gid || null;
   } catch (error) {
-    console.error("Error fetching workspace ID from project:", error);
+    log.error("Error fetching workspace ID from project:", error);
     return null;
   }
 }
@@ -23,7 +24,7 @@ export async function getWorkspaceIdAndPermalinkFromTask(
   authToken: string,
 ): Promise<{ workspaceId: string | null; permalinkUrl: string | null }> {
   if (!taskId || !authToken) {
-    console.error("Task ID and authToken are required");
+    log.error("Task ID and authToken are required");
     return { workspaceId: null, permalinkUrl: null };
   }
 
@@ -37,7 +38,7 @@ export async function getWorkspaceIdAndPermalinkFromTask(
 
     return { workspaceId, permalinkUrl };
   } catch (error) {
-    console.error("Error fetching workspace ID and permalink URL from task:", error);
+    log.error("Error fetching workspace ID and permalink URL from task:", error);
     return { workspaceId: null, permalinkUrl: null };
   }
 }
@@ -59,7 +60,7 @@ export async function getUserIdByEmail(authToken: string, workspaceId: string, e
 
     return matchingUser ? matchingUser.gid : null;
   } catch (error) {
-    console.error("Error fetching users:", error);
+    log.error("Error fetching users:", error);
     return null;
   }
 }

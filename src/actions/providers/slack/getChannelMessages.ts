@@ -13,6 +13,7 @@ import {
   simplifyFile,
   removeRedundantFields,
 } from "./messageTransformers.js";
+import { log } from "../../../utils/logger.js";
 
 type SlackMessage = {
   type: string;
@@ -117,7 +118,7 @@ const getChannelMessages: slackGetChannelMessagesFunction = async ({
               });
             }
           } catch (error) {
-            console.error(`Failed to fetch replies for message ${msg.ts}:`, error);
+            log.error(`Failed to fetch replies for message ${msg.ts}:`, error);
           }
         }
         return msg;

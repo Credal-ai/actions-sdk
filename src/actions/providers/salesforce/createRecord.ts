@@ -5,6 +5,7 @@ import type {
   salesforceCreateRecordParamsType,
 } from "../../autogen/types.js";
 import { ApiError, axiosClient } from "../../util/axiosClient.js";
+import { log } from "../../../utils/logger.js";
 
 const createRecord: salesforceCreateRecordFunction = async ({
   params,
@@ -37,7 +38,7 @@ const createRecord: salesforceCreateRecordFunction = async ({
       recordId: response.data.id,
     };
   } catch (error) {
-    console.error("Error creating Salesforce object:", error);
+    log.error("Error creating Salesforce object:", error);
     return {
       success: false,
       error:

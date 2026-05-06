@@ -5,6 +5,7 @@ import type {
   mongoInsertMongoDocOutputType,
   mongoInsertMongoDocParamsType,
 } from "../../autogen/types.js";
+import { log } from "../../../utils/logger.js";
 
 const insertMongoDoc: mongoInsertMongoDocFunction = async ({
   params,
@@ -21,14 +22,14 @@ const insertMongoDoc: mongoInsertMongoDocFunction = async ({
 
   try {
     await client.connect();
-    console.log("Connected successfully to MongoDB");
+    log.info("Connected successfully to MongoDB");
     const db = client.db(databaseName);
     const collection = db.collection(collectionName);
     const insert = await collection.insertOne(document);
     const objectId = insert.insertedId.toString();
     return { objectId };
   } catch (error) {
-    console.error("Error connecting to MongoDB or performing operations", error);
+    log.error("Error connecting to MongoDB or performing operations", error);
     throw error;
   } finally {
     await client.close();

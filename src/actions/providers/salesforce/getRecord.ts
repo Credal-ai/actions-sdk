@@ -5,6 +5,7 @@ import type {
   salesforceGetRecordParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
+import { log } from "../../../utils/logger.js";
 
 const getRecord: salesforceGetRecordFunction = async ({
   params,
@@ -37,7 +38,7 @@ const getRecord: salesforceGetRecordFunction = async ({
       record: response.data,
     };
   } catch (error) {
-    console.error("Error retrieving Salesforce record:", error);
+    log.error("Error retrieving Salesforce record:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "An unknown error occurred",

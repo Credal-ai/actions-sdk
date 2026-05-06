@@ -7,6 +7,7 @@ import type {
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import { dedupeByIdKeepFirst, filterReadableFiles } from "./utils.js";
+import { log } from "../../../utils/logger.js";
 
 const searchDriveByKeywords: googleOauthSearchDriveByKeywordsFunction = async ({
   params,
@@ -67,7 +68,7 @@ const searchDriveByKeywords: googleOauthSearchDriveByKeywordsFunction = async ({
 
     return { success: true, files: dedupedFiles };
   } catch (error) {
-    console.error("Error searching Google Drive", error);
+    log.error("Error searching Google Drive", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

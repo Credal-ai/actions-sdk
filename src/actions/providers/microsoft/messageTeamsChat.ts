@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 
 import { getGraphClient } from "./utils.js";
+import { log } from "../../../utils/logger.js";
 
 const sendMessageToTeamsChat: microsoftMessageTeamsChatFunction = async ({
   params,
@@ -37,7 +38,7 @@ const sendMessageToTeamsChat: microsoftMessageTeamsChatFunction = async ({
       messageId: response.id,
     };
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return {
       success: false,
       error: "Error sending message: " + (error instanceof Error ? error.message : "Unknown error"),

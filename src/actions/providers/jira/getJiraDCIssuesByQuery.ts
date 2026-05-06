@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
 import { getJiraApiConfig, getErrorMessage, extractPlainText, type JiraADFDoc } from "./utils.js";
+import { log } from "../../../utils/logger.js";
 
 const DEFAULT_LIMIT = 100;
 
@@ -204,7 +205,7 @@ const getJiraDCIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
       }),
     };
   } catch (error: unknown) {
-    console.error("Error retrieving Jira issues:", error);
+    log.error("Error retrieving Jira issues:", error);
     return {
       results: [],
       error: getErrorMessage(error),

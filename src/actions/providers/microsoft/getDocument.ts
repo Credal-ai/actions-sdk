@@ -5,6 +5,7 @@ import type {
   microsoftGetDocumentParamsType,
 } from "../../autogen/types.js";
 import { getGraphClient } from "./utils.js";
+import { log } from "../../../utils/logger.js";
 
 const getDocument: microsoftGetDocumentFunction = async ({
   params,
@@ -39,7 +40,7 @@ const getDocument: microsoftGetDocumentFunction = async ({
       content: response, // Assuming the response contains the document content
     };
   } catch (error) {
-    console.error("Error retrieving document:", error);
+    log.error("Error retrieving document:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error occurred",

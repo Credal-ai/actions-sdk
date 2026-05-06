@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
 import { getJiraApiConfig, getErrorMessage } from "./utils.js";
+import { log } from "../../../utils/logger.js";
 
 const linkAndAssignJiraIssues: jiraLinkAndAssignJiraIssuesFunction = async ({
   params,
@@ -51,7 +52,7 @@ const linkAndAssignJiraIssues: jiraLinkAndAssignJiraIssuesFunction = async ({
   try {
     await axiosClient.post(`${apiUrl}/issueLink`, linkPayload, { headers });
   } catch (error: unknown) {
-    console.error("Error linking Jira issues:", error);
+    log.error("Error linking Jira issues:", error);
     return {
       success: false,
       linkSuccess: false,
@@ -82,7 +83,7 @@ const linkAndAssignJiraIssues: jiraLinkAndAssignJiraIssuesFunction = async ({
       };
     }
   } catch (error: unknown) {
-    console.error("Error fetching outward issue details:", error);
+    log.error("Error fetching outward issue details:", error);
     return {
       success: false,
       linkSuccess: true,
@@ -112,7 +113,7 @@ const linkAndAssignJiraIssues: jiraLinkAndAssignJiraIssuesFunction = async ({
       assignedReporter: reporterId,
     };
   } catch (error: unknown) {
-    console.error("Error assigning reporter to inward issue:", error);
+    log.error("Error assigning reporter to inward issue:", error);
     return {
       success: false,
       linkSuccess: true,

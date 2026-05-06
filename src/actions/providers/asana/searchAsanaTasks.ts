@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { log } from "../../../utils/logger.js";
 
 const searchAsanaTasks: asanaSearchTasksFunction = async ({
   params,
@@ -59,7 +60,7 @@ const searchAsanaTasks: asanaSearchTasksFunction = async ({
           );
         }
       } catch (searchErr) {
-        console.warn(`Search failed in workspace ${workspaceId}:`, searchErr);
+        log.warn(`Search failed in workspace ${workspaceId}:`, searchErr);
       }
     }
 
@@ -68,7 +69,7 @@ const searchAsanaTasks: asanaSearchTasksFunction = async ({
       results: matches,
     };
   } catch (error) {
-    console.error("Error searching Asana tasks:", error);
+    log.error("Error searching Asana tasks:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

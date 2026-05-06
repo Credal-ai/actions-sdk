@@ -6,6 +6,7 @@ import type {
   oktaOrgGetOktaUserByNameFunction,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
+import { log } from "../../../utils/logger.js";
 
 const getOktaUserByName: oktaOrgGetOktaUserByNameFunction = async ({
   authParams,
@@ -78,7 +79,7 @@ const getOktaUserByName: oktaOrgGetOktaUserByNameFunction = async ({
       },
     };
   } catch (error) {
-    console.error("Error retrieving user details:", error);
+    log.error("Error retrieving user details:", error);
     return { success: false, error: error instanceof Error ? error.message : "Unknown error occurred" };
   }
 };

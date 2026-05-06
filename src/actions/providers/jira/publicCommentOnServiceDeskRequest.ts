@@ -5,6 +5,7 @@ import type {
   jiraPublicCommentOnServiceDeskRequestParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
+import { log } from "../../../utils/logger.js";
 
 const publicCommentOnServiceDeskRequest: jiraPublicCommentOnServiceDeskRequestFunction = async ({
   params,
@@ -45,7 +46,7 @@ const publicCommentOnServiceDeskRequest: jiraPublicCommentOnServiceDeskRequestFu
       commentUrl: webLink,
     };
   } catch (error) {
-    console.error("Error creating service desk request: ", error);
+    log.error("Error creating service desk request: ", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

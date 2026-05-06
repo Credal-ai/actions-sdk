@@ -7,6 +7,7 @@ import type {
 } from "../../autogen/types.js";
 import { connectToSnowflakeAndWarehouse, getSnowflakeConnection } from "./auth/getSnowflakeConnection.js";
 import { formatDataForCodeInterpreter } from "../../util/formatDataForCodeInterpreter.js";
+import { log } from "../../../utils/logger.js";
 
 snowflake.configure({ logLevel: "ERROR" });
 
@@ -70,7 +71,7 @@ const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
     // Return fields to match schema definition
     connection.destroy(err => {
       if (err) {
-        console.log("Failed to disconnect from Snowflake:", err);
+        log.info("Failed to disconnect from Snowflake:", err);
       }
     });
     return {
@@ -82,7 +83,7 @@ const runSnowflakeQuery: snowflakeRunSnowflakeQueryFunction = async ({
   } catch (error: unknown) {
     connection.destroy(err => {
       if (err) {
-        console.log("Failed to disconnect from Snowflake:", err);
+        log.info("Failed to disconnect from Snowflake:", err);
       }
     });
     throw Error(`An error occurred: ${error}`, { cause: error });

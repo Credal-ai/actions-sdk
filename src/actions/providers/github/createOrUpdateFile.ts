@@ -7,6 +7,7 @@ import type {
 import { z } from "zod";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import { getOctokit } from "./utils.js";
+import { log } from "../../../utils/logger.js";
 
 /**
  * Creates or updates a file in a GitHub repository
@@ -40,14 +41,14 @@ const createOrUpdateFile: githubCreateOrUpdateFileFunction = async ({
       return { success: false, error: "Path already exists and noOverwrite is set to true." };
     }
     if (Array.isArray(fileData)) {
-      console.error(`Error: Path is a directory, not a file. Path: ${filePath}`);
+      log.error(`Error: Path is a directory, not a file. Path: ${filePath}`);
       return { success: false, error: `Path is a directory, not a file. Path: ${filePath}` };
     }
     fileSha = fileData.sha;
     operationPreformed = "updated";
   } catch (error) {
     if (error instanceof RequestError && error.status === 404) {
-      console.log(`File not found, creating new file.`);
+      log.info(`File not found, creating new file.`);
       operationPreformed = "created";
     } else {
       return { success: false, error: error instanceof Error ? error.message : "An unknown error occurred" };
@@ -72,7 +73,7 @@ const createOrUpdateFile: githubCreateOrUpdateFileFunction = async ({
       operation: OperationEnum.parse(operationPreformed),
     };
   } catch (error) {
-    console.error("Error creating or updating file:", error);
+    log.error("Error creating or updating file:", error);
     const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
     return { success: false, error: errorMessage };
   }

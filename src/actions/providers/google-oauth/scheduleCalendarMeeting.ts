@@ -8,6 +8,7 @@ import type {
 import { axiosClient } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import { getDayOfWeek } from "../../../utils/datetime.js";
+import { log } from "../../../utils/logger.js";
 
 /**
  * Generates a recurrence rule (RRULE) based on the recurrence parameters
@@ -118,7 +119,7 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
       const rrule = generateRecurrenceRule(recurrence);
       data.recurrence = [rrule];
     } catch (error) {
-      console.error("Error generating recurrence rule", error);
+      log.error("Error generating recurrence rule", error);
       return {
         success: false,
         error: "Invalid recurrence configuration: " + (error instanceof Error ? error.message : "Unknown error"),
@@ -148,7 +149,7 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
       eventDayOfWeek: getDayOfWeek(start),
     };
   } catch (error) {
-    console.error("Error scheduling calendar meeting", error);
+    log.error("Error scheduling calendar meeting", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

@@ -6,6 +6,7 @@ import type {
   googleOauthCreateSpreadsheetOutputType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { log } from "../../../utils/logger.js";
 
 /**
  * Creates a new Google Spreadsheet using OAuth authentication
@@ -60,7 +61,7 @@ const createSpreadsheet: googleOauthCreateSpreadsheetFunction = async ({
       })),
     };
   } catch (error) {
-    console.error("Error creating spreadsheet:", error);
+    log.error("Error creating spreadsheet:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

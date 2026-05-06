@@ -4,6 +4,7 @@ import type {
   linearGetTeamsOutputType,
   linearGetTeamsParamsType,
 } from "../../autogen/types";
+import { log } from "../../../utils/logger.js";
 
 const getTeams: linearGetTeamsFunction = async ({
   authParams,
@@ -68,7 +69,7 @@ const getTeams: linearGetTeamsFunction = async ({
       })),
     };
   } catch (error) {
-    console.error("Error retrieving Linear teams: ", error);
+    log.error("Error retrieving Linear teams: ", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

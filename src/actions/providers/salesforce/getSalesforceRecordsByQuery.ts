@@ -5,6 +5,7 @@ import type {
   salesforceGetSalesforceRecordsByQueryParamsType,
 } from "../../autogen/types.js";
 import { ApiError, axiosClient } from "../../util/axiosClient.js";
+import { log } from "../../../utils/logger.js";
 
 const MAX_RECORDS_LIMIT = 2000;
 
@@ -81,7 +82,7 @@ const getSalesforceRecordsByQuery: salesforceGetSalesforceRecordsByQueryFunction
         }) || [],
     };
   } catch (error) {
-    console.error("Error retrieving Salesforce record:", error);
+    log.error("Error retrieving Salesforce record:", error);
     return {
       success: false,
       error:

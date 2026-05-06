@@ -4,6 +4,7 @@ import type {
   linearCreateIssueOutputType,
   linearCreateIssueParamsType,
 } from "../../autogen/types";
+import { log } from "../../../utils/logger.js";
 
 const createIssue: linearCreateIssueFunction = async ({
   params,
@@ -102,7 +103,7 @@ const createIssue: linearCreateIssueFunction = async ({
       },
     };
   } catch (error) {
-    console.error("Error creating Linear issue: ", error);
+    log.error("Error creating Linear issue: ", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

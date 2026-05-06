@@ -7,6 +7,7 @@ import type {
 import { axiosClient } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import { getUserIdByEmail, getWorkspaceIdAndPermalinkFromTask } from "./utils.js";
+import { log } from "../../../utils/logger.js";
 
 const updateAsanaTask: asanaUpdateTaskFunction = async ({
   params,
@@ -60,7 +61,7 @@ const updateAsanaTask: asanaUpdateTaskFunction = async ({
       taskUrl: permalinkUrl,
     };
   } catch (error) {
-    console.error("Error updating Asana task:", error);
+    log.error("Error updating Asana task:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

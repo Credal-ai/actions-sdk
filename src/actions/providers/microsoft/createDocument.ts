@@ -5,6 +5,7 @@ import type {
   microsoftCreateDocumentParamsType,
 } from "../../autogen/types.js";
 import { getGraphClient, validateAndSanitizeFileName } from "./utils.js";
+import { log } from "../../../utils/logger.js";
 
 const createDocument: microsoftCreateDocumentFunction = async ({
   params,
@@ -38,7 +39,7 @@ const createDocument: microsoftCreateDocumentFunction = async ({
       fileName: response.name,
     };
   } catch (error) {
-    console.error("Error creating or updating document:", error);
+    log.error("Error creating or updating document:", error);
 
     return {
       success: false,

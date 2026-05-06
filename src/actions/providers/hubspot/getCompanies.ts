@@ -5,6 +5,7 @@ import type {
   hubspotGetCompaniesParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
+import { log } from "../../../utils/logger.js";
 
 const getCompanies: hubspotGetCompaniesFunction = async ({
   params,
@@ -83,7 +84,7 @@ const getCompanies: hubspotGetCompaniesFunction = async ({
       companies: allCompanies,
     };
   } catch (error) {
-    console.error("Error searching HubSpot companies:", error);
+    log.error("Error searching HubSpot companies:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "An unknown error occurred",

@@ -7,6 +7,7 @@ import type {
 import { axiosClient } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import { z } from "zod";
+import { log } from "../../../utils/logger.js";
 
 // Zod schemas for Google Slides API response structure
 const TextStyleSchema = z
@@ -185,7 +186,7 @@ const getPresentation: googleOauthGetPresentationFunction = async ({
       presentation,
     };
   } catch (error) {
-    console.error("Error getting presentation:", error);
+    log.error("Error getting presentation:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

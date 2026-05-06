@@ -7,6 +7,7 @@ import {
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import { getOctokit } from "./utils.js";
+import { log } from "../../../utils/logger.js";
 
 interface SearchCodeResult {
   name: string;
@@ -139,7 +140,7 @@ const searchOrganization: githubSearchOrganizationFunction = async ({
       try {
         return await octokit.rest.repos.getCommit({ owner: owner.login, repo: name, ref: item.sha });
       } catch (error) {
-        console.error(`Error fetching commit ${item.sha} in ${owner.login}/${name}:`, error);
+        log.error(`Error fetching commit ${item.sha} in ${owner.login}/${name}:`, error);
         return null;
       }
     }),
@@ -178,7 +179,7 @@ const searchOrganization: githubSearchOrganizationFunction = async ({
       try {
         return await octokit.rest.pulls.listFiles({ owner: organization, repo: repo, pull_number: item.number });
       } catch (error) {
-        console.error(`Error fetching PR files for PR ${item.number} in ${organization}/${repo}:`, error);
+        log.error(`Error fetching PR files for PR ${item.number} in ${organization}/${repo}:`, error);
         return { data: [] };
       }
     }),

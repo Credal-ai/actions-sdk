@@ -5,6 +5,7 @@ import type {
   lookerEnableUserByEmailOutputType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
+import { log } from "../../../utils/logger.js";
 
 const enableUserByEmail: lookerEnableUserByEmailFunction = async ({
   params,
@@ -29,7 +30,7 @@ const enableUserByEmail: lookerEnableUserByEmailFunction = async ({
 
   // Step 1: If no auth token is provided, authenticate using client_id and client_secret
   if (!accessToken && clientId && clientSecret) {
-    console.log("Authenticating with Looker API:", baseUrl);
+    log.info("Authenticating with Looker API:", baseUrl);
     try {
       // Use client_id and client_secret as URL query parameters
       const loginUrl = `${baseUrl}/api/4.0/login?client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}`;
@@ -42,7 +43,7 @@ const enableUserByEmail: lookerEnableUserByEmailFunction = async ({
         throw new Error("Failed to obtain authentication token from Looker API");
       }
     } catch (error) {
-      console.error("Error authenticating with Looker:", error);
+      log.error("Error authenticating with Looker:", error);
       return {
         success: false,
         message: "Failed to authenticate with Looker API",
@@ -58,10 +59,10 @@ const enableUserByEmail: lookerEnableUserByEmailFunction = async ({
   try {
     // Step 2: Search for the user by email
     const searchUrl = `${baseUrl}/api/4.0/users/search?email=${encodeURIComponent(userEmail)}`;
-    console.log("Searching for user:", searchUrl);
+    log.info("Searching for user:", searchUrl);
 
     const searchResponse = await axiosClient.get(searchUrl, { headers });
-    console.log("Search response:", searchResponse.data);
+    log.info("Search response:", searchResponse.data);
 
     const users = searchResponse.data;
 
@@ -92,7 +93,7 @@ const enableUserByEmail: lookerEnableUserByEmailFunction = async ({
 
     // Step 4: Enable the user (no confirmation check, automatically enable)
     const updateUrl = `${baseUrl}/api/4.0/users/${user.id}`;
-    console.log("Enabling user:", updateUrl);
+    log.info("Enabling user:", updateUrl);
 
     const updateResponse = await axiosClient.patch(
       updateUrl,
@@ -102,7 +103,7 @@ const enableUserByEmail: lookerEnableUserByEmailFunction = async ({
       { headers },
     );
 
-    console.log("Update response:", updateResponse.data);
+    log.info("Update response:", updateResponse.data);
 
     const updatedUser = updateResponse.data;
 
@@ -119,7 +120,7 @@ const enableUserByEmail: lookerEnableUserByEmailFunction = async ({
       },
     };
   } catch (error) {
-    console.error("Error in Looker enableUserByEmail action:", error);
+    log.error("Error in Looker enableUserByEmail action:", error);
 
     return {
       success: false,

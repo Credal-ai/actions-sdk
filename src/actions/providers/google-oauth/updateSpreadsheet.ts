@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { log } from "../../../utils/logger.js";
 
 /**
  *  Update a Google Spreadsheet using OAuth authentication
@@ -50,7 +51,7 @@ const updateSpreadsheet: googleOauthUpdateSpreadsheetFunction = async ({
       replies: response.data.replies,
     };
   } catch (error) {
-    console.error("Error updating spreadsheet", error);
+    log.error("Error updating spreadsheet", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

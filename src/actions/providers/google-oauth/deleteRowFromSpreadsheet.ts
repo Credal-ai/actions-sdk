@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { log } from "../../../utils/logger.js";
 
 /**
  * Deletes a row from a Google Spreadsheet using OAuth authentication
@@ -58,7 +59,7 @@ const deleteRowFromSpreadsheet: googleOauthDeleteRowFromSpreadsheetFunction = as
       spreadsheetUrl,
     };
   } catch (error) {
-    console.error("Error deleting row from spreadsheet", error);
+    log.error("Error deleting row from spreadsheet", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

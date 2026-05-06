@@ -7,6 +7,7 @@ import type {
 import { axiosClient } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import { getWorkspaceIdFromProject, getUserIdByEmail } from "./utils.js";
+import { log } from "../../../utils/logger.js";
 
 const getTaskTemplates = async (authToken: string, projectId: string) => {
   const url = `https://app.asana.com/api/1.0/task_templates/?project=${projectId}`;
@@ -16,7 +17,7 @@ const getTaskTemplates = async (authToken: string, projectId: string) => {
     });
     return response.data.data;
   } catch (error) {
-    console.error("Error fetching Asana task templates:", error);
+    log.error("Error fetching Asana task templates:", error);
     return [];
   }
 };
@@ -104,7 +105,7 @@ const createAsanaTask: asanaCreateTaskFunction = async ({
       taskUrl: `https://app.asana.com/0/${projectId}/${taskGid}`,
     };
   } catch (error) {
-    console.error("Error creating Asana task:", error);
+    log.error("Error creating Asana task:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

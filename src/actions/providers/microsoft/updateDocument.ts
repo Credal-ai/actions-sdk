@@ -5,6 +5,7 @@ import type {
   microsoftUpdateDocumentParamsType,
 } from "../../autogen/types.js";
 import { getGraphClient } from "./utils.js";
+import { log } from "../../../utils/logger.js";
 
 const updateDocument: microsoftUpdateDocumentFunction = async ({
   params,
@@ -38,7 +39,7 @@ const updateDocument: microsoftUpdateDocumentFunction = async ({
       documentUrl: response.webUrl,
     };
   } catch (error) {
-    console.error("Error updating document:", error);
+    log.error("Error updating document:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error occurred",

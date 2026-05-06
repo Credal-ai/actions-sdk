@@ -5,6 +5,7 @@ import type {
   salesforceUpdateRecordParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
+import { log } from "../../../utils/logger.js";
 
 const updateRecord: salesforceUpdateRecordFunction = async ({
   params,
@@ -37,7 +38,7 @@ const updateRecord: salesforceUpdateRecordFunction = async ({
       success: true,
     };
   } catch (error) {
-    console.error("Error updating Salesforce record:", error);
+    log.error("Error updating Salesforce record:", error);
 
     // Extract more detailed error information from Salesforce API response
     let errorMessage = "An unknown error occurred";

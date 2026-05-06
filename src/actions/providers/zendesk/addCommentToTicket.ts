@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { createAxiosClientWithRetries } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { log } from "../../../utils/logger.js";
 
 const addCommentToTicket: zendeskAddCommentToTicketFunction = async ({
   params,
@@ -46,7 +47,7 @@ const addCommentToTicket: zendeskAddCommentToTicketFunction = async ({
       ticketUrl: `https://${subdomain}.zendesk.com/agent/tickets/${ticketId}`,
     };
   } catch (error) {
-    console.error("Failed to add comment to Zendesk ticket:", error);
+    log.error("Failed to add comment to Zendesk ticket:", error);
     throw new Error(
       `Failed to add comment to ticket ${ticketId}: ${error instanceof Error ? error.message : "Unknown error"}`,
       { cause: error },

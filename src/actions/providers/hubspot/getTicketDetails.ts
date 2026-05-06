@@ -5,6 +5,7 @@ import type {
   hubspotGetTicketDetailsParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
+import { log } from "../../../utils/logger.js";
 
 const getTicketDetails: hubspotGetTicketDetailsFunction = async ({
   params,
@@ -67,7 +68,7 @@ const getTicketDetails: hubspotGetTicketDetailsFunction = async ({
       },
     };
   } catch (error) {
-    console.error("Error getting HubSpot ticket details:", error);
+    log.error("Error getting HubSpot ticket details:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "An unknown error occurred",

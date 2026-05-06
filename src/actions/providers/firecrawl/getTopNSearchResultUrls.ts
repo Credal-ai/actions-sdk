@@ -5,6 +5,7 @@ import type {
   firecrawlGetTopNSearchResultUrlsParamsType,
   firecrawlGetTopNSearchResultUrlsOutputType,
 } from "../../autogen/types.js";
+import { log } from "../../../utils/logger.js";
 
 // NOTE: authParams.apiKey should now be your FIRECRAWL API key.
 const getTopNSearchResultUrls: firecrawlGetTopNSearchResultUrlsFunction = async ({
@@ -40,7 +41,7 @@ const getTopNSearchResultUrls: firecrawlGetTopNSearchResultUrlsFunction = async 
 
     return { results };
   } catch (error) {
-    console.error("Error fetching search results from Firecrawl:", error);
+    log.error("Error fetching search results from Firecrawl:", error);
     throw error;
   }
 };

@@ -6,6 +6,7 @@ import type {
   googleOauthQueryGoogleBigQueryOutputType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { log } from "../../../utils/logger.js";
 
 function hasReadOnlyQuery(query: string): boolean {
   const normalizedQuery = query
@@ -157,7 +158,7 @@ const queryGoogleBigQuery: googleOauthQueryGoogleBigQueryFunction = async ({
       schema,
     };
   } catch (err: unknown) {
-    console.error("Error querying BigQuery:", err);
+    log.error("Error querying BigQuery:", err);
     let errorMessage = "Unknown error";
 
     if (err instanceof Error) {
