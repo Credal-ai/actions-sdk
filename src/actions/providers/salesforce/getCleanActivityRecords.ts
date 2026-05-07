@@ -86,7 +86,7 @@ function normalizeLimit(limit: number | undefined): number {
   return Math.min(Math.max(1, Math.trunc(limit ?? DEFAULT_LIMIT)), MAX_LIMIT);
 }
 
-function cleanBody(text: string | null | undefined): string | null {
+function cleanBody(text: string | null | undefined, includeQuotedReplies = false): string | null {
   if (!text) return null;
   let s = text;
   s = s.replace(/\r\n/g, "\n");
@@ -99,12 +99,14 @@ function cleanBody(text: string | null | undefined): string | null {
     .replace(/&nbsp;/g, " ")
     .replace(/&#?\w+;/g, "");
   s = s.replace(/^(From|To|CC|BCC|Date|Subject|Attachment|Body|Additional\s+To):.*\n/gim, "");
-  const qm = s.match(/(?:^|\n)(On [\s\S]{0,250}?wrote:\s*(?:\n|$))/);
-  if (qm && qm.index !== undefined) {
-    const cut = qm.index + (qm[0].startsWith("\n") ? 1 : 0);
-    s = s.slice(0, cut);
+  if (!includeQuotedReplies) {
+    const qm = s.match(/(?:^|\n)(On [\s\S]{0,250}?wrote:\s*(?:\n|$))/);
+    if (qm && qm.index !== undefined) {
+      const cut = qm.index + (qm[0].startsWith("\n") ? 1 : 0);
+      s = s.slice(0, cut);
+    }
+    s = s.replace(/\n--\s*\n[\s\S]*$/, "");
   }
-  s = s.replace(/\n--\s*\n[\s\S]*$/, "");
   s = s.replace(/\n{3,}/g, "\n\n").trim();
   return s.length > 0 ? s : null;
 }
@@ -292,6 +294,7 @@ async function handleTask(
   maxBodyLength: number,
   excludeActivityIds?: string,
   taskDateTimeTieBreakerField?: string,
+  includeQuotedReplies?: boolean,
 ): Promise<salesforceGetCleanActivityRecordsOutputType> {
   validateWhereClause(whereClause);
   const exclusionIds = parseExcludeActivityIds(excludeActivityIds);
@@ -374,7 +377,7 @@ async function handleTask(
       contact: latest.WhoId ? (contactMap.get(latest.WhoId) ?? null) : null,
       latestTaskId: latest.Id,
       allTaskIds: group.map(r => r.Id as string),
-      cleanedDescription: truncate(cleanBody(latest.Description), maxBodyLength),
+      cleanedDescription: truncate(cleanBody(latest.Description, includeQuotedReplies), maxBodyLength),
     });
   }
 
@@ -503,6 +506,7 @@ async function handleEmailMessage(
   limit: number,
   maxBodyLength: number,
   returnActivityIds?: boolean,
+  includeQuotedReplies?: boolean,
 ): Promise<salesforceGetCleanActivityRecordsOutputType> {
   validateWhereClause(whereClause);
   // Fetch limit+1 to determine whether additional records exist without relying on Salesforce pagination metadata
@@ -593,7 +597,7 @@ async function handleEmailMessage(
       latestMessageId: latest.Id,
       allMessageIds: group.map(r => r.Id as string),
       messageIdentifiers: group.map(r => r.MessageIdentifier as string).filter(Boolean),
-      cleanedBody: truncate(cleanBody(latest.TextBody), maxBodyLength),
+      cleanedBody: truncate(cleanBody(latest.TextBody, includeQuotedReplies), maxBodyLength),
     });
   }
 
@@ -638,6 +642,7 @@ const getCleanActivityRecords: salesforceGetCleanActivityRecordsFunction = async
     returnActivityIds,
     excludeActivityIds,
     taskDateTimeTieBreakerField,
+    includeQuotedReplies,
   } = params;
 
   if (!authToken || !baseUrl) {
@@ -669,6 +674,7 @@ const getCleanActivityRecords: salesforceGetCleanActivityRecordsFunction = async
         effectiveMaxBodyLength,
         excludeActivityIds,
         taskDateTimeTieBreakerField,
+        includeQuotedReplies,
       );
     }
     return await handleEmailMessage(
@@ -678,6 +684,7 @@ const getCleanActivityRecords: salesforceGetCleanActivityRecordsFunction = async
       effectiveLimit,
       effectiveMaxBodyLength,
       returnActivityIds,
+      includeQuotedReplies,
     );
   } catch (error) {
     return {

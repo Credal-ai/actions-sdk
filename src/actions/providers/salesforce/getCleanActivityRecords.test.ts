@@ -571,3 +571,33 @@ describe("salesforceGetCleanActivityRecords normalizeEmailHeaderText", () => {
     expect(normalizeEmailHeaderText("   ")).toBeNull();
   });
 });
+
+describe("salesforceGetCleanActivityRecords cleanBody includeQuotedReplies", () => {
+  const bodyWithThread = [
+    "Thanks for the update.",
+    "",
+    "On Mon, Jan 1, 2024 at 10:00 AM Alice <alice@example.com> wrote:",
+    "> Hi there, just checking in.",
+  ].join("\n");
+
+  test("truncates at quote marker by default", () => {
+    const result = cleanBody(bodyWithThread);
+    expect(result).toBe("Thanks for the update.");
+    expect(result).not.toContain("wrote:");
+  });
+
+  test("preserves quoted content when includeQuotedReplies is true", () => {
+    const result = cleanBody(bodyWithThread, true);
+    expect(result).toContain("Thanks for the update.");
+    expect(result).toContain("wrote:");
+    expect(result).toContain("Hi there, just checking in.");
+  });
+
+  test("includeQuotedReplies still strips HTML tags", () => {
+    const htmlBody = "<p>Hello</p>\n\nOn Mon, Jan 1, 2024 Alice wrote:\n<p>&gt; Prior message</p>";
+    const result = cleanBody(htmlBody, true);
+    expect(result).not.toContain("<p>");
+    expect(result).toContain("Hello");
+    expect(result).toContain("Prior message");
+  });
+});
