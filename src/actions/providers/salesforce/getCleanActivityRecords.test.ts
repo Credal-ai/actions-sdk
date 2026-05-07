@@ -67,6 +67,14 @@ describe("salesforceGetCleanActivityRecords non-Groove Task body cleaning", () =
     expect(result).not.toContain("Body:");
     expect(result).toContain("Thank you for reaching out");
   });
+
+  test("converts entity-encoded email addresses to bracket notation", () => {
+    const body = "Please reply to &lt;support@example.com&gt; for help.";
+    const result = cleanBody(body);
+    expect(result).toContain("[support@example.com]");
+    expect(result).not.toContain("&lt;");
+    expect(result).not.toContain("&gt;");
+  });
 });
 
 describe("salesforceGetCleanActivityRecords non-Groove Task direction detection", () => {

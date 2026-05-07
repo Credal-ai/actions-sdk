@@ -90,14 +90,14 @@ function cleanBody(text: string | null | undefined): string | null {
   if (!text) return null;
   let s = text;
   s = s.replace(/\r\n/g, "\n");
-  s = s.replace(/<([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>/g, "[$1]");
-  s = s.replace(/<[^>]+>/g, " ");
   s = s
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&nbsp;/g, " ")
     .replace(/&#?\w+;/g, "");
+  s = s.replace(/<([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>/g, "[$1]");
+  s = s.replace(/<[^>]+>/g, " ");
   s = s.replace(/^(From|To|CC|BCC|Date|Subject|Attachment|Body|Additional\s+To):.*\n/gim, "");
   const qm = s.match(/(?:^|\n)(On [\s\S]{0,250}?wrote:\s*(?:\n|$))/);
   if (qm && qm.index !== undefined) {
@@ -322,7 +322,7 @@ async function handleTask(
   // taskDateTimeTieBreakerField when available; otherwise the portable fallback is ActivityDate with
   // CompletedDateTime as a sync-time tie-breaker.
   // Fetch limit+1 to determine whether additional records exist without relying on Salesforce pagination metadata
-  const soql = `SELECT ${selectFields.join(", ")} FROM Task WHERE (${whereClause}) AND TaskSubtype = 'Email' AND Status = 'Completed' AND IsDeleted = false${exclusion} ORDER BY ${orderByFields.join(", ")} LIMIT ${limit + 1}`;
+  const soql = `SELECT ${selectFields.join(", ")} FROM Task WHERE ${formatActivityWhereClause(whereClause)} AND TaskSubtype = 'Email' AND Status = 'Completed' AND IsDeleted = false${exclusion} ORDER BY ${orderByFields.join(", ")} LIMIT ${limit + 1}`;
   const rawRecords = (await soqlQuery(baseUrl, authToken, soql, Infinity, true)) as SfRecord[];
   const hasMore = rawRecords.length > limit;
   const records = hasMore ? rawRecords.slice(0, limit) : rawRecords;
@@ -378,11 +378,7 @@ async function handleTask(
     });
   }
 
-  threads.sort((a, b) => {
-    if (!a.latestDate) return 1;
-    if (!b.latestDate) return -1;
-    return b.latestDate.localeCompare(a.latestDate);
-  });
+  threads.sort((a, b) => parseSalesforceTimestamp(b.latestDate) - parseSalesforceTimestamp(a.latestDate));
 
   return {
     success: true,
@@ -467,16 +463,16 @@ function unwrapParenthesizedSemiJoins(whereClause: string): string {
   return normalized;
 }
 
-function formatEmailMessageWhereClause(whereClause: string): string {
+function formatActivityWhereClause(whereClause: string): string {
   return containsSemiJoinSubquery(whereClause) ? unwrapParenthesizedSemiJoins(whereClause) : `(${whereClause})`;
 }
 
 function buildEmailMessageActivityIdQuery(whereClause: string): string {
-  return `SELECT ActivityId FROM EmailMessage WHERE ${formatEmailMessageWhereClause(whereClause)} AND ActivityId != null AND IsDeleted = false`;
+  return `SELECT ActivityId FROM EmailMessage WHERE ${formatActivityWhereClause(whereClause)} AND ActivityId != null AND IsDeleted = false`;
 }
 
 function buildEmailMessageQuery(whereClause: string, limit: number): string {
-  return `SELECT Id, Subject, MessageDate, Incoming, IsBounced, FromAddress, ToAddress, CcAddress, TextBody, ThreadIdentifier, MessageIdentifier, RelatedToId, ActivityId FROM EmailMessage WHERE ${formatEmailMessageWhereClause(whereClause)} AND IsDeleted = false ORDER BY MessageDate DESC NULLS LAST LIMIT ${limit + 1}`;
+  return `SELECT Id, Subject, MessageDate, Incoming, IsBounced, FromAddress, ToAddress, CcAddress, TextBody, ThreadIdentifier, MessageIdentifier, RelatedToId, ActivityId FROM EmailMessage WHERE ${formatActivityWhereClause(whereClause)} AND IsDeleted = false ORDER BY MessageDate DESC NULLS LAST LIMIT ${limit + 1}`;
 }
 
 async function collectCompleteEmailMessageActivityIds(
@@ -597,11 +593,7 @@ async function handleEmailMessage(
     });
   }
 
-  threads.sort((a, b) => {
-    if (!a.latestDate) return 1;
-    if (!b.latestDate) return -1;
-    return b.latestDate.localeCompare(a.latestDate);
-  });
+  threads.sort((a, b) => parseSalesforceTimestamp(b.latestDate) - parseSalesforceTimestamp(a.latestDate));
 
   const result: salesforceGetCleanActivityRecordsOutputType = {
     success: true,
@@ -684,7 +676,7 @@ const getCleanActivityRecords: salesforceGetCleanActivityRecordsFunction = async
       success: false,
       error:
         error instanceof ApiError
-          ? error.data?.length > 0
+          ? Array.isArray(error.data) && error.data.length > 0 && typeof error.data[0]?.message === "string"
             ? error.data[0].message
             : error.message
           : error instanceof Error
