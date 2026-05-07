@@ -6861,7 +6861,7 @@ actions:
             description: Maximum characters to return for each thread's cleaned body (cleanedDescription or cleanedBody). Defaults to 500. Increase if the agent needs fuller context on a specific thread.
           returnActivityIds:
             type: boolean
-            description: "EmailMessage only — when true, performs a separate ActivityId-only query using the same whereClause and returns a complete activityIds string (JSON array) of Task IDs auto-generated alongside matching EmailMessage records. Pass this string directly as excludeActivityIds in a subsequent Task query to avoid returning the same communications twice."
+            description: "EmailMessage only — when true, performs a separate ActivityId-only query using the same whereClause and returns an activityIds string (JSON array) of Task IDs auto-generated alongside matching EmailMessage records. Pass this string directly as excludeActivityIds in a subsequent Task query to avoid returning the same communications twice."
           excludeActivityIds:
             type: string
             description: "Task only — JSON array string of Task IDs to exclude from results. Pass the activityIds string returned from a preceding EmailMessage query exactly as provided — no parsing required."
@@ -6892,7 +6892,7 @@ actions:
               additionalProperties: true
           activityIds:
             type: string
-            description: "EmailMessage only, returnActivityIds=true — complete JSON array string of Task IDs auto-generated alongside matching EmailMessage records. This list is not capped by the body result limit."
+            description: "EmailMessage only, returnActivityIds=true — JSON array string of Task IDs auto-generated alongside matching EmailMessage records. Covers up to 10,000 ActivityIds (5 Salesforce query pages). Sufficient for typical agent context; orgs with higher volumes require a narrower whereClause."
           hasMore:
             type: boolean
             description: True when the number of raw records returned equaled the limit, indicating additional records may exist beyond what was fetched.

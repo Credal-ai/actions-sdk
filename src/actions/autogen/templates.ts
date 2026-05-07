@@ -11499,7 +11499,7 @@ export const salesforceGetCleanActivityRecordsDefinition: ActionTemplate = {
       returnActivityIds: {
         type: "boolean",
         description:
-          "EmailMessage only — when true, performs a separate ActivityId-only query using the same whereClause and returns a complete activityIds string (JSON array) of Task IDs auto-generated alongside matching EmailMessage records. Pass this string directly as excludeActivityIds in a subsequent Task query to avoid returning the same communications twice.",
+          "EmailMessage only — when true, performs a separate ActivityId-only query using the same whereClause and returns an activityIds string (JSON array) of Task IDs auto-generated alongside matching EmailMessage records. Pass this string directly as excludeActivityIds in a subsequent Task query to avoid returning the same communications twice.",
       },
       excludeActivityIds: {
         type: "string",
@@ -11544,7 +11544,7 @@ export const salesforceGetCleanActivityRecordsDefinition: ActionTemplate = {
       activityIds: {
         type: "string",
         description:
-          "EmailMessage only, returnActivityIds=true — complete JSON array string of Task IDs auto-generated alongside matching EmailMessage records. This list is not capped by the body result limit.",
+          "EmailMessage only, returnActivityIds=true — JSON array string of Task IDs auto-generated alongside matching EmailMessage records. Covers up to 10,000 ActivityIds (5 Salesforce query pages). Sufficient for typical agent context; orgs with higher volumes require a narrower whereClause.",
       },
       hasMore: {
         type: "boolean",

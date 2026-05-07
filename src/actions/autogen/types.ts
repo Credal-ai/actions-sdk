@@ -6063,7 +6063,7 @@ export const salesforceGetCleanActivityRecordsParamsSchema = z.object({
   returnActivityIds: z
     .boolean()
     .describe(
-      "EmailMessage only — when true, performs a separate ActivityId-only query using the same whereClause and returns a complete activityIds string (JSON array) of Task IDs auto-generated alongside matching EmailMessage records. Pass this string directly as excludeActivityIds in a subsequent Task query to avoid returning the same communications twice.",
+      "EmailMessage only — when true, performs a separate ActivityId-only query using the same whereClause and returns an activityIds string (JSON array) of Task IDs auto-generated alongside matching EmailMessage records. Pass this string directly as excludeActivityIds in a subsequent Task query to avoid returning the same communications twice.",
     )
     .optional(),
   excludeActivityIds: z
@@ -6075,7 +6075,7 @@ export const salesforceGetCleanActivityRecordsParamsSchema = z.object({
   taskDateTimeTieBreakerField: z
     .string()
     .describe(
-      "Task only — optional Task Date/Time field API name used after ActivityDate to order same-day synced email Tasks. This is intended for Groove-style fields such as groove_email_sent_at__c. The field is validated with Salesforce FieldDefinition and rejected unless it exists on Task with DataType = Date/Time.",
+      "Task only — optional Task Date/Time field API name used after ActivityDate to order same-day synced email Tasks. This is intended for Groove-style fields such as groove_email_sent_at__c. The field API name must match [A-Za-z_][A-Za-z0-9_]* — names failing this check are rejected immediately. Unrecognized but syntactically valid field names produce a Salesforce API error at query time.",
     )
     .optional(),
 });
@@ -6091,7 +6091,7 @@ export const salesforceGetCleanActivityRecordsOutputSchema = z.object({
   activityIds: z
     .string()
     .describe(
-      "EmailMessage only, returnActivityIds=true — complete JSON array string of Task IDs auto-generated alongside matching EmailMessage records. This list is not capped by the body result limit.",
+      "EmailMessage only, returnActivityIds=true — JSON array string of Task IDs auto-generated alongside matching EmailMessage records. Covers up to 10,000 ActivityIds (5 Salesforce query pages). Sufficient for typical agent context; orgs with higher volumes require a narrower whereClause.",
     )
     .optional(),
   hasMore: z
