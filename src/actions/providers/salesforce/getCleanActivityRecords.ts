@@ -557,7 +557,7 @@ async function handleEmailMessage(
       threadSize: group.length,
       latestDate: latest.MessageDate ?? null,
       direction: latest.Incoming === true ? "inbound" : "outbound",
-      bounced: latest.IsBounced === true,
+      bounced: group.some(r => r.IsBounced === true),
       relatedToId: latest.RelatedToId ?? null,
       fromAddress: latest.FromAddress ?? null,
       toAddress: latest.ToAddress ?? null,

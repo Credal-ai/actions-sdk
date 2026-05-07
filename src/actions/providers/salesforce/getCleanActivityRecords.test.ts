@@ -415,9 +415,7 @@ describe("salesforceGetCleanActivityRecords EmailMessage people resolution", () 
     // 3. Contact query
     mockGet.mockResolvedValueOnce({
       data: {
-        records: [
-          { Id: "003Qp00000HyTFBIA3", Name: "Alice Smith", Email: "customer@example.com", Title: "Manager" },
-        ],
+        records: [{ Id: "003Qp00000HyTFBIA3", Name: "Alice Smith", Email: "customer@example.com", Title: "Manager" }],
         done: true,
       },
     });
@@ -495,6 +493,59 @@ describe("salesforceGetCleanActivityRecords EmailMessage people resolution", () 
           people: [{ id: "00QQp00000HyTFBIA3", name: "Bob Lead", email: "lead@prospect.com", title: null }],
         },
       ],
+    });
+  });
+});
+
+describe("salesforceGetCleanActivityRecords EmailMessage bounced semantics", () => {
+  test("thread is bounced when any message in the thread bounced, not just the latest", async () => {
+    // Main EmailMessage query — two messages in same thread; older one bounced, latest did not
+    mockGet.mockResolvedValueOnce({
+      data: {
+        records: [
+          {
+            Id: "02sQp0000000002AAA",
+            Subject: "Delivery notification",
+            MessageDate: "2026-05-02T12:00:00.000+0000",
+            Incoming: false,
+            IsBounced: false,
+            FromAddress: "rep@butterflymx.com",
+            ToAddress: "customer@example.com",
+            TextBody: "Retry send.",
+            ThreadIdentifier: "thread-bounce",
+            MessageIdentifier: "msg-002",
+            RelatedToId: null,
+            ActivityId: null,
+          },
+          {
+            Id: "02sQp0000000001AAA",
+            Subject: "Delivery notification",
+            MessageDate: "2026-05-01T10:00:00.000+0000",
+            Incoming: false,
+            IsBounced: true,
+            FromAddress: "rep@butterflymx.com",
+            ToAddress: "customer@example.com",
+            TextBody: "Original send.",
+            ThreadIdentifier: "thread-bounce",
+            MessageIdentifier: "msg-001",
+            RelatedToId: null,
+            ActivityId: null,
+          },
+        ],
+        done: true,
+      },
+    });
+    // EmailMessageRelation — no relations for these messages
+    mockGet.mockResolvedValueOnce({ data: { records: [], done: true } });
+
+    const result = await getCleanActivityRecords({
+      params: { objectType: "EmailMessage", whereClause: "RelatedToId = '500Qp0000012345AAA'" },
+      authParams: { authToken: "token", baseUrl: "https://example.my.salesforce.com" },
+    });
+
+    expect(result).toMatchObject({
+      success: true,
+      threads: [{ threadIdentifier: "thread-bounce", bounced: true }],
     });
   });
 });
