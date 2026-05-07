@@ -501,14 +501,15 @@ async function handleEmailMessage(
     const relationSoql = `SELECT EmailMessageId, RelationId, RelationObjectType FROM EmailMessageRelation WHERE EmailMessageId IN (${messageIdList}) AND RelationObjectType IN ('Contact', 'Lead')`;
     const relations = (await soqlQuery(baseUrl, authToken, relationSoql)) as SfRecord[];
 
-    const relationIds: string[] = [];
+    const relationIdSet = new Set<string>();
     for (const rel of relations) {
       if (!rel.EmailMessageId || !rel.RelationId) continue;
       const existing = messagePersonMap.get(rel.EmailMessageId) ?? [];
       existing.push(rel.RelationId);
       messagePersonMap.set(rel.EmailMessageId, existing);
-      if (!relationIds.includes(rel.RelationId)) relationIds.push(rel.RelationId);
+      relationIdSet.add(rel.RelationId);
     }
+    const relationIds = [...relationIdSet];
 
     if (relationIds.length > 0) {
       const idList = relationIds.map(id => `'${id}'`).join(",");
