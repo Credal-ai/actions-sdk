@@ -10,6 +10,7 @@ const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 100;
 const DEFAULT_MAX_BODY_LENGTH = 500;
 const MAX_ACTIVITY_ID_PAGES = 5;
+const MAX_EXCLUDE_IDS = 500;
 // Salesforce IDs are 15 or 18 alphanumeric characters — used to validate excludeActivityIds before SOQL interpolation
 const SF_ID_PATTERN = /^[a-zA-Z0-9]{15,18}$/;
 const TASK_FIELD_API_NAME_PATTERN = /^[A-Za-z_][A-Za-z0-9_]*$/;
@@ -132,7 +133,8 @@ function normalizeEmailHeaderText(text: string | null | undefined): string | nul
 
 function truncate(text: string | null, maxLength: number): string | null {
   if (!text) return null;
-  return text.length <= maxLength ? text : text.slice(0, maxLength) + "…";
+  if (text.length <= maxLength) return text;
+  return maxLength > 0 ? text.slice(0, maxLength - 1) + "…" : null;
 }
 
 function normalizeSubject(subject: string): string {
@@ -232,7 +234,15 @@ function parseExcludeActivityIds(excludeActivityIds?: string): string[] {
     throw new Error(`excludeActivityIds contains invalid Salesforce IDs: ${invalid.join(", ")}`);
   }
 
-  return [...new Set(parsed as string[])];
+  const unique = [...new Set(parsed as string[])];
+  if (unique.length > MAX_EXCLUDE_IDS) {
+    throw new Error(
+      `excludeActivityIds contains ${unique.length} IDs, which exceeds the limit of ${MAX_EXCLUDE_IDS}. ` +
+        "Use a narrower whereClause to reduce the EmailMessage result set before collecting activity IDs.",
+    );
+  }
+
+  return unique;
 }
 
 // whereClause is provided by an AI agent and is NOT treated as untrusted end-user input. This guard
@@ -394,7 +404,18 @@ async function handleTask(
 }
 
 function containsSemiJoinSubquery(whereClause: string): boolean {
-  return /\b(?:NOT\s+)?IN\s*\(\s*SELECT\b/i.test(whereClause);
+  let found = false;
+  forEachSoqlCharacterOutsideString(whereClause, (char, index) => {
+    // Only check at positions that are the start of a word (preceded by non-word char or start of string)
+    if (/\w/.test(char) && (index === 0 || !/\w/.test(whereClause[index - 1]))) {
+      if (/^(?:NOT\s+)?IN\s*\(\s*SELECT\b/i.test(whereClause.slice(index))) {
+        found = true;
+        return "stop";
+      }
+    }
+    return undefined;
+  });
+  return found;
 }
 
 function findMatchingParen(value: string, openIndex: number): number | null {
@@ -562,11 +583,7 @@ async function handleEmailMessage(
 
   const threads = [];
   for (const [threadIdentifier, group] of threadMap) {
-    group.sort((a, b) => {
-      if (!a.MessageDate) return 1;
-      if (!b.MessageDate) return -1;
-      return b.MessageDate.localeCompare(a.MessageDate);
-    });
+    group.sort((a, b) => parseSalesforceTimestamp(b.MessageDate) - parseSalesforceTimestamp(a.MessageDate));
     const latest = group[0];
     const threadPersonIds = new Set<string>();
     for (const msg of group) {
@@ -637,15 +654,28 @@ const getCleanActivityRecords: salesforceGetCleanActivityRecordsFunction = async
   }
 
   if (objectType === "EmailMessage" && excludeActivityIds) {
-    return { success: false, error: "excludeActivityIds is only supported when objectType is Task" };
+    // Allow an empty JSON array "[]" since it has no effect; reject any non-empty exclusion list
+    let parsedExclude: unknown;
+    try {
+      parsedExclude = JSON.parse(excludeActivityIds);
+    } catch {
+      parsedExclude = null;
+    }
+    if (!Array.isArray(parsedExclude) || parsedExclude.length > 0) {
+      return { success: false, error: "excludeActivityIds is only supported when objectType is Task" };
+    }
   }
 
   if (objectType === "EmailMessage" && taskDateTimeTieBreakerField) {
     return { success: false, error: "taskDateTimeTieBreakerField is only supported when objectType is Task" };
   }
 
+  if (objectType === "Task" && returnActivityIds) {
+    return { success: false, error: "returnActivityIds is only supported when objectType is EmailMessage" };
+  }
+
   const effectiveLimit = normalizeLimit(limit);
-  const effectiveMaxBodyLength = maxBodyLength ?? DEFAULT_MAX_BODY_LENGTH;
+  const effectiveMaxBodyLength = Math.max(0, maxBodyLength ?? DEFAULT_MAX_BODY_LENGTH);
 
   if (taskDateTimeTieBreakerField && !TASK_FIELD_API_NAME_PATTERN.test(taskDateTimeTieBreakerField)) {
     return { success: false, error: "taskDateTimeTieBreakerField must be a valid Task field API name" };
@@ -698,6 +728,7 @@ export {
   normalizeSubject,
   parseExcludeActivityIds,
   soqlQuery,
+  truncate,
   validateWhereClause,
 };
 

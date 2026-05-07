@@ -9,6 +9,7 @@ import {
   normalizeLimit,
   parseExcludeActivityIds,
   soqlQuery,
+  truncate,
   validateWhereClause,
 } from "./getCleanActivityRecords.js";
 import getCleanActivityRecords from "./getCleanActivityRecords.js";
@@ -577,5 +578,93 @@ describe("salesforceGetCleanActivityRecords normalizeEmailHeaderText", () => {
     expect(normalizeEmailHeaderText(null)).toBeNull();
     expect(normalizeEmailHeaderText("")).toBeNull();
     expect(normalizeEmailHeaderText("   ")).toBeNull();
+  });
+});
+
+describe("salesforceGetCleanActivityRecords containsSemiJoinSubquery string-literal safety", () => {
+  test("wraps clause in parens when IN (SELECT appears only inside a quoted literal", () => {
+    // The literal '%IN (SELECT phase%' must not be confused with a real semi-join subquery.
+    // Without this fix, the clause would skip the (…) wrapper, breaking OR operator precedence.
+    const whereClause = "Subject LIKE '%IN (SELECT phase%' OR WhatId = '500Qp0000012345AAA'";
+    expect(buildEmailMessageQuery(whereClause, 20)).toContain(`WHERE (${whereClause})`);
+    expect(buildEmailMessageActivityIdQuery(whereClause)).toContain(`WHERE (${whereClause})`);
+  });
+
+  test("detects a real semi-join outside quoted literals and skips the (…) wrapper", () => {
+    const whereClause = "WhoId IN (SELECT ContactId FROM CampaignMember WHERE CampaignId = '001Qp000000abcDEF')";
+    const query = buildEmailMessageQuery(whereClause, 20);
+    expect(query).toContain(`WHERE ${whereClause}`);
+    expect(query).not.toContain(`WHERE (${whereClause})`);
+  });
+});
+
+describe("salesforceGetCleanActivityRecords excludeActivityIds size limit", () => {
+  test("rejects excludeActivityIds lists that exceed MAX_EXCLUDE_IDS", () => {
+    const ids = Array.from({ length: 501 }, (_, i) => `00T${String(i).padStart(15, "0")}`);
+    expect(() => parseExcludeActivityIds(JSON.stringify(ids))).toThrow(/exceeds the limit of \d+/);
+  });
+
+  test("accepts excludeActivityIds lists at exactly the limit", () => {
+    const ids = Array.from({ length: 500 }, (_, i) => `00T${String(i).padStart(15, "0")}`);
+    expect(() => parseExcludeActivityIds(JSON.stringify(ids))).not.toThrow();
+  });
+});
+
+describe("salesforceGetCleanActivityRecords returnActivityIds guard", () => {
+  test("rejects returnActivityIds when objectType is Task", () => {
+    return expect(
+      getCleanActivityRecords({
+        params: {
+          objectType: "Task",
+          whereClause: "WhatId = 'a3bQp000001h4J7IAI'",
+          returnActivityIds: true,
+        },
+        authParams: { authToken: "token", baseUrl: "https://example.my.salesforce.com" },
+      }),
+    ).resolves.toMatchObject({
+      success: false,
+      error: "returnActivityIds is only supported when objectType is EmailMessage",
+    });
+  });
+});
+
+describe("salesforceGetCleanActivityRecords empty excludeActivityIds on EmailMessage", () => {
+  test("allows an empty excludeActivityIds array on EmailMessage without error", async () => {
+    mockGet
+      .mockResolvedValueOnce({ data: { records: [], done: true } })
+      .mockResolvedValueOnce({ data: { records: [], done: true } });
+
+    await expect(
+      getCleanActivityRecords({
+        params: {
+          objectType: "EmailMessage",
+          whereClause: "RelatedToId = '500Qp0000012345AAA'",
+          excludeActivityIds: "[]",
+        },
+        authParams: { authToken: "token", baseUrl: "https://example.my.salesforce.com" },
+      }),
+    ).resolves.toMatchObject({ success: true });
+  });
+});
+
+describe("salesforceGetCleanActivityRecords truncate", () => {
+  test("returns text unchanged when at or below the limit", () => {
+    expect(truncate("hello", 10)).toBe("hello");
+    expect(truncate("hello", 5)).toBe("hello");
+  });
+
+  test("truncates to exactly maxLength characters including the ellipsis", () => {
+    const result = truncate("hello world", 8);
+    expect(result).toHaveLength(8);
+    expect(result).toBe("hello w…");
+  });
+
+  test("returns null for falsy input", () => {
+    expect(truncate(null, 10)).toBeNull();
+    expect(truncate("", 10)).toBeNull();
+  });
+
+  test("returns null when maxLength is zero", () => {
+    expect(truncate("hello", 0)).toBeNull();
   });
 });
