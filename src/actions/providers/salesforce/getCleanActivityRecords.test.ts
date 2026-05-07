@@ -159,33 +159,33 @@ describe("salesforceGetCleanActivityRecords EmailMessage exclusions", () => {
     expect(soql).not.toContain("TextBody");
   });
 
-  test("keeps EmailMessageRelation semi-joins at the top level when date filters are present", () => {
+  test("wraps compound semi-join clause to protect appended AND filters from OR precedence", () => {
     const whereClause =
       "Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z";
 
     expect(buildEmailMessageQuery(whereClause, 100)).toContain(
-      "FROM EmailMessage WHERE Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z AND IsDeleted = false ORDER BY",
+      "FROM EmailMessage WHERE (Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z) AND IsDeleted = false ORDER BY",
     );
     expect(buildEmailMessageActivityIdQuery(whereClause)).toBe(
-      "SELECT ActivityId FROM EmailMessage WHERE Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z AND ActivityId != null AND IsDeleted = false",
+      "SELECT ActivityId FROM EmailMessage WHERE (Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z) AND ActivityId != null AND IsDeleted = false",
     );
   });
 
-  test("unwraps agent-supplied parentheses around EmailMessageRelation semi-joins", () => {
+  test("unwraps agent-supplied parentheses around EmailMessageRelation semi-joins then re-wraps the compound expression", () => {
     const whereClause =
       "(Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0')) AND MessageDate >= 2026-01-01T00:00:00Z";
 
     expect(buildEmailMessageQuery(whereClause, 100)).toContain(
-      "FROM EmailMessage WHERE Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z AND IsDeleted = false ORDER BY",
+      "FROM EmailMessage WHERE (Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z) AND IsDeleted = false ORDER BY",
     );
   });
 
-  test("unwraps parenthesized semi-joins with nested parentheses inside the subquery", () => {
+  test("unwraps parenthesized semi-joins with nested parentheses inside the subquery then re-wraps the compound expression", () => {
     const whereClause =
       "(Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId IN ('003Qp00000cMnCQIA0', '003Qp00000cMnCQIA1'))) AND MessageDate >= 2026-01-01T00:00:00Z";
 
     expect(buildEmailMessageQuery(whereClause, 100)).toContain(
-      "FROM EmailMessage WHERE Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId IN ('003Qp00000cMnCQIA0', '003Qp00000cMnCQIA1')) AND MessageDate >= 2026-01-01T00:00:00Z AND IsDeleted = false ORDER BY",
+      "FROM EmailMessage WHERE (Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId IN ('003Qp00000cMnCQIA0', '003Qp00000cMnCQIA1')) AND MessageDate >= 2026-01-01T00:00:00Z) AND IsDeleted = false ORDER BY",
     );
   });
 
@@ -590,11 +590,22 @@ describe("salesforceGetCleanActivityRecords containsSemiJoinSubquery string-lite
     expect(buildEmailMessageActivityIdQuery(whereClause)).toContain(`WHERE (${whereClause})`);
   });
 
-  test("detects a real semi-join outside quoted literals and skips the (…) wrapper", () => {
+  test("emits a bare lone semi-join without outer parens (Salesforce rejects the wrapped form)", () => {
     const whereClause = "WhoId IN (SELECT ContactId FROM CampaignMember WHERE CampaignId = '001Qp000000abcDEF')";
     const query = buildEmailMessageQuery(whereClause, 20);
     expect(query).toContain(`WHERE ${whereClause}`);
     expect(query).not.toContain(`WHERE (${whereClause})`);
+  });
+
+  test("wraps semi-join combined with OR so appended AND filters apply to the whole expression", () => {
+    // Without this fix: "WhoId IN (SELECT ...) OR WhatId = '...' AND IsDeleted = false"
+    // AND binds tighter, so IsDeleted = false only guards the WhatId branch.
+    // With fix: "(WhoId IN (SELECT ...) OR WhatId = '...') AND IsDeleted = false"
+    const whereClause =
+      "WhoId IN (SELECT ContactId FROM CampaignMember WHERE CampaignId = '001Qp000000abcDEF') OR WhatId = '001Qp000000xyzAAA'";
+    const query = buildEmailMessageQuery(whereClause, 20);
+    expect(query).toContain(`WHERE (${whereClause})`);
+    expect(query).not.toContain(`WHERE ${whereClause} AND`);
   });
 });
 

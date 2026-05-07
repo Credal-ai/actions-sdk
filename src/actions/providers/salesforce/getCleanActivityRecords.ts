@@ -12,7 +12,7 @@ const DEFAULT_MAX_BODY_LENGTH = 500;
 const MAX_ACTIVITY_ID_PAGES = 5;
 const MAX_EXCLUDE_IDS = 500;
 // Salesforce IDs are 15 or 18 alphanumeric characters — used to validate excludeActivityIds before SOQL interpolation
-const SF_ID_PATTERN = /^[a-zA-Z0-9]{15,18}$/;
+const SF_ID_PATTERN = /^[a-zA-Z0-9]{15}$|^[a-zA-Z0-9]{18}$/;
 const TASK_FIELD_API_NAME_PATTERN = /^[A-Za-z_][A-Za-z0-9_]*$/;
 // Blocks statement terminators and comment sequences that could escape the WHERE clause wrapper
 const SOQL_INJECTION_PATTERN = /;|--|\/\*|\*\//;
@@ -485,7 +485,14 @@ function unwrapParenthesizedSemiJoins(whereClause: string): string {
 }
 
 function formatActivityWhereClause(whereClause: string): string {
-  return containsSemiJoinSubquery(whereClause) ? unwrapParenthesizedSemiJoins(whereClause) : `(${whereClause})`;
+  if (!containsSemiJoinSubquery(whereClause)) {
+    return `(${whereClause})`;
+  }
+  const unwrapped = unwrapParenthesizedSemiJoins(whereClause);
+  // Salesforce rejects outer parens around a bare lone semi-join, e.g. (WhoId IN (SELECT ...)).
+  // But a compound expression such as (WhoId IN (SELECT ...) AND/OR ...) is valid and must be
+  // wrapped so that appended AND filters are not escaped by a top-level OR via operator precedence.
+  return isCompleteSemiJoinExpression(unwrapped) ? unwrapped : `(${unwrapped})`;
 }
 
 function buildEmailMessageActivityIdQuery(whereClause: string): string {
