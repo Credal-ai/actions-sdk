@@ -378,3 +378,123 @@ describe("salesforceGetCleanActivityRecords — queryAll endpoint", () => {
     expect(requestUrl).not.toContain("/query?");
   });
 });
+
+describe("salesforceGetCleanActivityRecords EmailMessage people resolution", () => {
+  test("resolves people via EmailMessageRelation → Contact", async () => {
+    // 1. Main EmailMessage query
+    mockGet.mockResolvedValueOnce({
+      data: {
+        records: [
+          {
+            Id: "02sQp0000000001AAA",
+            Subject: "Re: Invoice",
+            MessageDate: "2026-05-01T10:00:00.000+0000",
+            Incoming: true,
+            IsBounced: false,
+            FromAddress: "customer@example.com",
+            ToAddress: "rep@butterflymx.com",
+            TextBody: "Please send the updated invoice.",
+            ThreadIdentifier: "thread-abc",
+            MessageIdentifier: "msg-001",
+            RelatedToId: "500Qp0000012345AAA",
+            ActivityId: "00TQp000001abcDEF",
+          },
+        ],
+        done: true,
+      },
+    });
+    // 2. EmailMessageRelation query
+    mockGet.mockResolvedValueOnce({
+      data: {
+        records: [
+          { EmailMessageId: "02sQp0000000001AAA", RelationId: "003Qp00000HyTFBIA3", RelationObjectType: "Contact" },
+        ],
+        done: true,
+      },
+    });
+    // 3. Contact query
+    mockGet.mockResolvedValueOnce({
+      data: {
+        records: [
+          { Id: "003Qp00000HyTFBIA3", Name: "Alice Smith", Email: "customer@example.com", Title: "Manager" },
+        ],
+        done: true,
+      },
+    });
+
+    const result = await getCleanActivityRecords({
+      params: { objectType: "EmailMessage", whereClause: "RelatedToId = '500Qp0000012345AAA'" },
+      authParams: { authToken: "token", baseUrl: "https://example.my.salesforce.com" },
+    });
+
+    expect(result).toMatchObject({
+      success: true,
+      threads: [
+        {
+          threadIdentifier: "thread-abc",
+          people: [{ id: "003Qp00000HyTFBIA3", name: "Alice Smith", email: "customer@example.com", title: "Manager" }],
+        },
+      ],
+    });
+    // Verify the EmailMessageRelation query was actually issued
+    const relationCall = mockGet.mock.calls[1]?.[0] as string;
+    expect(decodeURIComponent(new URL(relationCall).searchParams.get("q") ?? "")).toContain("EmailMessageRelation");
+  });
+
+  test("falls back to Lead when Contact lookup returns no results", async () => {
+    // 1. Main EmailMessage query
+    mockGet.mockResolvedValueOnce({
+      data: {
+        records: [
+          {
+            Id: "02sQp0000000002AAA",
+            Subject: "Demo request",
+            MessageDate: "2026-05-02T09:00:00.000+0000",
+            Incoming: true,
+            IsBounced: false,
+            FromAddress: "lead@prospect.com",
+            ToAddress: "rep@butterflymx.com",
+            TextBody: "I would like a demo.",
+            ThreadIdentifier: "thread-xyz",
+            MessageIdentifier: "msg-002",
+            RelatedToId: null,
+            ActivityId: null,
+          },
+        ],
+        done: true,
+      },
+    });
+    // 2. EmailMessageRelation query
+    mockGet.mockResolvedValueOnce({
+      data: {
+        records: [
+          { EmailMessageId: "02sQp0000000002AAA", RelationId: "00QQp00000HyTFBIA3", RelationObjectType: "Lead" },
+        ],
+        done: true,
+      },
+    });
+    // 3. Contact query — returns nothing (it's a Lead)
+    mockGet.mockResolvedValueOnce({ data: { records: [], done: true } });
+    // 4. Lead fallback query
+    mockGet.mockResolvedValueOnce({
+      data: {
+        records: [{ Id: "00QQp00000HyTFBIA3", Name: "Bob Lead", Email: "lead@prospect.com", Title: null }],
+        done: true,
+      },
+    });
+
+    const result = await getCleanActivityRecords({
+      params: { objectType: "EmailMessage", whereClause: "RelatedToId = '500Qp0000012345AAA'" },
+      authParams: { authToken: "token", baseUrl: "https://example.my.salesforce.com" },
+    });
+
+    expect(result).toMatchObject({
+      success: true,
+      threads: [
+        {
+          people: [{ id: "00QQp00000HyTFBIA3", name: "Bob Lead", email: "lead@prospect.com", title: null }],
+        },
+      ],
+    });
+  });
+});
