@@ -2,7 +2,9 @@ import { beforeEach, describe, expect, jest, test } from "@jest/globals";
 import {
   buildEmailMessageActivityIdQuery,
   buildEmailMessageQuery,
+  cleanBody,
   compareTaskEmailRecords,
+  detectTaskDirection,
   normalizeLimit,
   parseExcludeActivityIds,
   soqlQuery,
@@ -22,6 +24,75 @@ jest.mock("../../util/axiosClient.js", () => ({
 
 beforeEach(() => {
   mockGet.mockReset();
+});
+
+describe("salesforceGetCleanActivityRecords non-Groove Task body cleaning", () => {
+  test("strips Body: label from Salesforce Gmail extension format", () => {
+    const desc = [
+      "To: jason@powersproptech.com",
+      "CC: ",
+      "BCC: ",
+      "Attachment: --none--",
+      "",
+      "Subject: Re: ButterflyMX Installation Next Steps: 80 Waterfront Blvd",
+      "Body:",
+      "Hey Jason,",
+      "Thomas here, I hope you're having an excellent week.",
+      "",
+    ].join("\n");
+
+    const result = cleanBody(desc);
+    expect(result).not.toContain("Body:");
+    expect(result).toContain("Hey Jason");
+    expect(result).not.toContain("To:");
+    expect(result).not.toContain("Subject:");
+  });
+
+  test("strips Additional To: label from BCC-to-Salesforce format", () => {
+    const desc = [
+      "Additional To: thehouselandlord@gmail.com",
+      "CC: ",
+      "BCC: ",
+      "Attachment: ",
+      "",
+      "Subject: ButterflyMX Case #00927715 - Re: Invoice",
+      "Body:",
+      "Thank you for reaching out to the ButterflyMX Customer Experience Team!",
+      "",
+    ].join("\n");
+
+    const result = cleanBody(desc);
+    expect(result).not.toContain("Additional To:");
+    expect(result).not.toContain("Body:");
+    expect(result).toContain("Thank you for reaching out");
+  });
+});
+
+describe("salesforceGetCleanActivityRecords non-Groove Task direction detection", () => {
+  test("detects outbound from To: header when owner is the sender", () => {
+    const desc = "To: jason@powersproptech.com\nCC: \nBCC: \n\nSubject: Re: Install\nBody:\nHey Jason";
+    expect(detectTaskDirection("Email: Re: Install", desc, "thomas.sigler@butterflymx.com")).toBe("outbound");
+  });
+
+  test("detects inbound from To: header when owner is the recipient", () => {
+    const desc = "To: thomas.sigler@butterflymx.com\nCC: \nBCC: \n\nSubject: Re: Install\nBody:\nHey Thomas";
+    expect(detectTaskDirection("Email: Re: Install", desc, "thomas.sigler@butterflymx.com")).toBe("inbound");
+  });
+
+  test("returns unknown when no direction signals and no ownerEmail", () => {
+    const desc = "To: jason@powersproptech.com\nCC: \n\nSome body text";
+    expect(detectTaskDirection("Email: Re: Install", desc, null)).toBe("unknown");
+  });
+
+  test("still detects Groove outbound from >> subject marker", () => {
+    const desc = "From: rep@example.com\nTo: customer@example.com\n\nHey there";
+    expect(detectTaskDirection("Email: >> Re: Proposal", desc, "rep@example.com")).toBe("outbound");
+  });
+
+  test("still detects Groove inbound from << subject marker", () => {
+    const desc = "From: customer@example.com\nTo: rep@example.com\n\nHey there";
+    expect(detectTaskDirection("Email: << [Inbox] - Re: Proposal", desc, "rep@example.com")).toBe("inbound");
+  });
 });
 
 describe("salesforceGetCleanActivityRecords Task email chronology", () => {

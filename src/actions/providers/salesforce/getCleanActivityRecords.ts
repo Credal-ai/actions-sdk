@@ -98,7 +98,7 @@ function cleanBody(text: string | null | undefined): string | null {
     .replace(/&gt;/g, ">")
     .replace(/&nbsp;/g, " ")
     .replace(/&#?\w+;/g, "");
-  s = s.replace(/^(From|To|CC|BCC|Date|Subject|Attachment):.*\n/gim, "");
+  s = s.replace(/^(From|To|CC|BCC|Date|Subject|Attachment|Body|Additional\s+To):.*\n/gim, "");
   const qm = s.match(/(?:^|\n)(On [\s\S]{0,250}?wrote:\s*(?:\n|$))/);
   if (qm && qm.index !== undefined) {
     const cut = qm.index + (qm[0].startsWith("\n") ? 1 : 0);
@@ -193,6 +193,10 @@ function detectTaskDirection(
     const fromMatch = description.match(/^From:\s*.+?<([^>]+)>/m) || description.match(/^From:\s*(\S+@\S+)/m);
     if (fromMatch) {
       return fromMatch[1].toLowerCase() === ownerEmail.toLowerCase() ? "outbound" : "inbound";
+    }
+    const toMatch = description.match(/^To:\s*(.+)/m);
+    if (toMatch) {
+      return toMatch[1].toLowerCase().includes(ownerEmail.toLowerCase()) ? "inbound" : "outbound";
     }
   }
   return "unknown";
@@ -647,6 +651,7 @@ export {
   cleanBody,
   collectCompleteEmailMessageActivityIds,
   compareTaskEmailRecords,
+  detectTaskDirection,
   getTaskEmailSortKey,
   normalizeLimit,
   normalizeSubject,
