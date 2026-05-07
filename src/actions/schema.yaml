@@ -6867,7 +6867,7 @@ actions:
             description: "Task only — JSON array string of Task IDs to exclude from results. Pass the activityIds string returned from a preceding EmailMessage query exactly as provided — no parsing required."
           taskDateTimeTieBreakerField:
             type: string
-            description: "Task only — optional Task Date/Time field API name used after ActivityDate to order same-day synced email Tasks. This is intended for Groove-style fields such as groove_email_sent_at__c. The field is validated with Salesforce FieldDefinition and rejected unless it exists on Task with DataType = Date/Time."
+            description: "Task only — optional Task Date/Time field API name used after ActivityDate to order same-day synced email Tasks. This is intended for Groove-style fields such as groove_email_sent_at__c. The field API name must match [A-Za-z_][A-Za-z0-9_]* — names failing this check are rejected immediately. Unrecognized but syntactically valid field names produce a Salesforce API error at query time."
       output:
         type: object
         required: [success]

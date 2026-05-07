@@ -11509,7 +11509,7 @@ export const salesforceGetCleanActivityRecordsDefinition: ActionTemplate = {
       taskDateTimeTieBreakerField: {
         type: "string",
         description:
-          "Task only — optional Task Date/Time field API name used after ActivityDate to order same-day synced email Tasks. This is intended for Groove-style fields such as groove_email_sent_at__c. The field is validated with Salesforce FieldDefinition and rejected unless it exists on Task with DataType = Date/Time.",
+          "Task only — optional Task Date/Time field API name used after ActivityDate to order same-day synced email Tasks. This is intended for Groove-style fields such as groove_email_sent_at__c. The field API name must match [A-Za-z_][A-Za-z0-9_]* — names failing this check are rejected immediately. Unrecognized but syntactically valid field names produce a Salesforce API error at query time.",
       },
     },
   },
