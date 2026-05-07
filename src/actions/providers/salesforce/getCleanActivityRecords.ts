@@ -109,6 +109,27 @@ function cleanBody(text: string | null | undefined): string | null {
   return s.length > 0 ? s : null;
 }
 
+// Strips HTML markup from a Task Description before direction detection, without the
+// quote-chain truncation that cleanBody applies. Handles entity-encoded angle brackets
+// produced by some Salesforce email-sync integrations (e.g., &lt;email@domain&gt;).
+function normalizeEmailHeaderText(text: string | null | undefined): string | null {
+  if (!text) return null;
+  let s = text.replace(/\r\n/g, "\n");
+  s = s.replace(/<br\s*\/?>/gi, "\n");
+  s = s.replace(/<\/(?:div|p|li|tr|h[1-6])>/gi, "\n");
+  s = s
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&#?\w+;/g, "");
+  s = s.replace(/<([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>/g, "[$1]");
+  s = s.replace(/<[^>]+>/g, " ");
+  s = s.replace(/[ \t]+/g, " ");
+  s = s.replace(/\n\s+/g, "\n").trim();
+  return s.length > 0 ? s : null;
+}
+
 function truncate(text: string | null, maxLength: number): string | null {
   if (!text) return null;
   return text.length <= maxLength ? text : text.slice(0, maxLength) + "…";
@@ -173,9 +194,16 @@ function detectTaskDirection(
   if (subject.includes(">>")) return "outbound";
   if (subject.includes("<<") || /\[inbox\]/i.test(subject)) return "inbound";
   if (description && ownerEmail) {
-    const fromMatch = description.match(/^From:\s*.+?<([^>]+)>/m) || description.match(/^From:\s*(\S+@\S+)/m);
+    const fromMatch =
+      description.match(/^From:\s*.*?\[([^\]]+@[^\]]+)\]/im) ||
+      description.match(/^From:\s*.*?<([^>]+)>/im) ||
+      description.match(/^From:\s*(\S+@\S+)/im);
     if (fromMatch) {
-      return fromMatch[1].toLowerCase() === ownerEmail.toLowerCase() ? "outbound" : "inbound";
+      const fromEmail = fromMatch[1]
+        .trim()
+        .replace(/[>,;]+$/, "")
+        .toLowerCase();
+      return fromEmail === ownerEmail.toLowerCase() ? "outbound" : "inbound";
     }
     const toMatch = description.match(/^To:\s*(.+)/m);
     if (toMatch) {
@@ -339,7 +367,7 @@ async function handleTask(
       threadSize: group.length,
       latestDate: formatTaskEmailDate(latest, taskDateTimeTieBreakerField),
       activityDate: latest.ActivityDate ?? null,
-      direction: detectTaskDirection(latest.Subject ?? "", latest.Description, ownerEmail),
+      direction: detectTaskDirection(latest.Subject ?? "", normalizeEmailHeaderText(latest.Description), ownerEmail),
       owner: latest.Owner?.Name ?? null,
       whoId: latest.WhoId ?? null,
       whatId: latest.WhatId ?? null,
@@ -673,6 +701,7 @@ export {
   collectCompleteEmailMessageActivityIds,
   compareTaskEmailRecords,
   detectTaskDirection,
+  normalizeEmailHeaderText,
   normalizeLimit,
   normalizeSubject,
   parseExcludeActivityIds,

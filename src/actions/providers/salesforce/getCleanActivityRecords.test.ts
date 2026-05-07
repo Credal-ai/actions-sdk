@@ -5,6 +5,7 @@ import {
   cleanBody,
   compareTaskEmailRecords,
   detectTaskDirection,
+  normalizeEmailHeaderText,
   normalizeLimit,
   parseExcludeActivityIds,
   soqlQuery,
@@ -547,5 +548,26 @@ describe("salesforceGetCleanActivityRecords EmailMessage bounced semantics", () 
       success: true,
       threads: [{ threadIdentifier: "thread-bounce", bounced: true }],
     });
+  });
+});
+
+describe("salesforceGetCleanActivityRecords normalizeEmailHeaderText", () => {
+  test("detects Task direction from HTML-encoded From header", () => {
+    const normalized = normalizeEmailHeaderText("<div>From: John Doe &lt;john@example.com&gt;</div>");
+    expect(detectTaskDirection("Email: Follow-up", normalized, "rep@example.com")).toBe("inbound");
+    expect(detectTaskDirection("Email: Follow-up", normalized, "john@example.com")).toBe("outbound");
+  });
+
+  test("strips HTML tags and decodes entities leaving plain text", () => {
+    const result = normalizeEmailHeaderText("<p>Hello &amp; goodbye</p><br/>Next line");
+    expect(result).not.toContain("<");
+    expect(result).toContain("Hello & goodbye");
+    expect(result).toContain("Next line");
+  });
+
+  test("returns null for null or empty input", () => {
+    expect(normalizeEmailHeaderText(null)).toBeNull();
+    expect(normalizeEmailHeaderText("")).toBeNull();
+    expect(normalizeEmailHeaderText("   ")).toBeNull();
   });
 });
