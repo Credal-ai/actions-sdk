@@ -348,3 +348,33 @@ describe("salesforceGetCleanActivityRecords Salesforce query pagination", () => 
     );
   });
 });
+
+describe("salesforceGetCleanActivityRecords — queryAll endpoint", () => {
+  test("Task query uses /queryAll not /query", async () => {
+    mockGet.mockResolvedValueOnce({ data: { records: [], done: true } });
+
+    await getCleanActivityRecords({
+      params: { objectType: "Task", whereClause: "WhatId = 'a3bQp000001h4J7IAI'" },
+      authParams: { authToken: "token", baseUrl: "https://example.my.salesforce.com" },
+    });
+
+    const requestUrl = String(mockGet.mock.calls[0]?.[0]);
+    expect(requestUrl).toContain("/queryAll?");
+    expect(requestUrl).not.toContain("/query?");
+  });
+
+  test("EmailMessage query uses /queryAll not /query", async () => {
+    mockGet
+      .mockResolvedValueOnce({ data: { records: [], done: true } })
+      .mockResolvedValueOnce({ data: { records: [], done: true } });
+
+    await getCleanActivityRecords({
+      params: { objectType: "EmailMessage", whereClause: "RelatedToId = '500Qp0000012345AAA'" },
+      authParams: { authToken: "token", baseUrl: "https://example.my.salesforce.com" },
+    });
+
+    const requestUrl = String(mockGet.mock.calls[0]?.[0]);
+    expect(requestUrl).toContain("/queryAll?");
+    expect(requestUrl).not.toContain("/query?");
+  });
+});
