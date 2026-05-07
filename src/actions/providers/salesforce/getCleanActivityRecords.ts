@@ -148,23 +148,6 @@ function compareTaskDateCandidates(a: SfRecord, b: SfRecord, taskDateTimeTieBrea
   return 0;
 }
 
-function getTaskEmailSortKey(record: SfRecord, taskDateTimeTieBreakerField?: string): number {
-  const candidates = [
-    taskDateTimeTieBreakerField ? record[taskDateTimeTieBreakerField] : undefined,
-    record.ActivityDate,
-    record.CompletedDateTime,
-    record.LastModifiedDate,
-    record.CreatedDate,
-  ];
-
-  for (const candidate of candidates) {
-    const parsed = parseSalesforceTimestamp(candidate);
-    if (parsed !== Number.NEGATIVE_INFINITY) return parsed;
-  }
-
-  return Number.NEGATIVE_INFINITY;
-}
-
 function compareTaskEmailRecords(a: SfRecord, b: SfRecord, taskDateTimeTieBreakerField?: string): number {
   const byEmailTime = compareTaskDateCandidates(a, b, taskDateTimeTieBreakerField);
   if (byEmailTime !== 0) return byEmailTime;
@@ -689,7 +672,6 @@ export {
   collectCompleteEmailMessageActivityIds,
   compareTaskEmailRecords,
   detectTaskDirection,
-  getTaskEmailSortKey,
   normalizeLimit,
   normalizeSubject,
   parseExcludeActivityIds,
