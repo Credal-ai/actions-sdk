@@ -224,29 +224,6 @@ function parseExcludeActivityIds(excludeActivityIds?: string): string[] {
   return [...new Set(parsed as string[])];
 }
 
-async function validateTaskDateTimeTieBreakerField(
-  baseUrl: string,
-  authToken: string,
-  fieldName?: string,
-): Promise<string | undefined> {
-  if (!fieldName) return undefined;
-  if (!TASK_FIELD_API_NAME_PATTERN.test(fieldName)) {
-    throw new Error("taskDateTimeTieBreakerField must be a valid Task field API name");
-  }
-
-  const fieldRows = await soqlQuery(
-    baseUrl,
-    authToken,
-    `SELECT QualifiedApiName, DataType FROM FieldDefinition WHERE EntityDefinition.QualifiedApiName = 'Task' AND QualifiedApiName = '${fieldName}' LIMIT 1`,
-  );
-  const field = fieldRows[0];
-  if (!field || field.DataType !== "Date/Time") {
-    throw new Error("taskDateTimeTieBreakerField must reference a Task Date/Time field");
-  }
-
-  return fieldName;
-}
-
 // whereClause is provided by an AI agent and is NOT treated as untrusted end-user input. This guard
 // blocks comment sequences and statement terminators that could break the WHERE clause wrapping and
 // allow unintended record access. Hallucinated or malformed SOQL that passes this check returns a
@@ -268,8 +245,15 @@ function validateWhereClause(whereClause: string): void {
 
 // maxPages caps pagination for queries without a LIMIT clause (e.g. activity ID collection).
 // Queries with a LIMIT clause never produce more than one page, so the default Infinity is safe for them.
-async function soqlQuery(baseUrl: string, authToken: string, soql: string, maxPages = Infinity): Promise<SfRecord[]> {
-  let url: string | null = `${baseUrl}/services/data/v56.0/query?q=${encodeURIComponent(soql)}`;
+async function soqlQuery(
+  baseUrl: string,
+  authToken: string,
+  soql: string,
+  maxPages = Infinity,
+  useQueryAll = false,
+): Promise<SfRecord[]> {
+  const endpoint = useQueryAll ? "queryAll" : "query";
+  let url: string | null = `${baseUrl}/services/data/v56.0/${endpoint}?q=${encodeURIComponent(soql)}`;
   const records: unknown[] = [];
   let pages = 0;
 
@@ -327,8 +311,8 @@ async function handleTask(
   // taskDateTimeTieBreakerField when available; otherwise the portable fallback is ActivityDate with
   // CompletedDateTime as a sync-time tie-breaker.
   // Fetch limit+1 to determine whether additional records exist without relying on Salesforce pagination metadata
-  const soql = `SELECT ${selectFields.join(", ")} FROM Task WHERE (${whereClause}) AND TaskSubtype = 'Email' AND Status = 'Completed'${exclusion} ORDER BY ${orderByFields.join(", ")} LIMIT ${limit + 1}`;
-  const rawRecords = (await soqlQuery(baseUrl, authToken, soql)) as SfRecord[];
+  const soql = `SELECT ${selectFields.join(", ")} FROM Task WHERE (${whereClause}) AND TaskSubtype = 'Email' AND Status = 'Completed' AND IsDeleted = false${exclusion} ORDER BY ${orderByFields.join(", ")} LIMIT ${limit + 1}`;
+  const rawRecords = (await soqlQuery(baseUrl, authToken, soql, Infinity, true)) as SfRecord[];
   const hasMore = rawRecords.length > limit;
   const records = hasMore ? rawRecords.slice(0, limit) : rawRecords;
 
@@ -477,11 +461,11 @@ function formatEmailMessageWhereClause(whereClause: string): string {
 }
 
 function buildEmailMessageActivityIdQuery(whereClause: string): string {
-  return `SELECT ActivityId FROM EmailMessage WHERE ${formatEmailMessageWhereClause(whereClause)} AND ActivityId != null`;
+  return `SELECT ActivityId FROM EmailMessage WHERE ${formatEmailMessageWhereClause(whereClause)} AND ActivityId != null AND IsDeleted = false`;
 }
 
 function buildEmailMessageQuery(whereClause: string, limit: number): string {
-  return `SELECT Id, Subject, MessageDate, Incoming, FromAddress, ToAddress, CcAddress, TextBody, ThreadIdentifier, MessageIdentifier, RelatedToId, ActivityId FROM EmailMessage WHERE ${formatEmailMessageWhereClause(whereClause)} ORDER BY MessageDate DESC NULLS LAST LIMIT ${limit + 1}`;
+  return `SELECT Id, Subject, MessageDate, Incoming, IsBounced, FromAddress, ToAddress, CcAddress, TextBody, ThreadIdentifier, MessageIdentifier, RelatedToId, ActivityId FROM EmailMessage WHERE ${formatEmailMessageWhereClause(whereClause)} AND IsDeleted = false ORDER BY MessageDate DESC NULLS LAST LIMIT ${limit + 1}`;
 }
 
 async function collectCompleteEmailMessageActivityIds(
@@ -494,6 +478,7 @@ async function collectCompleteEmailMessageActivityIds(
     authToken,
     buildEmailMessageActivityIdQuery(whereClause),
     MAX_ACTIVITY_ID_PAGES,
+    true,
   )) as SfRecord[];
   return [
     ...new Set(rows.map(row => row.ActivityId).filter((id): id is string => typeof id === "string" && id.length > 0)),
@@ -511,7 +496,7 @@ async function handleEmailMessage(
   validateWhereClause(whereClause);
   // Fetch limit+1 to determine whether additional records exist without relying on Salesforce pagination metadata
   const soql = buildEmailMessageQuery(whereClause, limit);
-  const rawRecords = (await soqlQuery(baseUrl, authToken, soql)) as SfRecord[];
+  const rawRecords = (await soqlQuery(baseUrl, authToken, soql, Infinity, true)) as SfRecord[];
   const hasMore = rawRecords.length > limit;
   const records = hasMore ? rawRecords.slice(0, limit) : rawRecords;
 
@@ -523,6 +508,50 @@ async function handleEmailMessage(
     threadMap.set(key, group);
   }
 
+  // Resolve people via EmailMessageRelation → Contact, then Lead as fallback
+  const allMessageIds = records.map(r => r.Id as string).filter(Boolean);
+  const personMap = new Map<string, { id: string; name: string; email: string | null; title: string | null }>();
+  const messagePersonMap = new Map<string, string[]>();
+
+  if (allMessageIds.length > 0) {
+    const messageIdList = allMessageIds.map(id => `'${id}'`).join(",");
+    const relationSoql = `SELECT EmailMessageId, RelationId, RelationObjectType FROM EmailMessageRelation WHERE EmailMessageId IN (${messageIdList}) AND RelationObjectType IN ('Contact', 'Lead')`;
+    const relations = (await soqlQuery(baseUrl, authToken, relationSoql)) as SfRecord[];
+
+    const relationIds: string[] = [];
+    for (const rel of relations) {
+      if (!rel.EmailMessageId || !rel.RelationId) continue;
+      const existing = messagePersonMap.get(rel.EmailMessageId) ?? [];
+      existing.push(rel.RelationId);
+      messagePersonMap.set(rel.EmailMessageId, existing);
+      if (!relationIds.includes(rel.RelationId)) relationIds.push(rel.RelationId);
+    }
+
+    if (relationIds.length > 0) {
+      const idList = relationIds.map(id => `'${id}'`).join(",");
+      const contacts = (await soqlQuery(
+        baseUrl,
+        authToken,
+        `SELECT Id, Name, Email, Title FROM Contact WHERE Id IN (${idList})`,
+      )) as SfRecord[];
+      for (const c of contacts) {
+        personMap.set(c.Id, { id: c.Id, name: c.Name, email: c.Email ?? null, title: c.Title ?? null });
+      }
+      const unresolvedIds = relationIds.filter(id => !personMap.has(id));
+      if (unresolvedIds.length > 0) {
+        const leadIdList = unresolvedIds.map(id => `'${id}'`).join(",");
+        const leads = (await soqlQuery(
+          baseUrl,
+          authToken,
+          `SELECT Id, Name, Email, Title FROM Lead WHERE Id IN (${leadIdList})`,
+        )) as SfRecord[];
+        for (const l of leads) {
+          personMap.set(l.Id, { id: l.Id, name: l.Name, email: l.Email ?? null, title: l.Title ?? null });
+        }
+      }
+    }
+  }
+
   const threads = [];
   for (const [threadIdentifier, group] of threadMap) {
     group.sort((a, b) => {
@@ -531,15 +560,24 @@ async function handleEmailMessage(
       return b.MessageDate.localeCompare(a.MessageDate);
     });
     const latest = group[0];
+    const threadPersonIds = new Set<string>();
+    for (const msg of group) {
+      for (const pid of messagePersonMap.get(msg.Id) ?? []) {
+        threadPersonIds.add(pid);
+      }
+    }
+    const people = [...threadPersonIds].map(id => personMap.get(id)).filter(Boolean);
     threads.push({
       threadIdentifier,
       normalizedSubject: normalizeSubject(latest.Subject ?? ""),
       threadSize: group.length,
       latestDate: latest.MessageDate ?? null,
       direction: latest.Incoming === true ? "inbound" : "outbound",
+      bounced: latest.IsBounced === true,
       relatedToId: latest.RelatedToId ?? null,
       fromAddress: latest.FromAddress ?? null,
       toAddress: latest.ToAddress ?? null,
+      people,
       latestMessageId: latest.Id,
       allMessageIds: group.map(r => r.Id as string),
       messageIdentifiers: group.map(r => r.MessageIdentifier as string).filter(Boolean),
@@ -605,13 +643,12 @@ const getCleanActivityRecords: salesforceGetCleanActivityRecordsFunction = async
   const effectiveLimit = normalizeLimit(limit);
   const effectiveMaxBodyLength = maxBodyLength ?? DEFAULT_MAX_BODY_LENGTH;
 
+  if (taskDateTimeTieBreakerField && !TASK_FIELD_API_NAME_PATTERN.test(taskDateTimeTieBreakerField)) {
+    return { success: false, error: "taskDateTimeTieBreakerField must be a valid Task field API name" };
+  }
+
   try {
     if (objectType === "Task") {
-      const validatedTaskDateTimeTieBreakerField = await validateTaskDateTimeTieBreakerField(
-        baseUrl,
-        authToken,
-        taskDateTimeTieBreakerField,
-      );
       return await handleTask(
         baseUrl,
         authToken,
@@ -619,7 +656,7 @@ const getCleanActivityRecords: salesforceGetCleanActivityRecordsFunction = async
         effectiveLimit,
         effectiveMaxBodyLength,
         excludeActivityIds,
-        validatedTaskDateTimeTieBreakerField,
+        taskDateTimeTieBreakerField,
       );
     }
     return await handleEmailMessage(

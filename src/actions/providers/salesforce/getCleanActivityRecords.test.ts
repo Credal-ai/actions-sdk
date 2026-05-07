@@ -143,7 +143,7 @@ describe("salesforceGetCleanActivityRecords EmailMessage exclusions", () => {
     const soql = buildEmailMessageActivityIdQuery("RelatedToId = '500Qp0000012345AAA'");
 
     expect(soql).toBe(
-      "SELECT ActivityId FROM EmailMessage WHERE (RelatedToId = '500Qp0000012345AAA') AND ActivityId != null",
+      "SELECT ActivityId FROM EmailMessage WHERE (RelatedToId = '500Qp0000012345AAA') AND ActivityId != null AND IsDeleted = false",
     );
     expect(soql).not.toContain("LIMIT");
     expect(soql).not.toContain("TextBody");
@@ -154,10 +154,10 @@ describe("salesforceGetCleanActivityRecords EmailMessage exclusions", () => {
       "Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z";
 
     expect(buildEmailMessageQuery(whereClause, 100)).toContain(
-      "FROM EmailMessage WHERE Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z ORDER BY",
+      "FROM EmailMessage WHERE Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z AND IsDeleted = false ORDER BY",
     );
     expect(buildEmailMessageActivityIdQuery(whereClause)).toBe(
-      "SELECT ActivityId FROM EmailMessage WHERE Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z AND ActivityId != null",
+      "SELECT ActivityId FROM EmailMessage WHERE Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z AND ActivityId != null AND IsDeleted = false",
     );
   });
 
@@ -166,7 +166,7 @@ describe("salesforceGetCleanActivityRecords EmailMessage exclusions", () => {
       "(Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0')) AND MessageDate >= 2026-01-01T00:00:00Z";
 
     expect(buildEmailMessageQuery(whereClause, 100)).toContain(
-      "FROM EmailMessage WHERE Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z ORDER BY",
+      "FROM EmailMessage WHERE Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z AND IsDeleted = false ORDER BY",
     );
   });
 
@@ -175,7 +175,7 @@ describe("salesforceGetCleanActivityRecords EmailMessage exclusions", () => {
       "(Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId IN ('003Qp00000cMnCQIA0', '003Qp00000cMnCQIA1'))) AND MessageDate >= 2026-01-01T00:00:00Z";
 
     expect(buildEmailMessageQuery(whereClause, 100)).toContain(
-      "FROM EmailMessage WHERE Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId IN ('003Qp00000cMnCQIA0', '003Qp00000cMnCQIA1')) AND MessageDate >= 2026-01-01T00:00:00Z ORDER BY",
+      "FROM EmailMessage WHERE Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId IN ('003Qp00000cMnCQIA0', '003Qp00000cMnCQIA1')) AND MessageDate >= 2026-01-01T00:00:00Z AND IsDeleted = false ORDER BY",
     );
   });
 
@@ -220,42 +220,36 @@ describe("salesforceGetCleanActivityRecords Task filters", () => {
     const soql = decodeURIComponent(new URL(requestUrl).searchParams.get("q") ?? "");
     expect(soql).toContain("TaskSubtype = 'Email'");
     expect(soql).toContain("Status = 'Completed'");
+    expect(soql).toContain("IsDeleted = false");
     expect(soql).toContain("CompletedDateTime");
     expect(soql).toContain("ORDER BY ActivityDate DESC NULLS LAST, CompletedDateTime DESC NULLS LAST");
     expect(soql).not.toContain("__c");
   });
 
   test("uses an optional Task DateTime tie-breaker field for Groove-style same-day email chronology", async () => {
-    mockGet
-      .mockResolvedValueOnce({
-        data: {
-          records: [{ QualifiedApiName: "groove_email_sent_at__c", DataType: "Date/Time" }],
-          done: true,
-        },
-      })
-      .mockResolvedValueOnce({
-        data: {
-          records: [
-            {
-              Id: "00T000000000001AAA",
-              Subject: "Email: >> Re: ButterflyMX Inquiry",
-              ActivityDate: "2026-05-05",
-              CompletedDateTime: "2026-05-05T20:00:00.000+0000",
-              groove_email_sent_at__c: "2026-05-05T10:00:00.000+0000",
-              Description: "From: rep@example.com\nTo: customer@example.com\n\nEarlier reply",
-            },
-            {
-              Id: "00T000000000002AAA",
-              Subject: "Email: >> Re: ButterflyMX Inquiry",
-              ActivityDate: "2026-05-05",
-              CompletedDateTime: "2026-05-05T19:00:00.000+0000",
-              groove_email_sent_at__c: "2026-05-05T15:00:00.000+0000",
-              Description: "From: rep@example.com\nTo: customer@example.com\n\nLater reply",
-            },
-          ],
-          done: true,
-        },
-      });
+    mockGet.mockResolvedValueOnce({
+      data: {
+        records: [
+          {
+            Id: "00T000000000001AAA",
+            Subject: "Email: >> Re: ButterflyMX Inquiry",
+            ActivityDate: "2026-05-05",
+            CompletedDateTime: "2026-05-05T20:00:00.000+0000",
+            groove_email_sent_at__c: "2026-05-05T10:00:00.000+0000",
+            Description: "From: rep@example.com\nTo: customer@example.com\n\nEarlier reply",
+          },
+          {
+            Id: "00T000000000002AAA",
+            Subject: "Email: >> Re: ButterflyMX Inquiry",
+            ActivityDate: "2026-05-05",
+            CompletedDateTime: "2026-05-05T19:00:00.000+0000",
+            groove_email_sent_at__c: "2026-05-05T15:00:00.000+0000",
+            Description: "From: rep@example.com\nTo: customer@example.com\n\nLater reply",
+          },
+        ],
+        done: true,
+      },
+    });
 
     const result = await getCleanActivityRecords({
       params: {
@@ -269,7 +263,7 @@ describe("salesforceGetCleanActivityRecords Task filters", () => {
       },
     });
 
-    const taskRequestUrl = String(mockGet.mock.calls[1]?.[0]);
+    const taskRequestUrl = String(mockGet.mock.calls[0]?.[0]);
     const taskSoql = decodeURIComponent(new URL(taskRequestUrl).searchParams.get("q") ?? "");
     expect(taskSoql).toContain("groove_email_sent_at__c");
     expect(taskSoql).toContain(
@@ -281,20 +275,13 @@ describe("salesforceGetCleanActivityRecords Task filters", () => {
     });
   });
 
-  test("rejects optional Task tie-breaker fields that are not Salesforce DateTime fields", async () => {
-    mockGet.mockResolvedValueOnce({
-      data: {
-        records: [{ QualifiedApiName: "Some_Date__c", DataType: "Date" }],
-        done: true,
-      },
-    });
-
-    await expect(
+  test("rejects taskDateTimeTieBreakerField values that are not valid field API names", () => {
+    return expect(
       getCleanActivityRecords({
         params: {
           objectType: "Task",
           whereClause: "WhatId = 'a3bQp000001h4J7IAI'",
-          taskDateTimeTieBreakerField: "Some_Date__c",
+          taskDateTimeTieBreakerField: "bad field name!",
         },
         authParams: {
           authToken: "token",
@@ -303,9 +290,8 @@ describe("salesforceGetCleanActivityRecords Task filters", () => {
       }),
     ).resolves.toMatchObject({
       success: false,
-      error: "taskDateTimeTieBreakerField must reference a Task Date/Time field",
+      error: "taskDateTimeTieBreakerField must be a valid Task field API name",
     });
-    expect(mockGet).toHaveBeenCalledTimes(1);
   });
 });
 
