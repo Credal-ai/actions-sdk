@@ -6075,13 +6075,7 @@ export const salesforceGetCleanActivityRecordsParamsSchema = z.object({
   taskDateTimeTieBreakerField: z
     .string()
     .describe(
-      "Task only — optional Task Date/Time field API name used after ActivityDate to order same-day synced email Tasks. This is intended for Groove-style fields such as groove_email_sent_at__c. The field API name must match [A-Za-z_][A-Za-z0-9_]* — names failing this check are rejected immediately. Unrecognized but syntactically valid field names produce a Salesforce API error at query time.",
-    )
-    .optional(),
-  includeQuotedReplies: z
-    .boolean()
-    .describe(
-      "When true, preserves quoted reply content in the cleaned body instead of truncating at the 'On ... wrote:' marker. Useful when fetching a single message whose TextBody (or Description) contains the full thread. All other cleaning (HTML stripping, header line removal, entity decoding) still applies.",
+      "Task only — optional Task Date/Time field API name used after ActivityDate to order same-day synced email Tasks. This is intended for Groove-style fields such as groove_email_sent_at__c. The field is validated with Salesforce FieldDefinition and rejected unless it exists on Task with DataType = Date/Time.",
     )
     .optional(),
 });
