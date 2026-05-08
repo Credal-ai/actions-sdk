@@ -6072,6 +6072,12 @@ export const salesforceGetCleanActivityRecordsParamsSchema = z.object({
       "Task only — JSON array string of Task IDs to exclude from results. Pass the activityIds string returned from a preceding EmailMessage query exactly as provided — no parsing required.",
     )
     .optional(),
+  taskDateTimeTieBreakerField: z
+    .string()
+    .describe(
+      "Task only — optional Task Date/Time field API name used after ActivityDate to order same-day synced email Tasks. This is intended for Groove-style fields such as groove_email_sent_at__c. The field is validated with Salesforce FieldDefinition and rejected unless it exists on Task with DataType = Date/Time.",
+    )
+    .optional(),
 });
 
 export type salesforceGetCleanActivityRecordsParamsType = z.infer<typeof salesforceGetCleanActivityRecordsParamsSchema>;

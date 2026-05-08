@@ -9,9 +9,10 @@ import { ApiError, axiosClient } from "../../util/axiosClient.js";
 const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 100;
 const DEFAULT_MAX_BODY_LENGTH = 500;
-const MAX_ACTIVITY_ID_PAGES = 50;
+const MAX_ACTIVITY_ID_PAGES = 5;
 // Salesforce IDs are 15 or 18 alphanumeric characters — used to validate excludeActivityIds before SOQL interpolation
 const SF_ID_PATTERN = /^[a-zA-Z0-9]{15,18}$/;
+const TASK_FIELD_API_NAME_PATTERN = /^[A-Za-z_][A-Za-z0-9_]*$/;
 // Blocks statement terminators and comment sequences that could escape the WHERE clause wrapper
 const SOQL_INJECTION_PATTERN = /;|--|\/\*|\*\//;
 
@@ -67,27 +68,37 @@ function hasBalancedParentheses(value: string): boolean {
   return balanced && depth === 0;
 }
 
-function normalizeLimit(limit: number | undefined): number {
-  return Math.min(Math.max(1, Math.trunc(limit ?? DEFAULT_LIMIT)), MAX_LIMIT);
+function hasDisallowedSoqlSequenceOutsideString(value: string): boolean {
+  let hasDisallowedSequence = false;
+
+  forEachSoqlCharacterOutsideString(value, (_, index) => {
+    if (SOQL_INJECTION_PATTERN.test(value.slice(index, index + 2))) {
+      hasDisallowedSequence = true;
+      return "stop";
+    }
+    return undefined;
+  });
+
+  return hasDisallowedSequence;
 }
 
-function decodeHtmlEntities(text: string): string {
-  return text
-    .replace(/&nbsp;/g, " ")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&amp;/g, "&")
-    .replace(/&#?\\w+;/g, "");
+function normalizeLimit(limit: number | undefined): number {
+  return Math.min(Math.max(1, Math.trunc(limit ?? DEFAULT_LIMIT)), MAX_LIMIT);
 }
 
 function cleanBody(text: string | null | undefined): string | null {
   if (!text) return null;
   let s = text;
   s = s.replace(/\r\n/g, "\n");
-  s = decodeHtmlEntities(s);
   s = s.replace(/<([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>/g, "[$1]");
   s = s.replace(/<[^>]+>/g, " ");
-  s = s.replace(/^(From|To|CC|BCC|Date|Subject|Attachment):.*\n/gim, "");
+  s = s
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&#?\w+;/g, "");
+  s = s.replace(/^(From|To|CC|BCC|Date|Subject|Attachment|Body|Additional\s+To):.*\n/gim, "");
   const qm = s.match(/(?:^|\n)(On [\s\S]{0,250}?wrote:\s*(?:\n|$))/);
   if (qm && qm.index !== undefined) {
     const cut = qm.index + (qm[0].startsWith("\n") ? 1 : 0);
@@ -98,18 +109,24 @@ function cleanBody(text: string | null | undefined): string | null {
   return s.length > 0 ? s : null;
 }
 
+// Strips HTML markup from a Task Description before direction detection, without the
+// quote-chain truncation that cleanBody applies. Handles entity-encoded angle brackets
+// produced by some Salesforce email-sync integrations (e.g., &lt;email@domain&gt;).
 function normalizeEmailHeaderText(text: string | null | undefined): string | null {
   if (!text) return null;
-
   let s = text.replace(/\r\n/g, "\n");
   s = s.replace(/<br\s*\/?>/gi, "\n");
   s = s.replace(/<\/(?:div|p|li|tr|h[1-6])>/gi, "\n");
-  s = decodeHtmlEntities(s);
+  s = s
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&#?\w+;/g, "");
   s = s.replace(/<([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>/g, "[$1]");
   s = s.replace(/<[^>]+>/g, " ");
   s = s.replace(/[ \t]+/g, " ");
   s = s.replace(/\n\s+/g, "\n").trim();
-
   return s.length > 0 ? s : null;
 }
 
@@ -135,36 +152,36 @@ function parseSalesforceTimestamp(value: unknown): number {
   return Number.isNaN(parsed) ? Number.NEGATIVE_INFINITY : parsed;
 }
 
-function getTaskEmailSortKey(record: SfRecord): number {
+function compareTaskDateCandidates(a: SfRecord, b: SfRecord, taskDateTimeTieBreakerField?: string): number {
   const candidates = [
-    record.Email_Sent_At__c,
-    record.EmailDate__c,
-    record.LastModifiedDate,
-    record.CreatedDate,
-    record.ActivityDate,
-  ];
+    "ActivityDate",
+    taskDateTimeTieBreakerField,
+    "CompletedDateTime",
+    "LastModifiedDate",
+    "CreatedDate",
+  ].filter((field): field is string => typeof field === "string" && field.length > 0);
 
-  for (const candidate of candidates) {
-    const parsed = parseSalesforceTimestamp(candidate);
-    if (parsed !== Number.NEGATIVE_INFINITY) return parsed;
+  for (const field of candidates) {
+    const byField = parseSalesforceTimestamp(b[field]) - parseSalesforceTimestamp(a[field]);
+    if (byField !== 0) return byField;
   }
 
-  return Number.NEGATIVE_INFINITY;
+  return 0;
 }
 
-function compareTaskEmailRecords(a: SfRecord, b: SfRecord): number {
-  const byEmailTime = getTaskEmailSortKey(b) - getTaskEmailSortKey(a);
+function compareTaskEmailRecords(a: SfRecord, b: SfRecord, taskDateTimeTieBreakerField?: string): number {
+  const byEmailTime = compareTaskDateCandidates(a, b, taskDateTimeTieBreakerField);
   if (byEmailTime !== 0) return byEmailTime;
   return String(b.Id ?? "").localeCompare(String(a.Id ?? ""));
 }
 
-function formatTaskEmailDate(record: SfRecord): string | null {
+function formatTaskEmailDate(record: SfRecord, taskDateTimeTieBreakerField?: string): string | null {
   const candidates = [
-    record.Email_Sent_At__c,
-    record.EmailDate__c,
+    taskDateTimeTieBreakerField ? record[taskDateTimeTieBreakerField] : undefined,
+    record.ActivityDate,
+    record.CompletedDateTime,
     record.LastModifiedDate,
     record.CreatedDate,
-    record.ActivityDate,
   ];
   return (candidates.find(value => typeof value === "string" && value.length > 0) as string | undefined) ?? null;
 }
@@ -182,8 +199,15 @@ function detectTaskDirection(
       description.match(/^From:\s*.*?<([^>]+)>/im) ||
       description.match(/^From:\s*(\S+@\S+)/im);
     if (fromMatch) {
-      const fromEmail = fromMatch[1].trim().replace(/[>,;]+$/, "").toLowerCase();
+      const fromEmail = fromMatch[1]
+        .trim()
+        .replace(/[>,;]+$/, "")
+        .toLowerCase();
       return fromEmail === ownerEmail.toLowerCase() ? "outbound" : "inbound";
+    }
+    const toMatch = description.match(/^To:\s*(.+)/m);
+    if (toMatch) {
+      return toMatch[1].toLowerCase().includes(ownerEmail.toLowerCase()) ? "inbound" : "outbound";
     }
   }
   return "unknown";
@@ -216,9 +240,9 @@ function parseExcludeActivityIds(excludeActivityIds?: string): string[] {
 // allow unintended record access. Hallucinated or malformed SOQL that passes this check returns a
 // Salesforce API error surfaced to the caller.
 function validateWhereClause(whereClause: string): void {
-  if (SOQL_INJECTION_PATTERN.test(whereClause)) {
+  if (hasDisallowedSoqlSequenceOutsideString(whereClause)) {
     throw new Error(
-      "whereClause contains disallowed patterns (;  --  /*  */). Provide a plain SOQL filter expression without statement terminators or comment sequences. " +
+      "whereClause contains disallowed patterns (; -- /* */). Provide a plain SOQL filter expression without statement terminators or comment sequences. " +
         "Example: \"WhatId = '001Qp000003abcDEF' AND ActivityDate >= 2024-01-01\"",
     );
   }
@@ -230,33 +254,34 @@ function validateWhereClause(whereClause: string): void {
   }
 }
 
-async function soqlQuery(baseUrl: string, authToken: string, soql: string): Promise<unknown[]> {
-  const url = `${baseUrl}/services/data/v56.0/query?q=${encodeURIComponent(soql)}`;
-  const response = await axiosClient.get(url, { headers: { Authorization: `Bearer ${authToken}` } });
-  return response.data.records ?? [];
-}
-
-// Follows Salesforce nextRecordsUrl pagination up to maxPages to avoid unbounded requests on large orgs.
-async function soqlQueryAll(baseUrl: string, authToken: string, soql: string, maxPages: number): Promise<unknown[]> {
-  const headers = { Authorization: `Bearer ${authToken}` };
-  let url: string | null = `${baseUrl}/services/data/v56.0/query?q=${encodeURIComponent(soql)}`;
-  const all: unknown[] = [];
+// maxPages caps pagination for queries without a LIMIT clause (e.g. activity ID collection).
+// Queries with a LIMIT clause never produce more than one page, so the default Infinity is safe for them.
+async function soqlQuery(
+  baseUrl: string,
+  authToken: string,
+  soql: string,
+  maxPages = Infinity,
+  useQueryAll = false,
+): Promise<SfRecord[]> {
+  const endpoint = useQueryAll ? "queryAll" : "query";
+  let url: string | null = `${baseUrl}/services/data/v56.0/${endpoint}?q=${encodeURIComponent(soql)}`;
+  const records: unknown[] = [];
   let pages = 0;
-  while (url && pages < maxPages) {
-    const response = await axiosClient.get(url, { headers });
-    const data = response.data as { records?: unknown[]; done?: boolean; nextRecordsUrl?: string };
-    all.push(...(data.records ?? []));
-    url = data.done === false && data.nextRecordsUrl ? `${baseUrl}${data.nextRecordsUrl}` : null;
-    pages += 1;
-  }
-  return all;
-}
 
-function buildTaskQuery(whereClause: string, limit: number, exclusionIds: string[] = []): string {
-  const exclusion = exclusionIds.length > 0 ? ` AND Id NOT IN (${exclusionIds.map(id => `'${id}'`).join(",")})` : "";
-  return `SELECT Id, Subject, TaskSubtype, ActivityDate, CreatedDate, LastModifiedDate, Owner.Name, Owner.Email, WhoId, WhatId, Description FROM Task WHERE (${whereClause}) AND TaskSubtype = 'Email'${exclusion} ORDER BY LastModifiedDate DESC NULLS LAST LIMIT ${
-    limit + 1
-  }`;
+  while (url && pages < maxPages) {
+    const response: { data: { records?: unknown[]; done?: boolean; nextRecordsUrl?: string } } = await axiosClient.get(
+      url,
+      { headers: { Authorization: `Bearer ${authToken}` } },
+    );
+    records.push(...(response.data.records ?? []));
+    url =
+      response.data.done === false && typeof response.data.nextRecordsUrl === "string"
+        ? `${baseUrl}${response.data.nextRecordsUrl}`
+        : null;
+    pages++;
+  }
+
+  return records as SfRecord[];
 }
 
 async function handleTask(
@@ -266,13 +291,39 @@ async function handleTask(
   limit: number,
   maxBodyLength: number,
   excludeActivityIds?: string,
+  taskDateTimeTieBreakerField?: string,
 ): Promise<salesforceGetCleanActivityRecordsOutputType> {
   validateWhereClause(whereClause);
   const exclusionIds = parseExcludeActivityIds(excludeActivityIds);
-  // Fetch limit+1 to determine whether additional records exist without relying on Salesforce pagination metadata.
-  // The Task query intentionally avoids package-specific fields such as groove_email_sent_at__c so the action works in standard Salesforce orgs.
-  const soql = buildTaskQuery(whereClause, limit, exclusionIds);
-  const rawRecords = (await soqlQuery(baseUrl, authToken, soql)) as SfRecord[];
+  const exclusion = exclusionIds.length > 0 ? ` AND Id NOT IN (${exclusionIds.map(id => `'${id}'`).join(",")})` : "";
+  const selectFields = [
+    "Id",
+    "Subject",
+    "TaskSubtype",
+    "ActivityDate",
+    taskDateTimeTieBreakerField,
+    "CompletedDateTime",
+    "CreatedDate",
+    "LastModifiedDate",
+    "Owner.Name",
+    "Owner.Email",
+    "WhoId",
+    "WhatId",
+    "Description",
+  ].filter((field): field is string => typeof field === "string" && field.length > 0);
+  const orderByFields = [
+    "ActivityDate DESC NULLS LAST",
+    taskDateTimeTieBreakerField ? `${taskDateTimeTieBreakerField} DESC NULLS LAST` : undefined,
+    "CompletedDateTime DESC NULLS LAST",
+  ].filter((field): field is string => typeof field === "string" && field.length > 0);
+  // Task email processing is optimized for Groove-style synced email Tasks:
+  // Groove writes direction markers into Subject (>>, <<, Bounced: >>) and can expose a true Date/Time
+  // sent field such as groove_email_sent_at__c. Agents should pass that field through
+  // taskDateTimeTieBreakerField when available; otherwise the portable fallback is ActivityDate with
+  // CompletedDateTime as a sync-time tie-breaker.
+  // Fetch limit+1 to determine whether additional records exist without relying on Salesforce pagination metadata
+  const soql = `SELECT ${selectFields.join(", ")} FROM Task WHERE (${whereClause}) AND TaskSubtype = 'Email' AND Status = 'Completed' AND IsDeleted = false${exclusion} ORDER BY ${orderByFields.join(", ")} LIMIT ${limit + 1}`;
+  const rawRecords = (await soqlQuery(baseUrl, authToken, soql, Infinity, true)) as SfRecord[];
   const hasMore = rawRecords.length > limit;
   const records = hasMore ? rawRecords.slice(0, limit) : rawRecords;
 
@@ -308,24 +359,22 @@ async function handleTask(
 
   const threads = [];
   for (const [, group] of threadMap) {
-    group.sort(compareTaskEmailRecords);
+    group.sort((a, b) => compareTaskEmailRecords(a, b, taskDateTimeTieBreakerField));
     const latest = group[0];
     const ownerEmail: string | null = latest.Owner?.Email ?? null;
-    const cleanedDescription = cleanBody(latest.Description);
-    const directionDescription = normalizeEmailHeaderText(latest.Description);
     threads.push({
       normalizedSubject: normalizeSubject(latest.Subject ?? ""),
       threadSize: group.length,
-      latestDate: formatTaskEmailDate(latest),
+      latestDate: formatTaskEmailDate(latest, taskDateTimeTieBreakerField),
       activityDate: latest.ActivityDate ?? null,
-      direction: detectTaskDirection(latest.Subject ?? "", directionDescription, ownerEmail),
+      direction: detectTaskDirection(latest.Subject ?? "", normalizeEmailHeaderText(latest.Description), ownerEmail),
       owner: latest.Owner?.Name ?? null,
       whoId: latest.WhoId ?? null,
       whatId: latest.WhatId ?? null,
       contact: latest.WhoId ? (contactMap.get(latest.WhoId) ?? null) : null,
       latestTaskId: latest.Id,
       allTaskIds: group.map(r => r.Id as string),
-      cleanedDescription: truncate(cleanedDescription, maxBodyLength),
+      cleanedDescription: truncate(cleanBody(latest.Description), maxBodyLength),
     });
   }
 
@@ -352,14 +401,68 @@ function containsSemiJoinSubquery(whereClause: string): boolean {
   return /\b(?:NOT\s+)?IN\s*\(\s*SELECT\b/i.test(whereClause);
 }
 
+function findMatchingParen(value: string, openIndex: number): number | null {
+  let depth = 0;
+  let match: number | null = null;
+
+  forEachSoqlCharacterOutsideString(value, (character, index) => {
+    if (index < openIndex) return undefined;
+    if (character === "(") depth += 1;
+    if (character === ")") {
+      depth -= 1;
+      if (depth === 0) {
+        match = index;
+        return "stop";
+      }
+    }
+    return undefined;
+  });
+
+  return match;
+}
+
+function findParenthesizedRanges(value: string): Array<{ start: number; end: number }> {
+  const stack: number[] = [];
+  const ranges: Array<{ start: number; end: number }> = [];
+
+  forEachSoqlCharacterOutsideString(value, (character, index) => {
+    if (character === "(") stack.push(index);
+    if (character === ")") {
+      const start = stack.pop();
+      if (start !== undefined) ranges.push({ start, end: index });
+    }
+    return undefined;
+  });
+
+  return ranges;
+}
+
+function isCompleteSemiJoinExpression(expression: string): boolean {
+  const trimmed = expression.trim();
+  const match = /^[A-Za-z_][\w.]*\s+(?:NOT\s+)?IN\s*\(/i.exec(trimmed);
+  if (!match) return false;
+
+  const openParenIndex = match[0].lastIndexOf("(");
+  return findMatchingParen(trimmed, openParenIndex) === trimmed.length - 1;
+}
+
 function unwrapParenthesizedSemiJoins(whereClause: string): string {
   let normalized = whereClause;
-  let previous: string;
+  let changed = true;
 
-  do {
-    previous = normalized;
-    normalized = normalized.replace(/\(\s*([A-Za-z_][\w.]*\s+(?:NOT\s+)?IN\s*\(\s*SELECT\b[^)]*\))\s*\)/gi, "$1");
-  } while (normalized !== previous);
+  while (changed) {
+    changed = false;
+    const ranges = findParenthesizedRanges(normalized).sort((a, b) => b.start - a.start);
+
+    for (const { start, end } of ranges) {
+      const inner = normalized.slice(start + 1, end);
+      if (!isCompleteSemiJoinExpression(inner)) continue;
+
+      normalized = normalized.slice(0, start) + inner.trim() + normalized.slice(end + 1);
+      changed = true;
+      break;
+    }
+  }
 
   return normalized;
 }
@@ -369,13 +472,11 @@ function formatEmailMessageWhereClause(whereClause: string): string {
 }
 
 function buildEmailMessageActivityIdQuery(whereClause: string): string {
-  return `SELECT ActivityId FROM EmailMessage WHERE ${formatEmailMessageWhereClause(whereClause)} AND ActivityId != null`;
+  return `SELECT ActivityId FROM EmailMessage WHERE ${formatEmailMessageWhereClause(whereClause)} AND ActivityId != null AND IsDeleted = false`;
 }
 
 function buildEmailMessageQuery(whereClause: string, limit: number): string {
-  return `SELECT Id, Subject, MessageDate, Incoming, FromAddress, ToAddress, CcAddress, TextBody, ThreadIdentifier, MessageIdentifier, RelatedToId, ActivityId FROM EmailMessage WHERE ${formatEmailMessageWhereClause(
-    whereClause,
-  )} ORDER BY MessageDate DESC NULLS LAST LIMIT ${limit + 1}`;
+  return `SELECT Id, Subject, MessageDate, Incoming, IsBounced, FromAddress, ToAddress, CcAddress, TextBody, ThreadIdentifier, MessageIdentifier, RelatedToId, ActivityId FROM EmailMessage WHERE ${formatEmailMessageWhereClause(whereClause)} AND IsDeleted = false ORDER BY MessageDate DESC NULLS LAST LIMIT ${limit + 1}`;
 }
 
 async function collectCompleteEmailMessageActivityIds(
@@ -383,11 +484,12 @@ async function collectCompleteEmailMessageActivityIds(
   authToken: string,
   whereClause: string,
 ): Promise<string[]> {
-  const rows = (await soqlQueryAll(
+  const rows = (await soqlQuery(
     baseUrl,
     authToken,
     buildEmailMessageActivityIdQuery(whereClause),
     MAX_ACTIVITY_ID_PAGES,
+    true,
   )) as SfRecord[];
   return [
     ...new Set(rows.map(row => row.ActivityId).filter((id): id is string => typeof id === "string" && id.length > 0)),
@@ -405,7 +507,7 @@ async function handleEmailMessage(
   validateWhereClause(whereClause);
   // Fetch limit+1 to determine whether additional records exist without relying on Salesforce pagination metadata
   const soql = buildEmailMessageQuery(whereClause, limit);
-  const rawRecords = (await soqlQuery(baseUrl, authToken, soql)) as SfRecord[];
+  const rawRecords = (await soqlQuery(baseUrl, authToken, soql, Infinity, true)) as SfRecord[];
   const hasMore = rawRecords.length > limit;
   const records = hasMore ? rawRecords.slice(0, limit) : rawRecords;
 
@@ -417,6 +519,51 @@ async function handleEmailMessage(
     threadMap.set(key, group);
   }
 
+  // Resolve people via EmailMessageRelation → Contact, then Lead as fallback
+  const allMessageIds = records.map(r => r.Id as string).filter(Boolean);
+  const personMap = new Map<string, { id: string; name: string; email: string | null; title: string | null }>();
+  const messagePersonMap = new Map<string, string[]>();
+
+  if (allMessageIds.length > 0) {
+    const messageIdList = allMessageIds.map(id => `'${id}'`).join(",");
+    const relationSoql = `SELECT EmailMessageId, RelationId, RelationObjectType FROM EmailMessageRelation WHERE EmailMessageId IN (${messageIdList}) AND RelationObjectType IN ('Contact', 'Lead')`;
+    const relations = (await soqlQuery(baseUrl, authToken, relationSoql)) as SfRecord[];
+
+    const relationIdSet = new Set<string>();
+    for (const rel of relations) {
+      if (!rel.EmailMessageId || !rel.RelationId) continue;
+      const existing = messagePersonMap.get(rel.EmailMessageId) ?? [];
+      existing.push(rel.RelationId);
+      messagePersonMap.set(rel.EmailMessageId, existing);
+      relationIdSet.add(rel.RelationId);
+    }
+    const relationIds = [...relationIdSet];
+
+    if (relationIds.length > 0) {
+      const idList = relationIds.map(id => `'${id}'`).join(",");
+      const contacts = (await soqlQuery(
+        baseUrl,
+        authToken,
+        `SELECT Id, Name, Email, Title FROM Contact WHERE Id IN (${idList})`,
+      )) as SfRecord[];
+      for (const c of contacts) {
+        personMap.set(c.Id, { id: c.Id, name: c.Name, email: c.Email ?? null, title: c.Title ?? null });
+      }
+      const unresolvedIds = relationIds.filter(id => !personMap.has(id));
+      if (unresolvedIds.length > 0) {
+        const leadIdList = unresolvedIds.map(id => `'${id}'`).join(",");
+        const leads = (await soqlQuery(
+          baseUrl,
+          authToken,
+          `SELECT Id, Name, Email, Title FROM Lead WHERE Id IN (${leadIdList})`,
+        )) as SfRecord[];
+        for (const l of leads) {
+          personMap.set(l.Id, { id: l.Id, name: l.Name, email: l.Email ?? null, title: l.Title ?? null });
+        }
+      }
+    }
+  }
+
   const threads = [];
   for (const [threadIdentifier, group] of threadMap) {
     group.sort((a, b) => {
@@ -425,15 +572,24 @@ async function handleEmailMessage(
       return b.MessageDate.localeCompare(a.MessageDate);
     });
     const latest = group[0];
+    const threadPersonIds = new Set<string>();
+    for (const msg of group) {
+      for (const pid of messagePersonMap.get(msg.Id) ?? []) {
+        threadPersonIds.add(pid);
+      }
+    }
+    const people = [...threadPersonIds].map(id => personMap.get(id)).filter(Boolean);
     threads.push({
       threadIdentifier,
       normalizedSubject: normalizeSubject(latest.Subject ?? ""),
       threadSize: group.length,
       latestDate: latest.MessageDate ?? null,
       direction: latest.Incoming === true ? "inbound" : "outbound",
+      bounced: group.some(r => r.IsBounced === true),
       relatedToId: latest.RelatedToId ?? null,
       fromAddress: latest.FromAddress ?? null,
       toAddress: latest.ToAddress ?? null,
+      people,
       latestMessageId: latest.Id,
       allMessageIds: group.map(r => r.Id as string),
       messageIdentifiers: group.map(r => r.MessageIdentifier as string).filter(Boolean),
@@ -474,17 +630,37 @@ const getCleanActivityRecords: salesforceGetCleanActivityRecordsFunction = async
   authParams: AuthParamsType;
 }): Promise<salesforceGetCleanActivityRecordsOutputType> => {
   const { authToken, baseUrl } = authParams;
-  const { objectType, whereClause, limit, maxBodyLength, returnActivityIds, excludeActivityIds } = params;
+  const {
+    objectType,
+    whereClause,
+    limit,
+    maxBodyLength,
+    returnActivityIds,
+    excludeActivityIds,
+    taskDateTimeTieBreakerField,
+  } = params;
 
   if (!authToken || !baseUrl) {
     return { success: false, error: "authToken and baseUrl are required for Salesforce API" };
   }
 
+  if (objectType === "EmailMessage" && excludeActivityIds) {
+    return { success: false, error: "excludeActivityIds is only supported when objectType is Task" };
+  }
+
+  if (objectType === "EmailMessage" && taskDateTimeTieBreakerField) {
+    return { success: false, error: "taskDateTimeTieBreakerField is only supported when objectType is Task" };
+  }
+
   const effectiveLimit = normalizeLimit(limit);
   const effectiveMaxBodyLength = maxBodyLength ?? DEFAULT_MAX_BODY_LENGTH;
 
+  if (taskDateTimeTieBreakerField && !TASK_FIELD_API_NAME_PATTERN.test(taskDateTimeTieBreakerField)) {
+    return { success: false, error: "taskDateTimeTieBreakerField must be a valid Task field API name" };
+  }
+
   try {
-    if (objectType === "Task")
+    if (objectType === "Task") {
       return await handleTask(
         baseUrl,
         authToken,
@@ -492,7 +668,9 @@ const getCleanActivityRecords: salesforceGetCleanActivityRecordsFunction = async
         effectiveLimit,
         effectiveMaxBodyLength,
         excludeActivityIds,
+        taskDateTimeTieBreakerField,
       );
+    }
     return await handleEmailMessage(
       baseUrl,
       authToken,
@@ -519,17 +697,15 @@ const getCleanActivityRecords: salesforceGetCleanActivityRecordsFunction = async
 export {
   buildEmailMessageActivityIdQuery,
   buildEmailMessageQuery,
-  buildTaskQuery,
   cleanBody,
   collectCompleteEmailMessageActivityIds,
   compareTaskEmailRecords,
   detectTaskDirection,
-  getTaskEmailSortKey,
   normalizeEmailHeaderText,
   normalizeLimit,
   normalizeSubject,
   parseExcludeActivityIds,
-  soqlQueryAll,
+  soqlQuery,
   validateWhereClause,
 };
 
