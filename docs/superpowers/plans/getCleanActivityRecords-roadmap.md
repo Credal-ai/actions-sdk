@@ -28,10 +28,24 @@
 2. **WHERE clause is caller-owned** — SELECT fields are fixed; FROM is Task or EmailMessage only. Caller writes any valid SOQL WHERE clause.
 3. **Two-pass deduplication** — when both Groove and Salesforce native connector are active on the same mailbox, run EmailMessage first with `returnActivityIds=true`, then Task with `excludeActivityIds` to avoid surfacing the same email twice.
 4. **SOQL injection guards** — `SOQL_INJECTION_PATTERN`, `hasBalancedParentheses`, `formatActivityWhereClause` validate and wrap WHERE clauses before interpolation to prevent injection and Salesforce API errors from operator precedence issues.
+5. **Thread markers preserved in subject** — `normalizeSubject` does not strip `[ thread::Xxxx:: ]` tokens that some orgs (e.g. Groove) embed in the Subject line for case threading. These tokens are org-level artifacts, not noise: some orgs place the case thread identifier in the subject rather than the body, and stripping them would silently discard org-meaningful metadata. LLM consumers can handle them as-is.
+
+### Key files
+
+| File | Purpose |
+|---|---|
+| `src/actions/providers/salesforce/getCleanActivityRecords.ts` | Main implementation |
+| `src/actions/schema.yaml` | Source of truth — edit here, then `npm run generate:types` |
+| `src/actions/autogen/types.ts` | Generated — do not edit by hand |
+| `src/actions/autogen/templates.ts` | Generated — do not edit by hand |
+| `src/actions/providers/salesforce/getCleanActivityRecords.test.ts` | Jest unit tests (45 tests) |
+| `tests/salesforce/testGetCleanActivityRecords.ts` | Integration test — two-pass dedup smoke test |
+| `tests/salesforce/testBuildingEmailMessages.ts` | Integration test — Email-to-Case thread grouping |
+| `tests/salesforce/utils.ts` | JWT auth helper for integration tests |
 
 ### Auth pattern
 
-All Salesforce actions use `authToken` + `baseUrl` via `axiosClient`. Tests use JWT flow from `tests/salesforce/utils.ts`. The integration test (`tests/salesforce/testGetCleanActivityRecords.ts`) currently uses SF CLI auth (`sf org display`) and must be migrated to JWT before any new PR.
+All Salesforce actions use `authToken` + `baseUrl` via `axiosClient`. Integration tests use the JWT flow from `tests/salesforce/utils.ts` (`authenticateWithJWT()` → `{ accessToken, instanceUrl }` → map to `{ authToken, baseUrl }`). Requires env vars: `SALESFORCE_PRIVATE_KEY_BASE64`, `SALESFORCE_CONSUMER_KEY`, `SALESFORCE_USERNAME`.
 
 ---
 
@@ -52,23 +66,16 @@ All Salesforce actions use `authToken` + `baseUrl` via `axiosClient`. Tests use 
 | `excludeActivityIds` — Task query excludes EmailMessage-linked Task IDs | part of core | Enables two-pass dedup |
 | `returnActivityIds` — collect all ActivityIds for EmailMessage WHERE clause | part of core | Paginates up to `MAX_ACTIVITY_ID_PAGES` to avoid governor limits |
 | `ParentId` on EmailMessage thread output | `48d8a50` | Case ID for Email-to-Case; null for Enhanced Email (ParentId is Case-only per docs) |
-| Email-to-Case thread grouping by `ParentId` | pending commit | `ThreadIdentifier` is not used by On-Demand Email-to-Case; fixed grouping key: `ParentId ?? ThreadIdentifier ?? Id` |
-| Draft filter (`AND Status != '5'`) | pending commit | Excludes Draft EmailMessages from results |
-| Additional EmailMessage fields in output | pending commit | `Status`, `HasAttachment`, `FromName`, `ReplyToEmailMessageId` added to SELECT and thread output |
+| Email-to-Case thread grouping by `ParentId` | `cfa7def` | `ThreadIdentifier` is not used by On-Demand Email-to-Case; fixed grouping key: `ParentId ?? ThreadIdentifier ?? Id` |
+| Draft filter (`AND Status != '5'`) | `cfa7def` | Excludes Draft EmailMessages from results |
+| Additional EmailMessage fields in output | `cfa7def` | `Status`, `HasAttachment`, `FromName`, `ReplyToEmailMessageId` added to SELECT and thread output |
+| Integration tests added; auth migrated to JWT | `2820d58` | `testGetCleanActivityRecords.ts` (two-pass dedup) and `testBuildingEmailMessages.ts` (Email-to-Case) both use `authenticateWithJWT` |
 
 ---
 
 ## Pending
 
-### 1. Auth migration for integration test
-
-**Status:** Blocked until PR-ready.
-
-Update `tests/salesforce/testGetCleanActivityRecords.ts` to use JWT flow (`tests/salesforce/utils.ts`) instead of SF CLI auth (`sf org display --target-org butterflymx --json`). Pre-PR gate.
-
----
-
-### 2. Custom fields framework for Groove threading metadata
+### 1. Custom fields framework for Groove threading metadata
 
 **Status:** Research pending — user auditing their org's DaScoopComposer fields.
 
@@ -95,7 +102,7 @@ Action dynamically adds these to the Task SELECT and surfaces them in thread out
 
 ---
 
-### 3. `RelationType` in people resolution (EmailMessageRelation)
+### 2. `RelationType` in people resolution (EmailMessageRelation)
 
 **Status:** Low priority, clear implementation path.
 
@@ -105,14 +112,16 @@ Currently all `EmailMessageRelation` rows are fetched without `RelationType`, so
 
 ## Pre-PR gates
 
-Before opening a new PR against `credal-ai/actions-sdk`:
+**Target:** PR from `matthewbetancourtBMX/actions-sdk` branch `credal/salesforce-get-clean-activity-records` → `credal-ai/actions-sdk` `main`
+
+Before opening:
 
 - [x] **Auth migration** — `testGetCleanActivityRecords.ts` and `testBuildingEmailMessages.ts` both migrated to JWT flow (`authenticateWithJWT` from `tests/salesforce/utils.ts`).
 - [x] **Email to Case `ParentId` surface** — `ParentId` in SELECT and thread output.
 - [x] **Email to Case thread grouping fix** — grouping key uses `ParentId ?? ThreadIdentifier ?? Id`.
 - [x] **Draft filter** — `AND Status != '5'` in EmailMessage query.
 - [x] **Full CI check** — build, lint, prettier, jest all pass.
-- [ ] **Custom fields scope decision** — confirm whether to include in this PR or defer to a follow-up.
+- [ ] **Custom fields scope decision** — confirm whether to include `taskMessageIdField`/`taskInReplyToField` (Groove threading) in this PR or defer to a follow-up. Pending user org field audit (DaScoopComposer namespace). Default: defer.
 
 ---
 
