@@ -9,9 +9,9 @@ import { ApiError, axiosClient } from "../../util/axiosClient.js";
 const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 100;
 const DEFAULT_MAX_BODY_LENGTH = 500;
-const MAX_ACTIVITY_ID_PAGES = 5;
+const MAX_EXCLUDE_IDS = 500;
 // Salesforce IDs are 15 or 18 alphanumeric characters — used to validate excludeActivityIds before SOQL interpolation
-const SF_ID_PATTERN = /^[a-zA-Z0-9]{15,18}$/;
+const SF_ID_PATTERN = /^[a-zA-Z0-9]{15}$|^[a-zA-Z0-9]{18}$/;
 const TASK_FIELD_API_NAME_PATTERN = /^[A-Za-z_][A-Za-z0-9_]*$/;
 // Blocks statement terminators and comment sequences that could escape the WHERE clause wrapper
 const SOQL_INJECTION_PATTERN = /;|--|\/\*|\*\//;
@@ -90,16 +90,16 @@ function cleanBody(text: string | null | undefined): string | null {
   if (!text) return null;
   let s = text;
   s = s.replace(/\r\n/g, "\n");
-  s = s.replace(/<([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>/g, "[$1]");
-  s = s.replace(/<[^>]+>/g, " ");
   s = s
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&nbsp;/g, " ")
     .replace(/&#?\w+;/g, "");
+  s = s.replace(/<([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>/g, "[$1]");
+  s = s.replace(/<[^>]+>/g, " ");
   s = s.replace(/^(From|To|CC|BCC|Date|Subject|Attachment|Body|Additional\s+To):.*\n/gim, "");
-  const qm = s.match(/(?:^|\n)(On [\s\S]{0,250}?wrote:\s*(?:\n|$))/);
+  const qm = s.match(/(?:^|\n)((?:>\s*)?On [\s\S]{0,250}?wrote:\s*(?:\n|$))/);
   if (qm && qm.index !== undefined) {
     const cut = qm.index + (qm[0].startsWith("\n") ? 1 : 0);
     s = s.slice(0, cut);
@@ -132,11 +132,12 @@ function normalizeEmailHeaderText(text: string | null | undefined): string | nul
 
 function truncate(text: string | null, maxLength: number): string | null {
   if (!text) return null;
-  return text.length <= maxLength ? text : text.slice(0, maxLength) + "…";
+  if (text.length <= maxLength) return text;
+  return maxLength > 0 ? text.slice(0, maxLength - 1) + "…" : null;
 }
 
 function normalizeSubject(subject: string): string {
-  const prefix = /^(Email:\s*|>>\s*|<<\s*|\[Inbox\]\s*-?\s*|Re:\s*|Fwd?:\s*|FW:\s*)/i;
+  const prefix = /^(Email:\s*|Bounced:\s*|>>\s*|<<\s*|\[Inbox\]\s*-?\s*|Re:\s*|Fwd?:\s*|FW:\s*)/i;
   let s = subject;
   let prev = "";
   while (s !== prev) {
@@ -232,7 +233,15 @@ function parseExcludeActivityIds(excludeActivityIds?: string): string[] {
     throw new Error(`excludeActivityIds contains invalid Salesforce IDs: ${invalid.join(", ")}`);
   }
 
-  return [...new Set(parsed as string[])];
+  const unique = [...new Set(parsed as string[])];
+  if (unique.length > MAX_EXCLUDE_IDS) {
+    throw new Error(
+      `excludeActivityIds contains ${unique.length} IDs, which exceeds the limit of ${MAX_EXCLUDE_IDS}. ` +
+        "Use a narrower whereClause to reduce the EmailMessage result set before collecting activity IDs.",
+    );
+  }
+
+  return unique;
 }
 
 // whereClause is provided by an AI agent and is NOT treated as untrusted end-user input. This guard
@@ -322,7 +331,7 @@ async function handleTask(
   // taskDateTimeTieBreakerField when available; otherwise the portable fallback is ActivityDate with
   // CompletedDateTime as a sync-time tie-breaker.
   // Fetch limit+1 to determine whether additional records exist without relying on Salesforce pagination metadata
-  const soql = `SELECT ${selectFields.join(", ")} FROM Task WHERE (${whereClause}) AND TaskSubtype = 'Email' AND Status = 'Completed' AND IsDeleted = false${exclusion} ORDER BY ${orderByFields.join(", ")} LIMIT ${limit + 1}`;
+  const soql = `SELECT ${selectFields.join(", ")} FROM Task WHERE ${formatActivityWhereClause(whereClause)} AND TaskSubtype = 'Email' AND Status = 'Completed' AND IsDeleted = false${exclusion} ORDER BY ${orderByFields.join(", ")} LIMIT ${limit + 1}`;
   const rawRecords = (await soqlQuery(baseUrl, authToken, soql, Infinity, true)) as SfRecord[];
   const hasMore = rawRecords.length > limit;
   const records = hasMore ? rawRecords.slice(0, limit) : rawRecords;
@@ -378,11 +387,7 @@ async function handleTask(
     });
   }
 
-  threads.sort((a, b) => {
-    if (!a.latestDate) return 1;
-    if (!b.latestDate) return -1;
-    return b.latestDate.localeCompare(a.latestDate);
-  });
+  threads.sort((a, b) => parseSalesforceTimestamp(b.latestDate) - parseSalesforceTimestamp(a.latestDate));
 
   return {
     success: true,
@@ -398,7 +403,18 @@ async function handleTask(
 }
 
 function containsSemiJoinSubquery(whereClause: string): boolean {
-  return /\b(?:NOT\s+)?IN\s*\(\s*SELECT\b/i.test(whereClause);
+  let found = false;
+  forEachSoqlCharacterOutsideString(whereClause, (char, index) => {
+    // Only check at positions that are the start of a word (preceded by non-word char or start of string)
+    if (/\w/.test(char) && (index === 0 || !/\w/.test(whereClause[index - 1]))) {
+      if (/^(?:NOT\s+)?IN\s*\(\s*SELECT\b/i.test(whereClause.slice(index))) {
+        found = true;
+        return "stop";
+      }
+    }
+    return undefined;
+  });
+  return found;
 }
 
 function findMatchingParen(value: string, openIndex: number): number | null {
@@ -437,6 +453,46 @@ function findParenthesizedRanges(value: string): Array<{ start: number; end: num
   return ranges;
 }
 
+function stripEnclosingParentheses(value: string): string {
+  let trimmed = value.trim();
+  let changed = true;
+
+  while (changed && trimmed.startsWith("(") && trimmed.endsWith(")")) {
+    changed = false;
+    const match = findMatchingParen(trimmed, 0);
+    if (match === trimmed.length - 1) {
+      trimmed = trimmed.slice(1, -1).trim();
+      changed = true;
+    }
+  }
+
+  return trimmed;
+}
+
+function hasTopLevelOr(value: string): boolean {
+  let depth = 0;
+  let found = false;
+  const normalized = stripEnclosingParentheses(value);
+
+  forEachSoqlCharacterOutsideString(normalized, (character, index) => {
+    if (character === "(") {
+      depth += 1;
+      return undefined;
+    }
+    if (character === ")") {
+      depth -= 1;
+      return undefined;
+    }
+    if (depth === 0 && /^OR\b/i.test(normalized.slice(index)) && (index === 0 || !/\w/.test(normalized[index - 1]))) {
+      found = true;
+      return "stop";
+    }
+    return undefined;
+  });
+
+  return found;
+}
+
 function isCompleteSemiJoinExpression(expression: string): boolean {
   const trimmed = expression.trim();
   const match = /^[A-Za-z_][\w.]*\s+(?:NOT\s+)?IN\s*\(/i.exec(trimmed);
@@ -467,33 +523,24 @@ function unwrapParenthesizedSemiJoins(whereClause: string): string {
   return normalized;
 }
 
-function formatEmailMessageWhereClause(whereClause: string): string {
-  return containsSemiJoinSubquery(whereClause) ? unwrapParenthesizedSemiJoins(whereClause) : `(${whereClause})`;
-}
-
-function buildEmailMessageActivityIdQuery(whereClause: string): string {
-  return `SELECT ActivityId FROM EmailMessage WHERE ${formatEmailMessageWhereClause(whereClause)} AND ActivityId != null AND IsDeleted = false`;
+function formatActivityWhereClause(whereClause: string): string {
+  if (!containsSemiJoinSubquery(whereClause)) {
+    return `(${whereClause})`;
+  }
+  if (hasTopLevelOr(whereClause)) {
+    throw new Error(
+      "whereClause contains a semi-join subquery combined with OR, which Salesforce SOQL does not support. Split the query into multiple calls or rewrite the filter without OR.",
+    );
+  }
+  const unwrapped = unwrapParenthesizedSemiJoins(whereClause);
+  // Salesforce rejects outer parens around a bare lone semi-join, e.g. (WhoId IN (SELECT ...)).
+  // But a compound expression such as (WhoId IN (SELECT ...) AND ...) is valid and must be
+  // wrapped so that appended AND filters apply to the entire caller-provided expression.
+  return isCompleteSemiJoinExpression(unwrapped) ? unwrapped : `(${unwrapped})`;
 }
 
 function buildEmailMessageQuery(whereClause: string, limit: number): string {
-  return `SELECT Id, Subject, MessageDate, Incoming, IsBounced, FromAddress, ToAddress, CcAddress, TextBody, ThreadIdentifier, MessageIdentifier, RelatedToId, ActivityId FROM EmailMessage WHERE ${formatEmailMessageWhereClause(whereClause)} AND IsDeleted = false ORDER BY MessageDate DESC NULLS LAST LIMIT ${limit + 1}`;
-}
-
-async function collectCompleteEmailMessageActivityIds(
-  baseUrl: string,
-  authToken: string,
-  whereClause: string,
-): Promise<string[]> {
-  const rows = (await soqlQuery(
-    baseUrl,
-    authToken,
-    buildEmailMessageActivityIdQuery(whereClause),
-    MAX_ACTIVITY_ID_PAGES,
-    true,
-  )) as SfRecord[];
-  return [
-    ...new Set(rows.map(row => row.ActivityId).filter((id): id is string => typeof id === "string" && id.length > 0)),
-  ];
+  return `SELECT Id, Subject, MessageDate, Incoming, IsBounced, Status, HasAttachment, FromName, FromAddress, ToAddress, CcAddress, TextBody, ThreadIdentifier, MessageIdentifier, ReplyToEmailMessageId, RelatedToId, ParentId, ActivityId FROM EmailMessage WHERE ${formatActivityWhereClause(whereClause)} AND IsDeleted = false AND Status != '5' ORDER BY MessageDate DESC NULLS LAST LIMIT ${limit + 1}`;
 }
 
 async function handleEmailMessage(
@@ -513,7 +560,9 @@ async function handleEmailMessage(
 
   const threadMap = new Map<string, SfRecord[]>();
   for (const r of records) {
-    const key = r.ThreadIdentifier ?? r.Id;
+    // Email to Case: ParentId is the Case ID — the definitive thread container (ThreadIdentifier is not
+    // set for On-Demand Email-to-Case per Salesforce docs). Enhanced Email / inbox sync: ThreadIdentifier.
+    const key = r.ParentId ?? r.ThreadIdentifier ?? r.Id;
     const group = threadMap.get(key) ?? [];
     group.push(r);
     threadMap.set(key, group);
@@ -566,11 +615,7 @@ async function handleEmailMessage(
 
   const threads = [];
   for (const [threadIdentifier, group] of threadMap) {
-    group.sort((a, b) => {
-      if (!a.MessageDate) return 1;
-      if (!b.MessageDate) return -1;
-      return b.MessageDate.localeCompare(a.MessageDate);
-    });
+    group.sort((a, b) => parseSalesforceTimestamp(b.MessageDate) - parseSalesforceTimestamp(a.MessageDate));
     const latest = group[0];
     const threadPersonIds = new Set<string>();
     for (const msg of group) {
@@ -586,22 +631,24 @@ async function handleEmailMessage(
       latestDate: latest.MessageDate ?? null,
       direction: latest.Incoming === true ? "inbound" : "outbound",
       bounced: group.some(r => r.IsBounced === true),
+      hasAttachment: group.some(r => r.HasAttachment === true),
+      status: latest.Status ?? null,
       relatedToId: latest.RelatedToId ?? null,
+      parentId: latest.ParentId ?? null,
+      fromName: latest.FromName ?? null,
       fromAddress: latest.FromAddress ?? null,
       toAddress: latest.ToAddress ?? null,
+      ccAddress: latest.CcAddress ?? null,
       people,
       latestMessageId: latest.Id,
       allMessageIds: group.map(r => r.Id as string),
       messageIdentifiers: group.map(r => r.MessageIdentifier as string).filter(Boolean),
+      replyToEmailMessageId: latest.ReplyToEmailMessageId ?? null,
       cleanedBody: truncate(cleanBody(latest.TextBody), maxBodyLength),
     });
   }
 
-  threads.sort((a, b) => {
-    if (!a.latestDate) return 1;
-    if (!b.latestDate) return -1;
-    return b.latestDate.localeCompare(a.latestDate);
-  });
+  threads.sort((a, b) => parseSalesforceTimestamp(b.latestDate) - parseSalesforceTimestamp(a.latestDate));
 
   const result: salesforceGetCleanActivityRecordsOutputType = {
     success: true,
@@ -616,7 +663,11 @@ async function handleEmailMessage(
   };
 
   if (returnActivityIds) {
-    result.activityIds = JSON.stringify(await collectCompleteEmailMessageActivityIds(baseUrl, authToken, whereClause));
+    result.activityIds = JSON.stringify([
+      ...new Set(
+        records.map(record => record.ActivityId).filter((id): id is string => typeof id === "string" && id.length > 0),
+      ),
+    ]);
   }
 
   return result;
@@ -645,15 +696,28 @@ const getCleanActivityRecords: salesforceGetCleanActivityRecordsFunction = async
   }
 
   if (objectType === "EmailMessage" && excludeActivityIds) {
-    return { success: false, error: "excludeActivityIds is only supported when objectType is Task" };
+    // Allow an empty JSON array "[]" since it has no effect; reject any non-empty exclusion list
+    let parsedExclude: unknown;
+    try {
+      parsedExclude = JSON.parse(excludeActivityIds);
+    } catch {
+      parsedExclude = null;
+    }
+    if (!Array.isArray(parsedExclude) || parsedExclude.length > 0) {
+      return { success: false, error: "excludeActivityIds is only supported when objectType is Task" };
+    }
   }
 
   if (objectType === "EmailMessage" && taskDateTimeTieBreakerField) {
     return { success: false, error: "taskDateTimeTieBreakerField is only supported when objectType is Task" };
   }
 
+  if (objectType === "Task" && returnActivityIds) {
+    return { success: false, error: "returnActivityIds is only supported when objectType is EmailMessage" };
+  }
+
   const effectiveLimit = normalizeLimit(limit);
-  const effectiveMaxBodyLength = maxBodyLength ?? DEFAULT_MAX_BODY_LENGTH;
+  const effectiveMaxBodyLength = Math.max(0, maxBodyLength ?? DEFAULT_MAX_BODY_LENGTH);
 
   if (taskDateTimeTieBreakerField && !TASK_FIELD_API_NAME_PATTERN.test(taskDateTimeTieBreakerField)) {
     return { success: false, error: "taskDateTimeTieBreakerField must be a valid Task field API name" };
@@ -684,7 +748,7 @@ const getCleanActivityRecords: salesforceGetCleanActivityRecordsFunction = async
       success: false,
       error:
         error instanceof ApiError
-          ? error.data?.length > 0
+          ? Array.isArray(error.data) && error.data.length > 0 && typeof error.data[0]?.message === "string"
             ? error.data[0].message
             : error.message
           : error instanceof Error
@@ -695,10 +759,8 @@ const getCleanActivityRecords: salesforceGetCleanActivityRecordsFunction = async
 };
 
 export {
-  buildEmailMessageActivityIdQuery,
   buildEmailMessageQuery,
   cleanBody,
-  collectCompleteEmailMessageActivityIds,
   compareTaskEmailRecords,
   detectTaskDirection,
   normalizeEmailHeaderText,
@@ -706,6 +768,7 @@ export {
   normalizeSubject,
   parseExcludeActivityIds,
   soqlQuery,
+  truncate,
   validateWhereClause,
 };
 

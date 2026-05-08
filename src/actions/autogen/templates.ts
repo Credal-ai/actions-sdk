@@ -11469,7 +11469,7 @@ export const salesforceGetReportMetadataDefinition: ActionTemplate = {
 export const salesforceGetCleanActivityRecordsDefinition: ActionTemplate = {
   displayName: "Get clean activity records",
   description:
-    "Retrieve Salesforce activity records (Task or EmailMessage) with email content cleaned of HTML markup, quoted reply chains, and signature blocks. Task and EmailMessage records are deduplicated into threads, reducing token usage by up to 96% compared to raw records. For Task, queries are automatically scoped to TaskSubtype = 'Email' and Status = 'Completed'. Task email processing is optimized for Groove-style synced email Tasks. If the org exposes a Groove Date/Time sent field such as groove_email_sent_at__c, pass it as taskDateTimeTieBreakerField so same-day Task emails are ordered by actual email send time instead of Salesforce sync timestamps.\n",
+    "Retrieve Salesforce email activity from Task or EmailMessage records, clean email bodies, and deduplicate results into threads. Use this when an agent needs concise email history related to a record, contact, lead, or case.\n",
   scopes: [],
   tags: [],
   parameters: {
@@ -11499,7 +11499,7 @@ export const salesforceGetCleanActivityRecordsDefinition: ActionTemplate = {
       returnActivityIds: {
         type: "boolean",
         description:
-          "EmailMessage only — when true, performs a separate ActivityId-only query using the same whereClause and returns a complete activityIds string (JSON array) of Task IDs auto-generated alongside matching EmailMessage records. Pass this string directly as excludeActivityIds in a subsequent Task query to avoid returning the same communications twice.",
+          "EmailMessage only — when true, returns an activityIds string (JSON array) of Task IDs auto-generated alongside the fetched EmailMessage records. The IDs are limited to the EmailMessages returned by this call and can be passed directly as excludeActivityIds in a subsequent Task query over the same scope.",
       },
       excludeActivityIds: {
         type: "string",
@@ -11535,7 +11535,8 @@ export const salesforceGetCleanActivityRecordsDefinition: ActionTemplate = {
       },
       threads: {
         type: "array",
-        description: "Deduplicated email threads",
+        description:
+          "Deduplicated email threads. EmailMessage threads include: parentId (Case ID when email is associated with a Case via Email-to-Case; null for Enhanced Email / inbox sync records — ParentId refers only to Case per Salesforce docs); status (0=New, 1=Read, 2=Replied, 3=Sent, 4=Forwarded — Draft records are excluded); hasAttachment; fromName; replyToEmailMessageId (set for Email-to-Case reply chains), ccAddress.",
         items: {
           type: "object",
           additionalProperties: true,
@@ -11544,7 +11545,7 @@ export const salesforceGetCleanActivityRecordsDefinition: ActionTemplate = {
       activityIds: {
         type: "string",
         description:
-          "EmailMessage only, returnActivityIds=true — complete JSON array string of Task IDs auto-generated alongside matching EmailMessage records. This list is not capped by the body result limit.",
+          "EmailMessage only, returnActivityIds=true — JSON array string of non-null ActivityId values from the fetched EmailMessage records. This is 1:1 with the current result window and does not include ActivityIds beyond the applied limit.",
       },
       hasMore: {
         type: "boolean",

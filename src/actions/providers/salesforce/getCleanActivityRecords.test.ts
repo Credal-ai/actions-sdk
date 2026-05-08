@@ -1,14 +1,15 @@
 import { beforeEach, describe, expect, jest, test } from "@jest/globals";
 import {
-  buildEmailMessageActivityIdQuery,
   buildEmailMessageQuery,
   cleanBody,
   compareTaskEmailRecords,
   detectTaskDirection,
   normalizeEmailHeaderText,
   normalizeLimit,
+  normalizeSubject,
   parseExcludeActivityIds,
   soqlQuery,
+  truncate,
   validateWhereClause,
 } from "./getCleanActivityRecords.js";
 import getCleanActivityRecords from "./getCleanActivityRecords.js";
@@ -30,35 +31,35 @@ beforeEach(() => {
 describe("salesforceGetCleanActivityRecords non-Groove Task body cleaning", () => {
   test("strips Body: label from Salesforce Gmail extension format", () => {
     const desc = [
-      "To: jason@powersproptech.com",
+      "To: customer@example.com",
       "CC: ",
       "BCC: ",
       "Attachment: --none--",
       "",
-      "Subject: Re: ButterflyMX Installation Next Steps: 80 Waterfront Blvd",
+      "Subject: Re: ExampleCo Installation Next Steps",
       "Body:",
-      "Hey Jason,",
-      "Thomas here, I hope you're having an excellent week.",
+      "Hey Customer,",
+      "I hope you're having an excellent week.",
       "",
     ].join("\n");
 
     const result = cleanBody(desc);
     expect(result).not.toContain("Body:");
-    expect(result).toContain("Hey Jason");
+    expect(result).toContain("Hey Customer");
     expect(result).not.toContain("To:");
     expect(result).not.toContain("Subject:");
   });
 
   test("strips Additional To: label from BCC-to-Salesforce format", () => {
     const desc = [
-      "Additional To: thehouselandlord@gmail.com",
+      "Additional To: customer@example.com",
       "CC: ",
       "BCC: ",
       "Attachment: ",
       "",
-      "Subject: ButterflyMX Case #00927715 - Re: Invoice",
+      "Subject: ExampleCo Case - Re: Invoice",
       "Body:",
-      "Thank you for reaching out to the ButterflyMX Customer Experience Team!",
+      "Thank you for reaching out to the ExampleCo Customer Experience Team!",
       "",
     ].join("\n");
 
@@ -67,21 +68,38 @@ describe("salesforceGetCleanActivityRecords non-Groove Task body cleaning", () =
     expect(result).not.toContain("Body:");
     expect(result).toContain("Thank you for reaching out");
   });
+
+  test("converts entity-encoded email addresses to bracket notation", () => {
+    const body = "Please reply to &lt;support@example.com&gt; for help.";
+    const result = cleanBody(body);
+    expect(result).toContain("[support@example.com]");
+    expect(result).not.toContain("&lt;");
+    expect(result).not.toContain("&gt;");
+  });
+
+  test("strips quoted reply that begins with '> On ... wrote:'", () => {
+    const body =
+      "From: customer@example.com\r\nTo: Rep Example <rep@example.com>\r\n\r\nThis is different usually I just get an invoice\r\n \r\nExample Customer, Owner\r\n\r\n> On 05/05/2026 7:08 PM EDT Example App <system@example.com> wrote:\r\n>  \r\n> \r\n> Some quoted body content\r\n";
+    const result = cleanBody(body);
+    expect(result).toContain("This is different usually I just get an invoice");
+    expect(result).not.toContain("> On 05/05/2026");
+    expect(result).not.toContain("Some quoted body content");
+  });
 });
 
 describe("salesforceGetCleanActivityRecords non-Groove Task direction detection", () => {
   test("detects outbound from To: header when owner is the sender", () => {
-    const desc = "To: jason@powersproptech.com\nCC: \nBCC: \n\nSubject: Re: Install\nBody:\nHey Jason";
-    expect(detectTaskDirection("Email: Re: Install", desc, "thomas.sigler@butterflymx.com")).toBe("outbound");
+    const desc = "To: customer@example.com\nCC: \nBCC: \n\nSubject: Re: Install\nBody:\nHey Customer";
+    expect(detectTaskDirection("Email: Re: Install", desc, "rep@example.com")).toBe("outbound");
   });
 
   test("detects inbound from To: header when owner is the recipient", () => {
-    const desc = "To: thomas.sigler@butterflymx.com\nCC: \nBCC: \n\nSubject: Re: Install\nBody:\nHey Thomas";
-    expect(detectTaskDirection("Email: Re: Install", desc, "thomas.sigler@butterflymx.com")).toBe("inbound");
+    const desc = "To: rep@example.com\nCC: \nBCC: \n\nSubject: Re: Install\nBody:\nHey Rep";
+    expect(detectTaskDirection("Email: Re: Install", desc, "rep@example.com")).toBe("inbound");
   });
 
   test("returns unknown when no direction signals and no ownerEmail", () => {
-    const desc = "To: jason@powersproptech.com\nCC: \n\nSome body text";
+    const desc = "To: customer@example.com\nCC: \n\nSome body text";
     expect(detectTaskDirection("Email: Re: Install", desc, null)).toBe("unknown");
   });
 
@@ -117,6 +135,10 @@ describe("salesforceGetCleanActivityRecords Task email chronology", () => {
 
     expect(sorted[0]?.Id).toBe("00T000000000002AAA");
   });
+
+  test("normalizes bounced email subject prefixes into the base thread subject", () => {
+    expect(normalizeSubject("Bounced: >> Re: Pricing follow-up")).toBe("Pricing follow-up");
+  });
 });
 
 describe("salesforceGetCleanActivityRecords EmailMessage exclusions", () => {
@@ -140,43 +162,30 @@ describe("salesforceGetCleanActivityRecords EmailMessage exclusions", () => {
     expect(mockGet).not.toHaveBeenCalled();
   });
 
-  test("builds a separate uncapped ActivityId query from the same EmailMessage filter", () => {
-    const soql = buildEmailMessageActivityIdQuery("RelatedToId = '500Qp0000012345AAA'");
-
-    expect(soql).toBe(
-      "SELECT ActivityId FROM EmailMessage WHERE (RelatedToId = '500Qp0000012345AAA') AND ActivityId != null AND IsDeleted = false",
-    );
-    expect(soql).not.toContain("LIMIT");
-    expect(soql).not.toContain("TextBody");
-  });
-
-  test("keeps EmailMessageRelation semi-joins at the top level when date filters are present", () => {
+  test("wraps compound semi-join clause to protect appended AND filters from OR precedence", () => {
     const whereClause =
       "Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z";
 
     expect(buildEmailMessageQuery(whereClause, 100)).toContain(
-      "FROM EmailMessage WHERE Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z AND IsDeleted = false ORDER BY",
-    );
-    expect(buildEmailMessageActivityIdQuery(whereClause)).toBe(
-      "SELECT ActivityId FROM EmailMessage WHERE Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z AND ActivityId != null AND IsDeleted = false",
+      "FROM EmailMessage WHERE (Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z) AND IsDeleted = false AND Status != '5' ORDER BY",
     );
   });
 
-  test("unwraps agent-supplied parentheses around EmailMessageRelation semi-joins", () => {
+  test("unwraps agent-supplied parentheses around EmailMessageRelation semi-joins then re-wraps the compound expression", () => {
     const whereClause =
       "(Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0')) AND MessageDate >= 2026-01-01T00:00:00Z";
 
     expect(buildEmailMessageQuery(whereClause, 100)).toContain(
-      "FROM EmailMessage WHERE Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z AND IsDeleted = false ORDER BY",
+      "FROM EmailMessage WHERE (Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z) AND IsDeleted = false AND Status != '5' ORDER BY",
     );
   });
 
-  test("unwraps parenthesized semi-joins with nested parentheses inside the subquery", () => {
+  test("unwraps parenthesized semi-joins with nested parentheses inside the subquery then re-wraps the compound expression", () => {
     const whereClause =
       "(Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId IN ('003Qp00000cMnCQIA0', '003Qp00000cMnCQIA1'))) AND MessageDate >= 2026-01-01T00:00:00Z";
 
     expect(buildEmailMessageQuery(whereClause, 100)).toContain(
-      "FROM EmailMessage WHERE Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId IN ('003Qp00000cMnCQIA0', '003Qp00000cMnCQIA1')) AND MessageDate >= 2026-01-01T00:00:00Z AND IsDeleted = false ORDER BY",
+      "FROM EmailMessage WHERE (Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId IN ('003Qp00000cMnCQIA0', '003Qp00000cMnCQIA1')) AND MessageDate >= 2026-01-01T00:00:00Z) AND IsDeleted = false AND Status != '5' ORDER BY",
     );
   });
 
@@ -233,7 +242,7 @@ describe("salesforceGetCleanActivityRecords Task filters", () => {
         records: [
           {
             Id: "00T000000000001AAA",
-            Subject: "Email: >> Re: ButterflyMX Inquiry",
+            Subject: "Email: >> Re: ExampleCo Inquiry",
             ActivityDate: "2026-05-05",
             CompletedDateTime: "2026-05-05T20:00:00.000+0000",
             groove_email_sent_at__c: "2026-05-05T10:00:00.000+0000",
@@ -241,7 +250,7 @@ describe("salesforceGetCleanActivityRecords Task filters", () => {
           },
           {
             Id: "00T000000000002AAA",
-            Subject: "Email: >> Re: ButterflyMX Inquiry",
+            Subject: "Email: >> Re: ExampleCo Inquiry",
             ActivityDate: "2026-05-05",
             CompletedDateTime: "2026-05-05T19:00:00.000+0000",
             groove_email_sent_at__c: "2026-05-05T15:00:00.000+0000",
@@ -301,6 +310,18 @@ describe("salesforceGetCleanActivityRecords input guards", () => {
     expect(() =>
       validateWhereClause("Subject LIKE '%Q2--Q3%' AND Description LIKE '%/* note */%' AND Subject != ';'"),
     ).not.toThrow();
+  });
+
+  test("allows disallowed SOQL guard sequences after an escaped quote inside a string literal", () => {
+    expect(() => validateWhereClause("Subject LIKE 'Bob\\'s -- note%'")).not.toThrow();
+    expect(() => validateWhereClause("Subject LIKE 'Bob\\'s /* note */%'")).not.toThrow();
+  });
+
+  test("ignores parentheses and semi-join-looking text inside escaped string literals", () => {
+    const whereClause = "Subject LIKE 'Bob\\'s IN (SELECT phase%)' OR WhatId = '500Qp0000012345AAA'";
+
+    expect(() => validateWhereClause(whereClause)).not.toThrow();
+    expect(buildEmailMessageQuery(whereClause, 20)).toContain(`WHERE (${whereClause})`);
   });
 
   test("rejects disallowed SOQL guard sequences outside quoted string literals", () => {
@@ -378,6 +399,77 @@ describe("salesforceGetCleanActivityRecords — queryAll endpoint", () => {
     expect(requestUrl).toContain("/queryAll?");
     expect(requestUrl).not.toContain("/query?");
   });
+
+  test("returnActivityIds returns only ActivityIds from fetched EmailMessage records", async () => {
+    mockGet
+      .mockResolvedValueOnce({
+        data: {
+          records: [
+            {
+              Id: "02sQp0000000001AAA",
+              Subject: "Re: Invoice",
+              MessageDate: "2026-05-01T10:00:00.000+0000",
+              Incoming: true,
+              IsBounced: false,
+              FromAddress: "customer@example.com",
+              ToAddress: "rep@example.com",
+              TextBody: "First message.",
+              ThreadIdentifier: "thread-activity-ids",
+              MessageIdentifier: "msg-001",
+              RelatedToId: "500Qp0000012345AAA",
+              ActivityId: "00TQp000001abcDEF",
+            },
+            {
+              Id: "02sQp0000000002AAA",
+              Subject: "Re: Invoice",
+              MessageDate: "2026-05-01T11:00:00.000+0000",
+              Incoming: false,
+              IsBounced: false,
+              FromAddress: "rep@example.com",
+              ToAddress: "customer@example.com",
+              TextBody: "Second message.",
+              ThreadIdentifier: "thread-activity-ids",
+              MessageIdentifier: "msg-002",
+              RelatedToId: "500Qp0000012345AAA",
+              ActivityId: "00TQp000001abcDEG",
+            },
+            {
+              Id: "02sQp0000000003AAA",
+              Subject: "Re: Invoice",
+              MessageDate: "2026-05-01T12:00:00.000+0000",
+              Incoming: false,
+              IsBounced: false,
+              FromAddress: "rep@example.com",
+              ToAddress: "customer@example.com",
+              TextBody: "Overflow message.",
+              ThreadIdentifier: "thread-activity-ids",
+              MessageIdentifier: "msg-003",
+              RelatedToId: "500Qp0000012345AAA",
+              ActivityId: "00TQp000001abcDEH",
+            },
+          ],
+          done: true,
+        },
+      })
+      .mockResolvedValueOnce({ data: { records: [], done: true } });
+
+    const result = await getCleanActivityRecords({
+      params: {
+        objectType: "EmailMessage",
+        whereClause: "RelatedToId = '500Qp0000012345AAA'",
+        limit: 2,
+        returnActivityIds: true,
+      },
+      authParams: { authToken: "token", baseUrl: "https://example.my.salesforce.com" },
+    });
+
+    expect(result).toMatchObject({ success: true, totalFetched: 2, hasMore: true });
+    expect(result.activityIds).toBe(JSON.stringify(["00TQp000001abcDEF", "00TQp000001abcDEG"]));
+    expect(mockGet).toHaveBeenCalledTimes(2);
+    expect(decodeURIComponent(new URL(String(mockGet.mock.calls[0]?.[0])).searchParams.get("q") ?? "")).toContain(
+      "LIMIT 3",
+    );
+  });
 });
 
 describe("salesforceGetCleanActivityRecords EmailMessage people resolution", () => {
@@ -438,6 +530,65 @@ describe("salesforceGetCleanActivityRecords EmailMessage people resolution", () 
     // Verify the EmailMessageRelation query was actually issued
     const relationCall = mockGet.mock.calls[1]?.[0] as string;
     expect(decodeURIComponent(new URL(relationCall).searchParams.get("q") ?? "")).toContain("EmailMessageRelation");
+  });
+
+  test("returns CcAddress from the latest EmailMessage thread record", async () => {
+    // 1. Main EmailMessage query
+    mockGet.mockResolvedValueOnce({
+      data: {
+        records: [
+          {
+            Id: "02sQp0000000003AAA",
+            Subject: "Re: Invoice",
+            MessageDate: "2026-05-03T10:00:00.000+0000",
+            Incoming: false,
+            IsBounced: false,
+            FromAddress: "rep@butterflymx.com",
+            ToAddress: "customer@example.com",
+            CcAddress: "accounting@example.com",
+            TextBody: "Looping in accounting.",
+            ThreadIdentifier: "thread-cc",
+            MessageIdentifier: "msg-003",
+            RelatedToId: "500Qp0000012345AAA",
+            ActivityId: "00TQp000001abcDEG",
+          },
+        ],
+        done: true,
+      },
+    });
+    // 2. EmailMessageRelation query
+    mockGet.mockResolvedValueOnce({
+      data: {
+        records: [
+          { EmailMessageId: "02sQp0000000003AAA", RelationId: "003Qp00000HyTFBIA3", RelationObjectType: "Contact" },
+        ],
+        done: true,
+      },
+    });
+    // 3. Contact query
+    mockGet.mockResolvedValueOnce({
+      data: {
+        records: [{ Id: "003Qp00000HyTFBIA3", Name: "Alice Smith", Email: "customer@example.com", Title: "Manager" }],
+        done: true,
+      },
+    });
+
+    const result = await getCleanActivityRecords({
+      params: { objectType: "EmailMessage", whereClause: "RelatedToId = '500Qp0000012345AAA'" },
+      authParams: { authToken: "token", baseUrl: "https://example.my.salesforce.com" },
+    });
+
+    expect(result).toMatchObject({
+      success: true,
+      threads: [
+        {
+          threadIdentifier: "thread-cc",
+          toAddress: "customer@example.com",
+          ccAddress: "accounting@example.com",
+          people: [{ id: "003Qp00000HyTFBIA3", name: "Alice Smith", email: "customer@example.com", title: "Manager" }],
+        },
+      ],
+    });
   });
 
   test("falls back to Lead when Contact lookup returns no results", async () => {
@@ -569,5 +720,100 @@ describe("salesforceGetCleanActivityRecords normalizeEmailHeaderText", () => {
     expect(normalizeEmailHeaderText(null)).toBeNull();
     expect(normalizeEmailHeaderText("")).toBeNull();
     expect(normalizeEmailHeaderText("   ")).toBeNull();
+  });
+});
+
+describe("salesforceGetCleanActivityRecords containsSemiJoinSubquery string-literal safety", () => {
+  test("wraps clause in parens when IN (SELECT appears only inside a quoted literal", () => {
+    // The literal '%IN (SELECT phase%' must not be confused with a real semi-join subquery.
+    // Without this fix, the clause would skip the (…) wrapper, breaking OR operator precedence.
+    const whereClause = "Subject LIKE '%IN (SELECT phase%' OR WhatId = '500Qp0000012345AAA'";
+    expect(buildEmailMessageQuery(whereClause, 20)).toContain(`WHERE (${whereClause})`);
+  });
+
+  test("emits a bare lone semi-join without outer parens (Salesforce rejects the wrapped form)", () => {
+    const whereClause = "WhoId IN (SELECT ContactId FROM CampaignMember WHERE CampaignId = '001Qp000000abcDEF')";
+    const query = buildEmailMessageQuery(whereClause, 20);
+    expect(query).toContain(`WHERE ${whereClause}`);
+    expect(query).not.toContain(`WHERE (${whereClause})`);
+  });
+
+  test("rejects a semi-join combined with top-level OR because Salesforce SOQL does not support it", () => {
+    const whereClause =
+      "WhoId IN (SELECT ContactId FROM CampaignMember WHERE CampaignId = '001Qp000000abcDEF') OR WhatId = '001Qp000000xyzAAA'";
+    expect(() => buildEmailMessageQuery(whereClause, 20)).toThrow(
+      "whereClause contains a semi-join subquery combined with OR",
+    );
+  });
+});
+
+describe("salesforceGetCleanActivityRecords excludeActivityIds size limit", () => {
+  test("rejects excludeActivityIds lists that exceed MAX_EXCLUDE_IDS", () => {
+    const ids = Array.from({ length: 501 }, (_, i) => `00T${String(i).padStart(15, "0")}`);
+    expect(() => parseExcludeActivityIds(JSON.stringify(ids))).toThrow(/exceeds the limit of \d+/);
+  });
+
+  test("accepts excludeActivityIds lists at exactly the limit", () => {
+    const ids = Array.from({ length: 500 }, (_, i) => `00T${String(i).padStart(15, "0")}`);
+    expect(() => parseExcludeActivityIds(JSON.stringify(ids))).not.toThrow();
+  });
+});
+
+describe("salesforceGetCleanActivityRecords returnActivityIds guard", () => {
+  test("rejects returnActivityIds when objectType is Task", () => {
+    return expect(
+      getCleanActivityRecords({
+        params: {
+          objectType: "Task",
+          whereClause: "WhatId = 'a3bQp000001h4J7IAI'",
+          returnActivityIds: true,
+        },
+        authParams: { authToken: "token", baseUrl: "https://example.my.salesforce.com" },
+      }),
+    ).resolves.toMatchObject({
+      success: false,
+      error: "returnActivityIds is only supported when objectType is EmailMessage",
+    });
+  });
+});
+
+describe("salesforceGetCleanActivityRecords empty excludeActivityIds on EmailMessage", () => {
+  test("allows an empty excludeActivityIds array on EmailMessage without error", async () => {
+    mockGet
+      .mockResolvedValueOnce({ data: { records: [], done: true } })
+      .mockResolvedValueOnce({ data: { records: [], done: true } });
+
+    await expect(
+      getCleanActivityRecords({
+        params: {
+          objectType: "EmailMessage",
+          whereClause: "RelatedToId = '500Qp0000012345AAA'",
+          excludeActivityIds: "[]",
+        },
+        authParams: { authToken: "token", baseUrl: "https://example.my.salesforce.com" },
+      }),
+    ).resolves.toMatchObject({ success: true });
+  });
+});
+
+describe("salesforceGetCleanActivityRecords truncate", () => {
+  test("returns text unchanged when at or below the limit", () => {
+    expect(truncate("hello", 10)).toBe("hello");
+    expect(truncate("hello", 5)).toBe("hello");
+  });
+
+  test("truncates to exactly maxLength characters including the ellipsis", () => {
+    const result = truncate("hello world", 8);
+    expect(result).toHaveLength(8);
+    expect(result).toBe("hello w…");
+  });
+
+  test("returns null for falsy input", () => {
+    expect(truncate(null, 10)).toBeNull();
+    expect(truncate("", 10)).toBeNull();
+  });
+
+  test("returns null when maxLength is zero", () => {
+    expect(truncate("hello", 0)).toBeNull();
   });
 });
