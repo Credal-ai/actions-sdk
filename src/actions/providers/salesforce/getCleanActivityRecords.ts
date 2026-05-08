@@ -100,7 +100,7 @@ function cleanBody(text: string | null | undefined): string | null {
   s = s.replace(/<([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>/g, "[$1]");
   s = s.replace(/<[^>]+>/g, " ");
   s = s.replace(/^(From|To|CC|BCC|Date|Subject|Attachment|Body|Additional\s+To):.*\n/gim, "");
-  const qm = s.match(/(?:^|\n)(On [\s\S]{0,250}?wrote:\s*(?:\n|$))/);
+  const qm = s.match(/(?:^|\n)((?:>\s*)?On [\s\S]{0,250}?wrote:\s*(?:\n|$))/);
   if (qm && qm.index !== undefined) {
     const cut = qm.index + (qm[0].startsWith("\n") ? 1 : 0);
     s = s.slice(0, cut);

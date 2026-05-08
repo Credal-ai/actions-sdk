@@ -76,6 +76,15 @@ describe("salesforceGetCleanActivityRecords non-Groove Task body cleaning", () =
     expect(result).not.toContain("&lt;");
     expect(result).not.toContain("&gt;");
   });
+
+  test("strips quoted reply that begins with '> On ... wrote:' (Groove/DealHub style)", () => {
+    const body =
+      "From: Abccom@comcast.net\r\nTo: Bradley Boudreau <bradley.boudreau@butterflymx.com>\r\n\r\nThis is different usually I just get an invoice\r\n \r\nChristian Brewer, Owner\r\n\r\n> On 05/05/2026 7:08 PM EDT DealHub <system@dealhub.io> wrote:\r\n>  \r\n> \r\n> Some quoted body content\r\n";
+    const result = cleanBody(body);
+    expect(result).toContain("This is different usually I just get an invoice");
+    expect(result).not.toContain("> On 05/05/2026");
+    expect(result).not.toContain("Some quoted body content");
+  });
 });
 
 describe("salesforceGetCleanActivityRecords non-Groove Task direction detection", () => {
