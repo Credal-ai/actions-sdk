@@ -173,7 +173,7 @@ describe("salesforceGetCleanActivityRecords EmailMessage exclusions", () => {
       "Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z";
 
     expect(buildEmailMessageQuery(whereClause, 100)).toContain(
-      "FROM EmailMessage WHERE (Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z) AND IsDeleted = false ORDER BY",
+      "FROM EmailMessage WHERE (Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z) AND IsDeleted = false AND Status != '5' ORDER BY",
     );
     expect(buildEmailMessageActivityIdQuery(whereClause)).toBe(
       "SELECT ActivityId FROM EmailMessage WHERE (Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z) AND ActivityId != null AND IsDeleted = false",
@@ -185,7 +185,7 @@ describe("salesforceGetCleanActivityRecords EmailMessage exclusions", () => {
       "(Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0')) AND MessageDate >= 2026-01-01T00:00:00Z";
 
     expect(buildEmailMessageQuery(whereClause, 100)).toContain(
-      "FROM EmailMessage WHERE (Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z) AND IsDeleted = false ORDER BY",
+      "FROM EmailMessage WHERE (Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z) AND IsDeleted = false AND Status != '5' ORDER BY",
     );
   });
 
@@ -194,7 +194,7 @@ describe("salesforceGetCleanActivityRecords EmailMessage exclusions", () => {
       "(Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId IN ('003Qp00000cMnCQIA0', '003Qp00000cMnCQIA1'))) AND MessageDate >= 2026-01-01T00:00:00Z";
 
     expect(buildEmailMessageQuery(whereClause, 100)).toContain(
-      "FROM EmailMessage WHERE (Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId IN ('003Qp00000cMnCQIA0', '003Qp00000cMnCQIA1')) AND MessageDate >= 2026-01-01T00:00:00Z) AND IsDeleted = false ORDER BY",
+      "FROM EmailMessage WHERE (Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId IN ('003Qp00000cMnCQIA0', '003Qp00000cMnCQIA1')) AND MessageDate >= 2026-01-01T00:00:00Z) AND IsDeleted = false AND Status != '5' ORDER BY",
     );
   });
 

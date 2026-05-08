@@ -500,7 +500,7 @@ function buildEmailMessageActivityIdQuery(whereClause: string): string {
 }
 
 function buildEmailMessageQuery(whereClause: string, limit: number): string {
-  return `SELECT Id, Subject, MessageDate, Incoming, IsBounced, FromAddress, ToAddress, CcAddress, TextBody, ThreadIdentifier, MessageIdentifier, RelatedToId, ParentId, ActivityId FROM EmailMessage WHERE ${formatActivityWhereClause(whereClause)} AND IsDeleted = false ORDER BY MessageDate DESC NULLS LAST LIMIT ${limit + 1}`;
+  return `SELECT Id, Subject, MessageDate, Incoming, IsBounced, Status, HasAttachment, FromName, FromAddress, ToAddress, CcAddress, TextBody, ThreadIdentifier, MessageIdentifier, ReplyToEmailMessageId, RelatedToId, ParentId, ActivityId FROM EmailMessage WHERE ${formatActivityWhereClause(whereClause)} AND IsDeleted = false AND Status != '5' ORDER BY MessageDate DESC NULLS LAST LIMIT ${limit + 1}`;
 }
 
 async function collectCompleteEmailMessageActivityIds(
@@ -537,7 +537,9 @@ async function handleEmailMessage(
 
   const threadMap = new Map<string, SfRecord[]>();
   for (const r of records) {
-    const key = r.ThreadIdentifier ?? r.Id;
+    // Email to Case: ParentId is the Case ID — the definitive thread container (ThreadIdentifier is not
+    // set for On-Demand Email-to-Case per Salesforce docs). Enhanced Email / inbox sync: ThreadIdentifier.
+    const key = r.ParentId ?? r.ThreadIdentifier ?? r.Id;
     const group = threadMap.get(key) ?? [];
     group.push(r);
     threadMap.set(key, group);
@@ -606,14 +608,18 @@ async function handleEmailMessage(
       latestDate: latest.MessageDate ?? null,
       direction: latest.Incoming === true ? "inbound" : "outbound",
       bounced: group.some(r => r.IsBounced === true),
+      hasAttachment: group.some(r => r.HasAttachment === true),
+      status: latest.Status ?? null,
       relatedToId: latest.RelatedToId ?? null,
       parentId: latest.ParentId ?? null,
+      fromName: latest.FromName ?? null,
       fromAddress: latest.FromAddress ?? null,
       toAddress: latest.ToAddress ?? null,
       people,
       latestMessageId: latest.Id,
       allMessageIds: group.map(r => r.Id as string),
       messageIdentifiers: group.map(r => r.MessageIdentifier as string).filter(Boolean),
+      replyToEmailMessageId: latest.ReplyToEmailMessageId ?? null,
       cleanedBody: truncate(cleanBody(latest.TextBody), maxBodyLength),
     });
   }
