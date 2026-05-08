@@ -458,6 +458,65 @@ describe("salesforceGetCleanActivityRecords EmailMessage people resolution", () 
     expect(decodeURIComponent(new URL(relationCall).searchParams.get("q") ?? "")).toContain("EmailMessageRelation");
   });
 
+  test("returns CcAddress from the latest EmailMessage thread record", async () => {
+    // 1. Main EmailMessage query
+    mockGet.mockResolvedValueOnce({
+      data: {
+        records: [
+          {
+            Id: "02sQp0000000003AAA",
+            Subject: "Re: Invoice",
+            MessageDate: "2026-05-03T10:00:00.000+0000",
+            Incoming: false,
+            IsBounced: false,
+            FromAddress: "rep@butterflymx.com",
+            ToAddress: "customer@example.com",
+            CcAddress: "accounting@example.com",
+            TextBody: "Looping in accounting.",
+            ThreadIdentifier: "thread-cc",
+            MessageIdentifier: "msg-003",
+            RelatedToId: "500Qp0000012345AAA",
+            ActivityId: "00TQp000001abcDEG",
+          },
+        ],
+        done: true,
+      },
+    });
+    // 2. EmailMessageRelation query
+    mockGet.mockResolvedValueOnce({
+      data: {
+        records: [
+          { EmailMessageId: "02sQp0000000003AAA", RelationId: "003Qp00000HyTFBIA3", RelationObjectType: "Contact" },
+        ],
+        done: true,
+      },
+    });
+    // 3. Contact query
+    mockGet.mockResolvedValueOnce({
+      data: {
+        records: [{ Id: "003Qp00000HyTFBIA3", Name: "Alice Smith", Email: "customer@example.com", Title: "Manager" }],
+        done: true,
+      },
+    });
+
+    const result = await getCleanActivityRecords({
+      params: { objectType: "EmailMessage", whereClause: "RelatedToId = '500Qp0000012345AAA'" },
+      authParams: { authToken: "token", baseUrl: "https://example.my.salesforce.com" },
+    });
+
+    expect(result).toMatchObject({
+      success: true,
+      threads: [
+        {
+          threadIdentifier: "thread-cc",
+          toAddress: "customer@example.com",
+          ccAddress: "accounting@example.com",
+          people: [{ id: "003Qp00000HyTFBIA3", name: "Alice Smith", email: "customer@example.com", title: "Manager" }],
+        },
+      ],
+    });
+  });
+
   test("falls back to Lead when Contact lookup returns no results", async () => {
     // 1. Main EmailMessage query
     mockGet.mockResolvedValueOnce({

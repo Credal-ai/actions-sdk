@@ -25,17 +25,12 @@ function forEachSoqlCharacterOutsideString(
   callback: (character: string, index: number) => void | "stop",
 ): void {
   let inString = false;
-  let escaped = false;
 
   for (let i = 0; i < value.length; i += 1) {
     const character = value[i];
 
     if (inString) {
-      if (escaped) {
-        escaped = false;
-      } else if (character === "\\") {
-        escaped = true;
-      } else if (character === "'" && value[i + 1] === "'") {
+      if (character === "'" && value[i + 1] === "'") {
         i += 1;
       } else if (character === "'") {
         inString = false;
@@ -615,6 +610,7 @@ async function handleEmailMessage(
       fromName: latest.FromName ?? null,
       fromAddress: latest.FromAddress ?? null,
       toAddress: latest.ToAddress ?? null,
+      ccAddress: latest.CcAddress ?? null,
       people,
       latestMessageId: latest.Id,
       allMessageIds: group.map(r => r.Id as string),

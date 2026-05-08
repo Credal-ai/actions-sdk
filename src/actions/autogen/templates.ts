@@ -11469,7 +11469,7 @@ export const salesforceGetReportMetadataDefinition: ActionTemplate = {
 export const salesforceGetCleanActivityRecordsDefinition: ActionTemplate = {
   displayName: "Get clean activity records",
   description:
-    "Retrieve Salesforce activity records (Task or EmailMessage) with email content cleaned of HTML markup, quoted reply chains, and signature blocks. Task and EmailMessage records are deduplicated into threads, reducing token usage by up to 96% compared to raw records. For Task, queries are automatically scoped to TaskSubtype = 'Email' and Status = 'Completed'. Task email processing is optimized for Groove-style synced email Tasks. If the org exposes a Groove Date/Time sent field such as groove_email_sent_at__c, pass it as taskDateTimeTieBreakerField so same-day Task emails are ordered by actual email send time instead of Salesforce sync timestamps.\n",
+    "Retrieve Salesforce email activity from Task or EmailMessage records, clean email bodies, and deduplicate results into threads. Use this when an agent needs concise email history related to a record, contact, lead, or case.\n",
   scopes: [],
   tags: [],
   parameters: {
@@ -11536,7 +11536,7 @@ export const salesforceGetCleanActivityRecordsDefinition: ActionTemplate = {
       threads: {
         type: "array",
         description:
-          "Deduplicated email threads. EmailMessage threads include: parentId (Case ID when email is associated with a Case via Email-to-Case; null for Enhanced Email / inbox sync records — ParentId refers only to Case per Salesforce docs); status (0=New, 1=Read, 2=Replied, 3=Sent, 4=Forwarded — Draft records are excluded); hasAttachment; fromName; replyToEmailMessageId (set for Email-to-Case reply chains).",
+          "Deduplicated email threads. EmailMessage threads include: parentId (Case ID when email is associated with a Case via Email-to-Case; null for Enhanced Email / inbox sync records — ParentId refers only to Case per Salesforce docs); status (0=New, 1=Read, 2=Replied, 3=Sent, 4=Forwarded — Draft records are excluded); hasAttachment; fromName; replyToEmailMessageId (set for Email-to-Case reply chains), ccAddress.",
         items: {
           type: "object",
           additionalProperties: true,

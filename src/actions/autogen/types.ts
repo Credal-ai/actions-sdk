@@ -6090,7 +6090,7 @@ export const salesforceGetCleanActivityRecordsOutputSchema = z.object({
   threads: z
     .array(z.object({}).catchall(z.any()))
     .describe(
-      "Deduplicated email threads. EmailMessage threads include: parentId (Case ID when email is associated with a Case via Email-to-Case; null for Enhanced Email / inbox sync records — ParentId refers only to Case per Salesforce docs); status (0=New, 1=Read, 2=Replied, 3=Sent, 4=Forwarded — Draft records are excluded); hasAttachment; fromName; replyToEmailMessageId (set for Email-to-Case reply chains).",
+      "Deduplicated email threads. EmailMessage threads include: parentId (Case ID when email is associated with a Case via Email-to-Case; null for Enhanced Email / inbox sync records — ParentId refers only to Case per Salesforce docs); status (0=New, 1=Read, 2=Replied, 3=Sent, 4=Forwarded — Draft records are excluded); hasAttachment; fromName; replyToEmailMessageId (set for Email-to-Case reply chains), ccAddress.",
     )
     .optional(),
   activityIds: z
