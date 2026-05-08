@@ -131,12 +131,3 @@ dist
 .pnp.*
 
 *.DS_Store
-
-# Excel / data files (used for local analysis, not committed)
-*.xlsx
-*.xlsm
-*.xlsb
-*.xls
-*.csv
-
-

@@ -321,6 +321,18 @@ describe("salesforceGetCleanActivityRecords input guards", () => {
     ).not.toThrow();
   });
 
+  test("allows disallowed SOQL guard sequences after an escaped quote inside a string literal", () => {
+    expect(() => validateWhereClause("Subject LIKE 'Bob\\'s -- note%'")).not.toThrow();
+    expect(() => validateWhereClause("Subject LIKE 'Bob\\'s /* note */%'")).not.toThrow();
+  });
+
+  test("ignores parentheses and semi-join-looking text inside escaped string literals", () => {
+    const whereClause = "Subject LIKE 'Bob\\'s IN (SELECT phase%)' OR WhatId = '500Qp0000012345AAA'";
+
+    expect(() => validateWhereClause(whereClause)).not.toThrow();
+    expect(buildEmailMessageQuery(whereClause, 20)).toContain(`WHERE (${whereClause})`);
+  });
+
   test("rejects disallowed SOQL guard sequences outside quoted string literals", () => {
     expect(() => validateWhereClause("Subject LIKE '%Q2%' -- ignored")).toThrow(
       "whereClause contains disallowed patterns",

@@ -25,12 +25,17 @@ function forEachSoqlCharacterOutsideString(
   callback: (character: string, index: number) => void | "stop",
 ): void {
   let inString = false;
+  let escaped = false;
 
   for (let i = 0; i < value.length; i += 1) {
     const character = value[i];
 
     if (inString) {
-      if (character === "'" && value[i + 1] === "'") {
+      if (escaped) {
+        escaped = false;
+      } else if (character === "\\") {
+        escaped = true;
+      } else if (character === "'" && value[i + 1] === "'") {
         i += 1;
       } else if (character === "'") {
         inString = false;
