@@ -107,7 +107,7 @@ Currently all `EmailMessageRelation` rows are fetched without `RelationType`, so
 
 Before opening a new PR against `credal-ai/actions-sdk`:
 
-- [ ] **Auth migration** — update `tests/salesforce/testGetCleanActivityRecords.ts` from SF CLI auth to JWT flow.
+- [x] **Auth migration** — `testGetCleanActivityRecords.ts` and `testBuildingEmailMessages.ts` both migrated to JWT flow (`authenticateWithJWT` from `tests/salesforce/utils.ts`).
 - [x] **Email to Case `ParentId` surface** — `ParentId` in SELECT and thread output.
 - [x] **Email to Case thread grouping fix** — grouping key uses `ParentId ?? ThreadIdentifier ?? Id`.
 - [x] **Draft filter** — `AND Status != '5'` in EmailMessage query.
