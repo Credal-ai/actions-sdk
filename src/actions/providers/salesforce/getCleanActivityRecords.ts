@@ -9,7 +9,6 @@ import { ApiError, axiosClient } from "../../util/axiosClient.js";
 const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 100;
 const DEFAULT_MAX_BODY_LENGTH = 500;
-const MAX_ACTIVITY_ID_PAGES = 5;
 const MAX_EXCLUDE_IDS = 500;
 // Salesforce IDs are 15 or 18 alphanumeric characters — used to validate excludeActivityIds before SOQL interpolation
 const SF_ID_PATTERN = /^[a-zA-Z0-9]{15}$|^[a-zA-Z0-9]{18}$/;
@@ -138,7 +137,7 @@ function truncate(text: string | null, maxLength: number): string | null {
 }
 
 function normalizeSubject(subject: string): string {
-  const prefix = /^(Email:\s*|>>\s*|<<\s*|\[Inbox\]\s*-?\s*|Re:\s*|Fwd?:\s*|FW:\s*)/i;
+  const prefix = /^(Email:\s*|Bounced:\s*|>>\s*|<<\s*|\[Inbox\]\s*-?\s*|Re:\s*|Fwd?:\s*|FW:\s*)/i;
   let s = subject;
   let prev = "";
   while (s !== prev) {
@@ -454,6 +453,46 @@ function findParenthesizedRanges(value: string): Array<{ start: number; end: num
   return ranges;
 }
 
+function stripEnclosingParentheses(value: string): string {
+  let trimmed = value.trim();
+  let changed = true;
+
+  while (changed && trimmed.startsWith("(") && trimmed.endsWith(")")) {
+    changed = false;
+    const match = findMatchingParen(trimmed, 0);
+    if (match === trimmed.length - 1) {
+      trimmed = trimmed.slice(1, -1).trim();
+      changed = true;
+    }
+  }
+
+  return trimmed;
+}
+
+function hasTopLevelOr(value: string): boolean {
+  let depth = 0;
+  let found = false;
+  const normalized = stripEnclosingParentheses(value);
+
+  forEachSoqlCharacterOutsideString(normalized, (character, index) => {
+    if (character === "(") {
+      depth += 1;
+      return undefined;
+    }
+    if (character === ")") {
+      depth -= 1;
+      return undefined;
+    }
+    if (depth === 0 && /^OR\b/i.test(normalized.slice(index)) && (index === 0 || !/\w/.test(normalized[index - 1]))) {
+      found = true;
+      return "stop";
+    }
+    return undefined;
+  });
+
+  return found;
+}
+
 function isCompleteSemiJoinExpression(expression: string): boolean {
   const trimmed = expression.trim();
   const match = /^[A-Za-z_][\w.]*\s+(?:NOT\s+)?IN\s*\(/i.exec(trimmed);
@@ -488,36 +527,20 @@ function formatActivityWhereClause(whereClause: string): string {
   if (!containsSemiJoinSubquery(whereClause)) {
     return `(${whereClause})`;
   }
+  if (hasTopLevelOr(whereClause)) {
+    throw new Error(
+      "whereClause contains a semi-join subquery combined with OR, which Salesforce SOQL does not support. Split the query into multiple calls or rewrite the filter without OR.",
+    );
+  }
   const unwrapped = unwrapParenthesizedSemiJoins(whereClause);
   // Salesforce rejects outer parens around a bare lone semi-join, e.g. (WhoId IN (SELECT ...)).
-  // But a compound expression such as (WhoId IN (SELECT ...) AND/OR ...) is valid and must be
-  // wrapped so that appended AND filters are not escaped by a top-level OR via operator precedence.
+  // But a compound expression such as (WhoId IN (SELECT ...) AND ...) is valid and must be
+  // wrapped so that appended AND filters apply to the entire caller-provided expression.
   return isCompleteSemiJoinExpression(unwrapped) ? unwrapped : `(${unwrapped})`;
-}
-
-function buildEmailMessageActivityIdQuery(whereClause: string): string {
-  return `SELECT ActivityId FROM EmailMessage WHERE ${formatActivityWhereClause(whereClause)} AND ActivityId != null AND IsDeleted = false`;
 }
 
 function buildEmailMessageQuery(whereClause: string, limit: number): string {
   return `SELECT Id, Subject, MessageDate, Incoming, IsBounced, Status, HasAttachment, FromName, FromAddress, ToAddress, CcAddress, TextBody, ThreadIdentifier, MessageIdentifier, ReplyToEmailMessageId, RelatedToId, ParentId, ActivityId FROM EmailMessage WHERE ${formatActivityWhereClause(whereClause)} AND IsDeleted = false AND Status != '5' ORDER BY MessageDate DESC NULLS LAST LIMIT ${limit + 1}`;
-}
-
-async function collectCompleteEmailMessageActivityIds(
-  baseUrl: string,
-  authToken: string,
-  whereClause: string,
-): Promise<string[]> {
-  const rows = (await soqlQuery(
-    baseUrl,
-    authToken,
-    buildEmailMessageActivityIdQuery(whereClause),
-    MAX_ACTIVITY_ID_PAGES,
-    true,
-  )) as SfRecord[];
-  return [
-    ...new Set(rows.map(row => row.ActivityId).filter((id): id is string => typeof id === "string" && id.length > 0)),
-  ];
 }
 
 async function handleEmailMessage(
@@ -640,7 +663,11 @@ async function handleEmailMessage(
   };
 
   if (returnActivityIds) {
-    result.activityIds = JSON.stringify(await collectCompleteEmailMessageActivityIds(baseUrl, authToken, whereClause));
+    result.activityIds = JSON.stringify([
+      ...new Set(
+        records.map(record => record.ActivityId).filter((id): id is string => typeof id === "string" && id.length > 0),
+      ),
+    ]);
   }
 
   return result;
@@ -732,10 +759,8 @@ const getCleanActivityRecords: salesforceGetCleanActivityRecordsFunction = async
 };
 
 export {
-  buildEmailMessageActivityIdQuery,
   buildEmailMessageQuery,
   cleanBody,
-  collectCompleteEmailMessageActivityIds,
   compareTaskEmailRecords,
   detectTaskDirection,
   normalizeEmailHeaderText,

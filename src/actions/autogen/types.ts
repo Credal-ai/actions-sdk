@@ -6063,7 +6063,7 @@ export const salesforceGetCleanActivityRecordsParamsSchema = z.object({
   returnActivityIds: z
     .boolean()
     .describe(
-      "EmailMessage only — when true, performs a separate ActivityId-only query using the same whereClause and returns an activityIds string (JSON array) of Task IDs auto-generated alongside matching EmailMessage records. Pass this string directly as excludeActivityIds in a subsequent Task query to avoid returning the same communications twice.",
+      "EmailMessage only — when true, returns an activityIds string (JSON array) of Task IDs auto-generated alongside the fetched EmailMessage records. The IDs are limited to the EmailMessages returned by this call and can be passed directly as excludeActivityIds in a subsequent Task query over the same scope.",
     )
     .optional(),
   excludeActivityIds: z
@@ -6096,7 +6096,7 @@ export const salesforceGetCleanActivityRecordsOutputSchema = z.object({
   activityIds: z
     .string()
     .describe(
-      "EmailMessage only, returnActivityIds=true — JSON array string of Task IDs auto-generated alongside matching EmailMessage records. Covers up to 10,000 ActivityIds (5 Salesforce query pages). Sufficient for typical agent context; orgs with higher volumes require a narrower whereClause.",
+      "EmailMessage only, returnActivityIds=true — JSON array string of non-null ActivityId values from the fetched EmailMessage records. This is 1:1 with the current result window and does not include ActivityIds beyond the applied limit.",
     )
     .optional(),
   hasMore: z

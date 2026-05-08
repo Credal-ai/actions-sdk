@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, jest, test } from "@jest/globals";
 import {
-  buildEmailMessageActivityIdQuery,
   buildEmailMessageQuery,
   cleanBody,
   compareTaskEmailRecords,
   detectTaskDirection,
   normalizeEmailHeaderText,
   normalizeLimit,
+  normalizeSubject,
   parseExcludeActivityIds,
   soqlQuery,
   truncate,
@@ -31,35 +31,35 @@ beforeEach(() => {
 describe("salesforceGetCleanActivityRecords non-Groove Task body cleaning", () => {
   test("strips Body: label from Salesforce Gmail extension format", () => {
     const desc = [
-      "To: jason@powersproptech.com",
+      "To: customer@example.com",
       "CC: ",
       "BCC: ",
       "Attachment: --none--",
       "",
-      "Subject: Re: ButterflyMX Installation Next Steps: 80 Waterfront Blvd",
+      "Subject: Re: ExampleCo Installation Next Steps",
       "Body:",
-      "Hey Jason,",
-      "Thomas here, I hope you're having an excellent week.",
+      "Hey Customer,",
+      "I hope you're having an excellent week.",
       "",
     ].join("\n");
 
     const result = cleanBody(desc);
     expect(result).not.toContain("Body:");
-    expect(result).toContain("Hey Jason");
+    expect(result).toContain("Hey Customer");
     expect(result).not.toContain("To:");
     expect(result).not.toContain("Subject:");
   });
 
   test("strips Additional To: label from BCC-to-Salesforce format", () => {
     const desc = [
-      "Additional To: thehouselandlord@gmail.com",
+      "Additional To: customer@example.com",
       "CC: ",
       "BCC: ",
       "Attachment: ",
       "",
-      "Subject: ButterflyMX Case #00927715 - Re: Invoice",
+      "Subject: ExampleCo Case - Re: Invoice",
       "Body:",
-      "Thank you for reaching out to the ButterflyMX Customer Experience Team!",
+      "Thank you for reaching out to the ExampleCo Customer Experience Team!",
       "",
     ].join("\n");
 
@@ -77,9 +77,9 @@ describe("salesforceGetCleanActivityRecords non-Groove Task body cleaning", () =
     expect(result).not.toContain("&gt;");
   });
 
-  test("strips quoted reply that begins with '> On ... wrote:' (Groove/DealHub style)", () => {
+  test("strips quoted reply that begins with '> On ... wrote:'", () => {
     const body =
-      "From: Abccom@comcast.net\r\nTo: Bradley Boudreau <bradley.boudreau@butterflymx.com>\r\n\r\nThis is different usually I just get an invoice\r\n \r\nChristian Brewer, Owner\r\n\r\n> On 05/05/2026 7:08 PM EDT DealHub <system@dealhub.io> wrote:\r\n>  \r\n> \r\n> Some quoted body content\r\n";
+      "From: customer@example.com\r\nTo: Rep Example <rep@example.com>\r\n\r\nThis is different usually I just get an invoice\r\n \r\nExample Customer, Owner\r\n\r\n> On 05/05/2026 7:08 PM EDT Example App <system@example.com> wrote:\r\n>  \r\n> \r\n> Some quoted body content\r\n";
     const result = cleanBody(body);
     expect(result).toContain("This is different usually I just get an invoice");
     expect(result).not.toContain("> On 05/05/2026");
@@ -89,17 +89,17 @@ describe("salesforceGetCleanActivityRecords non-Groove Task body cleaning", () =
 
 describe("salesforceGetCleanActivityRecords non-Groove Task direction detection", () => {
   test("detects outbound from To: header when owner is the sender", () => {
-    const desc = "To: jason@powersproptech.com\nCC: \nBCC: \n\nSubject: Re: Install\nBody:\nHey Jason";
-    expect(detectTaskDirection("Email: Re: Install", desc, "thomas.sigler@butterflymx.com")).toBe("outbound");
+    const desc = "To: customer@example.com\nCC: \nBCC: \n\nSubject: Re: Install\nBody:\nHey Customer";
+    expect(detectTaskDirection("Email: Re: Install", desc, "rep@example.com")).toBe("outbound");
   });
 
   test("detects inbound from To: header when owner is the recipient", () => {
-    const desc = "To: thomas.sigler@butterflymx.com\nCC: \nBCC: \n\nSubject: Re: Install\nBody:\nHey Thomas";
-    expect(detectTaskDirection("Email: Re: Install", desc, "thomas.sigler@butterflymx.com")).toBe("inbound");
+    const desc = "To: rep@example.com\nCC: \nBCC: \n\nSubject: Re: Install\nBody:\nHey Rep";
+    expect(detectTaskDirection("Email: Re: Install", desc, "rep@example.com")).toBe("inbound");
   });
 
   test("returns unknown when no direction signals and no ownerEmail", () => {
-    const desc = "To: jason@powersproptech.com\nCC: \n\nSome body text";
+    const desc = "To: customer@example.com\nCC: \n\nSome body text";
     expect(detectTaskDirection("Email: Re: Install", desc, null)).toBe("unknown");
   });
 
@@ -135,6 +135,10 @@ describe("salesforceGetCleanActivityRecords Task email chronology", () => {
 
     expect(sorted[0]?.Id).toBe("00T000000000002AAA");
   });
+
+  test("normalizes bounced email subject prefixes into the base thread subject", () => {
+    expect(normalizeSubject("Bounced: >> Re: Pricing follow-up")).toBe("Pricing follow-up");
+  });
 });
 
 describe("salesforceGetCleanActivityRecords EmailMessage exclusions", () => {
@@ -158,25 +162,12 @@ describe("salesforceGetCleanActivityRecords EmailMessage exclusions", () => {
     expect(mockGet).not.toHaveBeenCalled();
   });
 
-  test("builds a separate uncapped ActivityId query from the same EmailMessage filter", () => {
-    const soql = buildEmailMessageActivityIdQuery("RelatedToId = '500Qp0000012345AAA'");
-
-    expect(soql).toBe(
-      "SELECT ActivityId FROM EmailMessage WHERE (RelatedToId = '500Qp0000012345AAA') AND ActivityId != null AND IsDeleted = false",
-    );
-    expect(soql).not.toContain("LIMIT");
-    expect(soql).not.toContain("TextBody");
-  });
-
   test("wraps compound semi-join clause to protect appended AND filters from OR precedence", () => {
     const whereClause =
       "Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z";
 
     expect(buildEmailMessageQuery(whereClause, 100)).toContain(
       "FROM EmailMessage WHERE (Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z) AND IsDeleted = false AND Status != '5' ORDER BY",
-    );
-    expect(buildEmailMessageActivityIdQuery(whereClause)).toBe(
-      "SELECT ActivityId FROM EmailMessage WHERE (Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003Qp00000cMnCQIA0') AND MessageDate >= 2026-01-01T00:00:00Z) AND ActivityId != null AND IsDeleted = false",
     );
   });
 
@@ -251,7 +242,7 @@ describe("salesforceGetCleanActivityRecords Task filters", () => {
         records: [
           {
             Id: "00T000000000001AAA",
-            Subject: "Email: >> Re: ButterflyMX Inquiry",
+            Subject: "Email: >> Re: ExampleCo Inquiry",
             ActivityDate: "2026-05-05",
             CompletedDateTime: "2026-05-05T20:00:00.000+0000",
             groove_email_sent_at__c: "2026-05-05T10:00:00.000+0000",
@@ -259,7 +250,7 @@ describe("salesforceGetCleanActivityRecords Task filters", () => {
           },
           {
             Id: "00T000000000002AAA",
-            Subject: "Email: >> Re: ButterflyMX Inquiry",
+            Subject: "Email: >> Re: ExampleCo Inquiry",
             ActivityDate: "2026-05-05",
             CompletedDateTime: "2026-05-05T19:00:00.000+0000",
             groove_email_sent_at__c: "2026-05-05T15:00:00.000+0000",
@@ -407,6 +398,77 @@ describe("salesforceGetCleanActivityRecords — queryAll endpoint", () => {
     const requestUrl = String(mockGet.mock.calls[0]?.[0]);
     expect(requestUrl).toContain("/queryAll?");
     expect(requestUrl).not.toContain("/query?");
+  });
+
+  test("returnActivityIds returns only ActivityIds from fetched EmailMessage records", async () => {
+    mockGet
+      .mockResolvedValueOnce({
+        data: {
+          records: [
+            {
+              Id: "02sQp0000000001AAA",
+              Subject: "Re: Invoice",
+              MessageDate: "2026-05-01T10:00:00.000+0000",
+              Incoming: true,
+              IsBounced: false,
+              FromAddress: "customer@example.com",
+              ToAddress: "rep@example.com",
+              TextBody: "First message.",
+              ThreadIdentifier: "thread-activity-ids",
+              MessageIdentifier: "msg-001",
+              RelatedToId: "500Qp0000012345AAA",
+              ActivityId: "00TQp000001abcDEF",
+            },
+            {
+              Id: "02sQp0000000002AAA",
+              Subject: "Re: Invoice",
+              MessageDate: "2026-05-01T11:00:00.000+0000",
+              Incoming: false,
+              IsBounced: false,
+              FromAddress: "rep@example.com",
+              ToAddress: "customer@example.com",
+              TextBody: "Second message.",
+              ThreadIdentifier: "thread-activity-ids",
+              MessageIdentifier: "msg-002",
+              RelatedToId: "500Qp0000012345AAA",
+              ActivityId: "00TQp000001abcDEG",
+            },
+            {
+              Id: "02sQp0000000003AAA",
+              Subject: "Re: Invoice",
+              MessageDate: "2026-05-01T12:00:00.000+0000",
+              Incoming: false,
+              IsBounced: false,
+              FromAddress: "rep@example.com",
+              ToAddress: "customer@example.com",
+              TextBody: "Overflow message.",
+              ThreadIdentifier: "thread-activity-ids",
+              MessageIdentifier: "msg-003",
+              RelatedToId: "500Qp0000012345AAA",
+              ActivityId: "00TQp000001abcDEH",
+            },
+          ],
+          done: true,
+        },
+      })
+      .mockResolvedValueOnce({ data: { records: [], done: true } });
+
+    const result = await getCleanActivityRecords({
+      params: {
+        objectType: "EmailMessage",
+        whereClause: "RelatedToId = '500Qp0000012345AAA'",
+        limit: 2,
+        returnActivityIds: true,
+      },
+      authParams: { authToken: "token", baseUrl: "https://example.my.salesforce.com" },
+    });
+
+    expect(result).toMatchObject({ success: true, totalFetched: 2, hasMore: true });
+    expect(result.activityIds).toBe(JSON.stringify(["00TQp000001abcDEF", "00TQp000001abcDEG"]));
+    expect(mockGet).toHaveBeenCalledTimes(2);
+    expect(decodeURIComponent(new URL(String(mockGet.mock.calls[0]?.[0])).searchParams.get("q") ?? "")).toContain(
+      "LIMIT 3",
+    );
   });
 });
 
@@ -667,7 +729,6 @@ describe("salesforceGetCleanActivityRecords containsSemiJoinSubquery string-lite
     // Without this fix, the clause would skip the (…) wrapper, breaking OR operator precedence.
     const whereClause = "Subject LIKE '%IN (SELECT phase%' OR WhatId = '500Qp0000012345AAA'";
     expect(buildEmailMessageQuery(whereClause, 20)).toContain(`WHERE (${whereClause})`);
-    expect(buildEmailMessageActivityIdQuery(whereClause)).toContain(`WHERE (${whereClause})`);
   });
 
   test("emits a bare lone semi-join without outer parens (Salesforce rejects the wrapped form)", () => {
@@ -677,15 +738,12 @@ describe("salesforceGetCleanActivityRecords containsSemiJoinSubquery string-lite
     expect(query).not.toContain(`WHERE (${whereClause})`);
   });
 
-  test("wraps semi-join combined with OR so appended AND filters apply to the whole expression", () => {
-    // Without this fix: "WhoId IN (SELECT ...) OR WhatId = '...' AND IsDeleted = false"
-    // AND binds tighter, so IsDeleted = false only guards the WhatId branch.
-    // With fix: "(WhoId IN (SELECT ...) OR WhatId = '...') AND IsDeleted = false"
+  test("rejects a semi-join combined with top-level OR because Salesforce SOQL does not support it", () => {
     const whereClause =
       "WhoId IN (SELECT ContactId FROM CampaignMember WHERE CampaignId = '001Qp000000abcDEF') OR WhatId = '001Qp000000xyzAAA'";
-    const query = buildEmailMessageQuery(whereClause, 20);
-    expect(query).toContain(`WHERE (${whereClause})`);
-    expect(query).not.toContain(`WHERE ${whereClause} AND`);
+    expect(() => buildEmailMessageQuery(whereClause, 20)).toThrow(
+      "whereClause contains a semi-join subquery combined with OR",
+    );
   });
 });
 
