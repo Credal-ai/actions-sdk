@@ -500,7 +500,7 @@ function buildEmailMessageActivityIdQuery(whereClause: string): string {
 }
 
 function buildEmailMessageQuery(whereClause: string, limit: number): string {
-  return `SELECT Id, Subject, MessageDate, Incoming, IsBounced, FromAddress, ToAddress, CcAddress, TextBody, ThreadIdentifier, MessageIdentifier, RelatedToId, ActivityId FROM EmailMessage WHERE ${formatActivityWhereClause(whereClause)} AND IsDeleted = false ORDER BY MessageDate DESC NULLS LAST LIMIT ${limit + 1}`;
+  return `SELECT Id, Subject, MessageDate, Incoming, IsBounced, FromAddress, ToAddress, CcAddress, TextBody, ThreadIdentifier, MessageIdentifier, RelatedToId, ParentId, ActivityId FROM EmailMessage WHERE ${formatActivityWhereClause(whereClause)} AND IsDeleted = false ORDER BY MessageDate DESC NULLS LAST LIMIT ${limit + 1}`;
 }
 
 async function collectCompleteEmailMessageActivityIds(
@@ -607,6 +607,7 @@ async function handleEmailMessage(
       direction: latest.Incoming === true ? "inbound" : "outbound",
       bounced: group.some(r => r.IsBounced === true),
       relatedToId: latest.RelatedToId ?? null,
+      parentId: latest.ParentId ?? null,
       fromAddress: latest.FromAddress ?? null,
       toAddress: latest.ToAddress ?? null,
       people,

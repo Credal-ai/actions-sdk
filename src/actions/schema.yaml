@@ -6886,7 +6886,7 @@ actions:
             description: Number of deduplicated threads
           threads:
             type: array
-            description: Deduplicated email threads
+            description: "Deduplicated email threads. EmailMessage threads include a parentId field: for Email to Case records this is the Case ID (the definitive support thread container); for Enhanced Email (Gmail/Outlook connector) records it is the auto-generated Task ID."
             items:
               type: object
               additionalProperties: true
