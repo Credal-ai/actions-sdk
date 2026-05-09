@@ -13,11 +13,37 @@ const MAX_EXCLUDE_IDS = 500;
 // Salesforce IDs are 15 or 18 alphanumeric characters — used to validate excludeActivityIds before SOQL interpolation
 const SF_ID_PATTERN = /^[a-zA-Z0-9]{15}$|^[a-zA-Z0-9]{18}$/;
 const TASK_FIELD_API_NAME_PATTERN = /^[A-Za-z_][A-Za-z0-9_]*$/;
+const CONTACT_ID_PREFIX = "003";
+const LEAD_ID_PREFIX = "00Q";
 // Blocks statement terminators and comment sequences that could escape the WHERE clause wrapper
 const SOQL_INJECTION_PATTERN = /;|--|\/\*|\*\//;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SfRecord = Record<string, any>;
+type PersonRecord = { id: string; name: string; email: string | null; title: string | null };
+
+function formatSoqlIdList(ids: string[]): string {
+  return ids.map(id => `'${id}'`).join(",");
+}
+
+function toPersonRecord(record: SfRecord): PersonRecord {
+  return { id: record.Id, name: record.Name, email: record.Email ?? null, title: record.Title ?? null };
+}
+
+function partitionPersonIdsByPrefix(ids: string[]): { contactIds: string[]; leadIds: string[] } {
+  const contactIds: string[] = [];
+  const leadIds: string[] = [];
+
+  for (const id of ids) {
+    if (id.startsWith(CONTACT_ID_PREFIX)) {
+      contactIds.push(id);
+    } else if (id.startsWith(LEAD_ID_PREFIX)) {
+      leadIds.push(id);
+    }
+  }
+
+  return { contactIds, leadIds };
+}
 
 function forEachSoqlCharacterOutsideString(
   value: string,
@@ -350,24 +376,22 @@ async function handleTask(
     threadMap.set(key, group);
   }
 
-  // Resolve WhoId → Contact, then Lead as fallback
+  // Resolve WhoId using Salesforce ID prefixes so object-specific queries never receive the wrong ID type.
   const whoIds = [...new Set(records.map(r => r.WhoId).filter(Boolean) as string[])];
-  const contactMap = new Map<string, { id: string; name: string; email: string | null; title: string | null }>();
-  if (whoIds.length > 0) {
-    const idList = whoIds.map(id => `'${id}'`).join(",");
-    const contactSoql = `SELECT Id, Name, Email, Title FROM Contact WHERE Id IN (${idList})`;
+  const contactMap = new Map<string, PersonRecord>();
+  const { contactIds, leadIds } = partitionPersonIdsByPrefix(whoIds);
+  if (contactIds.length > 0) {
+    const contactSoql = `SELECT Id, Name, Email, Title FROM Contact WHERE Id IN (${formatSoqlIdList(contactIds)})`;
     const contacts = (await soqlQuery(baseUrl, authToken, contactSoql)) as SfRecord[];
     for (const c of contacts) {
-      contactMap.set(c.Id, { id: c.Id, name: c.Name, email: c.Email ?? null, title: c.Title ?? null });
+      contactMap.set(c.Id, toPersonRecord(c));
     }
-    const unresolvedIds = whoIds.filter(id => !contactMap.has(id));
-    if (unresolvedIds.length > 0) {
-      const leadIdList = unresolvedIds.map(id => `'${id}'`).join(",");
-      const leadSoql = `SELECT Id, Name, Email, Title FROM Lead WHERE Id IN (${leadIdList})`;
-      const leads = (await soqlQuery(baseUrl, authToken, leadSoql)) as SfRecord[];
-      for (const l of leads) {
-        contactMap.set(l.Id, { id: l.Id, name: l.Name, email: l.Email ?? null, title: l.Title ?? null });
-      }
+  }
+  if (leadIds.length > 0) {
+    const leadSoql = `SELECT Id, Name, Email, Title FROM Lead WHERE Id IN (${formatSoqlIdList(leadIds)})`;
+    const leads = (await soqlQuery(baseUrl, authToken, leadSoql)) as SfRecord[];
+    for (const l of leads) {
+      contactMap.set(l.Id, toPersonRecord(l));
     }
   }
 
@@ -573,47 +597,51 @@ async function handleEmailMessage(
     threadMap.set(key, group);
   }
 
-  // Resolve people via EmailMessageRelation → Contact, then Lead as fallback
+  // Resolve people via EmailMessageRelation using RelationObjectType to keep Contact and Lead lookups separate.
   const allMessageIds = records.map(r => r.Id as string).filter(Boolean);
-  const personMap = new Map<string, { id: string; name: string; email: string | null; title: string | null }>();
+  const personMap = new Map<string, PersonRecord>();
   const messagePersonMap = new Map<string, string[]>();
 
   if (allMessageIds.length > 0) {
-    const messageIdList = allMessageIds.map(id => `'${id}'`).join(",");
+    const messageIdList = formatSoqlIdList(allMessageIds);
     const relationSoql = `SELECT EmailMessageId, RelationId, RelationObjectType FROM EmailMessageRelation WHERE EmailMessageId IN (${messageIdList}) AND RelationObjectType IN ('Contact', 'Lead')`;
     const relations = (await soqlQuery(baseUrl, authToken, relationSoql)) as SfRecord[];
 
-    const relationIdSet = new Set<string>();
+    const contactRelationIds = new Set<string>();
+    const leadRelationIds = new Set<string>();
     for (const rel of relations) {
       if (!rel.EmailMessageId || !rel.RelationId) continue;
       const existing = messagePersonMap.get(rel.EmailMessageId) ?? [];
       existing.push(rel.RelationId);
       messagePersonMap.set(rel.EmailMessageId, existing);
-      relationIdSet.add(rel.RelationId);
+      if (rel.RelationObjectType === "Contact") {
+        contactRelationIds.add(rel.RelationId);
+      } else if (rel.RelationObjectType === "Lead") {
+        leadRelationIds.add(rel.RelationId);
+      }
     }
-    const relationIds = [...relationIdSet];
 
-    if (relationIds.length > 0) {
-      const idList = relationIds.map(id => `'${id}'`).join(",");
+    const contactIds = [...contactRelationIds];
+    if (contactIds.length > 0) {
       const contacts = (await soqlQuery(
         baseUrl,
         authToken,
-        `SELECT Id, Name, Email, Title FROM Contact WHERE Id IN (${idList})`,
+        `SELECT Id, Name, Email, Title FROM Contact WHERE Id IN (${formatSoqlIdList(contactIds)})`,
       )) as SfRecord[];
       for (const c of contacts) {
-        personMap.set(c.Id, { id: c.Id, name: c.Name, email: c.Email ?? null, title: c.Title ?? null });
+        personMap.set(c.Id, toPersonRecord(c));
       }
-      const unresolvedIds = relationIds.filter(id => !personMap.has(id));
-      if (unresolvedIds.length > 0) {
-        const leadIdList = unresolvedIds.map(id => `'${id}'`).join(",");
-        const leads = (await soqlQuery(
-          baseUrl,
-          authToken,
-          `SELECT Id, Name, Email, Title FROM Lead WHERE Id IN (${leadIdList})`,
-        )) as SfRecord[];
-        for (const l of leads) {
-          personMap.set(l.Id, { id: l.Id, name: l.Name, email: l.Email ?? null, title: l.Title ?? null });
-        }
+    }
+
+    const leadIds = [...leadRelationIds];
+    if (leadIds.length > 0) {
+      const leads = (await soqlQuery(
+        baseUrl,
+        authToken,
+        `SELECT Id, Name, Email, Title FROM Lead WHERE Id IN (${formatSoqlIdList(leadIds)})`,
+      )) as SfRecord[];
+      for (const l of leads) {
+        personMap.set(l.Id, toPersonRecord(l));
       }
     }
   }

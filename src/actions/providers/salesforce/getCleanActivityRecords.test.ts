@@ -389,6 +389,94 @@ describe("salesforceGetCleanActivityRecords Task filters", () => {
       error: "taskDateTimeTieBreakerField must be a valid Task field API name",
     });
   });
+
+  test("rejects injected taskDateTimeTieBreakerField values before querying Salesforce", async () => {
+    await expect(
+      getCleanActivityRecords({
+        params: {
+          objectType: "Task",
+          whereClause: "WhatId = 'a3bQp000001h4J7IAI'",
+          taskDateTimeTieBreakerField: "validField__c, (SELECT Id FROM Account)",
+        },
+        authParams: {
+          authToken: "token",
+          baseUrl: "https://example.my.salesforce.com",
+        },
+      }),
+    ).resolves.toMatchObject({
+      success: false,
+      error: "taskDateTimeTieBreakerField must be a valid Task field API name",
+    });
+    expect(mockGet).not.toHaveBeenCalled();
+  });
+
+  test("partitions Contact and Lead WhoId values before Task person lookups", async () => {
+    mockGet
+      .mockResolvedValueOnce({
+        data: {
+          records: [
+            {
+              Id: "00T000000000001AAA",
+              Subject: "Email: >> Re: Contact thread",
+              ActivityDate: "2026-05-05",
+              CompletedDateTime: "2026-05-05T20:00:00.000+0000",
+              WhoId: "003Qp00000HyTFBIA3",
+              WhatId: "001Qp0000012345AAA",
+              Description: "From: rep@example.com\nTo: contact@example.com\n\nContact follow-up",
+            },
+            {
+              Id: "00T000000000002AAA",
+              Subject: "Email: >> Re: Lead thread",
+              ActivityDate: "2026-05-04",
+              CompletedDateTime: "2026-05-04T20:00:00.000+0000",
+              WhoId: "00QQp00000HyTFBIA4",
+              WhatId: "001Qp0000012345AAA",
+              Description: "From: rep@example.com\nTo: lead@example.com\n\nLead follow-up",
+            },
+          ],
+          done: true,
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          records: [
+            { Id: "003Qp00000HyTFBIA3", Name: "Alice Contact", Email: "contact@example.com", Title: "Manager" },
+          ],
+          done: true,
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          records: [{ Id: "00QQp00000HyTFBIA4", Name: "Bob Lead", Email: "lead@example.com", Title: null }],
+          done: true,
+        },
+      });
+
+    const result = await getCleanActivityRecords({
+      params: {
+        objectType: "Task",
+        whereClause: "WhatId = '001Qp0000012345AAA'",
+      },
+      authParams: {
+        authToken: "token",
+        baseUrl: "https://example.my.salesforce.com",
+      },
+    });
+
+    const contactSoql = decodeURIComponent(new URL(String(mockGet.mock.calls[1]?.[0])).searchParams.get("q") ?? "");
+    const leadSoql = decodeURIComponent(new URL(String(mockGet.mock.calls[2]?.[0])).searchParams.get("q") ?? "");
+    expect(contactSoql).toContain("FROM Contact WHERE Id IN ('003Qp00000HyTFBIA3')");
+    expect(contactSoql).not.toContain("00QQp00000HyTFBIA4");
+    expect(leadSoql).toContain("FROM Lead WHERE Id IN ('00QQp00000HyTFBIA4')");
+    expect(leadSoql).not.toContain("003Qp00000HyTFBIA3");
+    expect(result).toMatchObject({
+      success: true,
+      threads: [
+        { contact: { id: "003Qp00000HyTFBIA3", name: "Alice Contact", email: "contact@example.com" } },
+        { contact: { id: "00QQp00000HyTFBIA4", name: "Bob Lead", email: "lead@example.com" } },
+      ],
+    });
+  });
 });
 
 describe("salesforceGetCleanActivityRecords input guards", () => {
@@ -709,9 +797,7 @@ describe("salesforceGetCleanActivityRecords EmailMessage people resolution", () 
         done: true,
       },
     });
-    // 3. Contact query — returns nothing (it's a Lead)
-    mockGet.mockResolvedValueOnce({ data: { records: [], done: true } });
-    // 4. Lead fallback query
+    // 3. Lead query
     mockGet.mockResolvedValueOnce({
       data: {
         records: [{ Id: "00QQp00000HyTFBIA3", Name: "Bob Lead", Email: "lead@prospect.com", Title: null }],
@@ -729,6 +815,77 @@ describe("salesforceGetCleanActivityRecords EmailMessage people resolution", () 
       threads: [
         {
           people: [{ id: "00QQp00000HyTFBIA3", name: "Bob Lead", email: "lead@prospect.com", title: null }],
+        },
+      ],
+    });
+  });
+
+  test("partitions Contact and Lead EmailMessageRelation values before person lookups", async () => {
+    mockGet
+      .mockResolvedValueOnce({
+        data: {
+          records: [
+            {
+              Id: "02sQp0000000004AAA",
+              Subject: "Mixed relations",
+              MessageDate: "2026-05-04T10:00:00.000+0000",
+              Incoming: true,
+              IsBounced: false,
+              FromAddress: "contact@example.com",
+              ToAddress: "rep@butterflymx.com",
+              TextBody: "Contact and lead on this thread.",
+              ThreadIdentifier: "thread-mixed",
+              MessageIdentifier: "msg-004",
+              RelatedToId: "500Qp0000012345AAA",
+              ActivityId: "00TQp000001abcDEH",
+            },
+          ],
+          done: true,
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          records: [
+            { EmailMessageId: "02sQp0000000004AAA", RelationId: "003Qp00000HyTFBIA3", RelationObjectType: "Contact" },
+            { EmailMessageId: "02sQp0000000004AAA", RelationId: "00QQp00000HyTFBIA4", RelationObjectType: "Lead" },
+          ],
+          done: true,
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          records: [
+            { Id: "003Qp00000HyTFBIA3", Name: "Alice Contact", Email: "contact@example.com", Title: "Manager" },
+          ],
+          done: true,
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          records: [{ Id: "00QQp00000HyTFBIA4", Name: "Bob Lead", Email: "lead@example.com", Title: null }],
+          done: true,
+        },
+      });
+
+    const result = await getCleanActivityRecords({
+      params: { objectType: "EmailMessage", whereClause: "RelatedToId = '500Qp0000012345AAA'" },
+      authParams: { authToken: "token", baseUrl: "https://example.my.salesforce.com" },
+    });
+
+    const contactSoql = decodeURIComponent(new URL(String(mockGet.mock.calls[2]?.[0])).searchParams.get("q") ?? "");
+    const leadSoql = decodeURIComponent(new URL(String(mockGet.mock.calls[3]?.[0])).searchParams.get("q") ?? "");
+    expect(contactSoql).toContain("FROM Contact WHERE Id IN ('003Qp00000HyTFBIA3')");
+    expect(contactSoql).not.toContain("00QQp00000HyTFBIA4");
+    expect(leadSoql).toContain("FROM Lead WHERE Id IN ('00QQp00000HyTFBIA4')");
+    expect(leadSoql).not.toContain("003Qp00000HyTFBIA3");
+    expect(result).toMatchObject({
+      success: true,
+      threads: [
+        {
+          people: [
+            { id: "003Qp00000HyTFBIA3", name: "Alice Contact", email: "contact@example.com", title: "Manager" },
+            { id: "00QQp00000HyTFBIA4", name: "Bob Lead", email: "lead@example.com", title: null },
+          ],
         },
       ],
     });
