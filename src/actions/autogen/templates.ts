@@ -905,7 +905,7 @@ export const slackGetChannelMembersDefinition: ActionTemplate = {
 export const slackUserSearchSlackDefinition: ActionTemplate = {
   displayName: "Search Slack",
   description:
-    "Search Slack (DM/MPIM by emails or channel) with optional topic/time filter. Automatically hydrates each hit (full thread if threaded, otherwise a small surrounding context).",
+    "Deprecated. Please use the Slack Real-Time Search action, or ask your Credal admin to enable it if not currently available.",
   scopes: [
     "search:read",
     "channels:read",
