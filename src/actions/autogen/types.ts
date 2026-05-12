@@ -53,6 +53,7 @@ export enum ActionName {
   SENDMESSAGE = "sendMessage",
   GETCHANNELMESSAGES = "getChannelMessages",
   GETCHANNELMEMBERS = "getChannelMembers",
+  GETUSERPROFILE = "getUserProfile",
   SEARCHSLACK = "searchSlack",
   SEARCHSLACKRTS = "searchSlackRTS",
   ADD = "add",
@@ -664,6 +665,64 @@ export type slackGetChannelMembersFunction = ActionFunction<
   slackGetChannelMembersParamsType,
   AuthParamsType,
   slackGetChannelMembersOutputType
+>;
+
+export const slackGetUserProfileParamsSchema = z.object({
+  userId: z
+    .string()
+    .describe("The Slack user ID (e.g. U0123ABCD) to look up. Either userId or email must be provided.")
+    .optional(),
+  email: z
+    .string()
+    .describe(
+      "The email address of the user to look up. Used to resolve the Slack user ID when userId is not provided. Either userId or email must be provided.",
+    )
+    .optional(),
+});
+
+export type slackGetUserProfileParamsType = z.infer<typeof slackGetUserProfileParamsSchema>;
+
+export const slackGetUserProfileOutputSchema = z.object({
+  success: z.boolean().describe("Whether the profile was retrieved successfully"),
+  error: z.string().describe("Error message if the profile could not be retrieved").optional(),
+  userId: z.string().describe("The Slack user ID of the resolved user").optional(),
+  teamId: z.string().describe("The Slack team (workspace) ID the user belongs to").optional(),
+  email: z.string().describe("The user's email address").optional(),
+  realName: z.string().describe("The user's real name").optional(),
+  displayName: z.string().describe("The user's display name").optional(),
+  firstName: z.string().describe("The user's first name").optional(),
+  lastName: z.string().describe("The user's last name").optional(),
+  title: z.string().describe("The user's job title from their Slack profile").optional(),
+  phone: z.string().describe("The user's phone number from their Slack profile").optional(),
+  pronouns: z.string().describe("The user's pronouns from their Slack profile").optional(),
+  timezone: z.string().describe("The user's timezone (e.g. America/Los_Angeles)").optional(),
+  statusText: z.string().describe("The user's current status text").optional(),
+  statusEmoji: z.string().describe("The user's current status emoji").optional(),
+  isBot: z.boolean().describe("Whether the user is a bot").optional(),
+  isAdmin: z.boolean().describe("Whether the user is a workspace admin").optional(),
+  isOwner: z.boolean().describe("Whether the user is a workspace owner").optional(),
+  deleted: z.boolean().describe("Whether the user account has been deactivated").optional(),
+  imageUrl: z.string().describe("URL to the user's profile image (512px)").optional(),
+  customFields: z
+    .array(
+      z.object({
+        fieldId: z.string().describe("Slack's internal ID for the custom field (e.g. Xf0123ABCD)"),
+        label: z.string().describe("The human-readable label for the custom field"),
+        value: z.string().describe("The value of the custom field for this user"),
+        alt: z.string().describe("The alt text for the custom field value, if any").optional(),
+      }),
+    )
+    .describe(
+      'Custom profile fields configured for the workspace (e.g. manager, department, start date). The label is the human-readable field name, the value is the field value, and fieldId is Slack\'s internal identifier (Xf...). Manager fields typically appear here with a label like "Manager".',
+    )
+    .optional(),
+});
+
+export type slackGetUserProfileOutputType = z.infer<typeof slackGetUserProfileOutputSchema>;
+export type slackGetUserProfileFunction = ActionFunction<
+  slackGetUserProfileParamsType,
+  AuthParamsType,
+  slackGetUserProfileOutputType
 >;
 
 export const slackUserSearchSlackParamsSchema = z.object({

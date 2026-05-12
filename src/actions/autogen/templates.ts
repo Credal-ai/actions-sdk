@@ -902,6 +902,142 @@ export const slackGetChannelMembersDefinition: ActionTemplate = {
   name: "getChannelMembers",
   provider: "slack",
 };
+export const slackGetUserProfileDefinition: ActionTemplate = {
+  displayName: "Get a user's profile",
+  description:
+    "Looks up a Slack user's profile (display name, title, email, phone, and any custom profile fields such as manager) by Slack user ID or email address. Useful for HR/ops automations that need to read profile metadata like an employee's manager from Slack.",
+  scopes: ["users:read", "users:read.email", "users.profile:read"],
+  tags: [],
+  parameters: {
+    type: "object",
+    properties: {
+      userId: {
+        type: "string",
+        description: "The Slack user ID (e.g. U0123ABCD) to look up. Either userId or email must be provided.",
+      },
+      email: {
+        type: "string",
+        description:
+          "The email address of the user to look up. Used to resolve the Slack user ID when userId is not provided. Either userId or email must be provided.",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the profile was retrieved successfully",
+      },
+      error: {
+        type: "string",
+        description: "Error message if the profile could not be retrieved",
+      },
+      userId: {
+        type: "string",
+        description: "The Slack user ID of the resolved user",
+      },
+      teamId: {
+        type: "string",
+        description: "The Slack team (workspace) ID the user belongs to",
+      },
+      email: {
+        type: "string",
+        description: "The user's email address",
+      },
+      realName: {
+        type: "string",
+        description: "The user's real name",
+      },
+      displayName: {
+        type: "string",
+        description: "The user's display name",
+      },
+      firstName: {
+        type: "string",
+        description: "The user's first name",
+      },
+      lastName: {
+        type: "string",
+        description: "The user's last name",
+      },
+      title: {
+        type: "string",
+        description: "The user's job title from their Slack profile",
+      },
+      phone: {
+        type: "string",
+        description: "The user's phone number from their Slack profile",
+      },
+      pronouns: {
+        type: "string",
+        description: "The user's pronouns from their Slack profile",
+      },
+      timezone: {
+        type: "string",
+        description: "The user's timezone (e.g. America/Los_Angeles)",
+      },
+      statusText: {
+        type: "string",
+        description: "The user's current status text",
+      },
+      statusEmoji: {
+        type: "string",
+        description: "The user's current status emoji",
+      },
+      isBot: {
+        type: "boolean",
+        description: "Whether the user is a bot",
+      },
+      isAdmin: {
+        type: "boolean",
+        description: "Whether the user is a workspace admin",
+      },
+      isOwner: {
+        type: "boolean",
+        description: "Whether the user is a workspace owner",
+      },
+      deleted: {
+        type: "boolean",
+        description: "Whether the user account has been deactivated",
+      },
+      imageUrl: {
+        type: "string",
+        description: "URL to the user's profile image (512px)",
+      },
+      customFields: {
+        type: "array",
+        description:
+          'Custom profile fields configured for the workspace (e.g. manager, department, start date). The label is the human-readable field name, the value is the field value, and fieldId is Slack\'s internal identifier (Xf...). Manager fields typically appear here with a label like "Manager".',
+        items: {
+          type: "object",
+          required: ["fieldId", "label", "value"],
+          properties: {
+            fieldId: {
+              type: "string",
+              description: "Slack's internal ID for the custom field (e.g. Xf0123ABCD)",
+            },
+            label: {
+              type: "string",
+              description: "The human-readable label for the custom field",
+            },
+            value: {
+              type: "string",
+              description: "The value of the custom field for this user",
+            },
+            alt: {
+              type: "string",
+              description: "The alt text for the custom field value, if any",
+            },
+          },
+        },
+      },
+    },
+  },
+  name: "getUserProfile",
+  provider: "slack",
+};
 export const slackUserSearchSlackDefinition: ActionTemplate = {
   displayName: "Search Slack",
   description:
