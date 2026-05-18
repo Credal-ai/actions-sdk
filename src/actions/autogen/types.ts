@@ -105,6 +105,7 @@ export enum ActionName {
   DELETECALENDAREVENT = "deleteCalendarEvent",
   CREATESPREADSHEET = "createSpreadsheet",
   GETSPREADSHEETMETADATA = "getSpreadsheetMetadata",
+  LISTFILESWITHASSIGNEDCOMMENTS = "listFilesWithAssignedComments",
   UPDATESPREADSHEET = "updateSpreadsheet",
   APPENDROWSTOSPREADSHEET = "appendRowsToSpreadsheet",
   DELETEROWFROMSPREADSHEET = "deleteRowFromSpreadsheet",
@@ -3827,6 +3828,39 @@ export type googleOauthGetSpreadsheetMetadataFunction = ActionFunction<
   googleOauthGetSpreadsheetMetadataParamsType,
   AuthParamsType,
   googleOauthGetSpreadsheetMetadataOutputType
+>;
+
+export const googleOauthListFilesWithAssignedCommentsParamsSchema = z.object({
+  limit: z.number().describe("The maximum number of files to return.").optional(),
+});
+
+export type googleOauthListFilesWithAssignedCommentsParamsType = z.infer<
+  typeof googleOauthListFilesWithAssignedCommentsParamsSchema
+>;
+
+export const googleOauthListFilesWithAssignedCommentsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the request was successful"),
+  files: z
+    .array(
+      z.object({
+        id: z.string().describe("The file ID"),
+        name: z.string().describe("The file name"),
+        mimeType: z.string().describe("The MIME type of the file"),
+        url: z.string().describe("The web link to view the file"),
+      }),
+    )
+    .describe("List of files with assigned comments")
+    .optional(),
+  error: z.string().describe("Error message if the request failed").optional(),
+});
+
+export type googleOauthListFilesWithAssignedCommentsOutputType = z.infer<
+  typeof googleOauthListFilesWithAssignedCommentsOutputSchema
+>;
+export type googleOauthListFilesWithAssignedCommentsFunction = ActionFunction<
+  googleOauthListFilesWithAssignedCommentsParamsType,
+  AuthParamsType,
+  googleOauthListFilesWithAssignedCommentsOutputType
 >;
 
 export const googleOauthUpdateSpreadsheetParamsSchema = z.object({
