@@ -1,10 +1,13 @@
 import { runAction } from "../../src/app.js";
 import assert from "node:assert";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 // Test with token from: https://developers.google.com/oauthplayground/
-const authToken = "insert-access-token";
-const spreadsheetId = "insert-spreadsheet-id";
-const sheetName = "Sheet1";
+const authToken = process.env.GOOGLE_ACTIONS_ACCESS_TOKEN;
+const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+const sheetName = "Connectors";
 
 /**
  * Test for the Google OAuth appendRowsToSpreadsheet action
@@ -49,7 +52,7 @@ async function runAppendMultipleRowsTest() {
     },
     {
       spreadsheetId,
-      sheetName: "Sheet1",
+      sheetName: "Connectors",
       rows: [
         ["John Doe", "john@example.com", "555-1234"],
         ["Jane Smith", "jane@example.com", "555-5678"],

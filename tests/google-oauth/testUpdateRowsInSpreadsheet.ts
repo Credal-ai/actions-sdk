@@ -7,7 +7,7 @@ dotenv.config();
 // Test with token from: https://developers.google.com/oauthplayground/
 const authToken = process.env.GOOGLE_ACTIONS_ACCESS_TOKEN;
 const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-const sheetName = "Sheet1";
+const sheetName = "Connectors";
 
 /**
  * Test for the Google OAuth updateRowsInSpreadsheet action
@@ -56,7 +56,7 @@ async function runUpdateMultipleRowsTest() {
     },
     {
       spreadsheetId,
-      sheetName: "Sheet1",
+      sheetName: "Connectors",
       startRow: 3,
       rows: [
         ["John Doe", "john@example.com", "555-1234"],
