@@ -11466,6 +11466,106 @@ export const salesforceGetReportMetadataDefinition: ActionTemplate = {
   name: "getReportMetadata",
   provider: "salesforce",
 };
+export const salesforceGetCleanActivityRecordsDefinition: ActionTemplate = {
+  displayName: "Get clean activity records",
+  description:
+    "Retrieve Salesforce email activity from Task or EmailMessage records, clean email bodies, and deduplicate results into threads. Use this when an agent needs concise email history related to a record, contact, lead, or case.\n",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["objectType", "whereClause"],
+    properties: {
+      objectType: {
+        type: "string",
+        enum: ["Task", "EmailMessage"],
+        description: "The Salesforce activity object to query: Task or EmailMessage",
+      },
+      whereClause: {
+        type: "string",
+        description:
+          "SOQL WHERE clause without the WHERE keyword. The agent is responsible for valid SOQL. For Task, TaskSubtype = 'Email' is appended automatically. For EmailMessage related to a Contact, Lead, User, or other Salesforce record, use a top-level semi-join such as Id IN (SELECT EmailMessageId FROM EmailMessageRelation WHERE RelationId = '003...') AND MessageDate >= 2026-01-01T00:00:00Z. Do not rely only on ToAddress, CcAddress, or BccAddress when a Salesforce record ID is available because recipient fields can miss aliases, changed email addresses, and object relationships.",
+      },
+      limit: {
+        type: "number",
+        description:
+          "Maximum number of raw records to fetch from Salesforce before deduplication. Defaults to 20, hard-capped at 100.",
+      },
+      maxBodyLength: {
+        type: "number",
+        description:
+          "Maximum characters to return for each thread's cleaned body (cleanedDescription or cleanedBody). Defaults to 500. Increase if the agent needs fuller context on a specific thread.",
+      },
+      returnActivityIds: {
+        type: "boolean",
+        description:
+          "EmailMessage only — when true, returns an activityIds string (JSON array) of Task IDs auto-generated alongside the fetched EmailMessage records. The IDs are limited to the EmailMessages returned by this call and can be passed directly as excludeActivityIds in a subsequent Task query over the same scope.",
+      },
+      excludeActivityIds: {
+        type: "string",
+        description:
+          "Task only — JSON array string of Task IDs to exclude from results. Pass the activityIds string returned from a preceding EmailMessage query exactly as provided — no parsing required.",
+      },
+      taskDateTimeTieBreakerField: {
+        type: "string",
+        description:
+          "Task only — optional Task Date/Time field API name used before ActivityDate to order synced email Tasks by true sent time. This is intended for Groove-style fields such as groove_email_sent_at__c. The field API name must match [A-Za-z_][A-Za-z0-9_]* — names failing this check are rejected immediately. Unrecognized but syntactically valid field names produce a Salesforce API error at query time.",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the records were successfully retrieved",
+      },
+      objectType: {
+        type: "string",
+        description: "The object type that was queried",
+      },
+      totalFetched: {
+        type: "number",
+        description: "Number of raw records returned from Salesforce",
+      },
+      totalThreads: {
+        type: "number",
+        description: "Number of deduplicated threads",
+      },
+      threads: {
+        type: "array",
+        description:
+          "Deduplicated email threads. EmailMessage threads include: parentId (Case ID when email is associated with a Case via Email-to-Case; null for Enhanced Email / inbox sync records — ParentId refers only to Case per Salesforce docs); status (0=New, 1=Read, 2=Replied, 3=Sent, 4=Forwarded — Draft records are excluded); hasAttachment; fromName; replyToEmailMessageId (set for Email-to-Case reply chains), ccAddress.",
+        items: {
+          type: "object",
+          additionalProperties: true,
+        },
+      },
+      activityIds: {
+        type: "string",
+        description:
+          "EmailMessage only, returnActivityIds=true — JSON array string of non-null ActivityId values from the fetched EmailMessage records. This is 1:1 with the current result window and does not include ActivityIds beyond the applied limit.",
+      },
+      hasMore: {
+        type: "boolean",
+        description:
+          "True when the number of raw records returned equaled the limit, indicating additional records may exist beyond what was fetched.",
+      },
+      hasMoreMessage: {
+        type: "string",
+        description:
+          "Human-readable message explaining that the result was capped and advising the agent to narrow the WHERE clause or increase the limit.",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the records were not successfully retrieved",
+      },
+    },
+  },
+  name: "getCleanActivityRecords",
+  provider: "salesforce",
+};
 export const microsoftCreateDocumentDefinition: ActionTemplate = {
   displayName: "Create a document",
   description: "Creates a new Office365 document",

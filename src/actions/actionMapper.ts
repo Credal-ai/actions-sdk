@@ -288,6 +288,8 @@ import {
   slackGetChannelMembersOutputSchema,
   salesforceGetReportMetadataParamsSchema,
   salesforceGetReportMetadataOutputSchema,
+  salesforceGetCleanActivityRecordsParamsSchema,
+  salesforceGetCleanActivityRecordsOutputSchema,
   googleOauthUpdateRowsInSpreadsheetParamsSchema,
   googleOauthUpdateRowsInSpreadsheetOutputSchema,
 } from "./autogen/types.js";
@@ -436,6 +438,7 @@ import searchAllSalesforceRecords from "./providers/salesforce/searchAllSalesfor
 import listReports from "./providers/salesforce/listReports.js";
 import getReportMetadata from "./providers/salesforce/getReportMetadata.js";
 import executeReport from "./providers/salesforce/executeReport.js";
+import getCleanActivityRecords from "./providers/salesforce/getCleanActivityRecords.js";
 
 type ActionTypeSchema = "read" | "write";
 
@@ -1186,6 +1189,12 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: getReportMetadata,
       paramsSchema: salesforceGetReportMetadataParamsSchema,
       outputSchema: salesforceGetReportMetadataOutputSchema,
+      actionType: "read",
+    },
+    getCleanActivityRecords: {
+      fn: getCleanActivityRecords,
+      paramsSchema: salesforceGetCleanActivityRecordsParamsSchema,
+      outputSchema: salesforceGetCleanActivityRecordsOutputSchema,
       actionType: "read",
     },
   },
