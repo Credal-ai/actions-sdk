@@ -9,6 +9,10 @@ import { getJiraApiConfig, getErrorMessage, extractPlainText, getUserInfoFromAcc
 
 const DEFAULT_LIMIT = 100;
 
+// Jira Cloud implementation using the enhanced search API (cursor-based pagination).
+// Returns `truncated: true` when results were cut off at the limit and more pages exist.
+// Note: the enhanced API does not expose a total count, so `total` is never returned here.
+// Use `jiraDataCenter` provider if you need the exact total count.
 const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
   params,
   authParams,
@@ -45,6 +49,7 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
   const requestedLimit = limit ?? DEFAULT_LIMIT;
   const allIssues = [];
   let nextPageToken: string | undefined = undefined;
+  let truncated = false;
 
   try {
     // Initialize jira.js client with OAuth 2.0 authentication
@@ -80,6 +85,8 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
 
       // Check if we've reached the end or have enough results
       if (allIssues.length >= requestedLimit || !searchResults.nextPageToken || searchResults.issues.length === 0) {
+        // Truncated when we hit the limit but Jira still has more pages
+        truncated = allIssues.length >= requestedLimit && !!searchResults.nextPageToken;
         break;
       }
 
@@ -147,7 +154,7 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
       }),
     );
 
-    return { results };
+    return { results, truncated };
   } catch (error: unknown) {
     console.error("Error retrieving Jira issues:", error);
     return {

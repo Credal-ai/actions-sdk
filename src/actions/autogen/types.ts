@@ -1240,7 +1240,12 @@ export type jiraUpdateJiraTicketStatusFunction = ActionFunction<
 
 export const jiraGetJiraIssuesByQueryParamsSchema = z.object({
   query: z.string().describe("The JQL query to execute"),
-  limit: z.number().describe("The maximum number of records to retrieve").optional(),
+  limit: z
+    .number()
+    .describe(
+      "The maximum number of records to retrieve. Defaults to 100. For exhaustive queries where all matching issues are needed, set this to a value larger than the expected result count (e.g. 500 or 1000).",
+    )
+    .optional(),
 });
 
 export type jiraGetJiraIssuesByQueryParamsType = z.infer<typeof jiraGetJiraIssuesByQueryParamsSchema>;
@@ -1301,6 +1306,18 @@ export const jiraGetJiraIssuesByQueryOutputSchema = z.object({
       }),
     )
     .describe("The results of the Jira issues")
+    .optional(),
+  total: z
+    .number()
+    .describe(
+      "The total number of Jira issues matching the query. When present and greater than the number of results returned, re-run with a higher limit to retrieve all issues.",
+    )
+    .optional(),
+  truncated: z
+    .boolean()
+    .describe(
+      "True when the result set was cut off at the requested limit and more issues exist. Re-run with a higher limit to retrieve all issues.",
+    )
     .optional(),
   error: z.string().describe("The error that occurred if the records were not successfully retrieved").optional(),
 });
@@ -1666,7 +1683,12 @@ export type jiraOrgUpdateJiraTicketStatusFunction = ActionFunction<
 
 export const jiraOrgGetJiraIssuesByQueryParamsSchema = z.object({
   query: z.string().describe("The JQL query to execute"),
-  limit: z.number().describe("The maximum number of records to retrieve").optional(),
+  limit: z
+    .number()
+    .describe(
+      "The maximum number of records to retrieve. Defaults to 100. For exhaustive queries where all matching issues are needed, set this to a value larger than the expected result count (e.g. 500 or 1000).",
+    )
+    .optional(),
 });
 
 export type jiraOrgGetJiraIssuesByQueryParamsType = z.infer<typeof jiraOrgGetJiraIssuesByQueryParamsSchema>;
@@ -1727,6 +1749,18 @@ export const jiraOrgGetJiraIssuesByQueryOutputSchema = z.object({
       }),
     )
     .describe("The results of the Jira issues")
+    .optional(),
+  total: z
+    .number()
+    .describe(
+      "The total number of Jira issues matching the query. When present and greater than the number of results returned, re-run with a higher limit to retrieve all issues.",
+    )
+    .optional(),
+  truncated: z
+    .boolean()
+    .describe(
+      "True when the result set was cut off at the requested limit and more issues exist. Re-run with a higher limit to retrieve all issues.",
+    )
     .optional(),
   error: z.string().describe("The error that occurred if the records were not successfully retrieved").optional(),
 });
@@ -2116,7 +2150,12 @@ export type jiraDataCenterUpdateJiraTicketStatusFunction = ActionFunction<
 
 export const jiraDataCenterGetJiraIssuesByQueryParamsSchema = z.object({
   query: z.string().describe("The JQL query to execute"),
-  limit: z.number().describe("The maximum number of records to retrieve").optional(),
+  limit: z
+    .number()
+    .describe(
+      "The maximum number of records to retrieve. Defaults to 100. For exhaustive queries where all matching issues are needed, set this to a value larger than the expected result count (e.g. 500 or 1000).",
+    )
+    .optional(),
 });
 
 export type jiraDataCenterGetJiraIssuesByQueryParamsType = z.infer<
@@ -2179,6 +2218,18 @@ export const jiraDataCenterGetJiraIssuesByQueryOutputSchema = z.object({
       }),
     )
     .describe("The results of the Jira issues")
+    .optional(),
+  total: z
+    .number()
+    .describe(
+      "The total number of Jira issues matching the query. When present and greater than the number of results returned, re-run with a higher limit to retrieve all issues.",
+    )
+    .optional(),
+  truncated: z
+    .boolean()
+    .describe(
+      "True when the result set was cut off at the requested limit and more issues exist. Re-run with a higher limit to retrieve all issues.",
+    )
     .optional(),
   error: z.string().describe("The error that occurred if the records were not successfully retrieved").optional(),
 });

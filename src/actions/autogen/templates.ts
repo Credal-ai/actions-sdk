@@ -2044,7 +2044,8 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
       },
       limit: {
         type: "number",
-        description: "The maximum number of records to retrieve",
+        description:
+          "The maximum number of records to retrieve. Defaults to 100. For exhaustive queries where all matching issues are needed, set this to a value larger than the expected result count (e.g. 500 or 1000).",
       },
     },
   },
@@ -2219,6 +2220,16 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
             },
           },
         },
+      },
+      total: {
+        type: "number",
+        description:
+          "The total number of Jira issues matching the query. When present and greater than the number of results returned, re-run with a higher limit to retrieve all issues.",
+      },
+      truncated: {
+        type: "boolean",
+        description:
+          "True when the result set was cut off at the requested limit and more issues exist. Re-run with a higher limit to retrieve all issues.",
       },
       error: {
         type: "string",
@@ -2909,7 +2920,8 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
       },
       limit: {
         type: "number",
-        description: "The maximum number of records to retrieve",
+        description:
+          "The maximum number of records to retrieve. Defaults to 100. For exhaustive queries where all matching issues are needed, set this to a value larger than the expected result count (e.g. 500 or 1000).",
       },
     },
   },
@@ -3084,6 +3096,16 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
             },
           },
         },
+      },
+      total: {
+        type: "number",
+        description:
+          "The total number of Jira issues matching the query. When present and greater than the number of results returned, re-run with a higher limit to retrieve all issues.",
+      },
+      truncated: {
+        type: "boolean",
+        description:
+          "True when the result set was cut off at the requested limit and more issues exist. Re-run with a higher limit to retrieve all issues.",
       },
       error: {
         type: "string",
@@ -3774,7 +3796,8 @@ export const jiraDataCenterGetJiraIssuesByQueryDefinition: ActionTemplate = {
       },
       limit: {
         type: "number",
-        description: "The maximum number of records to retrieve",
+        description:
+          "The maximum number of records to retrieve. Defaults to 100. For exhaustive queries where all matching issues are needed, set this to a value larger than the expected result count (e.g. 500 or 1000).",
       },
     },
   },
@@ -3949,6 +3972,16 @@ export const jiraDataCenterGetJiraIssuesByQueryDefinition: ActionTemplate = {
             },
           },
         },
+      },
+      total: {
+        type: "number",
+        description:
+          "The total number of Jira issues matching the query. When present and greater than the number of results returned, re-run with a higher limit to retrieve all issues.",
+      },
+      truncated: {
+        type: "boolean",
+        description:
+          "True when the result set was cut off at the requested limit and more issues exist. Re-run with a higher limit to retrieve all issues.",
       },
       error: {
         type: "string",
