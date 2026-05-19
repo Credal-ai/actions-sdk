@@ -160,8 +160,16 @@ async function addTypesToFile({
   fallback: string;
   name: string;
 }) {
-  // Tool calling framework currently having trouble filling in records as opposed to objects
-  const zodSchema = obj ? convert(obj).replace(/z\.record\(z\.any\(\)\)/g, "z.object({}).catchall(z.any())") : fallback;
+  // Tool calling framework currently having trouble filling in records as opposed to objects.
+  // Also coerce numeric types from strings: LLMs often emit numbers as JSON strings (e.g. "2"
+  // instead of 2) even when the schema specifies integer/number, causing Zod validation failures.
+  // z.coerce.number() is a no-op for actual numbers, so this is fully backward-compatible.
+  const zodSchema = obj
+    ? convert(obj)
+        .replace(/z\.record\(z\.any\(\)\)/g, "z.object({}).catchall(z.any())")
+        .replace(/z\.number\(\)\.int\(\)/g, "z.coerce.number().int()")
+        .replace(/z\.number\(\)/g, "z.coerce.number()")
+    : fallback;
   const zodName = `${name}Schema`;
   file.addVariableStatement({
     declarationKind: VariableDeclarationKind.Const,

@@ -23,7 +23,7 @@ async function runTest() {
       spreadsheetId,
       sheetName,
       rows: [
-        [{ stringValue: "Name" }, { stringValue: "Email" }, { stringValue: "Phone" }],
+        ["Name", "Email", "Phone"],
       ],
     },
   );
@@ -51,9 +51,9 @@ async function runAppendMultipleRowsTest() {
       spreadsheetId,
       sheetName: "Sheet1",
       rows: [
-        [{ stringValue: "John Doe" }, { stringValue: "john@example.com" }, { stringValue: "555-1234" }],
-        [{ stringValue: "Jane Smith" }, { stringValue: "jane@example.com" }, { stringValue: "555-5678" }],
-        [{ stringValue: "Bob Wilson" }, { stringValue: "bob@example.com" }, { stringValue: "555-9012" }],
+        ["John Doe", "john@example.com", "555-1234"],
+        ["Jane Smith", "jane@example.com", "555-5678"],
+        ["Bob Wilson", "bob@example.com", "555-9012"],
       ],
     },
   );

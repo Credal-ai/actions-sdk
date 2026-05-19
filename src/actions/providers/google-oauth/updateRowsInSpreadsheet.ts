@@ -22,19 +22,19 @@ const updateRowsInSpreadsheet: googleOauthUpdateRowsInSpreadsheetFunction = asyn
     throw new Error(MISSING_AUTH_TOKEN);
   }
 
-  const { spreadsheetId, sheetName, startRow, rows } = params;
+  const { spreadsheetId, sheetName, startRow, startColumn, rows } = params;
 
   if (rows.length === 0) {
     throw new Error("rows array cannot be empty");
   }
 
-  const values = rows.map(row => row.map(cell => cell.stringValue));
-
   if (startRow < 1) {
     throw new Error("startRow must be >= 1");
   }
+
+  const col = startColumn ?? "A";
   const endRow = startRow + rows.length - 1;
-  const range = `'${sheetName ?? "Sheet1"}'!A${startRow}:ZZ${endRow}`;
+  const range = `'${sheetName ?? "Sheet1"}'!${col}${startRow}:ZZ${endRow}`;
 
   const updateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}`;
 
@@ -42,7 +42,7 @@ const updateRowsInSpreadsheet: googleOauthUpdateRowsInSpreadsheetFunction = asyn
     const response = await axiosClient.put(
       updateUrl,
       {
-        values,
+        values: rows,
         majorDimension: "ROWS",
         range,
       },

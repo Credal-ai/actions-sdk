@@ -24,18 +24,13 @@ const appendRowsToSpreadsheet: googleOauthAppendRowsToSpreadsheetFunction = asyn
 
   const { spreadsheetId, sheetName, rows } = params;
 
-  // Transform rows from schema format to Google Sheets API format
-  // Schema: [[{ stringValue: "cell1" }, { stringValue: "cell2" }], ...]
-  // API expects: [["cell1", "cell2"], ...]
-  const values = rows.map(row => row.map(cell => cell.stringValue));
-
   const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/'${sheetName ?? "Sheet1"}':append`;
 
   try {
     const response = await axiosClient.post(
       appendUrl,
       {
-        values,
+        values: rows,
         majorDimension: "ROWS",
         range: `'${sheetName}'`,
       },
