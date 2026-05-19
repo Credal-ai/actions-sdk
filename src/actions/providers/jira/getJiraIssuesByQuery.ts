@@ -45,6 +45,7 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
   const requestedLimit = limit ?? DEFAULT_LIMIT;
   const allIssues = [];
   let nextPageToken: string | undefined = undefined;
+  let truncated = false;
 
   try {
     // Initialize jira.js client with OAuth 2.0 authentication
@@ -80,6 +81,8 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
 
       // Check if we've reached the end or have enough results
       if (allIssues.length >= requestedLimit || !searchResults.nextPageToken || searchResults.issues.length === 0) {
+        // Truncated when we hit the limit but Jira still has more pages
+        truncated = allIssues.length >= requestedLimit && !!searchResults.nextPageToken;
         break;
       }
 
@@ -147,7 +150,7 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
       }),
     );
 
-    return { results };
+    return { results, truncated };
   } catch (error: unknown) {
     console.error("Error retrieving Jira issues:", error);
     return {

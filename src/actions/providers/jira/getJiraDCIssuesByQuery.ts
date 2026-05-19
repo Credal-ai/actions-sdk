@@ -98,6 +98,7 @@ const getJiraDCIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
   const requestedLimit = limit ?? DEFAULT_LIMIT;
   const allIssues = [];
   let startAt = 0;
+  let jiraTotal: number | undefined = undefined;
 
   try {
     // Keep fetching pages until we have all requested issues
@@ -122,6 +123,7 @@ const getJiraDCIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
       });
 
       const { issues, total } = response.data;
+      jiraTotal = total;
 
       allIssues.push(...issues);
       if (allIssues.length >= total || issues.length === 0) {
@@ -132,6 +134,7 @@ const getJiraDCIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
     }
 
     return {
+      total: jiraTotal,
       results: allIssues.map(issue => {
         const { id, key, fields } = issue;
         const {
