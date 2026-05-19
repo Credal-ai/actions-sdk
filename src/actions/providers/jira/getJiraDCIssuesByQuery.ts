@@ -55,9 +55,10 @@ type JiraSearchResponse = {
 };
 
 /**
- * Get Jira issues from Jira Data Center
- * Uses startAt parameter to paginate through the results while
- * getJiraIssuesByQuery uses nextPageToken parameter to paginate through the results.
+ * Get Jira issues from Jira Data Center using offset-based pagination (startAt).
+ * Returns `total` from the Jira API response so callers can detect truncation by
+ * comparing total > results.length. Does not return `truncated` — use `total` instead.
+ * (Contrast with the Cloud implementation which returns `truncated` but not `total`.)
  */
 const getJiraDCIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
   params,

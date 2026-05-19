@@ -20,11 +20,14 @@ export type ProviderType = "cloud" | "datacenter";
 const providerType = (process.env.JIRA_PROVIDER as ProviderType) || "cloud";
 
 function createJiraConfig(): JiraTestConfig {
+  const issueId = process.env.JIRA_ISSUE_ID!;
+  const projectKey = process.env.JIRA_PROJECT_KEY ?? issueId?.split("-")[0];
+
   const baseConfig = {
     authToken: process.env.JIRA_AUTH_TOKEN!,
     baseUrl: process.env.JIRA_BASE_URL!,
-    projectKey: process.env.JIRA_PROJECT_KEY!,
-    issueId: process.env.JIRA_ISSUE_ID!,
+    projectKey,
+    issueId,
     assignee: process.env.JIRA_ASSIGNEE || "",
     serviceDeskId: process.env.JIRA_SERVICE_DESK_ID,
     requestTypeId: process.env.JIRA_REQUEST_TYPE_ID,

@@ -10,16 +10,19 @@ import { getAuthParams } from "./utils.js";
 async function testGetJiraIssuesByQuery(config: JiraTestConfig) {
   const { projectKey, provider } = config;
 
+  const jql = `project = ${projectKey} ORDER BY created ASC`;
+  console.log(`Running JQL: "${jql}" on provider: ${provider}`);
+
   const result = (await runAction(
     "getJiraIssuesByQuery",
     provider,
     getAuthParams(config),
     {
-      query: `project = ${projectKey}`,
+      query: jql,
       limit: 2,
     },
   )) as jiraGetJiraIssuesByQueryOutputType;
-  
+
   console.dir(result, { depth: 4 });
 
   assert.strictEqual(result.error, undefined);
@@ -31,6 +34,18 @@ async function testGetJiraIssuesByQuery(config: JiraTestConfig) {
   assert.ok(firstResult.name);
   assert.ok(firstResult.url);
   assert.ok(firstResult.contents);
+
+  // Truncation signal: DC returns `total`, Cloud returns `truncated`.
+  // With limit=2, a project with more than 2 issues should trigger one of these.
+  if (provider === "jiraDataCenter") {
+    assert.ok(typeof result.total === "number", "DC provider should return a numeric total");
+  } else {
+    // Cloud: truncated is true when limit was hit and more pages exist.
+    // Only assert its type when present — a project with <=2 issues won't set it.
+    if (result.truncated !== undefined) {
+      assert.ok(typeof result.truncated === "boolean", "truncated should be a boolean");
+    }
+  }
 }
 
 runJiraTest("Get Jira Issues by Query", testGetJiraIssuesByQuery).catch((error) => {

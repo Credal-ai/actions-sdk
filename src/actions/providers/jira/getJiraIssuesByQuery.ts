@@ -9,6 +9,10 @@ import { getJiraApiConfig, getErrorMessage, extractPlainText, getUserInfoFromAcc
 
 const DEFAULT_LIMIT = 100;
 
+// Jira Cloud implementation using the enhanced search API (cursor-based pagination).
+// Returns `truncated: true` when results were cut off at the limit and more pages exist.
+// Note: the enhanced API does not expose a total count, so `total` is never returned here.
+// Use `jiraDataCenter` provider if you need the exact total count.
 const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
   params,
   authParams,
