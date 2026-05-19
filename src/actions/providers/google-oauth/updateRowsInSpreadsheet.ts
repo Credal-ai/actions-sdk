@@ -75,7 +75,6 @@ const updateRowsInSpreadsheet: googleOauthUpdateRowsInSpreadsheetFunction = asyn
       updatedCells: response.data.updatedCells,
     };
   } catch (error) {
-
     console.error("Error updating rows in spreadsheet", error);
     return {
       success: false,
