@@ -7304,6 +7304,65 @@ export const googleOauthGetSpreadsheetMetadataDefinition: ActionTemplate = {
   name: "getSpreadsheetMetadata",
   provider: "googleOauth",
 };
+export const googleOauthListFilesWithAssignedCommentsDefinition: ActionTemplate = {
+  displayName: "List Files with Assigned Comments",
+  description:
+    "List Google Drive files that have open comments assigned to the current user (equivalent to searching followup:assignedcomments in Google Drive).",
+  scopes: ["drive.readonly"],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: [],
+    properties: {
+      limit: {
+        type: "number",
+        description: "The maximum number of files to return.",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the request was successful",
+      },
+      files: {
+        type: "array",
+        description: "List of files with assigned comments",
+        items: {
+          type: "object",
+          required: ["id", "name", "mimeType", "url"],
+          properties: {
+            id: {
+              type: "string",
+              description: "The file ID",
+            },
+            name: {
+              type: "string",
+              description: "The file name",
+            },
+            mimeType: {
+              type: "string",
+              description: "The MIME type of the file",
+            },
+            url: {
+              type: "string",
+              description: "The web link to view the file",
+            },
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "Error message if the request failed",
+      },
+    },
+  },
+  name: "listFilesWithAssignedComments",
+  provider: "googleOauth",
+};
 export const googleOauthUpdateSpreadsheetDefinition: ActionTemplate = {
   displayName: "Update a spreadsheet",
   description: "Update a Google Spreadsheet with new content specified",

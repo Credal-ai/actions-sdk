@@ -99,6 +99,8 @@ import {
   googleOauthCreateSpreadsheetOutputSchema,
   googleOauthGetSpreadsheetMetadataParamsSchema,
   googleOauthGetSpreadsheetMetadataOutputSchema,
+  googleOauthListFilesWithAssignedCommentsParamsSchema,
+  googleOauthListFilesWithAssignedCommentsOutputSchema,
   googleOauthUpdateSpreadsheetParamsSchema,
   googleOauthUpdateSpreadsheetOutputSchema,
   googleOauthAppendRowsToSpreadsheetParamsSchema,
@@ -348,6 +350,7 @@ import deleteCalendarEvent from "./providers/google-oauth/deleteCalendarEvent.js
 import editAGoogleCalendarEvent from "./providers/google-oauth/editAGoogleCalendarEvent.js";
 import createSpreadsheet from "./providers/google-oauth/createSpreadsheet.js";
 import getSpreadsheetMetadata from "./providers/google-oauth/getSpreadsheetMetadata.js";
+import listFilesWithAssignedComments from "./providers/google-oauth/listFilesWithAssignedComments.js";
 import updateSpreadsheet from "./providers/google-oauth/updateSpreadsheet.js";
 import appendRowsToSpreadsheet from "./providers/google-oauth/appendRowsToSpreadsheet.js";
 import deleteRowFromSpreadsheet from "./providers/google-oauth/deleteRowFromSpreadsheet.js";
@@ -915,6 +918,12 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: getSpreadsheetMetadata,
       paramsSchema: googleOauthGetSpreadsheetMetadataParamsSchema,
       outputSchema: googleOauthGetSpreadsheetMetadataOutputSchema,
+      actionType: "read",
+    },
+    listFilesWithAssignedComments: {
+      fn: listFilesWithAssignedComments,
+      paramsSchema: googleOauthListFilesWithAssignedCommentsParamsSchema,
+      outputSchema: googleOauthListFilesWithAssignedCommentsOutputSchema,
       actionType: "read",
     },
     updateSpreadsheet: {
