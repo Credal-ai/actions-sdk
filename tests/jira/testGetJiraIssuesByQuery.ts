@@ -11,7 +11,6 @@ async function testGetJiraIssuesByQuery(config: JiraTestConfig) {
   const { projectKey, provider } = config;
 
   const jql = `project = ${projectKey} ORDER BY created ASC`;
-  console.log(`Running JQL: "${jql}" on provider: ${provider}`);
 
   const result = (await runAction(
     "getJiraIssuesByQuery",
