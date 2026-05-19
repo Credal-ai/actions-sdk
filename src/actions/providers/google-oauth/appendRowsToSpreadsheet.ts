@@ -30,7 +30,7 @@ const appendRowsToSpreadsheet: googleOauthAppendRowsToSpreadsheetFunction = asyn
     }
 
     const sheet = sheetName ?? "Sheet1";
-    const quotedSheet = /[\s'!]/.test(sheet) ? `'${sheet}'` : sheet;
+    const quotedSheet = /[\s'!]/.test(sheet) ? `'${sheet.replace(/'/g, "''")}'` : sheet;
     const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(quotedSheet)}:append`;
 
     const response = await axiosClient.post(

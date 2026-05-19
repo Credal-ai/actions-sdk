@@ -41,7 +41,7 @@ const updateRowsInSpreadsheet: googleOauthUpdateRowsInSpreadsheetFunction = asyn
     const endRow = startRow + rows.length - 1;
     const sheet = sheetName ?? "Sheet1";
     // Only quote sheet names that contain spaces or special characters
-    const quotedSheet = /[\s'!]/.test(sheet) ? `'${sheet}'` : sheet;
+    const quotedSheet = /[\s'!]/.test(sheet) ? `'${sheet.replace(/'/g, "''")}'` : sheet;
     const range = `${quotedSheet}!${col}${startRow}:ZZ${endRow}`;
 
     const updateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}`;
