@@ -24,15 +24,21 @@ const appendRowsToSpreadsheet: googleOauthAppendRowsToSpreadsheetFunction = asyn
 
   const { spreadsheetId, sheetName, rows } = params;
 
-  const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/'${sheetName ?? "Sheet1"}':append`;
-
   try {
+    if (rows.length === 0) {
+      throw new Error("rows array cannot be empty");
+    }
+
+    const sheet = sheetName ?? "Sheet1";
+    const quotedSheet = /[\s'!]/.test(sheet) ? `'${sheet}'` : sheet;
+    const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(quotedSheet)}:append`;
+
     const response = await axiosClient.post(
       appendUrl,
       {
         values: rows,
         majorDimension: "ROWS",
-        range: `'${sheetName}'`,
+        range: quotedSheet,
       },
       {
         headers: {

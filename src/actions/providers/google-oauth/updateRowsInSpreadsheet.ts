@@ -24,24 +24,28 @@ const updateRowsInSpreadsheet: googleOauthUpdateRowsInSpreadsheetFunction = asyn
 
   const { spreadsheetId, sheetName, startRow, startColumn, rows } = params;
 
-  if (rows.length === 0) {
-    throw new Error("rows array cannot be empty");
-  }
-
-  if (startRow < 1) {
-    throw new Error("startRow must be >= 1");
-  }
-
-  const col = startColumn ?? "A";
-  const endRow = startRow + rows.length - 1;
-  const sheet = sheetName ?? "Sheet1";
-  // Only quote sheet names that contain spaces or special characters
-  const quotedSheet = /[\s'!]/.test(sheet) ? `'${sheet}'` : sheet;
-  const range = `${quotedSheet}!${col}${startRow}:ZZ${endRow}`;
-
-  const updateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}`;
-
   try {
+    if (rows.length === 0) {
+      throw new Error("rows array cannot be empty");
+    }
+
+    if (startRow < 1) {
+      throw new Error("startRow must be >= 1");
+    }
+
+    const col = startColumn ?? "A";
+    if (!/^[A-Za-z]+$/.test(col)) {
+      throw new Error(`startColumn must be a column letter (e.g. "A", "BE"), got: "${col}"`);
+    }
+
+    const endRow = startRow + rows.length - 1;
+    const sheet = sheetName ?? "Sheet1";
+    // Only quote sheet names that contain spaces or special characters
+    const quotedSheet = /[\s'!]/.test(sheet) ? `'${sheet}'` : sheet;
+    const range = `${quotedSheet}!${col}${startRow}:ZZ${endRow}`;
+
+    const updateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}`;
+
     const response = await axiosClient.put(
       updateUrl,
       {
@@ -71,6 +75,7 @@ const updateRowsInSpreadsheet: googleOauthUpdateRowsInSpreadsheetFunction = asyn
       updatedCells: response.data.updatedCells,
     };
   } catch (error) {
+
     console.error("Error updating rows in spreadsheet", error);
     return {
       success: false,
