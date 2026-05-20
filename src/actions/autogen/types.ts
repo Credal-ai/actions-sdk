@@ -1242,8 +1242,12 @@ export const jiraGetJiraIssuesByQueryParamsSchema = z.object({
   query: z.string().describe("The JQL query to execute"),
   limit: z.coerce
     .number()
+    .describe("The maximum number of records to retrieve per call (page size). Defaults to 100.")
+    .optional(),
+  startAt: z.coerce
+    .number()
     .describe(
-      "The maximum number of records to retrieve. Defaults to 100. For exhaustive queries where all matching issues are needed, set this to a value larger than the expected result count (e.g. 500 or 1000).",
+      "Offset of the first result to return. Defaults to 0. To page through results: count the number of results you can actually read in the response and pass currentStartAt + countOfResultsRead as the next startAt. Do not blindly use itemsReturned to advance — the response may be truncated by the system after this action returns, meaning you may see fewer results than itemsReturned reports.",
     )
     .optional(),
 });
@@ -1251,6 +1255,18 @@ export const jiraGetJiraIssuesByQueryParamsSchema = z.object({
 export type jiraGetJiraIssuesByQueryParamsType = z.infer<typeof jiraGetJiraIssuesByQueryParamsSchema>;
 
 export const jiraGetJiraIssuesByQueryOutputSchema = z.object({
+  itemsReturned: z.coerce
+    .number()
+    .describe(
+      "Number of items fetched by this action. This field intentionally appears before results so it survives system-level response truncation. Warning: the system may truncate the results array before you see it, so you may receive fewer results than this number. Always count the results you can actually read and use currentStartAt + countOfResultsRead as the next startAt, not currentStartAt + itemsReturned.",
+    )
+    .optional(),
+  truncated: z
+    .boolean()
+    .describe(
+      "True when more results exist beyond this batch. Call again with startAt set to currentStartAt + countOfResultsRead (the number of results you actually received in this response).",
+    )
+    .optional(),
   results: z
     .array(
       z.object({
@@ -1306,18 +1322,6 @@ export const jiraGetJiraIssuesByQueryOutputSchema = z.object({
       }),
     )
     .describe("The results of the Jira issues")
-    .optional(),
-  total: z.coerce
-    .number()
-    .describe(
-      "The total number of Jira issues matching the query. When present and greater than the number of results returned, re-run with a higher limit to retrieve all issues.",
-    )
-    .optional(),
-  truncated: z
-    .boolean()
-    .describe(
-      "True when the result set was cut off at the requested limit and more issues exist. Re-run with a higher limit to retrieve all issues.",
-    )
     .optional(),
   error: z.string().describe("The error that occurred if the records were not successfully retrieved").optional(),
 });
@@ -1685,8 +1689,12 @@ export const jiraOrgGetJiraIssuesByQueryParamsSchema = z.object({
   query: z.string().describe("The JQL query to execute"),
   limit: z.coerce
     .number()
+    .describe("The maximum number of records to retrieve per call (page size). Defaults to 100.")
+    .optional(),
+  startAt: z.coerce
+    .number()
     .describe(
-      "The maximum number of records to retrieve. Defaults to 100. For exhaustive queries where all matching issues are needed, set this to a value larger than the expected result count (e.g. 500 or 1000).",
+      "Offset of the first result to return. Defaults to 0. To page through results: count the number of results you can actually read in the response and pass currentStartAt + countOfResultsRead as the next startAt. Do not blindly use itemsReturned to advance — the response may be truncated by the system after this action returns, meaning you may see fewer results than itemsReturned reports.",
     )
     .optional(),
 });
@@ -1694,6 +1702,18 @@ export const jiraOrgGetJiraIssuesByQueryParamsSchema = z.object({
 export type jiraOrgGetJiraIssuesByQueryParamsType = z.infer<typeof jiraOrgGetJiraIssuesByQueryParamsSchema>;
 
 export const jiraOrgGetJiraIssuesByQueryOutputSchema = z.object({
+  itemsReturned: z.coerce
+    .number()
+    .describe(
+      "Number of items fetched by this action. This field intentionally appears before results so it survives system-level response truncation. Warning: the system may truncate the results array before you see it, so you may receive fewer results than this number. Always count the results you can actually read and use currentStartAt + countOfResultsRead as the next startAt, not currentStartAt + itemsReturned.",
+    )
+    .optional(),
+  truncated: z
+    .boolean()
+    .describe(
+      "True when more results exist beyond this batch. Call again with startAt set to currentStartAt + countOfResultsRead (the number of results you actually received in this response).",
+    )
+    .optional(),
   results: z
     .array(
       z.object({
@@ -1749,18 +1769,6 @@ export const jiraOrgGetJiraIssuesByQueryOutputSchema = z.object({
       }),
     )
     .describe("The results of the Jira issues")
-    .optional(),
-  total: z.coerce
-    .number()
-    .describe(
-      "The total number of Jira issues matching the query. When present and greater than the number of results returned, re-run with a higher limit to retrieve all issues.",
-    )
-    .optional(),
-  truncated: z
-    .boolean()
-    .describe(
-      "True when the result set was cut off at the requested limit and more issues exist. Re-run with a higher limit to retrieve all issues.",
-    )
     .optional(),
   error: z.string().describe("The error that occurred if the records were not successfully retrieved").optional(),
 });
@@ -2152,8 +2160,12 @@ export const jiraDataCenterGetJiraIssuesByQueryParamsSchema = z.object({
   query: z.string().describe("The JQL query to execute"),
   limit: z.coerce
     .number()
+    .describe("The maximum number of records to retrieve per call (page size). Defaults to 100.")
+    .optional(),
+  startAt: z.coerce
+    .number()
     .describe(
-      "The maximum number of records to retrieve. Defaults to 100. For exhaustive queries where all matching issues are needed, set this to a value larger than the expected result count (e.g. 500 or 1000).",
+      "Offset of the first result to return. Defaults to 0. To page through results: count the number of results you can actually read in the response and pass currentStartAt + countOfResultsRead as the next startAt. Do not blindly use itemsReturned to advance — the response may be truncated by the system after this action returns, meaning you may see fewer results than itemsReturned reports.",
     )
     .optional(),
 });
@@ -2163,6 +2175,18 @@ export type jiraDataCenterGetJiraIssuesByQueryParamsType = z.infer<
 >;
 
 export const jiraDataCenterGetJiraIssuesByQueryOutputSchema = z.object({
+  itemsReturned: z.coerce
+    .number()
+    .describe(
+      "Number of items fetched by this action. This field intentionally appears before results so it survives system-level response truncation. Warning: the system may truncate the results array before you see it, so you may receive fewer results than this number. Always count the results you can actually read and use currentStartAt + countOfResultsRead as the next startAt, not currentStartAt + itemsReturned.",
+    )
+    .optional(),
+  truncated: z
+    .boolean()
+    .describe(
+      "True when more results exist beyond this batch. Call again with startAt set to currentStartAt + countOfResultsRead (the number of results you actually received in this response).",
+    )
+    .optional(),
   results: z
     .array(
       z.object({
@@ -2218,18 +2242,6 @@ export const jiraDataCenterGetJiraIssuesByQueryOutputSchema = z.object({
       }),
     )
     .describe("The results of the Jira issues")
-    .optional(),
-  total: z.coerce
-    .number()
-    .describe(
-      "The total number of Jira issues matching the query. When present and greater than the number of results returned, re-run with a higher limit to retrieve all issues.",
-    )
-    .optional(),
-  truncated: z
-    .boolean()
-    .describe(
-      "True when the result set was cut off at the requested limit and more issues exist. Re-run with a higher limit to retrieve all issues.",
-    )
     .optional(),
   error: z.string().describe("The error that occurred if the records were not successfully retrieved").optional(),
 });

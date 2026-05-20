@@ -2044,14 +2044,28 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
       },
       limit: {
         type: "number",
+        description: "The maximum number of records to retrieve per call (page size). Defaults to 100.",
+      },
+      startAt: {
+        type: "number",
         description:
-          "The maximum number of records to retrieve. Defaults to 100. For exhaustive queries where all matching issues are needed, set this to a value larger than the expected result count (e.g. 500 or 1000).",
+          "Offset of the first result to return. Defaults to 0. To page through results: count the number of results you can actually read in the response and pass currentStartAt + countOfResultsRead as the next startAt. Do not blindly use itemsReturned to advance — the response may be truncated by the system after this action returns, meaning you may see fewer results than itemsReturned reports.",
       },
     },
   },
   output: {
     type: "object",
     properties: {
+      itemsReturned: {
+        type: "number",
+        description:
+          "Number of items fetched by this action. This field intentionally appears before results so it survives system-level response truncation. Warning: the system may truncate the results array before you see it, so you may receive fewer results than this number. Always count the results you can actually read and use currentStartAt + countOfResultsRead as the next startAt, not currentStartAt + itemsReturned.",
+      },
+      truncated: {
+        type: "boolean",
+        description:
+          "True when more results exist beyond this batch. Call again with startAt set to currentStartAt + countOfResultsRead (the number of results you actually received in this response).",
+      },
       results: {
         type: "array",
         description: "The results of the Jira issues",
@@ -2220,16 +2234,6 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
             },
           },
         },
-      },
-      total: {
-        type: "number",
-        description:
-          "The total number of Jira issues matching the query. When present and greater than the number of results returned, re-run with a higher limit to retrieve all issues.",
-      },
-      truncated: {
-        type: "boolean",
-        description:
-          "True when the result set was cut off at the requested limit and more issues exist. Re-run with a higher limit to retrieve all issues.",
       },
       error: {
         type: "string",
@@ -2920,14 +2924,28 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
       },
       limit: {
         type: "number",
+        description: "The maximum number of records to retrieve per call (page size). Defaults to 100.",
+      },
+      startAt: {
+        type: "number",
         description:
-          "The maximum number of records to retrieve. Defaults to 100. For exhaustive queries where all matching issues are needed, set this to a value larger than the expected result count (e.g. 500 or 1000).",
+          "Offset of the first result to return. Defaults to 0. To page through results: count the number of results you can actually read in the response and pass currentStartAt + countOfResultsRead as the next startAt. Do not blindly use itemsReturned to advance — the response may be truncated by the system after this action returns, meaning you may see fewer results than itemsReturned reports.",
       },
     },
   },
   output: {
     type: "object",
     properties: {
+      itemsReturned: {
+        type: "number",
+        description:
+          "Number of items fetched by this action. This field intentionally appears before results so it survives system-level response truncation. Warning: the system may truncate the results array before you see it, so you may receive fewer results than this number. Always count the results you can actually read and use currentStartAt + countOfResultsRead as the next startAt, not currentStartAt + itemsReturned.",
+      },
+      truncated: {
+        type: "boolean",
+        description:
+          "True when more results exist beyond this batch. Call again with startAt set to currentStartAt + countOfResultsRead (the number of results you actually received in this response).",
+      },
       results: {
         type: "array",
         description: "The results of the Jira issues",
@@ -3096,16 +3114,6 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
             },
           },
         },
-      },
-      total: {
-        type: "number",
-        description:
-          "The total number of Jira issues matching the query. When present and greater than the number of results returned, re-run with a higher limit to retrieve all issues.",
-      },
-      truncated: {
-        type: "boolean",
-        description:
-          "True when the result set was cut off at the requested limit and more issues exist. Re-run with a higher limit to retrieve all issues.",
       },
       error: {
         type: "string",
@@ -3796,14 +3804,28 @@ export const jiraDataCenterGetJiraIssuesByQueryDefinition: ActionTemplate = {
       },
       limit: {
         type: "number",
+        description: "The maximum number of records to retrieve per call (page size). Defaults to 100.",
+      },
+      startAt: {
+        type: "number",
         description:
-          "The maximum number of records to retrieve. Defaults to 100. For exhaustive queries where all matching issues are needed, set this to a value larger than the expected result count (e.g. 500 or 1000).",
+          "Offset of the first result to return. Defaults to 0. To page through results: count the number of results you can actually read in the response and pass currentStartAt + countOfResultsRead as the next startAt. Do not blindly use itemsReturned to advance — the response may be truncated by the system after this action returns, meaning you may see fewer results than itemsReturned reports.",
       },
     },
   },
   output: {
     type: "object",
     properties: {
+      itemsReturned: {
+        type: "number",
+        description:
+          "Number of items fetched by this action. This field intentionally appears before results so it survives system-level response truncation. Warning: the system may truncate the results array before you see it, so you may receive fewer results than this number. Always count the results you can actually read and use currentStartAt + countOfResultsRead as the next startAt, not currentStartAt + itemsReturned.",
+      },
+      truncated: {
+        type: "boolean",
+        description:
+          "True when more results exist beyond this batch. Call again with startAt set to currentStartAt + countOfResultsRead (the number of results you actually received in this response).",
+      },
       results: {
         type: "array",
         description: "The results of the Jira issues",
@@ -3972,16 +3994,6 @@ export const jiraDataCenterGetJiraIssuesByQueryDefinition: ActionTemplate = {
             },
           },
         },
-      },
-      total: {
-        type: "number",
-        description:
-          "The total number of Jira issues matching the query. When present and greater than the number of results returned, re-run with a higher limit to retrieve all issues.",
-      },
-      truncated: {
-        type: "boolean",
-        description:
-          "True when the result set was cut off at the requested limit and more issues exist. Re-run with a higher limit to retrieve all issues.",
       },
       error: {
         type: "string",

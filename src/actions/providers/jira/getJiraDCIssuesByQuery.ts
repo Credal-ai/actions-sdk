@@ -56,9 +56,8 @@ type JiraSearchResponse = {
 
 /**
  * Get Jira issues from Jira Data Center using offset-based pagination (startAt).
- * Returns `total` from the Jira API response so callers can detect truncation by
- * comparing total > results.length. Does not return `truncated` — use `total` instead.
- * (Contrast with the Cloud implementation which returns `truncated` but not `total`.)
+ * Returns `itemsReturned` and `truncated` so agents can page through results by
+ * incrementing startAt by itemsReturned each call until truncated is false.
  */
 const getJiraDCIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
   params,
@@ -68,7 +67,7 @@ const getJiraDCIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
   authParams: AuthParamsType;
 }): Promise<jiraGetJiraIssuesByQueryOutputType> => {
   const { authToken } = authParams;
-  const { query, limit } = params;
+  const { query, limit, startAt: paramStartAt } = params;
   const { apiUrl, browseUrl, strategy } = getJiraApiConfig(authParams);
 
   if (!authToken) {
@@ -97,8 +96,8 @@ const getJiraDCIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
 
   const searchEndpoint = strategy.getSearchEndpoint();
   const requestedLimit = limit ?? DEFAULT_LIMIT;
-  const allIssues = [];
-  let startAt = 0;
+  const allIssues: JiraSearchResponse["issues"] = [];
+  let currentStartAt = paramStartAt ?? 0;
   let jiraTotal: number | undefined = undefined;
 
   try {
@@ -111,7 +110,7 @@ const getJiraDCIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
       const queryParams = new URLSearchParams();
       queryParams.set("jql", query);
       queryParams.set("maxResults", String(maxResults));
-      queryParams.set("startAt", String(startAt));
+      queryParams.set("startAt", String(currentStartAt));
       queryParams.set("fields", fields.join(","));
 
       const fullApiUrl = `${apiUrl}${searchEndpoint}?${queryParams.toString()}`;
@@ -127,15 +126,19 @@ const getJiraDCIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
       jiraTotal = total;
 
       allIssues.push(...issues);
-      if (allIssues.length >= total || issues.length === 0) {
+      if ((paramStartAt ?? 0) + allIssues.length >= total || issues.length === 0) {
         break;
       }
 
-      startAt += issues.length;
+      currentStartAt += issues.length;
     }
 
+    const absoluteEnd = (paramStartAt ?? 0) + allIssues.length;
+    const truncated = jiraTotal !== undefined && absoluteEnd < jiraTotal;
+
     return {
-      total: jiraTotal,
+      itemsReturned: allIssues.length,
+      truncated,
       results: allIssues.map(issue => {
         const { id, key, fields } = issue;
         const {
