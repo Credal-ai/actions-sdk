@@ -1247,7 +1247,7 @@ export const jiraGetJiraIssuesByQueryParamsSchema = z.object({
   startAt: z.coerce
     .number()
     .describe(
-      "Offset of the first result to return. Add itemsReturned from the previous response to the current startAt to compute the next page offset. Defaults to 0.",
+      "Offset of the first result to return. Defaults to 0. To page through results: count the number of results you can actually read in the response and pass currentStartAt + countOfResultsRead as the next startAt. Do not blindly use itemsReturned to advance — the response may be truncated by the system after this action returns, meaning you may see fewer results than itemsReturned reports.",
     )
     .optional(),
 });
@@ -1258,7 +1258,7 @@ export const jiraGetJiraIssuesByQueryOutputSchema = z.object({
   itemsReturned: z.coerce
     .number()
     .describe(
-      "Number of items returned in this response. Add this value to the current startAt to get the next page's startAt. Appears before results so it is readable even if the results are truncated.",
+      "Number of items fetched by this action. This field intentionally appears before results so it survives system-level response truncation. Warning: the system may truncate the results array before you see it, so you may receive fewer results than this number. Always count the results you can actually read and use currentStartAt + countOfResultsRead as the next startAt, not currentStartAt + itemsReturned.",
     )
     .optional(),
   truncated: z
@@ -1694,7 +1694,7 @@ export const jiraOrgGetJiraIssuesByQueryParamsSchema = z.object({
   startAt: z.coerce
     .number()
     .describe(
-      "Offset of the first result to return. Add itemsReturned from the previous response to the current startAt to compute the next page offset. Defaults to 0.",
+      "Offset of the first result to return. Defaults to 0. To page through results: count the number of results you can actually read in the response and pass currentStartAt + countOfResultsRead as the next startAt. Do not blindly use itemsReturned to advance — the response may be truncated by the system after this action returns, meaning you may see fewer results than itemsReturned reports.",
     )
     .optional(),
 });
@@ -1705,7 +1705,7 @@ export const jiraOrgGetJiraIssuesByQueryOutputSchema = z.object({
   itemsReturned: z.coerce
     .number()
     .describe(
-      "Number of items returned in this response. Add this value to the current startAt to get the next page's startAt. Appears before results so it is readable even if the results are truncated.",
+      "Number of items fetched by this action. This field intentionally appears before results so it survives system-level response truncation. Warning: the system may truncate the results array before you see it, so you may receive fewer results than this number. Always count the results you can actually read and use currentStartAt + countOfResultsRead as the next startAt, not currentStartAt + itemsReturned.",
     )
     .optional(),
   truncated: z
@@ -2165,7 +2165,7 @@ export const jiraDataCenterGetJiraIssuesByQueryParamsSchema = z.object({
   startAt: z.coerce
     .number()
     .describe(
-      "Offset of the first result to return. Add itemsReturned from the previous response to the current startAt to compute the next page offset. Defaults to 0.",
+      "Offset of the first result to return. Defaults to 0. To page through results: count the number of results you can actually read in the response and pass currentStartAt + countOfResultsRead as the next startAt. Do not blindly use itemsReturned to advance — the response may be truncated by the system after this action returns, meaning you may see fewer results than itemsReturned reports.",
     )
     .optional(),
 });
@@ -2178,7 +2178,7 @@ export const jiraDataCenterGetJiraIssuesByQueryOutputSchema = z.object({
   itemsReturned: z.coerce
     .number()
     .describe(
-      "Number of items returned in this response. Add this value to the current startAt to get the next page's startAt. Appears before results so it is readable even if the results are truncated.",
+      "Number of items fetched by this action. This field intentionally appears before results so it survives system-level response truncation. Warning: the system may truncate the results array before you see it, so you may receive fewer results than this number. Always count the results you can actually read and use currentStartAt + countOfResultsRead as the next startAt, not currentStartAt + itemsReturned.",
     )
     .optional(),
   truncated: z

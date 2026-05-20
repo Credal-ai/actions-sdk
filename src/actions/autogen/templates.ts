@@ -2049,7 +2049,7 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
       startAt: {
         type: "number",
         description:
-          "Offset of the first result to return. Add itemsReturned from the previous response to the current startAt to compute the next page offset. Defaults to 0.",
+          "Offset of the first result to return. Defaults to 0. To page through results: count the number of results you can actually read in the response and pass currentStartAt + countOfResultsRead as the next startAt. Do not blindly use itemsReturned to advance — the response may be truncated by the system after this action returns, meaning you may see fewer results than itemsReturned reports.",
       },
     },
   },
@@ -2059,7 +2059,7 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
       itemsReturned: {
         type: "number",
         description:
-          "Number of items returned in this response. Add this value to the current startAt to get the next page's startAt. Appears before results so it is readable even if the results are truncated.",
+          "Number of items fetched by this action. This field intentionally appears before results so it survives system-level response truncation. Warning: the system may truncate the results array before you see it, so you may receive fewer results than this number. Always count the results you can actually read and use currentStartAt + countOfResultsRead as the next startAt, not currentStartAt + itemsReturned.",
       },
       truncated: {
         type: "boolean",
@@ -2929,7 +2929,7 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
       startAt: {
         type: "number",
         description:
-          "Offset of the first result to return. Add itemsReturned from the previous response to the current startAt to compute the next page offset. Defaults to 0.",
+          "Offset of the first result to return. Defaults to 0. To page through results: count the number of results you can actually read in the response and pass currentStartAt + countOfResultsRead as the next startAt. Do not blindly use itemsReturned to advance — the response may be truncated by the system after this action returns, meaning you may see fewer results than itemsReturned reports.",
       },
     },
   },
@@ -2939,7 +2939,7 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
       itemsReturned: {
         type: "number",
         description:
-          "Number of items returned in this response. Add this value to the current startAt to get the next page's startAt. Appears before results so it is readable even if the results are truncated.",
+          "Number of items fetched by this action. This field intentionally appears before results so it survives system-level response truncation. Warning: the system may truncate the results array before you see it, so you may receive fewer results than this number. Always count the results you can actually read and use currentStartAt + countOfResultsRead as the next startAt, not currentStartAt + itemsReturned.",
       },
       truncated: {
         type: "boolean",
@@ -3809,7 +3809,7 @@ export const jiraDataCenterGetJiraIssuesByQueryDefinition: ActionTemplate = {
       startAt: {
         type: "number",
         description:
-          "Offset of the first result to return. Add itemsReturned from the previous response to the current startAt to compute the next page offset. Defaults to 0.",
+          "Offset of the first result to return. Defaults to 0. To page through results: count the number of results you can actually read in the response and pass currentStartAt + countOfResultsRead as the next startAt. Do not blindly use itemsReturned to advance — the response may be truncated by the system after this action returns, meaning you may see fewer results than itemsReturned reports.",
       },
     },
   },
@@ -3819,7 +3819,7 @@ export const jiraDataCenterGetJiraIssuesByQueryDefinition: ActionTemplate = {
       itemsReturned: {
         type: "number",
         description:
-          "Number of items returned in this response. Add this value to the current startAt to get the next page's startAt. Appears before results so it is readable even if the results are truncated.",
+          "Number of items fetched by this action. This field intentionally appears before results so it survives system-level response truncation. Warning: the system may truncate the results array before you see it, so you may receive fewer results than this number. Always count the results you can actually read and use currentStartAt + countOfResultsRead as the next startAt, not currentStartAt + itemsReturned.",
       },
       truncated: {
         type: "boolean",
