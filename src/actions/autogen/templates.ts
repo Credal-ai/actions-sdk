@@ -7749,19 +7749,14 @@ export const googleOauthAppendRowsToSpreadsheetDefinition: ActionTemplate = {
       },
       rows: {
         type: "array",
-        description: "Rows of cells to append to the spreadsheet",
+        description:
+          'Rows of cells to append to the spreadsheet. Each row is an array of string cell values. For example, [["Alice", "30"], ["Bob", "25"]].',
         items: {
           type: "array",
-          description: "A list of cells to append to the spreadsheet",
+          description: "A list of cell values for this row, each as a plain string",
           items: {
-            type: "object",
-            required: ["stringValue"],
-            properties: {
-              stringValue: {
-                type: "string",
-                description: "The value of the cell",
-              },
-            },
+            type: "string",
+            description: "The string value of the cell",
           },
         },
       },
@@ -7870,22 +7865,21 @@ export const googleOauthUpdateRowsInSpreadsheetDefinition: ActionTemplate = {
         description:
           "The row number to start updating from (1-based). For example, to update starting from the first row, use 1. To start from the second row, use 2.",
       },
+      startColumn: {
+        type: "string",
+        description:
+          'The column letter(s) to start writing from (default: "A"). For example, use "A" to start from the first column, "C" to start from column C, or "BE" to start from column BE. This allows targeting a specific column range in the spreadsheet.',
+      },
       rows: {
         type: "array",
         description:
-          "Rows of cells to update in the spreadsheet. Each row will be written sequentially starting from startRow.",
+          'Rows of cells to update in the spreadsheet. Each row is an array of string cell values written sequentially starting from startRow/startColumn. For example, [["Alice", "30"], ["Bob", "25"]].',
         items: {
           type: "array",
-          description: "A list of cells for this row",
+          description: "A list of cell values for this row, each as a plain string",
           items: {
-            type: "object",
-            required: ["stringValue"],
-            properties: {
-              stringValue: {
-                type: "string",
-                description: "The value of the cell",
-              },
-            },
+            type: "string",
+            description: "The string value of the cell",
           },
         },
       },

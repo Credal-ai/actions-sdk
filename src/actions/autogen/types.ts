@@ -314,7 +314,7 @@ export const asanaListAsanaTasksByProjectOutputSchema = z.object({
               )
               .nullable()
               .optional(),
-            num_subtasks: z.number().optional(),
+            num_subtasks: z.coerce.number().optional(),
           }),
           subtasks: z
             .array(
@@ -335,7 +335,7 @@ export const asanaListAsanaTasksByProjectOutputSchema = z.object({
                   )
                   .nullable()
                   .optional(),
-                num_subtasks: z.number().optional(),
+                num_subtasks: z.coerce.number().optional(),
               }),
             )
             .nullable()
@@ -596,7 +596,7 @@ export const slackGetChannelMessagesParamsSchema = z.object({
       "Only messages before this Unix timestamp will be included. Default is the current time. Use with oldest to create a time range.",
     )
     .optional(),
-  limit: z
+  limit: z.coerce
     .number()
     .describe(
       "Maximum number of messages to return (1-999). Default is 100. Slack recommends no more than 200 results at a time for performance.",
@@ -685,7 +685,7 @@ export const slackUserSearchSlackParamsSchema = z.object({
       "Optional filter for the type of messages to search for. If not specified, all message types will be searched.",
     )
     .optional(),
-  limit: z
+  limit: z.coerce
     .number()
     .gte(1)
     .lte(100)
@@ -795,7 +795,7 @@ export const slackUserSearchSlackRTSParamsSchema = z.object({
     .boolean()
     .describe("Whether to include contextual messages in search results.")
     .default(false),
-  limit: z.number().gte(1).lte(20).describe("Maximum number of results per page (max 20).").default(20),
+  limit: z.coerce.number().gte(1).lte(20).describe("Maximum number of results per page (max 20).").default(20),
   before: z
     .string()
     .describe(
@@ -852,13 +852,13 @@ export type slackUserSearchSlackRTSFunction = ActionFunction<
 >;
 
 export const mathAddParamsSchema = z.object({
-  a: z.number().describe("The first number to add"),
-  b: z.number().describe("The second number to add"),
+  a: z.coerce.number().describe("The first number to add"),
+  b: z.coerce.number().describe("The second number to add"),
 });
 
 export type mathAddParamsType = z.infer<typeof mathAddParamsSchema>;
 
-export const mathAddOutputSchema = z.object({ result: z.number().describe("The sum of the two numbers") });
+export const mathAddOutputSchema = z.object({ result: z.coerce.number().describe("The sum of the two numbers") });
 
 export type mathAddOutputType = z.infer<typeof mathAddOutputSchema>;
 export type mathAddFunction = ActionFunction<mathAddParamsType, AuthParamsType, mathAddOutputType>;
@@ -1240,7 +1240,7 @@ export type jiraUpdateJiraTicketStatusFunction = ActionFunction<
 
 export const jiraGetJiraIssuesByQueryParamsSchema = z.object({
   query: z.string().describe("The JQL query to execute"),
-  limit: z
+  limit: z.coerce
     .number()
     .describe(
       "The maximum number of records to retrieve. Defaults to 100. For exhaustive queries where all matching issues are needed, set this to a value larger than the expected result count (e.g. 500 or 1000).",
@@ -1307,7 +1307,7 @@ export const jiraGetJiraIssuesByQueryOutputSchema = z.object({
     )
     .describe("The results of the Jira issues")
     .optional(),
-  total: z
+  total: z.coerce
     .number()
     .describe(
       "The total number of Jira issues matching the query. When present and greater than the number of results returned, re-run with a higher limit to retrieve all issues.",
@@ -1683,7 +1683,7 @@ export type jiraOrgUpdateJiraTicketStatusFunction = ActionFunction<
 
 export const jiraOrgGetJiraIssuesByQueryParamsSchema = z.object({
   query: z.string().describe("The JQL query to execute"),
-  limit: z
+  limit: z.coerce
     .number()
     .describe(
       "The maximum number of records to retrieve. Defaults to 100. For exhaustive queries where all matching issues are needed, set this to a value larger than the expected result count (e.g. 500 or 1000).",
@@ -1750,7 +1750,7 @@ export const jiraOrgGetJiraIssuesByQueryOutputSchema = z.object({
     )
     .describe("The results of the Jira issues")
     .optional(),
-  total: z
+  total: z.coerce
     .number()
     .describe(
       "The total number of Jira issues matching the query. When present and greater than the number of results returned, re-run with a higher limit to retrieve all issues.",
@@ -2150,7 +2150,7 @@ export type jiraDataCenterUpdateJiraTicketStatusFunction = ActionFunction<
 
 export const jiraDataCenterGetJiraIssuesByQueryParamsSchema = z.object({
   query: z.string().describe("The JQL query to execute"),
-  limit: z
+  limit: z.coerce
     .number()
     .describe(
       "The maximum number of records to retrieve. Defaults to 100. For exhaustive queries where all matching issues are needed, set this to a value larger than the expected result count (e.g. 500 or 1000).",
@@ -2219,7 +2219,7 @@ export const jiraDataCenterGetJiraIssuesByQueryOutputSchema = z.object({
     )
     .describe("The results of the Jira issues")
     .optional(),
-  total: z
+  total: z.coerce
     .number()
     .describe(
       "The total number of Jira issues matching the query. When present and greater than the number of results returned, re-run with a higher limit to retrieve all issues.",
@@ -2351,8 +2351,8 @@ export const googlemapsValidateAddressOutputSchema = z.object({
     .object({
       location: z
         .object({
-          latitude: z.number().describe("The latitude of the address.").optional(),
-          longitude: z.number().describe("The longitude of the address.").optional(),
+          latitude: z.coerce.number().describe("The latitude of the address.").optional(),
+          longitude: z.coerce.number().describe("The longitude of the address.").optional(),
         })
         .optional(),
       plusCode: z
@@ -2364,8 +2364,12 @@ export const googlemapsValidateAddressOutputSchema = z.object({
         .optional(),
       bounds: z
         .object({
-          northeast: z.object({ latitude: z.number().optional(), longitude: z.number().optional() }).optional(),
-          southwest: z.object({ latitude: z.number().optional(), longitude: z.number().optional() }).optional(),
+          northeast: z
+            .object({ latitude: z.coerce.number().optional(), longitude: z.coerce.number().optional() })
+            .optional(),
+          southwest: z
+            .object({ latitude: z.coerce.number().optional(), longitude: z.coerce.number().optional() })
+            .optional(),
         })
         .describe("The viewport bounds for the address.")
         .optional(),
@@ -2390,8 +2394,8 @@ export type googlemapsValidateAddressFunction = ActionFunction<
 >;
 
 export const googlemapsNearbysearchRestaurantsParamsSchema = z.object({
-  latitude: z.number().describe("The latitude of the location to search nearby"),
-  longitude: z.number().describe("The longitude of the location to search nearby"),
+  latitude: z.coerce.number().describe("The latitude of the location to search nearby"),
+  longitude: z.coerce.number().describe("The longitude of the location to search nearby"),
 });
 
 export type googlemapsNearbysearchRestaurantsParamsType = z.infer<typeof googlemapsNearbysearchRestaurantsParamsSchema>;
@@ -2402,7 +2406,7 @@ export const googlemapsNearbysearchRestaurantsOutputSchema = z.object({
       z.object({
         name: z.string().describe("The name of the place").optional(),
         address: z.string().describe("The address of the place").optional(),
-        rating: z.number().describe("The rating of the place").optional(),
+        rating: z.coerce.number().describe("The rating of the place").optional(),
         priceLevel: z.string().describe("The price level of the place").optional(),
         openingHours: z.string().describe("The opening hours of the place").optional(),
         primaryType: z.string().describe("The primary type of the place").optional(),
@@ -2422,7 +2426,7 @@ export type googlemapsNearbysearchRestaurantsFunction = ActionFunction<
 
 export const bingGetTopNSearchResultUrlsParamsSchema = z.object({
   query: z.string().describe("The query to search for"),
-  count: z.number().describe("The number of results to return. Default is 5.").optional(),
+  count: z.coerce.number().describe("The number of results to return. Default is 5.").optional(),
   site: z
     .string()
     .describe(
@@ -2455,7 +2459,7 @@ export const zendeskCreateZendeskTicketParamsSchema = z.object({
   subject: z.string().describe("The subject of the ticket"),
   body: z.string().describe("The body of the ticket").optional(),
   subdomain: z.string().describe("The subdomain of the Zendesk account"),
-  groupId: z.number().describe("The ID of the group to assign the ticket to").optional(),
+  groupId: z.coerce.number().describe("The ID of the group to assign the ticket to").optional(),
 });
 
 export type zendeskCreateZendeskTicketParamsType = z.infer<typeof zendeskCreateZendeskTicketParamsSchema>;
@@ -2481,7 +2485,7 @@ export type zendeskListZendeskTicketsParamsType = z.infer<typeof zendeskListZend
 
 export const zendeskListZendeskTicketsOutputSchema = z.object({
   tickets: z.array(z.object({}).catchall(z.any())).describe("List of tickets"),
-  count: z.number().describe("Number of tickets found"),
+  count: z.coerce.number().describe("Number of tickets found"),
 });
 
 export type zendeskListZendeskTicketsOutputType = z.infer<typeof zendeskListZendeskTicketsOutputSchema>;
@@ -2579,14 +2583,14 @@ export const zendeskSearchZendeskByQueryParamsSchema = z.object({
     .enum(["ticket", "user", "organization", "group"])
     .describe("The type of Zendesk object to search (defaults to ticket)")
     .optional(),
-  limit: z.number().describe("Maximum number of objects to return (optional, defaults to 100)").optional(),
+  limit: z.coerce.number().describe("Maximum number of objects to return (optional, defaults to 100)").optional(),
 });
 
 export type zendeskSearchZendeskByQueryParamsType = z.infer<typeof zendeskSearchZendeskByQueryParamsSchema>;
 
 export const zendeskSearchZendeskByQueryOutputSchema = z.object({
   results: z.array(z.object({}).catchall(z.any())).describe("List of objects matching the query"),
-  count: z.number().describe("Number of objects found"),
+  count: z.coerce.number().describe("Number of objects found"),
 });
 
 export type zendeskSearchZendeskByQueryOutputType = z.infer<typeof zendeskSearchZendeskByQueryOutputSchema>;
@@ -2693,14 +2697,14 @@ export const snowflakeRunSnowflakeQueryParamsSchema = z.object({
   accountName: z.string().describe("The name of the Snowflake account"),
   username: z.string().describe("The username of the Snowflake Credential (optional)").optional(),
   outputFormat: z.enum(["json", "csv"]).describe("The format of the output").optional(),
-  limit: z.number().describe("A limit on the number of rows to return").optional(),
-  codeInterpreterLimit: z
+  limit: z.coerce.number().describe("A limit on the number of rows to return").optional(),
+  codeInterpreterLimit: z.coerce
     .number()
     .describe(
       "A minimum number of rows required to pass to code interpreter for analysis and image generation (if enabled)",
     )
     .optional(),
-  codeInterpreterImageGenLimit: z
+  codeInterpreterImageGenLimit: z.coerce
     .number()
     .describe("A minimum number of rows required to pass to code interpreter for image generation only (if enabled)")
     .optional(),
@@ -2711,7 +2715,7 @@ export type snowflakeRunSnowflakeQueryParamsType = z.infer<typeof snowflakeRunSn
 export const snowflakeRunSnowflakeQueryOutputSchema = z.object({
   format: z.enum(["json", "csv"]).describe("The format of the output"),
   content: z.string().describe("The content of the query result (json)"),
-  rowCount: z.number().describe("The number of rows returned by the query"),
+  rowCount: z.coerce.number().describe("The number of rows returned by the query"),
   error: z.string().describe("The error that occurred if the query results failed or were limited").optional(),
 });
 
@@ -2734,8 +2738,8 @@ export const openstreetmapGetLatitudeLongitudeFromLocationOutputSchema = z.objec
   results: z
     .array(
       z.object({
-        latitude: z.number().describe("The latitude of the location"),
-        longitude: z.number().describe("The longitude of the location"),
+        latitude: z.coerce.number().describe("The latitude of the location"),
+        longitude: z.coerce.number().describe("The longitude of the location"),
         display_name: z.string().describe("The display name of the location"),
       }),
     )
@@ -2753,8 +2757,8 @@ export type openstreetmapGetLatitudeLongitudeFromLocationFunction = ActionFuncti
 >;
 
 export const nwsGetForecastForLocationParamsSchema = z.object({
-  latitude: z.number().describe("The latitude of the location"),
-  longitude: z.number().describe("The longitude of the location"),
+  latitude: z.coerce.number().describe("The latitude of the location"),
+  longitude: z.coerce.number().describe("The longitude of the location"),
   isoDate: z.string().describe("The date to get the forecast for, in ISO datetime format"),
 });
 
@@ -2763,7 +2767,7 @@ export type nwsGetForecastForLocationParamsType = z.infer<typeof nwsGetForecastF
 export const nwsGetForecastForLocationOutputSchema = z.object({
   result: z
     .object({
-      temperature: z.number().describe("The temperature at the location"),
+      temperature: z.coerce.number().describe("The temperature at the location"),
       temperatureUnit: z.string().describe("The unit of temperature"),
       forecast: z.string().describe("The forecast for the location"),
     })
@@ -2779,9 +2783,9 @@ export type nwsGetForecastForLocationFunction = ActionFunction<
 
 export const firecrawlDeepResearchParamsSchema = z.object({
   query: z.string().describe("The query to search for"),
-  maxDepth: z.number().describe("The maximum depth of the search").optional(),
-  timeLimit: z.number().describe("The time limit for the search in seconds").optional(),
-  maxUrls: z.number().describe("The maximum number of URLs to scrape").optional(),
+  maxDepth: z.coerce.number().describe("The maximum depth of the search").optional(),
+  timeLimit: z.coerce.number().describe("The time limit for the search in seconds").optional(),
+  maxUrls: z.coerce.number().describe("The maximum number of URLs to scrape").optional(),
 });
 
 export type firecrawlDeepResearchParamsType = z.infer<typeof firecrawlDeepResearchParamsSchema>;
@@ -2808,7 +2812,7 @@ export type firecrawlDeepResearchFunction = ActionFunction<
 
 export const firecrawlScrapeUrlParamsSchema = z.object({
   url: z.string().describe("The URL to scrape"),
-  waitMs: z.number().gte(0).describe("Optional wait time in milliseconds before scraping the page").optional(),
+  waitMs: z.coerce.number().gte(0).describe("Optional wait time in milliseconds before scraping the page").optional(),
   onlyMainContent: z
     .boolean()
     .describe("Extract only the main content of the page, excluding headers, footers, and navigation")
@@ -2845,7 +2849,7 @@ export type firecrawlScrapeUrlFunction = ActionFunction<
 
 export const firecrawlSearchAndScrapeParamsSchema = z.object({
   query: z.string().describe("The query to search for"),
-  count: z.number().describe("The number of results to return. Default is 5.").optional(),
+  count: z.coerce.number().describe("The number of results to return. Default is 5.").optional(),
   site: z
     .string()
     .describe(
@@ -2877,7 +2881,7 @@ export type firecrawlSearchAndScrapeFunction = ActionFunction<
 
 export const firecrawlGetTopNSearchResultUrlsParamsSchema = z.object({
   query: z.string().describe("The query to search for"),
-  count: z.number().describe("The number of results to return. Default is 5.").optional(),
+  count: z.coerce.number().describe("The number of results to return. Default is 5.").optional(),
   site: z
     .string()
     .describe(
@@ -3048,7 +3052,9 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                     text: z.string().describe("The text to insert"),
                     location: z
                       .object({
-                        index: z.number().describe("The zero-based index in the document where to insert the text"),
+                        index: z.coerce
+                          .number()
+                          .describe("The zero-based index in the document where to insert the text"),
                       })
                       .describe("The location where the text will be inserted"),
                   })
@@ -3071,7 +3077,7 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                         bold: z.boolean().describe("Whether the text is bold").optional(),
                         fontSize: z
                           .object({
-                            magnitude: z.number().describe("The font size in points").optional(),
+                            magnitude: z.coerce.number().describe("The font size in points").optional(),
                             unit: z.string().describe("The units for the font size").optional(),
                           })
                           .describe("The size of the text's font")
@@ -3091,7 +3097,7 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                         weightedFontFamily: z
                           .object({
                             fontFamily: z.string().describe("The font family of the text").optional(),
-                            weight: z.number().describe("The weight of the font").optional(),
+                            weight: z.coerce.number().describe("The weight of the font").optional(),
                           })
                           .describe("The font family and weight of the text")
                           .optional(),
@@ -3100,8 +3106,8 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                     fields: z.string().describe("The fields that should be updated"),
                     range: z
                       .object({
-                        startIndex: z.number().describe("The zero-based starting index of the range"),
-                        endIndex: z.number().describe("The zero-based ending index of the range (exclusive)"),
+                        startIndex: z.coerce.number().describe("The zero-based starting index of the range"),
+                        endIndex: z.coerce.number().describe("The zero-based ending index of the range (exclusive)"),
                       })
                       .describe("The range of text to style")
                       .optional(),
@@ -3113,8 +3119,8 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                   .object({
                     range: z
                       .object({
-                        startIndex: z.number().describe("The zero-based starting index of the range"),
-                        endIndex: z.number().describe("The zero-based ending index of the range (exclusive)"),
+                        startIndex: z.coerce.number().describe("The zero-based starting index of the range"),
+                        endIndex: z.coerce.number().describe("The zero-based ending index of the range (exclusive)"),
                       })
                       .describe("The range of content to delete"),
                   })
@@ -3126,10 +3132,10 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                     tableCellLocation: z
                       .object({
                         tableStartLocation: z
-                          .object({ index: z.number().describe("The zero-based index in the document") })
+                          .object({ index: z.coerce.number().describe("The zero-based index in the document") })
                           .describe("The location where the table starts"),
-                        rowIndex: z.number().describe("The zero-based row index").optional(),
-                        columnIndex: z.number().describe("The zero-based column index").optional(),
+                        rowIndex: z.coerce.number().describe("The zero-based row index").optional(),
+                        columnIndex: z.coerce.number().describe("The zero-based column index").optional(),
                       })
                       .describe("The location where the table row will be inserted"),
                     insertBelow: z.boolean().describe("Whether to insert the row below the reference row"),
@@ -3142,10 +3148,10 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                     tableCellLocation: z
                       .object({
                         tableStartLocation: z
-                          .object({ index: z.number().describe("The zero-based index in the document") })
+                          .object({ index: z.coerce.number().describe("The zero-based index in the document") })
                           .describe("The location where the table starts"),
-                        rowIndex: z.number().describe("The zero-based row index").optional(),
-                        columnIndex: z.number().describe("The zero-based column index").optional(),
+                        rowIndex: z.coerce.number().describe("The zero-based row index").optional(),
+                        columnIndex: z.coerce.number().describe("The zero-based column index").optional(),
                       })
                       .describe("The location where the table column will be inserted"),
                     insertRight: z
@@ -3160,10 +3166,10 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                     tableCellLocation: z
                       .object({
                         tableStartLocation: z
-                          .object({ index: z.number().describe("The zero-based index in the document") })
+                          .object({ index: z.coerce.number().describe("The zero-based index in the document") })
                           .describe("The location where the table starts"),
-                        rowIndex: z.number().describe("The zero-based row index").optional(),
-                        columnIndex: z.number().describe("The zero-based column index").optional(),
+                        rowIndex: z.coerce.number().describe("The zero-based row index").optional(),
+                        columnIndex: z.coerce.number().describe("The zero-based column index").optional(),
                       })
                       .describe("The location of the row to delete"),
                   })
@@ -3175,10 +3181,10 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                     tableCellLocation: z
                       .object({
                         tableStartLocation: z
-                          .object({ index: z.number().describe("The zero-based index in the document") })
+                          .object({ index: z.coerce.number().describe("The zero-based index in the document") })
                           .describe("The location where the table starts"),
-                        rowIndex: z.number().describe("The zero-based row index").optional(),
-                        columnIndex: z.number().describe("The zero-based column index").optional(),
+                        rowIndex: z.coerce.number().describe("The zero-based row index").optional(),
+                        columnIndex: z.coerce.number().describe("The zero-based column index").optional(),
                       })
                       .describe("The location of the column to delete"),
                   })
@@ -3189,8 +3195,8 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                   .object({
                     range: z
                       .object({
-                        startIndex: z.number().describe("The zero-based starting index of the range"),
-                        endIndex: z.number().describe("The zero-based ending index of the range (exclusive)"),
+                        startIndex: z.coerce.number().describe("The zero-based starting index of the range"),
+                        endIndex: z.coerce.number().describe("The zero-based ending index of the range (exclusive)"),
                       })
                       .describe("The range of paragraphs to update"),
                     paragraphStyle: z
@@ -3205,7 +3211,7 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                           .optional(),
                         indentStart: z
                           .object({
-                            magnitude: z.number().describe("The magnitude of indentation").optional(),
+                            magnitude: z.coerce.number().describe("The magnitude of indentation").optional(),
                             unit: z.string().describe("The units of indentation").optional(),
                           })
                           .describe("The amount of indentation for the paragraph")
@@ -3225,7 +3231,7 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                           .describe("Whether to keep all lines on the same page")
                           .optional(),
                         keepWithNext: z.boolean().describe("Whether to keep with the next paragraph").optional(),
-                        lineSpacing: z.number().describe("The amount of space between lines").optional(),
+                        lineSpacing: z.coerce.number().describe("The amount of space between lines").optional(),
                         spaceAbove: z
                           .object({})
                           .catchall(z.any())
@@ -3260,8 +3266,8 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                   .object({
                     range: z
                       .object({
-                        startIndex: z.number().describe("The zero-based starting index of the range"),
-                        endIndex: z.number().describe("The zero-based ending index of the range (exclusive)"),
+                        startIndex: z.coerce.number().describe("The zero-based starting index of the range"),
+                        endIndex: z.coerce.number().describe("The zero-based ending index of the range (exclusive)"),
                       })
                       .describe("The range of paragraphs to bullet"),
                     bulletPreset: z
@@ -3293,8 +3299,8 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                   .object({
                     range: z
                       .object({
-                        startIndex: z.number().describe("The zero-based starting index of the range"),
-                        endIndex: z.number().describe("The zero-based ending index of the range (exclusive)"),
+                        startIndex: z.coerce.number().describe("The zero-based starting index of the range"),
+                        endIndex: z.coerce.number().describe("The zero-based ending index of the range (exclusive)"),
                       })
                       .describe("The range of paragraphs to remove bullets from"),
                   })
@@ -3304,7 +3310,7 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                 insertPageBreak: z
                   .object({
                     location: z
-                      .object({ index: z.number().describe("The zero-based index in the document") })
+                      .object({ index: z.coerce.number().describe("The zero-based index in the document") })
                       .describe("The location at which to insert the page break"),
                   })
                   .describe("Inserts a page break"),
@@ -3335,7 +3341,10 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                         marginBottom: z.object({}).catchall(z.any()).describe("The bottom page margin").optional(),
                         marginRight: z.object({}).catchall(z.any()).describe("The right page margin").optional(),
                         marginLeft: z.object({}).catchall(z.any()).describe("The left page margin").optional(),
-                        pageNumberStart: z.number().describe("The page number from which to start counting").optional(),
+                        pageNumberStart: z.coerce
+                          .number()
+                          .describe("The page number from which to start counting")
+                          .optional(),
                         pageSize: z
                           .object({
                             width: z.object({}).catchall(z.any()).describe("The width of the page").optional(),
@@ -3393,7 +3402,7 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                           .describe("The right border of the cells")
                           .optional(),
                         borderTop: z.object({}).catchall(z.any()).describe("The top border of the cells").optional(),
-                        columnSpan: z.number().describe("The number of columns that the cell spans").optional(),
+                        columnSpan: z.coerce.number().describe("The number of columns that the cell spans").optional(),
                         contentAlignment: z
                           .string()
                           .describe("The alignment of the content within the cells")
@@ -3414,7 +3423,7 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                           .describe("The right padding of the cells")
                           .optional(),
                         paddingTop: z.object({}).catchall(z.any()).describe("The top padding of the cells").optional(),
-                        rowSpan: z.number().describe("The number of rows that the cell spans").optional(),
+                        rowSpan: z.coerce.number().describe("The number of rows that the cell spans").optional(),
                       })
                       .describe("The style to apply to the cells"),
                     fields: z.string().describe("The fields that should be updated"),
@@ -3423,14 +3432,14 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                         tableCellLocation: z
                           .object({
                             tableStartLocation: z
-                              .object({ index: z.number().describe("The zero-based index in the document") })
+                              .object({ index: z.coerce.number().describe("The zero-based index in the document") })
                               .describe("The location where the table starts"),
-                            rowIndex: z.number().describe("The zero-based row index").optional(),
-                            columnIndex: z.number().describe("The zero-based column index").optional(),
+                            rowIndex: z.coerce.number().describe("The zero-based row index").optional(),
+                            columnIndex: z.coerce.number().describe("The zero-based column index").optional(),
                           })
                           .describe("The location of the table cell"),
-                        rowSpan: z.number().describe("The number of rows that the range should span"),
-                        columnSpan: z.number().describe("The number of columns that the range should span"),
+                        rowSpan: z.coerce.number().describe("The number of rows that the range should span"),
+                        columnSpan: z.coerce.number().describe("The number of columns that the range should span"),
                       })
                       .describe("The table range to apply the style to"),
                   })
@@ -3444,14 +3453,14 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                         tableCellLocation: z
                           .object({
                             tableStartLocation: z
-                              .object({ index: z.number().describe("The zero-based index in the document") })
+                              .object({ index: z.coerce.number().describe("The zero-based index in the document") })
                               .describe("The location where the table starts"),
-                            rowIndex: z.number().describe("The zero-based row index").optional(),
-                            columnIndex: z.number().describe("The zero-based column index").optional(),
+                            rowIndex: z.coerce.number().describe("The zero-based row index").optional(),
+                            columnIndex: z.coerce.number().describe("The zero-based column index").optional(),
                           })
                           .describe("The location of the table cell"),
-                        rowSpan: z.number().describe("The number of rows that the range should span"),
-                        columnSpan: z.number().describe("The number of columns that the range should span"),
+                        rowSpan: z.coerce.number().describe("The number of rows that the range should span"),
+                        columnSpan: z.coerce.number().describe("The number of columns that the range should span"),
                       })
                       .describe("The table range to merge"),
                   })
@@ -3465,14 +3474,14 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                         tableCellLocation: z
                           .object({
                             tableStartLocation: z
-                              .object({ index: z.number().describe("The zero-based index in the document") })
+                              .object({ index: z.coerce.number().describe("The zero-based index in the document") })
                               .describe("The location where the table starts"),
-                            rowIndex: z.number().describe("The zero-based row index").optional(),
-                            columnIndex: z.number().describe("The zero-based column index").optional(),
+                            rowIndex: z.coerce.number().describe("The zero-based row index").optional(),
+                            columnIndex: z.coerce.number().describe("The zero-based column index").optional(),
                           })
                           .describe("The location of the table cell"),
-                        rowSpan: z.number().describe("The number of rows that the range should span"),
-                        columnSpan: z.number().describe("The number of columns that the range should span"),
+                        rowSpan: z.coerce.number().describe("The number of rows that the range should span"),
+                        columnSpan: z.coerce.number().describe("The number of columns that the range should span"),
                       })
                       .describe("The table range to unmerge"),
                   })
@@ -3484,8 +3493,8 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                     name: z.string().describe("The name of the range"),
                     range: z
                       .object({
-                        startIndex: z.number().describe("The zero-based starting index of the range"),
-                        endIndex: z.number().describe("The zero-based ending index of the range (exclusive)"),
+                        startIndex: z.coerce.number().describe("The zero-based starting index of the range"),
+                        endIndex: z.coerce.number().describe("The zero-based ending index of the range (exclusive)"),
                       })
                       .describe("The range to name"),
                   })
@@ -3508,7 +3517,7 @@ export const googleOauthUpdateDocParamsSchema = z.object({
                 insertInlineImage: z
                   .object({
                     location: z
-                      .object({ index: z.number().describe("The zero-based index in the document") })
+                      .object({ index: z.coerce.number().describe("The zero-based index in the document") })
                       .describe("The location at which to insert the image"),
                     uri: z.string().describe("The image URI"),
                     objectSize: z
@@ -3587,15 +3596,15 @@ export const googleOauthScheduleCalendarMeetingParamsSchema = z.object({
   recurrence: z
     .object({
       frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]).describe("How often the meeting repeats").optional(),
-      interval: z.number().gte(1).describe("The interval between recurrences (e.g., every 2 weeks)").optional(),
-      count: z.number().gte(1).describe("Number of occurrences after which to stop the recurrence").optional(),
+      interval: z.coerce.number().gte(1).describe("The interval between recurrences (e.g., every 2 weeks)").optional(),
+      count: z.coerce.number().gte(1).describe("Number of occurrences after which to stop the recurrence").optional(),
       until: z.string().describe("End date for the recurrence in RFC3339 format (YYYY-MM-DD)").optional(),
       byDay: z
         .array(z.enum(["MO", "TU", "WE", "TH", "FR", "SA", "SU"]))
         .describe("Days of the week when the meeting occurs (for WEEKLY frequency)")
         .optional(),
       byMonthDay: z
-        .array(z.number().gte(1).lte(31))
+        .array(z.coerce.number().gte(1).lte(31))
         .describe("Days of the month when the meeting occurs (for MONTHLY frequency)")
         .optional(),
     })
@@ -3628,7 +3637,7 @@ export type googleOauthScheduleCalendarMeetingFunction = ActionFunction<
 >;
 
 export const googleOauthListCalendarsParamsSchema = z.object({
-  maxResults: z.number().describe("Maximum number of calendars to return, defaults to 250").optional(),
+  maxResults: z.coerce.number().describe("Maximum number of calendars to return, defaults to 250").optional(),
 });
 
 export type googleOauthListCalendarsParamsType = z.infer<typeof googleOauthListCalendarsParamsSchema>;
@@ -3651,7 +3660,7 @@ export type googleOauthListCalendarsFunction = ActionFunction<
 export const googleOauthListCalendarEventsParamsSchema = z.object({
   calendarId: z.string().describe("The ID of the calendar to list events from"),
   query: z.string().describe("Optional free-text search query to filter events").optional(),
-  maxResults: z.number().describe("Maximum number of events to return, defaults to 250").optional(),
+  maxResults: z.coerce.number().describe("Maximum number of events to return, defaults to 250").optional(),
   timeMin: z
     .string()
     .describe(
@@ -3878,10 +3887,10 @@ export const googleOauthCreateSpreadsheetParamsSchema = z.object({
         title: z.string().describe("The title of the sheet").optional(),
         gridProperties: z
           .object({
-            rowCount: z.number().describe("The number of rows in the sheet").optional(),
-            columnCount: z.number().describe("The number of columns in the sheet").optional(),
-            frozenRowCount: z.number().describe("The number of frozen rows").optional(),
-            frozenColumnCount: z.number().describe("The number of frozen columns").optional(),
+            rowCount: z.coerce.number().describe("The number of rows in the sheet").optional(),
+            columnCount: z.coerce.number().describe("The number of columns in the sheet").optional(),
+            frozenRowCount: z.coerce.number().describe("The number of frozen rows").optional(),
+            frozenColumnCount: z.coerce.number().describe("The number of frozen columns").optional(),
           })
           .optional(),
       }),
@@ -3907,9 +3916,9 @@ export const googleOauthCreateSpreadsheetOutputSchema = z.object({
   sheets: z
     .array(
       z.object({
-        sheetId: z.number().describe("The ID of the sheet").optional(),
+        sheetId: z.coerce.number().describe("The ID of the sheet").optional(),
         title: z.string().describe("The title of the sheet").optional(),
-        index: z.number().describe("The index of the sheet").optional(),
+        index: z.coerce.number().describe("The index of the sheet").optional(),
       }),
     )
     .describe("Information about the created sheets")
@@ -3937,10 +3946,10 @@ export const googleOauthGetSpreadsheetMetadataOutputSchema = z.object({
   sheets: z
     .array(
       z.object({
-        sheetId: z.number().describe("The ID of the sheet").optional(),
+        sheetId: z.coerce.number().describe("The ID of the sheet").optional(),
         title: z.string().describe("The sheet title").optional(),
-        index: z.number().describe("The sheet index").optional(),
-        gid: z.number().describe("The gid used in Google Sheets URLs (same value as sheetId)").optional(),
+        index: z.coerce.number().describe("The sheet index").optional(),
+        gid: z.coerce.number().describe("The gid used in Google Sheets URLs (same value as sheetId)").optional(),
       }),
     )
     .describe("The list of sheets in the spreadsheet")
@@ -3973,8 +3982,8 @@ export const googleOauthUpdateSpreadsheetParamsSchema = z.object({
                         title: z.string().describe("The title of the new sheet").optional(),
                         gridProperties: z
                           .object({
-                            rowCount: z.number().describe("The number of rows in the sheet").optional(),
-                            columnCount: z.number().describe("The number of columns in the sheet").optional(),
+                            rowCount: z.coerce.number().describe("The number of rows in the sheet").optional(),
+                            columnCount: z.coerce.number().describe("The number of columns in the sheet").optional(),
                           })
                           .optional(),
                       })
@@ -3984,7 +3993,9 @@ export const googleOauthUpdateSpreadsheetParamsSchema = z.object({
                 .describe("Add or update a sheet"),
               z
                 .object({
-                  deleteSheet: z.object({ sheetId: z.number().describe("The ID of the sheet to delete").optional() }),
+                  deleteSheet: z.object({
+                    sheetId: z.coerce.number().describe("The ID of the sheet to delete").optional(),
+                  }),
                 })
                 .describe("Delete a sheet"),
               z
@@ -3992,11 +4003,14 @@ export const googleOauthUpdateSpreadsheetParamsSchema = z.object({
                   updateCells: z.object({
                     range: z
                       .object({
-                        sheetId: z.number().describe("The ID of the sheet").optional(),
-                        startRowIndex: z.number().describe("The start row (0-based, inclusive)").optional(),
-                        endRowIndex: z.number().describe("The end row (0-based, exclusive)").optional(),
-                        startColumnIndex: z.number().describe("The start column (0-based, inclusive)").optional(),
-                        endColumnIndex: z.number().describe("The end column (0-based, exclusive)").optional(),
+                        sheetId: z.coerce.number().describe("The ID of the sheet").optional(),
+                        startRowIndex: z.coerce.number().describe("The start row (0-based, inclusive)").optional(),
+                        endRowIndex: z.coerce.number().describe("The end row (0-based, exclusive)").optional(),
+                        startColumnIndex: z.coerce
+                          .number()
+                          .describe("The start column (0-based, inclusive)")
+                          .optional(),
+                        endColumnIndex: z.coerce.number().describe("The end column (0-based, exclusive)").optional(),
                       })
                       .optional(),
                     rows: z
@@ -4008,7 +4022,7 @@ export const googleOauthUpdateSpreadsheetParamsSchema = z.object({
                                 userEnteredValue: z
                                   .object({
                                     stringValue: z.string().optional(),
-                                    numberValue: z.number().optional(),
+                                    numberValue: z.coerce.number().optional(),
                                     boolValue: z.boolean().optional(),
                                     formulaValue: z.string().optional(),
                                   })
@@ -4027,14 +4041,14 @@ export const googleOauthUpdateSpreadsheetParamsSchema = z.object({
                   updateSheetProperties: z.object({
                     properties: z
                       .object({
-                        sheetId: z.number().describe("The ID of the sheet to update").optional(),
+                        sheetId: z.coerce.number().describe("The ID of the sheet to update").optional(),
                         title: z.string().describe("The new title of the sheet").optional(),
                         gridProperties: z
                           .object({
-                            rowCount: z.number().describe("The new number of rows").optional(),
-                            columnCount: z.number().describe("The new number of columns").optional(),
-                            frozenRowCount: z.number().describe("The number of frozen rows").optional(),
-                            frozenColumnCount: z.number().describe("The number of frozen columns").optional(),
+                            rowCount: z.coerce.number().describe("The new number of rows").optional(),
+                            columnCount: z.coerce.number().describe("The new number of columns").optional(),
+                            frozenRowCount: z.coerce.number().describe("The number of frozen rows").optional(),
+                            frozenColumnCount: z.coerce.number().describe("The number of frozen columns").optional(),
                           })
                           .optional(),
                       })
@@ -4065,10 +4079,10 @@ export const googleOauthUpdateSpreadsheetParamsSchema = z.object({
                           .object({
                             backgroundColor: z
                               .object({
-                                red: z.number().describe("The red component [0.0, 1.0]").optional(),
-                                green: z.number().describe("The green component [0.0, 1.0]").optional(),
-                                blue: z.number().describe("The blue component [0.0, 1.0]").optional(),
-                                alpha: z.number().describe("The alpha component [0.0, 1.0]").optional(),
+                                red: z.coerce.number().describe("The red component [0.0, 1.0]").optional(),
+                                green: z.coerce.number().describe("The green component [0.0, 1.0]").optional(),
+                                blue: z.coerce.number().describe("The blue component [0.0, 1.0]").optional(),
+                                alpha: z.coerce.number().describe("The alpha component [0.0, 1.0]").optional(),
                               })
                               .optional(),
                             numberFormat: z
@@ -4093,14 +4107,14 @@ export const googleOauthUpdateSpreadsheetParamsSchema = z.object({
                               .object({
                                 foregroundColor: z
                                   .object({
-                                    red: z.number().describe("The red component [0.0, 1.0]").optional(),
-                                    green: z.number().describe("The green component [0.0, 1.0]").optional(),
-                                    blue: z.number().describe("The blue component [0.0, 1.0]").optional(),
-                                    alpha: z.number().describe("The alpha component [0.0, 1.0]").optional(),
+                                    red: z.coerce.number().describe("The red component [0.0, 1.0]").optional(),
+                                    green: z.coerce.number().describe("The green component [0.0, 1.0]").optional(),
+                                    blue: z.coerce.number().describe("The blue component [0.0, 1.0]").optional(),
+                                    alpha: z.coerce.number().describe("The alpha component [0.0, 1.0]").optional(),
                                   })
                                   .optional(),
                                 fontFamily: z.string().describe("The font family").optional(),
-                                fontSize: z.number().describe("The size of the font in points").optional(),
+                                fontSize: z.coerce.number().describe("The size of the font in points").optional(),
                                 bold: z.boolean().describe("Whether the text is bold").optional(),
                                 italic: z.boolean().describe("Whether the text is italic").optional(),
                                 strikethrough: z.boolean().describe("Whether the text has a strikethrough").optional(),
@@ -4154,9 +4168,9 @@ export const googleOauthUpdateSpreadsheetOutputSchema = z.object({
                 .object({
                   properties: z
                     .object({
-                      sheetId: z.number().describe("The ID of the newly created sheet").optional(),
+                      sheetId: z.coerce.number().describe("The ID of the newly created sheet").optional(),
                       title: z.string().describe("The title of the new sheet").optional(),
-                      index: z.number().describe("The index of the new sheet").optional(),
+                      index: z.coerce.number().describe("The index of the new sheet").optional(),
                     })
                     .optional(),
                 })
@@ -4191,10 +4205,12 @@ export const googleOauthAppendRowsToSpreadsheetParamsSchema = z.object({
   rows: z
     .array(
       z
-        .array(z.object({ stringValue: z.string().describe("The value of the cell") }))
-        .describe("A list of cells to append to the spreadsheet"),
+        .array(z.string().describe("The string value of the cell"))
+        .describe("A list of cell values for this row, each as a plain string"),
     )
-    .describe("Rows of cells to append to the spreadsheet"),
+    .describe(
+      'Rows of cells to append to the spreadsheet. Each row is an array of string cell values. For example, [["Alice", "30"], ["Bob", "25"]].',
+    ),
 });
 
 export type googleOauthAppendRowsToSpreadsheetParamsType = z.infer<
@@ -4222,13 +4238,13 @@ export const googleOauthDeleteRowFromSpreadsheetParamsSchema = z.object({
     .describe(
       'The ID of the Google Spreadsheet. This should be provided by the user. Can be found in the URL of the spreadsheet. For example, "1bWp1w2OVwH19mkXEiLIaP8As7N-9c_3EXF_Eo5d5Nm0".',
     ),
-  sheetId: z
+  sheetId: z.coerce
     .number()
     .int()
     .describe(
       'The ID of the specific sheet within the spreadsheet (not the sheet name). Sheet ID is 0 for the first sheet. Can be found in the URL after "gid=". For example, if the URL is "...#gid=123456789", the sheetId is 123456789.',
     ),
-  rowIndex: z
+  rowIndex: z.coerce
     .number()
     .int()
     .describe(
@@ -4268,20 +4284,26 @@ export const googleOauthUpdateRowsInSpreadsheetParamsSchema = z.object({
       'The name of the SHEET to update. This should be provided by the user. For example, "Sheet1". Defaults to "Sheet1" if not provided.',
     )
     .optional(),
-  startRow: z
+  startRow: z.coerce
     .number()
     .int()
     .describe(
       "The row number to start updating from (1-based). For example, to update starting from the first row, use 1. To start from the second row, use 2.",
     ),
+  startColumn: z
+    .string()
+    .describe(
+      'The column letter(s) to start writing from (default: "A"). For example, use "A" to start from the first column, "C" to start from column C, or "BE" to start from column BE. This allows targeting a specific column range in the spreadsheet.',
+    )
+    .optional(),
   rows: z
     .array(
       z
-        .array(z.object({ stringValue: z.string().describe("The value of the cell") }))
-        .describe("A list of cells for this row"),
+        .array(z.string().describe("The string value of the cell"))
+        .describe("A list of cell values for this row, each as a plain string"),
     )
     .describe(
-      "Rows of cells to update in the spreadsheet. Each row will be written sequentially starting from startRow.",
+      'Rows of cells to update in the spreadsheet. Each row is an array of string cell values written sequentially starting from startRow/startColumn. For example, [["Alice", "30"], ["Bob", "25"]].',
     ),
 });
 
@@ -4293,9 +4315,9 @@ export const googleOauthUpdateRowsInSpreadsheetOutputSchema = z.object({
   success: z.boolean().describe("Whether the rows were updated successfully"),
   spreadsheetUrl: z.string().describe("The URL of the updated spreadsheet").optional(),
   updatedRange: z.string().describe("The range that was updated in A1 notation").optional(),
-  updatedRows: z.number().int().describe("The number of rows that were updated").optional(),
-  updatedColumns: z.number().int().describe("The number of columns that were updated").optional(),
-  updatedCells: z.number().int().describe("The total number of cells that were updated").optional(),
+  updatedRows: z.coerce.number().int().describe("The number of rows that were updated").optional(),
+  updatedColumns: z.coerce.number().int().describe("The number of columns that were updated").optional(),
+  updatedCells: z.coerce.number().int().describe("The total number of cells that were updated").optional(),
   error: z.string().describe("The error that occurred if the rows were not updated successfully").optional(),
 });
 
@@ -4315,14 +4337,14 @@ export const googleOauthCreatePresentationParamsSchema = z.object({
       width: z
         .object({
           unit: z.enum(["EMU", "PT"]).describe("The unit of the width").optional(),
-          magnitude: z.number().describe("The width of the presentation").optional(),
+          magnitude: z.coerce.number().describe("The width of the presentation").optional(),
         })
         .describe("The width object of the presentation")
         .optional(),
       height: z
         .object({
           unit: z.enum(["EMU", "PT"]).describe("The unit of the height").optional(),
-          magnitude: z.number().describe("The height of the presentation").optional(),
+          magnitude: z.coerce.number().describe("The height of the presentation").optional(),
         })
         .describe("The height object of the presentation")
         .optional(),
@@ -4360,7 +4382,7 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                 createSlide: z
                   .object({
                     objectId: z.string().describe("The object ID for the created slide").optional(),
-                    insertionIndex: z
+                    insertionIndex: z.coerce
                       .number()
                       .describe("The 0-based index where the new slide should be inserted")
                       .optional(),
@@ -4388,8 +4410,8 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                 createTable: z
                   .object({
                     objectId: z.string().describe("The object ID for the created table").optional(),
-                    rows: z.number().describe("Number of rows in the table"),
-                    columns: z.number().describe("Number of columns in the table"),
+                    rows: z.coerce.number().describe("Number of rows in the table"),
+                    columns: z.coerce.number().describe("Number of columns in the table"),
                     elementProperties: z
                       .object({})
                       .catchall(z.any())
@@ -4403,7 +4425,7 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                   .object({
                     objectId: z.string().describe("The object ID of the shape or table cell"),
                     text: z.string().describe("The text to be inserted"),
-                    insertionIndex: z.number().describe("The index where the text will be inserted").optional(),
+                    insertionIndex: z.coerce.number().describe("The index where the text will be inserted").optional(),
                   })
                   .describe("Inserts text into a shape or table cell"),
               }),
@@ -4412,7 +4434,7 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                   .object({
                     tableObjectId: z.string().describe("The table to insert rows into"),
                     insertBelow: z.boolean().describe("Whether to insert the rows below the reference cell"),
-                    number: z.number().describe("The number of rows to insert").optional(),
+                    number: z.coerce.number().describe("The number of rows to insert").optional(),
                     cellLocation: z
                       .object({})
                       .catchall(z.any())
@@ -4428,7 +4450,7 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                     insertRight: z
                       .boolean()
                       .describe("Whether to insert the columns to the right of the reference cell"),
-                    number: z.number().describe("The number of columns to insert").optional(),
+                    number: z.coerce.number().describe("The number of columns to insert").optional(),
                     cellLocation: z
                       .object({})
                       .catchall(z.any())
@@ -4477,10 +4499,10 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                     objectId: z.string().describe("The object ID of the element to update"),
                     transform: z
                       .object({
-                        scaleX: z.number().describe("The horizontal scale factor").optional(),
-                        scaleY: z.number().describe("The vertical scale factor").optional(),
-                        translateX: z.number().describe("The horizontal translation").optional(),
-                        translateY: z.number().describe("The vertical translation").optional(),
+                        scaleX: z.coerce.number().describe("The horizontal scale factor").optional(),
+                        scaleY: z.coerce.number().describe("The vertical scale factor").optional(),
+                        translateX: z.coerce.number().describe("The horizontal translation").optional(),
+                        translateY: z.coerce.number().describe("The vertical translation").optional(),
                         unit: z.string().describe("The unit for translate values").optional(),
                       })
                       .describe("The transform to apply"),
@@ -4491,7 +4513,7 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                 updateSlidesPosition: z
                   .object({
                     slideObjectIds: z.array(z.string()).describe("The IDs of the slides to reorder"),
-                    insertionIndex: z
+                    insertionIndex: z.coerce
                       .number()
                       .describe("The 0-based index where the slides should be moved to")
                       .optional(),
@@ -4504,8 +4526,8 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                     objectId: z.string().describe("The object ID of the shape or table cell"),
                     textRange: z
                       .object({
-                        startIndex: z.number().describe("The starting index of the range (0-based)").optional(),
-                        endIndex: z.number().describe("The ending index of the range (0-based)").optional(),
+                        startIndex: z.coerce.number().describe("The starting index of the range (0-based)").optional(),
+                        endIndex: z.coerce.number().describe("The ending index of the range (0-based)").optional(),
                       })
                       .describe("The range of text to delete")
                       .optional(),
@@ -4543,7 +4565,7 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                   .object({
                     objectId: z.string().describe("The object ID for the created chart").optional(),
                     spreadsheetId: z.string().describe("The ID of the Google Sheets spreadsheet containing the chart"),
-                    chartId: z.number().describe("The ID of the specific chart in the spreadsheet"),
+                    chartId: z.coerce.number().describe("The ID of the specific chart in the spreadsheet"),
                     elementProperties: z
                       .object({})
                       .catchall(z.any())
@@ -4702,11 +4724,11 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                           .enum(["ALL", "FROM_START_INDEX", "FIXED_RANGE"])
                           .describe("The type of range")
                           .optional(),
-                        startIndex: z
+                        startIndex: z.coerce
                           .number()
                           .describe("The start index for FROM_START_INDEX or FIXED_RANGE")
                           .optional(),
-                        endIndex: z.number().describe("The end index for FIXED_RANGE").optional(),
+                        endIndex: z.coerce.number().describe("The end index for FIXED_RANGE").optional(),
                       })
                       .describe("The range of text to style (defaults to all text if unspecified)")
                       .optional(),
@@ -4717,7 +4739,7 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                 replaceAllShapesWithSheetsChart: z
                   .object({
                     spreadsheetId: z.string().describe("The ID of the Google Sheets spreadsheet containing the chart"),
-                    chartId: z.number().describe("The ID of the chart within the spreadsheet"),
+                    chartId: z.coerce.number().describe("The ID of the chart within the spreadsheet"),
                     containsText: z
                       .object({
                         text: z.string().describe("The text the shape must contain to be replaced"),
@@ -4745,11 +4767,11 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                           .enum(["ALL", "FROM_START_INDEX", "FIXED_RANGE"])
                           .describe("The type of range")
                           .optional(),
-                        startIndex: z
+                        startIndex: z.coerce
                           .number()
                           .describe("The start index for FROM_START_INDEX or FIXED_RANGE")
                           .optional(),
-                        endIndex: z.number().describe("The end index for FIXED_RANGE").optional(),
+                        endIndex: z.coerce.number().describe("The end index for FIXED_RANGE").optional(),
                       })
                       .describe("The range of text to delete bullets from (defaults to all text if unspecified)")
                       .optional(),
@@ -4775,11 +4797,11 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                           .enum(["ALL", "FROM_START_INDEX", "FIXED_RANGE"])
                           .describe("The type of range")
                           .optional(),
-                        startIndex: z
+                        startIndex: z.coerce
                           .number()
                           .describe("The start index for FROM_START_INDEX or FIXED_RANGE")
                           .optional(),
-                        endIndex: z.number().describe("The end index for FIXED_RANGE").optional(),
+                        endIndex: z.coerce.number().describe("The end index for FIXED_RANGE").optional(),
                       })
                       .describe("The range of text to apply the style to (defaults to all paragraphs if unspecified)")
                       .optional(),
@@ -4805,8 +4827,8 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                     tableRange: z
                       .object({
                         location: z.object({}).catchall(z.any()).describe("The starting cell location").optional(),
-                        rowSpan: z.number().describe("The number of rows in the range").optional(),
-                        columnSpan: z.number().describe("The number of columns in the range").optional(),
+                        rowSpan: z.coerce.number().describe("The number of rows in the range").optional(),
+                        columnSpan: z.coerce.number().describe("The number of columns in the range").optional(),
                       })
                       .describe(
                         "The range of cells whose border should be updated (defaults to the entire table if unspecified)",
@@ -4819,7 +4841,7 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                 updateTableColumnProperties: z
                   .object({
                     objectId: z.string().describe("The object ID of the table"),
-                    columnIndices: z.array(z.number()).describe("The 0-based indices of the columns to update"),
+                    columnIndices: z.array(z.coerce.number()).describe("The 0-based indices of the columns to update"),
                     tableColumnProperties: z
                       .object({})
                       .catchall(z.any())
@@ -4836,7 +4858,7 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                 updateTableRowProperties: z
                   .object({
                     objectId: z.string().describe("The object ID of the table"),
-                    rowIndices: z.array(z.number()).describe("The 0-based indices of the rows to update"),
+                    rowIndices: z.array(z.coerce.number()).describe("The 0-based indices of the rows to update"),
                     tableRowProperties: z
                       .object({})
                       .catchall(z.any())
@@ -4856,8 +4878,8 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                     tableRange: z
                       .object({
                         location: z.object({}).catchall(z.any()).describe("The starting cell location").optional(),
-                        rowSpan: z.number().describe("The number of rows in the range").optional(),
-                        columnSpan: z.number().describe("The number of columns in the range").optional(),
+                        rowSpan: z.coerce.number().describe("The number of rows in the range").optional(),
+                        columnSpan: z.coerce.number().describe("The number of columns in the range").optional(),
                       })
                       .describe("The range of cells to merge"),
                   })
@@ -4870,8 +4892,8 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                     tableRange: z
                       .object({
                         location: z.object({}).catchall(z.any()).describe("The starting cell location").optional(),
-                        rowSpan: z.number().describe("The number of rows in the range").optional(),
-                        columnSpan: z.number().describe("The number of columns in the range").optional(),
+                        rowSpan: z.coerce.number().describe("The number of rows in the range").optional(),
+                        columnSpan: z.coerce.number().describe("The number of columns in the range").optional(),
                       })
                       .describe("The range of cells to unmerge"),
                   })
@@ -5005,7 +5027,7 @@ export type googleOauthGetPresentationFunction = ActionFunction<
 
 export const googleOauthSearchDriveByKeywordsParamsSchema = z.object({
   keywords: z.array(z.string()).describe("List of keywords to search for in file contents."),
-  limit: z.number().describe("The maximum number of files to return").optional(),
+  limit: z.coerce.number().describe("The maximum number of files to return").optional(),
   includeTrashed: z
     .boolean()
     .describe(
@@ -5041,7 +5063,7 @@ export type googleOauthSearchDriveByKeywordsFunction = ActionFunction<
 
 export const googleOauthSearchDriveByQueryParamsSchema = z.object({
   query: z.string().describe("The query to search for in file contents."),
-  limit: z.number().describe("The maximum number of files to return").optional(),
+  limit: z.coerce.number().describe("The maximum number of files to return").optional(),
   searchDriveByDrive: z
     .boolean()
     .describe(
@@ -5088,8 +5110,8 @@ export type googleOauthSearchDriveByQueryFunction = ActionFunction<
 
 export const googleOauthSearchDriveByKeywordsAndGetFileContentParamsSchema = z.object({
   searchQuery: z.string().describe("The query input to Google Drive search"),
-  limit: z.number().describe("The maximum number of files to return").optional(),
-  fileSizeLimit: z.number().describe("The maximum length of a file in characters").optional(),
+  limit: z.coerce.number().describe("The maximum number of files to return").optional(),
+  fileSizeLimit: z.coerce.number().describe("The maximum length of a file in characters").optional(),
   searchDriveByDrive: z
     .boolean()
     .describe("Search drive by drive or run a general search. Usually false unless otherwise noted by the user."),
@@ -5145,8 +5167,8 @@ export type googleOauthSearchDriveByKeywordsAndGetFileContentFunction = ActionFu
 
 export const googleOauthSearchDriveByQueryAndGetFileContentParamsSchema = z.object({
   query: z.string().describe("Google Drive API search syntax, eg \"fullText contains 'Valentine\\'s Day'\""),
-  limit: z.number().describe("The maximum number of files to return").optional(),
-  fileSizeLimit: z.number().describe("The maximum length of a file in characters").optional(),
+  limit: z.coerce.number().describe("The maximum number of files to return").optional(),
+  fileSizeLimit: z.coerce.number().describe("The maximum length of a file in characters").optional(),
   searchDriveByDrive: z
     .boolean()
     .describe("Search drive by drive or run a general search. Usually false unless otherwise noted by the user."),
@@ -5196,12 +5218,15 @@ export type googleOauthSearchDriveByQueryAndGetFileContentFunction = ActionFunct
 
 export const googleOauthGetDriveFileContentByIdParamsSchema = z.object({
   fileId: z.string().describe("The ID of the file to get content from"),
-  limit: z.number().describe("The character limit for the file content").optional(),
-  timeoutLimit: z
+  limit: z.coerce.number().describe("The character limit for the file content").optional(),
+  timeoutLimit: z.coerce
     .number()
     .describe("The timeout limit for the file content retrieval (default of 15 seconds)")
     .optional(),
-  fileSizeLimit: z.number().describe("Max file size (in MB) to retrieve content from (default of 30MB)").optional(),
+  fileSizeLimit: z.coerce
+    .number()
+    .describe("Max file size (in MB) to retrieve content from (default of 30MB)")
+    .optional(),
 });
 
 export type googleOauthGetDriveFileContentByIdParamsType = z.infer<
@@ -5219,7 +5244,7 @@ export const googleOauthGetDriveFileContentByIdOutputSchema = z.object({
           .object({
             content: z.string().describe("The content of the file").optional(),
             fileName: z.string().describe("The name of the file").optional(),
-            fileLength: z.number().describe("The length of the file content prior to truncating").optional(),
+            fileLength: z.coerce.number().describe("The length of the file content prior to truncating").optional(),
           })
           .describe("The contents of the file"),
       }),
@@ -5239,7 +5264,7 @@ export type googleOauthGetDriveFileContentByIdFunction = ActionFunction<
 >;
 
 export const googleOauthListGroupsParamsSchema = z.object({
-  maxResults: z.number().describe("The maximum number of groups to return (max allowed is 200)").optional(),
+  maxResults: z.coerce.number().describe("The maximum number of groups to return (max allowed is 200)").optional(),
 });
 
 export type googleOauthListGroupsParamsType = z.infer<typeof googleOauthListGroupsParamsSchema>;
@@ -5292,7 +5317,7 @@ export type googleOauthGetGroupFunction = ActionFunction<
 
 export const googleOauthListGroupMembersParamsSchema = z.object({
   groupKey: z.string().describe("The group's email address or unique group ID"),
-  maxResults: z.number().describe("The maximum number of members to return (max allowed is 200)").optional(),
+  maxResults: z.coerce.number().describe("The maximum number of members to return (max allowed is 200)").optional(),
 });
 
 export type googleOauthListGroupMembersParamsType = z.infer<typeof googleOauthListGroupMembersParamsSchema>;
@@ -5381,8 +5406,8 @@ export type googleOauthDeleteGroupMemberFunction = ActionFunction<
 export const googleOauthQueryGoogleBigQueryParamsSchema = z.object({
   query: z.string().describe("The SQL query to execute in BigQuery"),
   projectId: z.string().describe("The Google Cloud Project ID. If not provided, will use the default project"),
-  maxResults: z.number().describe("Maximum number of results to return. Defaults to 1000").optional(),
-  timeoutMs: z.number().describe("Timeout for the query in milliseconds. Defaults to 30000").optional(),
+  maxResults: z.coerce.number().describe("Maximum number of results to return. Defaults to 1000").optional(),
+  timeoutMs: z.coerce.number().describe("Timeout for the query in milliseconds. Defaults to 30000").optional(),
   maximumBytesProcessed: z
     .string()
     .describe("Maximum bytes to process for the query. Defaults to 500000000 (500MB). Use -1 for no limit")
@@ -5420,8 +5445,8 @@ export type googleOauthQueryGoogleBigQueryFunction = ActionFunction<
 
 export const googlemailSearchGmailMessagesParamsSchema = z.object({
   query: z.string().describe('Gmail search query (e.g. "from:alice subject:urgent")'),
-  maxResults: z.number().describe("Maximum number of messages to return (optional)").optional(),
-  timeout: z.number().describe("Timeout for the query in seconds (optional)").optional(),
+  maxResults: z.coerce.number().describe("Maximum number of messages to return (optional)").optional(),
+  timeout: z.coerce.number().describe("Timeout for the query in seconds (optional)").optional(),
 });
 
 export type googlemailSearchGmailMessagesParamsType = z.infer<typeof googlemailSearchGmailMessagesParamsSchema>;
@@ -5463,7 +5488,7 @@ export type googlemailSearchGmailMessagesFunction = ActionFunction<
 
 export const googlemailListGmailThreadsParamsSchema = z.object({
   query: z.string().describe('Gmail search query (e.g. "from:alice subject:project")'),
-  maxResults: z.number().describe("Maximum number of threads to return").optional(),
+  maxResults: z.coerce.number().describe("Maximum number of threads to return").optional(),
 });
 
 export type googlemailListGmailThreadsParamsType = z.infer<typeof googlemailListGmailThreadsParamsSchema>;
@@ -5568,7 +5593,7 @@ export const googleSearchCustomSearchParamsSchema = z.object({
     .string()
     .describe("Identifies a word or phrase that should not appear in any documents in the search results")
     .optional(),
-  num: z.number().int().gte(1).lte(10).describe("Number of search results to return (1-10)").optional(),
+  num: z.coerce.number().int().gte(1).lte(10).describe("Number of search results to return (1-10)").optional(),
   siteSearch: z
     .string()
     .describe("Specifies a given site which should always be included or excluded from results")
@@ -5577,7 +5602,7 @@ export const googleSearchCustomSearchParamsSchema = z.object({
     .enum(["e", "i"])
     .describe("Controls whether to include or exclude results from the site named in siteSearch (e=exclude, i=include)")
     .optional(),
-  start: z.number().int().gte(1).lte(100).describe("The index of the first result to return").optional(),
+  start: z.coerce.number().int().gte(1).lte(100).describe("The index of the first result to return").optional(),
 });
 
 export type googleSearchCustomSearchParamsType = z.infer<typeof googleSearchCustomSearchParamsSchema>;
@@ -5597,7 +5622,7 @@ export const googleSearchCustomSearchOutputSchema = z.object({
     .optional(),
   searchInformation: z
     .object({
-      searchTime: z.number().describe("Time taken to perform the search").optional(),
+      searchTime: z.coerce.number().describe("Time taken to perform the search").optional(),
       totalResults: z.string().describe("Total number of search results available").optional(),
     })
     .describe("Metadata about the search")
@@ -5685,7 +5710,7 @@ export const finnhubGetBasicFinancialsOutputSchema = z.object({
                   z
                     .object({
                       period: z.string().describe("The period of the financial metric in YYYY-MM-DD format").optional(),
-                      v: z.number().describe("The value of the financial metric").optional(),
+                      v: z.coerce.number().describe("The value of the financial metric").optional(),
                     })
                     .describe("The value of the financial metric"),
                 )
@@ -5706,7 +5731,7 @@ export const finnhubGetBasicFinancialsOutputSchema = z.object({
                   z
                     .object({
                       period: z.string().describe("The period of the financial metric in YYYY-MM-DD format").optional(),
-                      v: z.number().describe("The value of the financial metric").optional(),
+                      v: z.coerce.number().describe("The value of the financial metric").optional(),
                     })
                     .describe("The value of the financial metric"),
                 )
@@ -5859,8 +5884,8 @@ export const salesforceSearchAllSalesforceRecordsParamsSchema = z.object({
       'Whether your Salesforce instance uses lightning knowledge articles ("true" or "false"). Ask the user if unsure.',
     )
     .optional(),
-  limit: z.number().describe("The maximum number of records to return").optional(),
-  maxLimit: z.number().describe("The absolute maximum limit for records that can be returned").optional(),
+  limit: z.coerce.number().describe("The maximum number of records to return").optional(),
+  maxLimit: z.coerce.number().describe("The absolute maximum limit for records that can be returned").optional(),
 });
 
 export type salesforceSearchAllSalesforceRecordsParamsType = z.infer<
@@ -5961,8 +5986,8 @@ export const salesforceSearchSalesforceRecordsParamsSchema = z.object({
   keyword: z.string().describe("The keyword to search for"),
   recordType: z.string().describe("The type of record to search for"),
   fieldsToSearch: z.array(z.string()).describe("The fields to search for the keyword"),
-  limit: z.number().describe("The maximum number of records to return").optional(),
-  maxLimit: z.number().describe("The absolute maximum limit for records that can be returned").optional(),
+  limit: z.coerce.number().describe("The maximum number of records to return").optional(),
+  maxLimit: z.coerce.number().describe("The absolute maximum limit for records that can be returned").optional(),
 });
 
 export type salesforceSearchSalesforceRecordsParamsType = z.infer<typeof salesforceSearchSalesforceRecordsParamsSchema>;
@@ -6007,7 +6032,7 @@ export type salesforceSearchSalesforceRecordsFunction = ActionFunction<
 
 export const salesforceGetSalesforceRecordsByQueryParamsSchema = z.object({
   query: z.string().describe("The SOQL query to execute"),
-  limit: z.number().describe("The maximum number of records to retrieve").optional(),
+  limit: z.coerce.number().describe("The maximum number of records to retrieve").optional(),
 });
 
 export type salesforceGetSalesforceRecordsByQueryParamsType = z.infer<
@@ -6283,7 +6308,7 @@ export const githubCreatePullRequestOutputSchema = z.object({
   success: z.boolean().describe("Whether the pull request was created successfully"),
   error: z.string().describe("The error that occurred if the pull request was not created successfully").optional(),
   pullRequestUrl: z.string().describe("The URL of the created pull request").optional(),
-  pullRequestNumber: z.number().describe("The number of the created pull request").optional(),
+  pullRequestNumber: z.coerce.number().describe("The number of the created pull request").optional(),
 });
 
 export type githubCreatePullRequestOutputType = z.infer<typeof githubCreatePullRequestOutputSchema>;
@@ -6311,7 +6336,7 @@ export const githubListPullRequestsOutputSchema = z.object({
         url: z.string().describe("The URL of the pull request").optional(),
         contents: z
           .object({
-            number: z.number().describe("The number of the pull request").optional(),
+            number: z.coerce.number().describe("The number of the pull request").optional(),
             title: z.string().describe("The title of the pull request").optional(),
             state: z.string().describe("The state of the pull request (e.g., open, closed)").optional(),
             url: z.string().describe("The URL of the pull request").optional(),
@@ -6341,7 +6366,7 @@ export type githubListPullRequestsFunction = ActionFunction<
 export const githubGetPullRequestDetailsParamsSchema = z.object({
   repositoryOwner: z.string().describe("The owner of the repository, this is a GitHub username"),
   repositoryName: z.string().describe("The name of the repository"),
-  pullRequestNumber: z.number().describe("The number of the pull request to get details for"),
+  pullRequestNumber: z.coerce.number().describe("The number of the pull request to get details for"),
 });
 
 export type githubGetPullRequestDetailsParamsType = z.infer<typeof githubGetPullRequestDetailsParamsSchema>;
@@ -6351,7 +6376,7 @@ export const githubGetPullRequestDetailsOutputSchema = z.object({
   error: z.string().describe("The error that occurred if the operation was not successful").optional(),
   pullRequest: z
     .object({
-      number: z.number().describe("The number of the pull request").optional(),
+      number: z.coerce.number().describe("The number of the pull request").optional(),
       title: z.string().describe("The title of the pull request").optional(),
       description: z.string().nullable().describe("The body/description of the pull request").optional(),
       state: z.enum(["open", "closed", "merged"]).describe("The state of the pull request").optional(),
@@ -6419,10 +6444,10 @@ export const githubGetPullRequestDetailsOutputSchema = z.object({
       mergeable: z.boolean().nullable().describe("Whether the pull request can be merged").optional(),
       mergeableState: z.string().nullable().describe("The mergeable state of the pull request").optional(),
       merged: z.boolean().describe("Whether the pull request has been merged").optional(),
-      commits: z.number().describe("The number of commits in the pull request").optional(),
-      additions: z.number().describe("The number of additions in the pull request").optional(),
-      deletions: z.number().describe("The number of deletions in the pull request").optional(),
-      changedFiles: z.number().describe("The number of files changed in the pull request").optional(),
+      commits: z.coerce.number().describe("The number of commits in the pull request").optional(),
+      additions: z.coerce.number().describe("The number of additions in the pull request").optional(),
+      deletions: z.coerce.number().describe("The number of deletions in the pull request").optional(),
+      changedFiles: z.coerce.number().describe("The number of files changed in the pull request").optional(),
       milestone: z
         .object({
           title: z.string().describe("The title of the milestone").optional(),
@@ -6464,7 +6489,7 @@ export const githubGetFileContentOutputSchema = z.object({
         contents: z
           .object({
             content: z.string().describe("The decoded file content as a string").optional(),
-            size: z.number().describe("The size of the file in bytes").optional(),
+            size: z.coerce.number().describe("The size of the file in bytes").optional(),
             name: z.string().describe("The name of the file").optional(),
             htmlUrl: z.string().describe("The URL of the file in the Github UI").optional(),
           })
@@ -6502,7 +6527,7 @@ export const githubListDirectoryOutputSchema = z.object({
           .object({
             path: z.string().describe("The path of the file"),
             type: z.string().describe("The type of the file"),
-            size: z.number().describe("The size of the file in bytes"),
+            size: z.coerce.number().describe("The size of the file in bytes"),
           })
           .describe("The contents of the file"),
       }),
@@ -6545,7 +6570,7 @@ export const githubSearchOrganizationOutputSchema = z.object({
                   path: z.string().describe("The path of the file that had a match."),
                   sha: z.string().describe("The short SHA of the commit containing the match."),
                   url: z.string().describe("The API URL of the file that had a match."),
-                  score: z.number().describe("The similarity score of the match."),
+                  score: z.coerce.number().describe("The similarity score of the match."),
                   textMatches: z
                     .array(
                       z.object({
@@ -6556,7 +6581,10 @@ export const githubSearchOrganizationOutputSchema = z.object({
                           .array(
                             z.object({
                               text: z.string().describe("The text that matched.").optional(),
-                              indices: z.array(z.number()).describe("Start and end indices of the match.").optional(),
+                              indices: z
+                                .array(z.coerce.number())
+                                .describe("Start and end indices of the match.")
+                                .optional(),
                             }),
                           )
                           .describe("List of matches found in the fragment."),
@@ -6584,7 +6612,7 @@ export const githubSearchOrganizationOutputSchema = z.object({
                     })
                     .describe("The GitHub user who authored the commit.")
                     .optional(),
-                  score: z.number().describe("The commit search relevance score."),
+                  score: z.coerce.number().describe("The commit search relevance score."),
                   files: z
                     .array(
                       z.object({
@@ -6599,7 +6627,7 @@ export const githubSearchOrganizationOutputSchema = z.object({
                 .describe("Commit search result content."),
               z
                 .object({
-                  number: z.number().describe("The issue or pull request number."),
+                  number: z.coerce.number().describe("The issue or pull request number."),
                   title: z.string().describe("The title of the issue or pull request."),
                   html_url: z.string().describe("The URL of the issue or pull request."),
                   state: z.enum(["open", "closed"]).describe("The state of the issue or pull request."),
@@ -6611,7 +6639,7 @@ export const githubSearchOrganizationOutputSchema = z.object({
                       email: z.string().describe("The user’s email address, if available.").optional(),
                     })
                     .describe("The user who created the issue or pull request."),
-                  score: z.number().describe("The search result relevance score."),
+                  score: z.coerce.number().describe("The search result relevance score."),
                   files: z
                     .array(
                       z.object({
@@ -6691,14 +6719,14 @@ export const githubGetBranchOutputSchema = z.object({
                 .describe("The commit tree")
                 .optional(),
               url: z.string().describe("The commit URL").optional(),
-              comment_count: z.number().describe("Number of comments on the commit").optional(),
+              comment_count: z.coerce.number().describe("Number of comments on the commit").optional(),
             })
             .describe("The git commit object")
             .optional(),
           author: z
             .object({
               login: z.string().optional(),
-              id: z.number().optional(),
+              id: z.coerce.number().optional(),
               node_id: z.string().optional(),
               avatar_url: z.string().optional(),
               html_url: z.string().optional(),
@@ -6710,7 +6738,7 @@ export const githubGetBranchOutputSchema = z.object({
           committer: z
             .object({
               login: z.string().optional(),
-              id: z.number().optional(),
+              id: z.coerce.number().optional(),
               node_id: z.string().optional(),
               avatar_url: z.string().optional(),
               html_url: z.string().optional(),
@@ -6778,8 +6806,8 @@ export const githubListCommitsParamsSchema = z.object({
     .describe("Only show commits before this date (ISO 8601 format, e.g., 2023-12-31T23:59:59Z)")
     .optional(),
   author: z.string().describe("Filter commits by author (GitHub username or email)").optional(),
-  perPage: z.number().describe("Number of commits to return per page (default 30, max 100)").optional(),
-  page: z.number().describe("Page number for pagination (default 1)").optional(),
+  perPage: z.coerce.number().describe("Number of commits to return per page (default 30, max 100)").optional(),
+  page: z.coerce.number().describe("Page number for pagination (default 1)").optional(),
 });
 
 export type githubListCommitsParamsType = z.infer<typeof githubListCommitsParamsSchema>;
@@ -6809,7 +6837,7 @@ export const githubListCommitsOutputSchema = z.object({
             sha: z.string().describe("The SHA of the tree object"),
             url: z.string().describe("The API URL of the tree object"),
           }),
-          commentCount: z.number().describe("The number of comments on the commit").optional(),
+          commentCount: z.coerce.number().describe("The number of comments on the commit").optional(),
         }),
         author: z
           .object({ login: z.string().describe("The GitHub username of the commit author").optional() })
@@ -6828,7 +6856,7 @@ export const githubListCommitsOutputSchema = z.object({
     )
     .describe("List of commits in the repository")
     .optional(),
-  totalCount: z.number().describe("Total number of commits (if available)").optional(),
+  totalCount: z.coerce.number().describe("Total number of commits (if available)").optional(),
   hasMore: z.boolean().describe("Whether there are more commits available on subsequent pages").optional(),
 });
 
@@ -6890,9 +6918,9 @@ export const gitlabSearchGroupOutputSchema = z.object({
               .object({
                 metadata: z
                   .object({
-                    id: z.number().describe("The ID of the merge request"),
-                    iid: z.number().describe("The internal ID of the merge request"),
-                    project_id: z.number().describe("The ID of the project the merge request belongs to"),
+                    id: z.coerce.number().describe("The ID of the merge request"),
+                    iid: z.coerce.number().describe("The internal ID of the merge request"),
+                    project_id: z.coerce.number().describe("The ID of the project the merge request belongs to"),
                     title: z.string().describe("The title of the merge request"),
                     web_url: z.string().describe("The URL of the merge request"),
                     description: z.string().describe("The description of the merge request").optional(),
@@ -6924,9 +6952,9 @@ export const gitlabSearchGroupOutputSchema = z.object({
                   path: z.string().describe("The path of the blob"),
                   basename: z.string().describe("The basename of the blob"),
                   data: z.string().describe("The data of the blob"),
-                  project_id: z.number().describe("The ID of the project the blob belongs to"),
+                  project_id: z.coerce.number().describe("The ID of the project the blob belongs to"),
                   ref: z.string().describe("The ref of the blob"),
-                  startline: z.number().describe("The start line of the blob"),
+                  startline: z.coerce.number().describe("The start line of the blob"),
                   filename: z.string().describe("The filename of the blob"),
                   web_url: z.string().describe("The URL of the blob"),
                 }),
@@ -6991,7 +7019,7 @@ export type gitlabSearchGroupFunction = ActionFunction<
 >;
 
 export const gitlabGetFileContentParamsSchema = z.object({
-  project_id: z.number().describe("Numeric project ID in GitLab (unique per project)"),
+  project_id: z.coerce.number().describe("Numeric project ID in GitLab (unique per project)"),
   path: z.string().describe("The file path to get content from (e.g., src/index.js)"),
   ref: z
     .string()
@@ -7011,7 +7039,7 @@ export const gitlabGetFileContentOutputSchema = z.object({
         url: z.string().describe("The url of the file"),
         contents: z.object({
           content: z.string().describe("The decoded file content as a string"),
-          size: z.number().describe("The size of the file in bytes"),
+          size: z.coerce.number().describe("The size of the file in bytes"),
           name: z.string().describe("The name of the file"),
           htmlUrl: z.string().describe("The URL of the file in the GitLab UI"),
         }),
@@ -7029,7 +7057,7 @@ export type gitlabGetFileContentFunction = ActionFunction<
 >;
 
 export const gitlabGetMergeRequestParamsSchema = z.object({
-  project_id: z
+  project_id: z.coerce
     .number()
     .describe("Numeric project ID in GitLab (unique per project). Either this or the project path is required.")
     .optional(),
@@ -7051,9 +7079,9 @@ export const gitlabGetMergeRequestOutputSchema = z.object({
     .array(
       z.object({
         metadata: z.object({
-          iid: z.number().describe("The internal ID of the merge request"),
-          id: z.number().describe("The ID of the merge request"),
-          project_id: z.number().describe("The ID of the project the merge request belongs to"),
+          iid: z.coerce.number().describe("The internal ID of the merge request"),
+          id: z.coerce.number().describe("The ID of the merge request"),
+          project_id: z.coerce.number().describe("The ID of the project the merge request belongs to"),
           title: z.string().describe("The title of the merge request"),
           description: z.string().describe("The description of the merge request"),
           state: z.string().describe("The state of the merge request"),
@@ -7069,7 +7097,7 @@ export const gitlabGetMergeRequestOutputSchema = z.object({
             head_sha: z.string().describe("The head SHA of the merge request"),
           }),
           author: z.object({
-            id: z.number().describe("The ID of the author"),
+            id: z.coerce.number().describe("The ID of the author"),
             name: z.string().describe("The name of the author"),
             username: z.string().describe("The username of the author"),
           }),
@@ -7133,7 +7161,7 @@ export const gitlabListDirectoryOutputSchema = z.object({
             name: z.string().describe("The name of the file or directory"),
             path: z.string().describe("The path of the file or directory"),
             type: z.string().describe('The type of the entry (either "blob" for file or "tree" for directory)'),
-            size: z
+            size: z.coerce
               .number()
               .describe("The size of the file in bytes (only for blobs; omitted or 0 for trees)")
               .optional(),
@@ -7155,7 +7183,7 @@ export type gitlabListDirectoryFunction = ActionFunction<
 
 export const linearGetIssuesParamsSchema = z.object({
   query: z.string().describe("Optional query string to filter issues").optional(),
-  maxResults: z.number().describe("Optional limit to number of results").optional(),
+  maxResults: z.coerce.number().describe("Optional limit to number of results").optional(),
 });
 
 export type linearGetIssuesParamsType = z.infer<typeof linearGetIssuesParamsSchema>;
@@ -7258,8 +7286,8 @@ export const linearGetIssueDetailsOutputSchema = z.object({
         })
         .describe("The project the issue belongs to")
         .optional(),
-      priority: z.number().describe("The issue priority (0-4)").optional(),
-      estimate: z.number().describe("The issue estimate in story points").optional(),
+      priority: z.coerce.number().describe("The issue priority (0-4)").optional(),
+      estimate: z.coerce.number().describe("The issue estimate in story points").optional(),
       dueDate: z.string().describe("The issue due date").optional(),
       createdAt: z.string().describe("When the issue was created").optional(),
       updatedAt: z.string().describe("When the issue was last updated").optional(),
@@ -7317,7 +7345,7 @@ export const linearGetProjectsOutputSchema = z.object({
           })
           .describe("The project lead")
           .optional(),
-        progress: z.number().describe("The project progress percentage").optional(),
+        progress: z.coerce.number().describe("The project progress percentage").optional(),
         url: z.string().describe("The project URL").optional(),
       }),
     )
@@ -7347,7 +7375,7 @@ export const linearGetProjectDetailsOutputSchema = z.object({
       name: z.string().describe("The project name").optional(),
       description: z.string().describe("The project description").optional(),
       state: z.string().describe("The project state").optional(),
-      progress: z.number().describe("The project progress percentage").optional(),
+      progress: z.coerce.number().describe("The project progress percentage").optional(),
       targetDate: z.string().describe("The project target date").optional(),
       createdAt: z.string().describe("When the project was created").optional(),
       updatedAt: z.string().describe("When the project was last updated").optional(),
@@ -7455,14 +7483,14 @@ export const linearCreateIssueParamsSchema = z.object({
   description: z.string().describe("The description of the issue in markdown format").optional(),
   teamId: z.string().describe("The ID of the team to create the issue for"),
   assigneeId: z.string().describe("The ID of the user to assign the issue to").optional(),
-  priority: z
+  priority: z.coerce
     .number()
     .describe("The priority of the issue: 0 = No priority, 1 = Urgent, 2 = High, 3 = Medium, 4 = Low")
     .optional(),
   projectId: z.string().describe("The ID of the project to associate the issue with").optional(),
   dueDate: z.string().describe("The due date of the issue in ISO 8601 format (e.g. 2024-12-31)").optional(),
   labelIds: z.array(z.string()).describe("Array of label IDs to apply to the issue").optional(),
-  estimate: z.number().describe("The estimate in story points for the issue").optional(),
+  estimate: z.coerce.number().describe("The estimate in story points for the issue").optional(),
 });
 
 export type linearCreateIssueParamsType = z.infer<typeof linearCreateIssueParamsSchema>;
@@ -7493,7 +7521,7 @@ export const hubspotGetContactsParamsSchema = z.object({
     .string()
     .describe("Optional keyword search query to filter contacts by name, email, or other properties")
     .optional(),
-  limit: z.number().describe("Maximum number of contacts to return (default 100, max 100)").optional(),
+  limit: z.coerce.number().describe("Maximum number of contacts to return (default 100, max 100)").optional(),
 });
 
 export type hubspotGetContactsParamsType = z.infer<typeof hubspotGetContactsParamsSchema>;
@@ -7570,7 +7598,7 @@ export const hubspotGetCompaniesParamsSchema = z.object({
     .string()
     .describe("Optional keyword search query to filter companies by name, domain, or other properties")
     .optional(),
-  limit: z.number().describe("Maximum number of companies to return (default 100, max 100)").optional(),
+  limit: z.coerce.number().describe("Maximum number of companies to return (default 100, max 100)").optional(),
 });
 
 export type hubspotGetCompaniesParamsType = z.infer<typeof hubspotGetCompaniesParamsSchema>;
@@ -7641,7 +7669,7 @@ export type hubspotGetCompanyDetailsFunction = ActionFunction<
 
 export const hubspotGetDealsParamsSchema = z.object({
   query: z.string().describe("Optional search query to filter deals by name, stage, or other properties").optional(),
-  limit: z.number().describe("Maximum number of deals to return (default 100, max 100)").optional(),
+  limit: z.coerce.number().describe("Maximum number of deals to return (default 100, max 100)").optional(),
 });
 
 export type hubspotGetDealsParamsType = z.infer<typeof hubspotGetDealsParamsSchema>;
@@ -7714,7 +7742,7 @@ export const hubspotGetTicketsParamsSchema = z.object({
     .string()
     .describe("Optional search query to filter tickets by subject, status, or other properties")
     .optional(),
-  limit: z.number().describe("Maximum number of tickets to return (default 100, max 100)").optional(),
+  limit: z.coerce.number().describe("Maximum number of tickets to return (default 100, max 100)").optional(),
 });
 
 export type hubspotGetTicketsParamsType = z.infer<typeof hubspotGetTicketsParamsSchema>;

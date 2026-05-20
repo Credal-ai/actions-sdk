@@ -22,27 +22,34 @@ const updateRowsInSpreadsheet: googleOauthUpdateRowsInSpreadsheetFunction = asyn
     throw new Error(MISSING_AUTH_TOKEN);
   }
 
-  const { spreadsheetId, sheetName, startRow, rows } = params;
-
-  if (rows.length === 0) {
-    throw new Error("rows array cannot be empty");
-  }
-
-  const values = rows.map(row => row.map(cell => cell.stringValue));
-
-  if (startRow < 1) {
-    throw new Error("startRow must be >= 1");
-  }
-  const endRow = startRow + rows.length - 1;
-  const range = `'${sheetName ?? "Sheet1"}'!A${startRow}:ZZ${endRow}`;
-
-  const updateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}`;
+  const { spreadsheetId, sheetName, startRow, startColumn, rows } = params;
 
   try {
+    if (rows.length === 0) {
+      throw new Error("rows array cannot be empty");
+    }
+
+    if (startRow < 1) {
+      throw new Error("startRow must be >= 1");
+    }
+
+    const col = startColumn ?? "A";
+    if (!/^[A-Za-z]+$/.test(col)) {
+      throw new Error(`startColumn must be a column letter (e.g. "A", "BE"), got: "${col}"`);
+    }
+
+    const endRow = startRow + rows.length - 1;
+    const sheet = sheetName ?? "Sheet1";
+    // Only quote sheet names that contain spaces or special characters
+    const quotedSheet = /[\s'!]/.test(sheet) ? `'${sheet.replace(/'/g, "''")}'` : sheet;
+    const range = `${quotedSheet}!${col}${startRow}:ZZ${endRow}`;
+
+    const updateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}`;
+
     const response = await axiosClient.put(
       updateUrl,
       {
-        values,
+        values: rows,
         majorDimension: "ROWS",
         range,
       },
