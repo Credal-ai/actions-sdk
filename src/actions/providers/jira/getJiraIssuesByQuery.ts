@@ -100,7 +100,7 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
       jiraTotal = total;
 
       allIssues.push(...issues);
-      if (allIssues.length >= total || issues.length === 0) {
+      if ((paramStartAt ?? 0) + allIssues.length >= total || issues.length === 0) {
         break;
       }
 

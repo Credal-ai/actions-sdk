@@ -96,7 +96,7 @@ const getJiraDCIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
 
   const searchEndpoint = strategy.getSearchEndpoint();
   const requestedLimit = limit ?? DEFAULT_LIMIT;
-  const allIssues = [];
+  const allIssues: JiraSearchResponse["issues"] = [];
   let currentStartAt = paramStartAt ?? 0;
   let jiraTotal: number | undefined = undefined;
 
@@ -126,7 +126,7 @@ const getJiraDCIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
       jiraTotal = total;
 
       allIssues.push(...issues);
-      if (allIssues.length >= total || issues.length === 0) {
+      if ((paramStartAt ?? 0) + allIssues.length >= total || issues.length === 0) {
         break;
       }
 
