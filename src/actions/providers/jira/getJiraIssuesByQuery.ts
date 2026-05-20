@@ -4,15 +4,38 @@ import type {
   jiraGetJiraIssuesByQueryOutputType,
   jiraGetJiraIssuesByQueryParamsType,
 } from "../../autogen/types.js";
-import { Version3Client, type Version3Models } from "jira.js";
+import { Version3Client } from "jira.js";
+import { axiosClient } from "../../util/axiosClient.js";
 import { getJiraApiConfig, getErrorMessage, extractPlainText, getUserInfoFromAccountId } from "./utils.js";
 
 const DEFAULT_LIMIT = 100;
 
-// Jira Cloud implementation using the enhanced search API (cursor-based pagination).
-// Returns `truncated: true` when results were cut off at the limit and more pages exist.
-// Note: the enhanced API does not expose a total count, so `total` is never returned here.
-// Use `jiraDataCenter` provider if you need the exact total count.
+type JiraCloudSearchResponse = {
+  issues: {
+    id: string;
+    key: string;
+    fields: {
+      summary: string;
+      description?: unknown;
+      project: { id: string; key: string; name: string };
+      issuetype: { id: string; name: string };
+      status: { id: string; name: string; statusCategory: { name: string } };
+      assignee?: { accountId: string } | null;
+      reporter?: { accountId: string } | null;
+      creator?: { accountId: string } | null;
+      created: string;
+      updated: string;
+      resolution?: { name: string } | null;
+      duedate?: string | null;
+    };
+  }[];
+  startAt: number;
+  maxResults: number;
+  total: number;
+};
+
+// Jira Cloud implementation using the legacy offset-based search API (/rest/api/3/search).
+// Uses startAt for pagination so agents can resume from any offset even when app-layer truncation occurs.
 const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
   params,
   authParams,
@@ -21,7 +44,7 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
   authParams: AuthParamsType;
 }): Promise<jiraGetJiraIssuesByQueryOutputType> => {
   const { authToken, cloudId } = authParams;
-  const { query, limit } = params;
+  const { query, limit, startAt: paramStartAt } = params;
   const { browseUrl } = getJiraApiConfig(authParams);
 
   if (!authToken) throw new Error("Auth token is required");
@@ -47,72 +70,52 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
   ];
 
   const requestedLimit = limit ?? DEFAULT_LIMIT;
-  const allIssues = [];
-  let nextPageToken: string | undefined = undefined;
-  let truncated = false;
+  const allIssues: JiraCloudSearchResponse["issues"] = [];
+  let currentStartAt = paramStartAt ?? 0;
+  let jiraTotal: number | undefined = undefined;
+
+  // jira.js client is kept solely for getUserInfoFromAccountId (user email lookups)
+  const client = new Version3Client({
+    host: `https://api.atlassian.com/ex/jira/${cloudId}`,
+    authentication: { oauth2: { accessToken: authToken } },
+  });
 
   try {
-    // Initialize jira.js client with OAuth 2.0 authentication
-    const client = new Version3Client({
-      host: `https://api.atlassian.com/ex/jira/${cloudId}`,
-      authentication: {
-        oauth2: {
-          accessToken: authToken,
-        },
-      },
-    });
-
-    // Keep fetching pages until we have all requested issues
     while (allIssues.length < requestedLimit) {
-      // Calculate how many results to fetch in this request
       const remainingIssues = requestedLimit - allIssues.length;
       const maxResults = Math.min(remainingIssues, DEFAULT_LIMIT);
 
-      // Use the enhanced search endpoint (recommended)
-      const searchResults: Version3Models.SearchAndReconcileResults =
-        await client.issueSearch.searchForIssuesUsingJqlEnhancedSearch({
-          jql: query,
-          nextPageToken,
-          maxResults,
-          fields,
-        });
+      const queryParams = new URLSearchParams();
+      queryParams.set("jql", query);
+      queryParams.set("maxResults", String(maxResults));
+      queryParams.set("startAt", String(currentStartAt));
+      queryParams.set("fields", fields.join(","));
 
-      if (!searchResults.issues || searchResults.issues.length === 0) {
+      const response = await axiosClient.get<JiraCloudSearchResponse>(
+        `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3/search?${queryParams.toString()}`,
+        { headers: { Authorization: `Bearer ${authToken}`, Accept: "application/json" } },
+      );
+
+      const { issues, total } = response.data;
+      jiraTotal = total;
+
+      allIssues.push(...issues);
+      if (allIssues.length >= total || issues.length === 0) {
         break;
       }
 
-      allIssues.push(...searchResults.issues);
-
-      // Check if we've reached the end or have enough results
-      if (allIssues.length >= requestedLimit || !searchResults.nextPageToken || searchResults.issues.length === 0) {
-        // Truncated when we hit the limit but Jira still has more pages
-        truncated = allIssues.length >= requestedLimit && !!searchResults.nextPageToken;
-        break;
-      }
-
-      nextPageToken = searchResults.nextPageToken;
+      currentStartAt += issues.length;
     }
 
-    // Map issues with email addresses
+    const absoluteEnd = (paramStartAt ?? 0) + allIssues.length;
+    const truncated = jiraTotal !== undefined && absoluteEnd < jiraTotal;
+
     const results = await Promise.all(
       allIssues.map(async ({ id, key, fields }) => {
         const ticketUrl = `${browseUrl}/browse/${key}`;
-        const {
-          summary,
-          description,
-          project,
-          issuetype,
-          status,
-          assignee,
-          reporter,
-          creator,
-          created,
-          updated,
-          resolution,
-          duedate,
-        } = fields;
+        const { summary, description, project, issuetype, status, assignee, reporter, creator, created, updated, resolution, duedate } =
+          fields;
 
-        // Fetch user info in parallel
         const [assigneeInfo, reporterInfo, creatorInfo] = await Promise.all([
           getUserInfoFromAccountId(assignee?.accountId, client),
           getUserInfoFromAccountId(reporter?.accountId, client),
@@ -127,25 +130,14 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
             key,
             summary,
             description: extractPlainText(description),
-            project: {
-              id: project?.id,
-              key: project?.key,
-              name: project?.name,
-            },
-            issueType: {
-              id: issuetype?.id,
-              name: issuetype?.name,
-            },
-            status: {
-              id: status?.id,
-              name: status?.name,
-              category: status?.statusCategory?.name,
-            },
+            project: { id: project?.id, key: project?.key, name: project?.name },
+            issueType: { id: issuetype?.id, name: issuetype?.name },
+            status: { id: status?.id, name: status?.name, category: status?.statusCategory?.name },
             assignee: assigneeInfo,
             reporter: reporterInfo,
             creator: creatorInfo,
-            created: created,
-            updated: updated,
+            created,
+            updated,
             resolution: resolution?.name,
             dueDate: duedate,
             url: ticketUrl,
@@ -154,13 +146,10 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
       }),
     );
 
-    return { results, truncated };
+    return { itemsReturned: allIssues.length, truncated, results };
   } catch (error: unknown) {
     console.error("Error retrieving Jira issues:", error);
-    return {
-      results: [],
-      error: getErrorMessage(error),
-    };
+    return { results: [], error: getErrorMessage(error) };
   }
 };
 

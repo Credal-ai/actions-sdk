@@ -1477,10 +1477,19 @@ actions:
             description: The JQL query to execute
           limit:
             type: number
-            description: The maximum number of records to retrieve. Defaults to 100. For exhaustive queries where all matching issues are needed, set this to a value larger than the expected result count (e.g. 500 or 1000).
+            description: The maximum number of records to retrieve per call (page size). Defaults to 100.
+          startAt:
+            type: number
+            description: "Offset of the first result to return. Use itemsReturned from the previous response as the next startAt value to page through results. Defaults to 0."
       output:
         type: object
         properties:
+          itemsReturned:
+            type: number
+            description: "Number of items returned in this response. Use this value as startAt in the next call to continue pagination. Appears before results so it is readable even if the results are truncated."
+          truncated:
+            type: boolean
+            description: "True when more results exist beyond this batch. Call again with startAt incremented by itemsReturned to retrieve the next page."
           results:
             type: array
             description: The results of the Jira issues
@@ -1604,12 +1613,6 @@ actions:
                       type: string
                       nullable: true
                       format: date
-          total:
-            type: number
-            description: The total number of Jira issues matching the query. When present and greater than the number of results returned, re-run with a higher limit to retrieve all issues.
-          truncated:
-            type: boolean
-            description: True when the result set was cut off at the requested limit and more issues exist. Re-run with a higher limit to retrieve all issues.
           error:
             type: string
             description: The error that occurred if the records were not successfully retrieved
