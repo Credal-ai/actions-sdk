@@ -1480,13 +1480,13 @@ actions:
             description: The maximum number of records to retrieve per call (page size). Defaults to 100.
           startAt:
             type: number
-            description: "Offset of the first result to return. Use itemsReturned from the previous response as the next startAt value to page through results. Defaults to 0."
+            description: "Offset of the first result to return. Add itemsReturned from the previous response to the current startAt to compute the next page offset. Defaults to 0."
       output:
         type: object
         properties:
           itemsReturned:
             type: number
-            description: "Number of items returned in this response. Use this value as startAt in the next call to continue pagination. Appears before results so it is readable even if the results are truncated."
+            description: "Number of items returned in this response. Add this value to the current startAt to get the next page's startAt. Appears before results so it is readable even if the results are truncated."
           truncated:
             type: boolean
             description: "True when more results exist beyond this batch. Call again with startAt incremented by itemsReturned to retrieve the next page."

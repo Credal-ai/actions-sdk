@@ -1247,7 +1247,7 @@ export const jiraGetJiraIssuesByQueryParamsSchema = z.object({
   startAt: z.coerce
     .number()
     .describe(
-      "Offset of the first result to return. Use itemsReturned from the previous response as the next startAt value to page through results. Defaults to 0.",
+      "Offset of the first result to return. Add itemsReturned from the previous response to the current startAt to compute the next page offset. Defaults to 0.",
     )
     .optional(),
 });
@@ -1258,7 +1258,7 @@ export const jiraGetJiraIssuesByQueryOutputSchema = z.object({
   itemsReturned: z.coerce
     .number()
     .describe(
-      "Number of items returned in this response. Use this value as startAt in the next call to continue pagination. Appears before results so it is readable even if the results are truncated.",
+      "Number of items returned in this response. Add this value to the current startAt to get the next page's startAt. Appears before results so it is readable even if the results are truncated.",
     )
     .optional(),
   truncated: z
@@ -1694,7 +1694,7 @@ export const jiraOrgGetJiraIssuesByQueryParamsSchema = z.object({
   startAt: z.coerce
     .number()
     .describe(
-      "Offset of the first result to return. Use itemsReturned from the previous response as the next startAt value to page through results. Defaults to 0.",
+      "Offset of the first result to return. Add itemsReturned from the previous response to the current startAt to compute the next page offset. Defaults to 0.",
     )
     .optional(),
 });
@@ -1705,7 +1705,7 @@ export const jiraOrgGetJiraIssuesByQueryOutputSchema = z.object({
   itemsReturned: z.coerce
     .number()
     .describe(
-      "Number of items returned in this response. Use this value as startAt in the next call to continue pagination. Appears before results so it is readable even if the results are truncated.",
+      "Number of items returned in this response. Add this value to the current startAt to get the next page's startAt. Appears before results so it is readable even if the results are truncated.",
     )
     .optional(),
   truncated: z
@@ -2165,7 +2165,7 @@ export const jiraDataCenterGetJiraIssuesByQueryParamsSchema = z.object({
   startAt: z.coerce
     .number()
     .describe(
-      "Offset of the first result to return. Use itemsReturned from the previous response as the next startAt value to page through results. Defaults to 0.",
+      "Offset of the first result to return. Add itemsReturned from the previous response to the current startAt to compute the next page offset. Defaults to 0.",
     )
     .optional(),
 });
@@ -2178,7 +2178,7 @@ export const jiraDataCenterGetJiraIssuesByQueryOutputSchema = z.object({
   itemsReturned: z.coerce
     .number()
     .describe(
-      "Number of items returned in this response. Use this value as startAt in the next call to continue pagination. Appears before results so it is readable even if the results are truncated.",
+      "Number of items returned in this response. Add this value to the current startAt to get the next page's startAt. Appears before results so it is readable even if the results are truncated.",
     )
     .optional(),
   truncated: z

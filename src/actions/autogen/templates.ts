@@ -2049,7 +2049,7 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
       startAt: {
         type: "number",
         description:
-          "Offset of the first result to return. Use itemsReturned from the previous response as the next startAt value to page through results. Defaults to 0.",
+          "Offset of the first result to return. Add itemsReturned from the previous response to the current startAt to compute the next page offset. Defaults to 0.",
       },
     },
   },
@@ -2059,7 +2059,7 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
       itemsReturned: {
         type: "number",
         description:
-          "Number of items returned in this response. Use this value as startAt in the next call to continue pagination. Appears before results so it is readable even if the results are truncated.",
+          "Number of items returned in this response. Add this value to the current startAt to get the next page's startAt. Appears before results so it is readable even if the results are truncated.",
       },
       truncated: {
         type: "boolean",
@@ -2929,7 +2929,7 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
       startAt: {
         type: "number",
         description:
-          "Offset of the first result to return. Use itemsReturned from the previous response as the next startAt value to page through results. Defaults to 0.",
+          "Offset of the first result to return. Add itemsReturned from the previous response to the current startAt to compute the next page offset. Defaults to 0.",
       },
     },
   },
@@ -2939,7 +2939,7 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
       itemsReturned: {
         type: "number",
         description:
-          "Number of items returned in this response. Use this value as startAt in the next call to continue pagination. Appears before results so it is readable even if the results are truncated.",
+          "Number of items returned in this response. Add this value to the current startAt to get the next page's startAt. Appears before results so it is readable even if the results are truncated.",
       },
       truncated: {
         type: "boolean",
@@ -3809,7 +3809,7 @@ export const jiraDataCenterGetJiraIssuesByQueryDefinition: ActionTemplate = {
       startAt: {
         type: "number",
         description:
-          "Offset of the first result to return. Use itemsReturned from the previous response as the next startAt value to page through results. Defaults to 0.",
+          "Offset of the first result to return. Add itemsReturned from the previous response to the current startAt to compute the next page offset. Defaults to 0.",
       },
     },
   },
@@ -3819,7 +3819,7 @@ export const jiraDataCenterGetJiraIssuesByQueryDefinition: ActionTemplate = {
       itemsReturned: {
         type: "number",
         description:
-          "Number of items returned in this response. Use this value as startAt in the next call to continue pagination. Appears before results so it is readable even if the results are truncated.",
+          "Number of items returned in this response. Add this value to the current startAt to get the next page's startAt. Appears before results so it is readable even if the results are truncated.",
       },
       truncated: {
         type: "boolean",
