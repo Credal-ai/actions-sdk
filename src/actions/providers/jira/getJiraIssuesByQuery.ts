@@ -113,8 +113,20 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
     const results = await Promise.all(
       allIssues.map(async ({ id, key, fields }) => {
         const ticketUrl = `${browseUrl}/browse/${key}`;
-        const { summary, description, project, issuetype, status, assignee, reporter, creator, created, updated, resolution, duedate } =
-          fields;
+        const {
+          summary,
+          description,
+          project,
+          issuetype,
+          status,
+          assignee,
+          reporter,
+          creator,
+          created,
+          updated,
+          resolution,
+          duedate,
+        } = fields;
 
         const [assigneeInfo, reporterInfo, creatorInfo] = await Promise.all([
           getUserInfoFromAccountId(assignee?.accountId, client),
