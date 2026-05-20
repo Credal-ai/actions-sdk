@@ -2064,7 +2064,7 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
       truncated: {
         type: "boolean",
         description:
-          "True when more results exist beyond this batch. Call again with startAt incremented by itemsReturned to retrieve the next page.",
+          "True when more results exist beyond this batch. Call again with startAt set to currentStartAt + countOfResultsRead (the number of results you actually received in this response).",
       },
       results: {
         type: "array",
@@ -2944,7 +2944,7 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
       truncated: {
         type: "boolean",
         description:
-          "True when more results exist beyond this batch. Call again with startAt incremented by itemsReturned to retrieve the next page.",
+          "True when more results exist beyond this batch. Call again with startAt set to currentStartAt + countOfResultsRead (the number of results you actually received in this response).",
       },
       results: {
         type: "array",
@@ -3824,7 +3824,7 @@ export const jiraDataCenterGetJiraIssuesByQueryDefinition: ActionTemplate = {
       truncated: {
         type: "boolean",
         description:
-          "True when more results exist beyond this batch. Call again with startAt incremented by itemsReturned to retrieve the next page.",
+          "True when more results exist beyond this batch. Call again with startAt set to currentStartAt + countOfResultsRead (the number of results you actually received in this response).",
       },
       results: {
         type: "array",
