@@ -12,38 +12,49 @@ async function testGetJiraIssuesByQuery(config: JiraTestConfig) {
 
   const jql = `project = ${projectKey} ORDER BY created ASC`;
 
-  const result = (await runAction(
+  // Page 1
+  const page1 = (await runAction(
     "getJiraIssuesByQuery",
     provider,
     getAuthParams(config),
-    {
-      query: jql,
-      limit: 2,
-    },
+    { query: jql, limit: 2 },
   )) as jiraGetJiraIssuesByQueryOutputType;
 
-  console.dir(result, { depth: 4 });
+  console.log("Page 1:");
+  console.dir(page1, { depth: 4 });
 
-  assert.strictEqual(result.error, undefined);
-  assert.ok(result.results);
-  assert.ok(result.results.length > 0);
+  assert.strictEqual(page1.error, undefined);
+  assert.ok(page1.results && page1.results.length > 0, "page 1 should have results");
+  assert.ok(page1.results[0].name, "first result should have a key");
+  assert.ok(page1.results[0].url, "first result should have a url");
+  assert.ok(page1.results[0].contents, "first result should have contents");
 
-  // Check first result has required fields
-  const firstResult = result.results[0];
-  assert.ok(firstResult.name);
-  assert.ok(firstResult.url);
-  assert.ok(firstResult.contents);
+  // Pagination: if nextPageToken is present, fetch page 2
+  if (page1.nextPageToken) {
+    const page2Params = { query: jql, limit: 2, nextPageToken: page1.nextPageToken };
 
-  // Truncation signal: DC returns `total`, Cloud returns `truncated`.
-  // With limit=2, a project with more than 2 issues should trigger one of these.
-  if (provider === "jiraDataCenter") {
-    assert.ok(typeof result.total === "number", "DC provider should return a numeric total");
-  } else {
-    // Cloud: truncated is true when limit was hit and more pages exist.
-    // Only assert its type when present — a project with <=2 issues won't set it.
-    if (result.truncated !== undefined) {
-      assert.ok(typeof result.truncated === "boolean", "truncated should be a boolean");
+    const page2 = (await runAction(
+      "getJiraIssuesByQuery",
+      provider,
+      getAuthParams(config),
+      page2Params,
+    )) as jiraGetJiraIssuesByQueryOutputType;
+
+    console.log("Page 2:");
+    console.dir(page2, { depth: 4 });
+
+    assert.strictEqual(page2.error, undefined);
+    assert.ok(page2.results && page2.results.length > 0, "page 2 should have results");
+
+    // Keys on page 2 must not overlap with page 1
+    const page1Keys = new Set(page1.results!.map(r => r.name));
+    for (const r of page2.results!) {
+      assert.ok(!page1Keys.has(r.name), `duplicate key ${r.name} returned on page 2`);
     }
+
+    console.log(`Pagination OK: page1=${page1.results!.length} results, page2=${page2.results!.length} results, no duplicates`);
+  } else {
+    console.log("Project has <=2 issues, skipping page 2 check");
   }
 }
 

@@ -2044,12 +2044,13 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
       },
       limit: {
         type: "number",
-        description: "The maximum number of records to retrieve per call (page size). Defaults to 100.",
-      },
-      startAt: {
-        type: "number",
         description:
-          "Offset of the first result to return. Defaults to 0. To page through results: count the number of results you can actually read in the response and pass currentStartAt + countOfResultsRead as the next startAt. Do not blindly use itemsReturned to advance — the response may be truncated by the system after this action returns, meaning you may see fewer results than itemsReturned reports.",
+          "The maximum number of records to retrieve per call (page size). Defaults to 100. Keep this small enough that the response is not truncated before you read it — if truncation occurs, lower the limit and retry.",
+      },
+      nextPageToken: {
+        type: "string",
+        description:
+          "Cursor token returned by the previous response. Pass this to fetch the next page. Omit on the first call. If the system truncates your results (i.e. you receive fewer items than itemsReturned indicates), reduce the limit and retry the same page without advancing the cursor — only move to the next page once you receive a complete, untruncated response.",
       },
     },
   },
@@ -2059,12 +2060,12 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
       itemsReturned: {
         type: "number",
         description:
-          "Number of items fetched by this action. This field intentionally appears before results so it survives system-level response truncation. Warning: the system may truncate the results array before you see it, so you may receive fewer results than this number. Always count the results you can actually read and use currentStartAt + countOfResultsRead as the next startAt, not currentStartAt + itemsReturned.",
+          "Number of items fetched by this action. This field intentionally appears before results so it survives system-level response truncation. Warning: the system may truncate the results array before you see it, so you may receive fewer results than this number.",
       },
-      truncated: {
-        type: "boolean",
+      nextPageToken: {
+        type: "string",
         description:
-          "True when more results exist beyond this batch. Call again with startAt set to currentStartAt + countOfResultsRead (the number of results you actually received in this response).",
+          "Cursor token for the next page. Pass this as nextPageToken in the next call. Absent when there are no more results.",
       },
       results: {
         type: "array",
@@ -2924,12 +2925,13 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
       },
       limit: {
         type: "number",
-        description: "The maximum number of records to retrieve per call (page size). Defaults to 100.",
-      },
-      startAt: {
-        type: "number",
         description:
-          "Offset of the first result to return. Defaults to 0. To page through results: count the number of results you can actually read in the response and pass currentStartAt + countOfResultsRead as the next startAt. Do not blindly use itemsReturned to advance — the response may be truncated by the system after this action returns, meaning you may see fewer results than itemsReturned reports.",
+          "The maximum number of records to retrieve per call (page size). Defaults to 100. Keep this small enough that the response is not truncated before you read it — if truncation occurs, lower the limit and retry.",
+      },
+      nextPageToken: {
+        type: "string",
+        description:
+          "Cursor token returned by the previous response. Pass this to fetch the next page. Omit on the first call. If the system truncates your results (i.e. you receive fewer items than itemsReturned indicates), reduce the limit and retry the same page without advancing the cursor — only move to the next page once you receive a complete, untruncated response.",
       },
     },
   },
@@ -2939,12 +2941,12 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
       itemsReturned: {
         type: "number",
         description:
-          "Number of items fetched by this action. This field intentionally appears before results so it survives system-level response truncation. Warning: the system may truncate the results array before you see it, so you may receive fewer results than this number. Always count the results you can actually read and use currentStartAt + countOfResultsRead as the next startAt, not currentStartAt + itemsReturned.",
+          "Number of items fetched by this action. This field intentionally appears before results so it survives system-level response truncation. Warning: the system may truncate the results array before you see it, so you may receive fewer results than this number.",
       },
-      truncated: {
-        type: "boolean",
+      nextPageToken: {
+        type: "string",
         description:
-          "True when more results exist beyond this batch. Call again with startAt set to currentStartAt + countOfResultsRead (the number of results you actually received in this response).",
+          "Cursor token for the next page. Pass this as nextPageToken in the next call. Absent when there are no more results.",
       },
       results: {
         type: "array",
@@ -3804,28 +3806,14 @@ export const jiraDataCenterGetJiraIssuesByQueryDefinition: ActionTemplate = {
       },
       limit: {
         type: "number",
-        description: "The maximum number of records to retrieve per call (page size). Defaults to 100.",
-      },
-      startAt: {
-        type: "number",
         description:
-          "Offset of the first result to return. Defaults to 0. To page through results: count the number of results you can actually read in the response and pass currentStartAt + countOfResultsRead as the next startAt. Do not blindly use itemsReturned to advance — the response may be truncated by the system after this action returns, meaning you may see fewer results than itemsReturned reports.",
+          "The maximum number of records to retrieve per call (page size). Defaults to 100. Keep this small enough that the response is not truncated before you read it — if truncation occurs, lower the limit and retry.",
       },
     },
   },
   output: {
     type: "object",
     properties: {
-      itemsReturned: {
-        type: "number",
-        description:
-          "Number of items fetched by this action. This field intentionally appears before results so it survives system-level response truncation. Warning: the system may truncate the results array before you see it, so you may receive fewer results than this number. Always count the results you can actually read and use currentStartAt + countOfResultsRead as the next startAt, not currentStartAt + itemsReturned.",
-      },
-      truncated: {
-        type: "boolean",
-        description:
-          "True when more results exist beyond this batch. Call again with startAt set to currentStartAt + countOfResultsRead (the number of results you actually received in this response).",
-      },
       results: {
         type: "array",
         description: "The results of the Jira issues",

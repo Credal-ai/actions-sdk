@@ -173,6 +173,8 @@ import {
   githubListPullRequestsOutputSchema,
   jiraGetJiraIssuesByQueryOutputSchema,
   jiraGetJiraIssuesByQueryParamsSchema,
+  jiraDataCenterGetJiraIssuesByQueryOutputSchema,
+  jiraDataCenterGetJiraIssuesByQueryParamsSchema,
   salesforceCreateRecordParamsSchema,
   salesforceCreateRecordOutputSchema,
   firecrawlDeepResearchParamsSchema,
@@ -766,8 +768,8 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
     // Exclude Service Desk: createServiceDeskRequest, publicCommentOnServiceDeskRequest
     getJiraIssuesByQuery: {
       fn: getJiraDCIssuesByQuery,
-      paramsSchema: jiraGetJiraIssuesByQueryParamsSchema,
-      outputSchema: jiraGetJiraIssuesByQueryOutputSchema,
+      paramsSchema: jiraDataCenterGetJiraIssuesByQueryParamsSchema,
+      outputSchema: jiraDataCenterGetJiraIssuesByQueryOutputSchema,
       actionType: "read",
     },
     assignJiraTicket: {

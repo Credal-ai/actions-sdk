@@ -29,13 +29,9 @@ type JiraCloudSearchResponse = {
       duedate?: string | null;
     };
   }[];
-  startAt: number;
-  maxResults: number;
-  total: number;
+  nextPageToken?: string;
 };
 
-// Jira Cloud implementation using the legacy offset-based search API (/rest/api/3/search).
-// Uses startAt for pagination so agents can resume from any offset even when app-layer truncation occurs.
 const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
   params,
   authParams,
@@ -44,7 +40,7 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
   authParams: AuthParamsType;
 }): Promise<jiraGetJiraIssuesByQueryOutputType> => {
   const { authToken, cloudId } = authParams;
-  const { query, limit, startAt: paramStartAt } = params;
+  const { query, limit, nextPageToken: paramNextPageToken } = params;
   const { browseUrl } = getJiraApiConfig(authParams);
 
   if (!authToken) throw new Error("Auth token is required");
@@ -71,10 +67,8 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
 
   const requestedLimit = limit ?? DEFAULT_LIMIT;
   const allIssues: JiraCloudSearchResponse["issues"] = [];
-  let currentStartAt = paramStartAt ?? 0;
-  let jiraTotal: number | undefined = undefined;
+  let currentNextPageToken: string | undefined = paramNextPageToken;
 
-  // jira.js client is kept solely for getUserInfoFromAccountId (user email lookups)
   const client = new Version3Client({
     host: `https://api.atlassian.com/ex/jira/${cloudId}`,
     authentication: { oauth2: { accessToken: authToken } },
@@ -88,27 +82,24 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
       const queryParams = new URLSearchParams();
       queryParams.set("jql", query);
       queryParams.set("maxResults", String(maxResults));
-      queryParams.set("startAt", String(currentStartAt));
       queryParams.set("fields", fields.join(","));
+      if (currentNextPageToken) {
+        queryParams.set("nextPageToken", currentNextPageToken);
+      }
 
       const response = await axiosClient.get<JiraCloudSearchResponse>(
-        `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3/search?${queryParams.toString()}`,
+        `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3/search/jql?${queryParams.toString()}`,
         { headers: { Authorization: `Bearer ${authToken}`, Accept: "application/json" } },
       );
 
-      const { issues, total } = response.data;
-      jiraTotal = total;
-
+      const { issues, nextPageToken } = response.data;
       allIssues.push(...issues);
-      if ((paramStartAt ?? 0) + allIssues.length >= total || issues.length === 0) {
+      currentNextPageToken = nextPageToken;
+
+      if (!nextPageToken || issues.length === 0) {
         break;
       }
-
-      currentStartAt += issues.length;
     }
-
-    const absoluteEnd = (paramStartAt ?? 0) + allIssues.length;
-    const truncated = jiraTotal !== undefined && absoluteEnd < jiraTotal;
 
     const results = await Promise.all(
       allIssues.map(async ({ id, key, fields }) => {
@@ -158,7 +149,11 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
       }),
     );
 
-    return { itemsReturned: allIssues.length, truncated, results };
+    return {
+      itemsReturned: allIssues.length,
+      nextPageToken: currentNextPageToken,
+      results,
+    };
   } catch (error: unknown) {
     console.error("Error retrieving Jira issues:", error);
     return { results: [], error: getErrorMessage(error) };
