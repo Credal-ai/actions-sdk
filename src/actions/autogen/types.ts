@@ -2168,12 +2168,6 @@ export const jiraDataCenterGetJiraIssuesByQueryParamsSchema = z.object({
       "The maximum number of records to retrieve per call (page size). Defaults to 100. Keep this small enough that the response is not truncated before you read it — if truncation occurs, lower the limit and retry.",
     )
     .optional(),
-  nextPageToken: z
-    .string()
-    .describe(
-      "Cursor token returned by the previous response. Pass this to fetch the next page. Omit on the first call. If the system truncates your results (i.e. you receive fewer items than itemsReturned indicates), reduce the limit and retry the same page without advancing the cursor — only move to the next page once you receive a complete, untruncated response.",
-    )
-    .optional(),
 });
 
 export type jiraDataCenterGetJiraIssuesByQueryParamsType = z.infer<
@@ -2181,18 +2175,6 @@ export type jiraDataCenterGetJiraIssuesByQueryParamsType = z.infer<
 >;
 
 export const jiraDataCenterGetJiraIssuesByQueryOutputSchema = z.object({
-  itemsReturned: z.coerce
-    .number()
-    .describe(
-      "Number of items fetched by this action. This field intentionally appears before results so it survives system-level response truncation. Warning: the system may truncate the results array before you see it, so you may receive fewer results than this number.",
-    )
-    .optional(),
-  nextPageToken: z
-    .string()
-    .describe(
-      "Cursor token for the next page. Pass this as nextPageToken in the next call. Absent when there are no more results.",
-    )
-    .optional(),
   results: z
     .array(
       z.object({

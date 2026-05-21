@@ -1,8 +1,8 @@
 import type {
   AuthParamsType,
-  jiraGetJiraIssuesByQueryFunction,
-  jiraGetJiraIssuesByQueryOutputType,
-  jiraGetJiraIssuesByQueryParamsType,
+  jiraDataCenterGetJiraIssuesByQueryFunction,
+  jiraDataCenterGetJiraIssuesByQueryOutputType,
+  jiraDataCenterGetJiraIssuesByQueryParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
 import { getJiraApiConfig, getErrorMessage, extractPlainText, type JiraADFDoc } from "./utils.js";
@@ -54,13 +54,13 @@ type JiraSearchResponse = {
   total: number;
 };
 
-const getJiraDCIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
+const getJiraDCIssuesByQuery: jiraDataCenterGetJiraIssuesByQueryFunction = async ({
   params,
   authParams,
 }: {
-  params: jiraGetJiraIssuesByQueryParamsType;
+  params: jiraDataCenterGetJiraIssuesByQueryParamsType;
   authParams: AuthParamsType;
-}): Promise<jiraGetJiraIssuesByQueryOutputType> => {
+}): Promise<jiraDataCenterGetJiraIssuesByQueryOutputType> => {
   const { authToken } = authParams;
   const { query, limit } = params;
   const { apiUrl, browseUrl, strategy } = getJiraApiConfig(authParams);

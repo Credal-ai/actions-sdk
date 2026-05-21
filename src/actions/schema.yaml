@@ -1493,7 +1493,7 @@ actions:
           results:
             type: array
             description: The results of the Jira issues
-            items:
+            items: &jira_issue_query_item
               type: object
               required: [name, url, contents]
               properties:
@@ -1695,6 +1695,30 @@ actions:
 
   jiraDataCenter:
     <<: *jira
+    getJiraIssuesByQuery:
+      displayName: Get Jira issues with a query
+      description: Retrieve Jira Issues by JQL query
+      scopes: []
+      parameters:
+        type: object
+        required: [query]
+        properties:
+          query:
+            type: string
+            description: The JQL query to execute
+          limit:
+            type: number
+            description: "The maximum number of records to retrieve per call (page size). Defaults to 100. Keep this small enough that the response is not truncated before you read it — if truncation occurs, lower the limit and retry."
+      output:
+        type: object
+        properties:
+          results:
+            type: array
+            description: The results of the Jira issues
+            items: *jira_issue_query_item
+          error:
+            type: string
+            description: The error that occurred if the records were not successfully retrieved
 
   googlemaps:
     validateAddress:

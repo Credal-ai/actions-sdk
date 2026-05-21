@@ -67,7 +67,7 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
 
   const requestedLimit = limit ?? DEFAULT_LIMIT;
   const allIssues: JiraCloudSearchResponse["issues"] = [];
-  let currentNextPageToken: string | undefined = paramNextPageToken ?? undefined;
+  let currentNextPageToken: string | undefined = paramNextPageToken;
 
   const client = new Version3Client({
     host: `https://api.atlassian.com/ex/jira/${cloudId}`,

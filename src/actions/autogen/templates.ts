@@ -3809,26 +3809,11 @@ export const jiraDataCenterGetJiraIssuesByQueryDefinition: ActionTemplate = {
         description:
           "The maximum number of records to retrieve per call (page size). Defaults to 100. Keep this small enough that the response is not truncated before you read it — if truncation occurs, lower the limit and retry.",
       },
-      nextPageToken: {
-        type: "string",
-        description:
-          "Cursor token returned by the previous response. Pass this to fetch the next page. Omit on the first call. If the system truncates your results (i.e. you receive fewer items than itemsReturned indicates), reduce the limit and retry the same page without advancing the cursor — only move to the next page once you receive a complete, untruncated response.",
-      },
     },
   },
   output: {
     type: "object",
     properties: {
-      itemsReturned: {
-        type: "number",
-        description:
-          "Number of items fetched by this action. This field intentionally appears before results so it survives system-level response truncation. Warning: the system may truncate the results array before you see it, so you may receive fewer results than this number.",
-      },
-      nextPageToken: {
-        type: "string",
-        description:
-          "Cursor token for the next page. Pass this as nextPageToken in the next call. Absent when there are no more results.",
-      },
       results: {
         type: "array",
         description: "The results of the Jira issues",
