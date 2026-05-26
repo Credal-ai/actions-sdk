@@ -1420,6 +1420,59 @@ export const confluenceDataCenterOverwritePageDefinition: ActionTemplate = {
   name: "overwritePage",
   provider: "confluenceDataCenter",
 };
+export const confluenceDataCenterCreatePageDefinition: ActionTemplate = {
+  displayName: "Create a page",
+  description: "Creates a new Confluence Data Center page in the specified space with the given content",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["spaceKey", "title", "content"],
+    properties: {
+      spaceKey: {
+        type: "string",
+        description: "The key of the Confluence space to create the page in",
+      },
+      title: {
+        type: "string",
+        description: "The title of the page to create",
+      },
+      content: {
+        type: "string",
+        description: "The content of the page in Confluence storage format (XHTML-based markup)",
+      },
+      parentId: {
+        type: "string",
+        description:
+          "Optional ID of the parent page; if provided, the new page will be created as a child of this page",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the page was successfully created",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the page was not successfully created",
+      },
+      pageId: {
+        type: "string",
+        description: "The ID of the newly created page",
+      },
+      pageUrl: {
+        type: "string",
+        description: "The URL of the newly created page",
+      },
+    },
+  },
+  name: "createPage",
+  provider: "confluenceDataCenter",
+};
 export const confluenceDataCenterFetchPageContentDefinition: ActionTemplate = {
   displayName: "Fetch page content",
   description: "Fetches content from a Confluence page",
