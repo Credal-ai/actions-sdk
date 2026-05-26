@@ -39,7 +39,7 @@ const confluenceDataCenterCreatePage: confluenceDataCenterCreatePageFunction = a
 
     const pageId: string | undefined = response.data?.id;
     const links = response.data?._links ?? {};
-    const pageUrl: string | undefined = links.base && links.webui ? `${links.base}${links.webui}` : links.self;
+    const pageUrl: string | undefined = links.base && links.webui ? `${links.base}${links.webui}` : undefined;
 
     return {
       success: true,

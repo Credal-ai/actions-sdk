@@ -1439,7 +1439,7 @@ export const confluenceDataCenterCreatePageDefinition: ActionTemplate = {
       },
       content: {
         type: "string",
-        description: "The content of the page in storage format (HTML)",
+        description: "The content of the page in Confluence storage format (XHTML-based markup)",
       },
       parentId: {
         type: "string",

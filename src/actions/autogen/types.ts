@@ -932,7 +932,7 @@ export type confluenceDataCenterOverwritePageFunction = ActionFunction<
 export const confluenceDataCenterCreatePageParamsSchema = z.object({
   spaceKey: z.string().describe("The key of the Confluence space to create the page in"),
   title: z.string().describe("The title of the page to create"),
-  content: z.string().describe("The content of the page in storage format (HTML)"),
+  content: z.string().describe("The content of the page in Confluence storage format (XHTML-based markup)"),
   parentId: z
     .string()
     .describe("Optional ID of the parent page; if provided, the new page will be created as a child of this page")

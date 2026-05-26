@@ -1047,7 +1047,7 @@ actions:
             description: The title of the page to create
           content:
             type: string
-            description: The content of the page in storage format (HTML)
+            description: The content of the page in Confluence storage format (XHTML-based markup)
           parentId:
             type: string
             description: Optional ID of the parent page; if provided, the new page will be created as a child of this page
