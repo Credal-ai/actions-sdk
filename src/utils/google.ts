@@ -1,6 +1,8 @@
 import type { AxiosInstance } from "axios";
 import Papa from "papaparse";
 import { read, utils } from "xlsx";
+import JSZip from "jszip";
+import { XMLParser } from "fast-xml-parser";
 import { isAxiosTimeoutError } from "../actions/util/axiosClient.js";
 
 // Custom interfaces to replace googleapis types
@@ -617,4 +619,203 @@ export async function getGoogleSlidesContent(
       return exportRes.data;
     }
   }
+}
+
+/**
+ * Parses a DOCX buffer to extract comments and their anchors from OpenXML.
+ */
+export interface DocxComment {
+  id: string;
+  author: string;
+  date: string;
+  text: string;
+  anchoredText?: string;
+  surroundingParagraph?: string;
+  parentId?: string; // For threaded replies if found in OOXML extensions
+}
+
+export async function readDocComments(
+  buffer: ArrayBuffer | Buffer,
+  includeReplies: boolean = false,
+): Promise<DocxComment[]> {
+  const zip = await JSZip.loadAsync(buffer);
+
+  const commentsXml = await zip.file("word/comments.xml")?.async("string");
+  if (!commentsXml) return [];
+
+  const documentXml = await zip.file("word/document.xml")?.async("string");
+
+  const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_" });
+  const parsedComments = parser.parse(commentsXml);
+
+  const docxCommentsList: DocxComment[] = [];
+  if (parsedComments["w:comments"] && parsedComments["w:comments"]["w:comment"]) {
+    let commentsArr = parsedComments["w:comments"]["w:comment"];
+    if (!Array.isArray(commentsArr)) commentsArr = [commentsArr];
+
+    for (const c of commentsArr) {
+      let text = "";
+      if (c["w:p"]) {
+        const ps = Array.isArray(c["w:p"]) ? c["w:p"] : [c["w:p"]];
+        for (const p of ps) {
+          if (p["w:r"]) {
+            const rs = Array.isArray(p["w:r"]) ? p["w:r"] : [p["w:r"]];
+            for (const r of rs) {
+              if (r["w:t"]) {
+                const t = r["w:t"];
+                text += typeof t === "string" ? t : t["#text"] || "";
+              }
+            }
+          }
+        }
+      }
+      docxCommentsList.push({
+        id: c["@_w:id"],
+        author: c["@_w:author"] || "",
+        date: c["@_w:date"] || "",
+        text: text.trim(),
+      });
+    }
+  }
+
+  // Parse replies if requested (for native DOCX files)
+  if (includeReplies) {
+    const commentsExtensibleXml = await zip.file("word/commentsExtensible.xml")?.async("string");
+    if (commentsExtensibleXml) {
+      try {
+        const extParser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_" });
+        const parsedExt = extParser.parse(commentsExtensibleXml);
+        // Look for w15:commentEx -> w15:parentId
+        if (parsedExt["w15:commentsEx"] && parsedExt["w15:commentsEx"]["w15:commentEx"]) {
+          let exArr = parsedExt["w15:commentsEx"]["w15:commentEx"];
+          if (!Array.isArray(exArr)) exArr = [exArr];
+          for (const ex of exArr) {
+            const id = ex["@_w15:paraIdParent"] || ex["@_w15:paraId"] || ex["@_w15:id"];
+            const parentId = ex["@_w15:parentId"];
+            if (id && parentId) {
+              const comment = docxCommentsList.find(c => c.id === id);
+              if (comment) {
+                comment.parentId = parentId;
+              }
+            }
+          }
+        }
+      } catch (e) {
+        console.error("Error parsing commentsExtensible.xml", e);
+      }
+    }
+  }
+
+  if (documentXml) {
+    const orderedParser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_", preserveOrder: true });
+    const parsedDoc = orderedParser.parse(documentXml);
+
+    const anchors: Record<string, { text: string; paragraph: string }> = {};
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    function extractTextFromNode(node: any): string {
+      let text = "";
+      if (Array.isArray(node)) {
+        for (const child of node) text += extractTextFromNode(child);
+      } else if (typeof node === "object") {
+        for (const key in node) {
+          if (key.startsWith(":@")) continue;
+          if (key === "#text") text += node[key];
+          else text += extractTextFromNode(node[key]);
+        }
+      } else if (typeof node === "string") {
+        text += node;
+      }
+      return text;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    function traverseDoc(nodes: any) {
+      if (!Array.isArray(nodes)) return;
+      for (const node of nodes) {
+        for (const key in node) {
+          if (key.startsWith(":@")) continue;
+
+          if (key === "w:p") {
+            const paragraphText = extractTextFromNode(node[key]);
+            const activeIds = new Set<string>();
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            function traversePara(pNodes: any) {
+              if (!Array.isArray(pNodes)) return;
+              for (const pNode of pNodes) {
+                for (const pKey in pNode) {
+                  if (pKey.startsWith(":@")) continue;
+
+                  if (pKey === "w:commentRangeStart") {
+                    const id = pNode[":@"]?.["@_w:id"];
+                    if (id) {
+                      activeIds.add(id);
+                      if (!anchors[id]) anchors[id] = { text: "", paragraph: paragraphText };
+                    }
+                  } else if (pKey === "w:commentRangeEnd") {
+                    const id = pNode[":@"]?.["@_w:id"];
+                    if (id) activeIds.delete(id);
+                  } else if (pKey === "w:t" || pKey === "#text") {
+                    let t = "";
+                    if (pKey === "#text") t = pNode[pKey];
+                    else if (Array.isArray(pNode[pKey])) t = pNode[pKey][0]?.["#text"] || "";
+
+                    for (const id of activeIds) {
+                      anchors[id].text += t;
+                    }
+                  } else {
+                    traversePara(pNode[pKey]);
+                  }
+                }
+              }
+            }
+            traversePara(node[key]);
+          } else {
+            traverseDoc(node[key]);
+          }
+        }
+      }
+    }
+
+    traverseDoc(parsedDoc);
+
+    for (const c of docxCommentsList) {
+      if (anchors[c.id]) {
+        c.anchoredText = anchors[c.id].text.trim();
+        c.surroundingParagraph = anchors[c.id].paragraph.trim();
+      }
+    }
+  }
+
+  return docxCommentsList;
+}
+
+/**
+ * Deterministically joins Drive comments to DOCX OpenXML comments to attach the precise anchor.
+ * Exact match required on: Author Name, Truncated Date, and Text Content.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function matchDocxCommentsToDriveComments(driveComments: any[], docxComments: DocxComment[]): any[] {
+  return driveComments.map(dc => {
+    const dcAuthor = dc.author?.displayName || "";
+    // Truncate milliseconds from Drive API timestamp (e.g. 2026-05-20T02:21:24.591Z -> 2026-05-20T02:21:24Z)
+    const dcDate = dc.createdTime ? dc.createdTime.replace(/\.\d+Z$/, "Z") : "";
+    const dcText = (dc.content || "").trim();
+
+    const match = docxComments.find(xc => {
+      const authorMatch = xc.author === dcAuthor;
+      const dateMatch = xc.date === dcDate;
+      const contentMatch = xc.text === dcText;
+      return authorMatch && dateMatch && contentMatch;
+    });
+
+    return {
+      ...dc,
+      docxCommentId: match ? match.id : undefined,
+      anchoredText: match?.anchoredText || undefined,
+      surroundingParagraph: match?.surroundingParagraph || undefined,
+      anchorConfidence: match?.anchoredText ? "exact" : "none",
+    };
+  });
 }

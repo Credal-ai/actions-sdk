@@ -9,6 +9,8 @@ import {
   googlemapsValidateAddressParamsSchema,
   googleOauthCreateNewGoogleDocParamsSchema,
   googleOauthCreateNewGoogleDocOutputSchema,
+  googleOauthReadCommentsOnDocParamsSchema,
+  googleOauthReadCommentsOnDocOutputSchema,
   mathAddOutputSchema,
   mathAddParamsSchema,
   mongoInsertMongoDocOutputSchema,
@@ -330,6 +332,7 @@ import updateAsanaTask from "./providers/asana/updateAsanaTask.js";
 import searchAsanaTasks from "./providers/asana/searchAsanaTasks.js";
 import createShareLinkedinPostUrl from "./providers/linkedin/createSharePostLinkedinUrl.js";
 import createNewGoogleDoc from "./providers/google-oauth/createNewGoogleDoc.js";
+import readCommentsOnDoc from "./providers/google-oauth/readCommentsOnDoc.js";
 import createXSharePostUrl from "./providers/x/createXSharePostUrl.js";
 import scrapeTweetDataWithNitter from "./providers/firecrawl/scrapeTweetDataWithNitter.js";
 import symbolLookup from "./providers/finnhub/symbolLookup.js";
@@ -888,6 +891,12 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       paramsSchema: googleOauthCreateNewGoogleDocParamsSchema,
       outputSchema: googleOauthCreateNewGoogleDocOutputSchema,
       actionType: "write",
+    },
+    readCommentsOnDoc: {
+      fn: readCommentsOnDoc,
+      paramsSchema: googleOauthReadCommentsOnDocParamsSchema,
+      outputSchema: googleOauthReadCommentsOnDocOutputSchema,
+      actionType: "read",
     },
     addTextToTopOfDoc: {
       fn: addTextToTopOfDoc,

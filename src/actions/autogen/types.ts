@@ -96,6 +96,7 @@ export enum ActionName {
   SENDEMAIL = "sendEmail",
   SENDEMAILHTML = "sendEmailHtml",
   CREATENEWGOOGLEDOC = "createNewGoogleDoc",
+  READCOMMENTSONDOC = "readCommentsOnDoc",
   ADDTEXTTOTOPOFDOC = "addTextToTopOfDoc",
   UPDATEDOC = "updateDoc",
   SCHEDULECALENDARMEETING = "scheduleCalendarMeeting",
@@ -2996,6 +2997,79 @@ export type googleOauthCreateNewGoogleDocFunction = ActionFunction<
   googleOauthCreateNewGoogleDocParamsType,
   AuthParamsType,
   googleOauthCreateNewGoogleDocOutputType
+>;
+
+export const googleOauthReadCommentsOnDocParamsSchema = z.object({
+  documentId: z.string().describe("The ID of the Google Doc or DOCX file to read comments from"),
+  includeDeleted: z
+    .boolean()
+    .describe("Whether to request deleted comments from Drive API (Google Docs only)")
+    .optional(),
+  includeReplies: z.boolean().describe("Whether to fetch threaded replies").optional(),
+});
+
+export type googleOauthReadCommentsOnDocParamsType = z.infer<typeof googleOauthReadCommentsOnDocParamsSchema>;
+
+export const googleOauthReadCommentsOnDocOutputSchema = z.object({
+  success: z.boolean().describe("Whether the request succeeded"),
+  comments: z
+    .array(
+      z.object({
+        commentId: z.string().describe("Stable Google Drive comment ID or DOCX-local ID"),
+        docxCommentId: z.string().describe("DOCX-local comment ID if an exported comment was matched").optional(),
+        content: z.string().describe("Plain-text body of the comment").optional(),
+        htmlContent: z.string().describe("HTML comment body when available").optional(),
+        quotedFileContent: z.string().describe("Drive API quoted text").optional(),
+        createdTime: z.string().describe("ISO 8601 timestamp of when the comment was created").optional(),
+        modifiedTime: z.string().describe("ISO 8601 timestamp of last modification").optional(),
+        resolved: z.boolean().describe("Whether the comment thread is resolved").optional(),
+        deleted: z.boolean().describe("Whether the comment is deleted").optional(),
+        anchoredText: z.string().describe("Exact exported text span from DOCX comment range markers").optional(),
+        surroundingParagraph: z.string().describe("Full paragraph containing the anchor").optional(),
+        anchorConfidence: z
+          .enum(["exact", "none"])
+          .describe("Confidence level for the attached DOCX anchor")
+          .optional(),
+        author: z
+          .object({
+            displayName: z.string().describe("Human-readable author name").optional(),
+            emailAddress: z.string().describe("The author's email address").optional(),
+            me: z.boolean().describe("Whether the author is the authenticated user").optional(),
+          })
+          .optional(),
+        replies: z
+          .array(
+            z.object({
+              replyId: z.string().describe("Stable Google Drive reply ID or DOCX-local ID"),
+              content: z.string().optional(),
+              htmlContent: z.string().optional(),
+              createdTime: z.string().optional(),
+              modifiedTime: z.string().optional(),
+              deleted: z.boolean().optional(),
+              action: z.string().optional(),
+              author: z
+                .object({
+                  displayName: z.string().optional(),
+                  emailAddress: z.string().optional(),
+                  me: z.boolean().optional(),
+                })
+                .optional(),
+            }),
+          )
+          .describe("Threaded replies")
+          .optional(),
+      }),
+    )
+    .describe("Array of comment threads"),
+  error: z.string().describe("Error message if retrieval failed").optional(),
+  warnings: z.array(z.string()).describe("Non-fatal limitations").optional(),
+});
+
+export type googleOauthReadCommentsOnDocOutputType = z.infer<typeof googleOauthReadCommentsOnDocOutputSchema>;
+export type googleOauthReadCommentsOnDocFunction = ActionFunction<
+  googleOauthReadCommentsOnDocParamsType,
+  AuthParamsType,
+  googleOauthReadCommentsOnDocOutputType
 >;
 
 export const googleOauthAddTextToTopOfDocParamsSchema = z.object({
