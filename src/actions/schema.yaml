@@ -2629,7 +2629,7 @@ actions:
     readCommentsOnDoc:
       displayName: Read comments on a Google Doc
       description: Read Google Doc comments with Drive metadata and exact anchor mapping from DOCX export or raw uploaded DOCX files
-      scopes: []
+      scopes: [drive.readonly]
       parameters:
         type: object
         required: [documentId]

@@ -140,3 +140,4 @@ dist
 # Local testing scripts
 test_*.ts
 test_*.js
+READ_COMMENTS_ACTION.md

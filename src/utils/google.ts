@@ -450,7 +450,7 @@ export function parseGoogleSlidesFromRawContentToPlainText(snapshotRawContent: G
 
 /** Specific to google docs */
 
-const GDRIVE_BASE_URL = "https://www.googleapis.com/drive/v3/files/";
+export const GDRIVE_BASE_URL = "https://www.googleapis.com/drive/v3/files/";
 
 interface GoogleDocTab {
   tabId: string;
@@ -883,22 +883,35 @@ export async function readDocComments(
 /**
  * Deterministically joins Drive comments to DOCX OpenXML comments to attach the precise anchor.
  * Exact match required on: Author Name, Truncated Date, and Text Content.
+ * Uses an O(n+m) index keyed on author|seconds|text instead of O(n×m) linear search.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function matchDocxCommentsToDriveComments(driveComments: any[], docxComments: DocxComment[]): any[] {
+export interface DriveCommentForMatching {
+  content?: string;
+  createdTime: string;
+  anchoredText?: string;
+  author?: { displayName?: string };
+}
+
+export function matchDocxCommentsToDriveComments<T extends DriveCommentForMatching>(
+  driveComments: T[],
+  docxComments: DocxComment[],
+) {
+  // Build an index keyed on author|truncatedSeconds|text for O(n+m) matching
+  const docxIndex = new Map<string, DocxComment>();
+  for (const xc of docxComments) {
+    const seconds = Math.floor(new Date(xc.date).getTime() / 1000);
+    const key = `${xc.author}|${seconds}|${xc.text}`;
+    if (!docxIndex.has(key)) {
+      docxIndex.set(key, xc);
+    }
+  }
+
   return driveComments.map(dc => {
     const dcAuthor = dc.author?.displayName || "";
     const dcText = (dc.content || "").trim();
-
-    const match = docxComments.find(xc => {
-      const authorMatch = xc.author === dcAuthor;
-      // DOCX exports truncate Drive milliseconds down to the exact second
-      const docxSeconds = Math.floor(new Date(xc.date).getTime() / 1000);
-      const driveSeconds = Math.floor(new Date(dc.createdTime).getTime() / 1000);
-      const dateMatch = docxSeconds === driveSeconds;
-      const contentMatch = xc.text === dcText;
-      return authorMatch && dateMatch && contentMatch;
-    });
+    const seconds = Math.floor(new Date(dc.createdTime).getTime() / 1000);
+    const key = `${dcAuthor}|${seconds}|${dcText}`;
+    const match = docxIndex.get(key);
 
     return {
       ...dc,
@@ -906,7 +919,7 @@ export function matchDocxCommentsToDriveComments(driveComments: any[], docxComme
       documentPosition: match?.documentPosition,
       anchoredText: match?.anchoredText || dc.anchoredText || undefined,
       inlineObjects: match?.inlineObjects,
-      anchorConfidence: match?.anchoredText ? "exact" : "none",
+      anchorConfidence: (match?.anchoredText ? "exact" : "none") as "exact" | "none",
     };
   });
 }

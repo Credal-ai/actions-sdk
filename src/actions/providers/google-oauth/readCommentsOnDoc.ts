@@ -1,14 +1,13 @@
 import type { googleOauthReadCommentsOnDocFunction } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
-import { readDocComments, matchDocxCommentsToDriveComments, type DocxComment } from "../../../utils/google.js";
-
-const GDRIVE_BASE_URL = "https://www.googleapis.com/drive/v3/files/";
+import { GDRIVE_BASE_URL, readDocComments, matchDocxCommentsToDriveComments, type DocxComment } from "../../../utils/google.js";
+import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authParams, params }) => {
   const { documentId, includeDeleted = false, includeReplies = false, includeResolved = false } = params;
 
   if (!authParams.authToken) {
-    return { success: false, comments: [], error: "Missing OAuth token for Google Drive" };
+    return { success: false, comments: [], error: MISSING_AUTH_TOKEN };
   }
 
   const token = authParams.authToken;
@@ -81,15 +80,31 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
         return new Date(a.createdTime).getTime() - new Date(b.createdTime).getTime();
       });
 
-      formattedComments.forEach(c => delete c.documentPosition);
-
-      return { success: true, comments: formattedComments };
+      return {
+        success: true,
+        comments: formattedComments.map(c => ({
+          docxCommentId: c.docxCommentId,
+          commentId: c.commentId,
+          anchoredText: c.anchoredText,
+          content: c.content,
+          author: c.author,
+          createdTime: c.createdTime,
+          modifiedTime: c.modifiedTime,
+          resolved: c.resolved,
+          deleted: c.deleted,
+          anchorConfidence: c.anchorConfidence,
+          inlineObjects: c.inlineObjects,
+          replies: c.replies,
+        })),
+      };
     } else {
       const fields =
         "nextPageToken,comments(id,content,quotedFileContent,createdTime,modifiedTime,resolved,deleted,author,replies)";
+      const MAX_COMMENT_PAGES = 100;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let allComments: any[] = [];
       let pageToken: string | undefined = undefined;
+      let pageCount = 0;
 
       // Fetch authoritative comments from Drive API
       do {
@@ -100,7 +115,8 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
           allComments = allComments.concat(res.data.comments);
         }
         pageToken = res.data.nextPageToken;
-      } while (pageToken);
+        pageCount++;
+      } while (pageToken && pageCount < MAX_COMMENT_PAGES);
 
       // Filter resolved comments if necessary
       if (!includeResolved) {
