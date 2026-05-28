@@ -44,6 +44,8 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
       > = {};
 
       for (const c of docxComments) {
+        if (!includeResolved && c.resolved) continue;
+
         if (c.parentId) {
           if (!repliesMap[c.parentId]) repliesMap[c.parentId] = [];
           repliesMap[c.parentId].push({
@@ -65,7 +67,7 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
         author: { displayName: c.author },
         createdTime: c.date,
         modifiedTime: undefined,
-        resolved: false,
+        resolved: !!c.resolved,
         deleted: false,
         anchorConfidence: (c.anchoredText ? "exact" : "none") as "exact" | "none",
         inlineObjects: c.inlineObjects,

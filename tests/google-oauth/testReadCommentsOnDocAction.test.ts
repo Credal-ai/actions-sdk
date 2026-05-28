@@ -31,6 +31,9 @@ async function buildDocxWithThreadedReply() {
       <w:comment w:id="17" w:author="Matthew Betancourt" w:date="2026-05-28T04:20:00Z">
         <w:p w14:paraId="11111111"><w:r><w:t>This is a reply to Comment 1</w:t></w:r></w:p>
       </w:comment>
+      <w:comment w:id="18" w:author="Matthew Betancourt" w:date="2026-05-28T04:25:00Z">
+        <w:p w14:paraId="22222222"><w:r><w:t>Resolved comment</w:t></w:r></w:p>
+      </w:comment>
     </w:comments>`,
   );
   zip.file(
@@ -39,6 +42,7 @@ async function buildDocxWithThreadedReply() {
     <w15:commentsEx xmlns:w15="http://schemas.microsoft.com/office/word/2012/wordml">
       <w15:commentEx w15:paraId="00000000" w15:done="0" />
       <w15:commentEx w15:paraId="11111111" w15:paraIdParent="00000000" w15:done="0" />
+      <w15:commentEx w15:paraId="22222222" w15:done="1" />
     </w15:commentsEx>`,
   );
   zip.file(
@@ -50,6 +54,11 @@ async function buildDocxWithThreadedReply() {
           <w:commentRangeStart w:id="0"/>
           <w:r><w:t>Root anchor</w:t></w:r>
           <w:commentRangeEnd w:id="0"/>
+        </w:p>
+        <w:p>
+          <w:commentRangeStart w:id="18"/>
+          <w:r><w:t>Resolved anchor</w:t></w:r>
+          <w:commentRangeEnd w:id="18"/>
         </w:p>
       </w:body>
     </w:document>`,
@@ -227,6 +236,58 @@ describe("readCommentsOnDoc Drive metadata handling", () => {
         commentId: "0",
         content: "Root comment",
         replies: [],
+      }),
+    ]);
+  });
+
+  it("filters resolved DOCX comments unless includeResolved is true", async () => {
+    mockGet
+      .mockResolvedValueOnce({
+        data: {
+          mimeType:
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        },
+      })
+      .mockResolvedValueOnce({ data: await buildDocxWithThreadedReply() });
+
+    const defaultResult = await readCommentsOnDoc({
+      authParams: AUTH,
+      params: {
+        documentId: "doc-id",
+      },
+    });
+
+    expect(defaultResult.success).toBe(true);
+    expect(defaultResult.comments.map((c) => c.commentId)).toEqual(["0"]);
+
+    jest.clearAllMocks();
+    mockGet
+      .mockResolvedValueOnce({
+        data: {
+          mimeType:
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        },
+      })
+      .mockResolvedValueOnce({ data: await buildDocxWithThreadedReply() });
+
+    const includeResolvedResult = await readCommentsOnDoc({
+      authParams: AUTH,
+      params: {
+        documentId: "doc-id",
+        includeResolved: true,
+      },
+    });
+
+    expect(includeResolvedResult.success).toBe(true);
+    expect(includeResolvedResult.comments).toEqual([
+      expect.objectContaining({
+        commentId: "0",
+        resolved: false,
+      }),
+      expect.objectContaining({
+        commentId: "18",
+        content: "Resolved comment",
+        resolved: true,
       }),
     ]);
   });

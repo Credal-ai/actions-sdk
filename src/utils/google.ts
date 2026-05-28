@@ -639,6 +639,7 @@ export interface DocxComment {
   documentPosition?: number; // Position in document flow (0-indexed)
   parentId?: string; // For threaded replies if found in OOXML extensions
   paraId?: string; // Paragraph ID used for mapping threaded replies
+  resolved?: boolean; // True when w15:done="1" in commentsExtensible.xml
 }
 
 export async function readDocComments(
@@ -704,11 +705,13 @@ export async function readDocComments(
           let exArr = parsedExt["w15:commentsEx"]["w15:commentEx"];
           if (!Array.isArray(exArr)) exArr = [exArr];
 
-          // First pass: if paraId is missing from w:p, maybe we can map 1-to-1
-          if (exArr.length === docxCommentsList.length) {
-            for (let i = 0; i < exArr.length; i++) {
-              if (!docxCommentsList[i].paraId && exArr[i]["@_w15:paraId"]) {
-                docxCommentsList[i].paraId = exArr[i]["@_w15:paraId"];
+          for (const ex of exArr) {
+            const commentId = ex["@_w15:commentId"];
+            const exParaId = ex["@_w15:paraId"];
+            if (commentId && exParaId) {
+              const comment = docxCommentsList.find(c => c.id === commentId);
+              if (comment && !comment.paraId) {
+                comment.paraId = exParaId;
               }
             }
           }
@@ -716,11 +719,18 @@ export async function readDocComments(
           for (const ex of exArr) {
             const paraId = ex["@_w15:paraId"];
             const paraIdParent = ex["@_w15:paraIdParent"];
+            const done = ex["@_w15:done"];
             if (paraId && paraIdParent) {
               const comment = docxCommentsList.find(c => c.paraId === paraId);
               const parentComment = docxCommentsList.find(c => c.paraId === paraIdParent);
               if (comment && parentComment) {
                 comment.parentId = parentComment.id;
+              }
+            }
+            if (paraId && done === "1") {
+              const comment = docxCommentsList.find(c => c.paraId === paraId);
+              if (comment) {
+                comment.resolved = true;
               }
             }
           }
