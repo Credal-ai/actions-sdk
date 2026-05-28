@@ -46,7 +46,15 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
       const topLevelComments: DocxComment[] = [];
       const repliesMap: Record<
         string,
-        Array<{ replyId: string; content: string; createdTime: string; author: { displayName: string } }>
+        Array<{
+          replyId: string;
+          content: string;
+          createdTime: string;
+          modifiedTime: string | undefined;
+          deleted: boolean;
+          action: string | undefined;
+          author: { displayName: string; emailAddress?: string };
+        }>
       > = {};
 
       for (const c of docxComments) {
@@ -58,6 +66,9 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
             replyId: c.id,
             content: c.text,
             createdTime: c.date,
+            modifiedTime: c.date,
+            deleted: false,
+            action: undefined,
             author: { displayName: c.author },
           });
         } else {
@@ -107,8 +118,8 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
         })),
       };
     } else {
-      const fields =
-        "nextPageToken,comments(id,content,quotedFileContent,createdTime,modifiedTime,resolved,deleted,author,replies)";
+      const baseCommentFields = "id,content,quotedFileContent,createdTime,modifiedTime,resolved,deleted,author";
+      const fields = `nextPageToken,comments(${baseCommentFields}${includeReplies ? ",replies" : ""})`;
       const MAX_COMMENT_PAGES = 100;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let allComments: any[] = [];
