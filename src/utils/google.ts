@@ -507,22 +507,24 @@ export async function getGoogleDocContent(
   } catch (docsError) {
     if (isAxiosTimeoutError(docsError)) {
       console.log("Request timed out using Google Docs API - dont retry");
-      throw new Error("Request timed out using Google Docs API", { cause: docsError });
+      const safeCause = docsError instanceof Error ? { message: docsError.message } : docsError;
+      throw new Error("Request timed out using Google Docs API", { cause: safeCause });
     } else {
-      console.log("Error using Google Docs API", docsError);
+      console.error("Error using Google Docs API:", docsError instanceof Error ? docsError.message : String(docsError));
 
       // Check if it's a 404 or permission error - don't retry these
       if (docsError && typeof docsError === "object" && "status" in docsError) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const status = (docsError as any).status;
         if (status === 404 || status === 403) {
-          throw new Error(`File not accessible (${status}): ${fileId}`, { cause: docsError });
+          const safeCause = docsError instanceof Error ? { message: docsError.message } : docsError;
+          throw new Error(`File not accessible (${status}): ${fileId}`, { cause: safeCause });
         }
       }
 
       try {
         // Fallback to Drive API export if Docs API fails
-        const exportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/plain${sharedDriveParams}`;
+        const exportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/plain`;
         const exportRes = await axiosClient.get(exportUrl, {
           headers: { Authorization: `Bearer ${authToken}` },
           responseType: "text",
@@ -543,25 +545,25 @@ export async function getGoogleSheetContent(
 ): Promise<string> {
   // Prefer XLSX export so native Google Sheets follow the same workbook parsing path as uploaded Excel files.
   try {
-    const exportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet${sharedDriveParams}`;
+    const exportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`;
     const exportRes = await axiosClient.get(exportUrl, {
       headers: { Authorization: `Bearer ${authToken}` },
       responseType: "arraybuffer",
     });
     return parseWorkbookBufferToPlainText(exportRes.data);
   } catch (exportError) {
-    // Check if it's a 404 or permission error
-    if (exportError && typeof exportError === "object" && "status" in exportError) {
+      if (exportError && typeof exportError === "object" && "status" in exportError) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const status = (exportError as any).status;
       if (status === 404 || status === 403) {
-        throw new Error(`Spreadsheet not accessible (${status}): ${fileId}`, { cause: exportError });
+        const safeCause = exportError instanceof Error ? { message: exportError.message } : exportError;
+        throw new Error(`Spreadsheet not accessible (${status}): ${fileId}`, { cause: safeCause });
       }
     }
 
     // If XLSX export fails, fall back to the prior CSV-first behavior.
     try {
-      const csvExportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/csv${sharedDriveParams}`;
+      const csvExportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/csv`;
       const csvExportRes = await axiosClient.get(csvExportUrl, {
         headers: { Authorization: `Bearer ${authToken}` },
         responseType: "text",
@@ -582,10 +584,11 @@ export async function getGoogleSheetContent(
         });
         return parseGoogleSheetsFromRawContentToPlainText(sheetsRes.data);
       } catch (sheetsError) {
+        const safeCauseSheets = sheetsError instanceof Error ? { message: sheetsError.message } : sheetsError;
         if (isAxiosTimeoutError(sheetsError)) {
-          throw new Error("Request timed out using Google Sheets API", { cause: sheetsError });
+          throw new Error("Request timed out using Google Sheets API", { cause: safeCauseSheets });
         }
-        throw new Error(`Unable to access spreadsheet content: ${fileId}`, { cause: sheetsError });
+        throw new Error(`Unable to access spreadsheet content: ${fileId}`, { cause: safeCauseSheets });
       }
     }
   }
@@ -608,10 +611,11 @@ export async function getGoogleSlidesContent(
   } catch (slidesError) {
     if (isAxiosTimeoutError(slidesError)) {
       console.log("Request timed out using Google Slides API - dont retry");
-      throw new Error("Request timed out using Google Slides API", { cause: slidesError });
+      const safeCause = slidesError instanceof Error ? { message: slidesError.message } : slidesError;
+      throw new Error("Request timed out using Google Slides API", { cause: safeCause });
     } else {
-      console.log("Error using Google Slides API", slidesError);
-      const exportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/plain${sharedDriveParams}`;
+      console.error("Error using Google Slides API:", slidesError instanceof Error ? slidesError.message : String(slidesError));
+      const exportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/plain`;
       const exportRes = await axiosClient.get(exportUrl, {
         headers: { Authorization: `Bearer ${authToken}` },
         responseType: "text",
@@ -659,6 +663,7 @@ export async function readDocComments(
     preserveOrder: true,
     trimValues: false,
     processEntities: false,
+    parseTagValue: false,
   });
   const parsedComments = parser.parse(commentsXml);
 
@@ -774,6 +779,7 @@ export async function readDocComments(
       preserveOrder: true,
       trimValues: false,
       processEntities: false,
+      parseTagValue: false,
     });
 
     const anchors: Record<

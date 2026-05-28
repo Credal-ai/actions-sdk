@@ -16,7 +16,7 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
   try {
     // 1. Get file metadata to check mimeType
     const fileMetaRes = await axiosClient.get(
-      `${GDRIVE_BASE_URL}${encodeURIComponent(documentId)}?fields=mimeType&supportsAllDrives=true`,
+      `${GDRIVE_BASE_URL}${encodeURIComponent(documentId)}?fields=mimeType,size&supportsAllDrives=true`,
       {
         headers: { Authorization: `Bearer ${token}` },
       },
@@ -28,6 +28,11 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
 
     if (!isGoogleDoc && !isDocx) {
       return { success: false, comments: [], error: `Unsupported mimeType: ${mimeType}. Expected Google Doc or DOCX.` };
+    }
+
+    const size = fileMetaRes.data.size ? parseInt(fileMetaRes.data.size, 10) : undefined;
+    if (size !== undefined && size > 50 * 1024 * 1024) {
+      return { success: false, comments: [], error: "File exceeds size limit of 50MB." };
     }
 
     if (isDocx) {
@@ -55,7 +60,7 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
           action: string | undefined;
           author: { displayName: string; emailAddress?: string };
         }>
-      > = {};
+      > = Object.create(null);
 
       for (const c of docxComments) {
         if (!includeResolved && c.resolved) continue;
@@ -94,10 +99,18 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
 
       // Sort by true top-to-bottom document order, fallback to createdTime
       formattedComments.sort((a, b) => {
-        if (a.documentPosition !== undefined && b.documentPosition !== undefined) {
-          return a.documentPosition - b.documentPosition;
+        const posA = a.documentPosition;
+        const posB = b.documentPosition;
+        if (posA !== undefined && posB !== undefined) {
+          if (posA !== posB) return posA - posB;
+        } else if (posA !== undefined) {
+          return -1;
+        } else if (posB !== undefined) {
+          return 1;
         }
-        return new Date(a.createdTime).getTime() - new Date(b.createdTime).getTime();
+        const timeA = new Date(a.createdTime).getTime();
+        const timeB = new Date(b.createdTime).getTime();
+        return (isNaN(timeA) ? 0 : timeA) - (isNaN(timeB) ? 0 : timeB);
       });
 
       return {
@@ -194,10 +207,18 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
 
         // Sort ascending by true document order, fallback to createdTime
         joinedComments.sort((a, b) => {
-          if (a.documentPosition !== undefined && b.documentPosition !== undefined) {
-            return a.documentPosition - b.documentPosition;
+          const posA = a.documentPosition;
+          const posB = b.documentPosition;
+          if (posA !== undefined && posB !== undefined) {
+            if (posA !== posB) return posA - posB;
+          } else if (posA !== undefined) {
+            return -1;
+          } else if (posB !== undefined) {
+            return 1;
           }
-          return new Date(a.createdTime).getTime() - new Date(b.createdTime).getTime();
+          const timeA = new Date(a.createdTime).getTime();
+          const timeB = new Date(b.createdTime).getTime();
+          return (isNaN(timeA) ? 0 : timeA) - (isNaN(timeB) ? 0 : timeB);
         });
         const orderedComments = joinedComments.map(c => ({
           docxCommentId: c.docxCommentId,
