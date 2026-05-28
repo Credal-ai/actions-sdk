@@ -630,7 +630,13 @@ export interface DocxComment {
   date: string;
   text: string;
   anchoredText?: string;
-  surroundingParagraph?: string;
+  inlineObjects?: Array<{
+    type: "image";
+    title?: string;
+    altText?: string;
+    position: "inside_anchor";
+  }>;
+  documentPosition?: number; // Position in document flow (0-indexed)
   parentId?: string; // For threaded replies if found in OOXML extensions
 }
 
@@ -706,27 +712,122 @@ export async function readDocComments(
     }
   }
 
-  if (documentXml) {
-    const orderedParser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_", preserveOrder: true });
-    const parsedDoc = orderedParser.parse(documentXml);
+  const headerXmls = await Promise.all(
+    Object.keys(zip.files)
+      .filter(path => /^word\/header\d+\.xml$/u.test(path))
+      .sort()
+      .map(path => zip.file(path)?.async("string")),
+  );
+  const footerXmls = await Promise.all(
+    Object.keys(zip.files)
+      .filter(path => /^word\/footer\d+\.xml$/u.test(path))
+      .sort()
+      .map(path => zip.file(path)?.async("string")),
+  );
+  const documentParts = [documentXml, ...headerXmls, ...footerXmls].filter((xml): xml is string => !!xml);
 
-    const anchors: Record<string, { text: string; paragraph: string }> = {};
+  if (documentParts.length > 0) {
+    const orderedParser = new XMLParser({
+      ignoreAttributes: false,
+      attributeNamePrefix: "@_",
+      preserveOrder: true,
+      trimValues: false,
+    });
+
+    const anchors: Record<
+      string,
+      {
+        text: string;
+        position: number;
+        inlineObjects: NonNullable<DocxComment["inlineObjects"]>;
+      }
+    > = {};
+    let currentPosition = 0;
+    const activeIds = new Set<string>();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    function extractTextFromNode(node: any): string {
+    function appendTextToActiveAnchors(text: any) {
+      if (typeof text !== "string" || activeIds.size === 0) return;
+
+      for (const id of activeIds) {
+        anchors[id].text += text;
+      }
+    }
+
+    function ensureAnchor(id: string) {
+      if (!anchors[id]) anchors[id] = { text: "", position: currentPosition++, inlineObjects: [] };
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    function extractTextFromTextNode(node: any): string {
+      if (typeof node === "string") return node;
+      if (!node) return "";
+
       let text = "";
       if (Array.isArray(node)) {
-        for (const child of node) text += extractTextFromNode(child);
+        for (const child of node) text += extractTextFromTextNode(child);
       } else if (typeof node === "object") {
+        if (typeof node["#text"] === "string") text += node["#text"];
         for (const key in node) {
-          if (key.startsWith(":@")) continue;
-          if (key === "#text") text += node[key];
-          else text += extractTextFromNode(node[key]);
+          if (key === "#text" || key.startsWith(":@")) continue;
+          text += extractTextFromTextNode(node[key]);
         }
-      } else if (typeof node === "string") {
-        text += node;
       }
+
       return text;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    function findDrawingDocProperties(nodes: any): Array<{ title?: string; altText?: string }> {
+      const properties: Array<{ title?: string; altText?: string }> = [];
+
+      function traverseDrawingNode(current: unknown) {
+        if (!current) return;
+        if (Array.isArray(current)) {
+          for (const child of current) traverseDrawingNode(child);
+          return;
+        }
+
+        if (typeof current !== "object") return;
+
+        const currentNode = current as Record<string, unknown>;
+        for (const key in currentNode) {
+          if (key === "wp:docPr" || key === "pic:cNvPr") {
+            const attrs = (currentNode[":@"] || {}) as Record<string, unknown>;
+            const title = attrs["@_title"] || attrs["@_name"];
+            const altText = attrs["@_descr"];
+            if (typeof title === "string" || typeof altText === "string") {
+              properties.push({
+                title: typeof title === "string" ? title : undefined,
+                altText: typeof altText === "string" ? altText : undefined,
+              });
+            }
+          } else if (!key.startsWith(":@")) {
+            traverseDrawingNode(currentNode[key]);
+          }
+        }
+      }
+
+      traverseDrawingNode(nodes);
+      return properties;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    function appendInlineImageMetadataToActiveAnchors(nodes: any) {
+      if (activeIds.size === 0) return;
+
+      const imageProperties = findDrawingDocProperties(nodes);
+      if (imageProperties.length === 0) return;
+
+      for (const id of activeIds) {
+        for (const image of imageProperties) {
+          anchors[id].inlineObjects.push({
+            type: "image",
+            position: "inside_anchor",
+            ...image,
+          });
+        }
+      }
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -737,40 +838,25 @@ export async function readDocComments(
           if (key.startsWith(":@")) continue;
 
           if (key === "w:p") {
-            const paragraphText = extractTextFromNode(node[key]);
-            const activeIds = new Set<string>();
-
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            function traversePara(pNodes: any) {
-              if (!Array.isArray(pNodes)) return;
-              for (const pNode of pNodes) {
-                for (const pKey in pNode) {
-                  if (pKey.startsWith(":@")) continue;
-
-                  if (pKey === "w:commentRangeStart") {
-                    const id = pNode[":@"]?.["@_w:id"];
-                    if (id) {
-                      activeIds.add(id);
-                      if (!anchors[id]) anchors[id] = { text: "", paragraph: paragraphText };
-                    }
-                  } else if (pKey === "w:commentRangeEnd") {
-                    const id = pNode[":@"]?.["@_w:id"];
-                    if (id) activeIds.delete(id);
-                  } else if (pKey === "w:t" || pKey === "#text") {
-                    let t = "";
-                    if (pKey === "#text") t = pNode[pKey];
-                    else if (Array.isArray(pNode[pKey])) t = pNode[pKey][0]?.["#text"] || "";
-
-                    for (const id of activeIds) {
-                      anchors[id].text += t;
-                    }
-                  } else {
-                    traversePara(pNode[pKey]);
-                  }
-                }
-              }
+            traverseDoc(node[key]);
+            appendTextToActiveAnchors("\n");
+          } else if (key === "w:commentRangeStart") {
+            const id = node[":@"]?.["@_w:id"];
+            if (id) {
+              activeIds.add(id);
+              ensureAnchor(id);
             }
-            traversePara(node[key]);
+          } else if (key === "w:commentRangeEnd") {
+            const id = node[":@"]?.["@_w:id"];
+            if (id) activeIds.delete(id);
+          } else if (key === "w:t") {
+            appendTextToActiveAnchors(extractTextFromTextNode(node[key]));
+          } else if (key === "w:drawing" || key === "w:pict") {
+            appendInlineImageMetadataToActiveAnchors(node[key]);
+          } else if (key === "w:tab") {
+            appendTextToActiveAnchors("\t");
+          } else if (key === "w:br" || key === "w:cr") {
+            appendTextToActiveAnchors("\n");
           } else {
             traverseDoc(node[key]);
           }
@@ -778,12 +864,15 @@ export async function readDocComments(
       }
     }
 
-    traverseDoc(parsedDoc);
+    for (const xml of documentParts) {
+      traverseDoc(orderedParser.parse(xml));
+    }
 
     for (const c of docxCommentsList) {
       if (anchors[c.id]) {
-        c.anchoredText = anchors[c.id].text.trim();
-        c.surroundingParagraph = anchors[c.id].paragraph.trim();
+        c.anchoredText = anchors[c.id].text.replace(/\n+$/u, "");
+        c.inlineObjects = anchors[c.id].inlineObjects;
+        c.documentPosition = anchors[c.id].position;
       }
     }
   }
@@ -799,13 +888,14 @@ export async function readDocComments(
 export function matchDocxCommentsToDriveComments(driveComments: any[], docxComments: DocxComment[]): any[] {
   return driveComments.map(dc => {
     const dcAuthor = dc.author?.displayName || "";
-    // Truncate milliseconds from Drive API timestamp (e.g. 2026-05-20T02:21:24.591Z -> 2026-05-20T02:21:24Z)
-    const dcDate = dc.createdTime ? dc.createdTime.replace(/\.\d+Z$/, "Z") : "";
     const dcText = (dc.content || "").trim();
 
     const match = docxComments.find(xc => {
       const authorMatch = xc.author === dcAuthor;
-      const dateMatch = xc.date === dcDate;
+      // DOCX exports truncate Drive milliseconds down to the exact second
+      const docxSeconds = Math.floor(new Date(xc.date).getTime() / 1000);
+      const driveSeconds = Math.floor(new Date(dc.createdTime).getTime() / 1000);
+      const dateMatch = docxSeconds === driveSeconds;
       const contentMatch = xc.text === dcText;
       return authorMatch && dateMatch && contentMatch;
     });
@@ -813,8 +903,9 @@ export function matchDocxCommentsToDriveComments(driveComments: any[], docxComme
     return {
       ...dc,
       docxCommentId: match ? match.id : undefined,
-      anchoredText: match?.anchoredText || undefined,
-      surroundingParagraph: match?.surroundingParagraph || undefined,
+      documentPosition: match?.documentPosition,
+      anchoredText: match?.anchoredText || dc.anchoredText || undefined,
+      inlineObjects: match?.inlineObjects,
       anchorConfidence: match?.anchoredText ? "exact" : "none",
     };
   });

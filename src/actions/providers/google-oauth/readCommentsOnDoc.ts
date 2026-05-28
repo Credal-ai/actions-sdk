@@ -5,7 +5,7 @@ import { readDocComments, matchDocxCommentsToDriveComments, type DocxComment } f
 const GDRIVE_BASE_URL = "https://www.googleapis.com/drive/v3/files/";
 
 const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authParams, params }) => {
-  const { documentId, includeDeleted = false, includeReplies = false } = params;
+  const { documentId, includeDeleted = false, includeReplies = false, includeResolved = false } = params;
 
   if (!authParams.authToken) {
     return { success: false, comments: [], error: "Missing OAuth token for Google Drive" };
@@ -58,22 +58,35 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
       }
 
       const formattedComments = topLevelComments.map(c => ({
-        commentId: c.id,
         docxCommentId: c.id,
-        content: c.text,
-        createdTime: c.date,
+        commentId: c.id,
         anchoredText: c.anchoredText,
-        surroundingParagraph: c.surroundingParagraph,
-        anchorConfidence: "exact" as const,
+        content: c.text,
         author: { displayName: c.author },
+        createdTime: c.date,
+        modifiedTime: undefined,
+        resolved: false,
+        deleted: false,
+        anchorConfidence: "exact" as const,
+        inlineObjects: c.inlineObjects,
         replies: includeReplies ? repliesMap[c.id] || [] : [],
+        documentPosition: c.documentPosition,
       }));
+
+      // Sort by true top-to-bottom document order, fallback to createdTime
+      formattedComments.sort((a, b) => {
+        if (a.documentPosition !== undefined && b.documentPosition !== undefined) {
+          return a.documentPosition - b.documentPosition;
+        }
+        return new Date(a.createdTime).getTime() - new Date(b.createdTime).getTime();
+      });
+
+      formattedComments.forEach(c => delete c.documentPosition);
 
       return { success: true, comments: formattedComments };
     } else {
-      // PATH A: Native Google Doc
       const fields =
-        "nextPageToken,comments(id,content,htmlContent,quotedFileContent,createdTime,modifiedTime,resolved,deleted,author,replies)";
+        "nextPageToken,comments(id,content,quotedFileContent,createdTime,modifiedTime,resolved,deleted,author,replies)";
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let allComments: any[] = [];
       let pageToken: string | undefined = undefined;
@@ -89,6 +102,11 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
         pageToken = res.data.nextPageToken;
       } while (pageToken);
 
+      // Filter resolved comments if necessary
+      if (!includeResolved) {
+        allComments = allComments.filter(c => !c.resolved);
+      }
+
       // Format comments and filter replies if needed
       const formattedDriveComments = allComments.map(c => {
         let replies = c.replies || [];
@@ -96,23 +114,21 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
         return {
           commentId: c.id,
           content: c.content,
-          htmlContent: c.htmlContent,
-          quotedFileContent: c.quotedFileContent,
+          anchoredText: c.quotedFileContent?.value || undefined,
           createdTime: c.createdTime,
           modifiedTime: c.modifiedTime,
           resolved: !!c.resolved,
           deleted: !!c.deleted,
-          author: c.author,
+          author: c.author ? { displayName: c.author.displayName, emailAddress: c.author.emailAddress } : undefined,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           replies: replies.map((r: any) => ({
             replyId: r.id,
             content: r.content,
-            htmlContent: r.htmlContent,
             createdTime: r.createdTime,
             modifiedTime: r.modifiedTime,
             deleted: !!r.deleted,
             action: r.action,
-            author: r.author,
+            author: r.author ? { displayName: r.author.displayName, emailAddress: r.author.emailAddress } : undefined,
           })),
         };
       });
@@ -130,14 +146,49 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
         const docxComments = await readDocComments(exportRes.data, false);
         const joinedComments = matchDocxCommentsToDriveComments(formattedDriveComments, docxComments);
 
-        return { success: true, comments: joinedComments };
+        // Sort ascending by true document order, fallback to createdTime
+        joinedComments.sort((a, b) => {
+          if (a.documentPosition !== undefined && b.documentPosition !== undefined) {
+            return a.documentPosition - b.documentPosition;
+          }
+          return new Date(a.createdTime).getTime() - new Date(b.createdTime).getTime();
+        });
+        const orderedComments = joinedComments.map(c => ({
+          docxCommentId: c.docxCommentId,
+          commentId: c.commentId,
+          anchoredText: c.anchoredText,
+          content: c.content,
+          author: c.author,
+          createdTime: c.createdTime,
+          modifiedTime: c.modifiedTime,
+          resolved: c.resolved,
+          deleted: c.deleted,
+          anchorConfidence: c.anchorConfidence,
+          inlineObjects: c.inlineObjects,
+          replies: c.replies,
+        }));
+
+        return { success: true, comments: orderedComments };
       } catch (exportErr) {
         console.warn("Failed to export Google Doc to DOCX for anchor extraction", exportErr);
         // Return without exact anchors if export fails
         const commentsNoAnchors = formattedDriveComments.map(c => ({
-          ...c,
+          docxCommentId: undefined,
+          commentId: c.commentId,
+          anchoredText: c.anchoredText,
+          content: c.content,
+          author: c.author,
+          createdTime: c.createdTime,
+          modifiedTime: c.modifiedTime,
+          resolved: c.resolved,
+          deleted: c.deleted,
           anchorConfidence: "none" as const,
+          inlineObjects: undefined,
+          replies: c.replies,
         }));
+
+        commentsNoAnchors.sort((a, b) => new Date(a.createdTime).getTime() - new Date(b.createdTime).getTime());
+
         return {
           success: true,
           comments: commentsNoAnchors,

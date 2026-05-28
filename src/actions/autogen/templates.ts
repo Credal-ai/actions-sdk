@@ -5416,11 +5416,15 @@ export const googleOauthReadCommentsOnDocDefinition: ActionTemplate = {
       },
       includeDeleted: {
         type: "boolean",
-        description: "Whether to request deleted comments from Drive API (Google Docs only)",
+        description: "Whether to request deleted comments from Drive API (Google Docs only). Defaults to false.",
       },
       includeReplies: {
         type: "boolean",
-        description: "Whether to fetch threaded replies",
+        description: "Whether to fetch threaded replies. Defaults to false.",
+      },
+      includeResolved: {
+        type: "boolean",
+        description: "Whether to include resolved comments. Defaults to false.",
       },
     },
   },
@@ -5451,14 +5455,6 @@ export const googleOauthReadCommentsOnDocDefinition: ActionTemplate = {
               type: "string",
               description: "Plain-text body of the comment",
             },
-            htmlContent: {
-              type: "string",
-              description: "HTML comment body when available",
-            },
-            quotedFileContent: {
-              type: "string",
-              description: "Drive API quoted text",
-            },
             createdTime: {
               type: "string",
               description: "ISO 8601 timestamp of when the comment was created",
@@ -5479,14 +5475,38 @@ export const googleOauthReadCommentsOnDocDefinition: ActionTemplate = {
               type: "string",
               description: "Exact exported text span from DOCX comment range markers",
             },
-            surroundingParagraph: {
-              type: "string",
-              description: "Full paragraph containing the anchor",
-            },
             anchorConfidence: {
               type: "string",
               enum: ["exact", "none"],
               description: "Confidence level for the attached DOCX anchor",
+            },
+            inlineObjects: {
+              type: "array",
+              description: "Inline non-text objects found inside the exported DOCX comment range",
+              items: {
+                type: "object",
+                required: ["type", "position"],
+                properties: {
+                  type: {
+                    type: "string",
+                    enum: ["image"],
+                    description: "Type of inline object",
+                  },
+                  title: {
+                    type: "string",
+                    description: "Image title from Google Docs alt text metadata, when exported",
+                  },
+                  altText: {
+                    type: "string",
+                    description: "Image description/alt text from Google Docs metadata, when exported",
+                  },
+                  position: {
+                    type: "string",
+                    enum: ["inside_anchor"],
+                    description: "Where the object appeared relative to the comment anchor",
+                  },
+                },
+              },
             },
             author: {
               type: "object",
@@ -5498,10 +5518,6 @@ export const googleOauthReadCommentsOnDocDefinition: ActionTemplate = {
                 emailAddress: {
                   type: "string",
                   description: "The author's email address",
-                },
-                me: {
-                  type: "boolean",
-                  description: "Whether the author is the authenticated user",
                 },
               },
             },
@@ -5517,9 +5533,6 @@ export const googleOauthReadCommentsOnDocDefinition: ActionTemplate = {
                     description: "Stable Google Drive reply ID or DOCX-local ID",
                   },
                   content: {
-                    type: "string",
-                  },
-                  htmlContent: {
                     type: "string",
                   },
                   createdTime: {

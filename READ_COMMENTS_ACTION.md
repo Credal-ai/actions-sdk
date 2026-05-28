@@ -15,7 +15,7 @@ The recommended implementation is a Dual-Path architecture depending on the docu
 
 - **Path A: Native Google Doc (`application/vnd.google-apps.document`)**
   - **Google Drive API `comments.list`** for authoritative comment metadata: Drive comment IDs, content, authors, timestamps, replies, deleted state, and resolved state.
-  - **Google Drive API `files.export` to DOCX + OpenXML parsing** for precise anchor extraction from `word/document.xml` and `word/comments.xml`.
+  - **Google Drive API `files.export` to DOCX + OpenXML parsing** for precise anchor extraction from document, header, footer, and comment XML.
 - **Path B: Uploaded DOCX File (`application/vnd.openxmlformats-officedocument.wordprocessingml.document`)**
   - **Google Drive API `files.get` with `alt=media`** to download the raw binary.
   - **OpenXML parsing** for all metadata, anchors, and optionally replies natively from the file, completely bypassing `comments.list` because Drive API cannot read embedded OOXML comments.
@@ -83,7 +83,9 @@ Official docs:
 No additional Google API call. The exported `.docx` binary is parsed in memory:
 
 - `word/document.xml` contains inline comment range markers such as `<w:commentRangeStart>` and `<w:commentRangeEnd>`.
+- `word/header*.xml` and `word/footer*.xml` can also contain comment range markers for comments outside the main body.
 - `word/comments.xml` contains exported comment bodies keyed by DOCX-local integer IDs.
+- Inline image metadata is recovered from drawing properties such as `wp:docPr` and `pic:cNvPr` when an image is inside the highlighted range.
 
 ### Required OAuth Scope
 
@@ -156,62 +158,68 @@ If the DOCX comment does not perfectly match these three fields on a Drive comme
 
 ## Input Parameters
 
-| Parameter | Type | Required | Default | Description |
-|---|---|---:|---|---|
-| `documentId` | `string` | Yes | - | The ID of the Google Doc or DOCX file to read comments from. Tagged `recommend-predefined` so Credal can auto-suggest it. |
-| `includeDeleted` | `boolean` | No | `false` | Whether to request deleted comments from Drive API (only applies to native Google Docs). Deleted comments may have no content. |
-| `includeReplies` | `boolean` | No | `false` | Whether to fetch threaded replies. If false, only top-level comments are returned. For native DOCX, this requires parsing extended OpenXML reply structures. |
+| Parameter         | Type      | Required | Default | Description                                                                                                                                                  |
+| ----------------- | --------- | -------: | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `documentId`      | `string`  |      Yes | -       | The ID of the Google Doc or DOCX file to read comments from. Tagged `recommend-predefined` so Credal can auto-suggest it.                                    |
+| `includeDeleted`  | `boolean` |       No | `false` | Whether to request deleted comments from Drive API (only applies to native Google Docs). Deleted comments may have no content.                               |
+| `includeReplies`  | `boolean` |       No | `false` | Whether to fetch threaded replies. If false, only top-level comments are returned. For native DOCX, this requires parsing extended OpenXML reply structures. |
+| `includeResolved` | `boolean` |       No | `false` | Whether to include resolved comment threads. Defaults to active unresolved work only.                                                                        |
 
 ---
 
 ## Output Schema
 
-| Field | Type | Required | Description |
-|---|---|---:|---|
-| `success` | `boolean` | Yes | Whether the request succeeded. |
-| `comments` | `Comment[]` | Yes | Array of comment threads. Empty array on failure. |
-| `error` | `string` | No | Error message if retrieval failed. |
-| `warnings` | `string[]` | No | Non-fatal limitations, such as DOCX export failure, large export failure, or low-confidence anchor matching. |
+| Field      | Type        | Required | Description                                                                                                  |
+| ---------- | ----------- | -------: | ------------------------------------------------------------------------------------------------------------ |
+| `success`  | `boolean`   |      Yes | Whether the request succeeded.                                                                               |
+| `comments` | `Comment[]` |      Yes | Array of comment threads. Empty array on failure.                                                            |
+| `error`    | `string`    |       No | Error message if retrieval failed.                                                                           |
+| `warnings` | `string[]`  |       No | Non-fatal limitations, such as DOCX export failure, large export failure, or low-confidence anchor matching. |
 
 ### Comment Object
 
-| Field | Type | Required | Description |
-|---|---|---:|---|
-| `commentId` | `string` | Yes | Stable Google Drive comment ID. |
-| `docxCommentId` | `string` | No | DOCX-local comment ID if an exported comment was matched. Not stable across exports. |
-| `content` | `string` | No | Plain-text body of the comment from Drive API. |
-| `htmlContent` | `string` | No | HTML comment body from Drive API when available. |
-| `quotedFileContent` | `string` | No | Drive API quoted text. Useful as a fallback but not location-precise. |
-| `createdTime` | `string` | No | ISO 8601 timestamp of when the comment was created. |
-| `modifiedTime` | `string` | No | ISO 8601 timestamp of last modification. |
-| `resolved` | `boolean` | No | Whether Drive API reports the comment thread as resolved. |
-| `deleted` | `boolean` | No | Whether Drive API reports the comment as deleted. Deleted comments may omit original content. |
-| `anchoredText` | `string` | No | Exact exported text span from DOCX comment range markers, when available and confidently matched. |
-| `surroundingParagraph` | `string` | No | Full paragraph containing the anchor, for additional LLM context. |
-| `anchorConfidence` | `"exact" \| "none"` | No | Confidence level for the attached DOCX anchor. Will be "exact" for deterministic matches, "none" otherwise. |
-| `author` | `Author` | No | Comment author from Drive API or DOCX export. |
-| `replies` | `Reply[]` | No | Threaded replies from Drive API. |
+| Field              | Type                | Required | Description                                                                                                                                                                                                                                                     |
+| ------------------ | ------------------- | -------: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `commentId`        | `string`            |      Yes | Stable Google Drive comment ID.                                                                                                                                                                                                                                 |
+| `docxCommentId`    | `string`            |       No | DOCX-local comment ID if an exported comment was matched. Not stable across exports.                                                                                                                                                                            |
+| `content`          | `string`            |       No | Plain-text body of the comment from Drive API.                                                                                                                                                                                                                  |
+| `createdTime`      | `string`            |       No | ISO 8601 timestamp of when the comment was created.                                                                                                                                                                                                             |
+| `modifiedTime`     | `string`            |       No | ISO 8601 timestamp of last modification.                                                                                                                                                                                                                        |
+| `resolved`         | `boolean`           |       No | Whether Drive API reports the comment thread as resolved.                                                                                                                                                                                                       |
+| `deleted`          | `boolean`           |       No | Whether Drive API reports the comment as deleted. Deleted comments may omit original content.                                                                                                                                                                   |
+| `anchoredText`     | `string`            |       No | Exact exported text span from DOCX comment range markers, when available and confidently matched. If DOCX matching is unavailable, Drive `quotedFileContent.value` is used as a non-positioned fallback when present. Whitespace-only selections are preserved. |
+| `anchorConfidence` | `"exact" \| "none"` |       No | Confidence level for the attached DOCX anchor. Will be "exact" for deterministic matches, "none" otherwise.                                                                                                                                                     |
+| `inlineObjects`    | `InlineObject[]`    |       No | Metadata for inline objects inside the highlighted range, currently images with title/alt text when Google exports that metadata.                                                                                                                               |
+| `author`           | `Author`            |       No | Comment author from Drive API or DOCX export.                                                                                                                                                                                                                   |
+| `replies`          | `Reply[]`           |       No | Threaded replies from Drive API.                                                                                                                                                                                                                                |
+
+### Inline Object
+
+| Field      | Type              | Required | Description                                                      |
+| ---------- | ----------------- | -------: | ---------------------------------------------------------------- |
+| `type`     | `"image"`         |      Yes | Inline object type.                                              |
+| `title`    | `string`          |       No | Image title from Google Docs alt text metadata, when exported.   |
+| `altText`  | `string`          |       No | Image alt text/description, when exported.                       |
+| `position` | `"inside_anchor"` |      Yes | Indicates the object was inside the comment's highlighted range. |
 
 ### Author / Reply Author Object
 
-| Field | Type | Description |
-|---|---|---|
-| `displayName` | `string` | Human-readable author name. |
+| Field          | Type     | Description                                                                                |
+| -------------- | -------- | ------------------------------------------------------------------------------------------ |
+| `displayName`  | `string` | Human-readable author name.                                                                |
 | `emailAddress` | `string` | The author's email address. Crucial for disambiguating authors with the same display name. |
-| `me` | `boolean` | Whether the author is the authenticated user. |
 
 ### Reply Object
 
-| Field | Type | Required | Description |
-|---|---|---:|---|
-| `replyId` | `string` | Yes | Stable Google Drive reply ID. |
-| `content` | `string` | No | Plain-text body of the reply. |
-| `htmlContent` | `string` | No | HTML body of the reply when available. |
-| `createdTime` | `string` | No | ISO 8601 creation timestamp. |
-| `modifiedTime` | `string` | No | ISO 8601 last-modified timestamp. |
-| `deleted` | `boolean` | No | Whether the reply is deleted. Deleted replies may omit original content. |
-| `action` | `string` | No | Drive reply action, such as `resolve` or `reopen`, when returned. |
-| `author` | `Author` | No | Who wrote the reply. |
+| Field          | Type      | Required | Description                                                              |
+| -------------- | --------- | -------: | ------------------------------------------------------------------------ |
+| `replyId`      | `string`  |      Yes | Stable Google Drive reply ID.                                            |
+| `content`      | `string`  |       No | Plain-text body of the reply.                                            |
+| `createdTime`  | `string`  |       No | ISO 8601 creation timestamp.                                             |
+| `modifiedTime` | `string`  |       No | ISO 8601 last-modified timestamp.                                        |
+| `deleted`      | `boolean` |       No | Whether the reply is deleted. Deleted replies may omit original content. |
+| `action`       | `string`  |       No | Drive reply action, such as `resolve` or `reopen`, when returned.        |
+| `author`       | `Author`  |       No | Who wrote the reply.                                                     |
 
 ---
 
@@ -221,16 +229,18 @@ If the DOCX comment does not perfectly match these three fields on a Drive comme
 1. Validate auth.
 2. Call Drive API files.get to check mimeType.
 3. IF mimeType === 'application/vnd.google-apps.document':
-   a. Call Drive API comments.list with fields, includeDeleted, etc.
+   a. Call Drive API comments.list with fields, includeDeleted, includeReplies, includeResolved, etc.
    b. Call Drive API files.export as DOCX.
-   c. If export succeeds, unzip and parse word/document.xml and word/comments.xml.
-   d. Join DOCX anchors to Drive comments deterministically.
-   e. Filter out replies if includeReplies=false.
+   c. If export succeeds, unzip and parse word/document.xml, word/header*.xml, word/footer*.xml, and word/comments.xml.
+   d. Extract anchor text, document position, and inline image metadata.
+   e. Join DOCX anchors to Drive comments deterministically.
+   f. Filter resolved comments unless includeResolved=true.
+   g. Filter out replies if includeReplies=false.
 4. IF mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
    a. Call Drive API files.get with alt=media to download binary.
-   b. Unzip and parse word/document.xml and word/comments.xml.
+   b. Unzip and parse word/document.xml, word/header*.xml, word/footer*.xml, and word/comments.xml.
    c. If includeReplies=true, also parse OpenXML threaded replies (e.g., word/commentsExtensible.xml).
-   d. Extract comments and anchors directly. No join needed.
+   d. Extract comments, anchors, document position, and inline image metadata directly. No Drive-to-DOCX join needed.
 5. Return structured comments.
 ```
 
@@ -254,28 +264,29 @@ Recommended helpers:
 
 ## Files to Create / Modify
 
-| File | Change |
-|---|---|
-| `src/utils/google.ts` | Add DOCX comment parsing and matching helpers. |
-| `src/actions/providers/google-oauth/readCommentsOnDoc.ts` | New action implementation. |
-| `src/actions/schema.yaml` | Add `readCommentsOnDoc` under `googleOauth`. |
-| `src/actions/actionMapper.ts` | Register action as `read`. |
-| `src/actions/autogen/types.ts` | Auto-generated after schema change. |
-| `src/actions/autogen/templates.ts` | Auto-generated after schema change. |
-| `tests/google-oauth/testReadCommentsOnDoc.ts` | Integration test runner using a real Google Doc. |
-| `package.json` | Add `jszip` and `fast-xml-parser` as dependencies. |
+| File                                                      | Change                                                                    |
+| --------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `src/utils/google.ts`                                     | Add DOCX comment parsing and matching helpers.                            |
+| `src/actions/providers/google-oauth/readCommentsOnDoc.ts` | New action implementation.                                                |
+| `src/actions/schema.yaml`                                 | Add `readCommentsOnDoc` under `googleOauth`.                              |
+| `src/actions/actionMapper.ts`                             | Register action as `read`.                                                |
+| `src/actions/autogen/types.ts`                            | Auto-generated after schema change.                                       |
+| `src/actions/autogen/templates.ts`                        | Auto-generated after schema change.                                       |
+| `tests/google-oauth/testReadCommentsOnDoc.test.ts`        | Unit tests for OpenXML parsing, matching, sorting, and edge-case anchors. |
+| `tests/google-oauth/testReadCommentsOnDocAction.test.ts`  | Action-level tests with mocked Drive API responses.                       |
+| `package.json`                                            | Add `jszip` and `fast-xml-parser` as dependencies.                        |
 
 ---
 
 ## Library Requirements
 
-| Library | Status | Purpose |
-|---|---|---|
-| `axios` | Already in SDK | Drive API calls. |
-| `jszip` | New dependency | Unzip `.docx` arraybuffer in memory. |
-| `fast-xml-parser` | New dependency | Parse OpenXML while preserving document order. |
-| `mammoth` | Already in SDK, not used | Converts DOCX body text but does not expose structured comment ranges. |
-| `officeparser` | Already in SDK, not used | General Office parsing, not precise comment extraction. |
+| Library           | Status                   | Purpose                                                                |
+| ----------------- | ------------------------ | ---------------------------------------------------------------------- |
+| `axios`           | Already in SDK           | Drive API calls.                                                       |
+| `jszip`           | New dependency           | Unzip `.docx` arraybuffer in memory.                                   |
+| `fast-xml-parser` | New dependency           | Parse OpenXML while preserving document order.                         |
+| `mammoth`         | Already in SDK, not used | Converts DOCX body text but does not expose structured comment ranges. |
+| `officeparser`    | Already in SDK, not used | General Office parsing, not precise comment extraction.                |
 
 `fast-xml-parser` must use `preserveOrder: true` and `ignoreAttributes: false`; otherwise the parser may group tags by name and destroy the sequence needed to capture text between `commentRangeStart` and `commentRangeEnd`.
 
@@ -283,16 +294,14 @@ Recommended helpers:
 
 ## Multi-Tab Google Docs
 
-Google Docs supports multiple tabs, including nested tabs. The Docs API requires `includeTabsContent=true` to read all tabs, and the Google Docs UI can download either the current tab or all tabs.
+Credal's existing Google Drive content reader calls the Google Docs API with `includeTabsContent=true` and recursively flattens all tabs and child tabs into one text stream. It does not expose tab IDs or tab titles to agents.
 
-Drive API `files.export` does not clearly document whether DOCX export includes all tabs, the active tab, the first tab, or how tab boundaries are represented. It also does not document a `tabId` parameter for export.
+`readCommentsOnDoc` intentionally mirrors that document-level behavior:
 
-Spec requirement:
-
-- The action must parse whatever `files.export` returns.
-- The action must not promise `tabId` or `tabTitle` unless those can be recovered from the exported DOCX reliably.
-- Integration testing must include a multi-tab Google Doc with comments in each tab.
-- If export omits comments from some tabs, the action should still return those Drive comments with `anchorConfidence="none"` and a warning.
+- The action returns comments for the document, not for a specific tab.
+- The action parses whatever Drive DOCX export returns and does not promise `tabId` or `tabTitle`.
+- Later-tab content is covered as flattened document content in tests.
+- If a Drive comment is present but no DOCX anchor can be matched, the action still returns the comment with `anchorConfidence="none"` and falls back to Drive quoted text when available.
 
 ---
 
@@ -305,7 +314,8 @@ Spec requirement:
 - Author email addresses are not provided by Drive comment/reply resources.
 - Drive API export content is limited to 10 MB. Large Docs may return comments but no precise anchors.
 - Threaded replies should come from Drive API, not DOCX parsing.
-- Multi-tab export behavior must be tested empirically.
+- Multi-tab documents are treated as flattened document content for parity with existing Drive content fetching. The action does not expose tab attribution.
+- Image handling is metadata-only. The action returns author-provided title/alt text for images inside a selection when exported; it does not OCR or describe pixels.
 
 ---
 
@@ -330,46 +340,23 @@ Testing must prove that the action is good enough for the product-review use cas
 
 ### Unit Tests
 
-1. **OpenXML parser extracts simple anchors**
-   - Fixture DOCX/XML with one comment range around one text run.
-   - Assert exact `anchoredText`, comment body, author, and paragraph.
+The current test coverage lives in:
 
-2. **Anchors spanning multiple runs**
-   - Commented text split across multiple `<w:r>` / `<w:t>` nodes.
-   - Assert the final anchor preserves text order.
+- `tests/google-oauth/testReadCommentsOnDoc.test.ts`
+- `tests/google-oauth/testReadCommentsOnDocAction.test.ts`
 
-3. **Repeated text disambiguation**
-   - Same phrase appears multiple times; only one occurrence is wrapped by comment range markers.
-   - Assert the extracted `surroundingParagraph` identifies the correct occurrence.
+Covered cases include:
 
-4. **Comments inside tables and lists**
-   - Comment range appears in a table cell and a bullet/list paragraph.
-   - Assert anchor extraction still works.
-
-5. **Missing `word/comments.xml`**
-   - DOCX has no comments file.
-   - Assert parser returns an empty array rather than throwing.
-
-6. **Malformed or unsupported DOCX**
-   - Parser receives invalid ZIP/XML.
-   - Assert action degrades to Drive comments with a warning.
-
-7. **Drive-to-DOCX matcher**
-   - Matching deterministically by normalized content, author, and timestamp (truncated to seconds).
-   - Assert exact matches attach anchors.
-   - Assert failed matches do not attach anchors.
-
-8. **Deleted comments**
-   - Drive comment has `deleted: true` and no content.
-   - Assert output keeps the stable Drive comment ID and does not invent an anchor.
-
-9. **Resolved comments**
-   - Drive comment has `resolved: true` and no matching DOCX anchor.
-   - Assert output includes `resolved: true` and `anchorConfidence="none"`.
-
-10. **Pagination**
-   - Mock multiple `comments.list` pages.
-   - Assert all comments are returned.
+1. Simple anchors, multi-run anchors, and mixed-style runs with varying fonts/styles.
+2. Repeated highlighted text where DOCX range markers disambiguate the correct occurrence.
+3. Hyperlink selections and structured content similar to smart chips.
+4. Multi-paragraph selections and whitespace-only selections.
+5. Inline images inside a comment anchor, including exported title and alt text metadata.
+6. Header, footer, table-cell, list-item, and final-body-character comments.
+7. Flattened later-tab content for parity with existing Google Docs content fetching.
+8. Missing comments, malformed DOCX, and Drive export failure fallback.
+9. Deterministic Drive-to-DOCX matching by author, body text, and created timestamp truncated to seconds.
+10. Deleted comments/replies, resolved comment filtering, reply inclusion, resolve-action replies, and pagination.
 
 ### Integration Tests With Real Google Docs
 
@@ -387,7 +374,7 @@ GOOGLE_SHARED_DRIVE_DOC_ID=<doc in a Shared Drive>
 Run with:
 
 ```bash
-npx jest tests/google-oauth/testReadCommentsOnDoc.ts
+npx jest tests/google-oauth/testReadCommentsOnDoc.test.ts tests/google-oauth/testReadCommentsOnDocAction.test.ts
 ```
 
 Required real-doc scenarios:
@@ -401,11 +388,11 @@ Required real-doc scenarios:
 2. **Repeated phrase precision**
    - Same phrase appears at least three times.
    - Comment only the second occurrence.
-   - Assert `anchoredText` matches the phrase and `surroundingParagraph` corresponds to the second occurrence.
+   - Assert `anchoredText` matches the phrase and the sorted comment order/document position corresponds to the second occurrence.
 
 3. **Active unresolved comments**
    - Multiple open comments.
-   - Assert each exported open comment has `anchorConfidence` of `exact` or `high`.
+   - Assert each exported open comment has `anchorConfidence` of `exact` when it is present in the DOCX export, or `none` when only Drive metadata is available.
 
 4. **Resolved comments**
    - Resolve at least one thread.
@@ -419,11 +406,9 @@ Required real-doc scenarios:
    - Assert deleted objects are excluded/included according to Drive API behavior and no missing content is fabricated.
 
 6. **Multi-tab Google Doc**
-   - Two top-level tabs and one nested child tab.
-   - Comment in each tab.
-   - Reuse the same anchor phrase in multiple tabs.
-   - Record whether Drive export includes all tabs and whether anchors are preserved.
-   - Assert the action returns every Drive comment and only attaches anchors when confidently matched.
+   - At least two tabs.
+   - Comment in a non-first tab.
+   - Assert the action returns the Drive comment and that any anchor handling remains document-level with no tab attribution.
 
 7. **Shared Drive doc**
    - Doc lives in a Shared Drive.
@@ -450,7 +435,7 @@ Verify:
 
 - whether both contain the same comments
 - whether resolved comments appear
-- whether multi-tab docs include all tabs
+- whether multi-tab docs align with the flattened content returned by Credal's existing Docs API path
 - whether tab boundaries are visible in `word/document.xml`
 - whether replies appear in DOCX or only through Drive API
 
@@ -471,17 +456,16 @@ googleOauth:
 
 ## PR Checklist
 
-- [ ] Add `jszip` and `fast-xml-parser` to `package.json` and run `npm install`.
-- [ ] Add DOCX comment parsing helpers to `src/utils/google.ts`.
-- [ ] Add Drive comments pagination and DOCX export in `readCommentsOnDoc.ts`.
-- [ ] Add deterministic Drive-to-DOCX matching logic using author, date (truncated to seconds), and content.
-- [ ] Add `readCommentsOnDoc` to `src/actions/schema.yaml`.
-- [ ] Register action in `src/actions/actionMapper.ts` as `read`.
-- [ ] Run `npm run generate:types`.
-- [ ] Run `npm run lint`.
-- [ ] Run `npm run prettier-check`.
-- [ ] Run `npm run build`.
-- [ ] Run unit tests for parser and matcher.
+- [x] Add `jszip` and `fast-xml-parser` to `package.json` and run `npm install`.
+- [x] Add DOCX comment parsing helpers to `src/utils/google.ts`.
+- [x] Add Drive comments pagination and DOCX export in `readCommentsOnDoc.ts`.
+- [x] Add deterministic Drive-to-DOCX matching logic using author, date (truncated to seconds), and content.
+- [x] Add `readCommentsOnDoc` to `src/actions/schema.yaml`.
+- [x] Register action in `src/actions/actionMapper.ts` as `read`.
+- [x] Run `npm run generate:types`.
+- [x] Run `npm run lint`.
+- [x] Run `npm run build`.
+- [x] Run unit tests for parser and matcher.
 - [ ] Run integration tests against real single-tab, multi-tab, Shared Drive, resolved/deleted, and repeated-text docs.
 - [ ] In PR description, explain the Drive API precision gap, the DOCX anchor strategy, the deterministic metadata join, and the documented limitations.
 
@@ -500,7 +484,7 @@ To resolve this without using inexact string matching or arbitrary scoring algor
 1. **Path A: Native Google Docs**
    - We fetch the authoritative comment metadata (including replies, authorship, and resolution state) via the Google Drive API's `comments` endpoint.
    - We simultaneously export the document as a `.docx` file using the `export` endpoint.
-   - We parse the exported `.docx` OpenXML (`word/document.xml` and `word/comments.xml`) to extract the precise `anchoredText` and `surroundingParagraph` using `<w:commentRangeStart>` and `<w:commentRangeEnd>` nodes.
+   - We parse the exported `.docx` OpenXML (`word/document.xml`, `word/header*.xml`, `word/footer*.xml`, and `word/comments.xml`) to extract the precise `anchoredText`, `documentPosition`, and inline image metadata using `<w:commentRangeStart>` and `<w:commentRangeEnd>` nodes.
    - We perform a **perfect deterministic join** between the Drive API output and the DOCX parsed output using the `Author Name`, `Date (truncated to seconds)`, and `Text Content`.
 
 2. **Path B: Uploaded Native DOCX Files**
@@ -510,22 +494,49 @@ To resolve this without using inexact string matching or arbitrary scoring algor
 ## Changes Made
 
 ### 1. New Dependencies
+
 - Added `jszip` to extract files from the DOCX ZIP structure.
 - Added `fast-xml-parser` for highly efficient traversal of OpenXML trees without DOM overhead.
 
 ### 2. File Updates
-- **`src/actions/schema.yaml`**: Defined the new `readCommentsOnDoc` action parameters (`documentId`, `includeDeleted`, `includeReplies`).
+
+- **`src/actions/schema.yaml`**: Defined the new `readCommentsOnDoc` action parameters (`documentId`, `includeDeleted`, `includeReplies`, `includeResolved`) and output fields.
 - **`src/actions/autogen/`**: Regenerated types using `npm run generate:types`.
 - **`src/utils/google.ts`**:
-  - Implemented `readDocComments` to parse raw `ArrayBuffer` data, targeting `word/comments.xml`, `word/document.xml`, and optionally `word/commentsExtensible.xml` for nested replies.
+  - Implemented `readDocComments` to parse raw `ArrayBuffer` data, targeting `word/comments.xml`, `word/document.xml`, `word/header*.xml`, `word/footer*.xml`, and optionally `word/commentsExtensible.xml` for nested replies.
   - Implemented `matchDocxCommentsToDriveComments` for the deterministic join logic.
 - **`src/actions/providers/google-oauth/readCommentsOnDoc.ts`**: Created the new provider action function incorporating the Dual-Path strategy.
 - **`src/actions/actionMapper.ts`**: Registered the new action under the `googleOauth` provider.
 
 ### 3. Verification & Validation
+
 - **Code Generation**: Types and schemas were successfully compiled without mismatch.
 - **Typing**: TypeScript errors related to destructured arguments for `ActionFunction` and OpenXML object parsing were successfully addressed.
 - **Formatting & Building**: The project successfully passes `npm run lint`, `npm run prettier-format`, and `npm run build` steps.
 
 ## Next Steps
+
 The feature is now ready to be tested end-to-end using a live Google Drive account with valid OAuth tokens, using both Google Docs with comments and uploaded `.docx` files with extensible replies.
+
+---
+
+## Pull Request Notes
+
+When submitting this action to the central repository, please include the following notes in the Pull Request:
+
+### 1. True Top-to-Bottom Document Sorting
+
+By default, the Google Drive API returns comments in chronological order of creation. We intentionally implemented a secondary fetching mechanism that exports the file as a DOCX and actively traverses the underlying OOXML (`document.xml`, headers, and footers).
+**Why?** This allows us to assign a physical `documentPosition` to matched comments and sort the payload in document flow where export anchors are available. This design decision is critical for AI agents: it allows them to reason through confusing duplicate comments, such as identical comments highlighting the identical word in different places. Multi-tab documents are handled as flattened document-level content for parity with the existing Google Docs content reader; tab IDs and tab titles are not exposed.
+
+### 2. Payload Precision & Cleanliness
+
+We optimized the returned JSON payload specifically for LLM context windows:
+
+- **`anchoredText` over `quotedFileContent`:** The action returns a clean `anchoredText` field. When DOCX matching succeeds, it comes from exact OpenXML comment range markers. When matching is unavailable, Drive `quotedFileContent.value` is used only as a non-positioned fallback.
+- **Image metadata:** When a comment highlights an inline image, the action returns exported title/alt text in `inlineObjects` so agents have useful image context without pixel analysis.
+- **Actionable Defaults:** The action natively defaults to `includeDeleted: false`, `includeResolved: false`, and `includeReplies: false`. Out of the box, agents are only presented with active, top-level comments they actually need to address.
+
+### 3. Note on Workspace Email Visibility
+
+_Important security/privacy note for Credal deployment:_ During testing, we observed that the Google Drive API strips the `emailAddress` property from the `author` object on public documents. However, when this action is deployed and authenticated within a strict Google Workspace Organization, internal user email addresses will likely become visible to the agent in the payload. This behavior should be noted for enterprise customers regarding internal PII exposure.

@@ -3003,9 +3003,10 @@ export const googleOauthReadCommentsOnDocParamsSchema = z.object({
   documentId: z.string().describe("The ID of the Google Doc or DOCX file to read comments from"),
   includeDeleted: z
     .boolean()
-    .describe("Whether to request deleted comments from Drive API (Google Docs only)")
+    .describe("Whether to request deleted comments from Drive API (Google Docs only). Defaults to false.")
     .optional(),
-  includeReplies: z.boolean().describe("Whether to fetch threaded replies").optional(),
+  includeReplies: z.boolean().describe("Whether to fetch threaded replies. Defaults to false.").optional(),
+  includeResolved: z.boolean().describe("Whether to include resolved comments. Defaults to false.").optional(),
 });
 
 export type googleOauthReadCommentsOnDocParamsType = z.infer<typeof googleOauthReadCommentsOnDocParamsSchema>;
@@ -3018,23 +3019,33 @@ export const googleOauthReadCommentsOnDocOutputSchema = z.object({
         commentId: z.string().describe("Stable Google Drive comment ID or DOCX-local ID"),
         docxCommentId: z.string().describe("DOCX-local comment ID if an exported comment was matched").optional(),
         content: z.string().describe("Plain-text body of the comment").optional(),
-        htmlContent: z.string().describe("HTML comment body when available").optional(),
-        quotedFileContent: z.string().describe("Drive API quoted text").optional(),
         createdTime: z.string().describe("ISO 8601 timestamp of when the comment was created").optional(),
         modifiedTime: z.string().describe("ISO 8601 timestamp of last modification").optional(),
         resolved: z.boolean().describe("Whether the comment thread is resolved").optional(),
         deleted: z.boolean().describe("Whether the comment is deleted").optional(),
         anchoredText: z.string().describe("Exact exported text span from DOCX comment range markers").optional(),
-        surroundingParagraph: z.string().describe("Full paragraph containing the anchor").optional(),
         anchorConfidence: z
           .enum(["exact", "none"])
           .describe("Confidence level for the attached DOCX anchor")
+          .optional(),
+        inlineObjects: z
+          .array(
+            z.object({
+              type: z.literal("image").describe("Type of inline object"),
+              title: z.string().describe("Image title from Google Docs alt text metadata, when exported").optional(),
+              altText: z
+                .string()
+                .describe("Image description/alt text from Google Docs metadata, when exported")
+                .optional(),
+              position: z.literal("inside_anchor").describe("Where the object appeared relative to the comment anchor"),
+            }),
+          )
+          .describe("Inline non-text objects found inside the exported DOCX comment range")
           .optional(),
         author: z
           .object({
             displayName: z.string().describe("Human-readable author name").optional(),
             emailAddress: z.string().describe("The author's email address").optional(),
-            me: z.boolean().describe("Whether the author is the authenticated user").optional(),
           })
           .optional(),
         replies: z
@@ -3042,7 +3053,6 @@ export const googleOauthReadCommentsOnDocOutputSchema = z.object({
             z.object({
               replyId: z.string().describe("Stable Google Drive reply ID or DOCX-local ID"),
               content: z.string().optional(),
-              htmlContent: z.string().optional(),
               createdTime: z.string().optional(),
               modifiedTime: z.string().optional(),
               deleted: z.boolean().optional(),

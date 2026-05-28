@@ -136,3 +136,7 @@ dist
 *.docx
 .gitignore
 .antigravitycli/
+
+# Local testing scripts
+test_*.ts
+test_*.js
