@@ -45,7 +45,12 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
         },
       );
 
-      const docxComments = await readDocComments(getFileRes.data, true);
+      const buffer = getFileRes.data;
+      if (buffer.byteLength > 50 * 1024 * 1024) {
+        return { success: false, comments: [], error: "File size exceeds the 50MB limit." };
+      }
+
+      const docxComments = await readDocComments(buffer, true);
 
       // If replies are supported, we need to nest them
       const topLevelComments: DocxComment[] = [];
@@ -199,7 +204,12 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
           },
         );
 
-        let docxComments = await readDocComments(exportRes.data, false);
+        const buffer = exportRes.data;
+        if (buffer.byteLength > 50 * 1024 * 1024) {
+          throw new Error("Exported file size exceeds the 50MB limit.");
+        }
+
+        let docxComments = await readDocComments(buffer, false);
         if (!includeResolved) {
           docxComments = docxComments.filter(c => !c.resolved);
         }

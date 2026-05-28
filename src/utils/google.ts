@@ -652,10 +652,21 @@ export async function readDocComments(
 ): Promise<DocxComment[]> {
   const zip = await JSZip.loadAsync(buffer);
 
-  const commentsXml = await zip.file("word/comments.xml")?.async("string");
+  async function safeReadZipString(path: string): Promise<string | undefined> {
+    const fileObj = zip.file(path);
+    if (!fileObj) return undefined;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const decompressedSize = (fileObj as any)._data?.uncompressedSize || 0;
+    if (decompressedSize > 20 * 1024 * 1024) { // 20MB limit
+      throw new Error(`File ${path} exceeds decompression safety limit of 20MB.`);
+    }
+    return fileObj.async("string");
+  }
+
+  const commentsXml = await safeReadZipString("word/comments.xml");
   if (!commentsXml) return [];
 
-  const documentXml = await zip.file("word/document.xml")?.async("string");
+  const documentXml = await safeReadZipString("word/document.xml");
 
   const parser = new XMLParser({
     ignoreAttributes: false,
@@ -724,7 +735,7 @@ export async function readDocComments(
   }
 
   // Parse replies and extension properties if extensible XML is present
-  const commentsExtensibleXml = await zip.file("word/commentsExtensible.xml")?.async("string");
+  const commentsExtensibleXml = await safeReadZipString("word/commentsExtensible.xml");
   if (commentsExtensibleXml) {
     try {
       const extParser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_", processEntities: false });
@@ -762,13 +773,13 @@ export async function readDocComments(
     Object.keys(zip.files)
       .filter(path => /^word\/header\d+\.xml$/u.test(path))
       .sort((a, b) => parseInt(a.match(/\d+/)![0], 10) - parseInt(b.match(/\d+/)![0], 10))
-      .map(path => zip.file(path)?.async("string")),
+      .map(path => safeReadZipString(path)),
   );
   const footerXmls = await Promise.all(
     Object.keys(zip.files)
       .filter(path => /^word\/footer\d+\.xml$/u.test(path))
       .sort((a, b) => parseInt(a.match(/\d+/)![0], 10) - parseInt(b.match(/\d+/)![0], 10))
-      .map(path => zip.file(path)?.async("string")),
+      .map(path => safeReadZipString(path)),
   );
   const documentParts = [...headerXmls, documentXml, ...footerXmls].filter((xml): xml is string => !!xml);
 
@@ -789,7 +800,7 @@ export async function readDocComments(
         position: number;
         inlineObjects: NonNullable<DocxComment["inlineObjects"]>;
       }
-    > = {};
+    > = Object.create(null);
     let currentPosition = 0;
     const activeIds = new Set<string>();
 
