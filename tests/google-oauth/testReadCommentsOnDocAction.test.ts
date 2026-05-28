@@ -348,9 +348,9 @@ describe("readCommentsOnDoc Drive metadata handling", () => {
       });
     }
 
-    mockGet.mockRejectedValueOnce(
-      new Error("DOCX export unavailable in unit test"),
-    );
+    mockGet.mockResolvedValueOnce({
+      data: await buildDocxWithThreadedReply(),
+    });
 
     const result = await readCommentsOnDoc({
       authParams: AUTH,
@@ -363,7 +363,6 @@ describe("readCommentsOnDoc Drive metadata handling", () => {
     expect(result.comments).toHaveLength(100);
     expect(result.warnings).toEqual([
       "Comment pagination was capped at 100 pages; some comments may have been omitted.",
-      "Could not export DOCX to extract precise text anchors.",
     ]);
   });
 });

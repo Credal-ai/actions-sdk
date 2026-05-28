@@ -665,9 +665,9 @@ export async function readDocComments(
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function extractTextFromOrderedNodes(nodes: any, collectText = false): string {
-    if (!nodes) return "";
+    if (nodes == null) return "";
     if (Array.isArray(nodes)) return nodes.map(node => extractTextFromOrderedNodes(node, collectText)).join("");
-    if (typeof nodes !== "object") return typeof nodes === "string" ? nodes : "";
+    if (typeof nodes !== "object") return String(nodes);
 
     let text = "";
     for (const key in nodes) {
@@ -935,8 +935,9 @@ export function matchDocxCommentsToDriveComments<T extends DriveCommentForMatchi
   // Build an index keyed on author|truncatedSeconds|text for O(n+m) matching
   const docxIndex = new Map<string, DocxComment[]>();
   for (const xc of docxComments) {
-    const seconds = Math.floor(new Date(xc.date).getTime() / 1000);
-    const key = `${xc.author}|${seconds}|${xc.text}`;
+    let seconds = Math.floor(new Date(xc.date).getTime() / 1000);
+    if (isNaN(seconds)) seconds = 0;
+    const key = JSON.stringify([xc.author, seconds, xc.text]);
     const matches = docxIndex.get(key) || [];
     matches.push(xc);
     docxIndex.set(key, matches);
@@ -945,8 +946,9 @@ export function matchDocxCommentsToDriveComments<T extends DriveCommentForMatchi
   return driveComments.map(dc => {
     const dcAuthor = dc.author?.displayName || "";
     const dcText = (dc.content || "").trim();
-    const seconds = Math.floor(new Date(dc.createdTime).getTime() / 1000);
-    const key = `${dcAuthor}|${seconds}|${dcText}`;
+    let seconds = Math.floor(new Date(dc.createdTime).getTime() / 1000);
+    if (isNaN(seconds)) seconds = 0;
+    const key = JSON.stringify([dcAuthor, seconds, dcText]);
     const matches = docxIndex.get(key) || [];
     const match = matches.length === 1 ? matches.shift() : undefined;
 
