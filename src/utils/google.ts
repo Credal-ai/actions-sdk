@@ -524,7 +524,7 @@ export async function getGoogleDocContent(
 
       try {
         // Fallback to Drive API export if Docs API fails
-        const exportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/plain`;
+        const exportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/plain${sharedDriveParams}`;
         const exportRes = await axiosClient.get(exportUrl, {
           headers: { Authorization: `Bearer ${authToken}` },
           responseType: "text",
@@ -545,7 +545,7 @@ export async function getGoogleSheetContent(
 ): Promise<string> {
   // Prefer XLSX export so native Google Sheets follow the same workbook parsing path as uploaded Excel files.
   try {
-    const exportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`;
+    const exportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet${sharedDriveParams}`;
     const exportRes = await axiosClient.get(exportUrl, {
       headers: { Authorization: `Bearer ${authToken}` },
       responseType: "arraybuffer",
@@ -563,7 +563,7 @@ export async function getGoogleSheetContent(
 
     // If XLSX export fails, fall back to the prior CSV-first behavior.
     try {
-      const csvExportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/csv`;
+      const csvExportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/csv${sharedDriveParams}`;
       const csvExportRes = await axiosClient.get(csvExportUrl, {
         headers: { Authorization: `Bearer ${authToken}` },
         responseType: "text",
@@ -615,7 +615,7 @@ export async function getGoogleSlidesContent(
       throw new Error("Request timed out using Google Slides API", { cause: safeCause });
     } else {
       console.error("Error using Google Slides API:", slidesError instanceof Error ? slidesError.message : String(slidesError));
-      const exportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/plain`;
+      const exportUrl = `${GDRIVE_BASE_URL}${encodeURIComponent(fileId)}/export?mimeType=text/plain${sharedDriveParams}`;
       const exportRes = await axiosClient.get(exportUrl, {
         headers: { Authorization: `Bearer ${authToken}` },
         responseType: "text",

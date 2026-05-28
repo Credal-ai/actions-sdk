@@ -197,7 +197,7 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
       // Try to get precise anchors from exported DOCX
       try {
         const exportRes = await axiosClient.get(
-          `${GDRIVE_BASE_URL}${encodeURIComponent(documentId)}/export?mimeType=application/vnd.openxmlformats-officedocument.wordprocessingml.document`,
+          `${GDRIVE_BASE_URL}${encodeURIComponent(documentId)}/export?mimeType=application/vnd.openxmlformats-officedocument.wordprocessingml.document&supportsAllDrives=true`,
           {
             headers: { Authorization: `Bearer ${token}` },
             responseType: "arraybuffer",
