@@ -179,7 +179,7 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
       // Try to get precise anchors from exported DOCX
       try {
         const exportRes = await axiosClient.get(
-          `${GDRIVE_BASE_URL}${encodeURIComponent(documentId)}/export?mimeType=application/vnd.openxmlformats-officedocument.wordprocessingml.document`,
+          `${GDRIVE_BASE_URL}${encodeURIComponent(documentId)}/export?mimeType=application/vnd.openxmlformats-officedocument.wordprocessingml.document&supportsAllDrives=true`,
           {
             headers: { Authorization: `Bearer ${token}` },
             responseType: "arraybuffer",
@@ -217,7 +217,10 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
           ...(paginationWarnings.length > 0 ? { warnings: paginationWarnings } : {}),
         };
       } catch (exportErr) {
-        console.warn("Failed to export Google Doc to DOCX for anchor extraction", exportErr);
+        console.warn(
+          "Failed to export Google Doc to DOCX for anchor extraction:",
+          exportErr instanceof Error ? exportErr.message : String(exportErr),
+        );
         // Return without exact anchors if export fails
         const commentsNoAnchors = formattedDriveComments.map(c => ({
           docxCommentId: undefined,
@@ -244,7 +247,7 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
       }
     }
   } catch (err: unknown) {
-    console.error("Error reading comments from doc", err);
+    console.error("Error reading comments from doc:", err instanceof Error ? err.message : String(err));
     return { success: false, comments: [], error: err instanceof Error ? err.message : "Failed to read comments" };
   }
 };

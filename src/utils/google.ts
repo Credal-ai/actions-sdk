@@ -664,19 +664,24 @@ export async function readDocComments(
   const docxCommentsList: DocxComment[] = [];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function extractTextFromOrderedNodes(nodes: any, collectText = false): string {
+  function extractTextFromOrderedNodes(nodes: any, collectText = false, depth = 0): string {
+    if (depth > 50) {
+      throw new Error("Max XML nesting depth exceeded");
+    }
     if (nodes == null) return "";
-    if (Array.isArray(nodes)) return nodes.map(node => extractTextFromOrderedNodes(node, collectText)).join("");
+    if (Array.isArray(nodes))
+      return nodes.map(node => extractTextFromOrderedNodes(node, collectText, depth + 1)).join("");
     if (typeof nodes !== "object") return String(nodes);
 
     let text = "";
-    for (const key in nodes) {
+    const keys = Object.keys(nodes);
+    for (const key of keys) {
       if (key === "#text") {
-        text += collectText ? extractTextFromOrderedNodes(nodes[key], collectText) : "";
+        text += collectText ? extractTextFromOrderedNodes(nodes[key], collectText, depth + 1) : "";
       } else if (key === "w:t") {
-        text += extractTextFromOrderedNodes(nodes[key], true);
+        text += extractTextFromOrderedNodes(nodes[key], true, depth + 1);
       } else if (key !== ":@") {
-        text += extractTextFromOrderedNodes(nodes[key], collectText);
+        text += extractTextFromOrderedNodes(nodes[key], collectText, depth + 1);
       }
     }
     return text;
@@ -689,7 +694,8 @@ export async function readDocComments(
 
   for (const c of commentsArr) {
     const attrs = c[":@"] || {};
-    const paragraphs = c["w:comment"].filter((node: Record<string, unknown>) => node["w:p"]);
+    const commentNodes = Array.isArray(c["w:comment"]) ? c["w:comment"] : [];
+    const paragraphs = commentNodes.filter((node: Record<string, unknown>) => node["w:p"]);
     let text = "";
     let paraId: string | undefined = undefined;
 
@@ -711,40 +717,38 @@ export async function readDocComments(
     });
   }
 
-  // Parse replies if requested (for native DOCX files)
-  if (includeReplies) {
-    const commentsExtensibleXml = await zip.file("word/commentsExtensible.xml")?.async("string");
-    if (commentsExtensibleXml) {
-      try {
-        const extParser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_" });
-        const parsedExt = extParser.parse(commentsExtensibleXml);
-        // Look for w15:commentEx -> w15:parentId
-        if (parsedExt["w15:commentsEx"] && parsedExt["w15:commentsEx"]["w15:commentEx"]) {
-          let exArr = parsedExt["w15:commentsEx"]["w15:commentEx"];
-          if (!Array.isArray(exArr)) exArr = [exArr];
+  // Parse replies and extension properties if extensible XML is present
+  const commentsExtensibleXml = await zip.file("word/commentsExtensible.xml")?.async("string");
+  if (commentsExtensibleXml) {
+    try {
+      const extParser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_" });
+      const parsedExt = extParser.parse(commentsExtensibleXml);
+      // Look for w15:commentEx -> w15:parentId and w15:done
+      if (parsedExt["w15:commentsEx"] && parsedExt["w15:commentsEx"]["w15:commentEx"]) {
+        let exArr = parsedExt["w15:commentsEx"]["w15:commentEx"];
+        if (!Array.isArray(exArr)) exArr = [exArr];
 
-          for (const ex of exArr) {
-            const paraId = ex["@_w15:paraId"];
-            const paraIdParent = ex["@_w15:paraIdParent"];
-            const done = ex["@_w15:done"];
-            if (paraId && paraIdParent) {
-              const comment = docxCommentsList.find(c => c.paraId === paraId);
-              const parentComment = docxCommentsList.find(c => c.paraId === paraIdParent);
-              if (comment && parentComment) {
-                comment.parentId = parentComment.id;
-              }
+        for (const ex of exArr) {
+          const paraId = ex["@_w15:paraId"];
+          const paraIdParent = ex["@_w15:paraIdParent"];
+          const done = ex["@_w15:done"];
+          if (includeReplies && paraId && paraIdParent) {
+            const comment = docxCommentsList.find(c => c.paraId === paraId);
+            const parentComment = docxCommentsList.find(c => c.paraId === paraIdParent);
+            if (comment && parentComment) {
+              comment.parentId = parentComment.id;
             }
-            if (paraId && done === "1") {
-              const comment = docxCommentsList.find(c => c.paraId === paraId);
-              if (comment) {
-                comment.resolved = true;
-              }
+          }
+          if (paraId && done === "1") {
+            const comment = docxCommentsList.find(c => c.paraId === paraId);
+            if (comment) {
+              comment.resolved = true;
             }
           }
         }
-      } catch (e) {
-        console.error("Error parsing commentsExtensible.xml", e);
       }
+    } catch (e) {
+      console.error("Error parsing commentsExtensible.xml", e);
     }
   }
 
@@ -795,18 +799,22 @@ export async function readDocComments(
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    function extractTextFromTextNode(node: any): string {
+    function extractTextFromTextNode(node: any, depth = 0): string {
+      if (depth > 50) {
+        throw new Error("Max XML nesting depth exceeded");
+      }
       if (typeof node === "string") return node;
       if (!node) return "";
 
       let text = "";
       if (Array.isArray(node)) {
-        for (const child of node) text += extractTextFromTextNode(child);
+        for (const child of node) text += extractTextFromTextNode(child, depth + 1);
       } else if (typeof node === "object") {
         if (typeof node["#text"] === "string") text += node["#text"];
-        for (const key in node) {
+        const keys = Object.keys(node);
+        for (const key of keys) {
           if (key === "#text" || key.startsWith(":@")) continue;
-          text += extractTextFromTextNode(node[key]);
+          text += extractTextFromTextNode(node[key], depth + 1);
         }
       }
 
@@ -817,17 +825,21 @@ export async function readDocComments(
     function findDrawingDocProperties(nodes: any): Array<{ title?: string; altText?: string }> {
       const properties: Array<{ title?: string; altText?: string }> = [];
 
-      function traverseDrawingNode(current: unknown) {
+      function traverseDrawingNode(current: unknown, depth = 0) {
+        if (depth > 50) {
+          throw new Error("Max XML nesting depth exceeded");
+        }
         if (!current) return;
         if (Array.isArray(current)) {
-          for (const child of current) traverseDrawingNode(child);
+          for (const child of current) traverseDrawingNode(child, depth + 1);
           return;
         }
 
         if (typeof current !== "object") return;
 
         const currentNode = current as Record<string, unknown>;
-        for (const key in currentNode) {
+        const keys = Object.keys(currentNode);
+        for (const key of keys) {
           if (key === "wp:docPr" || key === "pic:cNvPr") {
             const attrs = (currentNode[":@"] || {}) as Record<string, unknown>;
             const title = attrs["@_title"] || attrs["@_name"];
@@ -839,7 +851,7 @@ export async function readDocComments(
               });
             }
           } else if (!key.startsWith(":@")) {
-            traverseDrawingNode(currentNode[key]);
+            traverseDrawingNode(currentNode[key], depth + 1);
           }
         }
       }
@@ -867,14 +879,18 @@ export async function readDocComments(
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    function traverseDoc(nodes: any) {
+    function traverseDoc(nodes: any, depth = 0) {
+      if (depth > 50) {
+        throw new Error("Max XML nesting depth exceeded");
+      }
       if (!Array.isArray(nodes)) return;
       for (const node of nodes) {
-        for (const key in node) {
+        const keys = Object.keys(node);
+        for (const key of keys) {
           if (key.startsWith(":@")) continue;
 
           if (key === "w:p") {
-            traverseDoc(node[key]);
+            traverseDoc(node[key], depth + 1);
             appendTextToActiveAnchors("\n");
           } else if (key === "w:commentRangeStart") {
             const id = node[":@"]?.["@_w:id"];
@@ -886,7 +902,7 @@ export async function readDocComments(
             const id = node[":@"]?.["@_w:id"];
             if (id) activeIds.delete(id);
           } else if (key === "w:t") {
-            appendTextToActiveAnchors(extractTextFromTextNode(node[key]));
+            appendTextToActiveAnchors(extractTextFromTextNode(node[key], depth + 1));
           } else if (key === "w:drawing" || key === "w:pict") {
             appendInlineImageMetadataToActiveAnchors(node[key]);
           } else if (key === "w:tab") {
@@ -894,7 +910,7 @@ export async function readDocComments(
           } else if (key === "w:br" || key === "w:cr") {
             appendTextToActiveAnchors("\n");
           } else {
-            traverseDoc(node[key]);
+            traverseDoc(node[key], depth + 1);
           }
         }
       }
@@ -932,6 +948,17 @@ export function matchDocxCommentsToDriveComments<T extends DriveCommentForMatchi
   driveComments: T[],
   docxComments: DocxComment[],
 ) {
+  // Count frequency of each key in driveComments to ensure uniqueness
+  const driveCounts = new Map<string, number>();
+  for (const dc of driveComments) {
+    const dcAuthor = dc.author?.displayName || "";
+    const dcText = (dc.content || "").trim();
+    let seconds = Math.floor(new Date(dc.createdTime).getTime() / 1000);
+    if (isNaN(seconds)) seconds = 0;
+    const key = JSON.stringify([dcAuthor, seconds, dcText]);
+    driveCounts.set(key, (driveCounts.get(key) || 0) + 1);
+  }
+
   // Build an index keyed on author|truncatedSeconds|text for O(n+m) matching
   const docxIndex = new Map<string, DocxComment[]>();
   for (const xc of docxComments) {
@@ -949,8 +976,12 @@ export function matchDocxCommentsToDriveComments<T extends DriveCommentForMatchi
     let seconds = Math.floor(new Date(dc.createdTime).getTime() / 1000);
     if (isNaN(seconds)) seconds = 0;
     const key = JSON.stringify([dcAuthor, seconds, dcText]);
-    const matches = docxIndex.get(key) || [];
-    const match = matches.length === 1 ? matches.shift() : undefined;
+
+    const docxMatches = docxIndex.get(key) || [];
+    const driveCount = driveCounts.get(key) || 0;
+
+    // Only match if the key is unique in both driveComments and docxComments
+    const match = docxMatches.length === 1 && driveCount === 1 ? docxMatches[0] : undefined;
 
     return {
       ...dc,
