@@ -58,6 +58,7 @@ export enum ActionName {
     ADD = "add",
     OVERWRITEPAGE = "overwritePage",
     FETCHPAGECONTENT = "fetchPageContent",
+    CREATEPAGE = "createPage",
     ASSIGNJIRATICKET = "assignJiraTicket",
     PUBLICCOMMENTONSERVICEDESKREQUEST = "publicCommentOnServiceDeskRequest",
     COMMENTJIRATICKET = "commentJiraTicket",
@@ -388,6 +389,15 @@ export const confluenceDataCenterOverwritePageOutputSchema = z.object({ "success
 
 export type confluenceDataCenterOverwritePageOutputType = z.infer<typeof confluenceDataCenterOverwritePageOutputSchema>;
 export type confluenceDataCenterOverwritePageFunction = ActionFunction<confluenceDataCenterOverwritePageParamsType, AuthParamsType, confluenceDataCenterOverwritePageOutputType>;
+
+export const confluenceDataCenterCreatePageParamsSchema = z.object({ "spaceKey": z.string().describe("The key of the Confluence space to create the page in"), "title": z.string().describe("The title of the page to create"), "content": z.string().describe("The content of the page in Confluence storage format (XHTML-based markup)"), "parentId": z.string().describe("Optional ID of the parent page; if provided, the new page will be created as a child of this page").optional() });
+
+export type confluenceDataCenterCreatePageParamsType = z.infer<typeof confluenceDataCenterCreatePageParamsSchema>;
+
+export const confluenceDataCenterCreatePageOutputSchema = z.object({ "success": z.boolean().describe("Whether the page was successfully created"), "error": z.string().describe("The error that occurred if the page was not successfully created").optional(), "pageId": z.string().describe("The ID of the newly created page").optional(), "pageUrl": z.string().describe("The URL of the newly created page").optional() });
+
+export type confluenceDataCenterCreatePageOutputType = z.infer<typeof confluenceDataCenterCreatePageOutputSchema>;
+export type confluenceDataCenterCreatePageFunction = ActionFunction<confluenceDataCenterCreatePageParamsType, AuthParamsType, confluenceDataCenterCreatePageOutputType>;
 
 export const confluenceDataCenterFetchPageContentParamsSchema = z.object({ "pageId": z.string().describe("The ID of the page to fetch content from") });
 
