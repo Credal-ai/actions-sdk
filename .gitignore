@@ -131,13 +131,3 @@ dist
 .pnp.*
 
 *.DS_Store
-
-# Exclude docx files and gitignore
-*.docx
-.gitignore
-.antigravitycli/
-
-# Local testing scripts
-test_*.ts
-test_*.js
-READ_COMMENTS_ACTION.md

@@ -638,6 +638,7 @@ export interface DocxComment {
   }>;
   documentPosition?: number; // Position in document flow (0-indexed)
   parentId?: string; // For threaded replies if found in OOXML extensions
+  paraId?: string; // Paragraph ID used for mapping threaded replies
 }
 
 export async function readDocComments(
@@ -661,9 +662,13 @@ export async function readDocComments(
 
     for (const c of commentsArr) {
       let text = "";
+      let paraId: string | undefined = undefined;
       if (c["w:p"]) {
         const ps = Array.isArray(c["w:p"]) ? c["w:p"] : [c["w:p"]];
         for (const p of ps) {
+          if (!paraId && p["@_w14:paraId"]) {
+            paraId = p["@_w14:paraId"];
+          }
           if (p["w:r"]) {
             const rs = Array.isArray(p["w:r"]) ? p["w:r"] : [p["w:r"]];
             for (const r of rs) {
@@ -677,6 +682,7 @@ export async function readDocComments(
       }
       docxCommentsList.push({
         id: c["@_w:id"],
+        paraId: paraId,
         author: c["@_w:author"] || "",
         date: c["@_w:date"] || "",
         text: text.trim(),
@@ -695,13 +701,24 @@ export async function readDocComments(
         if (parsedExt["w15:commentsEx"] && parsedExt["w15:commentsEx"]["w15:commentEx"]) {
           let exArr = parsedExt["w15:commentsEx"]["w15:commentEx"];
           if (!Array.isArray(exArr)) exArr = [exArr];
+
+          // First pass: if paraId is missing from w:p, maybe we can map 1-to-1
+          if (exArr.length === docxCommentsList.length) {
+            for (let i = 0; i < exArr.length; i++) {
+              if (!docxCommentsList[i].paraId && exArr[i]["@_w15:paraId"]) {
+                docxCommentsList[i].paraId = exArr[i]["@_w15:paraId"];
+              }
+            }
+          }
+
           for (const ex of exArr) {
-            const id = ex["@_w15:paraIdParent"] || ex["@_w15:paraId"] || ex["@_w15:id"];
-            const parentId = ex["@_w15:parentId"];
-            if (id && parentId) {
-              const comment = docxCommentsList.find(c => c.id === id);
-              if (comment) {
-                comment.parentId = parentId;
+            const paraId = ex["@_w15:paraId"];
+            const paraIdParent = ex["@_w15:paraIdParent"];
+            if (paraId && paraIdParent) {
+              const comment = docxCommentsList.find(c => c.paraId === paraId);
+              const parentComment = docxCommentsList.find(c => c.paraId === paraIdParent);
+              if (comment && parentComment) {
+                comment.parentId = parentComment.id;
               }
             }
           }
@@ -724,7 +741,7 @@ export async function readDocComments(
       .sort()
       .map(path => zip.file(path)?.async("string")),
   );
-  const documentParts = [documentXml, ...headerXmls, ...footerXmls].filter((xml): xml is string => !!xml);
+  const documentParts = [...headerXmls, documentXml, ...footerXmls].filter((xml): xml is string => !!xml);
 
   if (documentParts.length > 0) {
     const orderedParser = new XMLParser({

@@ -66,7 +66,7 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
         modifiedTime: undefined,
         resolved: false,
         deleted: false,
-        anchorConfidence: "exact" as const,
+        anchorConfidence: (c.anchoredText ? "exact" : "none") as "exact" | "none",
         inlineObjects: c.inlineObjects,
         replies: includeReplies ? repliesMap[c.id] || [] : [],
         documentPosition: c.documentPosition,
