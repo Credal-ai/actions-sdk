@@ -732,13 +732,13 @@ export async function readDocComments(
   const headerXmls = await Promise.all(
     Object.keys(zip.files)
       .filter(path => /^word\/header\d+\.xml$/u.test(path))
-      .sort()
+      .sort((a, b) => parseInt(a.match(/\d+/)![0], 10) - parseInt(b.match(/\d+/)![0], 10))
       .map(path => zip.file(path)?.async("string")),
   );
   const footerXmls = await Promise.all(
     Object.keys(zip.files)
       .filter(path => /^word\/footer\d+\.xml$/u.test(path))
-      .sort()
+      .sort((a, b) => parseInt(a.match(/\d+/)![0], 10) - parseInt(b.match(/\d+/)![0], 10))
       .map(path => zip.file(path)?.async("string")),
   );
   const documentParts = [...headerXmls, documentXml, ...footerXmls].filter((xml): xml is string => !!xml);

@@ -1,6 +1,7 @@
 import type { googleOauthReadCommentsOnDocFunction } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
-import { GDRIVE_BASE_URL, readDocComments, matchDocxCommentsToDriveComments, type DocxComment } from "../../../utils/google.js";
+import { GDRIVE_BASE_URL, readDocComments, matchDocxCommentsToDriveComments } from "../../../utils/google.js";
+import type { DocxComment } from "../../../utils/google.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authParams, params }) => {

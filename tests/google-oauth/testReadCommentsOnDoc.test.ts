@@ -19,9 +19,9 @@ async function buildDocxWithComments() {
   zip.file(
     "word/comments.xml",
     `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    <w:comments xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+    <w:comments xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml">
       <w:comment w:id="0" w:author="Matthew Betancourt" w:date="2026-05-28T02:20:13Z">
-        <w:p>${textRun("Comment #1 that only highlights one word")}</w:p>
+        <w:p w14:paraId="00000000">${textRun("Comment #1 that only highlights one word")}</w:p>
       </w:comment>
       <w:comment w:id="1" w:author="Matthew Betancourt" w:date="2026-05-28T02:20:37Z">
         <w:p>${textRun("Comment #2 of the same exact word!")}</w:p>
@@ -71,6 +71,9 @@ async function buildDocxWithComments() {
       <w:comment w:id="16" w:author="Matthew Betancourt" w:date="2026-05-28T04:12:07Z">
         <w:p>${textRun("Comment on a tab that is not the first one")}</w:p>
       </w:comment>
+      <w:comment w:id="17" w:author="Matthew Betancourt" w:date="2026-05-28T04:20:00Z">
+        <w:p w14:paraId="11111111">${textRun("This is a reply to Comment 1")}</w:p>
+      </w:comment>
     </w:comments>`,
   );
 
@@ -96,6 +99,15 @@ async function buildDocxWithComments() {
         <w:commentRangeEnd w:id="12"/>
       </w:p>
     </w:ftr>`,
+  );
+
+  zip.file(
+    "word/commentsExtensible.xml",
+    `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <w15:commentsEx xmlns:w15="http://schemas.microsoft.com/office/word/2012/wordml">
+      <w15:commentEx w15:paraId="00000000" w15:done="0" />
+      <w15:commentEx w15:paraId="11111111" w15:paraIdParent="00000000" w15:done="0" />
+    </w15:commentsEx>`
   );
 
   zip.file(
@@ -319,6 +331,24 @@ describe("readDocComments", () => {
           id: "12",
           anchoredText: "Footer for comment test",
           documentPosition: 16,
+        }),
+      ]),
+    );
+  });
+
+  it("extracts threaded replies and maps parentId correctly", async () => {
+    const docx = await buildDocxWithComments();
+    
+    // includeReplies = true
+    const comments = await readDocComments(docx, true);
+
+    // Assert that comment 17 was mapped as a reply to comment 0
+    expect(comments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "17",
+          text: "This is a reply to Comment 1",
+          parentId: "0",
         }),
       ]),
     );
