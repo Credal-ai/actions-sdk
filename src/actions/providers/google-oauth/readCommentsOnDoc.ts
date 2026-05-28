@@ -16,7 +16,7 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
   try {
     // 1. Get file metadata to check mimeType
     const fileMetaRes = await axiosClient.get(
-      `${GDRIVE_BASE_URL}${encodeURIComponent(documentId)}?fields=mimeType&supportsAllDrives=true`,
+      `${GDRIVE_BASE_URL}${encodeURIComponent(documentId)}?fields=mimeType,size&supportsAllDrives=true`,
       {
         headers: { Authorization: `Bearer ${token}` },
       },
@@ -30,6 +30,11 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
       return { success: false, comments: [], error: `Unsupported mimeType: ${mimeType}. Expected Google Doc or DOCX.` };
     }
 
+    const size = fileMetaRes.data.size ? parseInt(fileMetaRes.data.size, 10) : undefined;
+    if (size !== undefined && size > 50 * 1024 * 1024) {
+      return { success: false, comments: [], error: "File exceeds size limit of 50MB." };
+    }
+
     if (isDocx) {
       // PATH B: Raw DOCX file uploaded to Google Drive
       const getFileRes = await axiosClient.get(
@@ -40,14 +45,27 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
         },
       );
 
-      const docxComments = await readDocComments(getFileRes.data, true);
+      const buffer = getFileRes.data;
+      if (buffer.byteLength > 50 * 1024 * 1024) {
+        return { success: false, comments: [], error: "File size exceeds the 50MB limit." };
+      }
+
+      const docxComments = await readDocComments(buffer, true);
 
       // If replies are supported, we need to nest them
       const topLevelComments: DocxComment[] = [];
       const repliesMap: Record<
         string,
-        Array<{ replyId: string; content: string; createdTime: string; author: { displayName: string } }>
-      > = {};
+        Array<{
+          replyId: string;
+          content: string;
+          createdTime: string;
+          modifiedTime: string | undefined;
+          deleted: boolean;
+          action: string | undefined;
+          author: { displayName: string; emailAddress?: string };
+        }>
+      > = Object.create(null);
 
       for (const c of docxComments) {
         if (!includeResolved && c.resolved) continue;
@@ -58,6 +76,9 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
             replyId: c.id,
             content: c.text,
             createdTime: c.date,
+            modifiedTime: c.date,
+            deleted: false,
+            action: undefined,
             author: { displayName: c.author },
           });
         } else {
@@ -83,10 +104,18 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
 
       // Sort by true top-to-bottom document order, fallback to createdTime
       formattedComments.sort((a, b) => {
-        if (a.documentPosition !== undefined && b.documentPosition !== undefined) {
-          return a.documentPosition - b.documentPosition;
+        const posA = a.documentPosition;
+        const posB = b.documentPosition;
+        if (posA !== undefined && posB !== undefined) {
+          if (posA !== posB) return posA - posB;
+        } else if (posA !== undefined) {
+          return -1;
+        } else if (posB !== undefined) {
+          return 1;
         }
-        return new Date(a.createdTime).getTime() - new Date(b.createdTime).getTime();
+        const timeA = new Date(a.createdTime).getTime();
+        const timeB = new Date(b.createdTime).getTime();
+        return (isNaN(timeA) ? 0 : timeA) - (isNaN(timeB) ? 0 : timeB);
       });
 
       return {
@@ -107,8 +136,8 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
         })),
       };
     } else {
-      const fields =
-        "nextPageToken,comments(id,content,quotedFileContent,createdTime,modifiedTime,resolved,deleted,author,replies)";
+      const baseCommentFields = "id,content,quotedFileContent,createdTime,modifiedTime,resolved,deleted,author";
+      const fields = `nextPageToken,comments(${baseCommentFields}${includeReplies ? ",replies" : ""})`;
       const MAX_COMMENT_PAGES = 100;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let allComments: any[] = [];
@@ -175,15 +204,31 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
           },
         );
 
-        const docxComments = await readDocComments(exportRes.data, false);
+        const buffer = exportRes.data;
+        if (buffer.byteLength > 50 * 1024 * 1024) {
+          throw new Error("Exported file size exceeds the 50MB limit.");
+        }
+
+        let docxComments = await readDocComments(buffer, false);
+        if (!includeResolved) {
+          docxComments = docxComments.filter(c => !c.resolved);
+        }
         const joinedComments = matchDocxCommentsToDriveComments(formattedDriveComments, docxComments);
 
         // Sort ascending by true document order, fallback to createdTime
         joinedComments.sort((a, b) => {
-          if (a.documentPosition !== undefined && b.documentPosition !== undefined) {
-            return a.documentPosition - b.documentPosition;
+          const posA = a.documentPosition;
+          const posB = b.documentPosition;
+          if (posA !== undefined && posB !== undefined) {
+            if (posA !== posB) return posA - posB;
+          } else if (posA !== undefined) {
+            return -1;
+          } else if (posB !== undefined) {
+            return 1;
           }
-          return new Date(a.createdTime).getTime() - new Date(b.createdTime).getTime();
+          const timeA = new Date(a.createdTime).getTime();
+          const timeB = new Date(b.createdTime).getTime();
+          return (isNaN(timeA) ? 0 : timeA) - (isNaN(timeB) ? 0 : timeB);
         });
         const orderedComments = joinedComments.map(c => ({
           docxCommentId: c.docxCommentId,
@@ -206,7 +251,10 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
           ...(paginationWarnings.length > 0 ? { warnings: paginationWarnings } : {}),
         };
       } catch (exportErr) {
-        console.warn("Failed to export Google Doc to DOCX for anchor extraction", exportErr);
+        console.warn(
+          "Failed to export Google Doc to DOCX for anchor extraction:",
+          exportErr instanceof Error ? exportErr.message : String(exportErr),
+        );
         // Return without exact anchors if export fails
         const commentsNoAnchors = formattedDriveComments.map(c => ({
           docxCommentId: undefined,
@@ -233,7 +281,7 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
       }
     }
   } catch (err: unknown) {
-    console.error("Error reading comments from doc", err);
+    console.error("Error reading comments from doc:", err instanceof Error ? err.message : String(err));
     return { success: false, comments: [], error: err instanceof Error ? err.message : "Failed to read comments" };
   }
 };

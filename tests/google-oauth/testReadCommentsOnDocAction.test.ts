@@ -242,6 +242,44 @@ describe("readCommentsOnDoc Drive metadata handling", () => {
     ]);
   });
 
+  it("includes normalized DOCX replies from top-level comments when includeReplies is true", async () => {
+    mockGet
+      .mockResolvedValueOnce({
+        data: {
+          mimeType:
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        },
+      })
+      .mockResolvedValueOnce({ data: await buildDocxWithThreadedReply() });
+
+    const result = await readCommentsOnDoc({
+      authParams: AUTH,
+      params: {
+        documentId: "doc-id",
+        includeReplies: true,
+      },
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.comments).toEqual([
+      expect.objectContaining({
+        commentId: "0",
+        content: "Root comment",
+        replies: [
+          {
+            replyId: "17",
+            content: "This is a reply to Comment 1",
+            createdTime: "2026-05-28T04:20:00Z",
+            modifiedTime: "2026-05-28T04:20:00Z",
+            deleted: false,
+            action: undefined,
+            author: { displayName: "Matthew Betancourt" },
+          },
+        ],
+      }),
+    ]);
+  });
+
   it("filters resolved DOCX comments unless includeResolved is true", async () => {
     mockGet
       .mockResolvedValueOnce({
