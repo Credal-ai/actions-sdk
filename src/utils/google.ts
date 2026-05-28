@@ -665,7 +665,9 @@ export async function readDocComments(
       let paraId: string | undefined = undefined;
       if (c["w:p"]) {
         const ps = Array.isArray(c["w:p"]) ? c["w:p"] : [c["w:p"]];
-        for (const p of ps) {
+        for (let i = 0; i < ps.length; i++) {
+          const p = ps[i];
+          if (i > 0) text += "\n";
           if (!paraId && p["@_w14:paraId"]) {
             paraId = p["@_w14:paraId"];
           }

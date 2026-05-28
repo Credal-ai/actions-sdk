@@ -27,7 +27,8 @@ async function buildDocxWithComments() {
         <w:p>${textRun("Comment #2 of the same exact word!")}</w:p>
       </w:comment>
       <w:comment w:id="2" w:author="Matthew Betancourt" w:date="2026-05-28T02:13:29Z">
-        <w:p>${textRun("The highlighted text of this comment may or may not involve two separate paragraphs!")}</w:p>
+        <w:p>${textRun("The highlighted text of this comment")}</w:p>
+        <w:p>${textRun("may or may not involve two separate paragraphs!")}</w:p>
       </w:comment>
       <w:comment w:id="3" w:author="Matthew Betancourt" w:date="2026-05-28T02:19:47Z">
         <w:p>${textRun("how do we handle highlighted comment text that contains a hyperlink???")}</w:p>
@@ -107,7 +108,7 @@ async function buildDocxWithComments() {
     <w15:commentsEx xmlns:w15="http://schemas.microsoft.com/office/word/2012/wordml">
       <w15:commentEx w15:paraId="00000000" w15:done="0" />
       <w15:commentEx w15:paraId="11111111" w15:paraIdParent="00000000" w15:done="0" />
-    </w15:commentsEx>`
+    </w15:commentsEx>`,
   );
 
   zip.file(
@@ -252,6 +253,7 @@ describe("readDocComments", () => {
         }),
         expect.objectContaining({
           id: "2",
+          text: "The highlighted text of this comment\nmay or may not involve two separate paragraphs!",
           anchoredText:
             "Therefore, most experts recommend not placing kittens before 10 or 12 weeks of age (7)1.\nAlthough original socialization status to people is of paramount importance",
           documentPosition: 3,
@@ -338,7 +340,7 @@ describe("readDocComments", () => {
 
   it("extracts threaded replies and maps parentId correctly", async () => {
     const docx = await buildDocxWithComments();
-    
+
     // includeReplies = true
     const comments = await readDocComments(docx, true);
 
@@ -369,6 +371,13 @@ describe("matchDocxCommentsToDriveComments", () => {
         commentId: "drive-0",
         content: "Comment #1 that only highlights one word",
         createdTime: "2026-05-28T02:20:13.982Z",
+        author: { displayName: "Matthew Betancourt" },
+      },
+      {
+        commentId: "drive-2",
+        content:
+          "The highlighted text of this comment\nmay or may not involve two separate paragraphs!",
+        createdTime: "2026-05-28T02:13:29.659Z",
         author: { displayName: "Matthew Betancourt" },
       },
       {
@@ -465,6 +474,14 @@ describe("matchDocxCommentsToDriveComments", () => {
         anchoredText: "cats",
         anchorConfidence: "exact",
         documentPosition: 1,
+      }),
+      expect.objectContaining({
+        commentId: "drive-2",
+        docxCommentId: "2",
+        anchoredText:
+          "Therefore, most experts recommend not placing kittens before 10 or 12 weeks of age (7)1.\nAlthough original socialization status to people is of paramount importance",
+        anchorConfidence: "exact",
+        documentPosition: 3,
       }),
       expect.objectContaining({
         commentId: "drive-7",
