@@ -34,7 +34,7 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
         responseType: "arraybuffer",
       });
 
-      const docxComments = await readDocComments(getFileRes.data, includeReplies);
+      const docxComments = await readDocComments(getFileRes.data, true);
 
       // If replies are supported, we need to nest them
       const topLevelComments: DocxComment[] = [];
@@ -109,7 +109,7 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
 
       // Fetch authoritative comments from Drive API
       do {
-        const url: string = `${GDRIVE_BASE_URL}${encodeURIComponent(documentId)}/comments?fields=${encodeURIComponent(fields)}&includeDeleted=${includeDeleted}&supportsAllDrives=true${pageToken ? `&pageToken=${pageToken}` : ""}`;
+        const url: string = `${GDRIVE_BASE_URL}${encodeURIComponent(documentId)}/comments?fields=${encodeURIComponent(fields)}&includeDeleted=${includeDeleted}&supportsAllDrives=true${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ""}`;
         const res = await axiosClient.get(url, { headers: { Authorization: `Bearer ${token}` } });
 
         if (res.data.comments) {
