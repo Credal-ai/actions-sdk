@@ -179,14 +179,17 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
       // Try to get precise anchors from exported DOCX
       try {
         const exportRes = await axiosClient.get(
-          `${GDRIVE_BASE_URL}${encodeURIComponent(documentId)}/export?mimeType=application/vnd.openxmlformats-officedocument.wordprocessingml.document&supportsAllDrives=true`,
+          `${GDRIVE_BASE_URL}${encodeURIComponent(documentId)}/export?mimeType=application/vnd.openxmlformats-officedocument.wordprocessingml.document`,
           {
             headers: { Authorization: `Bearer ${token}` },
             responseType: "arraybuffer",
           },
         );
 
-        const docxComments = await readDocComments(exportRes.data, false);
+        let docxComments = await readDocComments(exportRes.data, false);
+        if (!includeResolved) {
+          docxComments = docxComments.filter(c => !c.resolved);
+        }
         const joinedComments = matchDocxCommentsToDriveComments(formattedDriveComments, docxComments);
 
         // Sort ascending by true document order, fallback to createdTime

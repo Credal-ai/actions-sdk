@@ -658,6 +658,7 @@ export async function readDocComments(
     attributeNamePrefix: "@_",
     preserveOrder: true,
     trimValues: false,
+    processEntities: false,
   });
   const parsedComments = parser.parse(commentsXml);
 
@@ -721,7 +722,7 @@ export async function readDocComments(
   const commentsExtensibleXml = await zip.file("word/commentsExtensible.xml")?.async("string");
   if (commentsExtensibleXml) {
     try {
-      const extParser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_" });
+      const extParser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_", processEntities: false });
       const parsedExt = extParser.parse(commentsExtensibleXml);
       // Look for w15:commentEx -> w15:parentId and w15:done
       if (parsedExt["w15:commentsEx"] && parsedExt["w15:commentsEx"]["w15:commentEx"]) {
@@ -772,6 +773,7 @@ export async function readDocComments(
       attributeNamePrefix: "@_",
       preserveOrder: true,
       trimValues: false,
+      processEntities: false,
     });
 
     const anchors: Record<
