@@ -19,7 +19,7 @@ async function buildDocxWithComments() {
   zip.file(
     "word/comments.xml",
     `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    <w:comments xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml">
+    <w:comments xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
       <w:comment w:id="0" w:author="Matthew Betancourt" w:date="2026-05-28T02:20:13Z">
         <w:p w14:paraId="00000000">${textRun("Comment #1 that only highlights one word")}</w:p>
       </w:comment>
@@ -31,7 +31,11 @@ async function buildDocxWithComments() {
         <w:p>${textRun("may or may not involve two separate paragraphs!")}</w:p>
       </w:comment>
       <w:comment w:id="3" w:author="Matthew Betancourt" w:date="2026-05-28T02:19:47Z">
-        <w:p>${textRun("how do we handle highlighted comment text that contains a hyperlink???")}</w:p>
+        <w:p>
+          ${textRun("how do we handle ")}
+          <w:hyperlink r:id="rIdComment">${textRun("highlighted comment text")}</w:hyperlink>
+          ${textRun(" that contains a hyperlink???")}
+        </w:p>
       </w:comment>
       <w:comment w:id="4" w:author="Matthew Betancourt" w:date="2026-05-28T02:18:33Z">
         <w:p>${textRun("highlighted text within highlighted text edge case!")}</w:p>
@@ -260,6 +264,7 @@ describe("readDocComments", () => {
         }),
         expect.objectContaining({
           id: "3",
+          text: "how do we handle highlighted comment text that contains a hyperlink???",
           anchoredText:
             "TurnerDC. Cat behaviour and the human/cat relationship. Anim Fam.",
           documentPosition: 4,
@@ -381,6 +386,13 @@ describe("matchDocxCommentsToDriveComments", () => {
         author: { displayName: "Matthew Betancourt" },
       },
       {
+        commentId: "drive-3",
+        content:
+          "how do we handle highlighted comment text that contains a hyperlink???",
+        createdTime: "2026-05-28T02:19:47.777Z",
+        author: { displayName: "Matthew Betancourt" },
+      },
+      {
         commentId: "drive-7",
         content: "commenting on this because it contains mixed styles",
         createdTime: "2026-05-28T03:18:33.794Z",
@@ -484,6 +496,14 @@ describe("matchDocxCommentsToDriveComments", () => {
         documentPosition: 3,
       }),
       expect.objectContaining({
+        commentId: "drive-3",
+        docxCommentId: "3",
+        anchoredText:
+          "TurnerDC. Cat behaviour and the human/cat relationship. Anim Fam.",
+        anchorConfidence: "exact",
+        documentPosition: 4,
+      }),
+      expect.objectContaining({
         commentId: "drive-7",
         docxCommentId: "7",
         anchoredText:
@@ -575,6 +595,45 @@ describe("matchDocxCommentsToDriveComments", () => {
         anchoredText: "Footer for comment test",
         anchorConfidence: "exact",
         documentPosition: 16,
+      }),
+    ]);
+  });
+
+  it("does not claim exact anchors for ambiguous duplicate join keys", () => {
+    const matched = matchDocxCommentsToDriveComments(
+      [
+        {
+          commentId: "drive-duplicate",
+          content: "same comment",
+          createdTime: "2026-05-28T02:20:13.982Z",
+          anchoredText: "fallback anchor",
+          author: { displayName: "Matthew Betancourt" },
+        },
+      ],
+      [
+        {
+          id: "0",
+          author: "Matthew Betancourt",
+          date: "2026-05-28T02:20:13Z",
+          text: "same comment",
+          anchoredText: "first anchor",
+        },
+        {
+          id: "1",
+          author: "Matthew Betancourt",
+          date: "2026-05-28T02:20:13Z",
+          text: "same comment",
+          anchoredText: "second anchor",
+        },
+      ],
+    );
+
+    expect(matched).toEqual([
+      expect.objectContaining({
+        commentId: "drive-duplicate",
+        docxCommentId: undefined,
+        anchoredText: "fallback anchor",
+        anchorConfidence: "none",
       }),
     ]);
   });

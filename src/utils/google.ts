@@ -653,44 +653,62 @@ export async function readDocComments(
 
   const documentXml = await zip.file("word/document.xml")?.async("string");
 
-  const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_" });
+  const parser = new XMLParser({
+    ignoreAttributes: false,
+    attributeNamePrefix: "@_",
+    preserveOrder: true,
+    trimValues: false,
+  });
   const parsedComments = parser.parse(commentsXml);
 
   const docxCommentsList: DocxComment[] = [];
-  if (parsedComments["w:comments"] && parsedComments["w:comments"]["w:comment"]) {
-    let commentsArr = parsedComments["w:comments"]["w:comment"];
-    if (!Array.isArray(commentsArr)) commentsArr = [commentsArr];
 
-    for (const c of commentsArr) {
-      let text = "";
-      let paraId: string | undefined = undefined;
-      if (c["w:p"]) {
-        const ps = Array.isArray(c["w:p"]) ? c["w:p"] : [c["w:p"]];
-        for (let i = 0; i < ps.length; i++) {
-          const p = ps[i];
-          if (i > 0) text += "\n";
-          if (!paraId && p["@_w14:paraId"]) {
-            paraId = p["@_w14:paraId"];
-          }
-          if (p["w:r"]) {
-            const rs = Array.isArray(p["w:r"]) ? p["w:r"] : [p["w:r"]];
-            for (const r of rs) {
-              if (r["w:t"]) {
-                const t = r["w:t"];
-                text += typeof t === "string" ? t : t["#text"] || "";
-              }
-            }
-          }
-        }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function extractTextFromOrderedNodes(nodes: any, collectText = false): string {
+    if (!nodes) return "";
+    if (Array.isArray(nodes)) return nodes.map(node => extractTextFromOrderedNodes(node, collectText)).join("");
+    if (typeof nodes !== "object") return typeof nodes === "string" ? nodes : "";
+
+    let text = "";
+    for (const key in nodes) {
+      if (key === "#text") {
+        text += collectText ? extractTextFromOrderedNodes(nodes[key], collectText) : "";
+      } else if (key === "w:t") {
+        text += extractTextFromOrderedNodes(nodes[key], true);
+      } else if (key !== ":@") {
+        text += extractTextFromOrderedNodes(nodes[key], collectText);
       }
-      docxCommentsList.push({
-        id: c["@_w:id"],
-        paraId: paraId,
-        author: c["@_w:author"] || "",
-        date: c["@_w:date"] || "",
-        text: text.trim(),
-      });
     }
+    return text;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const commentsRoot = parsedComments.find((node: any) => node["w:comments"])?.["w:comments"] || [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const commentsArr = commentsRoot.filter((node: any) => node["w:comment"]);
+
+  for (const c of commentsArr) {
+    const attrs = c[":@"] || {};
+    const paragraphs = c["w:comment"].filter((node: Record<string, unknown>) => node["w:p"]);
+    let text = "";
+    let paraId: string | undefined = undefined;
+
+    for (let i = 0; i < paragraphs.length; i++) {
+      const p = paragraphs[i];
+      if (i > 0) text += "\n";
+      if (!paraId && p[":@"]?.["@_w14:paraId"]) {
+        paraId = p[":@"]["@_w14:paraId"];
+      }
+      text += extractTextFromOrderedNodes(p["w:p"]);
+    }
+
+    docxCommentsList.push({
+      id: attrs["@_w:id"],
+      paraId: paraId,
+      author: attrs["@_w:author"] || "",
+      date: attrs["@_w:date"] || "",
+      text: text.trim(),
+    });
   }
 
   // Parse replies if requested (for native DOCX files)
@@ -915,13 +933,13 @@ export function matchDocxCommentsToDriveComments<T extends DriveCommentForMatchi
   docxComments: DocxComment[],
 ) {
   // Build an index keyed on author|truncatedSeconds|text for O(n+m) matching
-  const docxIndex = new Map<string, DocxComment>();
+  const docxIndex = new Map<string, DocxComment[]>();
   for (const xc of docxComments) {
     const seconds = Math.floor(new Date(xc.date).getTime() / 1000);
     const key = `${xc.author}|${seconds}|${xc.text}`;
-    if (!docxIndex.has(key)) {
-      docxIndex.set(key, xc);
-    }
+    const matches = docxIndex.get(key) || [];
+    matches.push(xc);
+    docxIndex.set(key, matches);
   }
 
   return driveComments.map(dc => {
@@ -929,7 +947,8 @@ export function matchDocxCommentsToDriveComments<T extends DriveCommentForMatchi
     const dcText = (dc.content || "").trim();
     const seconds = Math.floor(new Date(dc.createdTime).getTime() / 1000);
     const key = `${dcAuthor}|${seconds}|${dcText}`;
-    const match = docxIndex.get(key);
+    const matches = docxIndex.get(key) || [];
+    const match = matches.length === 1 ? matches.shift() : undefined;
 
     return {
       ...dc,

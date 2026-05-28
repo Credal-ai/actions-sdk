@@ -15,9 +15,12 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
 
   try {
     // 1. Get file metadata to check mimeType
-    const fileMetaRes = await axiosClient.get(`${GDRIVE_BASE_URL}${encodeURIComponent(documentId)}?fields=mimeType`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const fileMetaRes = await axiosClient.get(
+      `${GDRIVE_BASE_URL}${encodeURIComponent(documentId)}?fields=mimeType&supportsAllDrives=true`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
 
     const mimeType = fileMetaRes.data.mimeType;
     const isGoogleDoc = mimeType === "application/vnd.google-apps.document";
@@ -29,10 +32,13 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
 
     if (isDocx) {
       // PATH B: Raw DOCX file uploaded to Google Drive
-      const getFileRes = await axiosClient.get(`${GDRIVE_BASE_URL}${encodeURIComponent(documentId)}?alt=media`, {
-        headers: { Authorization: `Bearer ${token}` },
-        responseType: "arraybuffer",
-      });
+      const getFileRes = await axiosClient.get(
+        `${GDRIVE_BASE_URL}${encodeURIComponent(documentId)}?alt=media&supportsAllDrives=true`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          responseType: "arraybuffer",
+        },
+      );
 
       const docxComments = await readDocComments(getFileRes.data, true);
 
@@ -121,6 +127,13 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
         pageCount++;
       } while (pageToken && pageCount < MAX_COMMENT_PAGES);
 
+      const paginationWarnings: string[] = [];
+      if (pageToken && pageCount >= MAX_COMMENT_PAGES) {
+        paginationWarnings.push(
+          `Comment pagination was capped at ${MAX_COMMENT_PAGES} pages; some comments may have been omitted.`,
+        );
+      }
+
       // Filter resolved comments if necessary
       if (!includeResolved) {
         allComments = allComments.filter(c => !c.resolved);
@@ -132,7 +145,7 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
         if (!includeReplies) replies = [];
         return {
           commentId: c.id,
-          content: c.content,
+          content: c.content ?? undefined,
           anchoredText: c.quotedFileContent?.value || undefined,
           createdTime: c.createdTime,
           modifiedTime: c.modifiedTime,
@@ -142,7 +155,7 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           replies: replies.map((r: any) => ({
             replyId: r.id,
-            content: r.content,
+            content: r.content ?? undefined,
             createdTime: r.createdTime,
             modifiedTime: r.modifiedTime,
             deleted: !!r.deleted,
@@ -187,7 +200,11 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
           replies: c.replies,
         }));
 
-        return { success: true, comments: orderedComments };
+        return {
+          success: true,
+          comments: orderedComments,
+          ...(paginationWarnings.length > 0 ? { warnings: paginationWarnings } : {}),
+        };
       } catch (exportErr) {
         console.warn("Failed to export Google Doc to DOCX for anchor extraction", exportErr);
         // Return without exact anchors if export fails
@@ -211,7 +228,7 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
         return {
           success: true,
           comments: commentsNoAnchors,
-          warnings: ["Could not export DOCX to extract precise text anchors."],
+          warnings: [...paginationWarnings, "Could not export DOCX to extract precise text anchors."],
         };
       }
     }

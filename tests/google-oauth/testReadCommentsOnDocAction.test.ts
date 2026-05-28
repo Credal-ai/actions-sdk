@@ -135,14 +135,14 @@ describe("readCommentsOnDoc Drive metadata handling", () => {
     expect(result.comments).toEqual([
       expect.objectContaining({
         commentId: "deleted-comment",
-        content: null,
+        content: undefined,
         deleted: true,
         resolved: false,
         anchorConfidence: "none",
         replies: [
           expect.objectContaining({
             replyId: "deleted-reply",
-            content: null,
+            content: undefined,
             deleted: true,
           }),
         ],
@@ -150,6 +150,7 @@ describe("readCommentsOnDoc Drive metadata handling", () => {
     ]);
 
     expect(mockGet.mock.calls[1][0]).toContain("includeDeleted=true");
+    expect(mockGet.mock.calls[0][0]).toContain("supportsAllDrives=true");
   });
 
   it("includes resolved comments when includeResolved is true", async () => {
@@ -231,6 +232,7 @@ describe("readCommentsOnDoc Drive metadata handling", () => {
     });
 
     expect(result.success).toBe(true);
+    expect(mockGet.mock.calls[1][0]).toContain("supportsAllDrives=true");
     expect(result.comments).toEqual([
       expect.objectContaining({
         commentId: "0",
@@ -319,5 +321,49 @@ describe("readCommentsOnDoc Drive metadata handling", () => {
 
     expect(result.success).toBe(true);
     expect(mockGet.mock.calls[2][0]).toContain("pageToken=abc%2B123%2F%3D%3D");
+  });
+
+  it("warns when Drive comment pagination is capped", async () => {
+    mockGet.mockResolvedValueOnce({
+      data: { mimeType: "application/vnd.google-apps.document" },
+    });
+
+    for (let i = 0; i < 100; i++) {
+      mockGet.mockResolvedValueOnce({
+        data: {
+          comments: [
+            {
+              id: `comment-${i}`,
+              content: `Comment ${i}`,
+              createdTime: "2026-05-28T03:44:15.852Z",
+              modifiedTime: "2026-05-28T03:44:15.852Z",
+              resolved: false,
+              deleted: false,
+              author: { displayName: "Matthew Betancourt" },
+              replies: [],
+            },
+          ],
+          nextPageToken: `token-${i}`,
+        },
+      });
+    }
+
+    mockGet.mockRejectedValueOnce(
+      new Error("DOCX export unavailable in unit test"),
+    );
+
+    const result = await readCommentsOnDoc({
+      authParams: AUTH,
+      params: {
+        documentId: "doc-id",
+      },
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.comments).toHaveLength(100);
+    expect(result.warnings).toEqual([
+      "Comment pagination was capped at 100 pages; some comments may have been omitted.",
+      "Could not export DOCX to extract precise text anchors.",
+    ]);
   });
 });
