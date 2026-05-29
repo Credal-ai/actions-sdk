@@ -35,8 +35,11 @@ export async function readDocComments(
     const uncompressedSize = (fileObj as any)._data?.uncompressedSize;
     // Treat a missing uncompressedSize as unknown — reject rather than silently
     // allow through, since || 0 would bypass the guard on encrypted/future entries.
-    if (uncompressedSize === undefined || uncompressedSize > 20 * 1024 * 1024) {
-      throw new Error(`File ${path} exceeds decompression safety limit or has unknown size.`);
+    if (uncompressedSize === undefined) {
+      throw new Error(`File ${path} has unknown uncompressed size; cannot safely decompress.`);
+    }
+    if (uncompressedSize > 20 * 1024 * 1024) {
+      throw new Error(`File ${path} exceeds the 20 MB decompression safety limit.`);
     }
     return fileObj.async("string");
   }

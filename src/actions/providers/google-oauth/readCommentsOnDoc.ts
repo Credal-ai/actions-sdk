@@ -119,8 +119,14 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
         return (isNaN(timeA) ? 0 : timeA) - (isNaN(timeB) ? 0 : timeB);
       });
 
+      const docxWarnings: string[] = [];
+      if (includeDeleted) {
+        docxWarnings.push("includeDeleted is not supported for native DOCX files and was ignored.");
+      }
+
       return {
         success: true,
+        warnings: docxWarnings.length > 0 ? docxWarnings : undefined,
         comments: formattedComments.map(c => ({
           docxCommentId: c.docxCommentId,
           commentId: c.commentId,
