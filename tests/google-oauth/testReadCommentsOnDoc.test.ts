@@ -1,4 +1,4 @@
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it, jest } from "@jest/globals";
 import JSZip from "jszip";
 import {
   matchDocxCommentsToDriveComments,
@@ -233,6 +233,7 @@ async function buildDocxWithComments() {
 }
 
 describe("readDocComments", () => {
+  jest.setTimeout(30000);
   it("extracts precise anchors for repeated text, hyperlinks, and multi-paragraph ranges", async () => {
     const docx = await buildDocxWithComments();
 

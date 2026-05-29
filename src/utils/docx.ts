@@ -326,14 +326,17 @@ export async function readDocComments(
             traverseDoc(node[key], depth + 1);
             appendTextToActiveAnchors("\n");
           } else if (key === "w:commentRangeStart") {
-            const id = node[":@"]?.["@_w:id"];
-            if (id) {
+            const rawId = node[":@"]?.["@_w:id"];
+            if (rawId !== undefined) {
+              const id = String(rawId);
               activeIds.add(id);
               ensureAnchor(id);
             }
           } else if (key === "w:commentRangeEnd") {
-            const id = node[":@"]?.["@_w:id"];
-            if (id) activeIds.delete(id);
+            const rawId = node[":@"]?.["@_w:id"];
+            if (rawId !== undefined) {
+              activeIds.delete(String(rawId));
+            }
           } else if (key === "w:t") {
             appendTextToActiveAnchors(extractTextFromTextNode(node[key], depth + 1));
           } else if (key === "w:drawing" || key === "w:pict") {
