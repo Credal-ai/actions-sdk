@@ -6136,8 +6136,8 @@ export const googleOauthCreateNewGoogleDocDefinition: ActionTemplate = {
         "provider": "googleOauth"
     };
 export const googleOauthReadCommentsOnDocDefinition: ActionTemplate = {
-        "displayName": "Read comments on a Google Doc (Beta)",
-        "description": "Read Google Doc comments with Drive metadata and exact anchor mapping from DOCX export or raw uploaded DOCX files (Beta Feature)",
+        "displayName": "Read comments on a Google Doc",
+        "description": "Read Google Doc comments with Drive metadata and exact anchor mapping from DOCX export or raw uploaded DOCX files",
         "scopes": [
             "drive.readonly"
         ],
