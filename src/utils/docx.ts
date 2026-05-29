@@ -44,10 +44,11 @@ export async function readDocComments(
         totalBytes += chunk.length;
         if (totalBytes > 20 * 1024 * 1024) {
           // Instantly sever the stream if it crosses the 20MB threshold
-          if (typeof (stream as any).destroy === "function") {
-            (stream as any).destroy();
-          } else if (typeof (stream as any).pause === "function") {
-            (stream as any).pause();
+          const safeStream = stream as unknown as { destroy?: () => void; pause?: () => void };
+          if (typeof safeStream.destroy === "function") {
+            safeStream.destroy();
+          } else if (typeof safeStream.pause === "function") {
+            safeStream.pause();
           }
           reject(new Error(`File ${path} exceeds the 20 MB decompression safety limit.`));
         } else {
@@ -114,6 +115,10 @@ export async function readDocComments(
 
   for (const c of commentsArr) {
     const attrs = c[":@"] || {};
+    let id = attrs["@_w:id"];
+    if (id === undefined || id === null) continue;
+    id = String(id);
+
     const commentNodes = Array.isArray(c["w:comment"]) ? c["w:comment"] : [];
     const paragraphs = commentNodes.filter((node: Record<string, unknown>) => node["w:p"]);
     let text = "";
@@ -129,7 +134,7 @@ export async function readDocComments(
     }
 
     docxCommentsList.push({
-      id: attrs["@_w:id"],
+      id: id,
       paraId: paraId,
       author: attrs["@_w:author"] || "",
       date: attrs["@_w:date"] || "",
@@ -341,6 +346,7 @@ export async function readDocComments(
     }
 
     for (const xml of documentParts) {
+      activeIds.clear();
       traverseDoc(orderedParser.parse(xml));
     }
 
