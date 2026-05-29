@@ -50,6 +50,7 @@ export async function readDocComments(
           } else if (typeof safeStream.pause === "function") {
             safeStream.pause();
           }
+          chunks.length = 0;
           reject(new Error(`File ${path} exceeds the 20 MB decompression safety limit.`));
         } else {
           chunks.push(chunk);
@@ -76,7 +77,7 @@ export async function readDocComments(
     attributeNamePrefix: "@_",
     preserveOrder: true,
     trimValues: false,
-    processEntities: false,
+    processEntities: true,
     parseTagValue: false,
   });
   const parsedComments = parser.parse(commentsXml);
@@ -146,7 +147,7 @@ export async function readDocComments(
   const commentsExtensibleXml = await safeReadZipString("word/commentsExtensible.xml");
   if (commentsExtensibleXml) {
     try {
-      const extParser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_", processEntities: false });
+      const extParser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_", processEntities: true });
       const parsedExt = extParser.parse(commentsExtensibleXml);
       // Look for w15:commentEx -> w15:parentId and w15:done
       if (parsedExt["w15:commentsEx"] && parsedExt["w15:commentsEx"]["w15:commentEx"]) {
@@ -177,18 +178,21 @@ export async function readDocComments(
     }
   }
 
-  const headerXmls = await Promise.all(
-    Object.keys(zip.files)
-      .filter(path => /^word\/header\d+\.xml$/u.test(path))
-      .sort((a, b) => parseInt(a.match(/\d+/)![0], 10) - parseInt(b.match(/\d+/)![0], 10))
-      .map(path => safeReadZipString(path)),
-  );
-  const footerXmls = await Promise.all(
-    Object.keys(zip.files)
-      .filter(path => /^word\/footer\d+\.xml$/u.test(path))
-      .sort((a, b) => parseInt(a.match(/\d+/)![0], 10) - parseInt(b.match(/\d+/)![0], 10))
-      .map(path => safeReadZipString(path)),
-  );
+  const headerXmls: string[] = [];
+  for (const path of Object.keys(zip.files)
+    .filter(path => /^word\/header\d+\.xml$/u.test(path))
+    .sort((a, b) => parseInt(a.match(/\d+/)![0], 10) - parseInt(b.match(/\d+/)![0], 10))) {
+    const xml = await safeReadZipString(path);
+    if (xml) headerXmls.push(xml);
+  }
+
+  const footerXmls: string[] = [];
+  for (const path of Object.keys(zip.files)
+    .filter(path => /^word\/footer\d+\.xml$/u.test(path))
+    .sort((a, b) => parseInt(a.match(/\d+/)![0], 10) - parseInt(b.match(/\d+/)![0], 10))) {
+    const xml = await safeReadZipString(path);
+    if (xml) footerXmls.push(xml);
+  }
   const documentParts = [...headerXmls, documentXml, ...footerXmls].filter((xml): xml is string => !!xml);
 
   if (documentParts.length > 0) {
@@ -197,7 +201,7 @@ export async function readDocComments(
       attributeNamePrefix: "@_",
       preserveOrder: true,
       trimValues: false,
-      processEntities: false,
+      processEntities: true,
       parseTagValue: false,
     });
 
