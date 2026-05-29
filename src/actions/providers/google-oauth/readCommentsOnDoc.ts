@@ -1,7 +1,8 @@
 import type { googleOauthReadCommentsOnDocFunction } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
-import { GDRIVE_BASE_URL, readDocComments, matchDocxCommentsToDriveComments } from "../../../utils/google.js";
-import type { DocxComment } from "../../../utils/google.js";
+import { GDRIVE_BASE_URL } from "../../../utils/google.js";
+import { readDocComments, matchDocxCommentsToDriveComments } from "../../../utils/docx.js";
+import type { DocxComment } from "../../../utils/docx.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
 const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authParams, params }) => {
@@ -146,7 +147,7 @@ const readCommentsOnDoc: googleOauthReadCommentsOnDocFunction = async ({ authPar
 
       // Fetch authoritative comments from Drive API
       do {
-        const url: string = `${GDRIVE_BASE_URL}${encodeURIComponent(documentId)}/comments?fields=${encodeURIComponent(fields)}&includeDeleted=${includeDeleted}&supportsAllDrives=true${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ""}`;
+        const url: string = `${GDRIVE_BASE_URL}${encodeURIComponent(documentId)}/comments?fields=${encodeURIComponent(fields)}&includeDeleted=${includeDeleted}&supportsAllDrives=true&pageSize=100${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ""}`;
         const res = await axiosClient.get(url, { headers: { Authorization: `Bearer ${token}` } });
 
         if (res.data.comments) {

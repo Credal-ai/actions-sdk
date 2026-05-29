@@ -3,7 +3,7 @@ import JSZip from "jszip";
 import {
   matchDocxCommentsToDriveComments,
   readDocComments,
-} from "../../src/utils/google";
+} from "../../src/utils/docx";
 
 function textRun(text: string) {
   return `<w:r><w:t>${text}</w:t></w:r>`;
