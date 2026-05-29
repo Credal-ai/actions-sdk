@@ -31,17 +31,38 @@ export async function readDocComments(
   async function safeReadZipString(path: string): Promise<string | undefined> {
     const fileObj = zip.file(path);
     if (!fileObj) return undefined;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const uncompressedSize = (fileObj as any)._data?.uncompressedSize;
-    // Treat a missing uncompressedSize as unknown — reject rather than silently
-    // allow through, since || 0 would bypass the guard on encrypted/future entries.
-    if (uncompressedSize === undefined) {
-      throw new Error(`File ${path} has unknown uncompressed size; cannot safely decompress.`);
-    }
-    if (uncompressedSize > 20 * 1024 * 1024) {
-      throw new Error(`File ${path} exceeds the 20 MB decompression safety limit.`);
-    }
-    return fileObj.async("string");
+
+    return new Promise((resolve, reject) => {
+      let totalBytes = 0;
+      const chunks: Buffer[] = [];
+      
+      // Use Node.js streaming to physically count bytes during decompression
+      // This protects against forged headers in Zip Bomb attacks.
+      const stream = fileObj.nodeStream();
+
+      stream.on("data", (chunk: Buffer) => {
+        totalBytes += chunk.length;
+        if (totalBytes > 20 * 1024 * 1024) {
+          // Instantly sever the stream if it crosses the 20MB threshold
+          if (typeof (stream as any).destroy === "function") {
+            (stream as any).destroy();
+          } else if (typeof (stream as any).pause === "function") {
+            (stream as any).pause();
+          }
+          reject(new Error(`File ${path} exceeds the 20 MB decompression safety limit.`));
+        } else {
+          chunks.push(chunk);
+        }
+      });
+
+      stream.on("end", () => {
+        resolve(Buffer.concat(chunks).toString("utf-8"));
+      });
+
+      stream.on("error", (err: Error) => {
+        reject(err);
+      });
+    });
   }
 
   const commentsXml = await safeReadZipString("word/comments.xml");
