@@ -30,6 +30,7 @@
   "license": "ISC",
   "devDependencies": {
     "@eslint/js": "^10.0.0",
+    "@googleapis/docs": "^9.2.1",
     "@jest/globals": "^29.7.0",
     "@types/html-to-text": "^9.0.4",
     "@types/js-yaml": "^4.0.9",
@@ -48,8 +49,7 @@
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.2",
-    "typescript-eslint": "^8.56.0",
-    "@googleapis/docs": "^9.2.1"
+    "typescript-eslint": "^8.56.0"
   },
   "dependencies": {
     "@mendable/firecrawl-js": "^4.3.4",
@@ -64,10 +64,12 @@
     "date-fns": "^4.1.0",
     "docx": "^9.3.0",
     "dotenv": "^16.4.7",
+    "fast-xml-parser": "^5.8.0",
     "html-to-text": "^9.0.5",
     "jira.js": "^5.2.2",
     "json-schema-to-zod": "^2.5.0",
     "jsonwebtoken": "^9.0.2",
+    "jszip": "^3.10.1",
     "limiter": "^3.0.0",
     "mammoth": "^1.11.00",
     "marked": "^16.3.0",
@@ -88,7 +90,7 @@
   "overrides": {
     "@xmldom/xmldom": "^0.8.13",
     "axios": "^1.15.2",
-    "fast-xml-parser": "^5.7.0",
+    "fast-xml-parser": "^5.8.0",
     "minimatch": "^10.2.1",
     "file-type": "^22.0.0"
   }
