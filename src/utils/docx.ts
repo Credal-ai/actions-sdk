@@ -83,7 +83,8 @@ export async function readDocComments(
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const commentsRoot = parsedComments.find((node: any) => node["w:comments"])?.["w:comments"] || [];
+  const commentsRootRaw = parsedComments.find((node: any) => node["w:comments"])?.["w:comments"];
+  const commentsRoot = Array.isArray(commentsRootRaw) ? commentsRootRaw : [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const commentsArr = commentsRoot.filter((node: any) => node["w:comment"]);
 
