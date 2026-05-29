@@ -656,9 +656,11 @@ export async function readDocComments(
     const fileObj = zip.file(path);
     if (!fileObj) return undefined;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const decompressedSize = (fileObj as any)._data?.uncompressedSize || 0;
-    if (decompressedSize > 20 * 1024 * 1024) { // 20MB limit
-      throw new Error(`File ${path} exceeds decompression safety limit of 20MB.`);
+    const uncompressedSize = (fileObj as any)._data?.uncompressedSize;
+    // Treat a missing uncompressedSize as unknown — reject rather than silently
+    // allow through, since || 0 would bypass the guard on encrypted/future entries.
+    if (uncompressedSize === undefined || uncompressedSize > 20 * 1024 * 1024) {
+      throw new Error(`File ${path} exceeds decompression safety limit or has unknown size.`);
     }
     return fileObj.async("string");
   }
