@@ -10694,8 +10694,8 @@ export const oktaOrgGetOktaUserByNameDefinition: ActionTemplate = {
   provider: "oktaOrg",
 };
 export const finnhubSymbolLookupDefinition: ActionTemplate = {
-  displayName: "Look up a stock symbol",
-  description: "Look up a stock symbol by name",
+  displayName: "Look up a security",
+  description: "Look up a security by ticker symbol or name",
   scopes: [],
   tags: [],
   parameters: {
@@ -10704,7 +10704,7 @@ export const finnhubSymbolLookupDefinition: ActionTemplate = {
     properties: {
       query: {
         type: "string",
-        description: "The symbol or colloquial name of the company to look up",
+        description: "The ticker symbol, name, ISIN, or CUSIP of the security to look up",
       },
     },
   },
@@ -10714,18 +10714,19 @@ export const finnhubSymbolLookupDefinition: ActionTemplate = {
     properties: {
       result: {
         type: "array",
-        description: "The results of the symbol lookup",
+        description: "The results of the lookup",
         items: {
           type: "object",
-          description: "The metadata of the stock",
+          description: "The metadata of the security",
+          required: ["symbol", "description"],
           properties: {
             symbol: {
               type: "string",
-              description: "The symbol of the stock",
+              description: "The symbol of the security",
             },
             description: {
               type: "string",
-              description: "The description of the stock",
+              description: "The description of the security",
             },
           },
         },
