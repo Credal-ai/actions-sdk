@@ -2284,6 +2284,13 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
                   nullable: true,
                   format: "date",
                 },
+                labels: {
+                  type: "array",
+                  description: "The labels assigned to the issue (empty array if none)",
+                  items: {
+                    type: "string",
+                  },
+                },
               },
             },
           },
@@ -3165,6 +3172,13 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
                   nullable: true,
                   format: "date",
                 },
+                labels: {
+                  type: "array",
+                  description: "The labels assigned to the issue (empty array if none)",
+                  items: {
+                    type: "string",
+                  },
+                },
               },
             },
           },
@@ -4030,6 +4044,13 @@ export const jiraDataCenterGetJiraIssuesByQueryDefinition: ActionTemplate = {
                   type: "string",
                   nullable: true,
                   format: "date",
+                },
+                labels: {
+                  type: "array",
+                  description: "The labels assigned to the issue (empty array if none)",
+                  items: {
+                    type: "string",
+                  },
                 },
               },
             },
