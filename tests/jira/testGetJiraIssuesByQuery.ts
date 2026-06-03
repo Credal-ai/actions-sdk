@@ -28,6 +28,10 @@ async function testGetJiraIssuesByQuery(config: JiraTestConfig) {
   assert.ok(page1.results[0].name, "first result should have a key");
   assert.ok(page1.results[0].url, "first result should have a url");
   assert.ok(page1.results[0].contents, "first result should have contents");
+  assert.ok(
+    Array.isArray(page1.results[0].contents.labels),
+    "first result's contents should include a labels array (empty if the issue has no labels)",
+  );
 
   // Pagination: if nextPageToken is present, fetch page 2
   if (page1.nextPageToken) {
@@ -45,6 +49,10 @@ async function testGetJiraIssuesByQuery(config: JiraTestConfig) {
 
     assert.strictEqual(page2.error, undefined);
     assert.ok(page2.results && page2.results.length > 0, "page 2 should have results");
+    assert.ok(
+      Array.isArray(page2.results[0].contents.labels),
+      "page 2 result's contents should include a labels array (empty if the issue has no labels)",
+    );
 
     // Keys on page 2 must not overlap with page 1
     const page1Keys = new Set(page1.results!.map(r => r.name));

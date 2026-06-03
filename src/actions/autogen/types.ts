@@ -1346,6 +1346,7 @@ export const jiraGetJiraIssuesByQueryOutputSchema = z.object({
             updated: z.string().datetime({ offset: true }),
             resolution: z.string().nullable().optional(),
             dueDate: z.string().date().nullable().optional(),
+            labels: z.array(z.string()).describe("The labels assigned to the issue (empty array if none)").optional(),
           })
           .describe("The result object containing issues"),
       }),
@@ -1795,6 +1796,7 @@ export const jiraOrgGetJiraIssuesByQueryOutputSchema = z.object({
             updated: z.string().datetime({ offset: true }),
             resolution: z.string().nullable().optional(),
             dueDate: z.string().date().nullable().optional(),
+            labels: z.array(z.string()).describe("The labels assigned to the issue (empty array if none)").optional(),
           })
           .describe("The result object containing issues"),
       }),
@@ -2252,6 +2254,7 @@ export const jiraDataCenterGetJiraIssuesByQueryOutputSchema = z.object({
             updated: z.string().datetime({ offset: true }),
             resolution: z.string().nullable().optional(),
             dueDate: z.string().date().nullable().optional(),
+            labels: z.array(z.string()).describe("The labels assigned to the issue (empty array if none)").optional(),
           })
           .describe("The result object containing issues"),
       }),

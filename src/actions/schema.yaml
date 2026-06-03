@@ -1649,6 +1649,11 @@ actions:
                       type: string
                       nullable: true
                       format: date
+                    labels:
+                      type: array
+                      description: The labels assigned to the issue (empty array if none)
+                      items:
+                        type: string
           error:
             type: string
             description: The error that occurred if the records were not successfully retrieved
