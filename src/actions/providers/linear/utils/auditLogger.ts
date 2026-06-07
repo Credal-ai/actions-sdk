@@ -37,18 +37,22 @@ export interface AuditEntry {
 }
 
 export function logAction(entry: AuditEntry): void {
-  const database = getDb();
-  const stmt = database.prepare(`
-    INSERT INTO audit_log (timestamp, user_email, action_name, provider, input_args, result_summary, error)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `);
-  stmt.run(
-    entry.timestamp,
-    entry.userEmail ?? null,
-    entry.actionName,
-    entry.provider,
-    entry.inputArgs,
-    entry.resultSummary,
-    entry.error ?? null,
-  );
+  try {
+    const database = getDb();
+    const stmt = database.prepare(`
+      INSERT INTO audit_log (timestamp, user_email, action_name, provider, input_args, result_summary, error)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `);
+    stmt.run(
+      entry.timestamp,
+      entry.userEmail ?? null,
+      entry.actionName,
+      entry.provider,
+      entry.inputArgs,
+      entry.resultSummary,
+      entry.error ?? null,
+    );
+  } catch (err) {
+    console.error("[auditLogger] Failed to write audit log entry:", err);
+  }
 }

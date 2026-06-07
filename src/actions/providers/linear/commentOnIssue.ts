@@ -105,7 +105,7 @@ const commentOnIssue: linearCommentOnIssueFunction = async ({
       commentId: result.comment.id,
     };
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : "Unknown error";
+    const errorMsg = redactPII(error instanceof Error ? error.message : "Unknown error");
     logAction({
       timestamp: new Date().toISOString(),
       actionName: "commentOnIssue",
