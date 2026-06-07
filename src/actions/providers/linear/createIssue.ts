@@ -3,7 +3,9 @@ import type {
   linearCreateIssueFunction,
   linearCreateIssueOutputType,
   linearCreateIssueParamsType,
-} from "../../autogen/types";
+} from "../../autogen/types.js";
+import { redactPII } from "./utils/piiRedaction.js";
+import { logAction } from "./utils/auditLogger.js";
 
 const createIssue: linearCreateIssueFunction = async ({
   params,
@@ -13,10 +15,42 @@ const createIssue: linearCreateIssueFunction = async ({
   authParams: AuthParamsType;
 }): Promise<linearCreateIssueOutputType> => {
   const { authToken } = authParams;
-  const { title, description, teamId, assigneeId, priority, projectId, dueDate, labelIds, estimate } = params;
+  const { title, description, teamId, assigneeId, priority, projectId, dueDate, labelIds, estimate, approved } = params;
 
   if (!authToken) {
     throw new Error("Valid auth token is required to create a Linear issue");
+  }
+
+  const redactedTitle = redactPII(title);
+  const redactedDescription = description !== undefined ? redactPII(description) : undefined;
+
+  if (!approved) {
+    logAction({
+      timestamp: new Date().toISOString(),
+      actionName: "createIssue",
+      provider: "linear",
+      inputArgs: JSON.stringify({
+        title: redactedTitle,
+        description: redactedDescription,
+        teamId,
+        assigneeId,
+        priority,
+        projectId,
+        dueDate,
+        labelIds,
+        estimate,
+      }),
+      resultSummary: "pending_approval",
+    });
+    return {
+      success: false,
+      requiresApproval: true,
+      pendingAction: {
+        actionName: "createIssue",
+        provider: "linear",
+        params: { title, description, teamId, assigneeId, priority, projectId, dueDate, labelIds, estimate },
+      },
+    };
   }
 
   const mutation = `
@@ -86,11 +120,48 @@ const createIssue: linearCreateIssueFunction = async ({
 
     const result = data.data?.issueCreate;
     if (!result?.success) {
+      const errorMsg = "Failed to create issue";
+      logAction({
+        timestamp: new Date().toISOString(),
+        actionName: "createIssue",
+        provider: "linear",
+        inputArgs: JSON.stringify({
+          title: redactedTitle,
+          description: redactedDescription,
+          teamId,
+          assigneeId,
+          priority,
+          projectId,
+          dueDate,
+          labelIds,
+          estimate,
+        }),
+        resultSummary: "failure",
+        error: errorMsg,
+      });
       return {
         success: false,
-        error: "Failed to create issue",
+        error: errorMsg,
       };
     }
+
+    logAction({
+      timestamp: new Date().toISOString(),
+      actionName: "createIssue",
+      provider: "linear",
+      inputArgs: JSON.stringify({
+        title: redactedTitle,
+        description: redactedDescription,
+        teamId,
+        assigneeId,
+        priority,
+        projectId,
+        dueDate,
+        labelIds,
+        estimate,
+      }),
+      resultSummary: `issue_created:${result.issue.id}`,
+    });
 
     return {
       success: true,
@@ -102,10 +173,28 @@ const createIssue: linearCreateIssueFunction = async ({
       },
     };
   } catch (error) {
-    console.error("Error creating Linear issue: ", error);
+    const errorMsg = error instanceof Error ? error.message : "Unknown error";
+    logAction({
+      timestamp: new Date().toISOString(),
+      actionName: "createIssue",
+      provider: "linear",
+      inputArgs: JSON.stringify({
+        title: redactedTitle,
+        description: redactedDescription,
+        teamId,
+        assigneeId,
+        priority,
+        projectId,
+        dueDate,
+        labelIds,
+        estimate,
+      }),
+      resultSummary: "error",
+      error: errorMsg,
+    });
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: errorMsg,
     };
   }
 };

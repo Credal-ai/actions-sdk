@@ -9159,6 +9159,9 @@ actions:
           estimate:
             type: number
             description: The estimate in story points for the issue
+          approved:
+            type: boolean
+            description: Set to true to confirm and execute the issue creation after reviewing the pendingAction details
       output:
         type: object
         required: [success]
@@ -9185,6 +9188,68 @@ actions:
               identifier:
                 type: string
                 description: The issue identifier (e.g. ENG-123)
+          requiresApproval:
+            type: boolean
+            description: True when the action is awaiting human approval before executing
+          pendingAction:
+            type: object
+            description: Details of the action pending human approval
+            properties:
+              actionName:
+                type: string
+                description: The name of the action awaiting approval
+              provider:
+                type: string
+                description: The provider of the action awaiting approval
+              params:
+                type: object
+                description: The parameters of the action awaiting approval
+    commentOnIssue:
+      displayName: Comment on a Linear issue
+      description: Post a comment on an existing Linear issue. Requires human approval before posting.
+      scopes: []
+      parameters:
+        type: object
+        required: [issueId, body]
+        properties:
+          issueId:
+            type: string
+            description: The ID of the Linear issue to comment on
+          body:
+            type: string
+            description: The markdown body of the comment to post
+          approved:
+            type: boolean
+            description: Set to true to confirm and post the comment after reviewing the pendingAction details
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the operation was successful
+          commentId:
+            type: string
+            description: The ID of the posted comment
+          error:
+            type: string
+            description: Error message if the operation failed
+          requiresApproval:
+            type: boolean
+            description: True when the action is awaiting human approval before executing
+          pendingAction:
+            type: object
+            description: Details of the action pending human approval
+            properties:
+              actionName:
+                type: string
+                description: The name of the action awaiting approval
+              provider:
+                type: string
+                description: The provider of the action awaiting approval
+              params:
+                type: object
+                description: The parameters of the action awaiting approval
   hubspot:
     getContacts:
       displayName: List all contacts

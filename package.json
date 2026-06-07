@@ -30,7 +30,9 @@
   "license": "ISC",
   "devDependencies": {
     "@eslint/js": "^10.0.0",
+    "@googleapis/docs": "^9.2.1",
     "@jest/globals": "^29.7.0",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/html-to-text": "^9.0.4",
     "@types/js-yaml": "^4.0.9",
     "@types/jsonwebtoken": "^9.0.9",
@@ -48,8 +50,7 @@
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.2",
-    "typescript-eslint": "^8.56.0",
-    "@googleapis/docs": "^9.2.1"
+    "typescript-eslint": "^8.56.0"
   },
   "dependencies": {
     "@mendable/firecrawl-js": "^4.3.4",
@@ -61,6 +62,7 @@
     "@types/snowflake-sdk": "^1.6.24",
     "ajv": "^8.18.0",
     "axios-retry": "^4.5.0",
+    "better-sqlite3": "^12.10.0",
     "date-fns": "^4.1.0",
     "docx": "^9.3.0",
     "dotenv": "^16.4.7",

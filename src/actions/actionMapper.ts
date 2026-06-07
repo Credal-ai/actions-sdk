@@ -236,6 +236,8 @@ import {
   linearGetTeamsOutputSchema,
   linearCreateIssueParamsSchema,
   linearCreateIssueOutputSchema,
+  linearCommentOnIssueParamsSchema,
+  linearCommentOnIssueOutputSchema,
   hubspotGetContactsParamsSchema,
   hubspotGetContactsOutputSchema,
   hubspotGetContactDetailsParamsSchema,
@@ -414,6 +416,7 @@ import getTeamDetails from "./providers/linear/getTeamDetails.js";
 import getProjects from "./providers/linear/getProjects.js";
 import getTeams from "./providers/linear/getTeams.js";
 import createIssue from "./providers/linear/createIssue.js";
+import commentOnIssue from "./providers/linear/commentOnIssue.js";
 import getContacts from "./providers/hubspot/getContacts.js";
 import getContactDetails from "./providers/hubspot/getContactDetails.js";
 import getCompanies from "./providers/hubspot/getCompanies.js";
@@ -1383,6 +1386,12 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: createIssue,
       paramsSchema: linearCreateIssueParamsSchema,
       outputSchema: linearCreateIssueOutputSchema,
+      actionType: "write",
+    },
+    commentOnIssue: {
+      fn: commentOnIssue,
+      paramsSchema: linearCommentOnIssueParamsSchema,
+      outputSchema: linearCommentOnIssueOutputSchema,
       actionType: "write",
     },
   },
