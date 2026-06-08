@@ -27,6 +27,7 @@ type JiraCloudSearchResponse = {
       updated: string;
       resolution?: { name: string } | null;
       duedate?: string | null;
+      labels?: string[] | null;
     };
   }[];
   nextPageToken?: string;
@@ -60,6 +61,7 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
     "updated",
     "resolution",
     "duedate",
+    "labels",
     "timeoriginalestimate",
     "timespent",
     "aggregatetimeoriginalestimate",
@@ -117,6 +119,7 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
           updated,
           resolution,
           duedate,
+          labels,
         } = fields;
 
         const [assigneeInfo, reporterInfo, creatorInfo] = await Promise.all([
@@ -143,6 +146,7 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
             updated,
             resolution: resolution?.name,
             dueDate: duedate,
+            labels: labels ?? [],
             url: ticketUrl,
           },
         };

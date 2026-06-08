@@ -47,6 +47,7 @@ type JiraSearchResponse = {
         name: string;
       } | null;
       duedate?: string | null;
+      labels?: string[] | null;
     };
   }[];
   startAt: number;
@@ -84,6 +85,7 @@ const getJiraDCIssuesByQuery: jiraDataCenterGetJiraIssuesByQueryFunction = async
     "updated",
     "resolution",
     "duedate",
+    "labels",
     "timeoriginalestimate",
     "timespent",
     "aggregatetimeoriginalestimate",
@@ -140,6 +142,7 @@ const getJiraDCIssuesByQuery: jiraDataCenterGetJiraIssuesByQueryFunction = async
           updated,
           resolution,
           duedate,
+          labels,
         } = fields;
 
         const ticketUrl = `${browseUrl}/browse/${key}`;
@@ -191,6 +194,7 @@ const getJiraDCIssuesByQuery: jiraDataCenterGetJiraIssuesByQueryFunction = async
             updated,
             resolution: resolution?.name || null,
             dueDate: duedate || null,
+            labels: labels ?? [],
             url: ticketUrl,
           },
         };

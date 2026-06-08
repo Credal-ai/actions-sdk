@@ -85,6 +85,8 @@ import {
   confluenceFetchPageContentOutputSchema,
   confluenceDataCenterOverwritePageParamsSchema,
   confluenceDataCenterOverwritePageOutputSchema,
+  confluenceDataCenterCreatePageParamsSchema,
+  confluenceDataCenterCreatePageOutputSchema,
   confluenceDataCenterFetchPageContentParamsSchema,
   confluenceDataCenterFetchPageContentOutputSchema,
   snowflakeRunSnowflakeQueryParamsSchema,
@@ -337,6 +339,7 @@ import getBasicFinancials from "./providers/finnhub/getBasicFinancials.js";
 import confluenceOverwritePage from "./providers/confluence/overwritePage.js";
 import confluenceFetchPageContent from "./providers/confluence/fetchPageContent.js";
 import confluenceDataCenterOverwritePage from "./providers/confluenceDataCenter/overwritePage.js";
+import confluenceDataCenterCreatePage from "./providers/confluenceDataCenter/createPage.js";
 import confluenceDataCenterFetchPageContent from "./providers/confluenceDataCenter/fetchPageContent.js";
 import runSnowflakeQuery from "./providers/snowflake/runSnowflakeQuery.js";
 import enableUserByEmail from "./providers/looker/enableUserByEmail.js";
@@ -661,6 +664,12 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: confluenceDataCenterOverwritePage,
       paramsSchema: confluenceDataCenterOverwritePageParamsSchema,
       outputSchema: confluenceDataCenterOverwritePageOutputSchema,
+      actionType: "write",
+    },
+    createPage: {
+      fn: confluenceDataCenterCreatePage,
+      paramsSchema: confluenceDataCenterCreatePageParamsSchema,
+      outputSchema: confluenceDataCenterCreatePageOutputSchema,
       actionType: "write",
     },
     fetchPageContent: {
