@@ -5696,7 +5696,7 @@ export type oktaOrgGetOktaUserByNameFunction = ActionFunction<
 >;
 
 export const finnhubSymbolLookupParamsSchema = z.object({
-  query: z.string().describe("The symbol or colloquial name of the company to look up"),
+  query: z.string().describe("The ticker symbol, name, ISIN, or CUSIP of the security to look up"),
 });
 
 export type finnhubSymbolLookupParamsType = z.infer<typeof finnhubSymbolLookupParamsSchema>;
@@ -5706,12 +5706,12 @@ export const finnhubSymbolLookupOutputSchema = z.object({
     .array(
       z
         .object({
-          symbol: z.string().describe("The symbol of the stock").optional(),
-          description: z.string().describe("The description of the stock").optional(),
+          symbol: z.string().describe("The symbol of the security"),
+          description: z.string().describe("The description of the security"),
         })
-        .describe("The metadata of the stock"),
+        .describe("The metadata of the security"),
     )
-    .describe("The results of the symbol lookup"),
+    .describe("The results of the lookup"),
 });
 
 export type finnhubSymbolLookupOutputType = z.infer<typeof finnhubSymbolLookupOutputSchema>;
