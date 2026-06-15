@@ -294,6 +294,14 @@ import {
   salesforceGetReportMetadataOutputSchema,
   googleOauthUpdateRowsInSpreadsheetParamsSchema,
   googleOauthUpdateRowsInSpreadsheetOutputSchema,
+  smartsheetListSheetsParamsSchema,
+  smartsheetListSheetsOutputSchema,
+  smartsheetGetSheetRowsParamsSchema,
+  smartsheetGetSheetRowsOutputSchema,
+  smartsheetAddRowToSheetParamsSchema,
+  smartsheetAddRowToSheetOutputSchema,
+  smartsheetUpdateRowParamsSchema,
+  smartsheetUpdateRowOutputSchema,
 } from "./autogen/types.js";
 import validateAddress from "./providers/googlemaps/validateAddress.js";
 import add from "./providers/math/add.js";
@@ -441,6 +449,10 @@ import searchAllSalesforceRecords from "./providers/salesforce/searchAllSalesfor
 import listReports from "./providers/salesforce/listReports.js";
 import getReportMetadata from "./providers/salesforce/getReportMetadata.js";
 import executeReport from "./providers/salesforce/executeReport.js";
+import smartsheetListSheets from "./providers/smartsheet/listSheets.js";
+import smartsheetGetSheetRows from "./providers/smartsheet/getSheetRows.js";
+import smartsheetAddRowToSheet from "./providers/smartsheet/addRowToSheet.js";
+import smartsheetUpdateRow from "./providers/smartsheet/updateRow.js";
 
 type ActionTypeSchema = "read" | "write";
 
@@ -1437,4 +1449,30 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
     },
   },
   boxUser: {},
+  smartsheet: {
+    listSheets: {
+      fn: smartsheetListSheets,
+      paramsSchema: smartsheetListSheetsParamsSchema,
+      outputSchema: smartsheetListSheetsOutputSchema,
+      actionType: "read",
+    },
+    getSheetRows: {
+      fn: smartsheetGetSheetRows,
+      paramsSchema: smartsheetGetSheetRowsParamsSchema,
+      outputSchema: smartsheetGetSheetRowsOutputSchema,
+      actionType: "read",
+    },
+    addRowToSheet: {
+      fn: smartsheetAddRowToSheet,
+      paramsSchema: smartsheetAddRowToSheetParamsSchema,
+      outputSchema: smartsheetAddRowToSheetOutputSchema,
+      actionType: "write",
+    },
+    updateRow: {
+      fn: smartsheetUpdateRow,
+      paramsSchema: smartsheetUpdateRowParamsSchema,
+      outputSchema: smartsheetUpdateRowOutputSchema,
+      actionType: "write",
+    },
+  },
 };

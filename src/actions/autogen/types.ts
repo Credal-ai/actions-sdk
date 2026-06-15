@@ -36,6 +36,7 @@ export enum ProviderName {
   GITLAB = "gitlab",
   LINEAR = "linear",
   HUBSPOT = "hubspot",
+  SMARTSHEET = "smartsheet",
   BOXUSER = "boxUser",
 }
 
@@ -178,6 +179,10 @@ export enum ActionName {
   GETDEALS = "getDeals",
   GETDEALDETAILS = "getDealDetails",
   GETTICKETS = "getTickets",
+  LISTSHEETS = "listSheets",
+  GETSHEETROWS = "getSheetRows",
+  ADDROWTOSHEET = "addRowToSheet",
+  UPDATEROW = "updateRow",
 }
 
 export type ActionFunction<P, A, O> = (input: { params: P; authParams: A }) => Promise<O>;
@@ -7835,4 +7840,150 @@ export type hubspotGetTicketDetailsFunction = ActionFunction<
   hubspotGetTicketDetailsParamsType,
   AuthParamsType,
   hubspotGetTicketDetailsOutputType
+>;
+
+export const smartsheetListSheetsParamsSchema = z.object({});
+
+export type smartsheetListSheetsParamsType = z.infer<typeof smartsheetListSheetsParamsSchema>;
+
+export const smartsheetListSheetsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the sheets were successfully listed"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  sheets: z
+    .array(
+      z.object({
+        id: z.string().describe("The sheet ID, passed as sheetId to other Smartsheet actions").optional(),
+        name: z.string().describe("The sheet name").optional(),
+        permalink: z.string().describe("URL to open the sheet in Smartsheet").optional(),
+      }),
+    )
+    .describe("The sheets the user has access to")
+    .optional(),
+});
+
+export type smartsheetListSheetsOutputType = z.infer<typeof smartsheetListSheetsOutputSchema>;
+export type smartsheetListSheetsFunction = ActionFunction<
+  smartsheetListSheetsParamsType,
+  AuthParamsType,
+  smartsheetListSheetsOutputType
+>;
+
+export const smartsheetGetSheetRowsParamsSchema = z.object({
+  sheetId: z
+    .string()
+    .describe("The ID of the sheet to read. Obtain this from the listSheets action or from the user; do not guess it."),
+});
+
+export type smartsheetGetSheetRowsParamsType = z.infer<typeof smartsheetGetSheetRowsParamsSchema>;
+
+export const smartsheetGetSheetRowsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the sheet was successfully retrieved"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  sheet: z
+    .object({
+      id: z.string().describe("The sheet ID").optional(),
+      name: z.string().describe("The sheet name").optional(),
+      permalink: z.string().describe("URL to open the sheet in Smartsheet").optional(),
+      columns: z
+        .array(
+          z.object({
+            id: z.string().describe("The column ID").optional(),
+            title: z
+              .string()
+              .describe(
+                "The column title. Use these exact titles as keys in the cells parameter of addRowToSheet and updateRow.",
+              )
+              .optional(),
+            type: z
+              .string()
+              .describe("The column type (e.g. TEXT_NUMBER, PICKLIST, DATE, CHECKBOX, CONTACT_LIST)")
+              .optional(),
+            options: z.array(z.string()).describe("The valid values for PICKLIST columns").optional(),
+          }),
+        )
+        .describe("The sheet's columns, in display order")
+        .optional(),
+      rows: z
+        .array(
+          z.object({
+            id: z.string().describe("The row ID, passed as rowId to the updateRow action").optional(),
+            rowNumber: z.coerce.number().describe("The row's position in the sheet, starting at 1").optional(),
+            cells: z.object({}).catchall(z.any()).describe("The row's cell values, keyed by column title").optional(),
+          }),
+        )
+        .describe("The sheet's rows")
+        .optional(),
+    })
+    .describe("The sheet's columns and rows")
+    .optional(),
+});
+
+export type smartsheetGetSheetRowsOutputType = z.infer<typeof smartsheetGetSheetRowsOutputSchema>;
+export type smartsheetGetSheetRowsFunction = ActionFunction<
+  smartsheetGetSheetRowsParamsType,
+  AuthParamsType,
+  smartsheetGetSheetRowsOutputType
+>;
+
+export const smartsheetAddRowToSheetParamsSchema = z.object({
+  sheetId: z
+    .string()
+    .describe(
+      "The ID of the sheet to add the row to. Obtain this from the listSheets action or from the user; do not guess it.",
+    ),
+  cells: z
+    .object({})
+    .catchall(z.any())
+    .describe(
+      'The new row\'s cell values, keyed by column title exactly as returned by getSheetRows, e.g. {"Task Name": "Review budget", "Status": "In Progress"}. Values may be strings, numbers, or booleans.',
+    ),
+  toTop: z
+    .boolean()
+    .describe("If true, the row is added to the top of the sheet. Defaults to false (added to the bottom).")
+    .optional(),
+});
+
+export type smartsheetAddRowToSheetParamsType = z.infer<typeof smartsheetAddRowToSheetParamsSchema>;
+
+export const smartsheetAddRowToSheetOutputSchema = z.object({
+  success: z.boolean().describe("Whether the row was successfully added"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  rowId: z.string().describe("The ID of the newly created row").optional(),
+});
+
+export type smartsheetAddRowToSheetOutputType = z.infer<typeof smartsheetAddRowToSheetOutputSchema>;
+export type smartsheetAddRowToSheetFunction = ActionFunction<
+  smartsheetAddRowToSheetParamsType,
+  AuthParamsType,
+  smartsheetAddRowToSheetOutputType
+>;
+
+export const smartsheetUpdateRowParamsSchema = z.object({
+  sheetId: z
+    .string()
+    .describe(
+      "The ID of the sheet containing the row. Obtain this from the listSheets action or from the user; do not guess it.",
+    ),
+  rowId: z.string().describe("The ID of the row to update, as returned by the getSheetRows action"),
+  cells: z
+    .object({})
+    .catchall(z.any())
+    .describe(
+      'The cell values to change, keyed by column title exactly as returned by getSheetRows, e.g. {"Status": "Complete"}. Columns not included are left unchanged. Values may be strings, numbers, or booleans.',
+    ),
+});
+
+export type smartsheetUpdateRowParamsType = z.infer<typeof smartsheetUpdateRowParamsSchema>;
+
+export const smartsheetUpdateRowOutputSchema = z.object({
+  success: z.boolean().describe("Whether the row was successfully updated"),
+  error: z.string().describe("Error message if the operation failed").optional(),
+  rowId: z.string().describe("The ID of the updated row").optional(),
+});
+
+export type smartsheetUpdateRowOutputType = z.infer<typeof smartsheetUpdateRowOutputSchema>;
+export type smartsheetUpdateRowFunction = ActionFunction<
+  smartsheetUpdateRowParamsType,
+  AuthParamsType,
+  smartsheetUpdateRowOutputType
 >;
