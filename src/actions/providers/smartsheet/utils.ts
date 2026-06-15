@@ -59,18 +59,24 @@ export async function resolveCellsByColumnTitle(
   sheetId: string,
   cellsByTitle: Record<string, unknown>,
 ): Promise<Array<{ columnId: number; value: string | number | boolean; strict: boolean }>> {
-  const { data: columns } = await smartsheetRequest<{ data: SmartsheetColumn[] }>(
+  const columnsResponse = await smartsheetRequest<{ data?: SmartsheetColumn[] }>(
     `/sheets/${sheetId}/columns?includeAll=true`,
     token,
   );
+  const columns = columnsResponse.data;
+  if (!Array.isArray(columns)) {
+    throw new Error(
+      `Could not read columns for sheet "${sheetId}": the Smartsheet API returned an unexpected response shape.`,
+    );
+  }
 
-  const columnIdByTitle = new Map(columns.map(c => [c.title, c.id]));
+  const columnIdByTitle = new Map(columns.map(column => [column.title, column.id]));
 
   return Object.entries(cellsByTitle).map(([title, value]) => {
     const columnId = columnIdByTitle.get(title);
     if (columnId === undefined) {
       throw new Error(
-        `Column "${title}" does not exist in this sheet. Valid column titles are: ${columns.map(c => `"${c.title}"`).join(", ")}`,
+        `Column "${title}" does not exist in this sheet. Valid column titles are: ${columns.map(column => `"${column.title}"`).join(", ")}`,
       );
     }
     if (typeof value !== "string" && typeof value !== "number" && typeof value !== "boolean") {
