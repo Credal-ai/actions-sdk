@@ -9621,4 +9621,170 @@ actions:
               archived:
                 type: boolean
                 description: Whether the ticket is archived
+  smartsheet:
+    listSheets:
+      displayName: List Smartsheet sheets
+      description: List all Smartsheet sheets the authenticated user has access to. Use this first to find a sheet's sheetId by its name before calling other Smartsheet actions.
+      scopes: []
+      parameters:
+        type: object
+        required: []
+        properties: {}
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the sheets were successfully listed
+          error:
+            type: string
+            description: Error message if the operation failed
+          sheets:
+            type: array
+            description: The sheets the user has access to
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The sheet ID, passed as sheetId to other Smartsheet actions
+                name:
+                  type: string
+                  description: The sheet name
+                permalink:
+                  type: string
+                  description: URL to open the sheet in Smartsheet
+    getSheetRows:
+      displayName: Get rows from a Smartsheet sheet
+      description: Get the columns and rows of a Smartsheet sheet. Each row's cells are returned as a map keyed by column title. Use this to read a sheet's contents and to discover column titles and row IDs before adding or updating rows.
+      scopes: []
+      parameters:
+        type: object
+        required: [sheetId]
+        properties:
+          sheetId:
+            type: string
+            description: The ID of the sheet to read. Obtain this from the listSheets action or from the user; do not guess it.
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the sheet was successfully retrieved
+          error:
+            type: string
+            description: Error message if the operation failed
+          sheet:
+            type: object
+            description: The sheet's columns and rows
+            properties:
+              id:
+                type: string
+                description: The sheet ID
+              name:
+                type: string
+                description: The sheet name
+              permalink:
+                type: string
+                description: URL to open the sheet in Smartsheet
+              columns:
+                type: array
+                description: The sheet's columns, in display order
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      description: The column ID
+                    title:
+                      type: string
+                      description: The column title. Use these exact titles as keys in the cells parameter of addRowToSheet and updateRow.
+                    type:
+                      type: string
+                      description: The column type (e.g. TEXT_NUMBER, PICKLIST, DATE, CHECKBOX, CONTACT_LIST)
+                    options:
+                      type: array
+                      description: The valid values for PICKLIST columns
+                      items:
+                        type: string
+              rows:
+                type: array
+                description: The sheet's rows
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      description: The row ID, passed as rowId to the updateRow action
+                    rowNumber:
+                      type: number
+                      description: The row's position in the sheet, starting at 1
+                    cells:
+                      type: object
+                      description: The row's cell values, keyed by column title
+                      additionalProperties: true
+    addRowToSheet:
+      displayName: Add a row to a Smartsheet sheet
+      description: Add a new row to a Smartsheet sheet. Cell values are provided as a map keyed by column title. Call getSheetRows first to see the sheet's column titles and the valid values for PICKLIST columns.
+      scopes: []
+      parameters:
+        type: object
+        required: [sheetId, cells]
+        properties:
+          sheetId:
+            type: string
+            description: The ID of the sheet to add the row to. Obtain this from the listSheets action or from the user; do not guess it.
+          cells:
+            type: object
+            description: 'The new row''s cell values, keyed by column title exactly as returned by getSheetRows, e.g. {"Task Name": "Review budget", "Status": "In Progress"}. Values may be strings, numbers, or booleans.'
+            additionalProperties: true
+          toTop:
+            type: boolean
+            description: If true, the row is added to the top of the sheet. Defaults to false (added to the bottom).
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the row was successfully added
+          error:
+            type: string
+            description: Error message if the operation failed
+          rowId:
+            type: string
+            description: The ID of the newly created row
+    updateRow:
+      displayName: Update a row in a Smartsheet sheet
+      description: Update cell values of an existing row in a Smartsheet sheet. Only the columns included in the cells parameter are changed. Call getSheetRows first to find the row's rowId and the sheet's column titles.
+      scopes: []
+      parameters:
+        type: object
+        required: [sheetId, rowId, cells]
+        properties:
+          sheetId:
+            type: string
+            description: The ID of the sheet containing the row. Obtain this from the listSheets action or from the user; do not guess it.
+          rowId:
+            type: string
+            description: The ID of the row to update, as returned by the getSheetRows action
+          cells:
+            type: object
+            description: 'The cell values to change, keyed by column title exactly as returned by getSheetRows, e.g. {"Status": "Complete"}. Columns not included are left unchanged. Values may be strings, numbers, or booleans.'
+            additionalProperties: true
+      output:
+        type: object
+        required: [success]
+        properties:
+          success:
+            type: boolean
+            description: Whether the row was successfully updated
+          error:
+            type: string
+            description: Error message if the operation failed
+          rowId:
+            type: string
+            description: The ID of the updated row
   boxUser: {}
