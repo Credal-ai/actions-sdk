@@ -1,14 +1,16 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 async function runTest() {
   const result = await runAction(
     "listCalendars",
     "googleOauth",
-    { authToken: "auth-token-here" },
-    { maxResults: 1 }, // optional
+    { authToken: process.env.GCAL_AUTH_TOKEN },
+    { maxResults: 5 }, // optional
   );
-
   assert(result, "Response should not be null");
   assert(result.success, "Success should be true");
   assert(Array.isArray(result.calendars), "Calendars should be an array");
