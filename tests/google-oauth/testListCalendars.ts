@@ -11,7 +11,6 @@ async function runTest() {
     { authToken: process.env.GCAL_AUTH_TOKEN },
     { maxResults: 5 }, // optional
   );
-  console.log(result);
   assert(result, "Response should not be null");
   assert(result.success, "Success should be true");
   assert(Array.isArray(result.calendars), "Calendars should be an array");

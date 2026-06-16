@@ -134,7 +134,7 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
     }
   }
   // Add transparency if specified
-  if (transparency) {
+  if (transparency !== undefined) {
     data.transparency = transparency;
   }
 
