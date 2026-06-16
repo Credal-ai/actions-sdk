@@ -4,10 +4,13 @@ import type {
 } from "../../src/actions/autogen/types.js";
 import { runAction } from "../../src/app.js";
 import assert from "node:assert";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 // Test configuration
-const authToken = "insert-access-token";
-const calendarId = "insert-calendar-id";
+const authToken = process.env.GCAL_AUTH_TOKEN;
+const calendarId = process.env.CALENDAR_ID;
 
 /**
  * Test for basic Google OAuth scheduleCalendarMeeting action
@@ -32,6 +35,7 @@ async function runBasicTest() {
       attendees: ["test@test.com", "test2@test.com"],
       useGoogleMeet: true,
       timeZone: "America/New_York",
+      transparency: "opaque",
     } as googleOauthScheduleCalendarMeetingParamsType
   );
 

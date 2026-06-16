@@ -14,7 +14,7 @@ async function runTest() {
     "googleOauth",
     { authToken: process.env.GOOGLE_CAL_AUTH_TOKEN },
     {
-      calendarId: "jack@credal.ai",
+      calendarId: process.env.CALENDAR_ID,
       query: "",
       maxResults: 50,
       timeMin: weekBeg.toISOString(),

@@ -1,14 +1,17 @@
 import assert from "node:assert";
 import { runAction } from "../../src/app.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 async function runTest() {
   const result = await runAction(
     "updateCalendarEvent",
     "googleOauth",
-    { authToken: "auth-token-with-calendar-scope-here" },
+    { authToken: process.env.GCAL_AUTH_TOKEN },
     {
-      calendarId: "primary",
-      eventId: "event-id-here", 
+      calendarId: process.env.CALENDAR_ID,
+      eventId: process.env.EVENT_ID,
       updates: {
         title: "Updated Event Title",
         description: "Updated event description",
@@ -17,6 +20,7 @@ async function runTest() {
         location: "Virtual",
         attendees: ["test@example.com"],
         timeZone: "America/Los_Angeles",
+        transparency: "transparent",
       },
     },
   );

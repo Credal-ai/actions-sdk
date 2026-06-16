@@ -30,10 +30,16 @@ function generateRecurrenceRule(
     const year = date.getUTCFullYear();
     const month = String(date.getUTCMonth() + 1).padStart(2, "0");
     const day = String(date.getUTCDate()).padStart(2, "0");
-    const hour = String(date.getUTCHours()).padStart(2, "0");
-    const minute = String(date.getUTCMinutes()).padStart(2, "0");
-    const second = String(date.getUTCSeconds()).padStart(2, "0");
-    rrule += `;UNTIL=${year}${month}${day}T${hour}${minute}${second}Z`; // trufflehog:ignore
+    // Use date-only format for UNTIL when BYDAY is specified (day-based recurrence)
+    // This is required by Google Calendar API for WEEKLY+BYDAY recurrences
+    if (recurrence.byDay && recurrence.byDay.length > 0) {
+      rrule += `;UNTIL=${year}${month}${day}`;
+    } else {
+      const hour = String(date.getUTCHours()).padStart(2, "0");
+      const minute = String(date.getUTCMinutes()).padStart(2, "0");
+      const second = String(date.getUTCSeconds()).padStart(2, "0");
+      rrule += `;UNTIL=${year}${month}${day}T${hour}${minute}${second}Z`; // trufflehog:ignore
+    }
   }
 
   if (recurrence.byDay && recurrence.byDay.length > 0) {
@@ -61,7 +67,8 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
   if (!authParams.authToken) {
     throw new Error(MISSING_AUTH_TOKEN);
   }
-  const { calendarId, name, start, end, description, attendees, useGoogleMeet, timeZone, recurrence } = params;
+  const { calendarId, name, start, end, description, attendees, useGoogleMeet, timeZone, recurrence, transparency } =
+    params;
   // https://developers.google.com/calendar/api/v3/reference/events/insert
   let createEventApiUrl = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`;
 
@@ -83,6 +90,7 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
       };
     };
     recurrence?: string[];
+    transparency?: string;
   } = {
     summary: name,
     start: {
@@ -124,6 +132,10 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
         error: "Invalid recurrence configuration: " + (error instanceof Error ? error.message : "Unknown error"),
       };
     }
+  }
+  // Add transparency if specified
+  if (transparency) {
+    data.transparency = transparency;
   }
 
   try {

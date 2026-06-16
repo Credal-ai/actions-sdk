@@ -9,8 +9,8 @@ async function runTest() {
     "googleOauth",
     { authToken: process.env.GOOGLE_OAUTH_EDIT_EVENT_SCOPE },
     {
-      calendarId: "primary",
-      eventId: "19ta0khreli30ib22n2c2717vd", 
+      calendarId: process.env.CALENDAR_ID,
+      eventId: process.env.EVENT_ID,
       title: "Edited Event Title",
       description: "Edited event description",
       start: new Date(Date.now() + 3600 * 1000).toISOString(),
@@ -19,6 +19,7 @@ async function runTest() {
       attendees: ["colleague@example.com", "manager@example.com"],
       status: "confirmed",
       timeZone: "Europe/London",
+      transparency: "opaque",
     },
   );
 
