@@ -7,7 +7,9 @@ import updateDoc from "../../src/actions/providers/google-oauth/updateDoc";
 const mockPost = jest.fn<(...args: any[]) => Promise<any>>();
 
 jest.mock("../../src/actions/util/axiosClient", () => ({
-  axiosClient: { post: (...args: any[]) => mockPost(...args) },
+  axiosClient: {
+    post: (...args: any[]) => mockPost(...args),
+  },
 }));
 
 jest.mock("axios", () => ({
@@ -161,6 +163,51 @@ describe("createNewGoogleDoc", () => {
 
     expect(result.documentId).toBe("doc-empty");
     expect(mockPost).toHaveBeenCalledTimes(1);
+  });
+
+  it("creates doc in the requested Drive folder", async () => {
+    mockPost
+      .mockResolvedValueOnce({
+        data: {
+          id: "doc-folder",
+          webViewLink: "https://docs.google.com/document/d/doc-folder/edit",
+        },
+      })
+      .mockResolvedValueOnce({ data: {} });
+
+    const result = await createNewGoogleDoc({
+      params: {
+        title: "Folder Doc",
+        content: "Hello folder",
+        folderId: "folder-123",
+      },
+      authParams: AUTH,
+    });
+
+    expect(result.documentId).toBe("doc-folder");
+    expect(result.documentUrl).toBe(
+      "https://docs.google.com/document/d/doc-folder/edit",
+    );
+    expect(mockPost).toHaveBeenNthCalledWith(
+      1,
+      "https://www.googleapis.com/drive/v3/files",
+      {
+        name: "Folder Doc",
+        mimeType: "application/vnd.google-apps.document",
+        parents: ["folder-123"],
+      },
+      {
+        params: {
+          fields: "id,webViewLink",
+          supportsAllDrives: true,
+        },
+        headers: {
+          Authorization: "Bearer test-token",
+          "Content-Type": "application/json",
+        },
+      },
+    );
+    expect(mockPost).toHaveBeenCalledTimes(2);
   });
 
   it("throws on missing auth token", async () => {

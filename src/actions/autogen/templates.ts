@@ -5445,6 +5445,10 @@ export const googleOauthCreateNewGoogleDocDefinition: ActionTemplate = {
         type: "string",
         description: "The content to add to the new Google Doc",
       },
+      folderId: {
+        type: "string",
+        description: "The ID of the Google Drive folder to create the document in",
+      },
       usesHtml: {
         type: "boolean",
         description: "Whether to interpret the content as HTML. Deprecated in favor of contentFormat.",

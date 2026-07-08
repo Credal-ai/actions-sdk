@@ -8,6 +8,56 @@ import { axiosClient } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import { resolveContentFormat, contentToDocRequests } from "./utils/googleDocsMarkdown.js";
 
+async function createGoogleDoc({
+  authToken,
+  title,
+  folderId,
+}: {
+  authToken: string;
+  title: string;
+  folderId?: string;
+}): Promise<{ documentId: string; documentUrl?: string }> {
+  const headers = {
+    Authorization: `Bearer ${authToken}`,
+    "Content-Type": "application/json",
+  };
+
+  if (folderId) {
+    const response = await axiosClient.post(
+      "https://www.googleapis.com/drive/v3/files",
+      {
+        name: title,
+        mimeType: "application/vnd.google-apps.document",
+        parents: [folderId],
+      },
+      {
+        params: {
+          fields: "id,webViewLink",
+          supportsAllDrives: true,
+        },
+        headers,
+      },
+    );
+
+    return {
+      documentId: response.data.id,
+      documentUrl: response.data.webViewLink,
+    };
+  }
+
+  const response = await axiosClient.post(
+    "https://docs.googleapis.com/v1/documents",
+    { title },
+    {
+      headers,
+    },
+  );
+
+  return {
+    documentId: response.data.documentId,
+  };
+}
+
 /**
  * Creates a new Google Doc document using OAuth authentication
  */
@@ -21,25 +71,18 @@ const createNewGoogleDoc: googleOauthCreateNewGoogleDocFunction = async ({
   if (!authParams.authToken) {
     throw new Error(MISSING_AUTH_TOKEN);
   }
-  const { title, content, usesHtml, contentFormat } = params;
+  const { title, content, folderId, usesHtml, contentFormat } = params;
   const baseApiUrl = "https://docs.googleapis.com/v1/documents";
   const resolvedContentFormat = resolveContentFormat({ contentFormat, usesHtml });
 
-  // Create the document with the provided title
-  const response = await axiosClient.post(
-    baseApiUrl,
-    { title },
-    {
-      headers: {
-        Authorization: `Bearer ${authParams.authToken}`,
-        "Content-Type": "application/json",
-      },
-    },
-  );
+  const { documentId, documentUrl } = await createGoogleDoc({
+    authToken: authParams.authToken,
+    title,
+    folderId,
+  });
 
   // If content is provided, update the document body with the content
   if (content) {
-    const documentId = response.data.documentId;
     const requests = contentToDocRequests({ content, format: resolvedContentFormat });
 
     await axiosClient.post(
@@ -55,10 +98,8 @@ const createNewGoogleDoc: googleOauthCreateNewGoogleDocFunction = async ({
   }
 
   return {
-    documentId: response.data.documentId,
-    documentUrl: response.data.documentId
-      ? `https://docs.google.com/document/d/${response.data.documentId}/edit`
-      : undefined,
+    documentId,
+    documentUrl: documentUrl ?? (documentId ? `https://docs.google.com/document/d/${documentId}/edit` : undefined),
   };
 };
 

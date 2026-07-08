@@ -3009,6 +3009,7 @@ export type resendSendEmailHtmlFunction = ActionFunction<
 export const googleOauthCreateNewGoogleDocParamsSchema = z.object({
   title: z.string().describe("The title of the new Google Doc"),
   content: z.string().describe("The content to add to the new Google Doc").optional(),
+  folderId: z.string().describe("The ID of the Google Drive folder to create the document in").optional(),
   usesHtml: z
     .boolean()
     .describe("Whether to interpret the content as HTML. Deprecated in favor of contentFormat.")
