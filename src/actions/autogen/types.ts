@@ -3632,6 +3632,12 @@ export const googleOauthScheduleCalendarMeetingParamsSchema = z.object({
     .string()
     .describe("The time zone for the meeting, IANA Time Zone identifier (e.g., 'America/New_York')")
     .optional(),
+  transparency: z
+    .enum(["opaque", "transparent"])
+    .describe(
+      'Opaque is the default value, and it blocks time on the calendar. This is equivalent to setting "Show me as" to "Busy" in the UI. Transparent means the event does not block time on the calendar. This is equivalent to setting "Show me as" to "Available" in the UI.',
+    )
+    .optional(),
   recurrence: z
     .object({
       frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]).describe("How often the meeting repeats").optional(),
@@ -3828,6 +3834,12 @@ export const googleOauthUpdateCalendarEventParamsSchema = z.object({
         .string()
         .describe("The time zone for the event, IANA Time Zone identifier (e.g., 'America/New_York')")
         .optional(),
+      transparency: z
+        .enum(["opaque", "transparent"])
+        .describe(
+          'Opaque is the default value, and it blocks time on the calendar. This is equivalent to setting "Show me as" to "Busy" in the UI. Transparent means the event does not block time on the calendar.',
+        )
+        .optional(),
     })
     .describe("The fields to update on the event")
     .optional(),
@@ -3872,6 +3884,12 @@ export const googleOauthEditAGoogleCalendarEventParamsSchema = z.object({
   timeZone: z
     .string()
     .describe("The time zone for the event, IANA Time Zone identifier (e.g., 'America/New_York')")
+    .optional(),
+  transparency: z
+    .enum(["opaque", "transparent"])
+    .describe(
+      'Opaque is the default value, and it blocks time on the calendar. This is equivalent to setting "Show me as" to "Busy" in the UI. Transparent means the event does not block time on the calendar.',
+    )
     .optional(),
 });
 

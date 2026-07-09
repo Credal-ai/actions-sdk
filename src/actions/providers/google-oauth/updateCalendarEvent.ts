@@ -42,6 +42,7 @@ const updateCalendarEvent: googleOauthUpdateCalendarEventFunction = async ({
     if (updates.attendees != undefined) body.attendees = updates.attendees.map(email => ({ email }));
     if (updates.status != undefined) body.status = updates.status;
     if (updates.organizer != undefined) body.organizer = updates.organizer;
+    if (updates.transparency != undefined) body.transparency = updates.transparency;
   }
 
   try {

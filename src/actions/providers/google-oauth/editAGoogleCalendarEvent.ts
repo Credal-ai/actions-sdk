@@ -20,8 +20,20 @@ const editAGoogleCalendarEvent: googleOauthEditAGoogleCalendarEventFunction = as
     return { success: false, error: MISSING_AUTH_TOKEN, eventId: "", eventUrl: "", eventDayOfWeek: "" };
   }
 
-  const { calendarId, eventId, title, description, start, end, location, attendees, status, organizer, timeZone } =
-    params;
+  const {
+    calendarId,
+    eventId,
+    title,
+    description,
+    start,
+    end,
+    location,
+    attendees,
+    status,
+    organizer,
+    timeZone,
+    transparency,
+  } = params;
   const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`;
 
   const body: Record<string, unknown> = {};
@@ -43,6 +55,7 @@ const editAGoogleCalendarEvent: googleOauthEditAGoogleCalendarEventFunction = as
   if (attendees !== undefined) body.attendees = attendees.map(email => ({ email }));
   if (status !== undefined) body.status = status;
   if (organizer !== undefined) body.organizer = organizer;
+  if (transparency !== undefined) body.transparency = transparency;
 
   try {
     const res: AxiosResponse = await axiosClient.patch(url, body, {

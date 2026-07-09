@@ -6683,6 +6683,12 @@ export const googleOauthScheduleCalendarMeetingDefinition: ActionTemplate = {
         type: "string",
         description: "The time zone for the meeting, IANA Time Zone identifier (e.g., 'America/New_York')",
       },
+      transparency: {
+        type: "string",
+        enum: ["opaque", "transparent"],
+        description:
+          'Opaque is the default value, and it blocks time on the calendar. This is equivalent to setting "Show me as" to "Busy" in the UI. Transparent means the event does not block time on the calendar. This is equivalent to setting "Show me as" to "Available" in the UI.',
+      },
       recurrence: {
         type: "object",
         description: "Recurring meeting configuration. If not provided, creates a one-time meeting.",
@@ -7066,6 +7072,12 @@ export const googleOauthUpdateCalendarEventDefinition: ActionTemplate = {
             type: "string",
             description: "The time zone for the event, IANA Time Zone identifier (e.g., 'America/New_York')",
           },
+          transparency: {
+            type: "string",
+            enum: ["opaque", "transparent"],
+            description:
+              'Opaque is the default value, and it blocks time on the calendar. This is equivalent to setting "Show me as" to "Busy" in the UI. Transparent means the event does not block time on the calendar.',
+          },
         },
       },
     },
@@ -7162,6 +7174,12 @@ export const googleOauthEditAGoogleCalendarEventDefinition: ActionTemplate = {
       timeZone: {
         type: "string",
         description: "The time zone for the event, IANA Time Zone identifier (e.g., 'America/New_York')",
+      },
+      transparency: {
+        type: "string",
+        enum: ["opaque", "transparent"],
+        description:
+          'Opaque is the default value, and it blocks time on the calendar. This is equivalent to setting "Show me as" to "Busy" in the UI. Transparent means the event does not block time on the calendar.',
       },
     },
   },
