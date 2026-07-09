@@ -11845,6 +11845,361 @@ export const microsoftGetDocumentDefinition: ActionTemplate = {
   name: "getDocument",
   provider: "microsoft",
 };
+export const microsoftGetSharepointItemDefinition: ActionTemplate = {
+  displayName: "Get SharePoint or OneDrive item from URL",
+  description:
+    "Resolves a pasted SharePoint or OneDrive URL (file, folder, site, or page link) to its Microsoft Graph identifiers. File and folder URLs only need Files.Read.All; bare site URLs and site page URLs additionally require Sites.Read.All.",
+  scopes: ["Files.Read.All"],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["url"],
+    properties: {
+      url: {
+        type: "string",
+        description: "The SharePoint or OneDrive URL to resolve (file, folder, site, or page link)",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the URL was resolved successfully",
+      },
+      item: {
+        type: "object",
+        description: "The resolved item",
+        properties: {
+          itemType: {
+            type: "string",
+            description: "One of: file | folder | site | page",
+          },
+          name: {
+            type: "string",
+            description: "The name of the item",
+          },
+          webUrl: {
+            type: "string",
+            description: "The web URL of the item",
+          },
+          driveId: {
+            type: "string",
+            description: "The ID of the drive containing the item (files and folders)",
+          },
+          itemId: {
+            type: "string",
+            description: "The ID of the item within its drive (for pages this is the site page ID)",
+          },
+          siteId: {
+            type: "string",
+            description: "The ID of the SharePoint site (sites, pages, and site-hosted items)",
+          },
+          mimeType: {
+            type: "string",
+            description: "The MIME type of the file",
+          },
+          sizeBytes: {
+            type: "number",
+            description: "The size of the file in bytes",
+          },
+          drives: {
+            type: "array",
+            description: "For sites — the document libraries in the site",
+            items: {
+              type: "object",
+              properties: {
+                driveId: {
+                  type: "string",
+                  description: "The ID of the document library drive",
+                },
+                name: {
+                  type: "string",
+                  description: "The name of the document library",
+                },
+              },
+            },
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the URL was not resolved",
+      },
+    },
+  },
+  name: "getSharepointItem",
+  provider: "microsoft",
+};
+export const microsoftListSharepointFolderDefinition: ActionTemplate = {
+  displayName: "List contents of a SharePoint or OneDrive folder",
+  description:
+    "Lists the items inside a SharePoint or OneDrive folder, given either a folder URL or a driveId + itemId pair. Given a site URL, lists the root of the site's default document library. Set recursive to true to enumerate subfolders (breadth-first) up to maxItems.",
+  scopes: ["Files.Read.All"],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: [],
+    properties: {
+      url: {
+        type: "string",
+        description: "The URL of the folder (or site) to list. Provide either this or driveId + itemId.",
+      },
+      driveId: {
+        type: "string",
+        description: "The ID of the drive containing the folder. Provide together with itemId.",
+      },
+      itemId: {
+        type: "string",
+        description: "The ID of the folder to list. Provide together with driveId.",
+      },
+      recursive: {
+        type: "boolean",
+        description: "Whether to recursively enumerate subfolders (default false)",
+      },
+      maxItems: {
+        type: "number",
+        description: "Maximum number of items to return (default 200)",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the folder was listed successfully",
+      },
+      items: {
+        type: "array",
+        description: "The items in the folder",
+        items: {
+          type: "object",
+          required: ["itemId", "name", "itemType"],
+          properties: {
+            itemId: {
+              type: "string",
+              description: "The ID of the item",
+            },
+            driveId: {
+              type: "string",
+              description: "The ID of the drive containing the item",
+            },
+            name: {
+              type: "string",
+              description: "The name of the item",
+            },
+            itemType: {
+              type: "string",
+              description: "One of: file | folder",
+            },
+            mimeType: {
+              type: "string",
+              description: "The MIME type of the file",
+            },
+            sizeBytes: {
+              type: "number",
+              description: "The size of the file in bytes",
+            },
+            webUrl: {
+              type: "string",
+              description: "The web URL of the item",
+            },
+            lastModified: {
+              type: "string",
+              description: "The last modified timestamp of the item",
+            },
+          },
+        },
+      },
+      truncated: {
+        type: "boolean",
+        description: "True if enumeration stopped at maxItems before listing everything",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the folder was not listed",
+      },
+    },
+  },
+  name: "listSharepointFolder",
+  provider: "microsoft",
+};
+export const microsoftReadSharepointContentDefinition: ActionTemplate = {
+  displayName: "Read SharePoint or OneDrive content as text",
+  description:
+    "Reads a SharePoint or OneDrive document (docx, pdf, xlsx, pptx, txt, csv, json, html) or SharePoint site page as plain text, given a URL or a driveId + itemId pair. Plain files only need Files.Read.All; site pages additionally require Sites.Read.All.",
+  scopes: ["Files.Read.All", "Sites.Read.All"],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: [],
+    properties: {
+      url: {
+        type: "string",
+        description: "The URL of the file or page to read. Provide either this or driveId + itemId.",
+      },
+      driveId: {
+        type: "string",
+        description: "The ID of the drive containing the file. Provide together with itemId.",
+      },
+      itemId: {
+        type: "string",
+        description: "The ID of the file to read. Provide together with driveId.",
+      },
+      charLimit: {
+        type: "number",
+        description: "The character limit for the returned content (soft truncation)",
+      },
+      fileSizeLimit: {
+        type: "number",
+        description: "Max file size (in MB) to retrieve content from (default of 50MB)",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the content was retrieved successfully",
+      },
+      results: {
+        type: "array",
+        description: "The results of the content read",
+        items: {
+          type: "object",
+          required: ["name", "url", "contents"],
+          properties: {
+            name: {
+              type: "string",
+              description: "The name of the file or page",
+            },
+            url: {
+              type: "string",
+              description: "The URL of the file or page",
+            },
+            contents: {
+              type: "object",
+              description: "The contents of the file or page",
+              properties: {
+                content: {
+                  type: "string",
+                  description: "The text content of the file or page",
+                },
+                fileName: {
+                  type: "string",
+                  description: "The name of the file or page",
+                },
+                fileLength: {
+                  type: "number",
+                  description: "The length of the content prior to truncating",
+                },
+              },
+            },
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "Error message if content retrieval failed",
+      },
+    },
+  },
+  name: "readSharepointContent",
+  provider: "microsoft",
+};
+export const microsoftSearchSharepointDefinition: ActionTemplate = {
+  displayName: "Search SharePoint and OneDrive files",
+  description:
+    "Searches SharePoint and OneDrive for files matching a query. Tenant-wide search (optionally restricted to a site or folder via scopeUrl) requires Sites.Read.All; passing a driveId searches within that single drive and works with Files.Read.All alone.",
+  scopes: ["Files.Read.All", "Sites.Read.All"],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["query"],
+    properties: {
+      query: {
+        type: "string",
+        description: "The text to search for",
+      },
+      scopeUrl: {
+        type: "string",
+        description: "A site or folder URL to restrict results to (optional)",
+      },
+      driveId: {
+        type: "string",
+        description: "The ID of a single drive to search within (optional)",
+      },
+      limit: {
+        type: "number",
+        description: "Maximum number of results to return (default 25)",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the search completed successfully",
+      },
+      files: {
+        type: "array",
+        description: "The files matching the search query",
+        items: {
+          type: "object",
+          required: ["itemId", "name"],
+          properties: {
+            itemId: {
+              type: "string",
+              description: "The ID of the file",
+            },
+            driveId: {
+              type: "string",
+              description: "The ID of the drive containing the file",
+            },
+            name: {
+              type: "string",
+              description: "The name of the file",
+            },
+            mimeType: {
+              type: "string",
+              description: "The MIME type of the file",
+            },
+            webUrl: {
+              type: "string",
+              description: "The web URL of the file",
+            },
+            snippet: {
+              type: "string",
+              description: "A text snippet summarizing the match",
+            },
+            lastModified: {
+              type: "string",
+              description: "The last modified timestamp of the file",
+            },
+          },
+        },
+      },
+      truncated: {
+        type: "boolean",
+        description: "True if more results were available than the limit allowed",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the search failed",
+      },
+    },
+  },
+  name: "searchSharepoint",
+  provider: "microsoft",
+};
 export const githubCreateOrUpdateFileDefinition: ActionTemplate = {
   displayName: "Create or update a file",
   description: "Create or update a file in a GitHub repository",
