@@ -58,7 +58,7 @@ describe("microsoft searchSharepoint", () => {
     expect(result.error).toBe(MISSING_AUTH_TOKEN);
   });
 
-  it("searches tenant-wide via POST /search/query", async () => {
+  it("searches tenant-wide via POST /search/query when no scopeUrl is given", async () => {
     mockPost.mockResolvedValueOnce(
       searchResponse(
         [hit("item-1", "budget.xlsx", "the budget for Q3")],
@@ -84,23 +84,28 @@ describe("microsoft searchSharepoint", () => {
         lastModified: "2026-01-01T00:00:00Z",
       },
     ]);
+    expect(mockGet).not.toHaveBeenCalled();
     const [postUrl, postBody] = mockPost.mock.calls[0] as [string, any];
     expect(postUrl).toBe("https://graph.microsoft.com/v1.0/search/query");
     expect(postBody.requests[0].entityTypes).toEqual(["driveItem"]);
     expect(postBody.requests[0].query.queryString).toBe("budget");
   });
 
-  it("appends KQL path scoping when scopeUrl is provided", async () => {
+  it("resolves a site scopeUrl and appends KQL path scoping", async () => {
+    const scopeUrl = "https://contoso.sharepoint.com/sites/finance";
+    mockGet
+      .mockRejectedValueOnce(
+        new ApiError("Request failed with status 404", 404, {}),
+      )
+      .mockResolvedValueOnce({ data: { id: "site-1", webUrl: scopeUrl } });
     mockPost.mockResolvedValueOnce(searchResponse([], false));
 
-    await searchSharepoint({
-      params: {
-        query: "budget",
-        scopeUrl: "https://contoso.sharepoint.com/sites/finance",
-      },
+    const result = await searchSharepoint({
+      params: { query: "budget", scopeUrl },
       authParams: AUTH,
     });
 
+    expect(result.success).toBe(true);
     const [, postBody] = mockPost.mock.calls[0] as [string, any];
     expect(postBody.requests[0].query.queryString).toBe(
       'budget path:"https://contoso.sharepoint.com/sites/finance"',
@@ -166,39 +171,7 @@ describe("microsoft searchSharepoint", () => {
     expect(result.files?.[0].snippet).toBe("first");
   });
 
-  it("searches a single drive directly when driveId is provided", async () => {
-    mockGet.mockResolvedValueOnce({
-      data: {
-        value: [
-          {
-            id: "item-1",
-            name: "a.txt",
-            webUrl: "https://contoso.sharepoint.com/a.txt",
-            file: { mimeType: "text/plain" },
-            parentReference: { driveId: "drive-1" },
-          },
-        ],
-      },
-    });
-
-    const result = await searchSharepoint({
-      params: { query: "budget", driveId: "drive-1" },
-      authParams: AUTH,
-    });
-
-    expect(result.success).toBe(true);
-    expect(result.files).toHaveLength(1);
-    expect(mockPost).not.toHaveBeenCalled();
-    expect(mockGet).toHaveBeenCalledWith(
-      "https://graph.microsoft.com/v1.0/drives/drive-1/root/search(q='budget')?$top=100",
-      expect.anything(),
-    );
-  });
-
-  it("falls back to a drive-scoped search when /search/query returns 403 and scopeUrl resolves to a folder", async () => {
-    mockPost.mockRejectedValueOnce(
-      new ApiError("Request failed with status 403", 403, {}),
-    );
+  it("searches within a folder via an item-scoped drive search when scopeUrl resolves to a folder", async () => {
     mockGet
       .mockResolvedValueOnce({
         data: {
@@ -241,9 +214,36 @@ describe("microsoft searchSharepoint", () => {
         lastModified: undefined,
       },
     ]);
+    expect(mockPost).not.toHaveBeenCalled();
+    expect(mockGet).toHaveBeenLastCalledWith(
+      "https://graph.microsoft.com/v1.0/drives/drive-1/items/folder-1/search(q='budget')?$top=100",
+      expect.anything(),
+    );
   });
 
-  it("returns MISSING_SITES_SCOPE when /search/query returns 403 and no drive fallback is possible", async () => {
+  it("returns MISSING_SITES_SCOPE for a site scopeUrl when site resolution fails with 403", async () => {
+    mockGet
+      .mockRejectedValueOnce(
+        new ApiError("Request failed with status 404", 404, {}),
+      )
+      .mockRejectedValueOnce(
+        new ApiError("Request failed with status 403", 403, {}),
+      );
+
+    const result = await searchSharepoint({
+      params: {
+        query: "budget",
+        scopeUrl: "https://contoso.sharepoint.com/sites/finance",
+      },
+      authParams: AUTH,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBe(MISSING_SITES_SCOPE);
+    expect(mockPost).not.toHaveBeenCalled();
+  });
+
+  it("returns MISSING_SITES_SCOPE when tenant-wide /search/query returns 403", async () => {
     mockPost.mockRejectedValueOnce(
       new ApiError("Request failed with status 403", 403, {}),
     );
@@ -255,5 +255,29 @@ describe("microsoft searchSharepoint", () => {
 
     expect(result.success).toBe(false);
     expect(result.error).toBe(MISSING_SITES_SCOPE);
+  });
+
+  it("rejects a scopeUrl that points to a file", async () => {
+    mockGet.mockResolvedValueOnce({
+      data: {
+        id: "item-1",
+        name: "a.txt",
+        file: { mimeType: "text/plain" },
+        parentReference: { driveId: "drive-1" },
+      },
+    });
+
+    const result = await searchSharepoint({
+      params: {
+        query: "budget",
+        scopeUrl:
+          "https://contoso.sharepoint.com/sites/finance/Shared%20Documents/a.txt",
+      },
+      authParams: AUTH,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("file");
+    expect(mockPost).not.toHaveBeenCalled();
   });
 });

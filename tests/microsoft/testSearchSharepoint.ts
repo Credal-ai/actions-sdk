@@ -14,7 +14,6 @@ async function runTest() {
     {
       query: process.env.MICROSOFT_SHAREPOINT_SEARCH_QUERY!,
       scopeUrl: process.env.MICROSOFT_SHAREPOINT_SCOPE_URL,
-      driveId: process.env.MICROSOFT_SHAREPOINT_DRIVE_ID,
       limit: 25,
     },
   );

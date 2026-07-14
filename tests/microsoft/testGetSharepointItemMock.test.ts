@@ -121,8 +121,18 @@ describe("microsoft getSharepointItem", () => {
       .mockResolvedValueOnce({
         data: {
           value: [
-            { id: "drive-1", name: "Documents" },
-            { id: "drive-2", name: "Site Assets" },
+            {
+              id: "drive-1",
+              name: "Documents",
+              webUrl:
+                "https://contoso.sharepoint.com/sites/marketing/Shared%20Documents",
+            },
+            {
+              id: "drive-2",
+              name: "Site Assets",
+              webUrl:
+                "https://contoso.sharepoint.com/sites/marketing/SiteAssets",
+            },
           ],
         },
       });
@@ -136,8 +146,17 @@ describe("microsoft getSharepointItem", () => {
     expect(result.item?.itemType).toBe("site");
     expect(result.item?.siteId).toBe("contoso.sharepoint.com,guid1,guid2");
     expect(result.item?.drives).toEqual([
-      { driveId: "drive-1", name: "Documents" },
-      { driveId: "drive-2", name: "Site Assets" },
+      {
+        driveId: "drive-1",
+        name: "Documents",
+        webUrl:
+          "https://contoso.sharepoint.com/sites/marketing/Shared%20Documents",
+      },
+      {
+        driveId: "drive-2",
+        name: "Site Assets",
+        webUrl: "https://contoso.sharepoint.com/sites/marketing/SiteAssets",
+      },
     ]);
     expect(mockGet).toHaveBeenCalledWith(
       "https://graph.microsoft.com/v1.0/sites/contoso.sharepoint.com:/sites/marketing",

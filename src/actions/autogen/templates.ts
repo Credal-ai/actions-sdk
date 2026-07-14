@@ -11937,6 +11937,10 @@ export const microsoftGetSharepointItemDefinition: ActionTemplate = {
                   type: "string",
                   description: "The name of the document library",
                 },
+                webUrl: {
+                  type: "string",
+                  description: "The web URL of the document library (usable as a searchSharepoint scopeUrl)",
+                },
               },
             },
           },
@@ -12134,7 +12138,7 @@ export const microsoftReadSharepointContentDefinition: ActionTemplate = {
 export const microsoftSearchSharepointDefinition: ActionTemplate = {
   displayName: "Search SharePoint and OneDrive files",
   description:
-    "Searches SharePoint and OneDrive for files matching a query. Tenant-wide search (optionally restricted to a site or folder via scopeUrl) requires Sites.Read.All; passing a driveId searches within that single drive and works with Files.Read.All alone.",
+    "Keyword search across SharePoint and OneDrive files via Microsoft Search (KQL matching with M365 relevance ranking, not semantic search). OneDrive is always included. Without scopeUrl, searches everything the signed-in user can access (requires Sites.Read.All). With scopeUrl, restricts results to that site, folder, or document library URL — folder and library scoping work with Files.Read.All alone; site scoping requires Sites.Read.All.",
   scopes: ["Files.Read.All", "Sites.Read.All"],
   tags: [],
   parameters: {
@@ -12147,11 +12151,8 @@ export const microsoftSearchSharepointDefinition: ActionTemplate = {
       },
       scopeUrl: {
         type: "string",
-        description: "A site or folder URL to restrict results to (optional)",
-      },
-      driveId: {
-        type: "string",
-        description: "The ID of a single drive to search within (optional)",
+        description:
+          "A site, folder, or document library URL to restrict results to (optional — omit to search everything the user can access)",
       },
       limit: {
         type: "number",

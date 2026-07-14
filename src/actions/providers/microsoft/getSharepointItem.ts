@@ -28,7 +28,7 @@ const getSharepointItem: microsoftGetSharepointItemFunction = async ({
       const drivesResponse = await axiosClient.get(`${MICROSOFT_GRAPH_API_URL}/sites/${resolved.siteId}/drives`, {
         headers,
       });
-      const drives: { id?: string; name?: string }[] = drivesResponse.data.value ?? [];
+      const drives: { id?: string; name?: string; webUrl?: string }[] = drivesResponse.data.value ?? [];
       return {
         success: true,
         item: {
@@ -36,7 +36,7 @@ const getSharepointItem: microsoftGetSharepointItemFunction = async ({
           siteId: resolved.siteId,
           name: resolved.name,
           webUrl: resolved.webUrl,
-          drives: drives.map(drive => ({ driveId: drive.id, name: drive.name })),
+          drives: drives.map(drive => ({ driveId: drive.id, name: drive.name, webUrl: drive.webUrl })),
         },
       };
     }

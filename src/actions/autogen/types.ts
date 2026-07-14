@@ -6325,6 +6325,10 @@ export const microsoftGetSharepointItemOutputSchema = z.object({
           z.object({
             driveId: z.string().describe("The ID of the document library drive").optional(),
             name: z.string().describe("The name of the document library").optional(),
+            webUrl: z
+              .string()
+              .describe("The web URL of the document library (usable as a searchSharepoint scopeUrl)")
+              .optional(),
           }),
         )
         .describe("For sites — the document libraries in the site")
@@ -6426,8 +6430,12 @@ export type microsoftReadSharepointContentFunction = ActionFunction<
 
 export const microsoftSearchSharepointParamsSchema = z.object({
   query: z.string().describe("The text to search for"),
-  scopeUrl: z.string().describe("A site or folder URL to restrict results to (optional)").optional(),
-  driveId: z.string().describe("The ID of a single drive to search within (optional)").optional(),
+  scopeUrl: z
+    .string()
+    .describe(
+      "A site, folder, or document library URL to restrict results to (optional — omit to search everything the user can access)",
+    )
+    .optional(),
   limit: z.coerce.number().describe("Maximum number of results to return (default 25)").optional(),
 });
 

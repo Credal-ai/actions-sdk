@@ -39,14 +39,14 @@ function isSiteScopeError(error: unknown): boolean {
   return error instanceof ApiError && (error.status === 401 || error.status === 403);
 }
 
-/** Tenant-wide POST /search/query — requires Sites.Read.All. */
+/** POST /search/query, optionally KQL path-scoped — requires Sites.Read.All. */
 async function searchWithSearchApi(
   query: string,
-  scopeUrl: string | undefined,
+  pathScope: string | undefined,
   limit: number,
   headers: Record<string, string>,
 ): Promise<microsoftSearchSharepointOutputType> {
-  const queryString = scopeUrl ? `${query} path:"${scopeUrl}"` : query;
+  const queryString = pathScope ? `${query} path:"${pathScope}"` : query;
   const files: SharepointFile[] = [];
   let truncated = false;
   let from = 0;
@@ -89,18 +89,22 @@ async function searchWithSearchApi(
   return { success: true, files: dedupeByItemIdKeepFirst(files), truncated };
 }
 
-/** Per-drive fallback GET /drives/{driveId}/root/search — works with Files.Read.All alone. */
-async function searchSingleDrive(
+/** Item-scoped GET /drives/{driveId}/items/{itemId}/search — works with Files.Read.All alone. */
+async function searchWithinFolder(
   driveId: string,
+  itemId: string,
   query: string,
   limit: number,
   headers: Record<string, string>,
 ): Promise<microsoftSearchSharepointOutputType> {
   const escapedQuery = encodeURIComponent(query.replace(/'/g, "''"));
+  const base =
+    itemId === "root"
+      ? `${MICROSOFT_GRAPH_API_URL}/drives/${driveId}/root`
+      : `${MICROSOFT_GRAPH_API_URL}/drives/${driveId}/items/${itemId}`;
   const files: SharepointFile[] = [];
   let truncated = false;
-  let nextUrl: string | undefined =
-    `${MICROSOFT_GRAPH_API_URL}/drives/${driveId}/root/search(q='${escapedQuery}')?$top=${SEARCH_PAGE_SIZE}`;
+  let nextUrl: string | undefined = `${base}/search(q='${escapedQuery}')?$top=${SEARCH_PAGE_SIZE}`;
 
   while (!truncated && nextUrl) {
     const response: { data: { value?: SharepointDriveItem[]; "@odata.nextLink"?: string } } = await axiosClient.get(
@@ -136,31 +140,42 @@ const searchSharepoint: microsoftSearchSharepointFunction = async ({
     return { success: false, error: MISSING_AUTH_TOKEN };
   }
 
-  const { query, scopeUrl, driveId } = params;
+  const { query, scopeUrl } = params;
   const limit = params.limit && params.limit > 0 ? params.limit : DEFAULT_LIMIT;
   const headers = { Authorization: `Bearer ${authParams.authToken}` };
 
   try {
-    // An explicit driveId restricts the search to that drive and needs no site scopes
-    if (driveId) {
-      return await searchSingleDrive(driveId, query, limit, headers);
-    }
-
-    try {
-      return await searchWithSearchApi(query, scopeUrl, limit, headers);
-    } catch (error) {
-      if (!isSiteScopeError(error)) {
+    if (!scopeUrl) {
+      try {
+        return await searchWithSearchApi(query, undefined, limit, headers);
+      } catch (error) {
+        if (isSiteScopeError(error)) {
+          return { success: false, error: MISSING_SITES_SCOPE };
+        }
         throw error;
       }
-      // No site scopes: fall back to a drive-scoped search when the scopeUrl resolves to a drive
-      if (scopeUrl) {
-        const resolved = await resolveItemFromUrl(authParams.authToken, scopeUrl);
-        if (resolved.itemType === "file" || resolved.itemType === "folder") {
-          return await searchSingleDrive(resolved.driveId, query, limit, headers);
-        }
-      }
-      return { success: false, error: MISSING_SITES_SCOPE };
     }
+
+    // Resolving the scopeUrl decides the search mode: folders and library roots use an
+    // item-scoped drive search (Files.Read.All alone), sites use the path-filtered Search API
+    const resolved = await resolveItemFromUrl(authParams.authToken, scopeUrl);
+    if (resolved.itemType === "folder") {
+      return await searchWithinFolder(resolved.driveId, resolved.itemId, query, limit, headers);
+    }
+    if (resolved.itemType === "site") {
+      try {
+        return await searchWithSearchApi(query, resolved.webUrl ?? scopeUrl, limit, headers);
+      } catch (error) {
+        if (isSiteScopeError(error)) {
+          return { success: false, error: MISSING_SITES_SCOPE };
+        }
+        throw error;
+      }
+    }
+    return {
+      success: false,
+      error: `scopeUrl points to a ${resolved.itemType === "page" ? "site page" : "file"} — provide a folder, document library, or site URL`,
+    };
   } catch (error) {
     console.error("Error searching SharePoint", error);
     return {
