@@ -185,6 +185,10 @@ export enum ActionName {
   ADDROWTOSHEET = "addRowToSheet",
   UPDATEROW = "updateRow",
   GETRECORDSBYQUERY = "getRecordsByQuery",
+  GETINCIDENTS = "getIncidents",
+  GETCHANGEREQUESTS = "getChangeRequests",
+  GETSCTASKS = "getSCTasks",
+  GETVIPTICKETS = "getVIPTickets",
 }
 
 export type ActionFunction<P, A, O> = (input: { params: P; authParams: A }) => Promise<O>;
@@ -8045,4 +8049,266 @@ export type servicenowGetRecordsByQueryFunction = ActionFunction<
   servicenowGetRecordsByQueryParamsType,
   AuthParamsType,
   servicenowGetRecordsByQueryOutputType
+>;
+
+export const servicenowGetIncidentsParamsSchema = z.object({
+  query: z
+    .string()
+    .describe(
+      'Optional additional ServiceNow encoded query (sysparm_query) ANDed onto the base incident lookup — NOT SQL, JQL, or natural language. Conditions are joined with ^ for AND and ^OR for OR, with no spaces around the ^. Example: "priority=1^state!=7" for open, priority-1 incidents. Leave empty to return all incidents up to the limit.\n',
+    )
+    .optional(),
+  additionalFields: z
+    .array(z.string())
+    .describe(
+      'Extra ServiceNow field technical names to fetch for instance-specific/custom fields not covered by the standard output (e.g. a custom "Program Office" field). Values are returned per record under extraFields, keyed by the field name given here.\n',
+    )
+    .optional(),
+  limit: z.coerce.number().describe("Maximum number of incidents to return (defaults to 25)").optional(),
+  offset: z.coerce.number().describe("Number of records to skip, for pagination (defaults to 0)").optional(),
+});
+
+export type servicenowGetIncidentsParamsType = z.infer<typeof servicenowGetIncidentsParamsSchema>;
+
+export const servicenowGetIncidentsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the query was successful"),
+  records: z
+    .array(
+      z.object({
+        number: z.string().describe("The incident ticket number (e.g. INC0010023)").optional(),
+        caller: z.string().describe("The name of the person who reported the incident").optional(),
+        assignee: z.string().describe("The name of the person assigned to the incident").optional(),
+        assignmentGroup: z.string().describe("The name of the group assigned to the incident").optional(),
+        shortDescription: z.string().describe("The short description of the incident").optional(),
+        description: z.string().describe("The full description of the incident").optional(),
+        state: z.string().describe("The current state of the incident").optional(),
+        incidentState: z
+          .string()
+          .describe("The current incident-specific state (legacy field on some instances; may be absent)")
+          .optional(),
+        priority: z.string().describe("The priority of the incident").optional(),
+        impact: z.string().describe("The impact of the incident").optional(),
+        urgency: z.string().describe("The urgency of the incident").optional(),
+        openedAt: z.string().describe("The date and time the incident was opened").optional(),
+        updatedAt: z.string().describe("The date and time the incident was last updated").optional(),
+        closedAt: z
+          .string()
+          .describe("The date and time the incident was closed or completed, if applicable")
+          .optional(),
+        workNotes: z.string().describe("Internal work notes on the incident").optional(),
+        comments: z.string().describe("Additional (customer-visible) comments on the incident").optional(),
+        timeToResolutionMinutes: z.coerce
+          .number()
+          .describe("Minutes elapsed between openedAt and closedAt, if the incident is closed")
+          .optional(),
+        extraFields: z
+          .object({})
+          .catchall(z.any())
+          .describe("Values for any fields requested via the additionalFields parameter, keyed by field name")
+          .optional(),
+      }),
+    )
+    .describe("The incident records matching the query")
+    .optional(),
+  error: z.string().describe("Error message if the query failed").optional(),
+});
+
+export type servicenowGetIncidentsOutputType = z.infer<typeof servicenowGetIncidentsOutputSchema>;
+export type servicenowGetIncidentsFunction = ActionFunction<
+  servicenowGetIncidentsParamsType,
+  AuthParamsType,
+  servicenowGetIncidentsOutputType
+>;
+
+export const servicenowGetChangeRequestsParamsSchema = z.object({
+  query: z
+    .string()
+    .describe(
+      'Optional additional ServiceNow encoded query (sysparm_query) ANDed onto the base change request lookup — NOT SQL, JQL, or natural language. Conditions are joined with ^ for AND and ^OR for OR, with no spaces around the ^. Example: "priority=1^state!=3" for open, priority-1 change requests. Leave empty to return all change requests up to the limit.\n',
+    )
+    .optional(),
+  additionalFields: z
+    .array(z.string())
+    .describe(
+      'Extra ServiceNow field technical names to fetch for instance-specific/custom fields not covered by the standard output (e.g. a custom "Program Office" field). Values are returned per record under extraFields, keyed by the field name given here.\n',
+    )
+    .optional(),
+  limit: z.coerce.number().describe("Maximum number of change requests to return (defaults to 25)").optional(),
+  offset: z.coerce.number().describe("Number of records to skip, for pagination (defaults to 0)").optional(),
+});
+
+export type servicenowGetChangeRequestsParamsType = z.infer<typeof servicenowGetChangeRequestsParamsSchema>;
+
+export const servicenowGetChangeRequestsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the query was successful"),
+  records: z
+    .array(
+      z.object({
+        number: z.string().describe("The change request number (e.g. CHG0010023)").optional(),
+        requestor: z.string().describe("The name of the person who requested the change").optional(),
+        assignee: z.string().describe("The name of the person assigned to the change request").optional(),
+        assignmentGroup: z.string().describe("The name of the group assigned to the change request").optional(),
+        shortDescription: z.string().describe("The short description of the change request").optional(),
+        description: z.string().describe("The full description of the change request").optional(),
+        state: z.string().describe("The current state of the change request").optional(),
+        priority: z.string().describe("The priority of the change request").optional(),
+        impact: z.string().describe("The impact of the change request").optional(),
+        urgency: z.string().describe("The urgency of the change request").optional(),
+        openedAt: z.string().describe("The date and time the change request was opened").optional(),
+        updatedAt: z.string().describe("The date and time the change request was last updated").optional(),
+        closedAt: z
+          .string()
+          .describe("The date and time the change request was closed or completed, if applicable")
+          .optional(),
+        workNotes: z.string().describe("Internal work notes on the change request").optional(),
+        comments: z.string().describe("Additional (customer-visible) comments on the change request").optional(),
+        timeToResolutionMinutes: z.coerce
+          .number()
+          .describe("Minutes elapsed between openedAt and closedAt, if the change request is closed")
+          .optional(),
+        extraFields: z
+          .object({})
+          .catchall(z.any())
+          .describe("Values for any fields requested via the additionalFields parameter, keyed by field name")
+          .optional(),
+      }),
+    )
+    .describe("The change request records matching the query")
+    .optional(),
+  error: z.string().describe("Error message if the query failed").optional(),
+});
+
+export type servicenowGetChangeRequestsOutputType = z.infer<typeof servicenowGetChangeRequestsOutputSchema>;
+export type servicenowGetChangeRequestsFunction = ActionFunction<
+  servicenowGetChangeRequestsParamsType,
+  AuthParamsType,
+  servicenowGetChangeRequestsOutputType
+>;
+
+export const servicenowGetSCTasksParamsSchema = z.object({
+  query: z
+    .string()
+    .describe(
+      'Optional additional ServiceNow encoded query (sysparm_query) ANDed onto the base SCTASK lookup — NOT SQL, JQL, or natural language. Conditions are joined with ^ for AND and ^OR for OR, with no spaces around the ^. Example: "priority=1^state!=3" for open, priority-1 SCTASKs. Leave empty to return all SCTASKs up to the limit.\n',
+    )
+    .optional(),
+  additionalFields: z
+    .array(z.string())
+    .describe(
+      'Extra ServiceNow field technical names to fetch for instance-specific/custom fields not covered by the standard output (e.g. a custom "Program Office" field). Values are returned per record under extraFields, keyed by the field name given here.\n',
+    )
+    .optional(),
+  limit: z.coerce.number().describe("Maximum number of SCTASKs to return (defaults to 25)").optional(),
+  offset: z.coerce.number().describe("Number of records to skip, for pagination (defaults to 0)").optional(),
+});
+
+export type servicenowGetSCTasksParamsType = z.infer<typeof servicenowGetSCTasksParamsSchema>;
+
+export const servicenowGetSCTasksOutputSchema = z.object({
+  success: z.boolean().describe("Whether the query was successful"),
+  records: z
+    .array(
+      z.object({
+        number: z.string().describe("The SCTASK ticket number (e.g. SCTASK0010023)").optional(),
+        ritmNumber: z
+          .string()
+          .describe("The number of the parent Requested Item (RITM) this SCTASK belongs to")
+          .optional(),
+        assignee: z.string().describe("The name of the person assigned to the SCTASK").optional(),
+        assignmentGroup: z.string().describe("The name of the group assigned to the SCTASK").optional(),
+        shortDescription: z.string().describe("The short description of the SCTASK").optional(),
+        description: z.string().describe("The full description of the SCTASK").optional(),
+        state: z.string().describe("The current state of the SCTASK").optional(),
+        priority: z.string().describe("The priority of the SCTASK").optional(),
+        openedAt: z.string().describe("The date and time the SCTASK was opened").optional(),
+        updatedAt: z.string().describe("The date and time the SCTASK was last updated").optional(),
+        closedAt: z.string().describe("The date and time the SCTASK was closed or completed, if applicable").optional(),
+        workNotes: z.string().describe("Internal work notes on the SCTASK").optional(),
+        comments: z.string().describe("Additional (customer-visible) comments on the SCTASK").optional(),
+        timeToResolutionMinutes: z.coerce
+          .number()
+          .describe("Minutes elapsed between openedAt and closedAt, if the SCTASK is closed")
+          .optional(),
+        extraFields: z
+          .object({})
+          .catchall(z.any())
+          .describe("Values for any fields requested via the additionalFields parameter, keyed by field name")
+          .optional(),
+      }),
+    )
+    .describe("The SCTASK records matching the query")
+    .optional(),
+  error: z.string().describe("Error message if the query failed").optional(),
+});
+
+export type servicenowGetSCTasksOutputType = z.infer<typeof servicenowGetSCTasksOutputSchema>;
+export type servicenowGetSCTasksFunction = ActionFunction<
+  servicenowGetSCTasksParamsType,
+  AuthParamsType,
+  servicenowGetSCTasksOutputType
+>;
+
+export const servicenowGetVIPTicketsParamsSchema = z.object({
+  ticketType: z.enum(["incident", "sc_task"]).describe("Which kind of ticket to look up VIP records for"),
+  query: z
+    .string()
+    .describe(
+      'Optional additional ServiceNow encoded query (sysparm_query) ANDed onto the base VIP lookup — NOT SQL, JQL, or natural language. Conditions are joined with ^ for AND and ^OR for OR, with no spaces around the ^. Example: "priority=1" to further narrow to priority-1 VIP tickets. Leave empty to return all VIP tickets of the given type up to the limit.\n',
+    )
+    .optional(),
+  additionalFields: z
+    .array(z.string())
+    .describe(
+      'Extra ServiceNow field technical names to fetch for instance-specific/custom fields not covered by the standard output (e.g. a custom "Program Office" field). Values are returned per record under extraFields, keyed by the field name given here.\n',
+    )
+    .optional(),
+  limit: z.coerce.number().describe("Maximum number of VIP tickets to return (defaults to 25)").optional(),
+  offset: z.coerce.number().describe("Number of records to skip, for pagination (defaults to 0)").optional(),
+});
+
+export type servicenowGetVIPTicketsParamsType = z.infer<typeof servicenowGetVIPTicketsParamsSchema>;
+
+export const servicenowGetVIPTicketsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the query was successful"),
+  records: z
+    .array(
+      z.object({
+        ticketType: z.string().describe("Whether this record is an incident or a SCTASK").optional(),
+        number: z.string().describe("The ticket number").optional(),
+        ritmNumber: z
+          .string()
+          .describe("The number of the parent Requested Item (RITM), if this is a SCTASK")
+          .optional(),
+        vipUser: z.string().describe("The name of the VIP caller or requester associated with this ticket").optional(),
+        assignee: z.string().describe("The name of the person assigned to the ticket").optional(),
+        assignmentGroup: z.string().describe("The name of the group assigned to the ticket").optional(),
+        shortDescription: z.string().describe("The short description of the ticket").optional(),
+        description: z.string().describe("The full description of the ticket").optional(),
+        state: z.string().describe("The current state of the ticket").optional(),
+        openedAt: z.string().describe("The date and time the ticket was opened").optional(),
+        updatedAt: z.string().describe("The date and time the ticket was last updated").optional(),
+        closedAt: z.string().describe("The date and time the ticket was closed or completed, if applicable").optional(),
+        workNotes: z.string().describe("Internal work notes on the ticket").optional(),
+        comments: z.string().describe("Additional (customer-visible) comments on the ticket").optional(),
+        timeToResolutionMinutes: z.coerce
+          .number()
+          .describe("Minutes elapsed between openedAt and closedAt, if the ticket is closed")
+          .optional(),
+        extraFields: z
+          .object({})
+          .catchall(z.any())
+          .describe("Values for any fields requested via the additionalFields parameter, keyed by field name")
+          .optional(),
+      }),
+    )
+    .describe("The VIP ticket records matching the query")
+    .optional(),
+  error: z.string().describe("Error message if the query failed").optional(),
+});
+
+export type servicenowGetVIPTicketsOutputType = z.infer<typeof servicenowGetVIPTicketsOutputSchema>;
+export type servicenowGetVIPTicketsFunction = ActionFunction<
+  servicenowGetVIPTicketsParamsType,
+  AuthParamsType,
+  servicenowGetVIPTicketsOutputType
 >;
