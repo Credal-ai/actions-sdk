@@ -15690,7 +15690,7 @@ export const servicenowGetRecordsByQueryDefinition: ActionTemplate = {
       query: {
         type: "string",
         description:
-          'ServiceNow encoded query string (sysparm_query), e.g. "active=true^priority=1^ORDERBYDESCsys_created_on". If omitted, records are returned unfiltered up to the limit.',
+          'ServiceNow encoded query string (sysparm_query) — NOT SQL, JQL, or natural language. Conditions are joined with ^ for AND and ^OR for OR, with no spaces around the ^. Format examples: field=value, field!=value, field>value, fieldLIKEvalue, fieldISEMPTY. Sort with ^ORDERBY<field> (ascending) or ^ORDERBYDESC<field> (descending). Example: "active=true^priority=1^ORDERBYDESCsys_created_on" means active records with priority 1, sorted by most recently created first. If omitted, records are returned unfiltered up to the limit.\n',
       },
       fields: {
         type: "array",
