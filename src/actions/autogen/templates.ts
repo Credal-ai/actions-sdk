@@ -15707,6 +15707,11 @@ export const servicenowGetRecordsByQueryDefinition: ActionTemplate = {
         type: "number",
         description: "Number of records to skip, for pagination (defaults to 0)",
       },
+      includeDisplayValues: {
+        type: "boolean",
+        description:
+          'If false (default), each field is returned as a plain scalar value (e.g. active: true, priority: "1"). If true, every field is instead returned as an object {value: "<raw value>", display_value: "<human-readable value>"} — useful for reference fields like assigned_to, where value is a sys_id and display_value is the user\'s name.\n',
+      },
     },
   },
   output: {

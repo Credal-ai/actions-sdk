@@ -7,6 +7,7 @@ import type {
 import { ApiError, axiosClient } from "../../util/axiosClient.js";
 
 const DEFAULT_LIMIT = 25;
+const MAX_LIMIT = 10000;
 
 const getRecordsByQuery: servicenowGetRecordsByQueryFunction = async ({
   params,
@@ -16,17 +17,19 @@ const getRecordsByQuery: servicenowGetRecordsByQueryFunction = async ({
   authParams: AuthParamsType;
 }): Promise<servicenowGetRecordsByQueryOutputType> => {
   const { authToken, baseUrl } = authParams;
-  const { tableName, query, fields, limit = DEFAULT_LIMIT, offset = 0 } = params;
+  const { tableName, query, fields, limit = DEFAULT_LIMIT, offset = 0, includeDisplayValues = false } = params;
 
   if (!authToken || !baseUrl) {
     return { success: false, error: "authToken and baseUrl are required for the ServiceNow API" };
   }
 
+  const cappedLimit = Math.min(limit, MAX_LIMIT);
+
   const queryParams = new URLSearchParams();
-  queryParams.append("sysparm_limit", limit.toString());
+  queryParams.append("sysparm_limit", cappedLimit.toString());
   queryParams.append("sysparm_offset", offset.toString());
-  // Return human-readable values alongside raw sys_ids for reference fields
-  queryParams.append("sysparm_display_value", "all");
+  // "all" nests each field as {value, display_value}; "false" keeps fields as plain scalars
+  queryParams.append("sysparm_display_value", includeDisplayValues ? "all" : "false");
   queryParams.append("sysparm_exclude_reference_link", "true");
   if (query) {
     queryParams.append("sysparm_query", query);
