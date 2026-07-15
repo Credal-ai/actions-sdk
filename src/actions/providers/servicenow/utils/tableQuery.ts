@@ -59,7 +59,8 @@ export async function queryServiceNowTable({
         Authorization: `Bearer ${authToken}`,
       },
     });
-    return { records: response.data.result };
+    const result = response.data.result;
+    return { records: Array.isArray(result) ? result : [] };
   } catch (error) {
     console.error(`Error querying ServiceNow table ${tableName}:`, error);
     return { error: error instanceof ApiError ? error.message : "An unknown error occurred" };
