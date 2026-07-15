@@ -37,6 +37,7 @@ export enum ProviderName {
   LINEAR = "linear",
   HUBSPOT = "hubspot",
   SMARTSHEET = "smartsheet",
+  SERVICENOW = "servicenow",
   BOXUSER = "boxUser",
 }
 
@@ -183,6 +184,7 @@ export enum ActionName {
   GETSHEETROWS = "getSheetRows",
   ADDROWTOSHEET = "addRowToSheet",
   UPDATEROW = "updateRow",
+  GETRECORDSBYQUERY = "getRecordsByQuery",
 }
 
 export type ActionFunction<P, A, O> = (input: { params: P; authParams: A }) => Promise<O>;
@@ -8004,4 +8006,37 @@ export type smartsheetUpdateRowFunction = ActionFunction<
   smartsheetUpdateRowParamsType,
   AuthParamsType,
   smartsheetUpdateRowOutputType
+>;
+
+export const servicenowGetRecordsByQueryParamsSchema = z.object({
+  tableName: z
+    .string()
+    .describe("The ServiceNow table to query (e.g. incident, change_request, sc_request, sys_user, kb_knowledge)"),
+  query: z
+    .string()
+    .describe(
+      'ServiceNow encoded query string (sysparm_query), e.g. "active=true^priority=1^ORDERBYDESCsys_created_on". If omitted, records are returned unfiltered up to the limit.',
+    )
+    .optional(),
+  fields: z
+    .array(z.string())
+    .describe("Field names to return for each record (sysparm_fields). All fields are returned if omitted.")
+    .optional(),
+  limit: z.coerce.number().describe("Maximum number of records to return (defaults to 25)").optional(),
+  offset: z.coerce.number().describe("Number of records to skip, for pagination (defaults to 0)").optional(),
+});
+
+export type servicenowGetRecordsByQueryParamsType = z.infer<typeof servicenowGetRecordsByQueryParamsSchema>;
+
+export const servicenowGetRecordsByQueryOutputSchema = z.object({
+  success: z.boolean().describe("Whether the query was successful"),
+  records: z.array(z.object({}).catchall(z.any())).describe("The records matching the query").optional(),
+  error: z.string().describe("Error message if the query failed").optional(),
+});
+
+export type servicenowGetRecordsByQueryOutputType = z.infer<typeof servicenowGetRecordsByQueryOutputSchema>;
+export type servicenowGetRecordsByQueryFunction = ActionFunction<
+  servicenowGetRecordsByQueryParamsType,
+  AuthParamsType,
+  servicenowGetRecordsByQueryOutputType
 >;

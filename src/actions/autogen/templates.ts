@@ -15672,3 +15672,64 @@ export const smartsheetUpdateRowDefinition: ActionTemplate = {
   name: "updateRow",
   provider: "smartsheet",
 };
+export const servicenowGetRecordsByQueryDefinition: ActionTemplate = {
+  displayName: "Get ServiceNow records by query",
+  description:
+    "Query records from any ServiceNow table (e.g. incident, change_request, sc_request) using an encoded query string via the Table API",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["tableName"],
+    properties: {
+      tableName: {
+        type: "string",
+        description:
+          "The ServiceNow table to query (e.g. incident, change_request, sc_request, sys_user, kb_knowledge)",
+      },
+      query: {
+        type: "string",
+        description:
+          'ServiceNow encoded query string (sysparm_query), e.g. "active=true^priority=1^ORDERBYDESCsys_created_on". If omitted, records are returned unfiltered up to the limit.',
+      },
+      fields: {
+        type: "array",
+        description: "Field names to return for each record (sysparm_fields). All fields are returned if omitted.",
+        items: {
+          type: "string",
+        },
+      },
+      limit: {
+        type: "number",
+        description: "Maximum number of records to return (defaults to 25)",
+      },
+      offset: {
+        type: "number",
+        description: "Number of records to skip, for pagination (defaults to 0)",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the query was successful",
+      },
+      records: {
+        type: "array",
+        description: "The records matching the query",
+        items: {
+          type: "object",
+        },
+      },
+      error: {
+        type: "string",
+        description: "Error message if the query failed",
+      },
+    },
+  },
+  name: "getRecordsByQuery",
+  provider: "servicenow",
+};
