@@ -11958,7 +11958,7 @@ export const microsoftGetSharepointItemDefinition: ActionTemplate = {
 export const microsoftListSharepointFolderDefinition: ActionTemplate = {
   displayName: "List contents of a SharePoint or OneDrive folder",
   description:
-    "Lists the items inside a SharePoint or OneDrive folder, given either a folder URL or a driveId + itemId pair. Given a site URL, lists the root of the site's default document library. Set recursive to true to enumerate subfolders (breadth-first) up to maxItems.",
+    "Lists the items inside a SharePoint or OneDrive folder, given either a folder URL or a driveItem reference. Given a site URL, lists the root of the site's default document library. Set recursive to true to enumerate subfolders (breadth-first) up to maxItems.",
   scopes: ["Files.Read.All"],
   tags: [],
   parameters: {
@@ -11967,15 +11967,22 @@ export const microsoftListSharepointFolderDefinition: ActionTemplate = {
     properties: {
       url: {
         type: "string",
-        description: "The URL of the folder (or site) to list. Provide either this or driveId + itemId.",
+        description: "The URL of the folder (or site) to list. Provide either this or driveItem.",
       },
-      driveId: {
-        type: "string",
-        description: "The ID of the drive containing the folder. Provide together with itemId.",
-      },
-      itemId: {
-        type: "string",
-        description: "The ID of the folder to list. Provide together with driveId.",
+      driveItem: {
+        type: "object",
+        description: "The exact folder to list, as returned by getSharepointItem. Provide either this or url.",
+        required: ["driveId", "itemId"],
+        properties: {
+          driveId: {
+            type: "string",
+            description: "The ID of the drive containing the folder",
+          },
+          itemId: {
+            type: "string",
+            description: "The ID of the folder to list",
+          },
+        },
       },
       recursive: {
         type: "boolean",
@@ -12053,7 +12060,7 @@ export const microsoftListSharepointFolderDefinition: ActionTemplate = {
 export const microsoftReadSharepointContentDefinition: ActionTemplate = {
   displayName: "Read SharePoint or OneDrive content as text",
   description:
-    "Reads a SharePoint or OneDrive document (docx, pdf, xlsx, pptx, txt, csv, json, html) or SharePoint site page as plain text, given a URL or a driveId + itemId pair. Plain files only need Files.Read.All; site pages additionally require Sites.Read.All.",
+    "Reads a SharePoint or OneDrive document (docx, pdf, xlsx, pptx, txt, csv, json, html) or SharePoint site page as plain text, given a URL or a driveItem reference. Plain files only need Files.Read.All; site pages additionally require Sites.Read.All.",
   scopes: ["Files.Read.All", "Sites.Read.All"],
   tags: [],
   parameters: {
@@ -12062,15 +12069,23 @@ export const microsoftReadSharepointContentDefinition: ActionTemplate = {
     properties: {
       url: {
         type: "string",
-        description: "The URL of the file or page to read. Provide either this or driveId + itemId.",
+        description:
+          "The URL of the file or page to read. Provide either this or driveItem; when both are given, driveItem takes precedence and the url is ignored.",
       },
-      driveId: {
-        type: "string",
-        description: "The ID of the drive containing the file. Provide together with itemId.",
-      },
-      itemId: {
-        type: "string",
-        description: "The ID of the file to read. Provide together with driveId.",
+      driveItem: {
+        type: "object",
+        description: "The exact file to read, as returned by getSharepointItem. Provide either this or url.",
+        required: ["driveId", "itemId"],
+        properties: {
+          driveId: {
+            type: "string",
+            description: "The ID of the drive containing the file",
+          },
+          itemId: {
+            type: "string",
+            description: "The ID of the file to read",
+          },
+        },
       },
       charLimit: {
         type: "number",

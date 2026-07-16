@@ -6,7 +6,8 @@ import type {
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import { axiosClient } from "../../util/axiosClient.js";
-import { MICROSOFT_GRAPH_API_URL, resolveItemFromUrl } from "./utils.js";
+import { MICROSOFT_GRAPH_API_URL } from "./utils.js";
+import { resolveItemFromUrl } from "./sharepointUtils.js";
 
 const getSharepointItem: microsoftGetSharepointItemFunction = async ({
   params,
@@ -19,14 +20,12 @@ const getSharepointItem: microsoftGetSharepointItemFunction = async ({
     return { success: false, error: MISSING_AUTH_TOKEN };
   }
 
-  const headers = { Authorization: `Bearer ${authParams.authToken}` };
-
   try {
     const resolved = await resolveItemFromUrl(authParams.authToken, params.url);
 
     if (resolved.itemType === "site") {
       const drivesResponse = await axiosClient.get(`${MICROSOFT_GRAPH_API_URL}/sites/${resolved.siteId}/drives`, {
-        headers,
+        headers: { Authorization: `Bearer ${authParams.authToken}` },
       });
       const drives: { id?: string; name?: string; webUrl?: string }[] = drivesResponse.data.value ?? [];
       return {

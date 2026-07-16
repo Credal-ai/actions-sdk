@@ -20,9 +20,9 @@ jest.mock("../../src/actions/util/axiosClient", () => {
 import getSharepointItem from "../../src/actions/providers/microsoft/getSharepointItem";
 import { ApiError } from "../../src/actions/util/axiosClient";
 import {
-  MISSING_SITES_SCOPE,
+  MISSING_SITES_SCOPE_MESSAGE,
   encodeShareUrl,
-} from "../../src/actions/providers/microsoft/utils";
+} from "../../src/actions/providers/microsoft/sharepointUtils";
 import { MISSING_AUTH_TOKEN } from "../../src/actions/util/missingAuthConstants";
 
 const AUTH = { authToken: "test-token" };
@@ -200,6 +200,52 @@ describe("microsoft getSharepointItem", () => {
     });
   });
 
+  it("falls back to page enumeration when Graph ignores the name filter", async () => {
+    const url =
+      "https://contoso.sharepoint.com/sites/marketing/SitePages/Deep-Page.aspx";
+    mockGet
+      // site resolution
+      .mockResolvedValueOnce({
+        data: { id: "site-1", displayName: "Marketing" },
+      })
+      // $filter attempt: ignored by Graph — unfiltered first page, no match, more pages
+      .mockResolvedValueOnce({
+        data: {
+          value: [{ id: "page-0", name: "Home.aspx", title: "Home" }],
+          "@odata.nextLink": "https://graph.microsoft.com/v1.0/next-1",
+        },
+      })
+      // enumeration page 1: still no match
+      .mockResolvedValueOnce({
+        data: {
+          value: [{ id: "page-0", name: "Home.aspx", title: "Home" }],
+          "@odata.nextLink": "https://graph.microsoft.com/v1.0/next-2",
+        },
+      })
+      // enumeration page 2: match
+      .mockResolvedValueOnce({
+        data: {
+          value: [
+            {
+              id: "page-42",
+              name: "Deep-Page.aspx",
+              title: "Deep Page",
+              webUrl: url,
+            },
+          ],
+        },
+      });
+
+    const result = await getSharepointItem({
+      params: { url },
+      authParams: AUTH,
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.item?.itemType).toBe("page");
+    expect(result.item?.itemId).toBe("page-42");
+  });
+
   it("returns MISSING_SITES_SCOPE when site resolution fails with 403", async () => {
     const url = "https://contoso.sharepoint.com/sites/marketing";
     mockGet
@@ -216,15 +262,19 @@ describe("microsoft getSharepointItem", () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe(MISSING_SITES_SCOPE);
+    expect(result.error).toBe(MISSING_SITES_SCOPE_MESSAGE);
   });
 
-  it("propagates errors for unresolvable non-site URLs", async () => {
+  it("returns a combined error when a URL is neither a drive item nor a site", async () => {
     const url =
       "https://contoso.sharepoint.com/sites/marketing/Shared%20Documents/missing.docx";
-    mockGet.mockRejectedValueOnce(
-      new ApiError("Request failed with status 404", 404, {}),
-    );
+    mockGet
+      .mockRejectedValueOnce(
+        new ApiError("Request failed with status 404", 404, {}),
+      )
+      .mockRejectedValueOnce(
+        new ApiError("Request failed with status 404", 404, {}),
+      );
 
     const result = await getSharepointItem({
       params: { url },
@@ -232,6 +282,63 @@ describe("microsoft getSharepointItem", () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toContain("404");
+    expect(result.error).toContain("/shares: 404");
+    expect(result.error).toContain("/sites: 404");
+  });
+
+  it("resolves a subsite URL as a site via the fallback", async () => {
+    const url = "https://contoso.sharepoint.com/sites/marketing/finance";
+    mockGet
+      .mockRejectedValueOnce(
+        new ApiError("Request failed with status 404", 404, {}),
+      )
+      .mockResolvedValueOnce({
+        data: {
+          id: "contoso.sharepoint.com,guid3,guid4",
+          displayName: "Finance",
+          webUrl: url,
+        },
+      })
+      .mockResolvedValueOnce({ data: { value: [] } });
+
+    const result = await getSharepointItem({
+      params: { url },
+      authParams: AUTH,
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.item?.itemType).toBe("site");
+    expect(mockGet).toHaveBeenCalledWith(
+      "https://graph.microsoft.com/v1.0/sites/contoso.sharepoint.com:/sites/marketing/finance",
+      expect.anything(),
+    );
+  });
+
+  it("resolves a tenant root site URL without the :path suffix", async () => {
+    const url = "https://contoso.sharepoint.com/";
+    mockGet
+      .mockRejectedValueOnce(
+        new ApiError("Request failed with status 400", 400, {}),
+      )
+      .mockResolvedValueOnce({
+        data: {
+          id: "contoso.sharepoint.com,guid5,guid6",
+          displayName: "Contoso Home",
+          webUrl: url,
+        },
+      })
+      .mockResolvedValueOnce({ data: { value: [] } });
+
+    const result = await getSharepointItem({
+      params: { url },
+      authParams: AUTH,
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.item?.itemType).toBe("site");
+    expect(mockGet).toHaveBeenCalledWith(
+      "https://graph.microsoft.com/v1.0/sites/contoso.sharepoint.com",
+      expect.anything(),
+    );
   });
 });

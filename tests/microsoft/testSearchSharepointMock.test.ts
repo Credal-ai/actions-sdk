@@ -19,7 +19,7 @@ jest.mock("../../src/actions/util/axiosClient", () => {
 
 import searchSharepoint from "../../src/actions/providers/microsoft/searchSharepoint";
 import { ApiError } from "../../src/actions/util/axiosClient";
-import { MISSING_SITES_SCOPE } from "../../src/actions/providers/microsoft/utils";
+import { MISSING_SITES_SCOPE_MESSAGE } from "../../src/actions/providers/microsoft/sharepointUtils";
 import { MISSING_AUTH_TOKEN } from "../../src/actions/util/missingAuthConstants";
 
 const AUTH = { authToken: "test-token" };
@@ -239,7 +239,7 @@ describe("microsoft searchSharepoint", () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe(MISSING_SITES_SCOPE);
+    expect(result.error).toBe(MISSING_SITES_SCOPE_MESSAGE);
     expect(mockPost).not.toHaveBeenCalled();
   });
 
@@ -254,7 +254,7 @@ describe("microsoft searchSharepoint", () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe(MISSING_SITES_SCOPE);
+    expect(result.error).toBe(MISSING_SITES_SCOPE_MESSAGE);
   });
 
   it("rejects a scopeUrl that points to a file", async () => {

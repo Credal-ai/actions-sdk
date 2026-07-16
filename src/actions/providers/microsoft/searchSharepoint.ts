@@ -5,9 +5,10 @@ import type {
   microsoftSearchSharepointParamsType,
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
-import { ApiError, axiosClient } from "../../util/axiosClient.js";
-import type { SharepointDriveItem } from "./utils.js";
-import { MICROSOFT_GRAPH_API_URL, MISSING_SITES_SCOPE, resolveItemFromUrl } from "./utils.js";
+import { axiosClient } from "../../util/axiosClient.js";
+import { MICROSOFT_GRAPH_API_URL } from "./utils.js";
+import type { SharepointDriveItem } from "./sharepointUtils.js";
+import { MISSING_SITES_SCOPE_MESSAGE, isSiteScopeError, resolveItemFromUrl } from "./sharepointUtils.js";
 
 const DEFAULT_LIMIT = 25;
 const SEARCH_PAGE_SIZE = 100;
@@ -33,10 +34,6 @@ function dedupeByItemIdKeepFirst(files: SharepointFile[]): SharepointFile[] {
     seen.add(file.itemId);
     return true;
   });
-}
-
-function isSiteScopeError(error: unknown): boolean {
-  return error instanceof ApiError && (error.status === 401 || error.status === 403);
 }
 
 /** POST /search/query, optionally KQL path-scoped — requires Sites.Read.All. */
@@ -72,6 +69,9 @@ async function searchWithSearchApi(
     moreResultsAvailable = Boolean(container?.moreResultsAvailable);
     if (hits.length === 0) break;
 
+    // Truncation is detected in two places because each sees a case the other can't:
+    // here, stopping mid-page with unconsumed hits in hand (moreResultsAvailable can be
+    // false then — it only signals more pages on the server, not leftovers in this page);
     for (const hit of hits) {
       if (files.length >= limit) {
         truncated = true;
@@ -82,6 +82,8 @@ async function searchWithSearchApi(
     from += hits.length;
   } while (!truncated && moreResultsAvailable && files.length < limit);
 
+  // and here, the limit exactly consumed the page (no hit was encountered past the
+  // limit, so the in-loop check never fired) while the server still has more pages.
   if (files.length >= limit && moreResultsAvailable) {
     truncated = true;
   }
@@ -141,7 +143,10 @@ const searchSharepoint: microsoftSearchSharepointFunction = async ({
   }
 
   const { query, scopeUrl } = params;
-  const limit = params.limit && params.limit > 0 ? params.limit : DEFAULT_LIMIT;
+  if (params.limit != null && (!Number.isFinite(params.limit) || params.limit <= 0)) {
+    return { success: false, error: "limit must be a positive number" };
+  }
+  const limit = params.limit ?? DEFAULT_LIMIT;
   const headers = { Authorization: `Bearer ${authParams.authToken}` };
 
   try {
@@ -150,7 +155,7 @@ const searchSharepoint: microsoftSearchSharepointFunction = async ({
         return await searchWithSearchApi(query, undefined, limit, headers);
       } catch (error) {
         if (isSiteScopeError(error)) {
-          return { success: false, error: MISSING_SITES_SCOPE };
+          return { success: false, error: MISSING_SITES_SCOPE_MESSAGE };
         }
         throw error;
       }
@@ -167,7 +172,7 @@ const searchSharepoint: microsoftSearchSharepointFunction = async ({
         return await searchWithSearchApi(query, resolved.webUrl ?? scopeUrl, limit, headers);
       } catch (error) {
         if (isSiteScopeError(error)) {
-          return { success: false, error: MISSING_SITES_SCOPE };
+          return { success: false, error: MISSING_SITES_SCOPE_MESSAGE };
         }
         throw error;
       }

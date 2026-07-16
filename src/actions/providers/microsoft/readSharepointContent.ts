@@ -10,8 +10,9 @@ import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import { ApiError, axiosClient } from "../../util/axiosClient.js";
 import { extractTextFromPdf } from "../../../utils/pdf.js";
 import { parseWorkbookBufferToPlainText } from "../../../utils/google.js";
-import type { ResolvedSharepointItem, SharepointDriveItem } from "./utils.js";
-import { MICROSOFT_GRAPH_API_URL, MISSING_SITES_SCOPE, resolveItemFromUrl } from "./utils.js";
+import { MICROSOFT_GRAPH_API_URL } from "./utils.js";
+import type { ResolvedSharepointItem, SharepointDriveItem } from "./sharepointUtils.js";
+import { MISSING_SITES_SCOPE_MESSAGE, resolveItemFromUrl } from "./sharepointUtils.js";
 
 const DEFAULT_FILE_SIZE_LIMIT_MB = 50;
 
@@ -125,10 +126,40 @@ async function readPageContent(
     return buildResult(page.name ?? "", page.webUrl ?? "", content, charLimit);
   } catch (error) {
     if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
-      return { success: false, error: MISSING_SITES_SCOPE };
+      return { success: false, error: MISSING_SITES_SCOPE_MESSAGE };
     }
     throw error;
   }
+}
+
+/**
+ * Resolve the target document from either a driveItem reference or a URL. The driveItem
+ * takes precedence over url when both are provided (it is an exact round-trip token; a
+ * url would be re-resolved and could name a different item).
+ */
+async function resolveTargetItem(
+  authToken: string,
+  params: { url?: string; driveItem?: { driveId: string; itemId: string } },
+  headers: Record<string, string>,
+): Promise<ResolvedSharepointItem> {
+  const { url, driveItem } = params;
+  if (driveItem) {
+    const { driveId, itemId } = driveItem;
+    const metadataResponse = await axiosClient.get(`${MICROSOFT_GRAPH_API_URL}/drives/${driveId}/items/${itemId}`, {
+      headers,
+    });
+    const item: SharepointDriveItem = metadataResponse.data;
+    return {
+      itemType: item.folder ? "folder" : "file",
+      driveId,
+      itemId,
+      name: item.name,
+      webUrl: item.webUrl,
+      mimeType: item.file?.mimeType,
+      sizeBytes: item.size,
+    };
+  }
+  return resolveItemFromUrl(authToken, url!);
 }
 
 const readSharepointContent: microsoftReadSharepointContentFunction = async ({
@@ -142,32 +173,21 @@ const readSharepointContent: microsoftReadSharepointContentFunction = async ({
     return { success: false, error: MISSING_AUTH_TOKEN };
   }
 
-  const { url, driveId, itemId, charLimit, fileSizeLimit } = params;
-  if (!url && !(driveId && itemId)) {
-    return { success: false, error: "Either url or both driveId and itemId must be provided" };
+  const { url, driveItem, charLimit, fileSizeLimit } = params;
+  if (charLimit != null && (!Number.isFinite(charLimit) || charLimit <= 0)) {
+    return { success: false, error: "charLimit must be a positive number" };
+  }
+  if (fileSizeLimit != null && (!Number.isFinite(fileSizeLimit) || fileSizeLimit <= 0)) {
+    return { success: false, error: "fileSizeLimit must be a positive number" };
+  }
+  if (!url && !driveItem) {
+    return { success: false, error: "Either url or driveItem must be provided" };
   }
 
   const headers = { Authorization: `Bearer ${authParams.authToken}` };
 
   try {
-    let resolved: ResolvedSharepointItem;
-    if (driveId && itemId) {
-      const metadataResponse = await axiosClient.get(`${MICROSOFT_GRAPH_API_URL}/drives/${driveId}/items/${itemId}`, {
-        headers,
-      });
-      const item: SharepointDriveItem = metadataResponse.data;
-      resolved = {
-        itemType: item.folder ? "folder" : "file",
-        driveId,
-        itemId,
-        name: item.name,
-        webUrl: item.webUrl,
-        mimeType: item.file?.mimeType,
-        sizeBytes: item.size,
-      };
-    } else {
-      resolved = await resolveItemFromUrl(authParams.authToken, url!);
-    }
+    const resolved = await resolveTargetItem(authParams.authToken, { url, driveItem }, headers);
 
     if (resolved.itemType === "folder" || resolved.itemType === "site") {
       return {

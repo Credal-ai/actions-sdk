@@ -40,7 +40,7 @@ jest.mock("officeparser", () => ({
 
 import readSharepointContent from "../../src/actions/providers/microsoft/readSharepointContent";
 import { ApiError } from "../../src/actions/util/axiosClient";
-import { MISSING_SITES_SCOPE } from "../../src/actions/providers/microsoft/utils";
+import { MISSING_SITES_SCOPE_MESSAGE } from "../../src/actions/providers/microsoft/sharepointUtils";
 import { MISSING_AUTH_TOKEN } from "../../src/actions/util/missingAuthConstants";
 
 const AUTH = { authToken: "test-token" };
@@ -64,20 +64,20 @@ describe("microsoft readSharepointContent", () => {
 
   it("returns MISSING_AUTH_TOKEN without an auth token", async () => {
     const result = await readSharepointContent({
-      params: { driveId: "drive-1", itemId: "item-1" },
+      params: { driveItem: { driveId: "drive-1", itemId: "item-1" } },
       authParams: { authToken: "" },
     });
     expect(result.success).toBe(false);
     expect(result.error).toBe(MISSING_AUTH_TOKEN);
   });
 
-  it("requires either url or driveId + itemId", async () => {
+  it("requires either url or driveItem", async () => {
     const result = await readSharepointContent({
       params: {},
       authParams: AUTH,
     });
     expect(result.success).toBe(false);
-    expect(result.error).toContain("driveId");
+    expect(result.error).toContain("driveItem");
   });
 
   it("reads a plain text file", async () => {
@@ -88,7 +88,7 @@ describe("microsoft readSharepointContent", () => {
       });
 
     const result = await readSharepointContent({
-      params: { driveId: "drive-1", itemId: "item-1" },
+      params: { driveItem: { driveId: "drive-1", itemId: "item-1" } },
       authParams: AUTH,
     });
 
@@ -114,7 +114,7 @@ describe("microsoft readSharepointContent", () => {
     mockExtractRawText.mockResolvedValueOnce({ value: "parsed docx text" });
 
     const result = await readSharepointContent({
-      params: { driveId: "drive-1", itemId: "item-1" },
+      params: { driveItem: { driveId: "drive-1", itemId: "item-1" } },
       authParams: AUTH,
     });
 
@@ -130,7 +130,7 @@ describe("microsoft readSharepointContent", () => {
     mockExtractTextFromPdf.mockResolvedValueOnce("parsed pdf text");
 
     const result = await readSharepointContent({
-      params: { driveId: "drive-1", itemId: "item-1" },
+      params: { driveItem: { driveId: "drive-1", itemId: "item-1" } },
       authParams: AUTH,
     });
 
@@ -156,7 +156,7 @@ describe("microsoft readSharepointContent", () => {
       .mockResolvedValueOnce({ data: buffer });
 
     const result = await readSharepointContent({
-      params: { driveId: "drive-1", itemId: "item-1" },
+      params: { driveItem: { driveId: "drive-1", itemId: "item-1" } },
       authParams: AUTH,
     });
 
@@ -179,7 +179,7 @@ describe("microsoft readSharepointContent", () => {
     mockParseOfficeAsync.mockResolvedValueOnce("parsed pptx text");
 
     const result = await readSharepointContent({
-      params: { driveId: "drive-1", itemId: "item-1" },
+      params: { driveItem: { driveId: "drive-1", itemId: "item-1" } },
       authParams: AUTH,
     });
 
@@ -193,7 +193,7 @@ describe("microsoft readSharepointContent", () => {
     );
 
     const result = await readSharepointContent({
-      params: { driveId: "drive-1", itemId: "item-1" },
+      params: { driveItem: { driveId: "drive-1", itemId: "item-1" } },
       authParams: AUTH,
     });
 
@@ -209,7 +209,10 @@ describe("microsoft readSharepointContent", () => {
       .mockResolvedValueOnce({ data: Buffer.from(longText, "utf-8") });
 
     const result = await readSharepointContent({
-      params: { driveId: "drive-1", itemId: "item-1", charLimit: 100 },
+      params: {
+        driveItem: { driveId: "drive-1", itemId: "item-1" },
+        charLimit: 100,
+      },
       authParams: AUTH,
     });
 
@@ -227,7 +230,7 @@ describe("microsoft readSharepointContent", () => {
       .mockResolvedValueOnce({ data: Buffer.from("fake-png-bytes") });
 
     const result = await readSharepointContent({
-      params: { driveId: "drive-1", itemId: "item-1" },
+      params: { driveItem: { driveId: "drive-1", itemId: "item-1" } },
       authParams: AUTH,
     });
 
@@ -291,7 +294,7 @@ describe("microsoft readSharepointContent", () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe(MISSING_SITES_SCOPE);
+    expect(result.error).toBe(MISSING_SITES_SCOPE_MESSAGE);
   });
 
   it("directs the caller to listSharepointFolder for folders", async () => {
@@ -300,7 +303,7 @@ describe("microsoft readSharepointContent", () => {
     });
 
     const result = await readSharepointContent({
-      params: { driveId: "drive-1", itemId: "folder-1" },
+      params: { driveItem: { driveId: "drive-1", itemId: "folder-1" } },
       authParams: AUTH,
     });
 

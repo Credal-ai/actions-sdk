@@ -6347,12 +6347,14 @@ export type microsoftGetSharepointItemFunction = ActionFunction<
 >;
 
 export const microsoftListSharepointFolderParamsSchema = z.object({
-  url: z
-    .string()
-    .describe("The URL of the folder (or site) to list. Provide either this or driveId + itemId.")
+  url: z.string().describe("The URL of the folder (or site) to list. Provide either this or driveItem.").optional(),
+  driveItem: z
+    .object({
+      driveId: z.string().describe("The ID of the drive containing the folder"),
+      itemId: z.string().describe("The ID of the folder to list"),
+    })
+    .describe("The exact folder to list, as returned by getSharepointItem. Provide either this or url.")
     .optional(),
-  driveId: z.string().describe("The ID of the drive containing the folder. Provide together with itemId.").optional(),
-  itemId: z.string().describe("The ID of the folder to list. Provide together with driveId.").optional(),
   recursive: z.boolean().describe("Whether to recursively enumerate subfolders (default false)").optional(),
   maxItems: z.coerce.number().describe("Maximum number of items to return (default 200)").optional(),
 });
@@ -6388,9 +6390,19 @@ export type microsoftListSharepointFolderFunction = ActionFunction<
 >;
 
 export const microsoftReadSharepointContentParamsSchema = z.object({
-  url: z.string().describe("The URL of the file or page to read. Provide either this or driveId + itemId.").optional(),
-  driveId: z.string().describe("The ID of the drive containing the file. Provide together with itemId.").optional(),
-  itemId: z.string().describe("The ID of the file to read. Provide together with driveId.").optional(),
+  url: z
+    .string()
+    .describe(
+      "The URL of the file or page to read. Provide either this or driveItem; when both are given, driveItem takes precedence and the url is ignored.",
+    )
+    .optional(),
+  driveItem: z
+    .object({
+      driveId: z.string().describe("The ID of the drive containing the file"),
+      itemId: z.string().describe("The ID of the file to read"),
+    })
+    .describe("The exact file to read, as returned by getSharepointItem. Provide either this or url.")
+    .optional(),
   charLimit: z.coerce.number().describe("The character limit for the returned content (soft truncation)").optional(),
   fileSizeLimit: z.coerce
     .number()

@@ -19,7 +19,7 @@ jest.mock("../../src/actions/util/axiosClient", () => {
 
 import listSharepointFolder from "../../src/actions/providers/microsoft/listSharepointFolder";
 import { ApiError } from "../../src/actions/util/axiosClient";
-import { MISSING_SITES_SCOPE } from "../../src/actions/providers/microsoft/utils";
+import { MISSING_SITES_SCOPE_MESSAGE } from "../../src/actions/providers/microsoft/sharepointUtils";
 import { MISSING_AUTH_TOKEN } from "../../src/actions/util/missingAuthConstants";
 
 const AUTH = { authToken: "test-token" };
@@ -53,17 +53,17 @@ describe("microsoft listSharepointFolder", () => {
 
   it("returns MISSING_AUTH_TOKEN without an auth token", async () => {
     const result = await listSharepointFolder({
-      params: { driveId: "drive-1", itemId: "folder-1" },
+      params: { driveItem: { driveId: "drive-1", itemId: "folder-1" } },
       authParams: { authToken: "" },
     });
     expect(result.success).toBe(false);
     expect(result.error).toBe(MISSING_AUTH_TOKEN);
   });
 
-  it("requires either url or driveId + itemId", async () => {
+  it("requires either url or driveItem", async () => {
     const result = await listSharepointFolder({ params: {}, authParams: AUTH });
     expect(result.success).toBe(false);
-    expect(result.error).toContain("driveId");
+    expect(result.error).toContain("driveItem");
   });
 
   it("lists a folder's children given driveId + itemId", async () => {
@@ -77,7 +77,7 @@ describe("microsoft listSharepointFolder", () => {
     });
 
     const result = await listSharepointFolder({
-      params: { driveId: "drive-1", itemId: "folder-1" },
+      params: { driveItem: { driveId: "drive-1", itemId: "folder-1" } },
       authParams: AUTH,
     });
 
@@ -124,7 +124,7 @@ describe("microsoft listSharepointFolder", () => {
       });
 
     const result = await listSharepointFolder({
-      params: { driveId: "drive-1", itemId: "folder-1" },
+      params: { driveItem: { driveId: "drive-1", itemId: "folder-1" } },
       authParams: AUTH,
     });
 
@@ -136,6 +136,19 @@ describe("microsoft listSharepointFolder", () => {
       "https://graph.microsoft.com/v1.0/next-page",
       expect.anything(),
     );
+  });
+
+  it("rejects a non-positive maxItems", async () => {
+    const result = await listSharepointFolder({
+      params: {
+        driveItem: { driveId: "drive-1", itemId: "folder-1" },
+        maxItems: -5,
+      },
+      authParams: AUTH,
+    });
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("maxItems must be a positive number");
+    expect(mockGet).not.toHaveBeenCalled();
   });
 
   it("stops at maxItems and reports truncated", async () => {
@@ -150,7 +163,10 @@ describe("microsoft listSharepointFolder", () => {
     });
 
     const result = await listSharepointFolder({
-      params: { driveId: "drive-1", itemId: "folder-1", maxItems: 2 },
+      params: {
+        driveItem: { driveId: "drive-1", itemId: "folder-1" },
+        maxItems: 2,
+      },
       authParams: AUTH,
     });
 
@@ -174,7 +190,10 @@ describe("microsoft listSharepointFolder", () => {
       });
 
     const result = await listSharepointFolder({
-      params: { driveId: "drive-1", itemId: "folder-1", recursive: true },
+      params: {
+        driveItem: { driveId: "drive-1", itemId: "folder-1" },
+        recursive: true,
+      },
       authParams: AUTH,
     });
 
@@ -233,7 +252,7 @@ describe("microsoft listSharepointFolder", () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe(MISSING_SITES_SCOPE);
+    expect(result.error).toBe(MISSING_SITES_SCOPE_MESSAGE);
   });
 
   it("rejects file URLs", async () => {

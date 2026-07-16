@@ -6,18 +6,46 @@ import type {
 } from "../../autogen/types.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 import { axiosClient } from "../../util/axiosClient.js";
-import type { SharepointDriveItem } from "./utils.js";
-import { MICROSOFT_GRAPH_API_URL, resolveItemFromUrl } from "./utils.js";
+import { MICROSOFT_GRAPH_API_URL } from "./utils.js";
+import type { SharepointDriveItem } from "./sharepointUtils.js";
+import { resolveItemFromUrl } from "./sharepointUtils.js";
 
 const DEFAULT_MAX_ITEMS = 200;
 const PAGE_SIZE = 200;
 
-function childrenUrl(driveId: string, itemId: string): string {
+function buildChildrenUrl(driveId: string, itemId: string): string {
   const base =
     itemId === "root"
       ? `${MICROSOFT_GRAPH_API_URL}/drives/${driveId}/root/children`
       : `${MICROSOFT_GRAPH_API_URL}/drives/${driveId}/items/${itemId}/children`;
   return `${base}?$top=${PAGE_SIZE}`;
+}
+
+/**
+ * Resolve a pasted URL to the folder to enumerate. Throws when the URL points at
+ * something that cannot be listed (file, page); the action's catch maps the message
+ * onto the error output.
+ */
+async function resolveRootFolderFromUrl(
+  authToken: string,
+  url: string,
+  headers: Record<string, string>,
+): Promise<{ driveId: string; itemId: string }> {
+  const resolved = await resolveItemFromUrl(authToken, url);
+  if (resolved.itemType === "file") {
+    throw new Error("The URL points to a file, not a folder. Use readSharepointContent instead.");
+  }
+  if (resolved.itemType === "page") {
+    throw new Error("The URL points to a site page, not a folder. Use readSharepointContent instead.");
+  }
+  if (resolved.itemType === "site") {
+    // A site URL lists the root of the site's default document library
+    const driveResponse = await axiosClient.get(`${MICROSOFT_GRAPH_API_URL}/sites/${resolved.siteId}/drive`, {
+      headers,
+    });
+    return { driveId: driveResponse.data.id, itemId: "root" };
+  }
+  return { driveId: resolved.driveId, itemId: resolved.itemId };
 }
 
 const listSharepointFolder: microsoftListSharepointFolderFunction = async ({
@@ -31,40 +59,20 @@ const listSharepointFolder: microsoftListSharepointFolderFunction = async ({
     return { success: false, error: MISSING_AUTH_TOKEN };
   }
 
-  const { url, driveId, itemId, recursive = false } = params;
-  const maxItems = params.maxItems && params.maxItems > 0 ? params.maxItems : DEFAULT_MAX_ITEMS;
+  const { url, driveItem, recursive = false } = params;
+  if (params.maxItems != null && (!Number.isFinite(params.maxItems) || params.maxItems <= 0)) {
+    return { success: false, error: "maxItems must be a positive number" };
+  }
+  const maxItems = params.maxItems ?? DEFAULT_MAX_ITEMS;
 
-  if (!url && !(driveId && itemId)) {
-    return { success: false, error: "Either url or both driveId and itemId must be provided" };
+  if (!url && !driveItem) {
+    return { success: false, error: "Either url or driveItem must be provided" };
   }
 
   const headers = { Authorization: `Bearer ${authParams.authToken}` };
 
   try {
-    let rootFolder: { driveId: string; itemId: string };
-    if (driveId && itemId) {
-      rootFolder = { driveId, itemId };
-    } else {
-      const resolved = await resolveItemFromUrl(authParams.authToken, url!);
-      if (resolved.itemType === "file") {
-        return { success: false, error: "The URL points to a file, not a folder. Use readSharepointContent instead." };
-      }
-      if (resolved.itemType === "page") {
-        return {
-          success: false,
-          error: "The URL points to a site page, not a folder. Use readSharepointContent instead.",
-        };
-      }
-      if (resolved.itemType === "site") {
-        // A site URL lists the root of the site's default document library
-        const driveResponse = await axiosClient.get(`${MICROSOFT_GRAPH_API_URL}/sites/${resolved.siteId}/drive`, {
-          headers,
-        });
-        rootFolder = { driveId: driveResponse.data.id, itemId: "root" };
-      } else {
-        rootFolder = { driveId: resolved.driveId, itemId: resolved.itemId };
-      }
-    }
+    const rootFolder = driveItem ?? (await resolveRootFolderFromUrl(authParams.authToken, url!, headers));
 
     const items: NonNullable<microsoftListSharepointFolderOutputType["items"]> = [];
     let truncated = false;
@@ -72,7 +80,7 @@ const listSharepointFolder: microsoftListSharepointFolderFunction = async ({
 
     outer: while (queue.length > 0) {
       const folder = queue.shift()!;
-      let nextUrl: string | undefined = childrenUrl(folder.driveId, folder.itemId);
+      let nextUrl: string | undefined = buildChildrenUrl(folder.driveId, folder.itemId);
       while (nextUrl) {
         const response: { data: { value?: SharepointDriveItem[]; "@odata.nextLink"?: string } } = await axiosClient.get(
           nextUrl,
