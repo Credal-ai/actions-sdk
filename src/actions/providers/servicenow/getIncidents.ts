@@ -4,7 +4,7 @@ import type {
   servicenowGetIncidentsOutputType,
   servicenowGetIncidentsParamsType,
 } from "../../autogen/types.js";
-import { computeTimeToResolutionMinutes, extractAdditionalFields, queryServiceNowTable } from "./utils/tableQuery.js";
+import { computeTimeToClosureMinutes, extractAdditionalFields, queryServiceNowTable } from "./utils/tableQuery.js";
 
 const INCIDENT_FIELDS = [
   "number",
@@ -67,7 +67,7 @@ const getIncidents: servicenowGetIncidentsFunction = async ({
       closedAt: record.closed_at,
       workNotes: record.work_notes,
       comments: record.comments,
-      timeToResolutionMinutes: computeTimeToResolutionMinutes(record.opened_at, record.closed_at),
+      timeToClosureMinutes: computeTimeToClosureMinutes(record.opened_at, record.closed_at),
       extraFields: extractAdditionalFields(record, additionalFields),
     })),
   };

@@ -4,7 +4,7 @@ import type {
   servicenowGetSCTasksOutputType,
   servicenowGetSCTasksParamsType,
 } from "../../autogen/types.js";
-import { computeTimeToResolutionMinutes, extractAdditionalFields, queryServiceNowTable } from "./utils/tableQuery.js";
+import { computeTimeToClosureMinutes, extractAdditionalFields, queryServiceNowTable } from "./utils/tableQuery.js";
 
 const SC_TASK_FIELDS = [
   "number",
@@ -62,7 +62,7 @@ const getSCTasks: servicenowGetSCTasksFunction = async ({
       closedAt: record.closed_at,
       workNotes: record.work_notes,
       comments: record.comments,
-      timeToResolutionMinutes: computeTimeToResolutionMinutes(record.opened_at, record.closed_at),
+      timeToClosureMinutes: computeTimeToClosureMinutes(record.opened_at, record.closed_at),
       extraFields: extractAdditionalFields(record, additionalFields),
     })),
   };

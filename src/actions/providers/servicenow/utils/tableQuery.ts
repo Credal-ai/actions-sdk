@@ -45,6 +45,7 @@ export async function queryServiceNowTable({
   queryParams.append("sysparm_limit", cappedLimit.toString());
   queryParams.append("sysparm_offset", offset.toString());
   queryParams.append("sysparm_display_value", "true");
+  queryParams.append("sysparm_exclude_reference_link", "true");
   queryParams.append("sysparm_fields", allFields.join(","));
   if (combinedFilter) {
     queryParams.append("sysparm_query", combinedFilter);
@@ -67,7 +68,7 @@ export async function queryServiceNowTable({
   }
 }
 
-export function computeTimeToResolutionMinutes(openedAt?: string, closedAt?: string): number | undefined {
+export function computeTimeToClosureMinutes(openedAt?: string, closedAt?: string): number | undefined {
   if (!openedAt || !closedAt) {
     return undefined;
   }

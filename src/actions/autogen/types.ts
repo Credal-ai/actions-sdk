@@ -8097,9 +8097,9 @@ export const servicenowGetIncidentsOutputSchema = z.object({
           .optional(),
         workNotes: z.string().describe("Internal work notes on the incident").optional(),
         comments: z.string().describe("Additional (customer-visible) comments on the incident").optional(),
-        timeToResolutionMinutes: z.coerce
+        timeToClosureMinutes: z.coerce
           .number()
-          .describe("Minutes elapsed between openedAt and closedAt, if the incident is closed")
+          .describe("Minutes elapsed from opening to final closure, calculated from openedAt and closedAt")
           .optional(),
         extraFields: z
           .object({})
@@ -8162,9 +8162,9 @@ export const servicenowGetChangeRequestsOutputSchema = z.object({
           .optional(),
         workNotes: z.string().describe("Internal work notes on the change request").optional(),
         comments: z.string().describe("Additional (customer-visible) comments on the change request").optional(),
-        timeToResolutionMinutes: z.coerce
+        timeToClosureMinutes: z.coerce
           .number()
-          .describe("Minutes elapsed between openedAt and closedAt, if the change request is closed")
+          .describe("Minutes elapsed from opening to final closure, calculated from openedAt and closedAt")
           .optional(),
         extraFields: z
           .object({})
@@ -8225,9 +8225,9 @@ export const servicenowGetSCTasksOutputSchema = z.object({
         closedAt: z.string().describe("The date and time the SCTASK was closed or completed, if applicable").optional(),
         workNotes: z.string().describe("Internal work notes on the SCTASK").optional(),
         comments: z.string().describe("Additional (customer-visible) comments on the SCTASK").optional(),
-        timeToResolutionMinutes: z.coerce
+        timeToClosureMinutes: z.coerce
           .number()
-          .describe("Minutes elapsed between openedAt and closedAt, if the SCTASK is closed")
+          .describe("Minutes elapsed from opening to final closure, calculated from openedAt and closedAt")
           .optional(),
         extraFields: z
           .object({})
@@ -8290,9 +8290,9 @@ export const servicenowGetVIPTicketsOutputSchema = z.object({
         closedAt: z.string().describe("The date and time the ticket was closed or completed, if applicable").optional(),
         workNotes: z.string().describe("Internal work notes on the ticket").optional(),
         comments: z.string().describe("Additional (customer-visible) comments on the ticket").optional(),
-        timeToResolutionMinutes: z.coerce
+        timeToClosureMinutes: z.coerce
           .number()
-          .describe("Minutes elapsed between openedAt and closedAt, if the ticket is closed")
+          .describe("Minutes elapsed from opening to final closure, calculated from openedAt and closedAt")
           .optional(),
         extraFields: z
           .object({})

@@ -15741,7 +15741,7 @@ export const servicenowGetRecordsByQueryDefinition: ActionTemplate = {
 export const servicenowGetIncidentsDefinition: ActionTemplate = {
   displayName: "Get ServiceNow incidents",
   description:
-    "Read incident records from ServiceNow, optionally filtered by an additional encoded query. Returns standard incident fields plus a computed time-to-resolution.",
+    "Read incident records from ServiceNow, optionally filtered by an additional encoded query. Returns standard incident fields plus a computed time-to-closure.",
   scopes: [],
   tags: [],
   parameters: {
@@ -15849,9 +15849,9 @@ export const servicenowGetIncidentsDefinition: ActionTemplate = {
               type: "string",
               description: "Additional (customer-visible) comments on the incident",
             },
-            timeToResolutionMinutes: {
+            timeToClosureMinutes: {
               type: "number",
-              description: "Minutes elapsed between openedAt and closedAt, if the incident is closed",
+              description: "Minutes elapsed from opening to final closure, calculated from openedAt and closedAt",
             },
             extraFields: {
               type: "object",
@@ -15872,7 +15872,7 @@ export const servicenowGetIncidentsDefinition: ActionTemplate = {
 export const servicenowGetChangeRequestsDefinition: ActionTemplate = {
   displayName: "Get ServiceNow change requests",
   description:
-    "Read change request records from ServiceNow, optionally filtered by an additional encoded query. Returns standard change request fields plus a computed time-to-resolution.",
+    "Read change request records from ServiceNow, optionally filtered by an additional encoded query. Returns standard change request fields plus a computed time-to-closure.",
   scopes: [],
   tags: [],
   parameters: {
@@ -15976,9 +15976,9 @@ export const servicenowGetChangeRequestsDefinition: ActionTemplate = {
               type: "string",
               description: "Additional (customer-visible) comments on the change request",
             },
-            timeToResolutionMinutes: {
+            timeToClosureMinutes: {
               type: "number",
-              description: "Minutes elapsed between openedAt and closedAt, if the change request is closed",
+              description: "Minutes elapsed from opening to final closure, calculated from openedAt and closedAt",
             },
             extraFields: {
               type: "object",
@@ -15999,7 +15999,7 @@ export const servicenowGetChangeRequestsDefinition: ActionTemplate = {
 export const servicenowGetSCTasksDefinition: ActionTemplate = {
   displayName: "Get ServiceNow catalog tasks (SCTASKs)",
   description:
-    "Read service catalog task (sc_task) records from ServiceNow, optionally filtered by an additional encoded query. Returns standard SCTASK fields, the parent RITM number, and a computed time-to-resolution.",
+    "Read service catalog task (sc_task) records from ServiceNow, optionally filtered by an additional encoded query. Returns standard SCTASK fields, the parent RITM number, and a computed time-to-closure.",
   scopes: [],
   tags: [],
   parameters: {
@@ -16095,9 +16095,9 @@ export const servicenowGetSCTasksDefinition: ActionTemplate = {
               type: "string",
               description: "Additional (customer-visible) comments on the SCTASK",
             },
-            timeToResolutionMinutes: {
+            timeToClosureMinutes: {
               type: "number",
-              description: "Minutes elapsed between openedAt and closedAt, if the SCTASK is closed",
+              description: "Minutes elapsed from opening to final closure, calculated from openedAt and closedAt",
             },
             extraFields: {
               type: "object",
@@ -16118,7 +16118,7 @@ export const servicenowGetSCTasksDefinition: ActionTemplate = {
 export const servicenowGetVIPTicketsDefinition: ActionTemplate = {
   displayName: "Get ServiceNow VIP tickets",
   description:
-    "Read incident or SCTASK records in ServiceNow whose caller/requester is flagged as a VIP user (sys_user.vip), optionally filtered by an additional encoded query. Returns standard ticket fields and a computed time-to-resolution.",
+    "Read incident or SCTASK records in ServiceNow whose caller/requester is flagged as a VIP user (sys_user.vip), optionally filtered by an additional encoded query. Returns standard ticket fields and a computed time-to-closure.",
   scopes: [],
   tags: [],
   parameters: {
@@ -16223,9 +16223,9 @@ export const servicenowGetVIPTicketsDefinition: ActionTemplate = {
               type: "string",
               description: "Additional (customer-visible) comments on the ticket",
             },
-            timeToResolutionMinutes: {
+            timeToClosureMinutes: {
               type: "number",
-              description: "Minutes elapsed between openedAt and closedAt, if the ticket is closed",
+              description: "Minutes elapsed from opening to final closure, calculated from openedAt and closedAt",
             },
             extraFields: {
               type: "object",

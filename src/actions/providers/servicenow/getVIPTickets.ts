@@ -5,7 +5,7 @@ import type {
   servicenowGetVIPTicketsParamsType,
 } from "../../autogen/types.js";
 import {
-  computeTimeToResolutionMinutes,
+  computeTimeToClosureMinutes,
   extractAdditionalFields,
   queryServiceNowTable,
   type ServiceNowRecord,
@@ -48,7 +48,7 @@ function mapRecord(record: ServiceNowRecord, ticketType: "incident" | "sc_task",
     closedAt: record.closed_at,
     workNotes: record.work_notes,
     comments: record.comments,
-    timeToResolutionMinutes: computeTimeToResolutionMinutes(record.opened_at, record.closed_at),
+    timeToClosureMinutes: computeTimeToClosureMinutes(record.opened_at, record.closed_at),
     extraFields: extractAdditionalFields(record, additionalFields),
   };
 }
