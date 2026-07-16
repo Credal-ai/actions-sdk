@@ -141,6 +141,17 @@ describe("ServiceNow actions", () => {
     expect(url.searchParams.get("sysparm_exclude_reference_link")).toBe("true");
   });
 
+  it("returns an empty records array when a generic query receives a non-array result", async () => {
+    mockGet.mockResolvedValueOnce({ data: { result: null } });
+
+    const result = await getRecordsByQuery({
+      authParams: AUTH,
+      params: { tableName: "incident" },
+    });
+
+    expect(result).toEqual({ success: true, records: [] });
+  });
+
   it("maps incident fields and custom fields", async () => {
     mockRecords([
       {

@@ -47,7 +47,8 @@ const getRecordsByQuery: servicenowGetRecordsByQueryFunction = async ({
         Authorization: `Bearer ${authToken}`,
       },
     });
-    return { success: true, records: response.data.result };
+    const result = response.data.result;
+    return { success: true, records: Array.isArray(result) ? result : [] };
   } catch (error) {
     console.error("Error querying ServiceNow records:", error);
     return {
