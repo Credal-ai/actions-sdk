@@ -35,6 +35,16 @@ import {
   zendeskListZendeskTicketsParamsSchema,
   zendeskSearchZendeskByQueryOutputSchema,
   zendeskSearchZendeskByQueryParamsSchema,
+  servicenowGetRecordsByQueryOutputSchema,
+  servicenowGetRecordsByQueryParamsSchema,
+  servicenowGetIncidentsOutputSchema,
+  servicenowGetIncidentsParamsSchema,
+  servicenowGetChangeRequestsOutputSchema,
+  servicenowGetChangeRequestsParamsSchema,
+  servicenowGetSCTasksOutputSchema,
+  servicenowGetSCTasksParamsSchema,
+  servicenowGetVIPTicketsOutputSchema,
+  servicenowGetVIPTicketsParamsSchema,
   jiraAssignJiraTicketParamsSchema,
   jiraAssignJiraTicketOutputSchema,
   jiraCommentJiraTicketParamsSchema,
@@ -318,6 +328,11 @@ import addCommentToTicket from "./providers/zendesk/addCommentToTicket.js";
 import assignTicket from "./providers/zendesk/assignTicket.js";
 import listZendeskTickets from "./providers/zendesk/listTickets.js";
 import searchZendeskByQuery from "./providers/zendesk/searchZendeskByQuery.js";
+import getServiceNowRecordsByQuery from "./providers/servicenow/getRecordsByQuery.js";
+import getServiceNowIncidents from "./providers/servicenow/getIncidents.js";
+import getServiceNowChangeRequests from "./providers/servicenow/getChangeRequests.js";
+import getServiceNowSCTasks from "./providers/servicenow/getSCTasks.js";
+import getServiceNowVIPTickets from "./providers/servicenow/getVIPTickets.js";
 import assignJiraTicket from "./providers/jira/assignJiraTicket.js";
 import commentJiraTicket from "./providers/jira/commentJiraTicket.js";
 import commentJiraTicketWithMentions from "./providers/jira/commentJiraTicketWithMentions.js";
@@ -751,6 +766,38 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: searchZendeskByQuery,
       paramsSchema: zendeskSearchZendeskByQueryParamsSchema,
       outputSchema: zendeskSearchZendeskByQueryOutputSchema,
+      actionType: "read",
+    },
+  },
+  servicenow: {
+    getRecordsByQuery: {
+      fn: getServiceNowRecordsByQuery,
+      paramsSchema: servicenowGetRecordsByQueryParamsSchema,
+      outputSchema: servicenowGetRecordsByQueryOutputSchema,
+      actionType: "read",
+    },
+    getIncidents: {
+      fn: getServiceNowIncidents,
+      paramsSchema: servicenowGetIncidentsParamsSchema,
+      outputSchema: servicenowGetIncidentsOutputSchema,
+      actionType: "read",
+    },
+    getChangeRequests: {
+      fn: getServiceNowChangeRequests,
+      paramsSchema: servicenowGetChangeRequestsParamsSchema,
+      outputSchema: servicenowGetChangeRequestsOutputSchema,
+      actionType: "read",
+    },
+    getSCTasks: {
+      fn: getServiceNowSCTasks,
+      paramsSchema: servicenowGetSCTasksParamsSchema,
+      outputSchema: servicenowGetSCTasksOutputSchema,
+      actionType: "read",
+    },
+    getVIPTickets: {
+      fn: getServiceNowVIPTickets,
+      paramsSchema: servicenowGetVIPTicketsParamsSchema,
+      outputSchema: servicenowGetVIPTicketsOutputSchema,
       actionType: "read",
     },
   },

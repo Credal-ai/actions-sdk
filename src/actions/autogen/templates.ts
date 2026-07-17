@@ -15672,3 +15672,574 @@ export const smartsheetUpdateRowDefinition: ActionTemplate = {
   name: "updateRow",
   provider: "smartsheet",
 };
+export const servicenowGetRecordsByQueryDefinition: ActionTemplate = {
+  displayName: "Get ServiceNow records by query",
+  description:
+    "Query records from any ServiceNow table (e.g. incident, change_request, sc_request) using an encoded query string via the Table API",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["tableName"],
+    properties: {
+      tableName: {
+        type: "string",
+        description:
+          "The ServiceNow table to query (e.g. incident, change_request, sc_request, sys_user, kb_knowledge)",
+      },
+      query: {
+        type: "string",
+        description:
+          'ServiceNow encoded query string (sysparm_query) — NOT SQL, JQL, or natural language. Conditions are joined with ^ for AND and ^OR for OR, with no spaces around the ^. Format examples: field=value, field!=value, field>value, fieldLIKEvalue, fieldISEMPTY. Sort with ^ORDERBY<field> (ascending) or ^ORDERBYDESC<field> (descending). Example: "active=true^priority=1^ORDERBYDESCsys_created_on" means active records with priority 1, sorted by most recently created first. If omitted, records are returned unfiltered up to the limit.\n',
+      },
+      fields: {
+        type: "array",
+        description: "Field names to return for each record (sysparm_fields). All fields are returned if omitted.",
+        items: {
+          type: "string",
+        },
+      },
+      limit: {
+        type: "number",
+        description: "Maximum number of records to return (defaults to 25)",
+      },
+      offset: {
+        type: "number",
+        description: "Number of records to skip, for pagination (defaults to 0)",
+      },
+      includeDisplayValues: {
+        type: "boolean",
+        description:
+          'If false (default), each field is returned as a plain scalar value (e.g. active: true, priority: "1"). If true, every field is instead returned as an object {value: "<raw value>", display_value: "<human-readable value>"} — useful for reference fields like assigned_to, where value is a sys_id and display_value is the user\'s name.\n',
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the query was successful",
+      },
+      records: {
+        type: "array",
+        description: "The records matching the query",
+        items: {
+          type: "object",
+        },
+      },
+      error: {
+        type: "string",
+        description: "Error message if the query failed",
+      },
+    },
+  },
+  name: "getRecordsByQuery",
+  provider: "servicenow",
+};
+export const servicenowGetIncidentsDefinition: ActionTemplate = {
+  displayName: "Get ServiceNow incidents",
+  description:
+    "Read incident records from ServiceNow, optionally filtered by an additional encoded query. Returns standard incident fields plus a computed time-to-closure.",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: [],
+    properties: {
+      query: {
+        type: "string",
+        description:
+          'Optional additional ServiceNow encoded query (sysparm_query) ANDed onto the base incident lookup — NOT SQL, JQL, or natural language. Conditions are joined with ^ for AND and ^OR for OR, with no spaces around the ^. Example: "priority=1^state!=7" for open, priority-1 incidents. Leave empty to return all incidents up to the limit.\n',
+      },
+      additionalFields: {
+        type: "array",
+        description:
+          'Extra ServiceNow field technical names to fetch for instance-specific/custom fields not covered by the standard output (e.g. a custom "Program Office" field). Values are returned per record under extraFields, keyed by the field name given here.\n',
+        items: {
+          type: "string",
+        },
+      },
+      limit: {
+        type: "number",
+        description: "Maximum number of incidents to return (defaults to 25)",
+      },
+      offset: {
+        type: "number",
+        description: "Number of records to skip, for pagination (defaults to 0)",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the query was successful",
+      },
+      records: {
+        type: "array",
+        description: "The incident records matching the query",
+        items: {
+          type: "object",
+          properties: {
+            number: {
+              type: "string",
+              description: "The incident ticket number (e.g. INC0010023)",
+            },
+            caller: {
+              type: "string",
+              description: "The name of the person who reported the incident",
+            },
+            assignee: {
+              type: "string",
+              description: "The name of the person assigned to the incident",
+            },
+            assignmentGroup: {
+              type: "string",
+              description: "The name of the group assigned to the incident",
+            },
+            shortDescription: {
+              type: "string",
+              description: "The short description of the incident",
+            },
+            description: {
+              type: "string",
+              description: "The full description of the incident",
+            },
+            state: {
+              type: "string",
+              description: "The current state of the incident",
+            },
+            incidentState: {
+              type: "string",
+              description: "The current incident-specific state (legacy field on some instances; may be absent)",
+            },
+            priority: {
+              type: "string",
+              description: "The priority of the incident",
+            },
+            impact: {
+              type: "string",
+              description: "The impact of the incident",
+            },
+            urgency: {
+              type: "string",
+              description: "The urgency of the incident",
+            },
+            openedAt: {
+              type: "string",
+              description: "The date and time the incident was opened",
+            },
+            updatedAt: {
+              type: "string",
+              description: "The date and time the incident was last updated",
+            },
+            closedAt: {
+              type: "string",
+              description: "The date and time the incident was closed or completed, if applicable",
+            },
+            workNotes: {
+              type: "string",
+              description: "Internal work notes on the incident",
+            },
+            comments: {
+              type: "string",
+              description: "Additional (customer-visible) comments on the incident",
+            },
+            timeToClosureMinutes: {
+              type: "number",
+              description: "Minutes elapsed from opening to final closure, calculated from openedAt and closedAt",
+            },
+            extraFields: {
+              type: "object",
+              description: "Values for any fields requested via the additionalFields parameter, keyed by field name",
+            },
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "Error message if the query failed",
+      },
+    },
+  },
+  name: "getIncidents",
+  provider: "servicenow",
+};
+export const servicenowGetChangeRequestsDefinition: ActionTemplate = {
+  displayName: "Get ServiceNow change requests",
+  description:
+    "Read change request records from ServiceNow, optionally filtered by an additional encoded query. Returns standard change request fields plus a computed time-to-closure.",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: [],
+    properties: {
+      query: {
+        type: "string",
+        description:
+          'Optional additional ServiceNow encoded query (sysparm_query) ANDed onto the base change request lookup — NOT SQL, JQL, or natural language. Conditions are joined with ^ for AND and ^OR for OR, with no spaces around the ^. Example: "priority=1^state!=3" for open, priority-1 change requests. Leave empty to return all change requests up to the limit.\n',
+      },
+      additionalFields: {
+        type: "array",
+        description:
+          'Extra ServiceNow field technical names to fetch for instance-specific/custom fields not covered by the standard output (e.g. a custom "Program Office" field). Values are returned per record under extraFields, keyed by the field name given here.\n',
+        items: {
+          type: "string",
+        },
+      },
+      limit: {
+        type: "number",
+        description: "Maximum number of change requests to return (defaults to 25)",
+      },
+      offset: {
+        type: "number",
+        description: "Number of records to skip, for pagination (defaults to 0)",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the query was successful",
+      },
+      records: {
+        type: "array",
+        description: "The change request records matching the query",
+        items: {
+          type: "object",
+          properties: {
+            number: {
+              type: "string",
+              description: "The change request number (e.g. CHG0010023)",
+            },
+            requestor: {
+              type: "string",
+              description: "The name of the person who requested the change",
+            },
+            assignee: {
+              type: "string",
+              description: "The name of the person assigned to the change request",
+            },
+            assignmentGroup: {
+              type: "string",
+              description: "The name of the group assigned to the change request",
+            },
+            shortDescription: {
+              type: "string",
+              description: "The short description of the change request",
+            },
+            description: {
+              type: "string",
+              description: "The full description of the change request",
+            },
+            state: {
+              type: "string",
+              description: "The current state of the change request",
+            },
+            priority: {
+              type: "string",
+              description: "The priority of the change request",
+            },
+            impact: {
+              type: "string",
+              description: "The impact of the change request",
+            },
+            urgency: {
+              type: "string",
+              description: "The urgency of the change request",
+            },
+            openedAt: {
+              type: "string",
+              description: "The date and time the change request was opened",
+            },
+            updatedAt: {
+              type: "string",
+              description: "The date and time the change request was last updated",
+            },
+            closedAt: {
+              type: "string",
+              description: "The date and time the change request was closed or completed, if applicable",
+            },
+            workNotes: {
+              type: "string",
+              description: "Internal work notes on the change request",
+            },
+            comments: {
+              type: "string",
+              description: "Additional (customer-visible) comments on the change request",
+            },
+            timeToClosureMinutes: {
+              type: "number",
+              description: "Minutes elapsed from opening to final closure, calculated from openedAt and closedAt",
+            },
+            extraFields: {
+              type: "object",
+              description: "Values for any fields requested via the additionalFields parameter, keyed by field name",
+            },
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "Error message if the query failed",
+      },
+    },
+  },
+  name: "getChangeRequests",
+  provider: "servicenow",
+};
+export const servicenowGetSCTasksDefinition: ActionTemplate = {
+  displayName: "Get ServiceNow catalog tasks (SCTASKs)",
+  description:
+    "Read service catalog task (sc_task) records from ServiceNow, optionally filtered by an additional encoded query. Returns standard SCTASK fields, the parent RITM number, and a computed time-to-closure.",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: [],
+    properties: {
+      query: {
+        type: "string",
+        description:
+          'Optional additional ServiceNow encoded query (sysparm_query) ANDed onto the base SCTASK lookup — NOT SQL, JQL, or natural language. Conditions are joined with ^ for AND and ^OR for OR, with no spaces around the ^. Example: "priority=1^state!=3" for open, priority-1 SCTASKs. Leave empty to return all SCTASKs up to the limit.\n',
+      },
+      additionalFields: {
+        type: "array",
+        description:
+          'Extra ServiceNow field technical names to fetch for instance-specific/custom fields not covered by the standard output (e.g. a custom "Program Office" field). Values are returned per record under extraFields, keyed by the field name given here.\n',
+        items: {
+          type: "string",
+        },
+      },
+      limit: {
+        type: "number",
+        description: "Maximum number of SCTASKs to return (defaults to 25)",
+      },
+      offset: {
+        type: "number",
+        description: "Number of records to skip, for pagination (defaults to 0)",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the query was successful",
+      },
+      records: {
+        type: "array",
+        description: "The SCTASK records matching the query",
+        items: {
+          type: "object",
+          properties: {
+            number: {
+              type: "string",
+              description: "The SCTASK ticket number (e.g. SCTASK0010023)",
+            },
+            ritmNumber: {
+              type: "string",
+              description: "The number of the parent Requested Item (RITM) this SCTASK belongs to",
+            },
+            assignee: {
+              type: "string",
+              description: "The name of the person assigned to the SCTASK",
+            },
+            assignmentGroup: {
+              type: "string",
+              description: "The name of the group assigned to the SCTASK",
+            },
+            shortDescription: {
+              type: "string",
+              description: "The short description of the SCTASK",
+            },
+            description: {
+              type: "string",
+              description: "The full description of the SCTASK",
+            },
+            state: {
+              type: "string",
+              description: "The current state of the SCTASK",
+            },
+            priority: {
+              type: "string",
+              description: "The priority of the SCTASK",
+            },
+            openedAt: {
+              type: "string",
+              description: "The date and time the SCTASK was opened",
+            },
+            updatedAt: {
+              type: "string",
+              description: "The date and time the SCTASK was last updated",
+            },
+            closedAt: {
+              type: "string",
+              description: "The date and time the SCTASK was closed or completed, if applicable",
+            },
+            workNotes: {
+              type: "string",
+              description: "Internal work notes on the SCTASK",
+            },
+            comments: {
+              type: "string",
+              description: "Additional (customer-visible) comments on the SCTASK",
+            },
+            timeToClosureMinutes: {
+              type: "number",
+              description: "Minutes elapsed from opening to final closure, calculated from openedAt and closedAt",
+            },
+            extraFields: {
+              type: "object",
+              description: "Values for any fields requested via the additionalFields parameter, keyed by field name",
+            },
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "Error message if the query failed",
+      },
+    },
+  },
+  name: "getSCTasks",
+  provider: "servicenow",
+};
+export const servicenowGetVIPTicketsDefinition: ActionTemplate = {
+  displayName: "Get ServiceNow VIP tickets",
+  description:
+    "Read incident or SCTASK records in ServiceNow whose caller/requester is flagged as a VIP user (sys_user.vip), optionally filtered by an additional encoded query. Returns standard ticket fields and a computed time-to-closure.",
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["ticketType"],
+    properties: {
+      ticketType: {
+        type: "string",
+        enum: ["incident", "sc_task"],
+        description: "Which kind of ticket to look up VIP records for",
+      },
+      query: {
+        type: "string",
+        description:
+          'Optional additional ServiceNow encoded query (sysparm_query) ANDed onto the base VIP lookup — NOT SQL, JQL, or natural language. Conditions are joined with ^ for AND and ^OR for OR, with no spaces around the ^. Example: "priority=1" to further narrow to priority-1 VIP tickets. Leave empty to return all VIP tickets of the given type up to the limit.\n',
+      },
+      additionalFields: {
+        type: "array",
+        description:
+          'Extra ServiceNow field technical names to fetch for instance-specific/custom fields not covered by the standard output (e.g. a custom "Program Office" field). Values are returned per record under extraFields, keyed by the field name given here.\n',
+        items: {
+          type: "string",
+        },
+      },
+      limit: {
+        type: "number",
+        description: "Maximum number of VIP tickets to return (defaults to 25)",
+      },
+      offset: {
+        type: "number",
+        description: "Number of records to skip, for pagination (defaults to 0)",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the query was successful",
+      },
+      records: {
+        type: "array",
+        description: "The VIP ticket records matching the query",
+        items: {
+          type: "object",
+          properties: {
+            ticketType: {
+              type: "string",
+              description: "Whether this record is an incident or a SCTASK",
+            },
+            number: {
+              type: "string",
+              description: "The ticket number",
+            },
+            ritmNumber: {
+              type: "string",
+              description: "The number of the parent Requested Item (RITM), if this is a SCTASK",
+            },
+            vipUser: {
+              type: "string",
+              description: "The name of the VIP caller or requester associated with this ticket",
+            },
+            assignee: {
+              type: "string",
+              description: "The name of the person assigned to the ticket",
+            },
+            assignmentGroup: {
+              type: "string",
+              description: "The name of the group assigned to the ticket",
+            },
+            shortDescription: {
+              type: "string",
+              description: "The short description of the ticket",
+            },
+            description: {
+              type: "string",
+              description: "The full description of the ticket",
+            },
+            state: {
+              type: "string",
+              description: "The current state of the ticket",
+            },
+            openedAt: {
+              type: "string",
+              description: "The date and time the ticket was opened",
+            },
+            updatedAt: {
+              type: "string",
+              description: "The date and time the ticket was last updated",
+            },
+            closedAt: {
+              type: "string",
+              description: "The date and time the ticket was closed or completed, if applicable",
+            },
+            workNotes: {
+              type: "string",
+              description: "Internal work notes on the ticket",
+            },
+            comments: {
+              type: "string",
+              description: "Additional (customer-visible) comments on the ticket",
+            },
+            timeToClosureMinutes: {
+              type: "number",
+              description: "Minutes elapsed from opening to final closure, calculated from openedAt and closedAt",
+            },
+            extraFields: {
+              type: "object",
+              description: "Values for any fields requested via the additionalFields parameter, keyed by field name",
+            },
+          },
+        },
+      },
+      error: {
+        type: "string",
+        description: "Error message if the query failed",
+      },
+    },
+  },
+  name: "getVIPTickets",
+  provider: "servicenow",
+};
