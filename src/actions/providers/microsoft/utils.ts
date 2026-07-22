@@ -41,3 +41,5 @@ export function validateAndSanitizeFileName(fileName: string): string {
 
   return sanitizedFileName;
 }
+
+export const MICROSOFT_GRAPH_API_URL = "https://graph.microsoft.com/v1.0";

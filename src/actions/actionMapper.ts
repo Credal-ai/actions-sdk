@@ -181,6 +181,14 @@ import {
   microsoftUpdateDocumentOutputSchema,
   microsoftGetDocumentParamsSchema,
   microsoftGetDocumentOutputSchema,
+  microsoftGetSharepointItemParamsSchema,
+  microsoftGetSharepointItemOutputSchema,
+  microsoftListSharepointFolderParamsSchema,
+  microsoftListSharepointFolderOutputSchema,
+  microsoftReadSharepointContentParamsSchema,
+  microsoftReadSharepointContentOutputSchema,
+  microsoftSearchSharepointParamsSchema,
+  microsoftSearchSharepointOutputSchema,
   githubListPullRequestsParamsSchema,
   githubListPullRequestsOutputSchema,
   jiraGetJiraIssuesByQueryOutputSchema,
@@ -396,6 +404,10 @@ import microsoftUpdateSpreadsheet from "./providers/microsoft/updateSpreadsheet.
 import updateDocument from "./providers/microsoft/updateDocument.js";
 import createDocument from "./providers/microsoft/createDocument.js";
 import getDocument from "./providers/microsoft/getDocument.js";
+import getSharepointItem from "./providers/microsoft/getSharepointItem.js";
+import listSharepointFolder from "./providers/microsoft/listSharepointFolder.js";
+import readSharepointContent from "./providers/microsoft/readSharepointContent.js";
+import searchSharepoint from "./providers/microsoft/searchSharepoint.js";
 import deepResearch from "./providers/firecrawl/deepResearch.js";
 import listPullRequests from "./providers/github/listPullRequests.js";
 import getJiraIssuesByQuery from "./providers/jira/getJiraIssuesByQuery.js";
@@ -1294,6 +1306,30 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: getDocument,
       paramsSchema: microsoftGetDocumentParamsSchema,
       outputSchema: microsoftGetDocumentOutputSchema,
+      actionType: "read",
+    },
+    getSharepointItem: {
+      fn: getSharepointItem,
+      paramsSchema: microsoftGetSharepointItemParamsSchema,
+      outputSchema: microsoftGetSharepointItemOutputSchema,
+      actionType: "read",
+    },
+    listSharepointFolder: {
+      fn: listSharepointFolder,
+      paramsSchema: microsoftListSharepointFolderParamsSchema,
+      outputSchema: microsoftListSharepointFolderOutputSchema,
+      actionType: "read",
+    },
+    readSharepointContent: {
+      fn: readSharepointContent,
+      paramsSchema: microsoftReadSharepointContentParamsSchema,
+      outputSchema: microsoftReadSharepointContentOutputSchema,
+      actionType: "read",
+    },
+    searchSharepoint: {
+      fn: searchSharepoint,
+      paramsSchema: microsoftSearchSharepointParamsSchema,
+      outputSchema: microsoftSearchSharepointOutputSchema,
       actionType: "read",
     },
   },

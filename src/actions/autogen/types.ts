@@ -153,6 +153,10 @@ export enum ActionName {
   MESSAGETEAMSCHAT = "messageTeamsChat",
   MESSAGETEAMSCHANNEL = "messageTeamsChannel",
   GETDOCUMENT = "getDocument",
+  GETSHAREPOINTITEM = "getSharepointItem",
+  LISTSHAREPOINTFOLDER = "listSharepointFolder",
+  READSHAREPOINTCONTENT = "readSharepointContent",
+  SEARCHSHAREPOINT = "searchSharepoint",
   CREATEORUPDATEFILE = "createOrUpdateFile",
   CREATEBRANCH = "createBranch",
   CREATEPULLREQUEST = "createPullRequest",
@@ -6299,6 +6303,187 @@ export type microsoftGetDocumentFunction = ActionFunction<
   microsoftGetDocumentParamsType,
   AuthParamsType,
   microsoftGetDocumentOutputType
+>;
+
+export const microsoftGetSharepointItemParamsSchema = z.object({
+  url: z.string().describe("The SharePoint or OneDrive URL to resolve (file, folder, site, or page link)"),
+});
+
+export type microsoftGetSharepointItemParamsType = z.infer<typeof microsoftGetSharepointItemParamsSchema>;
+
+export const microsoftGetSharepointItemOutputSchema = z.object({
+  success: z.boolean().describe("Whether the URL was resolved successfully"),
+  item: z
+    .object({
+      itemType: z.string().describe("One of: file | folder | site | page").optional(),
+      name: z.string().describe("The name of the item").optional(),
+      webUrl: z.string().describe("The web URL of the item").optional(),
+      driveId: z.string().describe("The ID of the drive containing the item (files and folders)").optional(),
+      itemId: z
+        .string()
+        .describe("The ID of the item within its drive (for pages this is the site page ID)")
+        .optional(),
+      siteId: z.string().describe("The ID of the SharePoint site (sites, pages, and site-hosted items)").optional(),
+      mimeType: z.string().describe("The MIME type of the file").optional(),
+      sizeBytes: z.coerce.number().describe("The size of the file in bytes").optional(),
+      drives: z
+        .array(
+          z.object({
+            driveId: z.string().describe("The ID of the document library drive").optional(),
+            name: z.string().describe("The name of the document library").optional(),
+            webUrl: z
+              .string()
+              .describe("The web URL of the document library (usable as a searchSharepoint scopeUrl)")
+              .optional(),
+          }),
+        )
+        .describe("For sites — the document libraries in the site")
+        .optional(),
+    })
+    .describe("The resolved item")
+    .optional(),
+  error: z.string().describe("The error that occurred if the URL was not resolved").optional(),
+});
+
+export type microsoftGetSharepointItemOutputType = z.infer<typeof microsoftGetSharepointItemOutputSchema>;
+export type microsoftGetSharepointItemFunction = ActionFunction<
+  microsoftGetSharepointItemParamsType,
+  AuthParamsType,
+  microsoftGetSharepointItemOutputType
+>;
+
+export const microsoftListSharepointFolderParamsSchema = z.object({
+  url: z.string().describe("The URL of the folder (or site) to list. Provide either this or driveItem.").optional(),
+  driveItem: z
+    .object({
+      driveId: z.string().describe("The ID of the drive containing the folder"),
+      itemId: z.string().describe("The ID of the folder to list"),
+    })
+    .describe("The exact folder to list, as returned by getSharepointItem. Provide either this or url.")
+    .optional(),
+  recursive: z.boolean().describe("Whether to recursively enumerate subfolders (default false)").optional(),
+  maxItems: z.coerce.number().describe("Maximum number of items to return (default 200)").optional(),
+});
+
+export type microsoftListSharepointFolderParamsType = z.infer<typeof microsoftListSharepointFolderParamsSchema>;
+
+export const microsoftListSharepointFolderOutputSchema = z.object({
+  success: z.boolean().describe("Whether the folder was listed successfully"),
+  items: z
+    .array(
+      z.object({
+        itemId: z.string().describe("The ID of the item"),
+        driveId: z.string().describe("The ID of the drive containing the item").optional(),
+        name: z.string().describe("The name of the item"),
+        itemType: z.string().describe("One of: file | folder"),
+        mimeType: z.string().describe("The MIME type of the file").optional(),
+        sizeBytes: z.coerce.number().describe("The size of the file in bytes").optional(),
+        webUrl: z.string().describe("The web URL of the item").optional(),
+        lastModified: z.string().describe("The last modified timestamp of the item").optional(),
+      }),
+    )
+    .describe("The items in the folder")
+    .optional(),
+  truncated: z.boolean().describe("True if enumeration stopped at maxItems before listing everything").optional(),
+  error: z.string().describe("The error that occurred if the folder was not listed").optional(),
+});
+
+export type microsoftListSharepointFolderOutputType = z.infer<typeof microsoftListSharepointFolderOutputSchema>;
+export type microsoftListSharepointFolderFunction = ActionFunction<
+  microsoftListSharepointFolderParamsType,
+  AuthParamsType,
+  microsoftListSharepointFolderOutputType
+>;
+
+export const microsoftReadSharepointContentParamsSchema = z.object({
+  url: z
+    .string()
+    .describe(
+      "The URL of the file or page to read. Provide either this or driveItem; when both are given, driveItem takes precedence and the url is ignored.",
+    )
+    .optional(),
+  driveItem: z
+    .object({
+      driveId: z.string().describe("The ID of the drive containing the file"),
+      itemId: z.string().describe("The ID of the file to read"),
+    })
+    .describe("The exact file to read, as returned by getSharepointItem. Provide either this or url.")
+    .optional(),
+  charLimit: z.coerce.number().describe("The character limit for the returned content (soft truncation)").optional(),
+  fileSizeLimit: z.coerce
+    .number()
+    .describe("Max file size (in MB) to retrieve content from (default of 50MB)")
+    .optional(),
+});
+
+export type microsoftReadSharepointContentParamsType = z.infer<typeof microsoftReadSharepointContentParamsSchema>;
+
+export const microsoftReadSharepointContentOutputSchema = z.object({
+  success: z.boolean().describe("Whether the content was retrieved successfully"),
+  results: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the file or page"),
+        url: z.string().describe("The URL of the file or page"),
+        contents: z
+          .object({
+            content: z.string().describe("The text content of the file or page").optional(),
+            fileName: z.string().describe("The name of the file or page").optional(),
+            fileLength: z.coerce.number().describe("The length of the content prior to truncating").optional(),
+          })
+          .describe("The contents of the file or page"),
+      }),
+    )
+    .describe("The results of the content read")
+    .optional(),
+  error: z.string().describe("Error message if content retrieval failed").optional(),
+});
+
+export type microsoftReadSharepointContentOutputType = z.infer<typeof microsoftReadSharepointContentOutputSchema>;
+export type microsoftReadSharepointContentFunction = ActionFunction<
+  microsoftReadSharepointContentParamsType,
+  AuthParamsType,
+  microsoftReadSharepointContentOutputType
+>;
+
+export const microsoftSearchSharepointParamsSchema = z.object({
+  query: z.string().describe("The text to search for"),
+  scopeUrl: z
+    .string()
+    .describe(
+      "A site, folder, or document library URL to restrict results to (optional — omit to search everything the user can access)",
+    )
+    .optional(),
+  limit: z.coerce.number().describe("Maximum number of results to return (default 25)").optional(),
+});
+
+export type microsoftSearchSharepointParamsType = z.infer<typeof microsoftSearchSharepointParamsSchema>;
+
+export const microsoftSearchSharepointOutputSchema = z.object({
+  success: z.boolean().describe("Whether the search completed successfully"),
+  files: z
+    .array(
+      z.object({
+        itemId: z.string().describe("The ID of the file"),
+        driveId: z.string().describe("The ID of the drive containing the file").optional(),
+        name: z.string().describe("The name of the file"),
+        mimeType: z.string().describe("The MIME type of the file").optional(),
+        webUrl: z.string().describe("The web URL of the file").optional(),
+        snippet: z.string().describe("A text snippet summarizing the match").optional(),
+        lastModified: z.string().describe("The last modified timestamp of the file").optional(),
+      }),
+    )
+    .describe("The files matching the search query")
+    .optional(),
+  truncated: z.boolean().describe("True if more results were available than the limit allowed").optional(),
+  error: z.string().describe("The error that occurred if the search failed").optional(),
+});
+
+export type microsoftSearchSharepointOutputType = z.infer<typeof microsoftSearchSharepointOutputSchema>;
+export type microsoftSearchSharepointFunction = ActionFunction<
+  microsoftSearchSharepointParamsType,
+  AuthParamsType,
+  microsoftSearchSharepointOutputType
 >;
 
 export const githubCreateOrUpdateFileParamsSchema = z.object({
