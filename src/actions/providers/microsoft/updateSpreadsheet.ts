@@ -4,7 +4,7 @@ import type {
   microsoftUpdateSpreadsheetOutputType,
   microsoftUpdateSpreadsheetParamsType,
 } from "../../autogen/types.js";
-import { getGraphClient } from "./utils.js";
+import { getDrivePath, getGraphClient } from "./utils.js";
 
 const updateSpreadsheet: microsoftUpdateSpreadsheetFunction = async ({
   params,
@@ -13,7 +13,7 @@ const updateSpreadsheet: microsoftUpdateSpreadsheetFunction = async ({
   params: microsoftUpdateSpreadsheetParamsType;
   authParams: AuthParamsType;
 }): Promise<microsoftUpdateSpreadsheetOutputType> => {
-  const { spreadsheetId, range, values, siteId } = params; // Added siteId to destructured params
+  const { spreadsheetId, range, values, siteId, driveId } = params;
 
   let client = undefined;
   try {
@@ -25,7 +25,6 @@ const updateSpreadsheet: microsoftUpdateSpreadsheetFunction = async ({
     };
   }
 
-  const apiEndpointPrefix = siteId ? `/sites/${siteId}` : "/me";
   if (!range.includes("!")) {
     return {
       success: false,
@@ -41,7 +40,7 @@ const updateSpreadsheet: microsoftUpdateSpreadsheetFunction = async ({
     };
   }
 
-  const apiEndpoint = `${apiEndpointPrefix}/drive/items/${spreadsheetId}/workbook/worksheets/${sheetName}/range(address='${cellRange}')`;
+  const apiEndpoint = `${getDrivePath({ driveId, siteId })}/items/${spreadsheetId}/workbook/worksheets/${sheetName}/range(address='${cellRange}')`;
 
   try {
     const response = await client.api(apiEndpoint).patch({ values });

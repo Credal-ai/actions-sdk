@@ -4,7 +4,7 @@ import type {
   microsoftGetDocumentOutputType,
   microsoftGetDocumentParamsType,
 } from "../../autogen/types.js";
-import { getGraphClient } from "./utils.js";
+import { getDrivePath, getGraphClient } from "./utils.js";
 
 const getDocument: microsoftGetDocumentFunction = async ({
   params,
@@ -13,7 +13,7 @@ const getDocument: microsoftGetDocumentFunction = async ({
   params: microsoftGetDocumentParamsType;
   authParams: AuthParamsType;
 }): Promise<microsoftGetDocumentOutputType> => {
-  const { siteId, documentId } = params;
+  const { siteId, driveId, documentId } = params;
 
   let client;
   try {
@@ -26,10 +26,7 @@ const getDocument: microsoftGetDocumentFunction = async ({
   }
 
   try {
-    // Construct the API endpoint
-    const endpoint = siteId
-      ? `/sites/${siteId}/drive/items/${documentId}/content`
-      : `/me/drive/items/${documentId}/content`;
+    const endpoint = `${getDrivePath({ driveId, siteId })}/items/${documentId}/content`;
 
     // Fetch the document content
     const response = await client.api(endpoint).get();

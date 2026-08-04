@@ -4,7 +4,7 @@ import type {
   microsoftCreateDocumentOutputType,
   microsoftCreateDocumentParamsType,
 } from "../../autogen/types.js";
-import { getGraphClient, validateAndSanitizeFileName } from "./utils.js";
+import { getDrivePath, getGraphClient, validateAndSanitizeFileName } from "./utils.js";
 
 const createDocument: microsoftCreateDocumentFunction = async ({
   params,
@@ -25,11 +25,8 @@ const createDocument: microsoftCreateDocumentFunction = async ({
     };
   }
 
-  // Item IDs are scoped to a drive, so a driveId (when known) addresses the exact document
-  // library; /sites/{siteId}/drive only ever reaches the site's default library
-  const drivePath = driveId ? `/drives/${driveId}` : siteId ? `/sites/${siteId}/drive` : "/me/drive";
   const sanitizedFileName = validateAndSanitizeFileName(name);
-  const endpoint = `${drivePath}/items/${folderId || "root"}:/${sanitizedFileName}:/content`;
+  const endpoint = `${getDrivePath({ driveId, siteId })}/items/${folderId || "root"}:/${sanitizedFileName}:/content`;
   try {
     // Create or update the document
     const response = await client.api(endpoint).put(content);

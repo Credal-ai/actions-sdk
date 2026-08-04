@@ -6213,7 +6213,18 @@ export type microsoftCreateDocumentFunction = ActionFunction<
 >;
 
 export const microsoftUpdateDocumentParamsSchema = z.object({
-  siteId: z.string().describe("The ID of the site where the document is located").optional(),
+  siteId: z
+    .string()
+    .describe(
+      "The ID of the site where the document is located (targets the site's default document library; ignored if driveId is provided)",
+    )
+    .optional(),
+  driveId: z
+    .string()
+    .describe(
+      "The ID of the drive (document library) containing the document. Required when the document is in a non-default document library; takes precedence over siteId",
+    )
+    .optional(),
   documentId: z.string().describe("The ID of the document"),
   content: z.string().describe("The new content to update in the document"),
 });
@@ -6237,7 +6248,18 @@ export const microsoftUpdateSpreadsheetParamsSchema = z.object({
   spreadsheetId: z.string().describe("The ID of the spreadsheet to update"),
   range: z.string().describe('The range of cells to update (e.g., "Sheet1!A1:B2")'),
   values: z.array(z.array(z.string())).describe("The values to update in the specified range"),
-  siteId: z.string().describe("The ID of the site where the spreadsheet is located").optional(),
+  siteId: z
+    .string()
+    .describe(
+      "The ID of the site where the spreadsheet is located (targets the site's default document library; ignored if driveId is provided)",
+    )
+    .optional(),
+  driveId: z
+    .string()
+    .describe(
+      "The ID of the drive (document library) containing the spreadsheet. Required when the spreadsheet is in a non-default document library; takes precedence over siteId",
+    )
+    .optional(),
 });
 
 export type microsoftUpdateSpreadsheetParamsType = z.infer<typeof microsoftUpdateSpreadsheetParamsSchema>;
@@ -6297,7 +6319,18 @@ export type microsoftMessageTeamsChannelFunction = ActionFunction<
 >;
 
 export const microsoftGetDocumentParamsSchema = z.object({
-  siteId: z.string().describe("The ID of the site where the document is located (optional for OneDrive)").optional(),
+  siteId: z
+    .string()
+    .describe(
+      "The ID of the site where the document is located (optional for OneDrive; targets the site's default document library; ignored if driveId is provided)",
+    )
+    .optional(),
+  driveId: z
+    .string()
+    .describe(
+      "The ID of the drive (document library) containing the document. Required when the document is in a non-default document library; takes precedence over siteId",
+    )
+    .optional(),
   documentId: z.string().describe("The ID of the document to retrieve"),
 });
 

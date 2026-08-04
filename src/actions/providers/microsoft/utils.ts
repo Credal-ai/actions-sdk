@@ -14,6 +14,15 @@ export async function getGraphClient(authParams: AuthParamsType): Promise<Client
 }
 
 /**
+ * Builds the Graph API path prefix addressing a drive. Item IDs are scoped to a drive, so a
+ * driveId (when known) addresses the exact document library; /sites/{siteId}/drive only ever
+ * reaches the site's default library, and /me/drive the user's personal OneDrive.
+ */
+export function getDrivePath({ driveId, siteId }: { driveId?: string; siteId?: string }): string {
+  return driveId ? `/drives/${driveId}` : siteId ? `/sites/${siteId}/drive` : "/me/drive";
+}
+
+/**
  * Validates and sanitizes a filename for SharePoint or OneDrive.
  * @param fileName The original filename to validate and sanitize.
  * @returns A sanitized filename that is safe to use.
