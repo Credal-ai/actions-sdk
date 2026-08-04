@@ -17,6 +17,7 @@ async function runTest() {
     }, // authParams
     {
       siteId: process.env.MICROSOFT_SITE_ID!,
+      driveId: process.env.MICROSOFT_DRIVE_ID,
       name: `TestDocument-${new Date()}.docx`,
       content: "",
       folderId: process.env.MICROSOFT_FOLDER_ID!,

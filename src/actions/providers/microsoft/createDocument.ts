@@ -13,7 +13,7 @@ const createDocument: microsoftCreateDocumentFunction = async ({
   params: microsoftCreateDocumentParamsType;
   authParams: AuthParamsType;
 }): Promise<microsoftCreateDocumentOutputType> => {
-  const { folderId, name, content, siteId } = params;
+  const { folderId, name, content, siteId, driveId } = params;
 
   let client = undefined;
   try {
@@ -25,9 +25,11 @@ const createDocument: microsoftCreateDocumentFunction = async ({
     };
   }
 
-  const apiEndpointPrefix = siteId ? `/sites/${siteId}` : "/me";
+  // Item IDs are scoped to a drive, so a driveId (when known) addresses the exact document
+  // library; /sites/{siteId}/drive only ever reaches the site's default library
+  const drivePath = driveId ? `/drives/${driveId}` : siteId ? `/sites/${siteId}/drive` : "/me/drive";
   const sanitizedFileName = validateAndSanitizeFileName(name);
-  const endpoint = `${apiEndpointPrefix}/drive/items/${folderId || "root"}:/${sanitizedFileName}:/content`;
+  const endpoint = `${drivePath}/items/${folderId || "root"}:/${sanitizedFileName}:/content`;
   try {
     // Create or update the document
     const response = await client.api(endpoint).put(content);

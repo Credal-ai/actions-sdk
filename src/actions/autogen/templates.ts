@@ -11596,7 +11596,13 @@ export const microsoftCreateDocumentDefinition: ActionTemplate = {
     properties: {
       siteId: {
         type: "string",
-        description: "The ID of the site where the document will be created",
+        description:
+          "The ID of the site where the document will be created (targets the site's default document library; ignored if driveId is provided)",
+      },
+      driveId: {
+        type: "string",
+        description:
+          "The ID of the drive (document library) to create the document in. Required to target a non-default document library; takes precedence over siteId",
       },
       name: {
         type: "string",

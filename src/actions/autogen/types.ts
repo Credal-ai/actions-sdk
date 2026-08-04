@@ -6178,7 +6178,18 @@ export type salesforceGetReportMetadataFunction = ActionFunction<
 >;
 
 export const microsoftCreateDocumentParamsSchema = z.object({
-  siteId: z.string().describe("The ID of the site where the document will be created").optional(),
+  siteId: z
+    .string()
+    .describe(
+      "The ID of the site where the document will be created (targets the site's default document library; ignored if driveId is provided)",
+    )
+    .optional(),
+  driveId: z
+    .string()
+    .describe(
+      "The ID of the drive (document library) to create the document in. Required to target a non-default document library; takes precedence over siteId",
+    )
+    .optional(),
   name: z.string().describe("The name of the new document (include extension like .docx or .xlsx)"),
   content: z.string().describe("The content to add to the new document"),
   folderId: z.string().describe("The ID of the folder to create the document in (optional)").optional(),
