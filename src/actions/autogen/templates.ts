@@ -11602,7 +11602,7 @@ export const microsoftCreateDocumentDefinition: ActionTemplate = {
       driveId: {
         type: "string",
         description:
-          "The ID of the drive (document library) to create the document in. Required to target a non-default document library; takes precedence over siteId",
+          "The ID of the drive (document library) to create the document in. Required to target a non-default document library; takes precedence over siteId. Can be resolved from a SharePoint URL with the getSharepointItem action",
       },
       name: {
         type: "string",
@@ -11664,7 +11664,7 @@ export const microsoftUpdateDocumentDefinition: ActionTemplate = {
       driveId: {
         type: "string",
         description:
-          "The ID of the drive (document library) containing the document. Required when the document is in a non-default document library; takes precedence over siteId",
+          "The ID of the drive (document library) containing the document. Required when the document is in a non-default document library; takes precedence over siteId. Can be resolved from a SharePoint URL with the getSharepointItem action",
       },
       documentId: {
         type: "string",
@@ -11732,7 +11732,7 @@ export const microsoftUpdateSpreadsheetDefinition: ActionTemplate = {
       driveId: {
         type: "string",
         description:
-          "The ID of the drive (document library) containing the spreadsheet. Required when the spreadsheet is in a non-default document library; takes precedence over siteId",
+          "The ID of the drive (document library) containing the spreadsheet. Required when the spreadsheet is in a non-default document library; takes precedence over siteId. Can be resolved from a SharePoint URL with the getSharepointItem action",
       },
     },
   },
@@ -11858,7 +11858,7 @@ export const microsoftGetDocumentDefinition: ActionTemplate = {
       driveId: {
         type: "string",
         description:
-          "The ID of the drive (document library) containing the document. Required when the document is in a non-default document library; takes precedence over siteId",
+          "The ID of the drive (document library) containing the document. Required when the document is in a non-default document library; takes precedence over siteId. Can be resolved from a SharePoint URL with the getSharepointItem action",
       },
       documentId: {
         type: "string",

@@ -6187,7 +6187,7 @@ export const microsoftCreateDocumentParamsSchema = z.object({
   driveId: z
     .string()
     .describe(
-      "The ID of the drive (document library) to create the document in. Required to target a non-default document library; takes precedence over siteId",
+      "The ID of the drive (document library) to create the document in. Required to target a non-default document library; takes precedence over siteId. Can be resolved from a SharePoint URL with the getSharepointItem action",
     )
     .optional(),
   name: z.string().describe("The name of the new document (include extension like .docx or .xlsx)"),
@@ -6222,7 +6222,7 @@ export const microsoftUpdateDocumentParamsSchema = z.object({
   driveId: z
     .string()
     .describe(
-      "The ID of the drive (document library) containing the document. Required when the document is in a non-default document library; takes precedence over siteId",
+      "The ID of the drive (document library) containing the document. Required when the document is in a non-default document library; takes precedence over siteId. Can be resolved from a SharePoint URL with the getSharepointItem action",
     )
     .optional(),
   documentId: z.string().describe("The ID of the document"),
@@ -6257,7 +6257,7 @@ export const microsoftUpdateSpreadsheetParamsSchema = z.object({
   driveId: z
     .string()
     .describe(
-      "The ID of the drive (document library) containing the spreadsheet. Required when the spreadsheet is in a non-default document library; takes precedence over siteId",
+      "The ID of the drive (document library) containing the spreadsheet. Required when the spreadsheet is in a non-default document library; takes precedence over siteId. Can be resolved from a SharePoint URL with the getSharepointItem action",
     )
     .optional(),
 });
@@ -6328,7 +6328,7 @@ export const microsoftGetDocumentParamsSchema = z.object({
   driveId: z
     .string()
     .describe(
-      "The ID of the drive (document library) containing the document. Required when the document is in a non-default document library; takes precedence over siteId",
+      "The ID of the drive (document library) containing the document. Required when the document is in a non-default document library; takes precedence over siteId. Can be resolved from a SharePoint URL with the getSharepointItem action",
     )
     .optional(),
   documentId: z.string().describe("The ID of the document to retrieve"),
