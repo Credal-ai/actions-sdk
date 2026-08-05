@@ -11606,11 +11606,11 @@ export const microsoftCreateDocumentDefinition: ActionTemplate = {
       },
       name: {
         type: "string",
-        description: "The name of the new document (include extension like .docx or .xlsx)",
+        description: "The name of the new document, including the extension. Use .docx for a Word document (the content is converted into a real Word file) or a plain-text extension like .txt or .md. Other Office extensions (.doc, .xlsx, .xls, .pptx, .ppt) are not supported and will be rejected",
       },
       content: {
         type: "string",
-        description: "The content to add to the new document",
+        description: "The plain-text content of the document. When the name ends in .docx it is converted into a Word document with one paragraph per line; otherwise it is written as-is",
       },
       folderId: {
         type: "string",
@@ -11672,7 +11672,7 @@ export const microsoftUpdateDocumentDefinition: ActionTemplate = {
       },
       content: {
         type: "string",
-        description: "The new content to update in the document",
+        description: "The new plain-text content for the document (replaces the existing content entirely). If the target file is a .docx it is converted into a Word document with one paragraph per line; other Office formats (.doc, .xlsx, .xls, .pptx, .ppt) cannot be updated",
       },
     },
   },

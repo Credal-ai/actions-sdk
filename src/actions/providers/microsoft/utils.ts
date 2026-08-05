@@ -1,4 +1,5 @@
 import { Client } from "@microsoft/microsoft-graph-client";
+import { Document, Packer, Paragraph, TextRun } from "docx";
 import type { AuthParamsType } from "../../autogen/types.js";
 
 export async function getGraphClient(authParams: AuthParamsType): Promise<Client> {
@@ -49,6 +50,30 @@ export function validateAndSanitizeFileName(fileName: string): string {
   }
 
   return sanitizedFileName;
+}
+
+// Office formats that are binary/ZIP containers. Writing plain text bytes under these
+// extensions produces a file the corresponding Office app cannot open.
+const UNSUPPORTED_OFFICE_EXTENSIONS = [".doc", ".xlsx", ".xls", ".pptx", ".ppt"];
+
+export function fileNameHasDocxExtension(fileName: string): boolean {
+  return fileName.toLowerCase().endsWith(".docx");
+}
+
+export function getUnsupportedOfficeExtension(fileName: string): string | undefined {
+  const lowerCaseFileName = fileName.toLowerCase();
+  return UNSUPPORTED_OFFICE_EXTENSIONS.find(extension => lowerCaseFileName.endsWith(extension));
+}
+
+/**
+ * Builds a valid .docx file from plain text, one paragraph per line. A .docx is a ZIP
+ * archive of XML parts, so text bytes written directly under a .docx name produce a
+ * corrupted document — the bytes must be generated with an OOXML writer.
+ */
+export async function generateDocxFromPlainText(text: string): Promise<Buffer> {
+  const paragraphs = text.split(/\r?\n/).map(line => new Paragraph({ children: [new TextRun({ text: line })] }));
+  const document = new Document({ sections: [{ properties: {}, children: paragraphs }] });
+  return Packer.toBuffer(document);
 }
 
 export const MICROSOFT_GRAPH_API_URL = "https://graph.microsoft.com/v1.0";

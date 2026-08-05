@@ -6190,8 +6190,8 @@ export const microsoftCreateDocumentParamsSchema = z.object({
       "The ID of the drive (document library) to create the document in. Required to target a non-default document library; takes precedence over siteId. Can be resolved from a SharePoint URL with the getSharepointItem action",
     )
     .optional(),
-  name: z.string().describe("The name of the new document (include extension like .docx or .xlsx)"),
-  content: z.string().describe("The content to add to the new document"),
+  name: z.string().describe("The name of the new document, including the extension. Use .docx for a Word document (the content is converted into a real Word file) or a plain-text extension like .txt or .md. Other Office extensions (.doc, .xlsx, .xls, .pptx, .ppt) are not supported and will be rejected"),
+  content: z.string().describe("The plain-text content of the document. When the name ends in .docx it is converted into a Word document with one paragraph per line; otherwise it is written as-is"),
   folderId: z.string().describe("The ID of the folder to create the document in (optional)").optional(),
 });
 
@@ -6226,7 +6226,7 @@ export const microsoftUpdateDocumentParamsSchema = z.object({
     )
     .optional(),
   documentId: z.string().describe("The ID of the document"),
-  content: z.string().describe("The new content to update in the document"),
+  content: z.string().describe("The new plain-text content for the document (replaces the existing content entirely). If the target file is a .docx it is converted into a Word document with one paragraph per line; other Office formats (.doc, .xlsx, .xls, .pptx, .ppt) cannot be updated"),
 });
 
 export type microsoftUpdateDocumentParamsType = z.infer<typeof microsoftUpdateDocumentParamsSchema>;

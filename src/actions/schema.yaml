@@ -6930,10 +6930,10 @@ actions:
             description: The ID of the drive (document library) to create the document in. Required to target a non-default document library; takes precedence over siteId. Can be resolved from a SharePoint URL with the getSharepointItem action
           name:
             type: string
-            description: The name of the new document (include extension like .docx or .xlsx)
+            description: The name of the new document, including the extension. Use .docx for a Word document (the content is converted into a real Word file) or a plain-text extension like .txt or .md. Other Office extensions (.doc, .xlsx, .xls, .pptx, .ppt) are not supported and will be rejected
           content:
             type: string
-            description: The content to add to the new document
+            description: The plain-text content of the document. When the name ends in .docx it is converted into a Word document with one paragraph per line; otherwise it is written as-is
           folderId:
             type: string
             description: The ID of the folder to create the document in (optional)
@@ -6975,7 +6975,7 @@ actions:
             description: The ID of the document
           content:
             type: string
-            description: The new content to update in the document
+            description: The new plain-text content for the document (replaces the existing content entirely). If the target file is a .docx it is converted into a Word document with one paragraph per line; other Office formats (.doc, .xlsx, .xls, .pptx, .ppt) cannot be updated
       output:
         type: object
         required: [success]
