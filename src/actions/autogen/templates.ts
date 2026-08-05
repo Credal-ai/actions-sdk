@@ -11596,7 +11596,13 @@ export const microsoftCreateDocumentDefinition: ActionTemplate = {
     properties: {
       siteId: {
         type: "string",
-        description: "The ID of the site where the document will be created",
+        description:
+          "The ID of the site where the document will be created (targets the site's default document library; ignored if driveId is provided)",
+      },
+      driveId: {
+        type: "string",
+        description:
+          "The ID of the drive (document library) to create the document in. Required to target a non-default document library; takes precedence over siteId. Can be resolved from a SharePoint URL with the getSharepointItem action",
       },
       name: {
         type: "string",
@@ -11652,7 +11658,13 @@ export const microsoftUpdateDocumentDefinition: ActionTemplate = {
     properties: {
       siteId: {
         type: "string",
-        description: "The ID of the site where the document is located",
+        description:
+          "The ID of the site where the document is located (targets the site's default document library; ignored if driveId is provided)",
+      },
+      driveId: {
+        type: "string",
+        description:
+          "The ID of the drive (document library) containing the document. Required when the document is in a non-default document library; takes precedence over siteId. Can be resolved from a SharePoint URL with the getSharepointItem action",
       },
       documentId: {
         type: "string",
@@ -11714,7 +11726,13 @@ export const microsoftUpdateSpreadsheetDefinition: ActionTemplate = {
       },
       siteId: {
         type: "string",
-        description: "The ID of the site where the spreadsheet is located",
+        description:
+          "The ID of the site where the spreadsheet is located (targets the site's default document library; ignored if driveId is provided)",
+      },
+      driveId: {
+        type: "string",
+        description:
+          "The ID of the drive (document library) containing the spreadsheet. Required when the spreadsheet is in a non-default document library; takes precedence over siteId. Can be resolved from a SharePoint URL with the getSharepointItem action",
       },
     },
   },
@@ -11834,7 +11852,13 @@ export const microsoftGetDocumentDefinition: ActionTemplate = {
     properties: {
       siteId: {
         type: "string",
-        description: "The ID of the site where the document is located (optional for OneDrive)",
+        description:
+          "The ID of the site where the document is located (optional for OneDrive; targets the site's default document library; ignored if driveId is provided)",
+      },
+      driveId: {
+        type: "string",
+        description:
+          "The ID of the drive (document library) containing the document. Required when the document is in a non-default document library; takes precedence over siteId. Can be resolved from a SharePoint URL with the getSharepointItem action",
       },
       documentId: {
         type: "string",

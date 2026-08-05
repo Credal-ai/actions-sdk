@@ -4,7 +4,7 @@ import type {
   microsoftUpdateDocumentOutputType,
   microsoftUpdateDocumentParamsType,
 } from "../../autogen/types.js";
-import { getGraphClient } from "./utils.js";
+import { getDrivePath, getGraphClient } from "./utils.js";
 
 const updateDocument: microsoftUpdateDocumentFunction = async ({
   params,
@@ -13,7 +13,7 @@ const updateDocument: microsoftUpdateDocumentFunction = async ({
   params: microsoftUpdateDocumentParamsType;
   authParams: AuthParamsType;
 }): Promise<microsoftUpdateDocumentOutputType> => {
-  const { documentId, content, siteId } = params;
+  const { documentId, content, siteId, driveId } = params;
 
   let client = undefined;
   try {
@@ -26,10 +26,7 @@ const updateDocument: microsoftUpdateDocumentFunction = async ({
   }
 
   try {
-    // Determine the endpoint based on whether siteId is provided
-    const endpoint = siteId
-      ? `/sites/${siteId}/drive/items/${documentId}/content`
-      : `/me/drive/items/${documentId}/content`;
+    const endpoint = `${getDrivePath({ driveId, siteId })}/items/${documentId}/content`;
 
     const response = await client.api(endpoint).put(content);
 
