@@ -4,7 +4,13 @@ import type {
   microsoftUpdateDocumentOutputType,
   microsoftUpdateDocumentParamsType,
 } from "../../autogen/types.js";
-import { getDrivePath, getGraphClient } from "./utils.js";
+import {
+  fileNameHasDocxExtension,
+  generateDocxFromPlainText,
+  getDrivePath,
+  getGraphClient,
+  getUnsupportedOfficeExtension,
+} from "./utils.js";
 
 const updateDocument: microsoftUpdateDocumentFunction = async ({
   params,
@@ -26,9 +32,26 @@ const updateDocument: microsoftUpdateDocumentFunction = async ({
   }
 
   try {
-    const endpoint = `${getDrivePath({ driveId, siteId })}/items/${documentId}/content`;
+    const drivePath = getDrivePath({ driveId, siteId });
 
-    const response = await client.api(endpoint).put(content);
+    // The target's filename decides how the content must be written: .docx is a
+    // ZIP-of-XML container, so overwriting it with raw text would corrupt it.
+    const itemMetadata = await client.api(`${drivePath}/items/${documentId}?$select=name`).get();
+    const fileName: string = itemMetadata?.name ?? "";
+
+    const unsupportedOfficeExtension = getUnsupportedOfficeExtension(fileName);
+    if (unsupportedOfficeExtension) {
+      return {
+        success: false,
+        error: `Cannot update "${unsupportedOfficeExtension}" files: this action writes the provided text and can only generate Word documents. Only .docx and plain-text files can be updated.`,
+      };
+    }
+
+    const body = fileNameHasDocxExtension(fileName) ? await generateDocxFromPlainText(content) : content;
+
+    const endpoint = `${drivePath}/items/${documentId}/content`;
+
+    const response = await client.api(endpoint).put(body);
 
     return {
       success: true,
