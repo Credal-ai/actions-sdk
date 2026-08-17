@@ -78,7 +78,7 @@
     "p-limit": "^7.1.1",
     "papaparse": "^5.5.3",
     "resend": "^4.7.0",
-    "snowflake-sdk": "^2.0.2",
+    "snowflake-sdk": "^2.4.3",
     "ts-node": "^10.9.2",
     "unpdf": "^1.2.2",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
