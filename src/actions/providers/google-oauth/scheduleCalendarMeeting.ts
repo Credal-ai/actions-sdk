@@ -1,4 +1,3 @@
-import { v4 } from "uuid";
 import type {
   AuthParamsType,
   googleOauthScheduleCalendarMeetingFunction,
@@ -115,7 +114,7 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
     createEventApiUrl += "?conferenceDataVersion=1";
     data.conferenceData = {
       createRequest: {
-        requestId: v4(),
+        requestId: crypto.randomUUID(),
       },
     };
   }
