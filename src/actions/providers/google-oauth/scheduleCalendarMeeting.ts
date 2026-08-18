@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import type {
   AuthParamsType,
   googleOauthScheduleCalendarMeetingFunction,
@@ -114,7 +115,7 @@ const scheduleCalendarMeeting: googleOauthScheduleCalendarMeetingFunction = asyn
     createEventApiUrl += "?conferenceDataVersion=1";
     data.conferenceData = {
       createRequest: {
-        requestId: crypto.randomUUID(),
+        requestId: randomUUID(),
       },
     };
   }
