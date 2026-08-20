@@ -35,6 +35,8 @@ import {
   zendeskListZendeskTicketsParamsSchema,
   zendeskSearchZendeskByQueryOutputSchema,
   zendeskSearchZendeskByQueryParamsSchema,
+  zendeskSearchZendeskTicketsByQueryOutputSchema,
+  zendeskSearchZendeskTicketsByQueryParamsSchema,
   servicenowGetRecordsByQueryOutputSchema,
   servicenowGetRecordsByQueryParamsSchema,
   servicenowGetIncidentsOutputSchema,
@@ -336,6 +338,7 @@ import addCommentToTicket from "./providers/zendesk/addCommentToTicket.js";
 import assignTicket from "./providers/zendesk/assignTicket.js";
 import listZendeskTickets from "./providers/zendesk/listTickets.js";
 import searchZendeskByQuery from "./providers/zendesk/searchZendeskByQuery.js";
+import searchZendeskTicketsByQuery from "./providers/zendesk/searchZendeskTicketsByQuery.js";
 import getServiceNowRecordsByQuery from "./providers/servicenow/getRecordsByQuery.js";
 import getServiceNowIncidents from "./providers/servicenow/getIncidents.js";
 import getServiceNowChangeRequests from "./providers/servicenow/getChangeRequests.js";
@@ -778,6 +781,12 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: searchZendeskByQuery,
       paramsSchema: zendeskSearchZendeskByQueryParamsSchema,
       outputSchema: zendeskSearchZendeskByQueryOutputSchema,
+      actionType: "read",
+    },
+    searchZendeskTicketsByQuery: {
+      fn: searchZendeskTicketsByQuery,
+      paramsSchema: zendeskSearchZendeskTicketsByQueryParamsSchema,
+      outputSchema: zendeskSearchZendeskTicketsByQueryOutputSchema,
       actionType: "read",
     },
   },
