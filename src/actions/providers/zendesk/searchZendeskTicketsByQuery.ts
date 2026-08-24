@@ -7,6 +7,8 @@ import type {
 import { createAxiosClientWithRetries } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
 
+const ZENDESK_SUBDOMAIN_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/i;
+
 const searchZendeskTicketsByQuery: zendeskSearchZendeskTicketsByQueryFunction = async ({
   params,
   authParams,
@@ -17,12 +19,15 @@ const searchZendeskTicketsByQuery: zendeskSearchZendeskTicketsByQueryFunction = 
   const { authToken } = authParams;
   const { subdomain, query, limit = 100 } = params;
 
-  // Endpoint for searching Zendesk objects
-  const url = `https://${subdomain}.zendesk.com/api/v2/search.json`;
-
   if (!authToken) {
     throw new Error(MISSING_AUTH_TOKEN);
   }
+
+  if (!ZENDESK_SUBDOMAIN_PATTERN.test(subdomain)) {
+    throw new Error("Invalid Zendesk subdomain");
+  }
+
+  const url = new URL(`https://${subdomain}.zendesk.com/api/v2/search.json`);
   const axiosClient = createAxiosClientWithRetries({ timeout: 10000, retryCount: 4 });
 
   // Strip any type: filters from the incoming query so it can't target other resource types,
@@ -32,11 +37,10 @@ const searchZendeskTicketsByQuery: zendeskSearchZendeskTicketsByQueryFunction = 
     .replace(/\s+/g, " ")
     .trim();
 
-  const queryParams = new URLSearchParams();
-  queryParams.append("query", `type:ticket ${sanitizedQuery}`.trim());
-  queryParams.append("per_page", limit.toString());
+  url.searchParams.set("query", `type:ticket ${sanitizedQuery}`.trim());
+  url.searchParams.set("per_page", limit.toString());
 
-  const response = await axiosClient.get(`${url}?${queryParams.toString()}`, {
+  const response = await axiosClient.get(url.toString(), {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${authToken}`,
@@ -47,10 +51,11 @@ const searchZendeskTicketsByQuery: zendeskSearchZendeskTicketsByQueryFunction = 
   const results = Array.isArray(response.data.results)
     ? response.data.results.filter((result: { result_type?: string }) => result.result_type === "ticket")
     : [];
+  const count = typeof response.data.count === "number" ? response.data.count : results.length;
 
   return {
     results,
-    count: results.length,
+    count,
   };
 };
 

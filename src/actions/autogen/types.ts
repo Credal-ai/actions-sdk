@@ -85,6 +85,7 @@ export enum ActionName {
   ADDCOMMENTTOTICKET = "addCommentToTicket",
   ASSIGNTICKET = "assignTicket",
   SEARCHZENDESKBYQUERY = "searchZendeskByQuery",
+  SEARCHZENDESKTICKETSBYQUERY = "searchZendeskTicketsByQuery",
   CREATESHARELINKEDINPOSTURL = "createShareLinkedinPostUrl",
   CREATESHAREXPOSTURL = "createShareXPostUrl",
   INSERTMONGODOC = "insertMongoDoc",
@@ -2643,6 +2644,37 @@ export type zendeskSearchZendeskByQueryFunction = ActionFunction<
   zendeskSearchZendeskByQueryParamsType,
   AuthParamsType,
   zendeskSearchZendeskByQueryOutputType
+>;
+
+export const zendeskSearchZendeskTicketsByQueryParamsSchema = z.object({
+  subdomain: z
+    .string()
+    .regex(new RegExp("^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$"))
+    .describe("The hostname-label subdomain of the Zendesk account, without a protocol, path, or .zendesk.com suffix"),
+  query: z
+    .string()
+    .describe(
+      'Search query string that can include filters like status, priority, tags, assignee, etc. Examples - status:open, priority:high, tags:bug, assignee:user@example.com, or combination like "status:open priority:high". The search is always restricted to tickets, so any type filter in the query is ignored.',
+    ),
+  limit: z.coerce.number().describe("Maximum number of tickets to return (optional, defaults to 100)").optional(),
+});
+
+export type zendeskSearchZendeskTicketsByQueryParamsType = z.infer<
+  typeof zendeskSearchZendeskTicketsByQueryParamsSchema
+>;
+
+export const zendeskSearchZendeskTicketsByQueryOutputSchema = z.object({
+  results: z.array(z.object({}).catchall(z.any())).describe("List of tickets matching the query"),
+  count: z.coerce.number().describe("Number of tickets found"),
+});
+
+export type zendeskSearchZendeskTicketsByQueryOutputType = z.infer<
+  typeof zendeskSearchZendeskTicketsByQueryOutputSchema
+>;
+export type zendeskSearchZendeskTicketsByQueryFunction = ActionFunction<
+  zendeskSearchZendeskTicketsByQueryParamsType,
+  AuthParamsType,
+  zendeskSearchZendeskTicketsByQueryOutputType
 >;
 
 export const linkedinCreateShareLinkedinPostUrlParamsSchema = z.object({

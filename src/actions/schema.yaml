@@ -2154,7 +2154,8 @@ actions:
         properties:
           subdomain:
             type: string
-            description: The subdomain of the Zendesk account
+            pattern: "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$"
+            description: The hostname-label subdomain of the Zendesk account, without a protocol, path, or .zendesk.com suffix
             tags: [recommend-predefined]
           query:
             type: string
