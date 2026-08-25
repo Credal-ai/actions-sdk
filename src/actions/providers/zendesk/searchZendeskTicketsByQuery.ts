@@ -6,8 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { createAxiosClientWithRetries } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
-
-const ZENDESK_SUBDOMAIN_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/i;
+import { validateZendeskSubdomain } from "./utils/validateSubdomain.js";
 
 const searchZendeskTicketsByQuery: zendeskSearchZendeskTicketsByQueryFunction = async ({
   params,
@@ -23,9 +22,7 @@ const searchZendeskTicketsByQuery: zendeskSearchZendeskTicketsByQueryFunction = 
     throw new Error(MISSING_AUTH_TOKEN);
   }
 
-  if (!ZENDESK_SUBDOMAIN_PATTERN.test(subdomain)) {
-    throw new Error("Invalid Zendesk subdomain");
-  }
+  validateZendeskSubdomain(subdomain);
 
   const url = new URL(`https://${subdomain}.zendesk.com/api/v2/search.json`);
   const axiosClient = createAxiosClientWithRetries({ timeout: 10000, retryCount: 4 });

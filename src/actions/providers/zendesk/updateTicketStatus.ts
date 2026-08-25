@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { createAxiosClientWithRetries } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { validateZendeskSubdomain } from "./utils/validateSubdomain.js";
 
 const updateTicketStatus: zendeskUpdateTicketStatusFunction = async ({
   params,
@@ -16,11 +17,14 @@ const updateTicketStatus: zendeskUpdateTicketStatusFunction = async ({
 }): Promise<zendeskUpdateTicketStatusOutputType> => {
   const { authToken } = authParams;
   const { subdomain, ticketId, status } = params;
-  const url = `https://${subdomain}.zendesk.com/api/v2/tickets/${ticketId}.json`;
 
   if (!authToken) {
     throw new Error(MISSING_AUTH_TOKEN);
   }
+
+  validateZendeskSubdomain(subdomain);
+
+  const url = `https://${subdomain}.zendesk.com/api/v2/tickets/${ticketId}.json`;
   const axiosClient = createAxiosClientWithRetries({ timeout: 10000, retryCount: 4 });
 
   await axiosClient.request({

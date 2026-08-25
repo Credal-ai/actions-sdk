@@ -1978,7 +1978,8 @@ actions:
             description: The body of the ticket
           subdomain:
             type: string
-            description: The subdomain of the Zendesk account
+            pattern: "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$"
+            description: The hostname-label subdomain of the Zendesk account, without a protocol, path, or .zendesk.com suffix
             tags: [recommend-predefined]
           groupId:
             type: number
@@ -2003,7 +2004,8 @@ actions:
         properties:
           subdomain:
             type: string
-            description: The subdomain of the Zendesk account
+            pattern: "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$"
+            description: The hostname-label subdomain of the Zendesk account, without a protocol, path, or .zendesk.com suffix
             tags: [recommend-predefined]
           status:
             type: string
@@ -2033,7 +2035,8 @@ actions:
             description: The ID of the ticket
           subdomain:
             type: string
-            description: The subdomain of the Zendesk account
+            pattern: "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$"
+            description: The hostname-label subdomain of the Zendesk account, without a protocol, path, or .zendesk.com suffix
             tags: [recommend-predefined]
       output:
         type: object
@@ -2056,7 +2059,8 @@ actions:
             description: The ID of the ticket to update
           subdomain:
             type: string
-            description: The subdomain of the Zendesk account
+            pattern: "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$"
+            description: The hostname-label subdomain of the Zendesk account, without a protocol, path, or .zendesk.com suffix
             tags: [recommend-predefined]
           status:
             type: string
@@ -2074,7 +2078,8 @@ actions:
             description: The ID of the ticket to update
           subdomain:
             type: string
-            description: The subdomain of the Zendesk account
+            pattern: "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$"
+            description: The hostname-label subdomain of the Zendesk account, without a protocol, path, or .zendesk.com suffix
             tags: [recommend-predefined]
           body:
             type: string
@@ -2105,7 +2110,8 @@ actions:
             description: The ID of the ticket to update
           subdomain:
             type: string
-            description: The subdomain of the Zendesk account
+            pattern: "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$"
+            description: The hostname-label subdomain of the Zendesk account, without a protocol, path, or .zendesk.com suffix
             tags: [recommend-predefined]
           assigneeEmail:
             type: string
@@ -2120,7 +2126,8 @@ actions:
         properties:
           subdomain:
             type: string
-            description: The subdomain of the Zendesk account
+            pattern: "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$"
+            description: The hostname-label subdomain of the Zendesk account, without a protocol, path, or .zendesk.com suffix
             tags: [recommend-predefined]
           query:
             type: string

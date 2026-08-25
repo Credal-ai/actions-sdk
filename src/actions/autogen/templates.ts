@@ -4478,7 +4478,9 @@ export const zendeskCreateZendeskTicketDefinition: ActionTemplate = {
       },
       subdomain: {
         type: "string",
-        description: "The subdomain of the Zendesk account",
+        pattern: "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$",
+        description:
+          "The hostname-label subdomain of the Zendesk account, without a protocol, path, or .zendesk.com suffix",
         tags: ["recommend-predefined"],
       },
       groupId: {
@@ -4515,7 +4517,9 @@ export const zendeskListZendeskTicketsDefinition: ActionTemplate = {
     properties: {
       subdomain: {
         type: "string",
-        description: "The subdomain of the Zendesk account",
+        pattern: "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$",
+        description:
+          "The hostname-label subdomain of the Zendesk account, without a protocol, path, or .zendesk.com suffix",
         tags: ["recommend-predefined"],
       },
       status: {
@@ -4559,7 +4563,9 @@ export const zendeskGetTicketDetailsDefinition: ActionTemplate = {
       },
       subdomain: {
         type: "string",
-        description: "The subdomain of the Zendesk account",
+        pattern: "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$",
+        description:
+          "The hostname-label subdomain of the Zendesk account, without a protocol, path, or .zendesk.com suffix",
         tags: ["recommend-predefined"],
       },
     },
@@ -4592,7 +4598,9 @@ export const zendeskUpdateTicketStatusDefinition: ActionTemplate = {
       },
       subdomain: {
         type: "string",
-        description: "The subdomain of the Zendesk account",
+        pattern: "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$",
+        description:
+          "The hostname-label subdomain of the Zendesk account, without a protocol, path, or .zendesk.com suffix",
         tags: ["recommend-predefined"],
       },
       status: {
@@ -4620,7 +4628,9 @@ export const zendeskAddCommentToTicketDefinition: ActionTemplate = {
       },
       subdomain: {
         type: "string",
-        description: "The subdomain of the Zendesk account",
+        pattern: "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$",
+        description:
+          "The hostname-label subdomain of the Zendesk account, without a protocol, path, or .zendesk.com suffix",
         tags: ["recommend-predefined"],
       },
       body: {
@@ -4665,7 +4675,9 @@ export const zendeskAssignTicketDefinition: ActionTemplate = {
       },
       subdomain: {
         type: "string",
-        description: "The subdomain of the Zendesk account",
+        pattern: "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$",
+        description:
+          "The hostname-label subdomain of the Zendesk account, without a protocol, path, or .zendesk.com suffix",
         tags: ["recommend-predefined"],
       },
       assigneeEmail: {
@@ -4688,7 +4700,9 @@ export const zendeskSearchZendeskByQueryDefinition: ActionTemplate = {
     properties: {
       subdomain: {
         type: "string",
-        description: "The subdomain of the Zendesk account",
+        pattern: "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$",
+        description:
+          "The hostname-label subdomain of the Zendesk account, without a protocol, path, or .zendesk.com suffix",
         tags: ["recommend-predefined"],
       },
       query: {

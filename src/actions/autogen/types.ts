@@ -2504,7 +2504,10 @@ export type bingGetTopNSearchResultUrlsFunction = ActionFunction<
 export const zendeskCreateZendeskTicketParamsSchema = z.object({
   subject: z.string().describe("The subject of the ticket"),
   body: z.string().describe("The body of the ticket").optional(),
-  subdomain: z.string().describe("The subdomain of the Zendesk account"),
+  subdomain: z
+    .string()
+    .regex(new RegExp("^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$"))
+    .describe("The hostname-label subdomain of the Zendesk account, without a protocol, path, or .zendesk.com suffix"),
   groupId: z.coerce.number().describe("The ID of the group to assign the ticket to").optional(),
 });
 
@@ -2523,7 +2526,10 @@ export type zendeskCreateZendeskTicketFunction = ActionFunction<
 >;
 
 export const zendeskListZendeskTicketsParamsSchema = z.object({
-  subdomain: z.string().describe("The subdomain of the Zendesk account"),
+  subdomain: z
+    .string()
+    .regex(new RegExp("^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$"))
+    .describe("The hostname-label subdomain of the Zendesk account, without a protocol, path, or .zendesk.com suffix"),
   status: z.string().describe("Filter tickets by status (new, open, pending, hold, solved, closed)").optional(),
 });
 
@@ -2543,7 +2549,10 @@ export type zendeskListZendeskTicketsFunction = ActionFunction<
 
 export const zendeskGetTicketDetailsParamsSchema = z.object({
   ticketId: z.string().describe("The ID of the ticket"),
-  subdomain: z.string().describe("The subdomain of the Zendesk account"),
+  subdomain: z
+    .string()
+    .regex(new RegExp("^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$"))
+    .describe("The hostname-label subdomain of the Zendesk account, without a protocol, path, or .zendesk.com suffix"),
 });
 
 export type zendeskGetTicketDetailsParamsType = z.infer<typeof zendeskGetTicketDetailsParamsSchema>;
@@ -2561,7 +2570,10 @@ export type zendeskGetTicketDetailsFunction = ActionFunction<
 
 export const zendeskUpdateTicketStatusParamsSchema = z.object({
   ticketId: z.string().describe("The ID of the ticket to update"),
-  subdomain: z.string().describe("The subdomain of the Zendesk account"),
+  subdomain: z
+    .string()
+    .regex(new RegExp("^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$"))
+    .describe("The hostname-label subdomain of the Zendesk account, without a protocol, path, or .zendesk.com suffix"),
   status: z
     .string()
     .describe(
@@ -2582,7 +2594,10 @@ export type zendeskUpdateTicketStatusFunction = ActionFunction<
 
 export const zendeskAddCommentToTicketParamsSchema = z.object({
   ticketId: z.string().describe("The ID of the ticket to update"),
-  subdomain: z.string().describe("The subdomain of the Zendesk account"),
+  subdomain: z
+    .string()
+    .regex(new RegExp("^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$"))
+    .describe("The hostname-label subdomain of the Zendesk account, without a protocol, path, or .zendesk.com suffix"),
   body: z.string().describe("The body of the comment"),
   public: z.boolean().describe("Whether the comment should be public (defaults to true)").optional(),
 });
@@ -2603,7 +2618,10 @@ export type zendeskAddCommentToTicketFunction = ActionFunction<
 
 export const zendeskAssignTicketParamsSchema = z.object({
   ticketId: z.string().describe("The ID of the ticket to update"),
-  subdomain: z.string().describe("The subdomain of the Zendesk account"),
+  subdomain: z
+    .string()
+    .regex(new RegExp("^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$"))
+    .describe("The hostname-label subdomain of the Zendesk account, without a protocol, path, or .zendesk.com suffix"),
   assigneeEmail: z.string().describe("The email address of the agent to assign the ticket to"),
 });
 
@@ -2619,7 +2637,10 @@ export type zendeskAssignTicketFunction = ActionFunction<
 >;
 
 export const zendeskSearchZendeskByQueryParamsSchema = z.object({
-  subdomain: z.string().describe("The subdomain of the Zendesk account"),
+  subdomain: z
+    .string()
+    .regex(new RegExp("^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$"))
+    .describe("The hostname-label subdomain of the Zendesk account, without a protocol, path, or .zendesk.com suffix"),
   query: z
     .string()
     .describe(
