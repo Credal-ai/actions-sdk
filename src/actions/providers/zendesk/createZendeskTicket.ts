@@ -6,7 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { createAxiosClientWithRetries } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
-import { validateZendeskSubdomain } from "./utils/validateSubdomain.js";
+import { getZendeskBaseUrl } from "./utils/getZendeskBaseUrl.js";
 
 const createZendeskTicket: zendeskCreateZendeskTicketFunction = async ({
   params,
@@ -22,9 +22,8 @@ const createZendeskTicket: zendeskCreateZendeskTicketFunction = async ({
     throw new Error(MISSING_AUTH_TOKEN);
   }
 
-  validateZendeskSubdomain(subdomain);
-
-  const url = `https://${subdomain}.zendesk.com/api/v2/tickets.json`;
+  const zendeskBaseUrl = getZendeskBaseUrl({ subdomain });
+  const apiEndpoint = new URL("/api/v2/tickets.json", zendeskBaseUrl);
   const payload = {
     ticket: {
       subject,
@@ -37,7 +36,7 @@ const createZendeskTicket: zendeskCreateZendeskTicketFunction = async ({
 
   const axiosClient = createAxiosClientWithRetries({ timeout: 10000, retryCount: 4 });
 
-  const response = await axiosClient.post(url, payload, {
+  const response = await axiosClient.post(apiEndpoint.toString(), payload, {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${authToken}`,
@@ -45,7 +44,7 @@ const createZendeskTicket: zendeskCreateZendeskTicketFunction = async ({
   });
   return {
     ticketId: response.data.ticket.id,
-    ticketUrl: `https://${subdomain}.zendesk.com/requests/${response.data.ticket.id}`,
+    ticketUrl: new URL(`/requests/${response.data.ticket.id}`, zendeskBaseUrl).toString(),
   };
 };
 

@@ -6,7 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { createAxiosClientWithRetries } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
-import { validateZendeskSubdomain } from "./utils/validateSubdomain.js";
+import { getZendeskBaseUrl } from "./utils/getZendeskBaseUrl.js";
 
 const searchZendeskTicketsByQuery: zendeskSearchZendeskTicketsByQueryFunction = async ({
   params,
@@ -22,9 +22,8 @@ const searchZendeskTicketsByQuery: zendeskSearchZendeskTicketsByQueryFunction = 
     throw new Error(MISSING_AUTH_TOKEN);
   }
 
-  validateZendeskSubdomain(subdomain);
-
-  const url = new URL(`https://${subdomain}.zendesk.com/api/v2/search.json`);
+  const zendeskBaseUrl = getZendeskBaseUrl({ subdomain });
+  const apiEndpoint = new URL("/api/v2/search.json", zendeskBaseUrl);
   const axiosClient = createAxiosClientWithRetries({ timeout: 10000, retryCount: 4 });
 
   // Strip any type: filters from the incoming query so it can't target other resource types,
@@ -34,10 +33,10 @@ const searchZendeskTicketsByQuery: zendeskSearchZendeskTicketsByQueryFunction = 
     .replace(/\s+/g, " ")
     .trim();
 
-  url.searchParams.set("query", `type:ticket ${sanitizedQuery}`.trim());
-  url.searchParams.set("per_page", limit.toString());
+  apiEndpoint.searchParams.set("query", `type:ticket ${sanitizedQuery}`.trim());
+  apiEndpoint.searchParams.set("per_page", limit.toString());
 
-  const response = await axiosClient.get(url.toString(), {
+  const response = await axiosClient.get(apiEndpoint.toString(), {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${authToken}`,

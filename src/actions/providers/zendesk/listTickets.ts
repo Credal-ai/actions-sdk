@@ -6,7 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { createAxiosClientWithRetries } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
-import { validateZendeskSubdomain } from "./utils/validateSubdomain.js";
+import { getZendeskBaseUrl } from "./utils/getZendeskBaseUrl.js";
 
 const listZendeskTickets: zendeskListZendeskTicketsFunction = async ({
   params,
@@ -27,22 +27,18 @@ const listZendeskTickets: zendeskListZendeskTicketsFunction = async ({
     throw new Error(MISSING_AUTH_TOKEN);
   }
 
-  validateZendeskSubdomain(subdomain);
-
-  // Endpoint for getting tickets
-  const url = `https://${subdomain}.zendesk.com/api/v2/tickets.json`;
-
+  const zendeskBaseUrl = getZendeskBaseUrl({ subdomain });
+  const apiEndpoint = new URL("/api/v2/tickets.json", zendeskBaseUrl);
   const axiosClient = createAxiosClientWithRetries({ timeout: 10000, retryCount: 4 });
 
   // Add query parameters for filtering
-  const queryParams = new URLSearchParams();
-  queryParams.append("created_after", formattedDate);
+  apiEndpoint.searchParams.set("created_after", formattedDate);
 
   if (status) {
-    queryParams.append("status", status);
+    apiEndpoint.searchParams.set("status", status);
   }
 
-  const response = await axiosClient.get(`${url}?${queryParams.toString()}`, {
+  const response = await axiosClient.get(apiEndpoint.toString(), {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${authToken}`,

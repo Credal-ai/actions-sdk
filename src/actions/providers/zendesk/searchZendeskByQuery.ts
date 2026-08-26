@@ -6,7 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { createAxiosClientWithRetries } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
-import { validateZendeskSubdomain } from "./utils/validateSubdomain.js";
+import { getZendeskBaseUrl } from "./utils/getZendeskBaseUrl.js";
 
 const searchZendeskByQuery: zendeskSearchZendeskByQueryFunction = async ({
   params,
@@ -22,19 +22,15 @@ const searchZendeskByQuery: zendeskSearchZendeskByQueryFunction = async ({
     throw new Error(MISSING_AUTH_TOKEN);
   }
 
-  validateZendeskSubdomain(subdomain);
-
-  // Endpoint for searching Zendesk objects
-  const url = `https://${subdomain}.zendesk.com/api/v2/search.json`;
-
+  const zendeskBaseUrl = getZendeskBaseUrl({ subdomain });
+  const apiEndpoint = new URL("/api/v2/search.json", zendeskBaseUrl);
   const axiosClient = createAxiosClientWithRetries({ timeout: 10000, retryCount: 4 });
 
   // Build search query parameters
-  const queryParams = new URLSearchParams();
-  queryParams.append("query", `type:${objectType} ${query}`);
-  queryParams.append("per_page", limit.toString());
+  apiEndpoint.searchParams.set("query", `type:${objectType} ${query}`);
+  apiEndpoint.searchParams.set("per_page", limit.toString());
 
-  const response = await axiosClient.get(`${url}?${queryParams.toString()}`, {
+  const response = await axiosClient.get(apiEndpoint.toString(), {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${authToken}`,
