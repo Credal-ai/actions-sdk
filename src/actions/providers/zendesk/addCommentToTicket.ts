@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { createAxiosClientWithRetries } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { getZendeskBaseUrl } from "./utils/getZendeskBaseUrl.js";
 
 const addCommentToTicket: zendeskAddCommentToTicketFunction = async ({
   params,
@@ -16,16 +17,18 @@ const addCommentToTicket: zendeskAddCommentToTicketFunction = async ({
 }): Promise<zendeskAddCommentToTicketOutputType> => {
   const { authToken } = authParams;
   const { subdomain, ticketId, body, public: isPublic } = params;
-  const url = `https://${subdomain}.zendesk.com/api/v2/tickets/${ticketId}.json`;
 
   if (!authToken) {
     throw new Error(MISSING_AUTH_TOKEN);
   }
+
+  const zendeskBaseUrl = getZendeskBaseUrl({ subdomain });
+  const apiEndpoint = new URL(`/api/v2/tickets/${ticketId}.json`, zendeskBaseUrl);
   const axiosClient = createAxiosClientWithRetries({ timeout: 20000, retryCount: 5 });
 
   try {
     await axiosClient.request({
-      url: url,
+      url: apiEndpoint.toString(),
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -43,7 +46,7 @@ const addCommentToTicket: zendeskAddCommentToTicketFunction = async ({
 
     return {
       success: true,
-      ticketUrl: `https://${subdomain}.zendesk.com/agent/tickets/${ticketId}`,
+      ticketUrl: new URL(`/agent/tickets/${ticketId}`, zendeskBaseUrl).toString(),
     };
   } catch (error) {
     console.error("Failed to add comment to Zendesk ticket:", error);
