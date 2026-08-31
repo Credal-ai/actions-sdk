@@ -6,7 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { createAxiosClientWithRetries } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
-import { compactZendeskTickets, getTicketFieldNames } from "./utils/compactTicket.js";
+import { compactZendeskTickets, isZendeskTicketSearchResult } from "./utils/compactTicket.js";
 import { getZendeskBaseUrl } from "./utils/getZendeskBaseUrl.js";
 
 const listZendeskTickets: zendeskListZendeskTicketsFunction = async ({
@@ -17,7 +17,7 @@ const listZendeskTickets: zendeskListZendeskTicketsFunction = async ({
   authParams: AuthParamsType;
 }): Promise<zendeskListZendeskTicketsOutputType> => {
   const { authToken } = authParams;
-  const { subdomain, status, limit = 20, page = 1, includeCustomFieldNames = true } = params;
+  const { subdomain, status, limit = 20, page = 1 } = params;
 
   // Calculate date 3 months ago from now
   const threeMonthsAgo = new Date();
@@ -44,31 +44,19 @@ const listZendeskTickets: zendeskListZendeskTicketsFunction = async ({
   const response = await axiosClient.get(apiEndpoint.toString(), {
     headers,
   });
-  const rawTickets: unknown[] = Array.isArray(response.data.results)
-    ? response.data.results.filter(
-        (result: unknown) =>
-          typeof result === "object" && result !== null && "result_type" in result && result.result_type === "ticket",
-      )
+  const rawTickets = Array.isArray(response.data.results)
+    ? response.data.results.filter(isZendeskTicketSearchResult)
     : [];
-  const fieldNames = includeCustomFieldNames
-    ? await getTicketFieldNames({
-        tickets: rawTickets,
-        zendeskBaseUrl,
-        authToken,
-        axiosClient,
-      })
-    : new Map<number, string>();
-  const compactResult = compactZendeskTickets({ tickets: rawTickets, fieldNames });
+  const tickets = compactZendeskTickets(rawTickets);
   const count = typeof response.data.count === "number" ? response.data.count : rawTickets.length;
   const hasMore = typeof response.data.next_page === "string" && response.data.next_page.length > 0;
 
   return {
-    tickets: compactResult.tickets,
+    tickets,
     count,
-    returned_count: compactResult.tickets.length,
+    returned_count: tickets.length,
     has_more: hasMore,
     ...(hasMore ? { next_page: page + 1 } : {}),
-    response_truncated: compactResult.responseTruncated,
   };
 };
 

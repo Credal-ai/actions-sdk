@@ -4540,24 +4540,18 @@ export const zendeskListZendeskTicketsDefinition: ActionTemplate = {
         description:
           "Offset page number to retrieve (optional, defaults to 1). Pass next_page from a previous response to continue.",
       },
-      includeCustomFieldNames: {
-        type: "boolean",
-        description:
-          "Whether to resolve populated custom field IDs to their Zendesk field names (optional, defaults to true)",
-      },
     },
   },
   output: {
     type: "object",
-    required: ["tickets", "count", "returned_count", "has_more", "response_truncated"],
+    required: ["tickets", "count", "returned_count", "has_more"],
     properties: {
       tickets: {
         type: "array",
-        description:
-          "Compact ticket records intended for discovery. Full ticket details and comments are deliberately omitted.",
+        description: "Small ticket records for choosing which IDs to fetch with getTicketDetails",
         items: {
           type: "object",
-          required: ["id", "description_excerpt", "description_truncated", "custom_fields_truncated", "tags_truncated"],
+          required: ["id", "description_excerpt", "description_truncated"],
           properties: {
             id: {
               type: "integer",
@@ -4572,11 +4566,6 @@ export const zendeskListZendeskTicketsDefinition: ActionTemplate = {
               type: "string",
               nullable: true,
               description: "Ticket status category",
-            },
-            custom_status_id: {
-              type: "integer",
-              nullable: true,
-              description: "Zendesk custom status ID",
             },
             type: {
               type: "string",
@@ -4598,77 +4587,13 @@ export const zendeskListZendeskTicketsDefinition: ActionTemplate = {
               nullable: true,
               description: "Ticket update timestamp",
             },
-            requester_id: {
-              type: "integer",
-              nullable: true,
-              description: "Requester user ID",
-            },
-            assignee_id: {
-              type: "integer",
-              nullable: true,
-              description: "Assigned agent ID",
-            },
-            group_id: {
-              type: "integer",
-              nullable: true,
-              description: "Assigned group ID",
-            },
-            organization_id: {
-              type: "integer",
-              nullable: true,
-              description: "Requester organization ID",
-            },
-            brand_id: {
-              type: "integer",
-              nullable: true,
-              description: "Zendesk brand ID",
-            },
-            ticket_form_id: {
-              type: "integer",
-              nullable: true,
-              description: "Zendesk ticket form ID",
-            },
-            tags: {
-              type: "array",
-              description: "Ticket tags, omitted when empty",
-              items: {
-                type: "string",
-              },
-            },
-            tags_truncated: {
-              type: "boolean",
-              description: "Whether some tags were omitted to keep the discovery response bounded",
-            },
-            via: {
-              type: "object",
-              description: "Compact ticket creation channel information",
-              properties: {
-                channel: {
-                  type: "string",
-                  description: "Channel through which the ticket was created",
-                },
-              },
-            },
             description_excerpt: {
               type: "string",
-              description: "Up to the first 1,500 characters of the ticket description",
+              description: "Up to the first 1,000 characters of the ticket description",
             },
             description_truncated: {
               type: "boolean",
               description: "Whether the full ticket description is longer than description_excerpt",
-            },
-            custom_fields: {
-              type: "array",
-              description:
-                "Populated custom fields only. Each item contains id, value, and name when name resolution succeeds.",
-              items: {
-                type: "object",
-              },
-            },
-            custom_fields_truncated: {
-              type: "boolean",
-              description:
-                "Whether populated custom fields or their values were truncated to keep the response bounded",
             },
           },
         },
@@ -4688,10 +4613,6 @@ export const zendeskListZendeskTicketsDefinition: ActionTemplate = {
       next_page: {
         type: "integer",
         description: "Page number to pass on the next call when has_more is true",
-      },
-      response_truncated: {
-        type: "boolean",
-        description: "Whether any large discovery fields were truncated to enforce the response-size budget",
       },
     },
   },
@@ -4925,24 +4846,18 @@ export const zendeskSearchZendeskTicketsByQueryDefinition: ActionTemplate = {
         description:
           "Offset page number to retrieve (optional, defaults to 1). Pass next_page from a previous response to continue.",
       },
-      includeCustomFieldNames: {
-        type: "boolean",
-        description:
-          "Whether to resolve populated custom field IDs to their Zendesk field names (optional, defaults to true)",
-      },
     },
   },
   output: {
     type: "object",
-    required: ["results", "count", "returned_count", "has_more", "response_truncated"],
+    required: ["results", "count", "returned_count", "has_more"],
     properties: {
       results: {
         type: "array",
-        description:
-          "Compact ticket records matching the query. Full ticket details and comments are deliberately omitted.",
+        description: "Small ticket records for choosing which IDs to fetch with getTicketDetails",
         items: {
           type: "object",
-          required: ["id", "description_excerpt", "description_truncated", "custom_fields_truncated", "tags_truncated"],
+          required: ["id", "description_excerpt", "description_truncated"],
           properties: {
             id: {
               type: "integer",
@@ -4957,11 +4872,6 @@ export const zendeskSearchZendeskTicketsByQueryDefinition: ActionTemplate = {
               type: "string",
               nullable: true,
               description: "Ticket status category",
-            },
-            custom_status_id: {
-              type: "integer",
-              nullable: true,
-              description: "Zendesk custom status ID",
             },
             type: {
               type: "string",
@@ -4983,77 +4893,13 @@ export const zendeskSearchZendeskTicketsByQueryDefinition: ActionTemplate = {
               nullable: true,
               description: "Ticket update timestamp",
             },
-            requester_id: {
-              type: "integer",
-              nullable: true,
-              description: "Requester user ID",
-            },
-            assignee_id: {
-              type: "integer",
-              nullable: true,
-              description: "Assigned agent ID",
-            },
-            group_id: {
-              type: "integer",
-              nullable: true,
-              description: "Assigned group ID",
-            },
-            organization_id: {
-              type: "integer",
-              nullable: true,
-              description: "Requester organization ID",
-            },
-            brand_id: {
-              type: "integer",
-              nullable: true,
-              description: "Zendesk brand ID",
-            },
-            ticket_form_id: {
-              type: "integer",
-              nullable: true,
-              description: "Zendesk ticket form ID",
-            },
-            tags: {
-              type: "array",
-              description: "Ticket tags, omitted when empty",
-              items: {
-                type: "string",
-              },
-            },
-            tags_truncated: {
-              type: "boolean",
-              description: "Whether some tags were omitted to keep the discovery response bounded",
-            },
-            via: {
-              type: "object",
-              description: "Compact ticket creation channel information",
-              properties: {
-                channel: {
-                  type: "string",
-                  description: "Channel through which the ticket was created",
-                },
-              },
-            },
             description_excerpt: {
               type: "string",
-              description: "Up to the first 1,500 characters of the ticket description",
+              description: "Up to the first 1,000 characters of the ticket description",
             },
             description_truncated: {
               type: "boolean",
               description: "Whether the full ticket description is longer than description_excerpt",
-            },
-            custom_fields: {
-              type: "array",
-              description:
-                "Populated custom fields only. Each item contains id, value, and name when name resolution succeeds.",
-              items: {
-                type: "object",
-              },
-            },
-            custom_fields_truncated: {
-              type: "boolean",
-              description:
-                "Whether populated custom fields or their values were truncated to keep the response bounded",
             },
           },
         },
@@ -5073,10 +4919,6 @@ export const zendeskSearchZendeskTicketsByQueryDefinition: ActionTemplate = {
       next_page: {
         type: "integer",
         description: "Page number to pass on the next call when has_more is true",
-      },
-      response_truncated: {
-        type: "boolean",
-        description: "Whether any large discovery fields were truncated to enforce the response-size budget",
       },
     },
   },

@@ -141,98 +141,28 @@ describe("zendesk searchZendeskTicketsByQuery", () => {
     expect(result.next_page).toBe(2);
   });
 
-  it("keeps only discovery fields, populated custom fields, and description excerpts", async () => {
+  it("returns only enough ticket information to choose IDs for getTicketDetails", async () => {
     const description = "x".repeat(2000);
-    mockGet
-      .mockResolvedValueOnce({
-        data: {
-          results: [
-            {
-              id: 1,
-              result_type: "ticket",
-              subject: "Investigate this",
-              description,
-              status: "open",
-              tags: ["support"],
-              via: {
-                channel: "email",
-                source: { from: { address: "requester@example.com" } },
-              },
-              custom_fields: [
-                { id: 100, value: null },
-                { id: 200, value: "technical_support" },
-              ],
-              fields: [
-                { id: 100, value: null },
-                { id: 200, value: "technical_support" },
-              ],
-              generated_timestamp: 123,
-              url: "https://example-account.zendesk.com/api/v2/tickets/1.json",
-            },
-          ],
-          count: 1,
-          next_page: null,
-        },
-      })
-      .mockResolvedValueOnce({
-        data: {
-          ticket_fields: [{ id: 200, title: "Request Type" }],
-          meta: { has_more: false },
-        },
-      });
-
-    const result = await searchZendeskTicketsByQuery({
-      params: {
-        subdomain: "example-account",
-        query: "status:open",
-      },
-      authParams: AUTH,
-    });
-
-    expect(mockGet).toHaveBeenCalledTimes(2);
-    const [ticketFieldsUrl] = mockGet.mock.calls[1] as [string];
-    expect(new URL(ticketFieldsUrl).pathname).toBe(
-      "/api/v2/ticket_fields.json",
-    );
-    expect(result.results[0]).toEqual(
-      expect.objectContaining({
-        id: 1,
-        subject: "Investigate this",
-        status: "open",
-        tags: ["support"],
-        via: { channel: "email" },
-        description_excerpt: "x".repeat(1500),
-        description_truncated: true,
-        custom_fields: [
-          { id: 200, name: "Request Type", value: "technical_support" },
-        ],
-      }),
-    );
-    expect(result.results[0]).not.toHaveProperty("fields");
-    expect(result.results[0]).not.toHaveProperty("generated_timestamp");
-    expect(result.results[0]).not.toHaveProperty("url");
-    expect(result.response_truncated).toBe(true);
-  });
-
-  it("keeps the compact search response under its character budget without dropping ticket IDs", async () => {
-    const tickets = Array.from({ length: 50 }, (_, index) => ({
-      id: index + 1,
-      result_type: "ticket",
-      subject: `Ticket ${index + 1}`,
-      description: "d".repeat(5000),
-      tags: Array.from(
-        { length: 40 },
-        (_, tagIndex) => `tag-${tagIndex}-${"t".repeat(100)}`,
-      ),
-      custom_fields: Array.from({ length: 20 }, (_, fieldIndex) => ({
-        id: fieldIndex + 1,
-        value: "v".repeat(1000),
-      })),
-    }));
     mockGet.mockResolvedValueOnce({
       data: {
-        results: tickets,
-        count: tickets.length,
+        results: [
+          {
+            id: 1,
+            result_type: "ticket",
+            subject: "Investigate this",
+            description,
+            status: "open",
+            type: "incident",
+            priority: "high",
+            created_at: "2026-08-01T12:00:00Z",
+            updated_at: "2026-08-02T12:00:00Z",
+            tags: ["support"],
+            custom_fields: [{ id: 200, value: "technical_support" }],
+            generated_timestamp: 123,
+            url: "https://example-account.zendesk.com/api/v2/tickets/1.json",
+          },
+        ],
+        count: 1,
         next_page: null,
       },
     });
@@ -241,18 +171,24 @@ describe("zendesk searchZendeskTicketsByQuery", () => {
       params: {
         subdomain: "example-account",
         query: "status:open",
-        limit: 50,
-        includeCustomFieldNames: false,
       },
       authParams: AUTH,
     });
 
-    expect(result.results).toHaveLength(50);
-    expect(result.results.map((ticket) => ticket.id)).toEqual(
-      tickets.map((ticket) => ticket.id),
-    );
-    expect(JSON.stringify(result.results).length).toBeLessThanOrEqual(80000);
-    expect(result.response_truncated).toBe(true);
+    expect(mockGet).toHaveBeenCalledTimes(1);
+    expect(result.results).toEqual([
+      {
+        id: 1,
+        subject: "Investigate this",
+        status: "open",
+        type: "incident",
+        priority: "high",
+        created_at: "2026-08-01T12:00:00Z",
+        updated_at: "2026-08-02T12:00:00Z",
+        description_excerpt: "x".repeat(1000),
+        description_truncated: true,
+      },
+    ]);
   });
 
   it("returns compact list records with bounded pagination", async () => {

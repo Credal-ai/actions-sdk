@@ -6,7 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { createAxiosClientWithRetries } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
-import { compactZendeskTickets, getTicketFieldNames } from "./utils/compactTicket.js";
+import { compactZendeskTickets, isZendeskTicketSearchResult } from "./utils/compactTicket.js";
 import { getZendeskBaseUrl } from "./utils/getZendeskBaseUrl.js";
 
 const searchZendeskTicketsByQuery: zendeskSearchZendeskTicketsByQueryFunction = async ({
@@ -17,7 +17,7 @@ const searchZendeskTicketsByQuery: zendeskSearchZendeskTicketsByQueryFunction = 
   authParams: AuthParamsType;
 }): Promise<zendeskSearchZendeskTicketsByQueryOutputType> => {
   const { authToken } = authParams;
-  const { subdomain, query, limit = 20, page = 1, includeCustomFieldNames = true } = params;
+  const { subdomain, query, limit = 20, page = 1 } = params;
 
   if (!authToken) {
     throw new Error(MISSING_AUTH_TOKEN);
@@ -47,31 +47,19 @@ const searchZendeskTicketsByQuery: zendeskSearchZendeskTicketsByQueryFunction = 
   });
 
   // Defense in depth: only return results Zendesk marks as tickets
-  const rawResults: unknown[] = Array.isArray(response.data.results)
-    ? response.data.results.filter(
-        (result: unknown) =>
-          typeof result === "object" && result !== null && "result_type" in result && result.result_type === "ticket",
-      )
+  const rawResults = Array.isArray(response.data.results)
+    ? response.data.results.filter(isZendeskTicketSearchResult)
     : [];
-  const fieldNames = includeCustomFieldNames
-    ? await getTicketFieldNames({
-        tickets: rawResults,
-        zendeskBaseUrl,
-        authToken,
-        axiosClient,
-      })
-    : new Map<number, string>();
-  const compactResult = compactZendeskTickets({ tickets: rawResults, fieldNames });
+  const results = compactZendeskTickets(rawResults);
   const count = typeof response.data.count === "number" ? response.data.count : rawResults.length;
   const hasMore = typeof response.data.next_page === "string" && response.data.next_page.length > 0;
 
   return {
-    results: compactResult.tickets,
+    results,
     count,
-    returned_count: compactResult.tickets.length,
+    returned_count: results.length,
     has_more: hasMore,
     ...(hasMore ? { next_page: page + 1 } : {}),
-    response_truncated: compactResult.responseTruncated,
   };
 };
 
