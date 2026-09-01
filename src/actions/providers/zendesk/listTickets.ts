@@ -6,6 +6,7 @@ import type {
 } from "../../autogen/types.js";
 import { createAxiosClientWithRetries } from "../../util/axiosClient.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
+import { compactZendeskTickets, isZendeskTicketSearchResult } from "./utils/compactTicket.js";
 import { getZendeskBaseUrl } from "./utils/getZendeskBaseUrl.js";
 
 const listZendeskTickets: zendeskListZendeskTicketsFunction = async ({
@@ -16,7 +17,7 @@ const listZendeskTickets: zendeskListZendeskTicketsFunction = async ({
   authParams: AuthParamsType;
 }): Promise<zendeskListZendeskTicketsOutputType> => {
   const { authToken } = authParams;
-  const { subdomain, status } = params;
+  const { subdomain, status, limit = 20, page = 1 } = params;
 
   // Calculate date 3 months ago from now
   const threeMonthsAgo = new Date();
@@ -28,26 +29,34 @@ const listZendeskTickets: zendeskListZendeskTicketsFunction = async ({
   }
 
   const zendeskBaseUrl = getZendeskBaseUrl({ subdomain });
-  const apiEndpoint = new URL("/api/v2/tickets.json", zendeskBaseUrl);
+  const apiEndpoint = new URL("/api/v2/search.json", zendeskBaseUrl);
   const axiosClient = createAxiosClientWithRetries({ timeout: 10000, retryCount: 4 });
 
-  // Add query parameters for filtering
-  apiEndpoint.searchParams.set("created_after", formattedDate);
+  const query = [`type:ticket`, `created>${formattedDate}`, ...(status ? [`status:${status}`] : [])].join(" ");
+  apiEndpoint.searchParams.set("query", query);
+  apiEndpoint.searchParams.set("per_page", limit.toString());
+  apiEndpoint.searchParams.set("page", page.toString());
 
-  if (status) {
-    apiEndpoint.searchParams.set("status", status);
-  }
-
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${authToken}`,
+  };
   const response = await axiosClient.get(apiEndpoint.toString(), {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${authToken}`,
-    },
+    headers,
   });
+  const rawTickets = Array.isArray(response.data.results)
+    ? response.data.results.filter(isZendeskTicketSearchResult)
+    : [];
+  const tickets = compactZendeskTickets(rawTickets);
+  const count = typeof response.data.count === "number" ? response.data.count : rawTickets.length;
+  const hasMore = typeof response.data.next_page === "string" && response.data.next_page.length > 0;
 
   return {
-    tickets: response.data.tickets,
-    count: response.data.count,
+    tickets,
+    count,
+    returned_count: tickets.length,
+    has_more: hasMore,
+    ...(hasMore ? { next_page: page + 1 } : {}),
   };
 };
 

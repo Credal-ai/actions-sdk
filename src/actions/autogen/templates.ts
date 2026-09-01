@@ -4508,7 +4508,8 @@ export const zendeskCreateZendeskTicketDefinition: ActionTemplate = {
 };
 export const zendeskListZendeskTicketsDefinition: ActionTemplate = {
   displayName: "List Zendesk tickets",
-  description: "List tickets in Zendesk from the past 3 months",
+  description:
+    "List compact ticket discovery records from Zendesk from the past 3 months. Use getTicketDetails to investigate selected tickets.",
   scopes: [],
   tags: [],
   parameters: {
@@ -4524,24 +4525,94 @@ export const zendeskListZendeskTicketsDefinition: ActionTemplate = {
       },
       status: {
         type: "string",
+        enum: ["new", "open", "pending", "hold", "solved", "closed"],
         description: "Filter tickets by status (new, open, pending, hold, solved, closed)",
+      },
+      limit: {
+        type: "integer",
+        minimum: 1,
+        maximum: 50,
+        description: "Number of compact ticket records to return per page (optional, defaults to 20, maximum 50)",
+      },
+      page: {
+        type: "integer",
+        minimum: 1,
+        description:
+          "Offset page number to retrieve (optional, defaults to 1). Pass next_page from a previous response to continue.",
       },
     },
   },
   output: {
     type: "object",
-    required: ["tickets", "count"],
+    required: ["tickets", "count", "returned_count", "has_more"],
     properties: {
       tickets: {
         type: "array",
-        description: "List of tickets",
+        description: "Small ticket records for choosing which IDs to fetch with getTicketDetails",
         items: {
           type: "object",
+          required: ["id", "description_excerpt", "description_truncated"],
+          properties: {
+            id: {
+              type: "integer",
+              description: "Zendesk ticket ID",
+            },
+            subject: {
+              type: "string",
+              nullable: true,
+              description: "Ticket subject",
+            },
+            status: {
+              type: "string",
+              nullable: true,
+              description: "Ticket status category",
+            },
+            type: {
+              type: "string",
+              nullable: true,
+              description: "Ticket type such as question, incident, problem, or task",
+            },
+            priority: {
+              type: "string",
+              nullable: true,
+              description: "Ticket priority",
+            },
+            created_at: {
+              type: "string",
+              nullable: true,
+              description: "Ticket creation timestamp",
+            },
+            updated_at: {
+              type: "string",
+              nullable: true,
+              description: "Ticket update timestamp",
+            },
+            description_excerpt: {
+              type: "string",
+              description: "Up to the first 1,000 characters of the ticket description",
+            },
+            description_truncated: {
+              type: "boolean",
+              description: "Whether the full ticket description is longer than description_excerpt",
+            },
+          },
         },
       },
       count: {
         type: "number",
-        description: "Number of tickets found",
+        description: "Total number of tickets reported by Zendesk for the list query",
+      },
+      returned_count: {
+        type: "number",
+        description: "Number of compact ticket records returned in this response",
+      },
+      has_more: {
+        type: "boolean",
+        description: "Whether another page of tickets is available",
+      },
+      next_page: {
+        type: "integer",
+        description: "Page number to pass on the next call when has_more is true",
       },
     },
   },
@@ -4550,7 +4621,7 @@ export const zendeskListZendeskTicketsDefinition: ActionTemplate = {
 };
 export const zendeskGetTicketDetailsDefinition: ActionTemplate = {
   displayName: "Get ticket details",
-  description: "Get details of a ticket in Zendesk",
+  description: "Get the full ticket object for a selected Zendesk ticket.",
   scopes: [],
   tags: [],
   parameters: {
@@ -4744,7 +4815,7 @@ export const zendeskSearchZendeskByQueryDefinition: ActionTemplate = {
 export const zendeskSearchZendeskTicketsByQueryDefinition: ActionTemplate = {
   displayName: "Search Zendesk tickets with a query",
   description:
-    "Search Zendesk tickets by query with flexible filtering options. Only returns tickets, never any other type of Zendesk resource.",
+    "Search compact Zendesk ticket discovery records with flexible filtering options. Only returns tickets. Use getTicketDetails to investigate selected tickets.",
   scopes: [],
   tags: [],
   parameters: {
@@ -4764,25 +4835,90 @@ export const zendeskSearchZendeskTicketsByQueryDefinition: ActionTemplate = {
           'Search query string that can include filters like status, priority, tags, assignee, etc. Examples - status:open, priority:high, tags:bug, assignee:user@example.com, or combination like "status:open priority:high". The search is always restricted to tickets, so any type filter in the query is ignored.',
       },
       limit: {
-        type: "number",
-        description: "Maximum number of tickets to return (optional, defaults to 100)",
+        type: "integer",
+        minimum: 1,
+        maximum: 50,
+        description: "Number of compact ticket records to return per page (optional, defaults to 20, maximum 50)",
+      },
+      page: {
+        type: "integer",
+        minimum: 1,
+        description:
+          "Offset page number to retrieve (optional, defaults to 1). Pass next_page from a previous response to continue.",
       },
     },
   },
   output: {
     type: "object",
-    required: ["results", "count"],
+    required: ["results", "count", "returned_count", "has_more"],
     properties: {
       results: {
         type: "array",
-        description: "List of tickets matching the query",
+        description: "Small ticket records for choosing which IDs to fetch with getTicketDetails",
         items: {
           type: "object",
+          required: ["id", "description_excerpt", "description_truncated"],
+          properties: {
+            id: {
+              type: "integer",
+              description: "Zendesk ticket ID",
+            },
+            subject: {
+              type: "string",
+              nullable: true,
+              description: "Ticket subject",
+            },
+            status: {
+              type: "string",
+              nullable: true,
+              description: "Ticket status category",
+            },
+            type: {
+              type: "string",
+              nullable: true,
+              description: "Ticket type such as question, incident, problem, or task",
+            },
+            priority: {
+              type: "string",
+              nullable: true,
+              description: "Ticket priority",
+            },
+            created_at: {
+              type: "string",
+              nullable: true,
+              description: "Ticket creation timestamp",
+            },
+            updated_at: {
+              type: "string",
+              nullable: true,
+              description: "Ticket update timestamp",
+            },
+            description_excerpt: {
+              type: "string",
+              description: "Up to the first 1,000 characters of the ticket description",
+            },
+            description_truncated: {
+              type: "boolean",
+              description: "Whether the full ticket description is longer than description_excerpt",
+            },
+          },
         },
       },
       count: {
         type: "number",
-        description: "Number of tickets found",
+        description: "Total number of matching tickets reported by Zendesk",
+      },
+      returned_count: {
+        type: "number",
+        description: "Number of compact ticket records returned in this response",
+      },
+      has_more: {
+        type: "boolean",
+        description: "Whether another page of matching tickets is available",
+      },
+      next_page: {
+        type: "integer",
+        description: "Page number to pass on the next call when has_more is true",
       },
     },
   },

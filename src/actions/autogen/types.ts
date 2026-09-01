@@ -2530,14 +2530,51 @@ export const zendeskListZendeskTicketsParamsSchema = z.object({
     .string()
     .regex(new RegExp("^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$"))
     .describe("The hostname-label subdomain of the Zendesk account, without a protocol, path, or .zendesk.com suffix"),
-  status: z.string().describe("Filter tickets by status (new, open, pending, hold, solved, closed)").optional(),
+  status: z
+    .enum(["new", "open", "pending", "hold", "solved", "closed"])
+    .describe("Filter tickets by status (new, open, pending, hold, solved, closed)")
+    .optional(),
+  limit: z.coerce
+    .number()
+    .int()
+    .gte(1)
+    .lte(50)
+    .describe("Number of compact ticket records to return per page (optional, defaults to 20, maximum 50)")
+    .optional(),
+  page: z.coerce
+    .number()
+    .int()
+    .gte(1)
+    .describe(
+      "Offset page number to retrieve (optional, defaults to 1). Pass next_page from a previous response to continue.",
+    )
+    .optional(),
 });
 
 export type zendeskListZendeskTicketsParamsType = z.infer<typeof zendeskListZendeskTicketsParamsSchema>;
 
 export const zendeskListZendeskTicketsOutputSchema = z.object({
-  tickets: z.array(z.object({}).catchall(z.any())).describe("List of tickets"),
-  count: z.coerce.number().describe("Number of tickets found"),
+  tickets: z
+    .array(
+      z.object({
+        id: z.coerce.number().int().describe("Zendesk ticket ID"),
+        subject: z.string().nullable().describe("Ticket subject").optional(),
+        status: z.string().nullable().describe("Ticket status category").optional(),
+        type: z.string().nullable().describe("Ticket type such as question, incident, problem, or task").optional(),
+        priority: z.string().nullable().describe("Ticket priority").optional(),
+        created_at: z.string().nullable().describe("Ticket creation timestamp").optional(),
+        updated_at: z.string().nullable().describe("Ticket update timestamp").optional(),
+        description_excerpt: z.string().describe("Up to the first 1,000 characters of the ticket description"),
+        description_truncated: z
+          .boolean()
+          .describe("Whether the full ticket description is longer than description_excerpt"),
+      }),
+    )
+    .describe("Small ticket records for choosing which IDs to fetch with getTicketDetails"),
+  count: z.coerce.number().describe("Total number of tickets reported by Zendesk for the list query"),
+  returned_count: z.coerce.number().describe("Number of compact ticket records returned in this response"),
+  has_more: z.boolean().describe("Whether another page of tickets is available"),
+  next_page: z.coerce.number().int().describe("Page number to pass on the next call when has_more is true").optional(),
 });
 
 export type zendeskListZendeskTicketsOutputType = z.infer<typeof zendeskListZendeskTicketsOutputSchema>;
@@ -2677,7 +2714,21 @@ export const zendeskSearchZendeskTicketsByQueryParamsSchema = z.object({
     .describe(
       'Search query string that can include filters like status, priority, tags, assignee, etc. Examples - status:open, priority:high, tags:bug, assignee:user@example.com, or combination like "status:open priority:high". The search is always restricted to tickets, so any type filter in the query is ignored.',
     ),
-  limit: z.coerce.number().describe("Maximum number of tickets to return (optional, defaults to 100)").optional(),
+  limit: z.coerce
+    .number()
+    .int()
+    .gte(1)
+    .lte(50)
+    .describe("Number of compact ticket records to return per page (optional, defaults to 20, maximum 50)")
+    .optional(),
+  page: z.coerce
+    .number()
+    .int()
+    .gte(1)
+    .describe(
+      "Offset page number to retrieve (optional, defaults to 1). Pass next_page from a previous response to continue.",
+    )
+    .optional(),
 });
 
 export type zendeskSearchZendeskTicketsByQueryParamsType = z.infer<
@@ -2685,8 +2736,27 @@ export type zendeskSearchZendeskTicketsByQueryParamsType = z.infer<
 >;
 
 export const zendeskSearchZendeskTicketsByQueryOutputSchema = z.object({
-  results: z.array(z.object({}).catchall(z.any())).describe("List of tickets matching the query"),
-  count: z.coerce.number().describe("Number of tickets found"),
+  results: z
+    .array(
+      z.object({
+        id: z.coerce.number().int().describe("Zendesk ticket ID"),
+        subject: z.string().nullable().describe("Ticket subject").optional(),
+        status: z.string().nullable().describe("Ticket status category").optional(),
+        type: z.string().nullable().describe("Ticket type such as question, incident, problem, or task").optional(),
+        priority: z.string().nullable().describe("Ticket priority").optional(),
+        created_at: z.string().nullable().describe("Ticket creation timestamp").optional(),
+        updated_at: z.string().nullable().describe("Ticket update timestamp").optional(),
+        description_excerpt: z.string().describe("Up to the first 1,000 characters of the ticket description"),
+        description_truncated: z
+          .boolean()
+          .describe("Whether the full ticket description is longer than description_excerpt"),
+      }),
+    )
+    .describe("Small ticket records for choosing which IDs to fetch with getTicketDetails"),
+  count: z.coerce.number().describe("Total number of matching tickets reported by Zendesk"),
+  returned_count: z.coerce.number().describe("Number of compact ticket records returned in this response"),
+  has_more: z.boolean().describe("Whether another page of matching tickets is available"),
+  next_page: z.coerce.number().int().describe("Page number to pass on the next call when has_more is true").optional(),
 });
 
 export type zendeskSearchZendeskTicketsByQueryOutputType = z.infer<
