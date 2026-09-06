@@ -89,6 +89,9 @@
     "fast-xml-parser": "^5.7.0",
     "minimatch": "^10.2.1",
     "file-type": "^22.0.0",
-    "pdfjs-dist": "^6.2.108"
+    "pdfjs-dist": "^6.2.108",
+    "snowflake-sdk": {
+      "toml": "^5.0.0"
+    }
   }
 }
