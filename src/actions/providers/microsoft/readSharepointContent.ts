@@ -75,7 +75,8 @@ async function convertFileBuffer(mimeType: string, buffer: Buffer, charLimit?: n
     return parseWorkbookBufferToPlainText(buffer, charLimit);
   }
   if (mimeType === "application/vnd.openxmlformats-officedocument.presentationml.presentation") {
-    return await officeParser.parseOfficeAsync(buffer);
+    const parsedOfficeFile = await officeParser.parseOffice(buffer);
+    return parsedOfficeFile.toText();
   }
   if (TEXT_MIME_TYPES.has(mimeType) || mimeType.startsWith("text/")) {
     return buffer.toString("utf-8");
