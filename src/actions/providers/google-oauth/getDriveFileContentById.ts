@@ -154,7 +154,8 @@ const getDriveFileContentById: googleOauthGetDriveFileContentByIdFunction = asyn
       try {
         // officeparser expects a Buffer, so convert the ArrayBuffer
         const buffer = Buffer.from(downloadRes.data);
-        content = await officeParser.parseOfficeAsync(buffer);
+        const parsedOfficeFile = await officeParser.parseOffice(buffer);
+        content = parsedOfficeFile.toText();
       } catch (powerpointError) {
         return {
           success: false,
