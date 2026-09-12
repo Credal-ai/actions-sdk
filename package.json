@@ -73,7 +73,7 @@
     "marklassian": "^1.1.0",
     "mongodb": "^6.13.1",
     "node-forge": "^1.3.3",
-    "officeparser": "^6.1.1",
+    "officeparser": "6.0.7",
     "p-limit": "^7.1.1",
     "papaparse": "^5.5.3",
     "resend": "^4.7.0",
@@ -84,12 +84,12 @@
     "zod": "^3.25.0"
   },
   "overrides": {
-    "@xmldom/xmldom": "^0.8.15",
     "axios": "^1.18.1",
     "fast-xml-parser": "^5.7.0",
     "minimatch": "^10.2.1",
-    "file-type": "^22.0.0",
-    "pdfjs-dist": "^6.2.108",
+    "officeparser": {
+      "pdfjs-dist": "5.5.207"
+    },
     "snowflake-sdk": {
       "toml": "^5.0.0"
     }
