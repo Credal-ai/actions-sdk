@@ -60,6 +60,7 @@ export enum ActionName {
   ADD = "add",
   OVERWRITEPAGE = "overwritePage",
   FETCHPAGECONTENT = "fetchPageContent",
+  UPDATEPAGEFRAGMENTS = "updatePageFragments",
   CREATEPAGE = "createPage",
   ASSIGNJIRATICKET = "assignJiraTicket",
   PUBLICCOMMENTONSERVICEDESKREQUEST = "publicCommentOnServiceDeskRequest",
@@ -925,6 +926,103 @@ export type confluenceFetchPageContentFunction = ActionFunction<
   confluenceFetchPageContentOutputType
 >;
 
+export const confluenceUpdatePageFragmentsParamsSchema = z.object({
+  pageId: z.string().describe("The ID of the page to update"),
+  tableCellUpdates: z
+    .array(
+      z.object({
+        rowAnchor: z
+          .string()
+          .describe(
+            'Text or markup that uniquely identifies the target row within the page (or within the section given by sectionAnchor), e.g. "Jane Doe" or "2c96d7e295488cec0195b4c0a3890027". Matched against the raw storage-format markup of the row.\n',
+          ),
+        sectionAnchor: z
+          .string()
+          .describe(
+            'Optional text that appears immediately before the intended table (e.g. a section heading such as "ServiceNow"). Row matching starts after this text. Use it when the same rowAnchor appears in more than one table on the page.\n',
+          )
+          .optional(),
+        columnHeader: z
+          .string()
+          .describe(
+            "Header text of the column to update (case-insensitive, matched against the table's header row). Provide either columnHeader or columnIndex.\n",
+          )
+          .optional(),
+        columnIndex: z.coerce
+          .number()
+          .int()
+          .describe("Zero-based index of the cell within the row. Provide either columnHeader or columnIndex.")
+          .optional(),
+        newContent: z
+          .string()
+          .describe('New storage-format (XHTML) content for the cell, e.g. "<p>Closed 4 tickets</p>".'),
+        mode: z
+          .enum(["replace", "append", "prepend"])
+          .describe("How to apply newContent to the existing cell content. Defaults to replace.")
+          .optional(),
+      }),
+    )
+    .describe(
+      "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (e.g. a person's name or a user key such as ri:userkey / ri:account-id) and one column by header text or index, then replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
+    )
+    .optional(),
+  replacements: z
+    .array(
+      z.object({
+        find: z.string().describe("Exact text/markup to find (case-sensitive, no regex)."),
+        replace: z.string().describe("Text/markup to substitute for `find`."),
+        replaceAll: z
+          .boolean()
+          .describe("Replace every occurrence within the scope instead of only the first. Defaults to false.")
+          .optional(),
+        rowAnchor: z
+          .string()
+          .describe("Optional. Limit the replacement to the table row containing this text/markup.")
+          .optional(),
+        sectionAnchor: z
+          .string()
+          .describe("Optional. Only search the page body after this text (or use it to disambiguate rowAnchor).")
+          .optional(),
+      }),
+    )
+    .describe(
+      "Exact-text replacements to apply to the storage-format body. Each `find` string must be present or the whole update is rejected. Optionally scope a replacement to a single table row via rowAnchor. Applied in order, after `tableCellUpdates`.\n",
+    )
+    .optional(),
+  requiredMarkers: z
+    .array(z.string())
+    .describe(
+      "Optional list of strings (e.g. section headings, user names, column headers) that must still be present in the page after the update. If any are missing the page is NOT saved and an error is returned.\n",
+    )
+    .optional(),
+});
+
+export type confluenceUpdatePageFragmentsParamsType = z.infer<typeof confluenceUpdatePageFragmentsParamsSchema>;
+
+export const confluenceUpdatePageFragmentsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the page was successfully updated"),
+  error: z
+    .string()
+    .describe("The error that occurred if the page was not updated. When set, the page was left unchanged.")
+    .optional(),
+  pageId: z.string().describe("The ID of the updated page").optional(),
+  title: z.string().describe("The title of the updated page").optional(),
+  version: z.coerce.number().int().describe("The new version number of the page").optional(),
+  cellsUpdated: z.coerce.number().int().describe("Number of table cells that were updated").optional(),
+  replacementsApplied: z.coerce
+    .number()
+    .int()
+    .describe("Total number of text occurrences that were replaced")
+    .optional(),
+});
+
+export type confluenceUpdatePageFragmentsOutputType = z.infer<typeof confluenceUpdatePageFragmentsOutputSchema>;
+export type confluenceUpdatePageFragmentsFunction = ActionFunction<
+  confluenceUpdatePageFragmentsParamsType,
+  AuthParamsType,
+  confluenceUpdatePageFragmentsOutputType
+>;
+
 export const confluenceDataCenterOverwritePageParamsSchema = z.object({
   pageId: z.string().describe("The page id for the page to add content to"),
   title: z.string().describe("The title of the page that should be updated"),
@@ -998,6 +1096,107 @@ export type confluenceDataCenterFetchPageContentFunction = ActionFunction<
   confluenceDataCenterFetchPageContentParamsType,
   AuthParamsType,
   confluenceDataCenterFetchPageContentOutputType
+>;
+
+export const confluenceDataCenterUpdatePageFragmentsParamsSchema = z.object({
+  pageId: z.string().describe("The ID of the page to update"),
+  tableCellUpdates: z
+    .array(
+      z.object({
+        rowAnchor: z
+          .string()
+          .describe(
+            'Text or markup that uniquely identifies the target row within the page (or within the section given by sectionAnchor), e.g. "Jane Doe" or "2c96d7e295488cec0195b4c0a3890027". Matched against the raw storage-format markup of the row.\n',
+          ),
+        sectionAnchor: z
+          .string()
+          .describe(
+            'Optional text that appears immediately before the intended table (e.g. a section heading such as "ServiceNow"). Row matching starts after this text. Use it when the same rowAnchor appears in more than one table on the page.\n',
+          )
+          .optional(),
+        columnHeader: z
+          .string()
+          .describe(
+            "Header text of the column to update (case-insensitive, matched against the table's header row). Provide either columnHeader or columnIndex.\n",
+          )
+          .optional(),
+        columnIndex: z.coerce
+          .number()
+          .int()
+          .describe("Zero-based index of the cell within the row. Provide either columnHeader or columnIndex.")
+          .optional(),
+        newContent: z
+          .string()
+          .describe('New storage-format (XHTML) content for the cell, e.g. "<p>Closed 4 tickets</p>".'),
+        mode: z
+          .enum(["replace", "append", "prepend"])
+          .describe("How to apply newContent to the existing cell content. Defaults to replace.")
+          .optional(),
+      }),
+    )
+    .describe(
+      "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (e.g. a person's name or a user key such as ri:userkey / ri:account-id) and one column by header text or index, then replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
+    )
+    .optional(),
+  replacements: z
+    .array(
+      z.object({
+        find: z.string().describe("Exact text/markup to find (case-sensitive, no regex)."),
+        replace: z.string().describe("Text/markup to substitute for `find`."),
+        replaceAll: z
+          .boolean()
+          .describe("Replace every occurrence within the scope instead of only the first. Defaults to false.")
+          .optional(),
+        rowAnchor: z
+          .string()
+          .describe("Optional. Limit the replacement to the table row containing this text/markup.")
+          .optional(),
+        sectionAnchor: z
+          .string()
+          .describe("Optional. Only search the page body after this text (or use it to disambiguate rowAnchor).")
+          .optional(),
+      }),
+    )
+    .describe(
+      "Exact-text replacements to apply to the storage-format body. Each `find` string must be present or the whole update is rejected. Optionally scope a replacement to a single table row via rowAnchor. Applied in order, after `tableCellUpdates`.\n",
+    )
+    .optional(),
+  requiredMarkers: z
+    .array(z.string())
+    .describe(
+      "Optional list of strings (e.g. section headings, user names, column headers) that must still be present in the page after the update. If any are missing the page is NOT saved and an error is returned.\n",
+    )
+    .optional(),
+});
+
+export type confluenceDataCenterUpdatePageFragmentsParamsType = z.infer<
+  typeof confluenceDataCenterUpdatePageFragmentsParamsSchema
+>;
+
+export const confluenceDataCenterUpdatePageFragmentsOutputSchema = z.object({
+  success: z.boolean().describe("Whether the page was successfully updated"),
+  error: z
+    .string()
+    .describe("The error that occurred if the page was not updated. When set, the page was left unchanged.")
+    .optional(),
+  pageId: z.string().describe("The ID of the updated page").optional(),
+  title: z.string().describe("The title of the updated page").optional(),
+  version: z.coerce.number().int().describe("The new version number of the page").optional(),
+  cellsUpdated: z.coerce.number().int().describe("Number of table cells that were updated").optional(),
+  replacementsApplied: z.coerce
+    .number()
+    .int()
+    .describe("Total number of text occurrences that were replaced")
+    .optional(),
+});
+
+export type confluenceDataCenterUpdatePageFragmentsOutputType = z.infer<
+  typeof confluenceDataCenterUpdatePageFragmentsOutputSchema
+>;
+export type confluenceDataCenterUpdatePageFragmentsFunction = ActionFunction<
+  confluenceDataCenterUpdatePageFragmentsParamsType,
+  AuthParamsType,
+  confluenceDataCenterUpdatePageFragmentsOutputType
 >;
 
 export const jiraAssignJiraTicketParamsSchema = z.object({

@@ -1380,6 +1380,137 @@ export const confluenceFetchPageContentDefinition: ActionTemplate = {
   name: "fetchPageContent",
   provider: "confluence",
 };
+export const confluenceUpdatePageFragmentsDefinition: ActionTemplate = {
+  displayName: "Update page fragments",
+  description:
+    'Makes targeted, deterministic edits to part of an existing Confluence page WITHOUT requiring the full page body. The page body is fetched server-side in storage format, the requested table-cell updates and exact-text replacements are applied in code, optional validation markers are checked, and the page is saved back. Everything outside the targeted fragments is preserved exactly. Prefer this over "Overwrite a page" whenever you are updating a portion of a large or structured page (e.g. one user\'s row in a report table); only use "Overwrite a page" when you intend to replace the entire page.\n',
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["pageId"],
+    properties: {
+      pageId: {
+        type: "string",
+        description: "The ID of the page to update",
+      },
+      tableCellUpdates: {
+        type: "array",
+        description:
+          "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (e.g. a person's name or a user key such as ri:userkey / ri:account-id) and one column by header text or index, then replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
+        items: {
+          type: "object",
+          required: ["rowAnchor", "newContent"],
+          properties: {
+            rowAnchor: {
+              type: "string",
+              description:
+                'Text or markup that uniquely identifies the target row within the page (or within the section given by sectionAnchor), e.g. "Jane Doe" or "2c96d7e295488cec0195b4c0a3890027". Matched against the raw storage-format markup of the row.\n',
+            },
+            sectionAnchor: {
+              type: "string",
+              description:
+                'Optional text that appears immediately before the intended table (e.g. a section heading such as "ServiceNow"). Row matching starts after this text. Use it when the same rowAnchor appears in more than one table on the page.\n',
+            },
+            columnHeader: {
+              type: "string",
+              description:
+                "Header text of the column to update (case-insensitive, matched against the table's header row). Provide either columnHeader or columnIndex.\n",
+            },
+            columnIndex: {
+              type: "integer",
+              description: "Zero-based index of the cell within the row. Provide either columnHeader or columnIndex.",
+            },
+            newContent: {
+              type: "string",
+              description: 'New storage-format (XHTML) content for the cell, e.g. "<p>Closed 4 tickets</p>".',
+            },
+            mode: {
+              type: "string",
+              description: "How to apply newContent to the existing cell content. Defaults to replace.",
+              enum: ["replace", "append", "prepend"],
+            },
+          },
+        },
+      },
+      replacements: {
+        type: "array",
+        description:
+          "Exact-text replacements to apply to the storage-format body. Each `find` string must be present or the whole update is rejected. Optionally scope a replacement to a single table row via rowAnchor. Applied in order, after `tableCellUpdates`.\n",
+        items: {
+          type: "object",
+          required: ["find", "replace"],
+          properties: {
+            find: {
+              type: "string",
+              description: "Exact text/markup to find (case-sensitive, no regex).",
+            },
+            replace: {
+              type: "string",
+              description: "Text/markup to substitute for `find`.",
+            },
+            replaceAll: {
+              type: "boolean",
+              description: "Replace every occurrence within the scope instead of only the first. Defaults to false.",
+            },
+            rowAnchor: {
+              type: "string",
+              description: "Optional. Limit the replacement to the table row containing this text/markup.",
+            },
+            sectionAnchor: {
+              type: "string",
+              description: "Optional. Only search the page body after this text (or use it to disambiguate rowAnchor).",
+            },
+          },
+        },
+      },
+      requiredMarkers: {
+        type: "array",
+        description:
+          "Optional list of strings (e.g. section headings, user names, column headers) that must still be present in the page after the update. If any are missing the page is NOT saved and an error is returned.\n",
+        items: {
+          type: "string",
+        },
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the page was successfully updated",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the page was not updated. When set, the page was left unchanged.",
+      },
+      pageId: {
+        type: "string",
+        description: "The ID of the updated page",
+      },
+      title: {
+        type: "string",
+        description: "The title of the updated page",
+      },
+      version: {
+        type: "integer",
+        description: "The new version number of the page",
+      },
+      cellsUpdated: {
+        type: "integer",
+        description: "Number of table cells that were updated",
+      },
+      replacementsApplied: {
+        type: "integer",
+        description: "Total number of text occurrences that were replaced",
+      },
+    },
+  },
+  name: "updatePageFragments",
+  provider: "confluence",
+};
 export const confluenceDataCenterOverwritePageDefinition: ActionTemplate = {
   displayName: "Overwrite a page",
   description: "Updates a Confluence page with the new content specified",
@@ -1520,6 +1651,137 @@ export const confluenceDataCenterFetchPageContentDefinition: ActionTemplate = {
     },
   },
   name: "fetchPageContent",
+  provider: "confluenceDataCenter",
+};
+export const confluenceDataCenterUpdatePageFragmentsDefinition: ActionTemplate = {
+  displayName: "Update page fragments",
+  description:
+    'Makes targeted, deterministic edits to part of an existing Confluence page WITHOUT requiring the full page body. The page body is fetched server-side in storage format, the requested table-cell updates and exact-text replacements are applied in code, optional validation markers are checked, and the page is saved back. Everything outside the targeted fragments is preserved exactly. Prefer this over "Overwrite a page" whenever you are updating a portion of a large or structured page (e.g. one user\'s row in a report table); only use "Overwrite a page" when you intend to replace the entire page.\n',
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["pageId"],
+    properties: {
+      pageId: {
+        type: "string",
+        description: "The ID of the page to update",
+      },
+      tableCellUpdates: {
+        type: "array",
+        description:
+          "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (e.g. a person's name or a user key such as ri:userkey / ri:account-id) and one column by header text or index, then replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
+        items: {
+          type: "object",
+          required: ["rowAnchor", "newContent"],
+          properties: {
+            rowAnchor: {
+              type: "string",
+              description:
+                'Text or markup that uniquely identifies the target row within the page (or within the section given by sectionAnchor), e.g. "Jane Doe" or "2c96d7e295488cec0195b4c0a3890027". Matched against the raw storage-format markup of the row.\n',
+            },
+            sectionAnchor: {
+              type: "string",
+              description:
+                'Optional text that appears immediately before the intended table (e.g. a section heading such as "ServiceNow"). Row matching starts after this text. Use it when the same rowAnchor appears in more than one table on the page.\n',
+            },
+            columnHeader: {
+              type: "string",
+              description:
+                "Header text of the column to update (case-insensitive, matched against the table's header row). Provide either columnHeader or columnIndex.\n",
+            },
+            columnIndex: {
+              type: "integer",
+              description: "Zero-based index of the cell within the row. Provide either columnHeader or columnIndex.",
+            },
+            newContent: {
+              type: "string",
+              description: 'New storage-format (XHTML) content for the cell, e.g. "<p>Closed 4 tickets</p>".',
+            },
+            mode: {
+              type: "string",
+              description: "How to apply newContent to the existing cell content. Defaults to replace.",
+              enum: ["replace", "append", "prepend"],
+            },
+          },
+        },
+      },
+      replacements: {
+        type: "array",
+        description:
+          "Exact-text replacements to apply to the storage-format body. Each `find` string must be present or the whole update is rejected. Optionally scope a replacement to a single table row via rowAnchor. Applied in order, after `tableCellUpdates`.\n",
+        items: {
+          type: "object",
+          required: ["find", "replace"],
+          properties: {
+            find: {
+              type: "string",
+              description: "Exact text/markup to find (case-sensitive, no regex).",
+            },
+            replace: {
+              type: "string",
+              description: "Text/markup to substitute for `find`.",
+            },
+            replaceAll: {
+              type: "boolean",
+              description: "Replace every occurrence within the scope instead of only the first. Defaults to false.",
+            },
+            rowAnchor: {
+              type: "string",
+              description: "Optional. Limit the replacement to the table row containing this text/markup.",
+            },
+            sectionAnchor: {
+              type: "string",
+              description: "Optional. Only search the page body after this text (or use it to disambiguate rowAnchor).",
+            },
+          },
+        },
+      },
+      requiredMarkers: {
+        type: "array",
+        description:
+          "Optional list of strings (e.g. section headings, user names, column headers) that must still be present in the page after the update. If any are missing the page is NOT saved and an error is returned.\n",
+        items: {
+          type: "string",
+        },
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the page was successfully updated",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the page was not updated. When set, the page was left unchanged.",
+      },
+      pageId: {
+        type: "string",
+        description: "The ID of the updated page",
+      },
+      title: {
+        type: "string",
+        description: "The title of the updated page",
+      },
+      version: {
+        type: "integer",
+        description: "The new version number of the page",
+      },
+      cellsUpdated: {
+        type: "integer",
+        description: "Number of table cells that were updated",
+      },
+      replacementsApplied: {
+        type: "integer",
+        description: "Total number of text occurrences that were replaced",
+      },
+    },
+  },
+  name: "updatePageFragments",
   provider: "confluenceDataCenter",
 };
 export const jiraAssignJiraTicketDefinition: ActionTemplate = {
