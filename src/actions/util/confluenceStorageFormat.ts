@@ -75,8 +75,20 @@ const STRUCTURAL_TAGS = new Set(["table", "thead", "tbody", "tfoot", "tr", "td",
 /** HTML void elements that never have a closing tag even if written without a trailing slash. */
 const VOID_TAGS = new Set(["br", "hr", "img", "col", "input", "meta", "link", "area", "base", "wbr"]);
 
+/**
+ * Attribute section of a tag. Quoted values are consumed as a unit so a `>` inside a value
+ * (e.g. `ri:filename="a>b"`) does not terminate the tag early.
+ */
+const TAG_ATTRS_PATTERN = `(?:"[^"]*"|'[^']*'|[^"'>])*`;
+
 // Matches comments and CDATA sections (skipped) or a single tag with its name, attributes and closing markers.
-const TAG_TOKEN_REGEX = /<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|<(\/?)([a-zA-Z][\w:.-]*)([^>]*?)(\/?)>/g;
+const TAG_TOKEN_REGEX = new RegExp(
+  `<!--[\\s\\S]*?-->|<!\\[CDATA\\[[\\s\\S]*?\\]\\]>|<(\\/?)([a-zA-Z][\\w:.-]*)(${TAG_ATTRS_PATTERN}?)(\\/?)>`,
+  "g",
+);
+
+/** Matches any single complete tag (used for stripping markup from header text). */
+const ANY_TAG_REGEX = new RegExp(`<${TAG_ATTRS_PATTERN}>`, "g");
 
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -176,7 +188,7 @@ function assertNoStrayStructuralTags(fragment: string, label: string): void {
  */
 function findElementSpans(html: string, tagNames: string[]): ElementSpan[] {
   const namePattern = tagNames.map(escapeRegExp).join("|");
-  const tagRegex = new RegExp(`<(/?)(?:${namePattern})(?=[\\s/>])[^>]*>`, "gi");
+  const tagRegex = new RegExp(`<(/?)(?:${namePattern})(?=[\\s/>])${TAG_ATTRS_PATTERN}>`, "gi");
   const stack: { start: number; innerStart: number }[] = [];
   const spans: ElementSpan[] = [];
 
@@ -209,7 +221,7 @@ function findElementSpans(html: string, tagNames: string[]): ElementSpan[] {
 
 function stripTagsAndNormalise(html: string): string {
   return html
-    .replace(/<[^>]*>/g, " ")
+    .replace(ANY_TAG_REGEX, " ")
     .replace(/&nbsp;|&#160;/gi, " ")
     .replace(/&amp;/gi, "&")
     .replace(/&lt;/gi, "<")

@@ -1410,20 +1410,22 @@ export const confluenceUpdatePageFragmentsDefinition: ActionTemplate = {
             sectionAnchor: {
               type: "string",
               description:
-                'Optional text that appears immediately before the intended table (e.g. a section heading such as "ServiceNow"). Row matching starts after this text. Use it when the same rowAnchor appears in more than one table on the page.\n',
+                'Optional text identifying the section whose table should be edited, e.g. the heading markup "<h3>ServiceNow</h3>". The row is looked up only inside the table containing this text, or the first table after it. Use it when the same rowAnchor appears in more than one table on the page. If the anchor text occurs in several places and the row matches in more than one of the resulting tables, the update is rejected as ambiguous, so prefer distinctive text such as the full heading markup.\n',
             },
             columnHeader: {
               type: "string",
               description:
-                "Header text of the column to update (case-insensitive, matched against the table's header row). Provide either columnHeader or columnIndex.\n",
+                "Header text of the column to update (case-insensitive, matched against the table's header row). Merged header cells (colspan) are accounted for; tables using rowspan must use columnIndex instead. Provide either columnHeader or columnIndex.\n",
             },
             columnIndex: {
               type: "integer",
-              description: "Zero-based index of the cell within the row. Provide either columnHeader or columnIndex.",
+              description:
+                "Zero-based index of the physical cell within the row (the Nth <td>/<th> tag, not accounting for merged cells). Provide either columnHeader or columnIndex.\n",
             },
             newContent: {
               type: "string",
-              description: 'New storage-format (XHTML) content for the cell, e.g. "<p>Closed 4 tickets</p>".',
+              description:
+                'New storage-format (XHTML) content for the cell, e.g. "<p>Closed 4 tickets</p>". Must be well-formed (every tag closed) and must not contain table row/cell tags except as part of a complete nested <table>.\n',
             },
             mode: {
               type: "string",
@@ -1436,7 +1438,7 @@ export const confluenceUpdatePageFragmentsDefinition: ActionTemplate = {
       replacements: {
         type: "array",
         description:
-          "Exact-text replacements to apply to the storage-format body. Each `find` string must be present or the whole update is rejected. Optionally scope a replacement to a single table row via rowAnchor. Applied in order, after `tableCellUpdates`.\n",
+          "Exact-text replacements to apply to the storage-format body. Each `find` string must be present or the whole update is rejected. `find` and `replace` must open/close the same tags, and replacements may not add, remove, merge or split table rows/cells (use tableCellUpdates for cell content). Optionally scope a replacement to a single table row via rowAnchor. Applied in order, after `tableCellUpdates`.\n",
         items: {
           type: "object",
           required: ["find", "replace"],
@@ -1683,20 +1685,22 @@ export const confluenceDataCenterUpdatePageFragmentsDefinition: ActionTemplate =
             sectionAnchor: {
               type: "string",
               description:
-                'Optional text that appears immediately before the intended table (e.g. a section heading such as "ServiceNow"). Row matching starts after this text. Use it when the same rowAnchor appears in more than one table on the page.\n',
+                'Optional text identifying the section whose table should be edited, e.g. the heading markup "<h3>ServiceNow</h3>". The row is looked up only inside the table containing this text, or the first table after it. Use it when the same rowAnchor appears in more than one table on the page. If the anchor text occurs in several places and the row matches in more than one of the resulting tables, the update is rejected as ambiguous, so prefer distinctive text such as the full heading markup.\n',
             },
             columnHeader: {
               type: "string",
               description:
-                "Header text of the column to update (case-insensitive, matched against the table's header row). Provide either columnHeader or columnIndex.\n",
+                "Header text of the column to update (case-insensitive, matched against the table's header row). Merged header cells (colspan) are accounted for; tables using rowspan must use columnIndex instead. Provide either columnHeader or columnIndex.\n",
             },
             columnIndex: {
               type: "integer",
-              description: "Zero-based index of the cell within the row. Provide either columnHeader or columnIndex.",
+              description:
+                "Zero-based index of the physical cell within the row (the Nth <td>/<th> tag, not accounting for merged cells). Provide either columnHeader or columnIndex.\n",
             },
             newContent: {
               type: "string",
-              description: 'New storage-format (XHTML) content for the cell, e.g. "<p>Closed 4 tickets</p>".',
+              description:
+                'New storage-format (XHTML) content for the cell, e.g. "<p>Closed 4 tickets</p>". Must be well-formed (every tag closed) and must not contain table row/cell tags except as part of a complete nested <table>.\n',
             },
             mode: {
               type: "string",
@@ -1709,7 +1713,7 @@ export const confluenceDataCenterUpdatePageFragmentsDefinition: ActionTemplate =
       replacements: {
         type: "array",
         description:
-          "Exact-text replacements to apply to the storage-format body. Each `find` string must be present or the whole update is rejected. Optionally scope a replacement to a single table row via rowAnchor. Applied in order, after `tableCellUpdates`.\n",
+          "Exact-text replacements to apply to the storage-format body. Each `find` string must be present or the whole update is rejected. `find` and `replace` must open/close the same tags, and replacements may not add, remove, merge or split table rows/cells (use tableCellUpdates for cell content). Optionally scope a replacement to a single table row via rowAnchor. Applied in order, after `tableCellUpdates`.\n",
         items: {
           type: "object",
           required: ["find", "replace"],

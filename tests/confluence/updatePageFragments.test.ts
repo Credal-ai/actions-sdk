@@ -398,6 +398,39 @@ describe("applyConfluenceFragmentUpdates", () => {
     });
   });
 
+  describe("tags with '>' inside quoted attributes", () => {
+    const ATTACHMENT = `<ac:link><ri:attachment ri:filename="a>b.png" /></ac:link>`;
+
+    it("accepts self-closing tags whose attribute values contain '>'", () => {
+      const result = applyConfluenceFragmentUpdates(PAGE_BODY, {
+        tableCellUpdates: [
+          {
+            rowAnchor: USER_KEY,
+            sectionAnchor: "<h3>ServiceNow</h3>",
+            columnHeader: "Weekly Snapshot",
+            newContent: `<p>See ${ATTACHMENT}</p>`,
+          },
+        ],
+        replacements: [{ find: "<p>Nothing to report.</p>", replace: `<p>${ATTACHMENT}</p>` }],
+      });
+      expect(result.body).toContain(`<td><p>See ${ATTACHMENT}</p></td>`);
+      expect(result.body).toContain(`<p>${ATTACHMENT}</p>`);
+    });
+
+    it("locates rows, cells and headers correctly when their own attributes contain '>'", () => {
+      const page = [
+        `<table><tbody>`,
+        `<tr><th data-note="x>y"><p>Name</p></th><th title='a>b'><p>Score</p></th></tr>`,
+        `<tr data-id="r>1"><td data-cell="c>1"><p>Jane</p></td><td><p>0</p></td></tr>`,
+        `</tbody></table>`,
+      ].join("");
+      const result = applyConfluenceFragmentUpdates(page, {
+        tableCellUpdates: [{ rowAnchor: "Jane", columnHeader: "Score", newContent: "<p>5</p>" }],
+      });
+      expect(result.body).toBe(page.replace("<td><p>0</p></td>", "<td><p>5</p></td>"));
+    });
+  });
+
   describe("section scoping (Issue 2)", () => {
     // "ServiceNow" is mentioned in the summary paragraph before the Cloud table, and again as the heading.
     const PAGE_WITH_REPEATED_ANCHOR = PAGE_BODY.replace(
