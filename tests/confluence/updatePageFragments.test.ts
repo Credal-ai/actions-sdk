@@ -278,7 +278,7 @@ describe("applyConfluenceFragmentUpdates", () => {
     ).toThrow(/missing required marker\(s\): "SharePoint"/);
   });
 
-  it("refuses to save when an edit would drop tables or rows", () => {
+  it("refuses a replacement that would remove a whole nested table", () => {
     const nestedTable = PAGE_BODY.slice(
       PAGE_BODY.indexOf("<table><tbody><tr><td><p># of"),
       PAGE_BODY.indexOf("</table></td></tr>") + "</table>".length,
@@ -287,7 +287,274 @@ describe("applyConfluenceFragmentUpdates", () => {
       applyConfluenceFragmentUpdates(PAGE_BODY, {
         replacements: [{ find: nestedTable, replace: "<p>gone</p>" }],
       }),
-    ).toThrow(/would reduce the page from 3 table\(s\)/);
+    ).toThrow(/would alter table structure/);
+  });
+
+  describe("structural safety (Issue 1)", () => {
+    it("rejects a replacement that merges two cells by deleting a </td><td> boundary", () => {
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE_BODY, {
+          replacements: [
+            {
+              find: "</td><td><p>Snapshot TBD</p>",
+              replace: "<p>Snapshot TBD</p>",
+            },
+          ],
+        }),
+      ).toThrow(/would change the tag structure/);
+
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE_BODY, {
+          replacements: [{ find: "</td><td>", replace: "" }],
+        }),
+      ).toThrow(
+        /would change the tag structure.*stray <\/td>, unclosed <td>.*balanced/,
+      );
+    });
+
+    it("rejects a replacement that keeps the signature but removes a cell", () => {
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE_BODY, {
+          replacements: [{ find: "<td><p>Plans TBD</p></td>", replace: "" }],
+        }),
+      ).toThrow(/would alter table structure/);
+    });
+
+    it("rejects newContent that injects or closes cells, or is not well-formed", () => {
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE_BODY, {
+          tableCellUpdates: [
+            {
+              rowAnchor: "# of Tickets Closed",
+              columnIndex: 1,
+              newContent: "<p>4</p></td><td><p>extra</p>",
+            },
+          ],
+        }),
+      ).toThrow(/newContent is not well-formed XHTML/);
+
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE_BODY, {
+          tableCellUpdates: [
+            {
+              rowAnchor: "# of Tickets Closed",
+              columnIndex: 1,
+              newContent: "<td><p>4</p></td>",
+            },
+          ],
+        }),
+      ).toThrow(/contains <td> outside of a complete nested <table>/);
+
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE_BODY, {
+          tableCellUpdates: [
+            {
+              rowAnchor: "# of Tickets Closed",
+              columnIndex: 1,
+              newContent: "<p>4",
+            },
+          ],
+        }),
+      ).toThrow(/unclosed <p>/);
+    });
+
+    it("still allows inserting a complete nested table and self-closing tags", () => {
+      const nested =
+        "<p>Summary<br /></p><table><tbody><tr><td><p>a</p></td><td><p>b</p></td></tr></tbody></table>";
+      const result = applyConfluenceFragmentUpdates(PAGE_BODY, {
+        tableCellUpdates: [
+          {
+            rowAnchor: USER_KEY,
+            sectionAnchor: "Cloud/Infrastructure",
+            columnIndex: 2,
+            newContent: nested,
+          },
+        ],
+        replacements: [
+          {
+            find: "<p>Nothing to report.</p>",
+            replace: "<table><tbody><tr><td>x</td></tr></tbody></table>",
+          },
+        ],
+      });
+      expect(result.body).toContain(nested);
+      expect(result.body).toContain("<tr><td>x</td></tr>");
+    });
+
+    it("allows replacements that change attributes but not structure, and unbalanced-but-matching text", () => {
+      const result = applyConfluenceFragmentUpdates(PAGE_BODY, {
+        replacements: [
+          {
+            find: "<td><p>Plans TBD</p></td>",
+            replace: '<td class="highlight"><p>Plans TBD</p></td>',
+          },
+          { find: "<p>Nothing to", replace: "<p>Something to" },
+        ],
+      });
+      expect(result.body).toContain(
+        '<td class="highlight"><p>Plans TBD</p></td>',
+      );
+      expect(result.body).toContain("<p>Something to report.</p>");
+    });
+  });
+
+  describe("section scoping (Issue 2)", () => {
+    // "ServiceNow" is mentioned in the summary paragraph before the Cloud table, and again as the heading.
+    const PAGE_WITH_REPEATED_ANCHOR = PAGE_BODY.replace(
+      "<p>Weekly report</p>",
+      "<p>Weekly report covering ServiceNow and cloud</p>",
+    );
+
+    it("rejects an anchor that resolves to multiple tables containing the row instead of picking the first", () => {
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE_WITH_REPEATED_ANCHOR, {
+          tableCellUpdates: [
+            {
+              rowAnchor: USER_KEY,
+              sectionAnchor: "ServiceNow",
+              columnIndex: 1,
+              newContent: "<p>x</p>",
+            },
+          ],
+        }),
+      ).toThrow(
+        /occurs 2 times.*matches rows in 2 different tables.*<h3>ServiceNow<\/h3>/,
+      );
+    });
+
+    it("works when the anchor is made specific enough", () => {
+      const result = applyConfluenceFragmentUpdates(PAGE_WITH_REPEATED_ANCHOR, {
+        tableCellUpdates: [
+          {
+            rowAnchor: USER_KEY,
+            sectionAnchor: "<h3>ServiceNow</h3>",
+            columnIndex: 1,
+            newContent: "<p>x</p>",
+          },
+        ],
+      });
+      expect(result.body).toContain(
+        "<td><p>x</p></td><td><p>Plans TBD</p></td>",
+      );
+      expect(result.body).toContain("Cloud work TBD");
+    });
+
+    it("still rejects duplicates within the single section table", () => {
+      const duplicated = PAGE_BODY.replace(
+        `<tr><td><p>${OTHER_USER_MENTION}</p></td>`,
+        `<tr><td><p>${USER_MENTION}</p></td>`,
+      );
+      expect(() =>
+        applyConfluenceFragmentUpdates(duplicated, {
+          tableCellUpdates: [
+            {
+              rowAnchor: USER_KEY,
+              sectionAnchor: "<h3>ServiceNow</h3>",
+              columnIndex: 1,
+              newContent: "<p>x</p>",
+            },
+          ],
+        }),
+      ).toThrow(/matched 2 rows in the table identified by sectionAnchor/);
+    });
+
+    it("scopes to the table containing the anchor when the anchor sits inside the table", () => {
+      // Anchor on the user key: it occurs in two tables, but only the ServiceNow one has the nested metrics row.
+      const result = applyConfluenceFragmentUpdates(PAGE_BODY, {
+        tableCellUpdates: [
+          {
+            rowAnchor: "# of Tickets Closed",
+            sectionAnchor: USER_KEY,
+            columnIndex: 1,
+            newContent: "<p>4</p>",
+          },
+        ],
+      });
+      expect(result.body).toContain(
+        "<td><p># of Tickets Closed</p></td><td><p>4</p></td>",
+      );
+    });
+
+    it("fails when there is no table after the anchor", () => {
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE_BODY, {
+          tableCellUpdates: [
+            {
+              rowAnchor: USER_KEY,
+              sectionAnchor: "Risk | Issues",
+              columnIndex: 1,
+              newContent: "<p>x</p>",
+            },
+          ],
+        }),
+      ).toThrow(/no table at or after it/);
+    });
+  });
+
+  describe("merged header cells (Issue 3)", () => {
+    const SPANNED_TABLE = [
+      `<h2>Metrics</h2>`,
+      `<table><tbody>`,
+      `<tr><th colspan="2"><p>Person</p></th><th><p>Tickets</p></th><th><p>Stories</p></th></tr>`,
+      `<tr><td><p>Jane</p></td><td><p>Doe</p></td><td><p>0</p></td><td><p>0</p></td></tr>`,
+      `<tr><td colspan="2"><p>John Smith</p></td><td><p>1</p></td><td><p>1</p></td></tr>`,
+      `</tbody></table>`,
+    ].join("");
+
+    it("maps a header after a colspan to the correct logical column", () => {
+      const result = applyConfluenceFragmentUpdates(SPANNED_TABLE, {
+        tableCellUpdates: [
+          {
+            rowAnchor: "Jane",
+            columnHeader: "Tickets",
+            newContent: "<p>7</p>",
+          },
+          {
+            rowAnchor: "John Smith",
+            columnHeader: "Stories",
+            newContent: "<p>9</p>",
+          },
+        ],
+      });
+      expect(result.body).toContain(
+        "<td><p>Jane</p></td><td><p>Doe</p></td><td><p>7</p></td><td><p>0</p></td>",
+      );
+      expect(result.body).toContain(
+        '<td colspan="2"><p>John Smith</p></td><td><p>1</p></td><td><p>9</p></td>',
+      );
+    });
+
+    it("rejects a header that itself spans multiple columns", () => {
+      expect(() =>
+        applyConfluenceFragmentUpdates(SPANNED_TABLE, {
+          tableCellUpdates: [
+            {
+              rowAnchor: "Jane",
+              columnHeader: "Person",
+              newContent: "<p>x</p>",
+            },
+          ],
+        }),
+      ).toThrow(/spans 2 columns.*Use columnIndex/);
+    });
+
+    it("rejects header lookup in tables that use rowspan", () => {
+      const rowspanTable = SPANNED_TABLE.replace(
+        `<td><p>Jane</p></td>`,
+        `<td rowspan="2"><p>Jane</p></td>`,
+      );
+      expect(() =>
+        applyConfluenceFragmentUpdates(rowspanTable, {
+          tableCellUpdates: [
+            {
+              rowAnchor: "John Smith",
+              columnHeader: "Tickets",
+              newContent: "<p>x</p>",
+            },
+          ],
+        }),
+      ).toThrow(/uses rowspan.*Use columnIndex/);
+    });
   });
 });
 
