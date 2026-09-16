@@ -7,7 +7,9 @@ const mockPost = jest.fn<(...args: any[]) => Promise<any>>();
 const mockExtractRawText =
   jest.fn<(...args: any[]) => Promise<{ value: string }>>();
 const mockExtractTextFromPdf = jest.fn<(...args: any[]) => Promise<string>>();
-const mockParseOfficeAsync = jest.fn<(...args: any[]) => Promise<string>>();
+const mockParseOffice = jest.fn<
+  (...args: any[]) => Promise<{ toText: () => string }>
+>();
 
 jest.mock("../../src/actions/util/axiosClient", () => {
   const actual = jest.requireActual(
@@ -34,7 +36,7 @@ jest.mock("../../src/utils/pdf", () => ({
 jest.mock("officeparser", () => ({
   __esModule: true,
   default: {
-    parseOfficeAsync: (...args: any[]) => mockParseOfficeAsync(...args),
+    parseOffice: (...args: any[]) => mockParseOffice(...args),
   },
 }));
 
@@ -176,7 +178,8 @@ describe("microsoft readSharepointContent", () => {
         ),
       )
       .mockResolvedValueOnce({ data: Buffer.from("fake-pptx-bytes") });
-    mockParseOfficeAsync.mockResolvedValueOnce("parsed pptx text");
+    const toText = jest.fn(() => "parsed pptx text");
+    mockParseOffice.mockResolvedValueOnce({ toText });
 
     const result = await readSharepointContent({
       params: { driveItem: { driveId: "drive-1", itemId: "item-1" } },
@@ -185,6 +188,10 @@ describe("microsoft readSharepointContent", () => {
 
     expect(result.success).toBe(true);
     expect(result.results?.[0].contents?.content).toBe("parsed pptx text");
+    expect(mockParseOffice).toHaveBeenCalledWith(
+      Buffer.from("fake-pptx-bytes"),
+    );
+    expect(toText).toHaveBeenCalledTimes(1);
   });
 
   it("rejects files over the size limit with a clear error", async () => {
