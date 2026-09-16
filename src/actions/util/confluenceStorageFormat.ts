@@ -81,9 +81,15 @@ const VOID_TAGS = new Set(["br", "hr", "img", "col", "input", "meta", "link", "a
  */
 const TAG_ATTRS_PATTERN = `(?:"[^"]*"|'[^']*'|[^"'>])*`;
 
-// Matches comments and CDATA sections (skipped) or a single tag with its name, attributes and closing markers.
+/**
+ * Comments and CDATA sections (e.g. code-block macro bodies). Their contents are opaque text, not markup,
+ * so every scanner in this module must skip over them with this same rule.
+ */
+const OPAQUE_SECTION_PATTERN = `<!--[\\s\\S]*?-->|<!\\[CDATA\\[[\\s\\S]*?\\]\\]>`;
+
+// Matches an opaque section (skipped) or a single tag with its name, attributes and closing markers.
 const TAG_TOKEN_REGEX = new RegExp(
-  `<!--[\\s\\S]*?-->|<!\\[CDATA\\[[\\s\\S]*?\\]\\]>|<(\\/?)([a-zA-Z][\\w:.-]*)(${TAG_ATTRS_PATTERN}?)(\\/?)>`,
+  `${OPAQUE_SECTION_PATTERN}|<(\\/?)([a-zA-Z][\\w:.-]*)(${TAG_ATTRS_PATTERN}?)(\\/?)>`,
   "g",
 );
 
@@ -132,14 +138,28 @@ function tagSignature(html: string): string[] {
   return result;
 }
 
-/** The ordered sequence of table-structure tags in a fragment, e.g. ["tr", "td", "/td", "/tr"]. */
+/**
+ * The ordered sequence of table-structure tags in a fragment, e.g. ["tr", "td", "/td", "/tr"]. A self-closed
+ * structural tag (`<td/>`) is equivalent to an empty open/close pair in XML and is recorded as such, so
+ * expanding `<td/>` into `<td>…</td>` does not count as a structural change.
+ */
 function structuralSequence(html: string): string[] {
   const sequence: string[] = [];
   for (const token of tokenizeTags(html)) {
     if (!STRUCTURAL_TAGS.has(token.name)) continue;
-    sequence.push(token.closing ? `/${token.name}` : token.selfClosing ? `${token.name}/` : token.name);
+    if (token.closing) {
+      sequence.push(`/${token.name}`);
+    } else {
+      sequence.push(token.name);
+      if (token.selfClosing) sequence.push(`/${token.name}`);
+    }
   }
   return sequence;
+}
+
+/** Opening table-structure tags of a fragment, in order (used to compare span attributes between fragments). */
+function structuralOpeningTokens(html: string): TagToken[] {
+  return tokenizeTags(html).filter(token => STRUCTURAL_TAGS.has(token.name) && !token.closing);
 }
 
 function isSubsequence(needle: string[], haystack: string[]): boolean {
@@ -184,16 +204,22 @@ function assertNoStrayStructuralTags(fragment: string, label: string): void {
 
 /**
  * Finds every element with one of the given tag names, including nested ones, by scanning start/end
- * tags with a stack. Malformed (unclosed) tags are ignored rather than throwing.
+ * tags with a stack. Comments and CDATA sections are skipped (their contents are text, not markup), using
+ * the same rule as {@link tokenizeTags} so the locator and the validators always see the same structure.
+ * Malformed (unclosed) tags are ignored rather than throwing.
  */
 function findElementSpans(html: string, tagNames: string[]): ElementSpan[] {
   const namePattern = tagNames.map(escapeRegExp).join("|");
-  const tagRegex = new RegExp(`<(/?)(?:${namePattern})(?=[\\s/>])${TAG_ATTRS_PATTERN}>`, "gi");
+  const tagRegex = new RegExp(
+    `${OPAQUE_SECTION_PATTERN}|<(/?)(?:${namePattern})(?=[\\s/>])${TAG_ATTRS_PATTERN}>`,
+    "gi",
+  );
   const stack: { start: number; innerStart: number }[] = [];
   const spans: ElementSpan[] = [];
 
   let match: RegExpExecArray | null;
   while ((match = tagRegex.exec(html)) !== null) {
+    if (match[1] === undefined) continue; // comment / CDATA section
     const isClosing = match[1] === "/";
     const tagText = match[0];
     const tagStart = match.index;
@@ -360,12 +386,21 @@ function getDirectCells(body: string, row: ElementSpan): ElementSpan[] {
     }));
 }
 
-/** Reads a numeric span attribute (`colspan`/`rowspan`) from a cell's start tag; defaults to 1. */
-function getSpan(body: string, cell: ElementSpan, attribute: "colspan" | "rowspan"): number {
-  const startTag = body.slice(cell.start, cell.innerStart);
-  const match = new RegExp(`\\b${attribute}\\s*=\\s*["']?(\\d+)`, "i").exec(startTag);
+/** Reads a numeric span attribute (`colspan`/`rowspan`) from a tag's attribute text; defaults to 1. */
+function parseSpan(attributeText: string, attribute: "colspan" | "rowspan"): number {
+  const match = new RegExp(`\\b${attribute}\\s*=\\s*["']?(\\d+)`, "i").exec(attributeText);
   const value = match ? parseInt(match[1], 10) : 1;
   return Number.isFinite(value) && value > 0 ? value : 1;
+}
+
+/** Reads a numeric span attribute (`colspan`/`rowspan`) from a cell's start tag; defaults to 1. */
+function getSpan(body: string, cell: ElementSpan, attribute: "colspan" | "rowspan"): number {
+  return parseSpan(body.slice(cell.start, cell.innerStart), attribute);
+}
+
+/** True when the element was written as a self-closed tag such as `<td/>` (zero-width inner content). */
+function isSelfClosed(body: string, element: ElementSpan): boolean {
+  return element.innerStart === element.innerEnd && body.slice(element.start, element.end).endsWith("/>");
 }
 
 /** Rows that belong directly to `table` (not to a table nested inside one of its cells). */
@@ -491,6 +526,15 @@ function applyTableCellUpdate(body: string, update: ConfluenceTableCellUpdate): 
         ? update.newContent + existing
         : update.newContent;
 
+  if (isSelfClosed(body, cell)) {
+    // `<td attrs/>` has nowhere to put content; expand it to `<td attrs>content</td>` in place.
+    const tag = body.slice(cell.start, cell.end);
+    const nameMatch = /^<([a-zA-Z][\w:.-]*)/.exec(tag);
+    const tagName = nameMatch ? nameMatch[1] : "td";
+    const openTag = `${tag.slice(0, -2).trimEnd()}>`;
+    return body.slice(0, cell.start) + openTag + content + `</${tagName}>` + body.slice(cell.end);
+  }
+
   return body.slice(0, cell.innerStart) + content + body.slice(cell.innerEnd);
 }
 
@@ -498,7 +542,8 @@ function applyTableCellUpdate(body: string, update: ConfluenceTableCellUpdate): 
  * A replacement may not change the net tag structure of the page. Concretely:
  *  - `find` and `replace` must leave the same tags open/closed (equal tag signatures), and
  *  - if `find` touches table-structure tags, `replace` must contain exactly the same structural tags in the
- *    same order (attributes may change, but cells/rows cannot be merged, split, added or removed);
+ *    same order with the same `colspan`/`rowspan` (other attributes such as `class` may change, but cells/rows
+ *    cannot be merged, split, added, removed or re-spanned);
  *  - otherwise `replace` may only introduce table tags as complete nested tables (see
  *    {@link assertNoStrayStructuralTags}); its balance is already guaranteed by the signature check.
  */
@@ -518,6 +563,21 @@ function assertReplacementPreservesStructure(replacement: ConfluenceReplacement)
       throw new ConfluenceFragmentUpdateError(
         `Replacement of "${truncate(replacement.find)}" would alter table structure (rows/cells) of the page. Table tags in find and replace must be identical; use tableCellUpdates to change cell content.`,
       );
+    }
+
+    // Same tags in the same order: now make sure no cell changes how many columns/rows it spans.
+    const findTokens = structuralOpeningTokens(replacement.find);
+    const replaceTokens = structuralOpeningTokens(replacement.replace);
+    for (let i = 0; i < findTokens.length; i++) {
+      for (const attribute of ["colspan", "rowspan"] as const) {
+        const before = parseSpan(findTokens[i].attrs, attribute);
+        const after = parseSpan(replaceTokens[i].attrs, attribute);
+        if (before !== after) {
+          throw new ConfluenceFragmentUpdateError(
+            `Replacement of "${truncate(replacement.find)}" would change ${attribute} of a <${findTokens[i].name}> from ${before} to ${after}, reshaping the table grid. Merged-cell layout cannot be changed by this action; use tableCellUpdates to change cell content.`,
+          );
+        }
+      }
     }
   } else {
     assertNoStrayStructuralTags(replacement.replace, `Replacement text for "${truncate(replacement.find)}"`);

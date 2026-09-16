@@ -411,7 +411,12 @@ describe("applyConfluenceFragmentUpdates", () => {
             newContent: `<p>See ${ATTACHMENT}</p>`,
           },
         ],
-        replacements: [{ find: "<p>Nothing to report.</p>", replace: `<p>${ATTACHMENT}</p>` }],
+        replacements: [
+          {
+            find: "<p>Nothing to report.</p>",
+            replace: `<p>${ATTACHMENT}</p>`,
+          },
+        ],
       });
       expect(result.body).toContain(`<td><p>See ${ATTACHMENT}</p></td>`);
       expect(result.body).toContain(`<p>${ATTACHMENT}</p>`);
@@ -425,9 +430,13 @@ describe("applyConfluenceFragmentUpdates", () => {
         `</tbody></table>`,
       ].join("");
       const result = applyConfluenceFragmentUpdates(page, {
-        tableCellUpdates: [{ rowAnchor: "Jane", columnHeader: "Score", newContent: "<p>5</p>" }],
+        tableCellUpdates: [
+          { rowAnchor: "Jane", columnHeader: "Score", newContent: "<p>5</p>" },
+        ],
       });
-      expect(result.body).toBe(page.replace("<td><p>0</p></td>", "<td><p>5</p></td>"));
+      expect(result.body).toBe(
+        page.replace("<td><p>0</p></td>", "<td><p>5</p></td>"),
+      );
     });
   });
 
@@ -587,6 +596,146 @@ describe("applyConfluenceFragmentUpdates", () => {
           ],
         }),
       ).toThrow(/uses rowspan.*Use columnIndex/);
+    });
+  });
+
+  describe("code blocks (CDATA) and comments are opaque to the locator", () => {
+    const CODE_SAMPLE =
+      `<ac:structured-macro ac:name="code"><ac:plain-text-body><![CDATA[` +
+      `<table><tbody><tr><td>Jane</td><td>example</td></tr></tbody></table>` +
+      `]]></ac:plain-text-body></ac:structured-macro>`;
+    const PAGE_WITH_CODE = [
+      `<h2>Example markup</h2>`,
+      CODE_SAMPLE,
+      `<!-- <tr><td>Jane</td><td>commented out</td></tr> -->`,
+      `<h2>People</h2>`,
+      `<table><tbody>`,
+      `<tr><th><p>Name</p></th><th><p>Score</p></th></tr>`,
+      `<tr><td><p>Jane</p></td><td><p>0</p></td></tr>`,
+      `</tbody></table>`,
+    ].join("");
+
+    it("ignores phantom rows inside CDATA/comments and edits the real row", () => {
+      const result = applyConfluenceFragmentUpdates(PAGE_WITH_CODE, {
+        tableCellUpdates: [
+          { rowAnchor: "Jane", columnHeader: "Score", newContent: "<p>9</p>" },
+        ],
+      });
+      expect(result.body).toBe(
+        PAGE_WITH_CODE.replace("<td><p>0</p></td>", "<td><p>9</p></td>"),
+      );
+      expect(result.body).toContain(CODE_SAMPLE); // code sample untouched byte-for-byte
+    });
+
+    it("refuses to edit when the anchor only exists inside a code block", () => {
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE_WITH_CODE, {
+          tableCellUpdates: [
+            { rowAnchor: "example", columnIndex: 0, newContent: "<p>x</p>" },
+          ],
+        }),
+      ).toThrow(/No table row containing rowAnchor "example"/);
+    });
+  });
+
+  describe("self-closed empty cells", () => {
+    const PAGE = [
+      `<table><tbody>`,
+      `<tr><th><p>Name</p></th><th><p>Snapshot</p></th><th/></tr>`,
+      `<tr><td><p>Jane</p></td><td class="empty" /><td><p>tail</p></td></tr>`,
+      `</tbody></table>`,
+    ].join("");
+
+    it("expands <td/> into <td>content</td> instead of inserting a sibling", () => {
+      const result = applyConfluenceFragmentUpdates(PAGE, {
+        tableCellUpdates: [
+          {
+            rowAnchor: "Jane",
+            columnHeader: "Snapshot",
+            newContent: "<p>Filled</p>",
+          },
+        ],
+      });
+      expect(result.body).toBe(
+        PAGE.replace(
+          `<td class="empty" />`,
+          `<td class="empty"><p>Filled</p></td>`,
+        ),
+      );
+    });
+
+    it("handles append mode and <th/> cells the same way", () => {
+      const result = applyConfluenceFragmentUpdates(PAGE, {
+        tableCellUpdates: [
+          {
+            rowAnchor: "Jane",
+            columnIndex: 1,
+            newContent: "<p>A</p>",
+            mode: "append",
+          },
+          {
+            rowAnchor: "<th><p>Name</p></th>",
+            columnIndex: 2,
+            newContent: "<p>Extra</p>",
+          },
+        ],
+      });
+      expect(result.body).toContain(
+        `<td class="empty"><p>A</p></td><td><p>tail</p></td>`,
+      );
+      expect(result.body).toContain(
+        `<th><p>Snapshot</p></th><th><p>Extra</p></th></tr>`,
+      );
+    });
+  });
+
+  describe("replacements may not change colspan/rowspan", () => {
+    const PAGE = `<table><tbody><tr><td colspan="2"><p>John Smith</p></td><td><p>1</p></td></tr></tbody></table>`;
+
+    it("rejects dropping or changing a colspan", () => {
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE, {
+          replacements: [
+            {
+              find: `<td colspan="2"><p>John Smith</p></td>`,
+              replace: `<td><p>John Smith</p></td>`,
+            },
+          ],
+        }),
+      ).toThrow(/would change colspan of a <td> from 2 to 1/);
+
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE, {
+          replacements: [
+            { find: `<td colspan="2">`, replace: `<td colspan="3">` },
+          ],
+        }),
+      ).toThrow(/would change colspan of a <td> from 2 to 3/);
+
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE, {
+          replacements: [
+            {
+              find: `<td><p>1</p></td>`,
+              replace: `<td rowspan="2"><p>1</p></td>`,
+            },
+          ],
+        }),
+      ).toThrow(/would change rowspan of a <td> from 1 to 2/);
+    });
+
+    it("still allows other attribute changes on structural tags", () => {
+      const result = applyConfluenceFragmentUpdates(PAGE, {
+        replacements: [
+          {
+            find: `<td colspan="2">`,
+            replace: `<td colspan="2" class="highlight">`,
+          },
+        ],
+      });
+      expect(result.body).toContain(
+        `<td colspan="2" class="highlight"><p>John Smith</p></td>`,
+      );
     });
   });
 });
