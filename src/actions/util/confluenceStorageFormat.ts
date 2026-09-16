@@ -386,9 +386,13 @@ function getDirectCells(body: string, row: ElementSpan): ElementSpan[] {
     }));
 }
 
-/** Reads a numeric span attribute (`colspan`/`rowspan`) from a tag's attribute text; defaults to 1. */
+/**
+ * Reads a numeric span attribute (`colspan`/`rowspan`) from a tag's attribute text; defaults to 1.
+ * The attribute name must sit at a real attribute boundary (start of text or whitespace) so prefixed
+ * names such as `data-colspan` are not mistaken for the real attribute.
+ */
 function parseSpan(attributeText: string, attribute: "colspan" | "rowspan"): number {
-  const match = new RegExp(`\\b${attribute}\\s*=\\s*["']?(\\d+)`, "i").exec(attributeText);
+  const match = new RegExp(`(?:^|\\s)${attribute}\\s*=\\s*["']?(\\d+)`, "i").exec(attributeText);
   const value = match ? parseInt(match[1], 10) : 1;
   return Number.isFinite(value) && value > 0 ? value : 1;
 }

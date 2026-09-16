@@ -724,6 +724,36 @@ describe("applyConfluenceFragmentUpdates", () => {
       ).toThrow(/would change rowspan of a <td> from 1 to 2/);
     });
 
+    it("is not fooled by prefixed attributes such as data-colspan", () => {
+      const prefixed = `<table><tbody><tr><td data-colspan="2" colspan="2"><p>a</p></td><td><p>b</p></td></tr></tbody></table>`;
+      expect(() =>
+        applyConfluenceFragmentUpdates(prefixed, {
+          replacements: [
+            {
+              find: `<td data-colspan="2" colspan="2">`,
+              replace: `<td data-colspan="2" colspan="1">`,
+            },
+          ],
+        }),
+      ).toThrow(/would change colspan of a <td> from 2 to 1/);
+
+      // A data-colspan without a real colspan is a span of 1 for header mapping purposes.
+      const headerPage = [
+        `<table><tbody>`,
+        `<tr><th data-colspan="3"><p>Name</p></th><th><p>Score</p></th></tr>`,
+        `<tr><td><p>Jane</p></td><td><p>0</p></td></tr>`,
+        `</tbody></table>`,
+      ].join("");
+      const result = applyConfluenceFragmentUpdates(headerPage, {
+        tableCellUpdates: [
+          { rowAnchor: "Jane", columnHeader: "Score", newContent: "<p>9</p>" },
+        ],
+      });
+      expect(result.body).toBe(
+        headerPage.replace("<td><p>0</p></td>", "<td><p>9</p></td>"),
+      );
+    });
+
     it("still allows other attribute changes on structural tags", () => {
       const result = applyConfluenceFragmentUpdates(PAGE, {
         replacements: [
