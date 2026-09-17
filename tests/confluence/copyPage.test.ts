@@ -422,6 +422,68 @@ describe("confluence (Cloud) copyPage", () => {
     expect(calls.filter((c) => c.method === "put")).toHaveLength(0);
   });
 
+  it("refuses the fallback (without writing) when the source has no storage body, instead of writing an empty page", async () => {
+    useRoutes([
+      {
+        method: "get",
+        match: new RegExp(`${V2}/pages/100\\?body-format=storage`),
+        respond: () => ({
+          data: { id: "100", title: "Weekly Template", version: { number: 7 } },
+        }),
+      },
+      destinationPage,
+      {
+        method: "post",
+        match: new RegExp(`${V1}/content/100/copy`),
+        respond: failWith(403, "Scopes don't match"),
+      },
+    ]);
+
+    const result = await confluenceCopyPage({
+      params: {
+        sourcePageId: "100",
+        destinationPageId: "200",
+        copyAttachments: false,
+      },
+      authParams: { authToken: "token", cloudId: "cloud-1" },
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(
+      /did not return a storage-format body for page 100/,
+    );
+    expect(calls.filter((c) => c.method === "put")).toHaveLength(0);
+  });
+
+  it("still copies natively when the v2 source read lacks a body, since the native copy does not use it", async () => {
+    useRoutes([
+      {
+        method: "get",
+        match: new RegExp(`${V2}/pages/100\\?body-format=storage`),
+        respond: () => ({
+          data: { id: "100", title: "Weekly Template", version: { number: 7 } },
+        }),
+      },
+      {
+        method: "post",
+        match: new RegExp(`${V1}/content/100/copy`),
+        respond: () => ({ data: { id: "301" } }),
+      },
+    ]);
+
+    const result = await confluenceCopyPage({
+      params: {
+        sourcePageId: "100",
+        parentPageId: "300",
+        copyAttachments: false,
+      },
+      authParams: { authToken: "token", cloudId: "cloud-1" },
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.pageId).toBe("301");
+  });
+
   it("gives up after repeated optimistic-lock conflicts without writing anything else", async () => {
     useRoutes([
       sourcePage,
@@ -741,6 +803,43 @@ describe("confluenceDataCenter copyPage", () => {
         "Request failed with status 400: A page with this title already exists",
     });
     expect(calls.filter((c) => c.method === "post")).toHaveLength(1);
+  });
+
+  it("refuses to overwrite the destination when the source has no storage body", async () => {
+    useRoutes([
+      {
+        method: "get",
+        match: new RegExp(
+          `${BASE}/content/100\\?expand=body.storage,version,metadata.labels`,
+        ),
+        respond: () => ({
+          data: {
+            id: "100",
+            title: "Weekly Template",
+            version: { number: 2 },
+            body: {},
+          },
+        }),
+      },
+      {
+        method: "get",
+        match: new RegExp(`${BASE}/content/200\\?expand=version`),
+        respond: () => ({
+          data: { id: "200", title: "Week 38", version: { number: 5 } },
+        }),
+      },
+    ]);
+
+    const result = await confluenceDataCenterCopyPage({
+      params: { sourcePageId: "100", destinationPageId: "200" },
+      authParams,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(
+      /did not return a storage-format body for page 100/,
+    );
+    expect(calls.filter((c) => c.method !== "get")).toHaveLength(0);
   });
 
   it("returns an error (without writing) when the base URL is missing", async () => {

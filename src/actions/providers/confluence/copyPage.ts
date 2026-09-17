@@ -9,6 +9,7 @@ import {
   buildConfluencePageUrl,
   describeConfluenceError,
   isConfluenceOptimisticLockError,
+  requireStorageBody,
   resolveCopyPageDestination,
 } from "../../util/confluenceCopyPage.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
@@ -56,7 +57,7 @@ const confluenceCopyPage: confluenceCopyPageFunction = async ({
     // Fetch the source page: confirms it exists, provides the default title, and supplies the body for the fallback.
     const sourceResponse = await axiosClient.get(`/pages/${sourcePageId}?body-format=storage`, v2Config);
     const sourceTitle: string = sourceResponse.data.title;
-    const sourceBody: string = sourceResponse.data.body?.storage?.value ?? "";
+    // The native copy path does not need the body, so it is only validated when the fallback is about to use it.
 
     let destinationPage: { title: string; version: number } | undefined;
     if (destination.kind === "existingPage") {
@@ -88,11 +89,12 @@ const confluenceCopyPage: confluenceCopyPageFunction = async ({
     } catch (error) {
       if (!shouldFallBackToBodyCopy(error)) throw error;
 
-      // 2. Fallback: copy the storage body with the v2 API. Nothing has been changed yet at this point.
+      // 2. Fallback: copy the storage body with the v2 API. Nothing has been changed yet at this point, and a
+      //    missing/malformed source body aborts here rather than being written over the destination.
       const copied = await bodyCopy({
         destination,
         title: resolvedTitle,
-        body: sourceBody,
+        body: requireStorageBody(sourceResponse.data, sourcePageId),
         destinationVersion: destinationPage?.version,
         config: v2Config,
       });

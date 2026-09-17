@@ -41,6 +41,22 @@ export function resolveCopyPageDestination(params: CopyPageDestinationParams): C
 }
 
 /**
+ * Extracts the storage-format body from a page response, refusing to continue if it is absent or malformed.
+ *
+ * Defaulting to an empty string here would be dangerous: on the `destinationPageId` path the body is written over a
+ * live page, so a failed conversion or an unexpected response shape must fail the copy rather than wipe the target.
+ */
+export function requireStorageBody(page: unknown, pageId: string): string {
+  const value = (page as { body?: { storage?: { value?: unknown } } } | undefined)?.body?.storage?.value;
+  if (typeof value !== "string") {
+    throw new Error(
+      `Confluence did not return a storage-format body for page ${pageId}; refusing to copy so the destination is not overwritten with empty content.`,
+    );
+  }
+  return value;
+}
+
+/**
  * Confluence returns useful detail (e.g. "A page with this title already exists") in the response body, which the
  * generic ApiError message does not include. Surface it so the agent can react (e.g. pick a different title).
  */

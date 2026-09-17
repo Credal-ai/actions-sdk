@@ -8,6 +8,7 @@ import { axiosClient } from "../../util/axiosClient.js";
 import {
   buildConfluencePageUrl,
   describeConfluenceError,
+  requireStorageBody,
   resolveCopyPageDestination,
 } from "../../util/confluenceCopyPage.js";
 import { getConfluenceApi } from "./helpers.js";
@@ -42,7 +43,7 @@ const confluenceDataCenterCopyPage: confluenceDataCenterCopyPageFunction = async
       config,
     );
     const sourceTitle: string = sourceResponse.data.title;
-    const sourceBody: string = sourceResponse.data.body?.storage?.value ?? "";
+    const sourceBody = requireStorageBody(sourceResponse.data, sourcePageId);
     const sourceLabels = extractLabels(sourceResponse.data);
 
     const copied = await writeBody({ destination, title, sourceTitle, body: sourceBody, baseUrl, config });
