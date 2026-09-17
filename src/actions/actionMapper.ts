@@ -97,6 +97,8 @@ import {
   confluenceFetchPageContentOutputSchema,
   confluenceUpdatePageFragmentsParamsSchema,
   confluenceUpdatePageFragmentsOutputSchema,
+  confluenceCopyPageParamsSchema,
+  confluenceCopyPageOutputSchema,
   confluenceDataCenterOverwritePageParamsSchema,
   confluenceDataCenterOverwritePageOutputSchema,
   confluenceDataCenterCreatePageParamsSchema,
@@ -105,6 +107,8 @@ import {
   confluenceDataCenterFetchPageContentOutputSchema,
   confluenceDataCenterUpdatePageFragmentsParamsSchema,
   confluenceDataCenterUpdatePageFragmentsOutputSchema,
+  confluenceDataCenterCopyPageParamsSchema,
+  confluenceDataCenterCopyPageOutputSchema,
   snowflakeRunSnowflakeQueryParamsSchema,
   snowflakeRunSnowflakeQueryOutputSchema,
   lookerEnableUserByEmailParamsSchema,
@@ -377,10 +381,12 @@ import getBasicFinancials from "./providers/finnhub/getBasicFinancials.js";
 import confluenceOverwritePage from "./providers/confluence/overwritePage.js";
 import confluenceFetchPageContent from "./providers/confluence/fetchPageContent.js";
 import confluenceUpdatePageFragments from "./providers/confluence/updatePageFragments.js";
+import confluenceCopyPage from "./providers/confluence/copyPage.js";
 import confluenceDataCenterOverwritePage from "./providers/confluenceDataCenter/overwritePage.js";
 import confluenceDataCenterCreatePage from "./providers/confluenceDataCenter/createPage.js";
 import confluenceDataCenterFetchPageContent from "./providers/confluenceDataCenter/fetchPageContent.js";
 import confluenceDataCenterUpdatePageFragments from "./providers/confluenceDataCenter/updatePageFragments.js";
+import confluenceDataCenterCopyPage from "./providers/confluenceDataCenter/copyPage.js";
 import runSnowflakeQuery from "./providers/snowflake/runSnowflakeQuery.js";
 import enableUserByEmail from "./providers/looker/enableUserByEmail.js";
 import updateDoc from "./providers/google-oauth/updateDoc.js";
@@ -712,6 +718,12 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       outputSchema: confluenceUpdatePageFragmentsOutputSchema,
       actionType: "write",
     },
+    copyPage: {
+      fn: confluenceCopyPage,
+      paramsSchema: confluenceCopyPageParamsSchema,
+      outputSchema: confluenceCopyPageOutputSchema,
+      actionType: "write",
+    },
   },
   confluenceDataCenter: {
     overwritePage: {
@@ -736,6 +748,12 @@ export const ActionMapper: Record<ProviderName, Record<string, ActionFunctionCom
       fn: confluenceDataCenterUpdatePageFragments,
       paramsSchema: confluenceDataCenterUpdatePageFragmentsParamsSchema,
       outputSchema: confluenceDataCenterUpdatePageFragmentsOutputSchema,
+      actionType: "write",
+    },
+    copyPage: {
+      fn: confluenceDataCenterCopyPage,
+      paramsSchema: confluenceDataCenterCopyPageParamsSchema,
+      outputSchema: confluenceDataCenterCopyPageOutputSchema,
       actionType: "write",
     },
   },
