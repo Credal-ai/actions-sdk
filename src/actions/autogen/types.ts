@@ -61,6 +61,7 @@ export enum ActionName {
   OVERWRITEPAGE = "overwritePage",
   FETCHPAGECONTENT = "fetchPageContent",
   UPDATEPAGEFRAGMENTS = "updatePageFragments",
+  COPYPAGE = "copyPage",
   CREATEPAGE = "createPage",
   ASSIGNJIRATICKET = "assignJiraTicket",
   PUBLICCOMMENTONSERVICEDESKREQUEST = "publicCommentOnServiceDeskRequest",
@@ -1027,6 +1028,76 @@ export type confluenceUpdatePageFragmentsFunction = ActionFunction<
   confluenceUpdatePageFragmentsOutputType
 >;
 
+export const confluenceCopyPageParamsSchema = z.object({
+  sourcePageId: z.string().describe("The ID of the page to copy from."),
+  destinationPageId: z
+    .string()
+    .describe(
+      "ID of an EXISTING page to copy into. Its body is replaced with the source page's body (as a new version). Provide exactly one of destinationPageId, parentPageId, or spaceKey.\n",
+    )
+    .optional(),
+  parentPageId: z
+    .string()
+    .describe(
+      "ID of a page under which a NEW child page is created with the copied content. Provide exactly one of destinationPageId, parentPageId, or spaceKey.\n",
+    )
+    .optional(),
+  spaceKey: z
+    .string()
+    .describe(
+      "Key of a space in which a NEW root-level page is created with the copied content. Provide exactly one of destinationPageId, parentPageId, or spaceKey.\n",
+    )
+    .optional(),
+  title: z
+    .string()
+    .describe(
+      "Title for the copy. Defaults to the destination page's current title when destinationPageId is given, otherwise to the source page's title. Confluence requires titles to be unique within a space, so when creating a copy in the same space as the source a different title must be provided.\n",
+    )
+    .optional(),
+  copyAttachments: z
+    .boolean()
+    .describe(
+      "Whether to also copy the source page's attachments to the destination page. Defaults to true. Images and files embedded in the page reference attachments by filename, so disabling this leaves them broken on the copy.\n",
+    )
+    .optional(),
+});
+
+export type confluenceCopyPageParamsType = z.infer<typeof confluenceCopyPageParamsSchema>;
+
+export const confluenceCopyPageOutputSchema = z.object({
+  success: z.boolean().describe("Whether the page body was successfully copied"),
+  error: z
+    .string()
+    .describe("The error that occurred if the page was not copied. When set, no page was created or changed.")
+    .optional(),
+  pageId: z.string().describe("The ID of the page that now contains the copied content").optional(),
+  title: z.string().describe("The title of the page that now contains the copied content").optional(),
+  version: z.coerce
+    .number()
+    .int()
+    .describe("The version number of the destination page after the copy, when known")
+    .optional(),
+  pageUrl: z.string().describe("The URL of the page that now contains the copied content, when known").optional(),
+  attachmentsCopied: z.coerce
+    .number()
+    .int()
+    .describe("Number of attachments copied to the destination page")
+    .optional(),
+  warnings: z
+    .array(z.string())
+    .describe(
+      "Non-fatal problems encountered after the body was copied (e.g. an attachment or label that could not be copied). The page body itself was copied successfully whenever success is true.\n",
+    )
+    .optional(),
+});
+
+export type confluenceCopyPageOutputType = z.infer<typeof confluenceCopyPageOutputSchema>;
+export type confluenceCopyPageFunction = ActionFunction<
+  confluenceCopyPageParamsType,
+  AuthParamsType,
+  confluenceCopyPageOutputType
+>;
+
 export const confluenceDataCenterOverwritePageParamsSchema = z.object({
   pageId: z.string().describe("The page id for the page to add content to"),
   title: z.string().describe("The title of the page that should be updated"),
@@ -1205,6 +1276,76 @@ export type confluenceDataCenterUpdatePageFragmentsFunction = ActionFunction<
   confluenceDataCenterUpdatePageFragmentsParamsType,
   AuthParamsType,
   confluenceDataCenterUpdatePageFragmentsOutputType
+>;
+
+export const confluenceDataCenterCopyPageParamsSchema = z.object({
+  sourcePageId: z.string().describe("The ID of the page to copy from."),
+  destinationPageId: z
+    .string()
+    .describe(
+      "ID of an EXISTING page to copy into. Its body is replaced with the source page's body (as a new version). Provide exactly one of destinationPageId, parentPageId, or spaceKey.\n",
+    )
+    .optional(),
+  parentPageId: z
+    .string()
+    .describe(
+      "ID of a page under which a NEW child page is created with the copied content. Provide exactly one of destinationPageId, parentPageId, or spaceKey.\n",
+    )
+    .optional(),
+  spaceKey: z
+    .string()
+    .describe(
+      "Key of a space in which a NEW root-level page is created with the copied content. Provide exactly one of destinationPageId, parentPageId, or spaceKey.\n",
+    )
+    .optional(),
+  title: z
+    .string()
+    .describe(
+      "Title for the copy. Defaults to the destination page's current title when destinationPageId is given, otherwise to the source page's title. Confluence requires titles to be unique within a space, so when creating a copy in the same space as the source a different title must be provided.\n",
+    )
+    .optional(),
+  copyAttachments: z
+    .boolean()
+    .describe(
+      "Whether to also copy the source page's attachments to the destination page. Defaults to true. Images and files embedded in the page reference attachments by filename, so disabling this leaves them broken on the copy.\n",
+    )
+    .optional(),
+});
+
+export type confluenceDataCenterCopyPageParamsType = z.infer<typeof confluenceDataCenterCopyPageParamsSchema>;
+
+export const confluenceDataCenterCopyPageOutputSchema = z.object({
+  success: z.boolean().describe("Whether the page body was successfully copied"),
+  error: z
+    .string()
+    .describe("The error that occurred if the page was not copied. When set, no page was created or changed.")
+    .optional(),
+  pageId: z.string().describe("The ID of the page that now contains the copied content").optional(),
+  title: z.string().describe("The title of the page that now contains the copied content").optional(),
+  version: z.coerce
+    .number()
+    .int()
+    .describe("The version number of the destination page after the copy, when known")
+    .optional(),
+  pageUrl: z.string().describe("The URL of the page that now contains the copied content, when known").optional(),
+  attachmentsCopied: z.coerce
+    .number()
+    .int()
+    .describe("Number of attachments copied to the destination page")
+    .optional(),
+  warnings: z
+    .array(z.string())
+    .describe(
+      "Non-fatal problems encountered after the body was copied (e.g. an attachment or label that could not be copied). The page body itself was copied successfully whenever success is true.\n",
+    )
+    .optional(),
+});
+
+export type confluenceDataCenterCopyPageOutputType = z.infer<typeof confluenceDataCenterCopyPageOutputSchema>;
+export type confluenceDataCenterCopyPageFunction = ActionFunction<
+  confluenceDataCenterCopyPageParamsType,
+  AuthParamsType,
+  confluenceDataCenterCopyPageOutputType
 >;
 
 export const jiraAssignJiraTicketParamsSchema = z.object({

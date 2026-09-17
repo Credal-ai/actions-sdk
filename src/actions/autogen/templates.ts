@@ -1513,6 +1513,92 @@ export const confluenceUpdatePageFragmentsDefinition: ActionTemplate = {
   name: "updatePageFragments",
   provider: "confluence",
 };
+export const confluenceCopyPageDefinition: ActionTemplate = {
+  displayName: "Copy a page",
+  description:
+    'Copies an existing Confluence page EXACTLY, entirely server-side: its full storage-format body and (by default) its attachments are copied without ever passing through the caller, so no rows, macros, or details are lost or reformatted. The destination is one of: an existing page whose content is replaced (destinationPageId), a new child page under a parent (parentPageId), or a new root page in a space (spaceKey). ALWAYS use this instead of fetching a page and passing its content to "Create a page" or "Overwrite a page" when the goal is to duplicate, clone, replicate, or instantiate a page or template. To change parts of the copy afterwards use "Update page fragments".\n',
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["sourcePageId"],
+    properties: {
+      sourcePageId: {
+        type: "string",
+        description: "The ID of the page to copy from.",
+      },
+      destinationPageId: {
+        type: "string",
+        description:
+          "ID of an EXISTING page to copy into. Its body is replaced with the source page's body (as a new version). Provide exactly one of destinationPageId, parentPageId, or spaceKey.\n",
+      },
+      parentPageId: {
+        type: "string",
+        description:
+          "ID of a page under which a NEW child page is created with the copied content. Provide exactly one of destinationPageId, parentPageId, or spaceKey.\n",
+      },
+      spaceKey: {
+        type: "string",
+        description:
+          "Key of a space in which a NEW root-level page is created with the copied content. Provide exactly one of destinationPageId, parentPageId, or spaceKey.\n",
+      },
+      title: {
+        type: "string",
+        description:
+          "Title for the copy. Defaults to the destination page's current title when destinationPageId is given, otherwise to the source page's title. Confluence requires titles to be unique within a space, so when creating a copy in the same space as the source a different title must be provided.\n",
+      },
+      copyAttachments: {
+        type: "boolean",
+        description:
+          "Whether to also copy the source page's attachments to the destination page. Defaults to true. Images and files embedded in the page reference attachments by filename, so disabling this leaves them broken on the copy.\n",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the page body was successfully copied",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the page was not copied. When set, no page was created or changed.",
+      },
+      pageId: {
+        type: "string",
+        description: "The ID of the page that now contains the copied content",
+      },
+      title: {
+        type: "string",
+        description: "The title of the page that now contains the copied content",
+      },
+      version: {
+        type: "integer",
+        description: "The version number of the destination page after the copy, when known",
+      },
+      pageUrl: {
+        type: "string",
+        description: "The URL of the page that now contains the copied content, when known",
+      },
+      attachmentsCopied: {
+        type: "integer",
+        description: "Number of attachments copied to the destination page",
+      },
+      warnings: {
+        type: "array",
+        description:
+          "Non-fatal problems encountered after the body was copied (e.g. an attachment or label that could not be copied). The page body itself was copied successfully whenever success is true.\n",
+        items: {
+          type: "string",
+        },
+      },
+    },
+  },
+  name: "copyPage",
+  provider: "confluence",
+};
 export const confluenceDataCenterOverwritePageDefinition: ActionTemplate = {
   displayName: "Overwrite a page",
   description: "Updates a Confluence page with the new content specified",
@@ -1786,6 +1872,92 @@ export const confluenceDataCenterUpdatePageFragmentsDefinition: ActionTemplate =
     },
   },
   name: "updatePageFragments",
+  provider: "confluenceDataCenter",
+};
+export const confluenceDataCenterCopyPageDefinition: ActionTemplate = {
+  displayName: "Copy a page",
+  description:
+    'Copies an existing Confluence page EXACTLY, entirely server-side: its full storage-format body and (by default) its attachments are copied without ever passing through the caller, so no rows, macros, or details are lost or reformatted. The destination is one of: an existing page whose content is replaced (destinationPageId), a new child page under a parent (parentPageId), or a new root page in a space (spaceKey). ALWAYS use this instead of fetching a page and passing its content to "Create a page" or "Overwrite a page" when the goal is to duplicate, clone, replicate, or instantiate a page or template. To change parts of the copy afterwards use "Update page fragments".\n',
+  scopes: [],
+  tags: [],
+  parameters: {
+    type: "object",
+    required: ["sourcePageId"],
+    properties: {
+      sourcePageId: {
+        type: "string",
+        description: "The ID of the page to copy from.",
+      },
+      destinationPageId: {
+        type: "string",
+        description:
+          "ID of an EXISTING page to copy into. Its body is replaced with the source page's body (as a new version). Provide exactly one of destinationPageId, parentPageId, or spaceKey.\n",
+      },
+      parentPageId: {
+        type: "string",
+        description:
+          "ID of a page under which a NEW child page is created with the copied content. Provide exactly one of destinationPageId, parentPageId, or spaceKey.\n",
+      },
+      spaceKey: {
+        type: "string",
+        description:
+          "Key of a space in which a NEW root-level page is created with the copied content. Provide exactly one of destinationPageId, parentPageId, or spaceKey.\n",
+      },
+      title: {
+        type: "string",
+        description:
+          "Title for the copy. Defaults to the destination page's current title when destinationPageId is given, otherwise to the source page's title. Confluence requires titles to be unique within a space, so when creating a copy in the same space as the source a different title must be provided.\n",
+      },
+      copyAttachments: {
+        type: "boolean",
+        description:
+          "Whether to also copy the source page's attachments to the destination page. Defaults to true. Images and files embedded in the page reference attachments by filename, so disabling this leaves them broken on the copy.\n",
+      },
+    },
+  },
+  output: {
+    type: "object",
+    required: ["success"],
+    properties: {
+      success: {
+        type: "boolean",
+        description: "Whether the page body was successfully copied",
+      },
+      error: {
+        type: "string",
+        description: "The error that occurred if the page was not copied. When set, no page was created or changed.",
+      },
+      pageId: {
+        type: "string",
+        description: "The ID of the page that now contains the copied content",
+      },
+      title: {
+        type: "string",
+        description: "The title of the page that now contains the copied content",
+      },
+      version: {
+        type: "integer",
+        description: "The version number of the destination page after the copy, when known",
+      },
+      pageUrl: {
+        type: "string",
+        description: "The URL of the page that now contains the copied content, when known",
+      },
+      attachmentsCopied: {
+        type: "integer",
+        description: "Number of attachments copied to the destination page",
+      },
+      warnings: {
+        type: "array",
+        description:
+          "Non-fatal problems encountered after the body was copied (e.g. an attachment or label that could not be copied). The page body itself was copied successfully whenever success is true.\n",
+        items: {
+          type: "string",
+        },
+      },
+    },
+  },
+  name: "copyPage",
   provider: "confluenceDataCenter",
 };
 export const jiraAssignJiraTicketDefinition: ActionTemplate = {
