@@ -12,12 +12,13 @@ import {
   resolveCopyPageDestination,
 } from "../../util/confluenceCopyPage.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
-import { getConfluenceRequestConfig } from "./helpers.js";
+import { getConfluenceRequestConfig, resolveConfluenceCloudId } from "./helpers.js";
 import type { CopyPageDestination } from "../../util/confluenceCopyPage.js";
 import type { AxiosRequestConfig } from "axios";
 
 const COPY_ATTEMPTS = 3;
 const COPY_RETRY_DELAY_MS = 1000;
+const ATTACHMENT_PAGE_SIZE = 200;
 
 /**
  * Copies a Confluence Cloud page to another page entirely server-side, so the caller never has to reproduce the
@@ -36,7 +37,7 @@ const confluenceCopyPage: confluenceCopyPageFunction = async ({
   authParams: AuthParamsType;
 }): Promise<confluenceCopyPageOutputType> => {
   const { sourcePageId, title, copyAttachments = true } = params;
-  const { authToken } = authParams;
+  const { authToken, cloudId: providedCloudId } = authParams;
 
   if (!authToken) {
     throw new Error(MISSING_AUTH_TOKEN);
@@ -45,10 +46,7 @@ const confluenceCopyPage: confluenceCopyPageFunction = async ({
   try {
     const destination = resolveCopyPageDestination(params);
 
-    const cloudDetails = await axiosClient.get("https://api.atlassian.com/oauth/token/accessible-resources", {
-      headers: { Authorization: `Bearer ${authToken}` },
-    });
-    const cloudId = cloudDetails.data[0].id;
+    const cloudId = await resolveConfluenceCloudId({ cloudId: providedCloudId, authToken });
     const v1Config = getConfluenceRequestConfig(
       `https://api.atlassian.com/ex/confluence/${cloudId}/wiki/rest/api`,
       authToken,
@@ -143,6 +141,10 @@ async function nativeCopy(args: {
     copyCustomContents: false,
   };
 
+  // Snapshot the source's attachment filenames first so the count reflects what this copy transferred, not whatever
+  // happened to be on the destination already.
+  const sourceAttachmentNames = copyAttachments ? await listAttachmentNames(sourcePageId, config) : [];
+
   let lastError: unknown;
   for (let attempt = 1; attempt <= COPY_ATTEMPTS; attempt++) {
     try {
@@ -150,8 +152,9 @@ async function nativeCopy(args: {
       const data = response.data ?? {};
       const pageId = String(data.id ?? (destination.kind === "existingPage" ? destination.pageId : ""));
       let attachmentsCopied = 0;
-      if (copyAttachments) {
-        attachmentsCopied = await countAttachments(pageId, config);
+      if (copyAttachments && sourceAttachmentNames.length > 0 && pageId) {
+        const destinationNames = new Set(await listAttachmentNames(pageId, config));
+        attachmentsCopied = sourceAttachmentNames.filter(name => destinationNames.has(name)).length;
       }
       return {
         pageId,
@@ -180,16 +183,31 @@ function toNativeDestination(destination: CopyPageDestination): { type: string; 
   }
 }
 
-async function countAttachments(pageId: string, config: AxiosRequestConfig): Promise<number> {
-  if (!pageId) return 0;
+/**
+ * Lists every attachment filename on a page, following pagination. Failures are swallowed: the copy itself is the
+ * deliverable, and a failure to count attachments must not fail the action.
+ */
+async function listAttachmentNames(pageId: string, config: AxiosRequestConfig): Promise<string[]> {
+  const names: string[] = [];
+  let start = 0;
   try {
-    const response = await axiosClient.get(`/content/${pageId}/child/attachment?limit=200`, config);
-    const results = response.data?.results;
-    return Array.isArray(results) ? results.length : 0;
+    for (;;) {
+      const response = await axiosClient.get(
+        `/content/${pageId}/child/attachment?start=${start}&limit=${ATTACHMENT_PAGE_SIZE}`,
+        config,
+      );
+      const results: unknown[] = Array.isArray(response.data?.results) ? response.data.results : [];
+      for (const item of results) {
+        const title = (item as { title?: unknown }).title;
+        if (typeof title === "string") names.push(title);
+      }
+      if (results.length < ATTACHMENT_PAGE_SIZE) break;
+      start += results.length;
+    }
   } catch {
-    // The copy itself succeeded; a failure to count attachments must not fail the action.
-    return 0;
+    return names;
   }
+  return names;
 }
 
 /**
