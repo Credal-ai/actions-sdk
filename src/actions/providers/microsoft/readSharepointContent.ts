@@ -76,7 +76,7 @@ async function convertFileBuffer(mimeType: string, buffer: Buffer, charLimit?: n
   }
   if (mimeType === "application/vnd.openxmlformats-officedocument.presentationml.presentation") {
     const parsedOfficeFile = await officeParser.parseOffice(buffer);
-    return parsedOfficeFile.toText();
+    return (await parsedOfficeFile.to("text")).value;
   }
   if (TEXT_MIME_TYPES.has(mimeType) || mimeType.startsWith("text/")) {
     return buffer.toString("utf-8");

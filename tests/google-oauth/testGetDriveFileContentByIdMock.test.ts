@@ -3,7 +3,11 @@ import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const mockGet = jest.fn<(...args: any[]) => Promise<any>>();
 const mockParseOffice =
-  jest.fn<(...args: any[]) => Promise<{ toText: () => string }>>();
+  jest.fn<
+    (
+      ...args: any[]
+    ) => Promise<{ to: (format: string) => Promise<{ value: string }> }>
+  >();
 
 jest.mock("../../src/actions/util/axiosClient", () => ({
   createAxiosClientWithTimeout: () => ({
@@ -43,8 +47,8 @@ describe("googleOauth getDriveFileContentById", () => {
 
   it("converts a pptx file with officeparser", async () => {
     mockPptxDownload();
-    const toText = jest.fn(() => "Slide one\n\nSlide two");
-    mockParseOffice.mockResolvedValueOnce({ toText });
+    const to = jest.fn(async () => ({ value: "Slide one\n\nSlide two" }));
+    mockParseOffice.mockResolvedValueOnce({ to });
 
     const result = await getDriveFileContentById({
       params: { fileId: "file-1" },
@@ -56,7 +60,7 @@ describe("googleOauth getDriveFileContentById", () => {
     expect(mockParseOffice).toHaveBeenCalledWith(
       Buffer.from("fake-pptx-bytes"),
     );
-    expect(toText).toHaveBeenCalledTimes(1);
+    expect(to).toHaveBeenCalledWith("text");
   });
 
   it("returns a clear error when officeparser rejects a pptx file", async () => {
