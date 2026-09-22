@@ -1,12 +1,21 @@
 import type {
   AuthParamsType,
-  jiraGetJiraIssuesByQueryFunction,
   jiraGetJiraIssuesByQueryOutputType,
   jiraGetJiraIssuesByQueryParamsType,
 } from "../../autogen/types.js";
 import { Version3Client } from "jira.js";
 import { axiosClient } from "../../util/axiosClient.js";
-import { getJiraApiConfig, getErrorMessage, extractPlainText, getUserInfoFromAccountId } from "./utils.js";
+import { z } from "zod";
+import { getErrorMessage, extractPlainText, getUserInfoFromAccountId } from "./utils.js";
+import {
+  assertJiraReadResponse,
+  getJiraIssueFullDetails,
+  getJiraReadConfig,
+  jiraReadRequestConfig,
+  JIRA_READ_PAGE_LIMIT,
+  validateJiraSearchIssues,
+  validateJiraSearchParameters,
+} from "./jiraReadPagination.js";
 
 const DEFAULT_LIMIT = 100;
 
@@ -31,18 +40,21 @@ type JiraCloudSearchResponse = {
     };
   }[];
   nextPageToken?: string;
+  isLast?: boolean;
 };
 
-const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
+const getJiraIssuesByQuery = async ({
   params,
   authParams,
+  signal,
 }: {
   params: jiraGetJiraIssuesByQueryParamsType;
   authParams: AuthParamsType;
+  signal?: AbortSignal;
 }): Promise<jiraGetJiraIssuesByQueryOutputType> => {
   const { authToken, cloudId } = authParams;
-  const { query, limit, nextPageToken: paramNextPageToken } = params;
-  const { browseUrl } = getJiraApiConfig(authParams);
+  const { query, includeFullDetails, nextPageToken: paramNextPageToken } = params;
+  const { apiUrl, browseUrl, sourceUrl } = getJiraReadConfig(authParams);
 
   if (!authToken) throw new Error("Auth token is required");
   if (!browseUrl) throw new Error("Browse URL is required");
@@ -67,17 +79,28 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
     "aggregatetimeoriginalestimate",
   ];
 
-  const requestedLimit = limit ?? DEFAULT_LIMIT;
   const allIssues: JiraCloudSearchResponse["issues"] = [];
   let currentNextPageToken: string | undefined = paramNextPageToken;
 
   const client = new Version3Client({
-    host: `https://api.atlassian.com/ex/jira/${cloudId}`,
+    host: sourceUrl,
     authentication: { oauth2: { accessToken: authToken } },
+    baseRequestConfig: jiraReadRequestConfig(authToken, signal),
   });
 
   try {
+    const requestedLimit = validateJiraSearchParameters(params);
+    z.string().min(1).optional().parse(currentNextPageToken);
+    const seenTokens = new Set(currentNextPageToken ? [currentNextPageToken] : []);
+    let isLast = false;
+    let pageNumber = 0;
+
     while (allIssues.length < requestedLimit) {
+      signal?.throwIfAborted();
+      if (pageNumber++ >= JIRA_READ_PAGE_LIMIT) {
+        throw new Error("Jira search exceeded 100 pages before reaching the requested limit");
+      }
+
       const remainingIssues = requestedLimit - allIssues.length;
       const maxResults = Math.min(remainingIssues, DEFAULT_LIMIT);
 
@@ -90,15 +113,38 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
       }
 
       const response = await axiosClient.get<JiraCloudSearchResponse>(
-        `https://api.atlassian.com/ex/jira/${cloudId}/rest/api/3/search/jql?${queryParams.toString()}`,
-        { headers: { Authorization: `Bearer ${authToken}`, Accept: "application/json" } },
+        `${apiUrl}/search/jql?${queryParams.toString()}`,
+        jiraReadRequestConfig(authToken, signal),
       );
 
+      signal?.throwIfAborted();
+      assertJiraReadResponse(response.data);
       const { issues, nextPageToken } = response.data;
+      validateJiraSearchIssues(issues, maxResults);
+      z.string().min(1).optional().parse(nextPageToken);
+      z.boolean().optional().parse(response.data.isLast);
+
+      if (response.data.isLast === false && !nextPageToken) {
+        throw new Error("Jira returned an incomplete page without a continuation token");
+      }
+
+      if (response.data.isLast === true && nextPageToken) {
+        throw new Error("Jira returned a continuation token on the final page");
+      }
+
+      if (nextPageToken && seenTokens.has(nextPageToken)) {
+        throw new Error("Jira returned a repeated continuation token");
+      }
+
+      if (nextPageToken) {
+        seenTokens.add(nextPageToken);
+      }
+
       allIssues.push(...issues);
       currentNextPageToken = nextPageToken;
+      isLast = !nextPageToken;
 
-      if (!nextPageToken || issues.length === 0) {
+      if (isLast) {
         break;
       }
     }
@@ -122,11 +168,17 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
           labels,
         } = fields;
 
+        signal?.throwIfAborted();
         const [assigneeInfo, reporterInfo, creatorInfo] = await Promise.all([
           getUserInfoFromAccountId(assignee?.accountId, client),
           getUserInfoFromAccountId(reporter?.accountId, client),
           getUserInfoFromAccountId(creator?.accountId, client),
         ]);
+
+        signal?.throwIfAborted();
+        const details = includeFullDetails
+          ? await getJiraIssueFullDetails({ apiUrl, authToken, issueId: id, signal })
+          : undefined;
 
         return {
           name: key,
@@ -136,6 +188,7 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
             key,
             summary,
             description: extractPlainText(description),
+            ...(details ? { details } : {}),
             project: { id: project?.id, key: project?.key, name: project?.name },
             issueType: { id: issuetype?.id, name: issuetype?.name },
             status: { id: status?.id, name: status?.name, category: status?.statusCategory?.name },
@@ -153,13 +206,16 @@ const getJiraIssuesByQuery: jiraGetJiraIssuesByQueryFunction = async ({
       }),
     );
 
+    signal?.throwIfAborted();
+
     return {
+      sourceUrl,
+      isLast,
       itemsReturned: allIssues.length,
-      nextPageToken: currentNextPageToken,
+      ...(currentNextPageToken ? { nextPageToken: currentNextPageToken } : {}),
       results,
     };
   } catch (error: unknown) {
-    console.error("Error retrieving Jira issues:", error);
     return { results: [], error: getErrorMessage(error) };
   }
 };

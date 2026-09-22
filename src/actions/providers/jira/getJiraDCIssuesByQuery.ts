@@ -1,11 +1,21 @@
 import type {
   AuthParamsType,
-  jiraDataCenterGetJiraIssuesByQueryFunction,
   jiraDataCenterGetJiraIssuesByQueryOutputType,
   jiraDataCenterGetJiraIssuesByQueryParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
-import { getJiraApiConfig, getErrorMessage, extractPlainText, type JiraADFDoc } from "./utils.js";
+import { z } from "zod";
+import { getErrorMessage, extractPlainText, type JiraADFDoc } from "./utils.js";
+import {
+  assertJiraReadResponse,
+  getJiraIssueFullDetails,
+  getJiraNextOffset,
+  getJiraReadConfig,
+  jiraReadRequestConfig,
+  JIRA_READ_PAGE_LIMIT,
+  validateJiraSearchIssues,
+  validateJiraSearchParameters,
+} from "./jiraReadPagination.js";
 
 const DEFAULT_LIMIT = 100;
 
@@ -21,7 +31,7 @@ type JiraSearchResponse = {
     key: string;
     fields: {
       summary: string;
-      description?: JiraADFDoc | null;
+      description?: JiraADFDoc | string | null;
       project: {
         id: string;
         key: string;
@@ -55,16 +65,18 @@ type JiraSearchResponse = {
   total: number;
 };
 
-const getJiraDCIssuesByQuery: jiraDataCenterGetJiraIssuesByQueryFunction = async ({
+const getJiraDCIssuesByQuery = async ({
   params,
   authParams,
+  signal,
 }: {
   params: jiraDataCenterGetJiraIssuesByQueryParamsType;
   authParams: AuthParamsType;
+  signal?: AbortSignal;
 }): Promise<jiraDataCenterGetJiraIssuesByQueryOutputType> => {
   const { authToken } = authParams;
-  const { query, limit } = params;
-  const { apiUrl, browseUrl, strategy } = getJiraApiConfig(authParams);
+  const { query, includeFullDetails } = params;
+  const { apiUrl, browseUrl, sourceUrl, strategy } = getJiraReadConfig(authParams);
 
   if (!authToken) {
     throw new Error("Auth token is required");
@@ -92,12 +104,27 @@ const getJiraDCIssuesByQuery: jiraDataCenterGetJiraIssuesByQueryFunction = async
   ];
 
   const searchEndpoint = strategy.getSearchEndpoint();
-  const requestedLimit = limit ?? DEFAULT_LIMIT;
   const allIssues: JiraSearchResponse["issues"] = [];
-  let startAt = 0;
 
   try {
+    const requestedLimit = validateJiraSearchParameters(params);
+    const initialStartAt = z.coerce
+      .number()
+      .int()
+      .nonnegative()
+      .max(Number.MAX_SAFE_INTEGER)
+      .parse(params.startAt ?? 0);
+    let startAt = initialStartAt;
+    let total = 0;
+    let isLast = false;
+    let pageNumber = 0;
+
     while (allIssues.length < requestedLimit) {
+      signal?.throwIfAborted();
+      if (pageNumber++ >= JIRA_READ_PAGE_LIMIT) {
+        throw new Error("Jira search exceeded 100 pages before reaching the requested limit");
+      }
+
       const remainingIssues = requestedLimit - allIssues.length;
       const maxResults = Math.min(remainingIssues, DEFAULT_LIMIT);
 
@@ -109,25 +136,30 @@ const getJiraDCIssuesByQuery: jiraDataCenterGetJiraIssuesByQueryFunction = async
 
       const fullApiUrl = `${apiUrl}${searchEndpoint}?${queryParams.toString()}`;
 
-      const response = await axiosClient.get<JiraSearchResponse>(fullApiUrl, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          Accept: "application/json",
-        },
+      const response = await axiosClient.get<JiraSearchResponse>(fullApiUrl, jiraReadRequestConfig(authToken, signal));
+      signal?.throwIfAborted();
+      assertJiraReadResponse(response.data);
+      const page = response.data;
+      validateJiraSearchIssues(page.issues, maxResults);
+      const next = getJiraNextOffset({
+        startAt: page.startAt,
+        total: page.total,
+        expectedStartAt: startAt,
+        count: page.issues.length,
       });
 
-      const { issues, total } = response.data;
+      allIssues.push(...page.issues);
+      total = page.total;
+      startAt = next.nextStartAt;
+      isLast = next.isLast;
 
-      allIssues.push(...issues);
-      if (allIssues.length >= total || issues.length === 0) {
+      if (isLast) {
         break;
       }
-
-      startAt += issues.length;
     }
 
-    return {
-      results: allIssues.map(issue => {
+    const results = await Promise.all(
+      allIssues.map(async issue => {
         const { id, key, fields } = issue;
         const {
           summary,
@@ -146,6 +178,9 @@ const getJiraDCIssuesByQuery: jiraDataCenterGetJiraIssuesByQueryFunction = async
         } = fields;
 
         const ticketUrl = `${browseUrl}/browse/${key}`;
+        const details = includeFullDetails
+          ? await getJiraIssueFullDetails({ apiUrl, authToken, issueId: id, signal })
+          : undefined;
 
         return {
           name: key,
@@ -154,7 +189,8 @@ const getJiraDCIssuesByQuery: jiraDataCenterGetJiraIssuesByQueryFunction = async
             id,
             key,
             summary,
-            description: extractPlainText(description),
+            description: typeof description === "string" ? description : extractPlainText(description),
+            ...(details ? { details } : {}),
             project: {
               id: project.id,
               key: project.key,
@@ -199,9 +235,20 @@ const getJiraDCIssuesByQuery: jiraDataCenterGetJiraIssuesByQueryFunction = async
           },
         };
       }),
+    );
+
+    signal?.throwIfAborted();
+
+    return {
+      sourceUrl,
+      itemsReturned: results.length,
+      startAt: initialStartAt,
+      total,
+      isLast,
+      ...(isLast ? {} : { nextStartAt: startAt }),
+      results,
     };
   } catch (error: unknown) {
-    console.error("Error retrieving Jira issues:", error);
     return {
       results: [],
       error: getErrorMessage(error),
