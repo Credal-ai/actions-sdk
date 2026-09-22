@@ -2534,7 +2534,8 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
         description: "The JQL query to execute",
       },
       limit: {
-        type: "number",
+        type: "integer",
+        minimum: 1,
         description:
           "The maximum number of records to retrieve per call (page size). Defaults to 100. Keep this small enough that the response is not truncated before you read it — if truncation occurs, lower the limit and retry.",
       },
@@ -2543,11 +2544,25 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
         description:
           "Cursor token returned by the previous response. Pass this to fetch the next page. Omit on the first call. If the system truncates your results (i.e. you receive fewer items than itemsReturned indicates), reduce the limit and retry the same page without advancing the cursor — only move to the next page once you receive a complete, untruncated response.",
       },
+      includeFullDetails: {
+        type: "boolean",
+        description:
+          "Fetch full current fields and all accessible comments in contents.details. Defaults to false. Requires an explicit limit of 1. Fails if comments exceed 100 pages or details exceed 2 MB.",
+      },
     },
   },
   output: {
     type: "object",
     properties: {
+      sourceUrl: {
+        type: "string",
+        description:
+          "Installation API root identified by the credentials that executed this read. Present only on success.",
+      },
+      isLast: {
+        type: "boolean",
+        description: "Whether this successful call reached the end of the query results. Absent on failure.",
+      },
       itemsReturned: {
         type: "number",
         description:
@@ -2589,6 +2604,31 @@ export const jiraGetJiraIssuesByQueryDefinition: ActionTemplate = {
                 "url",
               ],
               properties: {
+                details: {
+                  type: "object",
+                  description:
+                    "Full current issue fields and all accessible comments, present only when includeFullDetails is true. Values retain native Jira text or ADF representation.",
+                  required: ["id", "key", "fields", "comments", "fetchedAt"],
+                  properties: {
+                    id: {
+                      type: "string",
+                    },
+                    key: {
+                      type: "string",
+                    },
+                    fields: {
+                      type: "object",
+                      additionalProperties: true,
+                    },
+                    comments: {
+                      type: "array",
+                      items: {},
+                    },
+                    fetchedAt: {
+                      type: "string",
+                    },
+                  },
+                },
                 id: {
                   type: "string",
                   description: "Internal Jira issue ID",
@@ -3422,7 +3462,8 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
         description: "The JQL query to execute",
       },
       limit: {
-        type: "number",
+        type: "integer",
+        minimum: 1,
         description:
           "The maximum number of records to retrieve per call (page size). Defaults to 100. Keep this small enough that the response is not truncated before you read it — if truncation occurs, lower the limit and retry.",
       },
@@ -3431,11 +3472,25 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
         description:
           "Cursor token returned by the previous response. Pass this to fetch the next page. Omit on the first call. If the system truncates your results (i.e. you receive fewer items than itemsReturned indicates), reduce the limit and retry the same page without advancing the cursor — only move to the next page once you receive a complete, untruncated response.",
       },
+      includeFullDetails: {
+        type: "boolean",
+        description:
+          "Fetch full current fields and all accessible comments in contents.details. Defaults to false. Requires an explicit limit of 1. Fails if comments exceed 100 pages or details exceed 2 MB.",
+      },
     },
   },
   output: {
     type: "object",
     properties: {
+      sourceUrl: {
+        type: "string",
+        description:
+          "Installation API root identified by the credentials that executed this read. Present only on success.",
+      },
+      isLast: {
+        type: "boolean",
+        description: "Whether this successful call reached the end of the query results. Absent on failure.",
+      },
       itemsReturned: {
         type: "number",
         description:
@@ -3477,6 +3532,31 @@ export const jiraOrgGetJiraIssuesByQueryDefinition: ActionTemplate = {
                 "url",
               ],
               properties: {
+                details: {
+                  type: "object",
+                  description:
+                    "Full current issue fields and all accessible comments, present only when includeFullDetails is true. Values retain native Jira text or ADF representation.",
+                  required: ["id", "key", "fields", "comments", "fetchedAt"],
+                  properties: {
+                    id: {
+                      type: "string",
+                    },
+                    key: {
+                      type: "string",
+                    },
+                    fields: {
+                      type: "object",
+                      additionalProperties: true,
+                    },
+                    comments: {
+                      type: "array",
+                      items: {},
+                    },
+                    fetchedAt: {
+                      type: "string",
+                    },
+                  },
+                },
                 id: {
                   type: "string",
                   description: "Internal Jira issue ID",
@@ -4310,15 +4390,53 @@ export const jiraDataCenterGetJiraIssuesByQueryDefinition: ActionTemplate = {
         description: "The JQL query to execute",
       },
       limit: {
-        type: "number",
+        type: "integer",
+        minimum: 1,
         description:
           "The maximum number of records to retrieve per call (page size). Defaults to 100. Keep this small enough that the response is not truncated before you read it — if truncation occurs, lower the limit and retry.",
+      },
+      includeFullDetails: {
+        type: "boolean",
+        description:
+          "Fetch full current fields and all accessible comments in contents.details. Defaults to false. Requires an explicit limit of 1. Fails if comments exceed 100 pages or details exceed 2 MB.",
+      },
+      startAt: {
+        type: "integer",
+        minimum: 0,
+        description:
+          "Offset returned as nextStartAt by the previous call. Defaults to 0. Only advance after consuming the complete response.",
       },
     },
   },
   output: {
     type: "object",
     properties: {
+      sourceUrl: {
+        type: "string",
+        description:
+          "Installation API root identified by the credentials that executed this read. Present only on success.",
+      },
+      isLast: {
+        type: "boolean",
+        description: "Whether this successful call reached the end of the query results. Absent on failure.",
+      },
+      itemsReturned: {
+        type: "integer",
+        description: "Number of returned issues. Compare with results.length to detect response truncation.",
+      },
+      startAt: {
+        type: "integer",
+        description: "Offset at which this call started.",
+      },
+      total: {
+        type: "integer",
+        description: "Total matching issues reported by Jira on the last page read.",
+      },
+      nextStartAt: {
+        type: "integer",
+        description:
+          "Offset for the next call. Absent when isLast is true. Advance by this value, not by the requested limit.",
+      },
       results: {
         type: "array",
         description: "The results of the Jira issues",
@@ -4350,6 +4468,31 @@ export const jiraDataCenterGetJiraIssuesByQueryDefinition: ActionTemplate = {
                 "url",
               ],
               properties: {
+                details: {
+                  type: "object",
+                  description:
+                    "Full current issue fields and all accessible comments, present only when includeFullDetails is true. Values retain native Jira text or ADF representation.",
+                  required: ["id", "key", "fields", "comments", "fetchedAt"],
+                  properties: {
+                    id: {
+                      type: "string",
+                    },
+                    key: {
+                      type: "string",
+                    },
+                    fields: {
+                      type: "object",
+                      additionalProperties: true,
+                    },
+                    comments: {
+                      type: "array",
+                      items: {},
+                    },
+                    fetchedAt: {
+                      type: "string",
+                    },
+                  },
+                },
                 id: {
                   type: "string",
                   description: "Internal Jira issue ID",

@@ -1633,6 +1633,8 @@ export const jiraGetJiraIssuesByQueryParamsSchema = z.object({
   query: z.string().describe("The JQL query to execute"),
   limit: z.coerce
     .number()
+    .int()
+    .gte(1)
     .describe(
       "The maximum number of records to retrieve per call (page size). Defaults to 100. Keep this small enough that the response is not truncated before you read it — if truncation occurs, lower the limit and retry.",
     )
@@ -1643,11 +1645,25 @@ export const jiraGetJiraIssuesByQueryParamsSchema = z.object({
       "Cursor token returned by the previous response. Pass this to fetch the next page. Omit on the first call. If the system truncates your results (i.e. you receive fewer items than itemsReturned indicates), reduce the limit and retry the same page without advancing the cursor — only move to the next page once you receive a complete, untruncated response.",
     )
     .optional(),
+  includeFullDetails: z
+    .boolean()
+    .describe(
+      "Fetch full current fields and all accessible comments in contents.details. Defaults to false. Requires an explicit limit of 1. Fails if comments exceed 100 pages or details exceed 2 MB.",
+    )
+    .optional(),
 });
 
 export type jiraGetJiraIssuesByQueryParamsType = z.infer<typeof jiraGetJiraIssuesByQueryParamsSchema>;
 
 export const jiraGetJiraIssuesByQueryOutputSchema = z.object({
+  sourceUrl: z
+    .string()
+    .describe("Installation API root identified by the credentials that executed this read. Present only on success.")
+    .optional(),
+  isLast: z
+    .boolean()
+    .describe("Whether this successful call reached the end of the query results. Absent on failure.")
+    .optional(),
   itemsReturned: z.coerce
     .number()
     .describe(
@@ -1667,6 +1683,18 @@ export const jiraGetJiraIssuesByQueryOutputSchema = z.object({
         url: z.string().describe("The URL of the result"),
         contents: z
           .object({
+            details: z
+              .object({
+                id: z.string(),
+                key: z.string(),
+                fields: z.object({}).catchall(z.any()),
+                comments: z.array(z.any()),
+                fetchedAt: z.string(),
+              })
+              .describe(
+                "Full current issue fields and all accessible comments, present only when includeFullDetails is true. Values retain native Jira text or ADF representation.",
+              )
+              .optional(),
             id: z.string().describe("Internal Jira issue ID"),
             key: z.string().describe("Human-readable issue key (e.g. SSPR-123)"),
             summary: z.string().describe("Summary of the issue"),
@@ -2083,6 +2111,8 @@ export const jiraOrgGetJiraIssuesByQueryParamsSchema = z.object({
   query: z.string().describe("The JQL query to execute"),
   limit: z.coerce
     .number()
+    .int()
+    .gte(1)
     .describe(
       "The maximum number of records to retrieve per call (page size). Defaults to 100. Keep this small enough that the response is not truncated before you read it — if truncation occurs, lower the limit and retry.",
     )
@@ -2093,11 +2123,25 @@ export const jiraOrgGetJiraIssuesByQueryParamsSchema = z.object({
       "Cursor token returned by the previous response. Pass this to fetch the next page. Omit on the first call. If the system truncates your results (i.e. you receive fewer items than itemsReturned indicates), reduce the limit and retry the same page without advancing the cursor — only move to the next page once you receive a complete, untruncated response.",
     )
     .optional(),
+  includeFullDetails: z
+    .boolean()
+    .describe(
+      "Fetch full current fields and all accessible comments in contents.details. Defaults to false. Requires an explicit limit of 1. Fails if comments exceed 100 pages or details exceed 2 MB.",
+    )
+    .optional(),
 });
 
 export type jiraOrgGetJiraIssuesByQueryParamsType = z.infer<typeof jiraOrgGetJiraIssuesByQueryParamsSchema>;
 
 export const jiraOrgGetJiraIssuesByQueryOutputSchema = z.object({
+  sourceUrl: z
+    .string()
+    .describe("Installation API root identified by the credentials that executed this read. Present only on success.")
+    .optional(),
+  isLast: z
+    .boolean()
+    .describe("Whether this successful call reached the end of the query results. Absent on failure.")
+    .optional(),
   itemsReturned: z.coerce
     .number()
     .describe(
@@ -2117,6 +2161,18 @@ export const jiraOrgGetJiraIssuesByQueryOutputSchema = z.object({
         url: z.string().describe("The URL of the result"),
         contents: z
           .object({
+            details: z
+              .object({
+                id: z.string(),
+                key: z.string(),
+                fields: z.object({}).catchall(z.any()),
+                comments: z.array(z.any()),
+                fetchedAt: z.string(),
+              })
+              .describe(
+                "Full current issue fields and all accessible comments, present only when includeFullDetails is true. Values retain native Jira text or ADF representation.",
+              )
+              .optional(),
             id: z.string().describe("Internal Jira issue ID"),
             key: z.string().describe("Human-readable issue key (e.g. SSPR-123)"),
             summary: z.string().describe("Summary of the issue"),
@@ -2557,8 +2613,24 @@ export const jiraDataCenterGetJiraIssuesByQueryParamsSchema = z.object({
   query: z.string().describe("The JQL query to execute"),
   limit: z.coerce
     .number()
+    .int()
+    .gte(1)
     .describe(
       "The maximum number of records to retrieve per call (page size). Defaults to 100. Keep this small enough that the response is not truncated before you read it — if truncation occurs, lower the limit and retry.",
+    )
+    .optional(),
+  includeFullDetails: z
+    .boolean()
+    .describe(
+      "Fetch full current fields and all accessible comments in contents.details. Defaults to false. Requires an explicit limit of 1. Fails if comments exceed 100 pages or details exceed 2 MB.",
+    )
+    .optional(),
+  startAt: z.coerce
+    .number()
+    .int()
+    .gte(0)
+    .describe(
+      "Offset returned as nextStartAt by the previous call. Defaults to 0. Only advance after consuming the complete response.",
     )
     .optional(),
 });
@@ -2568,6 +2640,28 @@ export type jiraDataCenterGetJiraIssuesByQueryParamsType = z.infer<
 >;
 
 export const jiraDataCenterGetJiraIssuesByQueryOutputSchema = z.object({
+  sourceUrl: z
+    .string()
+    .describe("Installation API root identified by the credentials that executed this read. Present only on success.")
+    .optional(),
+  isLast: z
+    .boolean()
+    .describe("Whether this successful call reached the end of the query results. Absent on failure.")
+    .optional(),
+  itemsReturned: z.coerce
+    .number()
+    .int()
+    .describe("Number of returned issues. Compare with results.length to detect response truncation.")
+    .optional(),
+  startAt: z.coerce.number().int().describe("Offset at which this call started.").optional(),
+  total: z.coerce.number().int().describe("Total matching issues reported by Jira on the last page read.").optional(),
+  nextStartAt: z.coerce
+    .number()
+    .int()
+    .describe(
+      "Offset for the next call. Absent when isLast is true. Advance by this value, not by the requested limit.",
+    )
+    .optional(),
   results: z
     .array(
       z.object({
@@ -2575,6 +2669,18 @@ export const jiraDataCenterGetJiraIssuesByQueryOutputSchema = z.object({
         url: z.string().describe("The URL of the result"),
         contents: z
           .object({
+            details: z
+              .object({
+                id: z.string(),
+                key: z.string(),
+                fields: z.object({}).catchall(z.any()),
+                comments: z.array(z.any()),
+                fetchedAt: z.string(),
+              })
+              .describe(
+                "Full current issue fields and all accessible comments, present only when includeFullDetails is true. Values retain native Jira text or ADF representation.",
+              )
+              .optional(),
             id: z.string().describe("Internal Jira issue ID"),
             key: z.string().describe("Human-readable issue key (e.g. SSPR-123)"),
             summary: z.string().describe("Summary of the issue"),
