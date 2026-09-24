@@ -1414,6 +1414,7 @@ export const confluenceUpdatePageFragmentsDefinition: ActionTemplate = {
             },
             rowOccurrence: {
               type: "integer",
+              minimum: 0,
               description:
                 "Optional zero-based index selecting which of the rows matching rowAnchor to edit, in document order (within the section's table(s) if sectionAnchor is given, otherwise across the page). Use it when the rowAnchor is legitimately not unique, e.g. the same label appears in several rows. When omitted, a rowAnchor that matches more than one row is rejected as ambiguous.\n",
             },
@@ -1463,6 +1464,7 @@ export const confluenceUpdatePageFragmentsDefinition: ActionTemplate = {
             },
             occurrence: {
               type: "integer",
+              minimum: 0,
               description:
                 "Optional zero-based index of the occurrence of `find` (within the scope) to replace, e.g. 1 for the second match. Defaults to 0 (the first match). Rejected if out of range. Cannot be combined with replaceAll.\n",
             },
@@ -1472,6 +1474,7 @@ export const confluenceUpdatePageFragmentsDefinition: ActionTemplate = {
             },
             rowOccurrence: {
               type: "integer",
+              minimum: 0,
               description:
                 "Optional zero-based index selecting which of the rows matching rowAnchor to use when the anchor is not unique (document order). Only meaningful together with rowAnchor.\n",
             },
@@ -1797,6 +1800,7 @@ export const confluenceDataCenterUpdatePageFragmentsDefinition: ActionTemplate =
             },
             rowOccurrence: {
               type: "integer",
+              minimum: 0,
               description:
                 "Optional zero-based index selecting which of the rows matching rowAnchor to edit, in document order (within the section's table(s) if sectionAnchor is given, otherwise across the page). Use it when the rowAnchor is legitimately not unique, e.g. the same label appears in several rows. When omitted, a rowAnchor that matches more than one row is rejected as ambiguous.\n",
             },
@@ -1846,6 +1850,7 @@ export const confluenceDataCenterUpdatePageFragmentsDefinition: ActionTemplate =
             },
             occurrence: {
               type: "integer",
+              minimum: 0,
               description:
                 "Optional zero-based index of the occurrence of `find` (within the scope) to replace, e.g. 1 for the second match. Defaults to 0 (the first match). Rejected if out of range. Cannot be combined with replaceAll.\n",
             },
@@ -1855,6 +1860,7 @@ export const confluenceDataCenterUpdatePageFragmentsDefinition: ActionTemplate =
             },
             rowOccurrence: {
               type: "integer",
+              minimum: 0,
               description:
                 "Optional zero-based index selecting which of the rows matching rowAnchor to use when the anchor is not unique (document order). Only meaningful together with rowAnchor.\n",
             },

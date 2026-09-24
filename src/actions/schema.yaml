@@ -1046,6 +1046,7 @@ actions:
                     the update is rejected as ambiguous, so prefer distinctive text such as the full heading markup.
                 rowOccurrence:
                   type: integer
+                  minimum: 0
                   description: >
                     Optional zero-based index selecting which of the rows matching rowAnchor to edit, in document order
                     (within the section's table(s) if sectionAnchor is given, otherwise across the page). Use it when
@@ -1100,6 +1101,7 @@ actions:
                     combined with occurrence.
                 occurrence:
                   type: integer
+                  minimum: 0
                   description: >
                     Optional zero-based index of the occurrence of `find` (within the scope) to replace, e.g. 1 for the
                     second match. Defaults to 0 (the first match). Rejected if out of range. Cannot be combined with
@@ -1109,6 +1111,7 @@ actions:
                   description: Optional. Limit the replacement to the table row containing this text/markup.
                 rowOccurrence:
                   type: integer
+                  minimum: 0
                   description: >
                     Optional zero-based index selecting which of the rows matching rowAnchor to use when the anchor is
                     not unique (document order). Only meaningful together with rowAnchor.

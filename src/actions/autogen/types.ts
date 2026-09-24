@@ -946,6 +946,7 @@ export const confluenceUpdatePageFragmentsParamsSchema = z.object({
         rowOccurrence: z.coerce
           .number()
           .int()
+          .gte(0)
           .describe(
             "Optional zero-based index selecting which of the rows matching rowAnchor to edit, in document order (within the section's table(s) if sectionAnchor is given, otherwise across the page). Use it when the rowAnchor is legitimately not unique, e.g. the same label appears in several rows. When omitted, a rowAnchor that matches more than one row is rejected as ambiguous.\n",
           )
@@ -992,6 +993,7 @@ export const confluenceUpdatePageFragmentsParamsSchema = z.object({
         occurrence: z.coerce
           .number()
           .int()
+          .gte(0)
           .describe(
             "Optional zero-based index of the occurrence of `find` (within the scope) to replace, e.g. 1 for the second match. Defaults to 0 (the first match). Rejected if out of range. Cannot be combined with replaceAll.\n",
           )
@@ -1003,6 +1005,7 @@ export const confluenceUpdatePageFragmentsParamsSchema = z.object({
         rowOccurrence: z.coerce
           .number()
           .int()
+          .gte(0)
           .describe(
             "Optional zero-based index selecting which of the rows matching rowAnchor to use when the anchor is not unique (document order). Only meaningful together with rowAnchor.\n",
           )
@@ -1223,6 +1226,7 @@ export const confluenceDataCenterUpdatePageFragmentsParamsSchema = z.object({
         rowOccurrence: z.coerce
           .number()
           .int()
+          .gte(0)
           .describe(
             "Optional zero-based index selecting which of the rows matching rowAnchor to edit, in document order (within the section's table(s) if sectionAnchor is given, otherwise across the page). Use it when the rowAnchor is legitimately not unique, e.g. the same label appears in several rows. When omitted, a rowAnchor that matches more than one row is rejected as ambiguous.\n",
           )
@@ -1269,6 +1273,7 @@ export const confluenceDataCenterUpdatePageFragmentsParamsSchema = z.object({
         occurrence: z.coerce
           .number()
           .int()
+          .gte(0)
           .describe(
             "Optional zero-based index of the occurrence of `find` (within the scope) to replace, e.g. 1 for the second match. Defaults to 0 (the first match). Rejected if out of range. Cannot be combined with replaceAll.\n",
           )
@@ -1280,6 +1285,7 @@ export const confluenceDataCenterUpdatePageFragmentsParamsSchema = z.object({
         rowOccurrence: z.coerce
           .number()
           .int()
+          .gte(0)
           .describe(
             "Optional zero-based index selecting which of the rows matching rowAnchor to use when the anchor is not unique (document order). Only meaningful together with rowAnchor.\n",
           )

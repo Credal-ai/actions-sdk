@@ -296,7 +296,7 @@ function resolveSearchEnd(
   scopeStart: number,
   sectionAnchor: string | undefined,
 ): number {
-  if (sectionEndAnchor === undefined || sectionEndAnchor === "") return body.length;
+  if (sectionEndAnchor === undefined) return body.length;
   const searchFrom = scopeStart + (sectionAnchor?.length ?? 0);
   const index = body.indexOf(sectionEndAnchor, searchFrom);
   if (index === -1) {
@@ -675,6 +675,13 @@ function applyReplacement(body: string, replacement: ConfluenceReplacement): { b
       );
     }
     occurrence = normaliseIndex(replacement.occurrence, "occurrence");
+  }
+  if (replacement.sectionEndAnchor === "") {
+    // An empty boundary would match nothing sensible; treating it as absent would silently widen the scope to the
+    // rest of the page, which is exactly what a caller supplying an end anchor is trying to prevent.
+    throw new ConfluenceFragmentUpdateError(
+      `Replacement of "${truncate(replacement.find)}": sectionEndAnchor must be a non-empty string.`,
+    );
   }
   if (replacement.rowAnchor && replacement.sectionEndAnchor) {
     throw new ConfluenceFragmentUpdateError(
