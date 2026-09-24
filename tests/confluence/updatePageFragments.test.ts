@@ -17,6 +17,7 @@ import {
 } from "../../src/actions/util/confluenceStorageFormat";
 import confluenceUpdatePageFragments from "../../src/actions/providers/confluence/updatePageFragments";
 import { confluenceUpdatePageFragmentsParamsSchema } from "../../src/actions/autogen/types";
+import type { confluenceUpdatePageFragmentsParamsType } from "../../src/actions/autogen/types";
 import confluenceDataCenterUpdatePageFragments from "../../src/actions/providers/confluenceDataCenter/updatePageFragments";
 
 const USER_KEY = "2c96d7e295488cec0195b4c0a3890027";
@@ -654,6 +655,58 @@ describe("applyConfluenceFragmentUpdates", () => {
         }),
       ).toThrow(/matched 2 table rows.*rowOccurrence/);
     });
+
+    it("rejects rowOccurrence on a replacement that has no rowAnchor instead of ignoring it", () => {
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE_BODY, {
+          replacements: [{ find: "TBD", replace: "Done", rowOccurrence: 1 }],
+        }),
+      ).toThrow(/rowOccurrence requires a rowAnchor/);
+    });
+
+    describe("index parameters arriving as strings", () => {
+      // invokeAction validates with the (coercing) Zod schema but passes the *original* params through, so
+      // LLM-emitted numeric strings reach the util layer untouched and must be handled here.
+      const asNumber = (value: string) => value as unknown as number;
+
+      it("accepts digit-only strings for columnIndex, rowOccurrence and occurrence", () => {
+        const result = applyConfluenceFragmentUpdates(PAGE_BODY, {
+          tableCellUpdates: [
+            { rowAnchor: USER_KEY, rowOccurrence: asNumber("1"), columnIndex: asNumber("1"), newContent: "<p>x</p>" },
+          ],
+          replacements: [{ find: "TBD", replace: "Done", occurrence: asNumber(" 1 ") }],
+        });
+        // rowOccurrence "1" + columnIndex "1" → the ServiceNow row's Snapshot cell.
+        expect(result.body).not.toContain("Snapshot TBD");
+        // After the cell edit the remaining TBDs are "Cloud work TBD" (0) and "Plans TBD" (1).
+        expect(result.body).toContain("<td><p>x</p></td><td><p>Plans Done</p></td>");
+        expect(result.body).toContain("Cloud work TBD");
+      });
+
+      it("rejects empty, non-numeric, negative and fractional strings rather than coercing them to 0", () => {
+        for (const bad of ["", " ", "abc", "-1", "1.5", "1e2"]) {
+          expect(() =>
+            applyConfluenceFragmentUpdates(PAGE_BODY, {
+              tableCellUpdates: [
+                { rowAnchor: USER_KEY, rowOccurrence: asNumber(bad), columnIndex: 1, newContent: "<p>x</p>" },
+              ],
+            }),
+          ).toThrow(/rowOccurrence must be a non-negative integer/);
+          expect(() =>
+            applyConfluenceFragmentUpdates(PAGE_BODY, {
+              replacements: [{ find: "TBD", replace: "Done", occurrence: asNumber(bad) }],
+            }),
+          ).toThrow(/occurrence must be a non-negative integer/);
+        }
+        expect(() =>
+          applyConfluenceFragmentUpdates(PAGE_BODY, {
+            tableCellUpdates: [
+              { rowAnchor: "# of Tickets Closed", columnIndex: asNumber(""), newContent: "<p>x</p>" },
+            ],
+          }),
+        ).toThrow(/columnIndex must be a non-negative integer/);
+      });
+    });
   });
 
   describe("section-bounded replacements (sectionEndAnchor)", () => {
@@ -1098,6 +1151,42 @@ describe("confluence updatePageFragments (Cloud)", () => {
     const payload = mockPut.mock.calls[0][1];
     expect(payload.body.value).toContain("Cloud work TBD");
     expect(payload.body.value).toContain("<td><p>Closed 4 tickets</p></td><td><p>Plans Done</p></td>");
+  });
+
+  it("handles numeric-string indexes the way invokeAction delivers them (validated, but passed through un-coerced)", async () => {
+    mockGet.mockImplementation(async (url: string) => {
+      if (url.includes("accessible-resources"))
+        return { data: [{ id: "cloud-123" }] };
+      return {
+        data: {
+          title: "Weekly Report",
+          version: { number: 7 },
+          body: { storage: { value: PAGE_BODY } },
+        },
+      };
+    });
+    mockPut.mockResolvedValue({ data: {} });
+
+    // Same two steps as src/actions/invoke.ts: safeParse for validation, then call the handler with the ORIGINAL
+    // parameters (not safeParse's coerced .data). Strings therefore reach the handler as strings.
+    const rawParameters = {
+      pageId: "193957299",
+      tableCellUpdates: [
+        { rowAnchor: USER_KEY, rowOccurrence: "1", columnIndex: "1", newContent: "<p>Closed 4 tickets</p>" },
+      ],
+      replacements: [{ find: "TBD", replace: "Done", occurrence: "1" }],
+    };
+    expect(confluenceUpdatePageFragmentsParamsSchema.safeParse(rawParameters).success).toBe(true);
+
+    const result = await confluenceUpdatePageFragments({
+      params: rawParameters as unknown as confluenceUpdatePageFragmentsParamsType,
+      authParams: { authToken: "token" },
+    });
+
+    expect(result).toMatchObject({ success: true, cellsUpdated: 1, replacementsApplied: 1 });
+    const payload = mockPut.mock.calls[0][1];
+    expect(payload.body.value).toContain("<td><p>Closed 4 tickets</p></td><td><p>Plans Done</p></td>");
+    expect(payload.body.value).toContain("Cloud work TBD");
   });
 
   it("does not write to Confluence when an edit cannot be applied", async () => {

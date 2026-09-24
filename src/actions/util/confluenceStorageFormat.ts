@@ -309,20 +309,29 @@ function resolveSearchEnd(
   return index;
 }
 
-/** Validates an optional zero-based occurrence-style index parameter. */
-function assertValidIndex(value: number, name: string): void {
-  if (!Number.isInteger(value) || value < 0) {
-    throw new ConfluenceFragmentUpdateError(`${name} must be a non-negative integer (got ${value}).`);
+/**
+ * Normalises a zero-based index parameter (`columnIndex`, `occurrence`, `rowOccurrence`) to a non-negative integer.
+ *
+ * The generated Zod schemas declare these as `z.coerce.number().int()`, but `invokeAction` validates and then hands
+ * the *original* parameters to the action, so an LLM-emitted `"1"` reaches this module as a string. Digit-only
+ * strings are therefore accepted here; anything else (negative, fractional, empty, non-numeric) is rejected rather
+ * than being silently coerced to 0.
+ */
+function normaliseIndex(value: unknown, name: string): number {
+  const numeric = typeof value === "string" && /^\s*\d+\s*$/.test(value) ? Number(value) : value;
+  if (typeof numeric !== "number" || !Number.isInteger(numeric) || numeric < 0) {
+    throw new ConfluenceFragmentUpdateError(`${name} must be a non-negative integer (got ${JSON.stringify(value)}).`);
   }
+  return numeric;
 }
 
 /** Picks the `rowOccurrence`-th row out of the candidate rows (already in document order). */
 function pickRowOccurrence(rows: ElementSpan[], rowOccurrence: number, rowAnchor: string, where: string): ElementSpan {
-  assertValidIndex(rowOccurrence, "rowOccurrence");
-  const row = rows[rowOccurrence];
+  const index = normaliseIndex(rowOccurrence, "rowOccurrence");
+  const row = rows[index];
   if (!row) {
     throw new ConfluenceFragmentUpdateError(
-      `rowAnchor "${rowAnchor}" matched ${rows.length} table row(s) ${where}; rowOccurrence ${rowOccurrence} is out of range.`,
+      `rowAnchor "${rowAnchor}" matched ${rows.length} table row(s) ${where}; rowOccurrence ${index} is out of range.`,
     );
   }
   return row;
@@ -500,15 +509,11 @@ function resolveTargetCell(body: string, row: ElementSpan, update: ConfluenceTab
   const cells = getDirectCells(body, row);
 
   if (update.columnIndex !== undefined) {
-    if (!Number.isInteger(update.columnIndex) || update.columnIndex < 0) {
-      throw new ConfluenceFragmentUpdateError(
-        `columnIndex must be a non-negative integer (got ${update.columnIndex}).`,
-      );
-    }
-    const cell = cells[update.columnIndex];
+    const columnIndex = normaliseIndex(update.columnIndex, "columnIndex");
+    const cell = cells[columnIndex];
     if (!cell) {
       throw new ConfluenceFragmentUpdateError(
-        `Row matching "${update.rowAnchor}" has ${cells.length} cell(s); columnIndex ${update.columnIndex} is out of range.`,
+        `Row matching "${update.rowAnchor}" has ${cells.length} cell(s); columnIndex ${columnIndex} is out of range.`,
       );
     }
     return cell;
@@ -662,17 +667,24 @@ function applyReplacement(body: string, replacement: ConfluenceReplacement): { b
     throw new ConfluenceFragmentUpdateError("Replacement `find` must be a non-empty string.");
   }
   assertReplacementPreservesStructure(replacement);
+  let occurrence: number | undefined;
   if (replacement.occurrence !== undefined) {
     if (replacement.replaceAll) {
       throw new ConfluenceFragmentUpdateError(
         `Replacement of "${truncate(replacement.find)}": provide either occurrence or replaceAll, not both.`,
       );
     }
-    assertValidIndex(replacement.occurrence, "occurrence");
+    occurrence = normaliseIndex(replacement.occurrence, "occurrence");
   }
   if (replacement.rowAnchor && replacement.sectionEndAnchor) {
     throw new ConfluenceFragmentUpdateError(
       `Replacement of "${truncate(replacement.find)}": sectionEndAnchor cannot be combined with rowAnchor (the scope is already the single row).`,
+    );
+  }
+  if (replacement.rowOccurrence !== undefined && !replacement.rowAnchor) {
+    // Never ignore a targeting parameter: doing so would silently widen the scope to the page/section.
+    throw new ConfluenceFragmentUpdateError(
+      `Replacement of "${truncate(replacement.find)}": rowOccurrence requires a rowAnchor to select rows from.`,
     );
   }
 
@@ -713,7 +725,7 @@ function applyReplacement(body: string, replacement: ConfluenceReplacement): { b
     updatedScope = scope.split(replacement.find).join(replacement.replace);
     count = occurrences.length;
   } else {
-    const target = replacement.occurrence ?? 0;
+    const target = occurrence ?? 0;
     const index = occurrences[target];
     if (index === undefined) {
       throw new ConfluenceFragmentUpdateError(
