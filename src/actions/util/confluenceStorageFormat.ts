@@ -30,6 +30,11 @@ export type ConfluenceTableCellUpdate = ConfluenceRowTargetOptions & {
   rowAnchor: string;
   columnHeader?: string;
   columnIndex?: number;
+  /**
+   * Label of a field in a key/value table nested inside the located row (e.g. "# of Tickets Closed"). The value
+   * cell next to that label is targeted. Mutually exclusive with `columnHeader` / `columnIndex`.
+   */
+  fieldLabel?: string;
   newContent: string;
   mode?: "replace" | "append" | "prepend";
 };
@@ -693,12 +698,70 @@ function resolveTargetCell(body: string, row: ElementSpan, update: ConfluenceTab
   );
 }
 
+/**
+ * Resolves the value cell of a labelled field in a key/value table nested inside `row`: the nested row whose first
+ * cell reads `fieldLabel` (case-insensitive, markup and entities ignored) is located, and the cell immediately after
+ * the label is returned. This is how metrics such as "# of Tickets Closed → 4" are typically laid out inside a
+ * person's row of a report table.
+ */
+function resolveFieldCell(body: string, row: ElementSpan, update: ConfluenceTableCellUpdate): ElementSpan {
+  const fieldLabel = update.fieldLabel ?? "";
+  if (fieldLabel === "") {
+    throw new ConfluenceFragmentUpdateError("fieldLabel must be a non-empty string.");
+  }
+  const nestedRows = findElementSpans(body, ["tr"]).filter(r => r.start > row.innerStart && r.end < row.innerEnd);
+  if (nestedRows.length === 0) {
+    throw new ConfluenceFragmentUpdateError(
+      `Row matching "${update.rowAnchor}" contains no nested table, so fieldLabel "${fieldLabel}" cannot be resolved. Use columnHeader or columnIndex to target one of the row's own cells.`,
+    );
+  }
+
+  const wanted = stripTagsAndNormalise(fieldLabel);
+  const available: string[] = [];
+  const matches: { labelRow: ElementSpan; cells: ElementSpan[] }[] = [];
+  for (const labelRow of nestedRows) {
+    const cells = getDirectCells(body, labelRow);
+    if (cells.length === 0) continue;
+    const label = stripTagsAndNormalise(body.slice(cells[0].innerStart, cells[0].innerEnd));
+    available.push(label);
+    if (label === wanted) matches.push({ labelRow, cells });
+  }
+
+  if (matches.length === 0) {
+    throw new ConfluenceFragmentUpdateError(
+      `No field labelled "${fieldLabel}" found in the table(s) nested inside the row matching "${update.rowAnchor}". Available labels: ${available.map(l => `"${l}"`).join(", ")}.`,
+    );
+  }
+  if (matches.length > 1) {
+    throw new ConfluenceFragmentUpdateError(
+      `fieldLabel "${fieldLabel}" matches ${matches.length} nested rows inside the row matching "${update.rowAnchor}". Target the nested row directly with its own rowAnchor instead.`,
+    );
+  }
+  const { cells } = matches[0];
+  if (cells.length < 2) {
+    throw new ConfluenceFragmentUpdateError(
+      `The nested row labelled "${fieldLabel}" has no value cell next to the label (it has ${cells.length} cell(s)).`,
+    );
+  }
+  return cells[1];
+}
+
 function applyTableCellUpdate(body: string, update: ConfluenceTableCellUpdate): string {
   assertBalancedFragment(update.newContent, "newContent");
   assertNoStrayStructuralTags(update.newContent, "newContent");
 
   const row = locateTableRow(body, update.rowAnchor, update);
-  const cell = resolveTargetCell(body, row, update);
+  let cell: ElementSpan;
+  if (update.fieldLabel !== undefined) {
+    if (update.columnHeader !== undefined || update.columnIndex !== undefined) {
+      throw new ConfluenceFragmentUpdateError(
+        "fieldLabel cannot be combined with columnHeader or columnIndex: it targets a value cell inside a nested table, not one of the row's own cells.",
+      );
+    }
+    cell = resolveFieldCell(body, row, update);
+  } else {
+    cell = resolveTargetCell(body, row, update);
+  }
 
   const existing = body.slice(cell.innerStart, cell.innerEnd);
   const mode = update.mode ?? "replace";
