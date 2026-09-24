@@ -27,7 +27,13 @@ export type ConfluenceRowTargetOptions = {
 };
 
 export type ConfluenceTableCellUpdate = ConfluenceRowTargetOptions & {
-  rowAnchor: string;
+  /** Text/markup that identifies the row. Either this or `rowDisplayName` (resolved by the caller) is required. */
+  rowAnchor?: string;
+  /**
+   * Display name of the Confluence user whose row to edit. Storage format only contains account IDs / user keys, so
+   * this must be resolved to a `rowAnchor` via {@link resolveRowDisplayNames} before the update is applied.
+   */
+  rowDisplayName?: string;
   columnHeader?: string;
   columnIndex?: number;
   /**
@@ -46,6 +52,8 @@ export type ConfluenceReplacement = ConfluenceRowTargetOptions & {
   /** Zero-based index of the occurrence of `find` within the scope to replace. Mutually exclusive with `replaceAll`. */
   occurrence?: number;
   rowAnchor?: string;
+  /** See {@link ConfluenceTableCellUpdate.rowDisplayName}. */
+  rowDisplayName?: string;
   /** Text that ends the search scope (exclusive). Searched for after `sectionAnchor`. Not allowed with `rowAnchor`. */
   sectionEndAnchor?: string;
 };
@@ -491,7 +499,11 @@ function innermostRowsContaining(body: string, rows: ElementSpan[], rowAnchor: s
  * more than one candidate row is rejected as ambiguous rather than silently picking one — unless the caller
  * explicitly selects one with `rowOccurrence` (zero-based, document order across the searched tables).
  */
-export function locateTableRow(body: string, rowAnchor: string, options: ConfluenceRowTargetOptions = {}): ElementSpan {
+export function locateTableRow(
+  body: string,
+  rowAnchor: string | undefined,
+  options: ConfluenceRowTargetOptions = {},
+): ElementSpan {
   if (!rowAnchor) {
     throw new ConfluenceFragmentUpdateError("rowAnchor must be a non-empty string.");
   }
@@ -923,6 +935,131 @@ function truncate(value: string, max = 80): string {
   return value.length > max ? `${value.slice(0, max)}…` : value;
 }
 
+/** A Confluence user as returned by a user lookup; only the fields needed to identify them and pick a row anchor. */
+export type ConfluenceUserCandidate = {
+  displayName?: string;
+  /** Data Center login name (unique per site). Also the legacy `ri:username` mention attribute. */
+  username?: string;
+  /** Cloud account ID, stored in mentions as `ri:account-id`. */
+  accountId?: string;
+  /** Data Center user key, stored in mentions as `ri:userkey` (also present on legacy Cloud pages). */
+  userKey?: string;
+};
+
+/**
+ * Fetches the users a display name could refer to. Implementations must either return every user that could match
+ * or throw; returning a truncated list would let an ambiguous name slip through as if it were unique.
+ */
+export type ConfluenceUserLookup = (displayName: string) => Promise<ConfluenceUserCandidate[]>;
+
+function normaliseName(value: string | undefined): string {
+  return (value ?? "").replace(/\s+/g, " ").trim().toLowerCase();
+}
+
+function hasIdentifier(candidate: ConfluenceUserCandidate): boolean {
+  return [candidate.accountId, candidate.userKey, candidate.username].some(id => typeof id === "string" && id !== "");
+}
+
+function describeCandidate(candidate: ConfluenceUserCandidate): string {
+  const id = candidate.accountId ?? candidate.userKey ?? candidate.username;
+  return `"${candidate.displayName ?? "?"}" (${id})`;
+}
+
+/**
+ * Picks the single user a display name refers to from lookup results. Only exact matches are accepted (case-insensitive,
+ * whitespace normalised): first on display name, then, if no display name matches, on username (a unique login, so a
+ * caller that typed one meant that user). A partial hit is never accepted, and more than one exact match is rejected
+ * with the candidate names so the caller can disambiguate with an ID.
+ */
+export function selectUserByDisplayName(
+  candidates: ConfluenceUserCandidate[],
+  displayName: string,
+): ConfluenceUserCandidate {
+  const wanted = normaliseName(displayName);
+  const usable = candidates.filter(hasIdentifier);
+
+  const byDisplayName = usable.filter(c => normaliseName(c.displayName) === wanted);
+  if (byDisplayName.length === 1) return byDisplayName[0];
+  if (byDisplayName.length > 1) {
+    throw new ConfluenceFragmentUpdateError(
+      `Display name "${displayName}" matches ${byDisplayName.length} Confluence users: ${byDisplayName.map(describeCandidate).join(", ")}. Use the account ID / user key as rowAnchor to disambiguate.`,
+    );
+  }
+
+  const byUsername = usable.filter(c => normaliseName(c.username) === wanted);
+  if (byUsername.length === 1) return byUsername[0];
+
+  const hint =
+    usable.length > 0
+      ? ` Similar users: ${usable.slice(0, 5).map(describeCandidate).join(", ")}. Provide the exact display name, or the account ID / user key as rowAnchor.`
+      : " Provide the user's account ID / user key as rowAnchor instead.";
+  throw new ConfluenceFragmentUpdateError(`No Confluence user found with display name "${displayName}".${hint}`);
+}
+
+/**
+ * The strings under which a user can appear in storage format, most specific first. They are attribute-qualified
+ * (`ri:account-id="…"`) so that a bare ID occurring elsewhere (a URL, free text) cannot be mistaken for a mention.
+ */
+export function userMentionAnchors(user: ConfluenceUserCandidate): string[] {
+  const anchors: string[] = [];
+  if (user.accountId) anchors.push(`ri:account-id="${user.accountId}"`);
+  if (user.userKey) anchors.push(`ri:userkey="${user.userKey}"`);
+  if (user.username) anchors.push(`ri:username="${user.username}"`);
+  return anchors;
+}
+
+/**
+ * Replaces every `rowDisplayName` in the input with a `rowAnchor`, so that the purely string-based
+ * {@link applyConfluenceFragmentUpdates} never has to know about users. Each distinct name is looked up once via
+ * `lookup`, the matching user is chosen with {@link selectUserByDisplayName}, and of that user's mention anchors the
+ * first one that occurs in `body` is used (falling back to the most specific one, so that the row lookup fails with
+ * its usual "no row found" error). Entries with both `rowAnchor` and `rowDisplayName` are rejected.
+ *
+ * Note that, exactly like a caller-supplied `rowAnchor`, the anchor matches wherever the mention appears in a row.
+ * If the person both owns a row and is mentioned inside someone else's, the row lookup sees two matches and rejects
+ * the update as ambiguous rather than picking one.
+ */
+export async function resolveRowDisplayNames(
+  input: ConfluenceFragmentUpdateInput,
+  lookup: ConfluenceUserLookup,
+  body: string,
+): Promise<ConfluenceFragmentUpdateInput> {
+  const cache = new Map<string, Promise<string>>();
+  const resolve = (displayName: string) => {
+    if (!cache.has(displayName)) {
+      cache.set(
+        displayName,
+        lookup(displayName).then(candidates => {
+          const anchors = userMentionAnchors(selectUserByDisplayName(candidates, displayName));
+          // selectUserByDisplayName only returns users with at least one identifier, so anchors is non-empty.
+          return anchors.find(anchor => body.includes(anchor)) ?? anchors[0];
+        }),
+      );
+    }
+    return cache.get(displayName)!;
+  };
+
+  async function resolveEntry<T extends { rowAnchor?: string; rowDisplayName?: string }>(entry: T, label: string) {
+    const { rowDisplayName, ...rest } = entry;
+    if (rowDisplayName === undefined) return entry;
+    if (rowDisplayName === "") {
+      throw new ConfluenceFragmentUpdateError(`${label}: rowDisplayName must be a non-empty string.`);
+    }
+    if (entry.rowAnchor) {
+      throw new ConfluenceFragmentUpdateError(`${label}: provide either rowAnchor or rowDisplayName, not both.`);
+    }
+    return { ...rest, rowAnchor: await resolve(rowDisplayName) } as T;
+  }
+
+  const tableCellUpdates = await Promise.all(
+    (input.tableCellUpdates ?? []).map((update, i) => resolveEntry(update, `tableCellUpdates[${i}]`)),
+  );
+  const replacements = await Promise.all(
+    (input.replacements ?? []).map((replacement, i) => resolveEntry(replacement, `replacements[${i}]`)),
+  );
+  return { ...input, tableCellUpdates, replacements };
+}
+
 /**
  * Applies all requested fragment updates to a storage-format body and validates the result.
  * Throws {@link ConfluenceFragmentUpdateError} (and leaves the caller's page untouched) if any
@@ -939,6 +1076,23 @@ export function applyConfluenceFragmentUpdates(
   if (tableCellUpdates.length === 0 && replacements.length === 0) {
     throw new ConfluenceFragmentUpdateError("At least one tableCellUpdate or replacement must be provided.");
   }
+
+  for (const [i, entry] of [...tableCellUpdates, ...replacements].entries()) {
+    if (entry.rowDisplayName !== undefined) {
+      const label =
+        i < tableCellUpdates.length ? `tableCellUpdates[${i}]` : `replacements[${i - tableCellUpdates.length}]`;
+      throw new ConfluenceFragmentUpdateError(
+        `${label}: rowDisplayName must be resolved to a rowAnchor (via resolveRowDisplayNames) before applying updates.`,
+      );
+    }
+  }
+  tableCellUpdates.forEach((update, i) => {
+    if (!update.rowAnchor) {
+      throw new ConfluenceFragmentUpdateError(
+        `tableCellUpdates[${i}]: either rowAnchor or rowDisplayName is required.`,
+      );
+    }
+  });
 
   let updated = body;
   let cellsUpdated = 0;
