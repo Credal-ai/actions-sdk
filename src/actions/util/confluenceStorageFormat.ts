@@ -27,7 +27,13 @@ export type ConfluenceRowTargetOptions = {
 };
 
 export type ConfluenceTableCellUpdate = ConfluenceRowTargetOptions & {
-  rowAnchor: string;
+  /** Text/markup that identifies the row. Either this or `rowDisplayName` (resolved by the caller) is required. */
+  rowAnchor?: string;
+  /**
+   * Display name of the Confluence user whose row to edit. Storage format only contains account IDs / user keys, so
+   * this must be resolved to a `rowAnchor` via {@link resolveRowDisplayNames} before the update is applied.
+   */
+  rowDisplayName?: string;
   columnHeader?: string;
   columnIndex?: number;
   /**
@@ -46,6 +52,8 @@ export type ConfluenceReplacement = ConfluenceRowTargetOptions & {
   /** Zero-based index of the occurrence of `find` within the scope to replace. Mutually exclusive with `replaceAll`. */
   occurrence?: number;
   rowAnchor?: string;
+  /** See {@link ConfluenceTableCellUpdate.rowDisplayName}. */
+  rowDisplayName?: string;
   /** Text that ends the search scope (exclusive). Searched for after `sectionAnchor`. Not allowed with `rowAnchor`. */
   sectionEndAnchor?: string;
 };
@@ -491,7 +499,11 @@ function innermostRowsContaining(body: string, rows: ElementSpan[], rowAnchor: s
  * more than one candidate row is rejected as ambiguous rather than silently picking one — unless the caller
  * explicitly selects one with `rowOccurrence` (zero-based, document order across the searched tables).
  */
-export function locateTableRow(body: string, rowAnchor: string, options: ConfluenceRowTargetOptions = {}): ElementSpan {
+export function locateTableRow(
+  body: string,
+  rowAnchor: string | undefined,
+  options: ConfluenceRowTargetOptions = {},
+): ElementSpan {
   if (!rowAnchor) {
     throw new ConfluenceFragmentUpdateError("rowAnchor must be a non-empty string.");
   }
@@ -923,6 +935,98 @@ function truncate(value: string, max = 80): string {
   return value.length > max ? `${value.slice(0, max)}…` : value;
 }
 
+/** A Confluence user as returned by a user lookup; only the fields needed to pick a row anchor. */
+export type ConfluenceUserCandidate = {
+  displayName?: string;
+  /**
+   * Identifiers under which the user may appear in storage format, most specific first: Cloud `accountId`
+   * (`ri:account-id`), Data Center `userKey` (`ri:userkey`), legacy `username` (`ri:username`). Empty values are
+   * ignored.
+   */
+  anchorIds: (string | undefined)[];
+};
+
+/** Fetches the users a display name could refer to (typically a user-search API call). */
+export type ConfluenceUserLookup = (displayName: string) => Promise<ConfluenceUserCandidate[]>;
+
+/**
+ * Picks the single user a display name refers to from lookup results. An exact (case-insensitive, whitespace
+ * normalised) display-name match wins; failing that, a single hit is accepted. Anything else is ambiguous and is
+ * rejected with the candidate names so the caller can be more specific.
+ */
+export function selectUserByDisplayName(
+  candidates: ConfluenceUserCandidate[],
+  displayName: string,
+): Omit<ConfluenceUserCandidate, "anchorIds"> & { anchorIds: string[] } {
+  const normalise = (value: string) => value.replace(/\s+/g, " ").trim().toLowerCase();
+  const wanted = normalise(displayName);
+  const usable = candidates
+    .map(c => ({ ...c, anchorIds: c.anchorIds.filter((id): id is string => typeof id === "string" && id !== "") }))
+    .filter(c => c.anchorIds.length > 0);
+  const exact = usable.filter(c => normalise(c.displayName ?? "") === wanted);
+
+  if (exact.length === 1) return exact[0];
+  if (exact.length === 0 && usable.length === 1) return usable[0];
+  if (usable.length === 0) {
+    throw new ConfluenceFragmentUpdateError(
+      `No Confluence user found with display name "${displayName}". Provide the user's account ID / user key as rowAnchor instead.`,
+    );
+  }
+  const ambiguous = exact.length > 1 ? exact : usable;
+  const names = ambiguous.map(c => `"${c.displayName ?? "?"}" (${c.anchorIds[0]})`).join(", ");
+  throw new ConfluenceFragmentUpdateError(
+    `Display name "${displayName}" matches ${ambiguous.length} Confluence users: ${names}. Use the account ID / user key as rowAnchor to disambiguate.`,
+  );
+}
+
+/**
+ * Replaces every `rowDisplayName` in the input with a `rowAnchor`, so that the purely string-based
+ * {@link applyConfluenceFragmentUpdates} never has to know about users. Each distinct name is looked up once via
+ * `lookup`, the matching user is chosen with {@link selectUserByDisplayName}, and of that user's identifiers the
+ * first one that actually occurs in `body` becomes the anchor (falling back to the most specific one, so that the
+ * row lookup fails with its usual "no row found" error). Entries with both `rowAnchor` and `rowDisplayName` are rejected.
+ */
+export async function resolveRowDisplayNames(
+  input: ConfluenceFragmentUpdateInput,
+  lookup: ConfluenceUserLookup,
+  body: string,
+): Promise<ConfluenceFragmentUpdateInput> {
+  const cache = new Map<string, Promise<string>>();
+  const resolve = (displayName: string) => {
+    if (!cache.has(displayName)) {
+      cache.set(
+        displayName,
+        lookup(displayName).then(candidates => {
+          const user = selectUserByDisplayName(candidates, displayName);
+          // selectUserByDisplayName only returns users with at least one non-empty anchor id.
+          return user.anchorIds.find(id => body.includes(id)) ?? user.anchorIds[0];
+        }),
+      );
+    }
+    return cache.get(displayName)!;
+  };
+
+  async function resolveEntry<T extends { rowAnchor?: string; rowDisplayName?: string }>(entry: T, label: string) {
+    const { rowDisplayName, ...rest } = entry;
+    if (rowDisplayName === undefined) return entry;
+    if (rowDisplayName === "") {
+      throw new ConfluenceFragmentUpdateError(`${label}: rowDisplayName must be a non-empty string.`);
+    }
+    if (entry.rowAnchor) {
+      throw new ConfluenceFragmentUpdateError(`${label}: provide either rowAnchor or rowDisplayName, not both.`);
+    }
+    return { ...rest, rowAnchor: await resolve(rowDisplayName) } as T;
+  }
+
+  const tableCellUpdates = await Promise.all(
+    (input.tableCellUpdates ?? []).map((update, i) => resolveEntry(update, `tableCellUpdates[${i}]`)),
+  );
+  const replacements = await Promise.all(
+    (input.replacements ?? []).map((replacement, i) => resolveEntry(replacement, `replacements[${i}]`)),
+  );
+  return { ...input, tableCellUpdates, replacements };
+}
+
 /**
  * Applies all requested fragment updates to a storage-format body and validates the result.
  * Throws {@link ConfluenceFragmentUpdateError} (and leaves the caller's page untouched) if any
@@ -939,6 +1043,23 @@ export function applyConfluenceFragmentUpdates(
   if (tableCellUpdates.length === 0 && replacements.length === 0) {
     throw new ConfluenceFragmentUpdateError("At least one tableCellUpdate or replacement must be provided.");
   }
+
+  for (const [i, entry] of [...tableCellUpdates, ...replacements].entries()) {
+    if (entry.rowDisplayName !== undefined) {
+      const label =
+        i < tableCellUpdates.length ? `tableCellUpdates[${i}]` : `replacements[${i - tableCellUpdates.length}]`;
+      throw new ConfluenceFragmentUpdateError(
+        `${label}: rowDisplayName must be resolved to a rowAnchor (via resolveRowDisplayNames) before applying updates.`,
+      );
+    }
+  }
+  tableCellUpdates.forEach((update, i) => {
+    if (!update.rowAnchor) {
+      throw new ConfluenceFragmentUpdateError(
+        `tableCellUpdates[${i}]: either rowAnchor or rowDisplayName is required.`,
+      );
+    }
+  });
 
   let updated = body;
   let cellsUpdated = 0;
