@@ -16,6 +16,8 @@ import {
   locateTableRow,
 } from "../../src/actions/util/confluenceStorageFormat";
 import confluenceUpdatePageFragments from "../../src/actions/providers/confluence/updatePageFragments";
+import { confluenceUpdatePageFragmentsParamsSchema } from "../../src/actions/autogen/types";
+import type { confluenceUpdatePageFragmentsParamsType } from "../../src/actions/autogen/types";
 import confluenceDataCenterUpdatePageFragments from "../../src/actions/providers/confluenceDataCenter/updatePageFragments";
 
 const USER_KEY = "2c96d7e295488cec0195b4c0a3890027";
@@ -533,6 +535,380 @@ describe("applyConfluenceFragmentUpdates", () => {
     });
   });
 
+  describe("occurrence targeting", () => {
+    // "TBD" appears three times on the page, in document order: Cloud work, Snapshot, Plans.
+    it("replaces only the Nth occurrence of find when occurrence is given", () => {
+      const result = applyConfluenceFragmentUpdates(PAGE_BODY, {
+        replacements: [{ find: "TBD", replace: "Done", occurrence: 1 }],
+      });
+      expect(result.replacementsApplied).toBe(1);
+      expect(result.body).toContain("Cloud work TBD");
+      expect(result.body).toContain("Snapshot Done");
+      expect(result.body).toContain("Plans TBD");
+    });
+
+    it("treats occurrence 0 exactly like the default first-match behaviour", () => {
+      const withOccurrence = applyConfluenceFragmentUpdates(PAGE_BODY, {
+        replacements: [{ find: "TBD", replace: "Done", occurrence: 0 }],
+      });
+      const withoutOccurrence = applyConfluenceFragmentUpdates(PAGE_BODY, {
+        replacements: [{ find: "TBD", replace: "Done" }],
+      });
+      expect(withOccurrence.body).toBe(withoutOccurrence.body);
+    });
+
+    it("counts occurrences within the scope, not the whole page", () => {
+      const result = applyConfluenceFragmentUpdates(PAGE_BODY, {
+        replacements: [
+          {
+            find: "TBD",
+            replace: "Done",
+            sectionAnchor: "<h3>ServiceNow</h3>",
+            occurrence: 1,
+          },
+        ],
+      });
+      // Within the ServiceNow section the second "TBD" is "Plans TBD".
+      expect(result.body).toContain("Cloud work TBD");
+      expect(result.body).toContain("Snapshot TBD");
+      expect(result.body).toContain("Plans Done");
+    });
+
+    it("rejects an out-of-range occurrence without changing anything", () => {
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE_BODY, {
+          replacements: [{ find: "TBD", replace: "Done", occurrence: 5 }],
+        }),
+      ).toThrow(
+        /occurs 3 time\(s\) in the page body; occurrence 5 is out of range/,
+      );
+    });
+
+    it("rejects occurrence combined with replaceAll, and negative or fractional occurrences", () => {
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE_BODY, {
+          replacements: [
+            { find: "TBD", replace: "Done", occurrence: 1, replaceAll: true },
+          ],
+        }),
+      ).toThrow(/either occurrence or replaceAll, not both/);
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE_BODY, {
+          replacements: [{ find: "TBD", replace: "Done", occurrence: -1 }],
+        }),
+      ).toThrow(/occurrence must be a non-negative integer/);
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE_BODY, {
+          replacements: [{ find: "TBD", replace: "Done", occurrence: 1.5 }],
+        }),
+      ).toThrow(/occurrence must be a non-negative integer/);
+    });
+
+    it("selects among duplicate rowAnchor matches with rowOccurrence (no sectionAnchor)", () => {
+      // USER_KEY appears in the Cloud table (row 0) and the ServiceNow table (row 1).
+      const first = applyConfluenceFragmentUpdates(PAGE_BODY, {
+        tableCellUpdates: [
+          {
+            rowAnchor: USER_KEY,
+            rowOccurrence: 0,
+            columnIndex: 1,
+            newContent: "<p>x</p>",
+          },
+        ],
+      });
+      expect(first.body).not.toContain("Cloud work TBD");
+      expect(first.body).toContain("Snapshot TBD");
+
+      const second = applyConfluenceFragmentUpdates(PAGE_BODY, {
+        tableCellUpdates: [
+          {
+            rowAnchor: USER_KEY,
+            rowOccurrence: 1,
+            columnIndex: 1,
+            newContent: "<p>x</p>",
+          },
+        ],
+      });
+      expect(second.body).toContain("Cloud work TBD");
+      expect(second.body).not.toContain("Snapshot TBD");
+      expect(second.body).toContain(
+        "<td><p>x</p></td><td><p>Plans TBD</p></td>",
+      );
+    });
+
+    it("selects among duplicate rows inside a section table with rowOccurrence", () => {
+      const duplicated = PAGE_BODY.replace(
+        `<tr><td><p>${OTHER_USER_MENTION}</p></td>`,
+        `<tr><td><p>${USER_MENTION}</p></td>`,
+      );
+      const result = applyConfluenceFragmentUpdates(duplicated, {
+        tableCellUpdates: [
+          {
+            rowAnchor: USER_KEY,
+            sectionAnchor: "<h3>ServiceNow</h3>",
+            rowOccurrence: 1,
+            columnIndex: 1,
+            newContent: "<p>x</p>",
+          },
+        ],
+      });
+      expect(result.body).toContain("Other user's snapshot");
+      expect(result.body).not.toContain("Snapshot TBD");
+      expect(result.body).toContain("Cloud work TBD");
+    });
+
+    it("scopes a replacement to the rowOccurrence-th matching row", () => {
+      const result = applyConfluenceFragmentUpdates(PAGE_BODY, {
+        replacements: [
+          {
+            find: "TBD",
+            replace: "Done",
+            rowAnchor: USER_KEY,
+            rowOccurrence: 0,
+          },
+        ],
+      });
+      expect(result.body).toContain("Cloud work Done");
+      expect(result.body).toContain("Snapshot TBD");
+    });
+
+    it("rejects an out-of-range rowOccurrence", () => {
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE_BODY, {
+          tableCellUpdates: [
+            {
+              rowAnchor: USER_KEY,
+              rowOccurrence: 2,
+              columnIndex: 1,
+              newContent: "<p>x</p>",
+            },
+          ],
+        }),
+      ).toThrow(
+        /matched 2 table row\(s\) on the page; rowOccurrence 2 is out of range/,
+      );
+    });
+
+    it("still rejects ambiguous rowAnchors when rowOccurrence is omitted", () => {
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE_BODY, {
+          tableCellUpdates: [
+            { rowAnchor: USER_KEY, columnIndex: 1, newContent: "<p>x</p>" },
+          ],
+        }),
+      ).toThrow(/matched 2 table rows.*rowOccurrence/);
+    });
+
+    it("rejects rowOccurrence on a replacement that has no rowAnchor instead of ignoring it", () => {
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE_BODY, {
+          replacements: [{ find: "TBD", replace: "Done", rowOccurrence: 1 }],
+        }),
+      ).toThrow(/rowOccurrence requires a rowAnchor/);
+    });
+
+    describe("index parameters arriving as strings", () => {
+      // invokeAction validates with the (coercing) Zod schema but passes the *original* params through, so
+      // LLM-emitted numeric strings reach the util layer untouched and must be handled here.
+      const asNumber = (value: string) => value as unknown as number;
+
+      it("accepts digit-only strings for columnIndex, rowOccurrence and occurrence", () => {
+        const result = applyConfluenceFragmentUpdates(PAGE_BODY, {
+          tableCellUpdates: [
+            {
+              rowAnchor: USER_KEY,
+              rowOccurrence: asNumber("1"),
+              columnIndex: asNumber("1"),
+              newContent: "<p>x</p>",
+            },
+          ],
+          replacements: [
+            { find: "TBD", replace: "Done", occurrence: asNumber(" 1 ") },
+          ],
+        });
+        // rowOccurrence "1" + columnIndex "1" → the ServiceNow row's Snapshot cell.
+        expect(result.body).not.toContain("Snapshot TBD");
+        // After the cell edit the remaining TBDs are "Cloud work TBD" (0) and "Plans TBD" (1).
+        expect(result.body).toContain(
+          "<td><p>x</p></td><td><p>Plans Done</p></td>",
+        );
+        expect(result.body).toContain("Cloud work TBD");
+      });
+
+      it("rejects empty, non-numeric, negative and fractional strings rather than coercing them to 0", () => {
+        for (const bad of ["", " ", "abc", "-1", "1.5", "1e2"]) {
+          expect(() =>
+            applyConfluenceFragmentUpdates(PAGE_BODY, {
+              tableCellUpdates: [
+                {
+                  rowAnchor: USER_KEY,
+                  rowOccurrence: asNumber(bad),
+                  columnIndex: 1,
+                  newContent: "<p>x</p>",
+                },
+              ],
+            }),
+          ).toThrow(/rowOccurrence must be a non-negative integer/);
+          expect(() =>
+            applyConfluenceFragmentUpdates(PAGE_BODY, {
+              replacements: [
+                { find: "TBD", replace: "Done", occurrence: asNumber(bad) },
+              ],
+            }),
+          ).toThrow(/occurrence must be a non-negative integer/);
+        }
+        expect(() =>
+          applyConfluenceFragmentUpdates(PAGE_BODY, {
+            tableCellUpdates: [
+              {
+                rowAnchor: "# of Tickets Closed",
+                columnIndex: asNumber(""),
+                newContent: "<p>x</p>",
+              },
+            ],
+          }),
+        ).toThrow(/columnIndex must be a non-negative integer/);
+      });
+    });
+  });
+
+  describe("section-bounded replacements (sectionEndAnchor)", () => {
+    it("limits replaceAll to the text between sectionAnchor and sectionEndAnchor", () => {
+      const result = applyConfluenceFragmentUpdates(PAGE_BODY, {
+        replacements: [
+          {
+            find: "TBD",
+            replace: "Done",
+            replaceAll: true,
+            sectionAnchor: "<h3>ServiceNow</h3>",
+            sectionEndAnchor: "<h3>SharePoint</h3>",
+          },
+        ],
+      });
+      expect(result.replacementsApplied).toBe(2);
+      expect(result.body).toContain("Cloud work TBD");
+      expect(result.body).toContain("Snapshot Done");
+      expect(result.body).toContain("Plans Done");
+    });
+
+    it("supports a generic end anchor such as the next heading tag, searched after the start anchor", () => {
+      // "<h2>" is a prefix of the sectionAnchor itself; the end anchor must be looked up past it.
+      const result = applyConfluenceFragmentUpdates(PAGE_BODY, {
+        replacements: [
+          {
+            find: "TBD",
+            replace: "Done",
+            replaceAll: true,
+            sectionAnchor: "<h2>Cloud/Infrastructure</h2>",
+            sectionEndAnchor: "<h2>",
+          },
+        ],
+      });
+      expect(result.replacementsApplied).toBe(1);
+      expect(result.body).toContain("Cloud work Done");
+      expect(result.body).toContain("Snapshot TBD");
+      expect(result.body).toContain("Plans TBD");
+    });
+
+    it("bounds the scope from the start of the page when only sectionEndAnchor is given", () => {
+      const result = applyConfluenceFragmentUpdates(PAGE_BODY, {
+        replacements: [
+          {
+            find: "TBD",
+            replace: "Done",
+            replaceAll: true,
+            sectionEndAnchor: "<h2>Application Development</h2>",
+          },
+        ],
+      });
+      expect(result.replacementsApplied).toBe(1);
+      expect(result.body).toContain("Cloud work Done");
+      expect(result.body).toContain("Snapshot TBD");
+    });
+
+    it("does not touch text that sits inside the end anchor itself", () => {
+      // The end anchor is exclusive: "Risk | Issues" is not part of the scope.
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE_BODY, {
+          replacements: [
+            {
+              find: "Risk | Issues",
+              replace: "Risks",
+              sectionAnchor: "<h3>SharePoint</h3>",
+              sectionEndAnchor: "<h2>Risk | Issues</h2>",
+            },
+          ],
+        }),
+      ).toThrow(
+        /not found in the page body between sectionAnchor "<h3>SharePoint<\/h3>" and sectionEndAnchor/,
+      );
+    });
+
+    it("fails when sectionEndAnchor does not occur after sectionAnchor", () => {
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE_BODY, {
+          replacements: [
+            {
+              find: "Nothing to report.",
+              replace: "All good.",
+              sectionAnchor: "<h3>SharePoint</h3>",
+              sectionEndAnchor: "<h2>Cloud/Infrastructure</h2>",
+            },
+          ],
+        }),
+      ).toThrow(
+        /sectionEndAnchor "<h2>Cloud\/Infrastructure<\/h2>" was not found after sectionAnchor/,
+      );
+    });
+
+    it("rejects an empty sectionEndAnchor instead of silently widening the scope to the rest of the page", () => {
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE_BODY, {
+          replacements: [
+            {
+              find: "TBD",
+              replace: "Done",
+              replaceAll: true,
+              sectionAnchor: "<h3>ServiceNow</h3>",
+              sectionEndAnchor: "",
+            },
+          ],
+        }),
+      ).toThrow(/sectionEndAnchor must be a non-empty string/);
+    });
+
+    it("rejects sectionEndAnchor combined with rowAnchor", () => {
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE_BODY, {
+          replacements: [
+            {
+              find: "TBD",
+              replace: "Done",
+              rowAnchor: USER_KEY,
+              sectionEndAnchor: "<h2>",
+            },
+          ],
+        }),
+      ).toThrow(/sectionEndAnchor cannot be combined with rowAnchor/);
+    });
+
+    it("leaves the open-ended default untouched when sectionEndAnchor is omitted", () => {
+      const result = applyConfluenceFragmentUpdates(PAGE_BODY, {
+        replacements: [
+          {
+            find: "TBD",
+            replace: "Done",
+            replaceAll: true,
+            sectionAnchor: "<h3>ServiceNow</h3>",
+          },
+        ],
+      });
+      // Both ServiceNow TBDs are replaced; nothing before the anchor is.
+      expect(result.replacementsApplied).toBe(2);
+      expect(result.body).toContain("Cloud work TBD");
+    });
+  });
+
   describe("merged header cells (Issue 3)", () => {
     const SPANNED_TABLE = [
       `<h2>Metrics</h2>`,
@@ -835,6 +1211,132 @@ describe("confluence updatePageFragments (Cloud)", () => {
     expect(payload.body.value).toContain(
       "<td><p># of Tickets Closed</p></td><td><p>4</p></td>",
     );
+  });
+
+  it("accepts the occurrence / rowOccurrence / sectionEndAnchor params through the generated Zod schema", async () => {
+    mockGet.mockImplementation(async (url: string) => {
+      if (url.includes("accessible-resources"))
+        return { data: [{ id: "cloud-123" }] };
+      return {
+        data: {
+          title: "Weekly Report",
+          version: { number: 7 },
+          body: { storage: { value: PAGE_BODY } },
+        },
+      };
+    });
+    mockPut.mockResolvedValue({ data: {} });
+
+    // Numbers arrive as strings from some callers; the schema uses z.coerce so they must still validate.
+    const params = confluenceUpdatePageFragmentsParamsSchema.parse({
+      pageId: "193957299",
+      tableCellUpdates: [
+        {
+          rowAnchor: USER_KEY,
+          rowOccurrence: "1",
+          columnIndex: 1,
+          newContent: "<p>Closed 4 tickets</p>",
+        },
+      ],
+      replacements: [
+        // Cell updates run first, so by now the only "TBD" left in the ServiceNow section is "Plans TBD".
+        {
+          find: "TBD",
+          replace: "Done",
+          occurrence: "0",
+          sectionAnchor: "<h3>ServiceNow</h3>",
+          sectionEndAnchor: "<h3>SharePoint</h3>",
+        },
+      ],
+    });
+    expect(params.tableCellUpdates?.[0].rowOccurrence).toBe(1);
+    expect(params.replacements?.[0].occurrence).toBe(0);
+
+    // Negative indexes are rejected at the schema level (minimum: 0), matching the handler's own validation.
+    const negative = confluenceUpdatePageFragmentsParamsSchema.safeParse({
+      pageId: "1",
+      tableCellUpdates: [
+        {
+          rowAnchor: "x",
+          rowOccurrence: -1,
+          columnIndex: 0,
+          newContent: "<p>x</p>",
+        },
+      ],
+      replacements: [{ find: "a", replace: "b", occurrence: "-2" }],
+    });
+    expect(negative.success).toBe(false);
+    expect(
+      negative.success
+        ? []
+        : negative.error.issues.map((i) => i.path.join(".")),
+    ).toEqual([
+      "tableCellUpdates.0.rowOccurrence",
+      "replacements.0.occurrence",
+    ]);
+
+    const result = await confluenceUpdatePageFragments({
+      params,
+      authParams: { authToken: "token" },
+    });
+
+    expect(result.success).toBe(true);
+    const payload = mockPut.mock.calls[0][1];
+    expect(payload.body.value).toContain("Cloud work TBD");
+    expect(payload.body.value).toContain(
+      "<td><p>Closed 4 tickets</p></td><td><p>Plans Done</p></td>",
+    );
+  });
+
+  it("handles numeric-string indexes the way invokeAction delivers them (validated, but passed through un-coerced)", async () => {
+    mockGet.mockImplementation(async (url: string) => {
+      if (url.includes("accessible-resources"))
+        return { data: [{ id: "cloud-123" }] };
+      return {
+        data: {
+          title: "Weekly Report",
+          version: { number: 7 },
+          body: { storage: { value: PAGE_BODY } },
+        },
+      };
+    });
+    mockPut.mockResolvedValue({ data: {} });
+
+    // Same two steps as src/actions/invoke.ts: safeParse for validation, then call the handler with the ORIGINAL
+    // parameters (not safeParse's coerced .data). Strings therefore reach the handler as strings.
+    const rawParameters = {
+      pageId: "193957299",
+      tableCellUpdates: [
+        {
+          rowAnchor: USER_KEY,
+          rowOccurrence: "1",
+          columnIndex: "1",
+          newContent: "<p>Closed 4 tickets</p>",
+        },
+      ],
+      replacements: [{ find: "TBD", replace: "Done", occurrence: "1" }],
+    };
+    expect(
+      confluenceUpdatePageFragmentsParamsSchema.safeParse(rawParameters)
+        .success,
+    ).toBe(true);
+
+    const result = await confluenceUpdatePageFragments({
+      params:
+        rawParameters as unknown as confluenceUpdatePageFragmentsParamsType,
+      authParams: { authToken: "token" },
+    });
+
+    expect(result).toMatchObject({
+      success: true,
+      cellsUpdated: 1,
+      replacementsApplied: 1,
+    });
+    const payload = mockPut.mock.calls[0][1];
+    expect(payload.body.value).toContain(
+      "<td><p>Closed 4 tickets</p></td><td><p>Plans Done</p></td>",
+    );
+    expect(payload.body.value).toContain("Cloud work TBD");
   });
 
   it("does not write to Confluence when an edit cannot be applied", async () => {
