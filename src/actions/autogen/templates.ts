@@ -1383,7 +1383,7 @@ export const confluenceFetchPageContentDefinition: ActionTemplate = {
 export const confluenceUpdatePageFragmentsDefinition: ActionTemplate = {
   displayName: "Update page fragments",
   description:
-    'Makes targeted, deterministic edits to part of an existing Confluence page WITHOUT requiring the full page body. The page body is fetched server-side in storage format, the requested table-cell updates and exact-text replacements are applied in code, optional validation markers are checked, and the page is saved back. Everything outside the targeted fragments is preserved exactly. Rows can be narrowed to a parent section and subsection (parentSectionAnchor / sectionAnchor) when the same row anchor appears in several tables. Prefer this over "Overwrite a page" whenever you are updating a portion of a large or structured page (e.g. one user\'s row in a report table); only use "Overwrite a page" when you intend to replace the entire page.\n',
+    'Makes targeted, deterministic edits to part of an existing Confluence page WITHOUT requiring the full page body. The page body is fetched server-side in storage format, the requested table-cell updates and exact-text replacements are applied in code, optional validation markers are checked, and the page is saved back. Everything outside the targeted fragments is preserved exactly. Rows can be narrowed to a parent section and subsection (parentSectionAnchor / sectionAnchor) when the same row anchor appears in several tables, and cells can be targeted by column header, column index or a nested field label (fieldLabel, e.g. "# of Tickets Closed"). Prefer this over "Overwrite a page" whenever you are updating a portion of a large or structured page (e.g. one user\'s row in a report table); only use "Overwrite a page" when you intend to replace the entire page.\n',
   scopes: [],
   tags: [],
   parameters: {
@@ -1397,7 +1397,7 @@ export const confluenceUpdatePageFragmentsDefinition: ActionTemplate = {
       tableCellUpdates: {
         type: "array",
         description:
-          "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (e.g. a person's name or a user key such as ri:userkey / ri:account-id), optionally narrowed to a section (parentSectionAnchor / sectionAnchor), and one column by header text or index, then replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
+          "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (e.g. a person's name or a user key such as ri:userkey / ri:account-id), optionally narrowed to a section (parentSectionAnchor / sectionAnchor), and then one cell by column header, column index or nested field label, and replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
         items: {
           type: "object",
           required: ["rowAnchor", "newContent"],
@@ -1432,6 +1432,11 @@ export const confluenceUpdatePageFragmentsDefinition: ActionTemplate = {
               type: "integer",
               description:
                 "Zero-based index of the physical cell within the row (the Nth <td>/<th> tag, not accounting for merged cells). Provide either columnHeader or columnIndex.\n",
+            },
+            fieldLabel: {
+              type: "string",
+              description:
+                'Label of a field in a key/value table nested inside the located row, e.g. "# of Tickets Closed" or "Jira Stories Completed" in a Metrics cell. The nested row whose first cell reads this label (case-insensitive) is found and the value cell next to the label is updated. Use this instead of columnHeader / columnIndex when the value lives in a sub-table rather than in one of the row\'s own cells; it cannot be combined with them.\n',
             },
             newContent: {
               type: "string",
@@ -1779,7 +1784,7 @@ export const confluenceDataCenterFetchPageContentDefinition: ActionTemplate = {
 export const confluenceDataCenterUpdatePageFragmentsDefinition: ActionTemplate = {
   displayName: "Update page fragments",
   description:
-    'Makes targeted, deterministic edits to part of an existing Confluence page WITHOUT requiring the full page body. The page body is fetched server-side in storage format, the requested table-cell updates and exact-text replacements are applied in code, optional validation markers are checked, and the page is saved back. Everything outside the targeted fragments is preserved exactly. Rows can be narrowed to a parent section and subsection (parentSectionAnchor / sectionAnchor) when the same row anchor appears in several tables. Prefer this over "Overwrite a page" whenever you are updating a portion of a large or structured page (e.g. one user\'s row in a report table); only use "Overwrite a page" when you intend to replace the entire page.\n',
+    'Makes targeted, deterministic edits to part of an existing Confluence page WITHOUT requiring the full page body. The page body is fetched server-side in storage format, the requested table-cell updates and exact-text replacements are applied in code, optional validation markers are checked, and the page is saved back. Everything outside the targeted fragments is preserved exactly. Rows can be narrowed to a parent section and subsection (parentSectionAnchor / sectionAnchor) when the same row anchor appears in several tables, and cells can be targeted by column header, column index or a nested field label (fieldLabel, e.g. "# of Tickets Closed"). Prefer this over "Overwrite a page" whenever you are updating a portion of a large or structured page (e.g. one user\'s row in a report table); only use "Overwrite a page" when you intend to replace the entire page.\n',
   scopes: [],
   tags: [],
   parameters: {
@@ -1793,7 +1798,7 @@ export const confluenceDataCenterUpdatePageFragmentsDefinition: ActionTemplate =
       tableCellUpdates: {
         type: "array",
         description:
-          "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (e.g. a person's name or a user key such as ri:userkey / ri:account-id), optionally narrowed to a section (parentSectionAnchor / sectionAnchor), and one column by header text or index, then replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
+          "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (e.g. a person's name or a user key such as ri:userkey / ri:account-id), optionally narrowed to a section (parentSectionAnchor / sectionAnchor), and then one cell by column header, column index or nested field label, and replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
         items: {
           type: "object",
           required: ["rowAnchor", "newContent"],
@@ -1828,6 +1833,11 @@ export const confluenceDataCenterUpdatePageFragmentsDefinition: ActionTemplate =
               type: "integer",
               description:
                 "Zero-based index of the physical cell within the row (the Nth <td>/<th> tag, not accounting for merged cells). Provide either columnHeader or columnIndex.\n",
+            },
+            fieldLabel: {
+              type: "string",
+              description:
+                'Label of a field in a key/value table nested inside the located row, e.g. "# of Tickets Closed" or "Jira Stories Completed" in a Metrics cell. The nested row whose first cell reads this label (case-insensitive) is found and the value cell next to the label is updated. Use this instead of columnHeader / columnIndex when the value lives in a sub-table rather than in one of the row\'s own cells; it cannot be combined with them.\n',
             },
             newContent: {
               type: "string",
