@@ -935,56 +935,89 @@ function truncate(value: string, max = 80): string {
   return value.length > max ? `${value.slice(0, max)}…` : value;
 }
 
-/** A Confluence user as returned by a user lookup; only the fields needed to pick a row anchor. */
+/** A Confluence user as returned by a user lookup; only the fields needed to identify them and pick a row anchor. */
 export type ConfluenceUserCandidate = {
   displayName?: string;
-  /**
-   * Identifiers under which the user may appear in storage format, most specific first: Cloud `accountId`
-   * (`ri:account-id`), Data Center `userKey` (`ri:userkey`), legacy `username` (`ri:username`). Empty values are
-   * ignored.
-   */
-  anchorIds: (string | undefined)[];
+  /** Data Center login name (unique per site). Also the legacy `ri:username` mention attribute. */
+  username?: string;
+  /** Cloud account ID, stored in mentions as `ri:account-id`. */
+  accountId?: string;
+  /** Data Center user key, stored in mentions as `ri:userkey` (also present on legacy Cloud pages). */
+  userKey?: string;
 };
 
-/** Fetches the users a display name could refer to (typically a user-search API call). */
+/**
+ * Fetches the users a display name could refer to. Implementations must either return every user that could match
+ * or throw; returning a truncated list would let an ambiguous name slip through as if it were unique.
+ */
 export type ConfluenceUserLookup = (displayName: string) => Promise<ConfluenceUserCandidate[]>;
 
+function normaliseName(value: string | undefined): string {
+  return (value ?? "").replace(/\s+/g, " ").trim().toLowerCase();
+}
+
+function hasIdentifier(candidate: ConfluenceUserCandidate): boolean {
+  return [candidate.accountId, candidate.userKey, candidate.username].some(id => typeof id === "string" && id !== "");
+}
+
+function describeCandidate(candidate: ConfluenceUserCandidate): string {
+  const id = candidate.accountId ?? candidate.userKey ?? candidate.username;
+  return `"${candidate.displayName ?? "?"}" (${id})`;
+}
+
 /**
- * Picks the single user a display name refers to from lookup results. An exact (case-insensitive, whitespace
- * normalised) display-name match wins; failing that, a single hit is accepted. Anything else is ambiguous and is
- * rejected with the candidate names so the caller can be more specific.
+ * Picks the single user a display name refers to from lookup results. Only exact matches are accepted (case-insensitive,
+ * whitespace normalised): first on display name, then, if no display name matches, on username (a unique login, so a
+ * caller that typed one meant that user). A partial hit is never accepted, and more than one exact match is rejected
+ * with the candidate names so the caller can disambiguate with an ID.
  */
 export function selectUserByDisplayName(
   candidates: ConfluenceUserCandidate[],
   displayName: string,
-): Omit<ConfluenceUserCandidate, "anchorIds"> & { anchorIds: string[] } {
-  const normalise = (value: string) => value.replace(/\s+/g, " ").trim().toLowerCase();
-  const wanted = normalise(displayName);
-  const usable = candidates
-    .map(c => ({ ...c, anchorIds: c.anchorIds.filter((id): id is string => typeof id === "string" && id !== "") }))
-    .filter(c => c.anchorIds.length > 0);
-  const exact = usable.filter(c => normalise(c.displayName ?? "") === wanted);
+): ConfluenceUserCandidate {
+  const wanted = normaliseName(displayName);
+  const usable = candidates.filter(hasIdentifier);
 
-  if (exact.length === 1) return exact[0];
-  if (exact.length === 0 && usable.length === 1) return usable[0];
-  if (usable.length === 0) {
+  const byDisplayName = usable.filter(c => normaliseName(c.displayName) === wanted);
+  if (byDisplayName.length === 1) return byDisplayName[0];
+  if (byDisplayName.length > 1) {
     throw new ConfluenceFragmentUpdateError(
-      `No Confluence user found with display name "${displayName}". Provide the user's account ID / user key as rowAnchor instead.`,
+      `Display name "${displayName}" matches ${byDisplayName.length} Confluence users: ${byDisplayName.map(describeCandidate).join(", ")}. Use the account ID / user key as rowAnchor to disambiguate.`,
     );
   }
-  const ambiguous = exact.length > 1 ? exact : usable;
-  const names = ambiguous.map(c => `"${c.displayName ?? "?"}" (${c.anchorIds[0]})`).join(", ");
-  throw new ConfluenceFragmentUpdateError(
-    `Display name "${displayName}" matches ${ambiguous.length} Confluence users: ${names}. Use the account ID / user key as rowAnchor to disambiguate.`,
-  );
+
+  const byUsername = usable.filter(c => normaliseName(c.username) === wanted);
+  if (byUsername.length === 1) return byUsername[0];
+
+  const hint =
+    usable.length > 0
+      ? ` Similar users: ${usable.slice(0, 5).map(describeCandidate).join(", ")}. Provide the exact display name, or the account ID / user key as rowAnchor.`
+      : " Provide the user's account ID / user key as rowAnchor instead.";
+  throw new ConfluenceFragmentUpdateError(`No Confluence user found with display name "${displayName}".${hint}`);
+}
+
+/**
+ * The strings under which a user can appear in storage format, most specific first. They are attribute-qualified
+ * (`ri:account-id="…"`) so that a bare ID occurring elsewhere (a URL, free text) cannot be mistaken for a mention.
+ */
+export function userMentionAnchors(user: ConfluenceUserCandidate): string[] {
+  const anchors: string[] = [];
+  if (user.accountId) anchors.push(`ri:account-id="${user.accountId}"`);
+  if (user.userKey) anchors.push(`ri:userkey="${user.userKey}"`);
+  if (user.username) anchors.push(`ri:username="${user.username}"`);
+  return anchors;
 }
 
 /**
  * Replaces every `rowDisplayName` in the input with a `rowAnchor`, so that the purely string-based
  * {@link applyConfluenceFragmentUpdates} never has to know about users. Each distinct name is looked up once via
- * `lookup`, the matching user is chosen with {@link selectUserByDisplayName}, and of that user's identifiers the
- * first one that actually occurs in `body` becomes the anchor (falling back to the most specific one, so that the
- * row lookup fails with its usual "no row found" error). Entries with both `rowAnchor` and `rowDisplayName` are rejected.
+ * `lookup`, the matching user is chosen with {@link selectUserByDisplayName}, and of that user's mention anchors the
+ * first one that occurs in `body` is used (falling back to the most specific one, so that the row lookup fails with
+ * its usual "no row found" error). Entries with both `rowAnchor` and `rowDisplayName` are rejected.
+ *
+ * Note that, exactly like a caller-supplied `rowAnchor`, the anchor matches wherever the mention appears in a row.
+ * If the person both owns a row and is mentioned inside someone else's, the row lookup sees two matches and rejects
+ * the update as ambiguous rather than picking one.
  */
 export async function resolveRowDisplayNames(
   input: ConfluenceFragmentUpdateInput,
@@ -997,9 +1030,9 @@ export async function resolveRowDisplayNames(
       cache.set(
         displayName,
         lookup(displayName).then(candidates => {
-          const user = selectUserByDisplayName(candidates, displayName);
-          // selectUserByDisplayName only returns users with at least one non-empty anchor id.
-          return user.anchorIds.find(id => body.includes(id)) ?? user.anchorIds[0];
+          const anchors = userMentionAnchors(selectUserByDisplayName(candidates, displayName));
+          // selectUserByDisplayName only returns users with at least one identifier, so anchors is non-empty.
+          return anchors.find(anchor => body.includes(anchor)) ?? anchors[0];
         }),
       );
     }

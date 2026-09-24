@@ -1410,7 +1410,7 @@ export const confluenceUpdatePageFragmentsDefinition: ActionTemplate = {
             rowDisplayName: {
               type: "string",
               description:
-                'Display name of the Confluence user whose row to edit, e.g. "Jane Doe". The name is resolved to the user\'s account ID (Cloud) or user key (Data Center) via the Confluence user API and that ID is then used as the rowAnchor. Rejected if no user or more than one user matches. Provide either rowDisplayName or rowAnchor.\n',
+                'Display name of the Confluence user whose row to edit, e.g. "Jane Doe". The name is resolved to the user\'s account ID (Cloud) or user key (Data Center) via the Confluence user API and the user\'s mention (e.g. ri:account-id="...") is then used as the rowAnchor. Only an exact, case-insensitive display-name match is accepted; on Data Center an exact username is accepted as a fallback. Rejected if no user or more than one user matches. Provide either rowDisplayName or rowAnchor.\n',
             },
             parentSectionAnchor: {
               type: "string",
@@ -1821,7 +1821,7 @@ export const confluenceDataCenterUpdatePageFragmentsDefinition: ActionTemplate =
             rowDisplayName: {
               type: "string",
               description:
-                'Display name of the Confluence user whose row to edit, e.g. "Jane Doe". The name is resolved to the user\'s account ID (Cloud) or user key (Data Center) via the Confluence user API and that ID is then used as the rowAnchor. Rejected if no user or more than one user matches. Provide either rowDisplayName or rowAnchor.\n',
+                'Display name of the Confluence user whose row to edit, e.g. "Jane Doe". The name is resolved to the user\'s account ID (Cloud) or user key (Data Center) via the Confluence user API and the user\'s mention (e.g. ri:account-id="...") is then used as the rowAnchor. Only an exact, case-insensitive display-name match is accepted; on Data Center an exact username is accepted as a fallback. Rejected if no user or more than one user matches. Provide either rowDisplayName or rowAnchor.\n',
             },
             parentSectionAnchor: {
               type: "string",
