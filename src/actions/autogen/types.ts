@@ -943,6 +943,13 @@ export const confluenceUpdatePageFragmentsParamsSchema = z.object({
             'Optional text identifying the section whose table should be edited, e.g. the heading markup "<h3>ServiceNow</h3>". The row is looked up only inside the table containing this text, or the first table after it. Use it when the same rowAnchor appears in more than one table on the page. If the anchor text occurs in several places and the row matches in more than one of the resulting tables, the update is rejected as ambiguous, so prefer distinctive text such as the full heading markup.\n',
           )
           .optional(),
+        rowOccurrence: z.coerce
+          .number()
+          .int()
+          .describe(
+            "Optional zero-based index selecting which of the rows matching rowAnchor to edit, in document order (within the section's table(s) if sectionAnchor is given, otherwise across the page). Use it when the rowAnchor is legitimately not unique, e.g. the same label appears in several rows. When omitted, a rowAnchor that matches more than one row is rejected as ambiguous.\n",
+          )
+          .optional(),
         columnHeader: z
           .string()
           .describe(
@@ -978,20 +985,44 @@ export const confluenceUpdatePageFragmentsParamsSchema = z.object({
         replace: z.string().describe("Text/markup to substitute for `find`."),
         replaceAll: z
           .boolean()
-          .describe("Replace every occurrence within the scope instead of only the first. Defaults to false.")
+          .describe(
+            "Replace every occurrence within the scope instead of only the first. Defaults to false. Cannot be combined with occurrence.\n",
+          )
+          .optional(),
+        occurrence: z.coerce
+          .number()
+          .int()
+          .describe(
+            "Optional zero-based index of the occurrence of `find` (within the scope) to replace, e.g. 1 for the second match. Defaults to 0 (the first match). Rejected if out of range. Cannot be combined with replaceAll.\n",
+          )
           .optional(),
         rowAnchor: z
           .string()
           .describe("Optional. Limit the replacement to the table row containing this text/markup.")
           .optional(),
+        rowOccurrence: z.coerce
+          .number()
+          .int()
+          .describe(
+            "Optional zero-based index selecting which of the rows matching rowAnchor to use when the anchor is not unique (document order). Only meaningful together with rowAnchor.\n",
+          )
+          .optional(),
         sectionAnchor: z
           .string()
-          .describe("Optional. Only search the page body after this text (or use it to disambiguate rowAnchor).")
+          .describe(
+            "Optional. Only search the page body from this text onwards (or use it to disambiguate rowAnchor). Combine with sectionEndAnchor to bound the search to a single section.\n",
+          )
+          .optional(),
+        sectionEndAnchor: z
+          .string()
+          .describe(
+            'Optional. Stop searching at the first occurrence of this text after sectionAnchor (exclusive), e.g. the markup of the next heading such as "<h2>Risk | Issues</h2>", or simply "<h2>" to stop at the next heading of that level. Without it the search runs to the end of the page. Cannot be combined with rowAnchor.\n',
+          )
           .optional(),
       }),
     )
     .describe(
-      "Exact-text replacements to apply to the storage-format body. Each `find` string must be present or the whole update is rejected. `find` and `replace` must open/close the same tags, and replacements may not add, remove, merge or split table rows/cells (use tableCellUpdates for cell content). Optionally scope a replacement to a single table row via rowAnchor. Applied in order, after `tableCellUpdates`.\n",
+      "Exact-text replacements to apply to the storage-format body. Each `find` string must be present or the whole update is rejected. `find` and `replace` must open/close the same tags, and replacements may not add, remove, merge or split table rows/cells (use tableCellUpdates for cell content). Optionally scope a replacement to a single table row via rowAnchor, or to the part of the page between sectionAnchor and sectionEndAnchor. Applied in order, after `tableCellUpdates`.\n",
     )
     .optional(),
   requiredMarkers: z
@@ -1189,6 +1220,13 @@ export const confluenceDataCenterUpdatePageFragmentsParamsSchema = z.object({
             'Optional text identifying the section whose table should be edited, e.g. the heading markup "<h3>ServiceNow</h3>". The row is looked up only inside the table containing this text, or the first table after it. Use it when the same rowAnchor appears in more than one table on the page. If the anchor text occurs in several places and the row matches in more than one of the resulting tables, the update is rejected as ambiguous, so prefer distinctive text such as the full heading markup.\n',
           )
           .optional(),
+        rowOccurrence: z.coerce
+          .number()
+          .int()
+          .describe(
+            "Optional zero-based index selecting which of the rows matching rowAnchor to edit, in document order (within the section's table(s) if sectionAnchor is given, otherwise across the page). Use it when the rowAnchor is legitimately not unique, e.g. the same label appears in several rows. When omitted, a rowAnchor that matches more than one row is rejected as ambiguous.\n",
+          )
+          .optional(),
         columnHeader: z
           .string()
           .describe(
@@ -1224,20 +1262,44 @@ export const confluenceDataCenterUpdatePageFragmentsParamsSchema = z.object({
         replace: z.string().describe("Text/markup to substitute for `find`."),
         replaceAll: z
           .boolean()
-          .describe("Replace every occurrence within the scope instead of only the first. Defaults to false.")
+          .describe(
+            "Replace every occurrence within the scope instead of only the first. Defaults to false. Cannot be combined with occurrence.\n",
+          )
+          .optional(),
+        occurrence: z.coerce
+          .number()
+          .int()
+          .describe(
+            "Optional zero-based index of the occurrence of `find` (within the scope) to replace, e.g. 1 for the second match. Defaults to 0 (the first match). Rejected if out of range. Cannot be combined with replaceAll.\n",
+          )
           .optional(),
         rowAnchor: z
           .string()
           .describe("Optional. Limit the replacement to the table row containing this text/markup.")
           .optional(),
+        rowOccurrence: z.coerce
+          .number()
+          .int()
+          .describe(
+            "Optional zero-based index selecting which of the rows matching rowAnchor to use when the anchor is not unique (document order). Only meaningful together with rowAnchor.\n",
+          )
+          .optional(),
         sectionAnchor: z
           .string()
-          .describe("Optional. Only search the page body after this text (or use it to disambiguate rowAnchor).")
+          .describe(
+            "Optional. Only search the page body from this text onwards (or use it to disambiguate rowAnchor). Combine with sectionEndAnchor to bound the search to a single section.\n",
+          )
+          .optional(),
+        sectionEndAnchor: z
+          .string()
+          .describe(
+            'Optional. Stop searching at the first occurrence of this text after sectionAnchor (exclusive), e.g. the markup of the next heading such as "<h2>Risk | Issues</h2>", or simply "<h2>" to stop at the next heading of that level. Without it the search runs to the end of the page. Cannot be combined with rowAnchor.\n',
+          )
           .optional(),
       }),
     )
     .describe(
-      "Exact-text replacements to apply to the storage-format body. Each `find` string must be present or the whole update is rejected. `find` and `replace` must open/close the same tags, and replacements may not add, remove, merge or split table rows/cells (use tableCellUpdates for cell content). Optionally scope a replacement to a single table row via rowAnchor. Applied in order, after `tableCellUpdates`.\n",
+      "Exact-text replacements to apply to the storage-format body. Each `find` string must be present or the whole update is rejected. `find` and `replace` must open/close the same tags, and replacements may not add, remove, merge or split table rows/cells (use tableCellUpdates for cell content). Optionally scope a replacement to a single table row via rowAnchor, or to the part of the page between sectionAnchor and sectionEndAnchor. Applied in order, after `tableCellUpdates`.\n",
     )
     .optional(),
   requiredMarkers: z
