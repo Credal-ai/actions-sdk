@@ -937,10 +937,16 @@ export const confluenceUpdatePageFragmentsParamsSchema = z.object({
           .describe(
             'Text or markup that uniquely identifies the target row within the page (or within the section given by sectionAnchor), e.g. "Jane Doe" or "2c96d7e295488cec0195b4c0a3890027". Matched against the raw storage-format markup of the row.\n',
           ),
+        parentSectionAnchor: z
+          .string()
+          .describe(
+            'Optional heading markup of the parent section, e.g. "<h2>Application Development</h2>". The search is first restricted to that heading\'s region (up to the next heading of the same or a higher level), and sectionAnchor is then resolved inside it. Use it when the same subsection heading (e.g. "<h3>ServiceNow</h3>") appears under more than one parent section. With no sectionAnchor, every table in the parent region is searched.\n',
+          )
+          .optional(),
         sectionAnchor: z
           .string()
           .describe(
-            'Optional text identifying the section whose table should be edited, e.g. the heading markup "<h3>ServiceNow</h3>". The row is looked up only inside the table containing this text, or the first table after it. Use it when the same rowAnchor appears in more than one table on the page. If the anchor text occurs in several places and the row matches in more than one of the resulting tables, the update is rejected as ambiguous, so prefer distinctive text such as the full heading markup.\n',
+            'Optional text identifying the section whose table should be edited, e.g. the heading markup "<h3>ServiceNow</h3>". The row is looked up only inside the table containing this text, or the first table after it. Use it when the same rowAnchor appears in more than one table on the page. If the anchor text occurs in several places and the row matches in more than one of the resulting tables, the update is rejected as ambiguous, so prefer distinctive text such as the full heading markup, or add a parentSectionAnchor.\n',
           )
           .optional(),
         rowOccurrence: z.coerce
@@ -976,7 +982,7 @@ export const confluenceUpdatePageFragmentsParamsSchema = z.object({
       }),
     )
     .describe(
-      "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (e.g. a person's name or a user key such as ri:userkey / ri:account-id) and one column by header text or index, then replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
+      "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (e.g. a person's name or a user key such as ri:userkey / ri:account-id), optionally narrowed to a section (parentSectionAnchor / sectionAnchor), and one column by header text or index, then replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
     )
     .optional(),
   replacements: z
@@ -1010,10 +1016,16 @@ export const confluenceUpdatePageFragmentsParamsSchema = z.object({
             "Optional zero-based index selecting which of the rows matching rowAnchor to use when the anchor is not unique (document order). Only meaningful together with rowAnchor.\n",
           )
           .optional(),
+        parentSectionAnchor: z
+          .string()
+          .describe(
+            'Optional heading markup of a parent section, e.g. "<h2>Application Development</h2>". Bounds the search to that heading\'s region (up to the next heading of the same or a higher level); sectionAnchor and sectionEndAnchor are then resolved inside it, and without them the whole region is the scope. Also disambiguates rowAnchor when the same subsection heading appears under several parents.\n',
+          )
+          .optional(),
         sectionAnchor: z
           .string()
           .describe(
-            "Optional. Only search the page body from this text onwards (or use it to disambiguate rowAnchor). Combine with sectionEndAnchor to bound the search to a single section.\n",
+            "Optional. Only search the page body from this text onwards (or use it to disambiguate rowAnchor). Combine with sectionEndAnchor or parentSectionAnchor to bound the search to a single section.\n",
           )
           .optional(),
         sectionEndAnchor: z
@@ -1217,10 +1229,16 @@ export const confluenceDataCenterUpdatePageFragmentsParamsSchema = z.object({
           .describe(
             'Text or markup that uniquely identifies the target row within the page (or within the section given by sectionAnchor), e.g. "Jane Doe" or "2c96d7e295488cec0195b4c0a3890027". Matched against the raw storage-format markup of the row.\n',
           ),
+        parentSectionAnchor: z
+          .string()
+          .describe(
+            'Optional heading markup of the parent section, e.g. "<h2>Application Development</h2>". The search is first restricted to that heading\'s region (up to the next heading of the same or a higher level), and sectionAnchor is then resolved inside it. Use it when the same subsection heading (e.g. "<h3>ServiceNow</h3>") appears under more than one parent section. With no sectionAnchor, every table in the parent region is searched.\n',
+          )
+          .optional(),
         sectionAnchor: z
           .string()
           .describe(
-            'Optional text identifying the section whose table should be edited, e.g. the heading markup "<h3>ServiceNow</h3>". The row is looked up only inside the table containing this text, or the first table after it. Use it when the same rowAnchor appears in more than one table on the page. If the anchor text occurs in several places and the row matches in more than one of the resulting tables, the update is rejected as ambiguous, so prefer distinctive text such as the full heading markup.\n',
+            'Optional text identifying the section whose table should be edited, e.g. the heading markup "<h3>ServiceNow</h3>". The row is looked up only inside the table containing this text, or the first table after it. Use it when the same rowAnchor appears in more than one table on the page. If the anchor text occurs in several places and the row matches in more than one of the resulting tables, the update is rejected as ambiguous, so prefer distinctive text such as the full heading markup, or add a parentSectionAnchor.\n',
           )
           .optional(),
         rowOccurrence: z.coerce
@@ -1256,7 +1274,7 @@ export const confluenceDataCenterUpdatePageFragmentsParamsSchema = z.object({
       }),
     )
     .describe(
-      "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (e.g. a person's name or a user key such as ri:userkey / ri:account-id) and one column by header text or index, then replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
+      "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (e.g. a person's name or a user key such as ri:userkey / ri:account-id), optionally narrowed to a section (parentSectionAnchor / sectionAnchor), and one column by header text or index, then replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
     )
     .optional(),
   replacements: z
@@ -1290,10 +1308,16 @@ export const confluenceDataCenterUpdatePageFragmentsParamsSchema = z.object({
             "Optional zero-based index selecting which of the rows matching rowAnchor to use when the anchor is not unique (document order). Only meaningful together with rowAnchor.\n",
           )
           .optional(),
+        parentSectionAnchor: z
+          .string()
+          .describe(
+            'Optional heading markup of a parent section, e.g. "<h2>Application Development</h2>". Bounds the search to that heading\'s region (up to the next heading of the same or a higher level); sectionAnchor and sectionEndAnchor are then resolved inside it, and without them the whole region is the scope. Also disambiguates rowAnchor when the same subsection heading appears under several parents.\n',
+          )
+          .optional(),
         sectionAnchor: z
           .string()
           .describe(
-            "Optional. Only search the page body from this text onwards (or use it to disambiguate rowAnchor). Combine with sectionEndAnchor to bound the search to a single section.\n",
+            "Optional. Only search the page body from this text onwards (or use it to disambiguate rowAnchor). Combine with sectionEndAnchor or parentSectionAnchor to bound the search to a single section.\n",
           )
           .optional(),
         sectionEndAnchor: z

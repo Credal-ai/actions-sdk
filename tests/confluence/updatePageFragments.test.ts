@@ -196,12 +196,8 @@ describe("applyConfluenceFragmentUpdates", () => {
   });
 
   it("uses the first matching row after the sectionAnchor when the user appears in several sections", () => {
-    const cloudRow = locateTableRow(
-      PAGE_BODY,
-      USER_KEY,
-      "Cloud/Infrastructure",
-    );
-    const snowRow = locateTableRow(PAGE_BODY, USER_KEY, "ServiceNow");
+    const cloudRow = locateTableRow(PAGE_BODY, USER_KEY, { sectionAnchor: "Cloud/Infrastructure" });
+    const snowRow = locateTableRow(PAGE_BODY, USER_KEY, { sectionAnchor: "ServiceNow" });
     expect(PAGE_BODY.slice(cloudRow.start, cloudRow.end)).toContain(
       "Cloud work TBD",
     );
@@ -906,6 +902,212 @@ describe("applyConfluenceFragmentUpdates", () => {
       // Both ServiceNow TBDs are replaced; nothing before the anchor is.
       expect(result.replacementsApplied).toBe(2);
       expect(result.body).toContain("Cloud work TBD");
+    });
+  });
+
+  describe("parentSectionAnchor (hierarchical section scoping)", () => {
+    // Two h2 parents, each with a "<h3>ServiceNow</h3>" subsection table containing the same user.
+    const NESTED_SECTIONS_BODY = [
+      `<h1>Report</h1>`,
+      `<h2>Application Development</h2>`,
+      `<p>Intro mentioning ServiceNow.</p>`,
+      `<h3>ServiceNow</h3>`,
+      `<table><tbody><tr><th><p>Name</p></th><th><p>Status</p></th></tr>`,
+      `<tr><td><p>${USER_MENTION}</p></td><td><p>AppDev SNOW TBD</p></td></tr></tbody></table>`,
+      `<h3>SharePoint</h3>`,
+      `<table><tbody><tr><th><p>Name</p></th><th><p>Status</p></th></tr>`,
+      `<tr><td><p>${USER_MENTION}</p></td><td><p>AppDev SP TBD</p></td></tr></tbody></table>`,
+      `<h2>Infrastructure</h2>`,
+      `<h3>ServiceNow</h3>`,
+      `<table><tbody><tr><th><p>Name</p></th><th><p>Status</p></th></tr>`,
+      `<tr><td><p>${USER_MENTION}</p></td><td><p>Infra SNOW TBD</p></td></tr></tbody></table>`,
+      `<h2>Risks</h2><p>None TBD</p>`,
+    ].join("");
+
+    it("is needed when the same subsection heading appears under several parents", () => {
+      expect(() =>
+        applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
+          tableCellUpdates: [
+            { rowAnchor: USER_KEY, sectionAnchor: "<h3>ServiceNow</h3>", columnHeader: "Status", newContent: "<p>x</p>" },
+          ],
+        }),
+      ).toThrow(/matches rows in 2 different tables.*parentSectionAnchor/);
+    });
+
+    it("resolves sectionAnchor only inside the parent heading's region", () => {
+      const appDev = applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
+        tableCellUpdates: [
+          {
+            rowAnchor: USER_KEY,
+            parentSectionAnchor: "<h2>Application Development</h2>",
+            sectionAnchor: "<h3>ServiceNow</h3>",
+            columnHeader: "Status",
+            newContent: "<p>Done</p>",
+          },
+        ],
+      });
+      expect(appDev.body).not.toContain("AppDev SNOW TBD");
+      expect(appDev.body).toContain("AppDev SP TBD");
+      expect(appDev.body).toContain("Infra SNOW TBD");
+
+      const infra = applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
+        tableCellUpdates: [
+          {
+            rowAnchor: USER_KEY,
+            parentSectionAnchor: "<h2>Infrastructure</h2>",
+            sectionAnchor: "<h3>ServiceNow</h3>",
+            columnHeader: "Status",
+            newContent: "<p>Done</p>",
+          },
+        ],
+      });
+      expect(infra.body).toContain("AppDev SNOW TBD");
+      expect(infra.body).not.toContain("Infra SNOW TBD");
+    });
+
+    it("ignores occurrences of the section anchor outside the parent region (e.g. in intro text)", () => {
+      // "ServiceNow" as plain text occurs in the intro paragraph and in both h3s; only the AppDev one counts.
+      const result = applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
+        tableCellUpdates: [
+          {
+            rowAnchor: USER_KEY,
+            parentSectionAnchor: "<h2>Infrastructure</h2>",
+            sectionAnchor: "ServiceNow",
+            columnIndex: 1,
+            newContent: "<p>Done</p>",
+          },
+        ],
+      });
+      expect(result.body).not.toContain("Infra SNOW TBD");
+      expect(result.body).toContain("AppDev SNOW TBD");
+    });
+
+    it("searches every table in the parent region when no sectionAnchor is given, and reports ambiguity", () => {
+      expect(() =>
+        applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
+          tableCellUpdates: [
+            {
+              rowAnchor: USER_KEY,
+              parentSectionAnchor: "<h2>Application Development</h2>",
+              columnIndex: 1,
+              newContent: "<p>x</p>",
+            },
+          ],
+        }),
+      ).toThrow(/matches rows in 2 different tables under parentSectionAnchor.*Add a sectionAnchor/);
+
+      const infra = applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
+        tableCellUpdates: [
+          { rowAnchor: USER_KEY, parentSectionAnchor: "<h2>Infrastructure</h2>", columnIndex: 1, newContent: "<p>x</p>" },
+        ],
+      });
+      expect(infra.body).not.toContain("Infra SNOW TBD");
+    });
+
+    it("lets rowOccurrence pick among rows within the parent region", () => {
+      const result = applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
+        tableCellUpdates: [
+          {
+            rowAnchor: USER_KEY,
+            parentSectionAnchor: "<h2>Application Development</h2>",
+            rowOccurrence: 1,
+            columnIndex: 1,
+            newContent: "<p>x</p>",
+          },
+        ],
+      });
+      expect(result.body).toContain("AppDev SNOW TBD");
+      expect(result.body).not.toContain("AppDev SP TBD");
+    });
+
+    it("fails clearly when the parent or the section inside it cannot be found, or the region has no table", () => {
+      expect(() =>
+        applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
+          tableCellUpdates: [
+            { rowAnchor: USER_KEY, parentSectionAnchor: "<h2>Nope</h2>", columnIndex: 1, newContent: "<p>x</p>" },
+          ],
+        }),
+      ).toThrow(/parentSectionAnchor "<h2>Nope<\/h2>" was not found/);
+
+      expect(() =>
+        applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
+          tableCellUpdates: [
+            {
+              rowAnchor: USER_KEY,
+              parentSectionAnchor: "<h2>Infrastructure</h2>",
+              sectionAnchor: "<h3>SharePoint</h3>",
+              columnIndex: 1,
+              newContent: "<p>x</p>",
+            },
+          ],
+        }),
+      ).toThrow(/"<h3>SharePoint<\/h3>" was not found inside the region of parentSectionAnchor/);
+
+      expect(() =>
+        applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
+          tableCellUpdates: [
+            { rowAnchor: USER_KEY, parentSectionAnchor: "<h2>Risks</h2>", columnIndex: 1, newContent: "<p>x</p>" },
+          ],
+        }),
+      ).toThrow(/no table inside its section/);
+    });
+
+    it("bounds replacements to the parent region and resolves section anchors inside it", () => {
+      const result = applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
+        replacements: [
+          { find: "TBD", replace: "Done", replaceAll: true, parentSectionAnchor: "<h2>Application Development</h2>" },
+        ],
+      });
+      expect(result.replacementsApplied).toBe(2);
+      expect(result.body).toContain("Infra SNOW TBD");
+      expect(result.body).toContain("None TBD");
+
+      const scoped = applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
+        replacements: [
+          {
+            find: "TBD",
+            replace: "Done",
+            replaceAll: true,
+            parentSectionAnchor: "<h2>Application Development</h2>",
+            sectionAnchor: "<h3>SharePoint</h3>",
+          },
+        ],
+      });
+      expect(scoped.replacementsApplied).toBe(1);
+      expect(scoped.body).toContain("AppDev SNOW TBD");
+      expect(scoped.body).not.toContain("AppDev SP TBD");
+    });
+
+    it("rejects replacement anchors that fall outside the parent region", () => {
+      expect(() =>
+        applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
+          replacements: [
+            {
+              find: "TBD",
+              replace: "Done",
+              parentSectionAnchor: "<h2>Application Development</h2>",
+              sectionAnchor: "<h3>ServiceNow</h3>",
+              sectionEndAnchor: "<h2>Risks</h2>",
+            },
+          ],
+        }),
+      ).toThrow(/sectionEndAnchor "<h2>Risks<\/h2>" was not found after sectionAnchor .* in the parentSectionAnchor region/);
+    });
+
+    it("rejects a non-unique parentSectionAnchor for replacements without a row", () => {
+      expect(() =>
+        applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
+          replacements: [{ find: "TBD", replace: "Done", parentSectionAnchor: "ServiceNow" }],
+        }),
+      ).toThrow(/parentSectionAnchor "ServiceNow" occurs 3 times.*<h2>ServiceNow<\/h2>/);
+    });
+
+    it("treats a parent anchor outside any heading as 'from here to the end of the page'", () => {
+      const result = applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
+        replacements: [{ find: "TBD", replace: "Done", replaceAll: true, parentSectionAnchor: "Infra SNOW" }],
+      });
+      expect(result.replacementsApplied).toBe(2);
+      expect(result.body).toContain("AppDev SP TBD");
     });
   });
 
