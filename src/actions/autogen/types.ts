@@ -937,10 +937,16 @@ export const confluenceUpdatePageFragmentsParamsSchema = z.object({
           .describe(
             'Text or markup that uniquely identifies the target row within the page (or within the section given by sectionAnchor), e.g. "Jane Doe" or "2c96d7e295488cec0195b4c0a3890027". Matched against the raw storage-format markup of the row.\n',
           ),
+        parentSectionAnchor: z
+          .string()
+          .describe(
+            'Optional heading markup of the parent section, e.g. "<h2>Application Development</h2>". The search is first restricted to that heading\'s region (up to the next heading of the same or a higher level), and sectionAnchor is then resolved inside it. Use it when the same subsection heading (e.g. "<h3>ServiceNow</h3>") appears under more than one parent section. With no sectionAnchor, every table in the parent region is searched.\n',
+          )
+          .optional(),
         sectionAnchor: z
           .string()
           .describe(
-            'Optional text identifying the section whose table should be edited, e.g. the heading markup "<h3>ServiceNow</h3>". The row is looked up only inside the table containing this text, or the first table after it. Use it when the same rowAnchor appears in more than one table on the page. If the anchor text occurs in several places and the row matches in more than one of the resulting tables, the update is rejected as ambiguous, so prefer distinctive text such as the full heading markup.\n',
+            'Optional text identifying the section whose table should be edited, e.g. the heading markup "<h3>ServiceNow</h3>". The row is looked up only inside the table containing this text, or the first table after it. Use it when the same rowAnchor appears in more than one table on the page. If the anchor text occurs in several places and the row matches in more than one of the resulting tables, the update is rejected as ambiguous, so prefer distinctive text such as the full heading markup, or add a parentSectionAnchor.\n',
           )
           .optional(),
         rowOccurrence: z.coerce
@@ -976,7 +982,7 @@ export const confluenceUpdatePageFragmentsParamsSchema = z.object({
       }),
     )
     .describe(
-      "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (e.g. a person's name or a user key such as ri:userkey / ri:account-id) and one column by header text or index, then replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
+      "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (e.g. a person's name or a user key such as ri:userkey / ri:account-id), optionally narrowed to a section (parentSectionAnchor / sectionAnchor), and one column by header text or index, then replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
     )
     .optional(),
   replacements: z
@@ -1010,16 +1016,22 @@ export const confluenceUpdatePageFragmentsParamsSchema = z.object({
             "Optional zero-based index selecting which of the rows matching rowAnchor to use when the anchor is not unique (document order). Only meaningful together with rowAnchor.\n",
           )
           .optional(),
+        parentSectionAnchor: z
+          .string()
+          .describe(
+            'Optional heading markup of a parent section, e.g. "<h2>Application Development</h2>". Bounds the search to that heading\'s region (up to the next heading of the same or a higher level); sectionAnchor and sectionEndAnchor are then resolved inside it, and without them the whole region is the scope. Also disambiguates rowAnchor when the same subsection heading appears under several parents.\n',
+          )
+          .optional(),
         sectionAnchor: z
           .string()
           .describe(
-            'Optional. Only search the page body from this text onwards (or use it to disambiguate rowAnchor). The anchor text itself is included in the scope, so `find` may match inside it (e.g. a word in the section heading counts as occurrence 0). Combine with sectionEndAnchor to bound the search to the text between the two anchors; in that case the sectionAnchor must occur exactly once on the page, so prefer distinctive text such as the full heading markup "<h3>ServiceNow</h3>".\n',
+            'Optional. Only search the page body from this text onwards (or use it to disambiguate rowAnchor). The anchor text itself is included in the scope, so `find` may match inside it (e.g. a word in the section heading counts as occurrence 0). Combine with sectionEndAnchor to bound the search to the text between the two anchors; in that case the sectionAnchor must occur exactly once on the page (or, with parentSectionAnchor, exactly once inside that parent\'s region), so prefer distinctive text such as the full heading markup "<h3>ServiceNow</h3>", or add a parentSectionAnchor.\n',
           )
           .optional(),
         sectionEndAnchor: z
           .string()
           .describe(
-            'Optional. Stop searching at the first occurrence of this text after sectionAnchor. The end anchor itself is excluded from the scope. Typically the markup of the next heading, e.g. "<h2>Risk | Issues</h2>", or simply "<h2>" to stop at the next <h2> tag written without attributes. Anchors are plain substring matches against the storage-format markup, not structural: "<h2>" does not match "<h2 class=...>" and does not stop at an <h1>, so check the page markup when relying on a generic tag. Without it the search runs to the end of the page. Cannot be combined with rowAnchor.\n',
+            'Optional. Stop searching at the first occurrence of this text after sectionAnchor. The end anchor itself is excluded from the scope. Typically the markup of the next heading, e.g. "<h2>Risk | Issues</h2>", or simply "<h2>" to stop at the next <h2> tag written without attributes. Anchors are plain substring matches against the storage-format markup, not structural: "<h2>" does not match "<h2 class=...>" and does not stop at an <h1>, so check the page markup when relying on a generic tag. Without it the search runs to the end of the page (or of the parentSectionAnchor region). Cannot be combined with rowAnchor.\n',
           )
           .optional(),
       }),
@@ -1217,10 +1229,16 @@ export const confluenceDataCenterUpdatePageFragmentsParamsSchema = z.object({
           .describe(
             'Text or markup that uniquely identifies the target row within the page (or within the section given by sectionAnchor), e.g. "Jane Doe" or "2c96d7e295488cec0195b4c0a3890027". Matched against the raw storage-format markup of the row.\n',
           ),
+        parentSectionAnchor: z
+          .string()
+          .describe(
+            'Optional heading markup of the parent section, e.g. "<h2>Application Development</h2>". The search is first restricted to that heading\'s region (up to the next heading of the same or a higher level), and sectionAnchor is then resolved inside it. Use it when the same subsection heading (e.g. "<h3>ServiceNow</h3>") appears under more than one parent section. With no sectionAnchor, every table in the parent region is searched.\n',
+          )
+          .optional(),
         sectionAnchor: z
           .string()
           .describe(
-            'Optional text identifying the section whose table should be edited, e.g. the heading markup "<h3>ServiceNow</h3>". The row is looked up only inside the table containing this text, or the first table after it. Use it when the same rowAnchor appears in more than one table on the page. If the anchor text occurs in several places and the row matches in more than one of the resulting tables, the update is rejected as ambiguous, so prefer distinctive text such as the full heading markup.\n',
+            'Optional text identifying the section whose table should be edited, e.g. the heading markup "<h3>ServiceNow</h3>". The row is looked up only inside the table containing this text, or the first table after it. Use it when the same rowAnchor appears in more than one table on the page. If the anchor text occurs in several places and the row matches in more than one of the resulting tables, the update is rejected as ambiguous, so prefer distinctive text such as the full heading markup, or add a parentSectionAnchor.\n',
           )
           .optional(),
         rowOccurrence: z.coerce
@@ -1256,7 +1274,7 @@ export const confluenceDataCenterUpdatePageFragmentsParamsSchema = z.object({
       }),
     )
     .describe(
-      "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (e.g. a person's name or a user key such as ri:userkey / ri:account-id) and one column by header text or index, then replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
+      "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (e.g. a person's name or a user key such as ri:userkey / ri:account-id), optionally narrowed to a section (parentSectionAnchor / sectionAnchor), and one column by header text or index, then replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
     )
     .optional(),
   replacements: z
@@ -1290,16 +1308,22 @@ export const confluenceDataCenterUpdatePageFragmentsParamsSchema = z.object({
             "Optional zero-based index selecting which of the rows matching rowAnchor to use when the anchor is not unique (document order). Only meaningful together with rowAnchor.\n",
           )
           .optional(),
+        parentSectionAnchor: z
+          .string()
+          .describe(
+            'Optional heading markup of a parent section, e.g. "<h2>Application Development</h2>". Bounds the search to that heading\'s region (up to the next heading of the same or a higher level); sectionAnchor and sectionEndAnchor are then resolved inside it, and without them the whole region is the scope. Also disambiguates rowAnchor when the same subsection heading appears under several parents.\n',
+          )
+          .optional(),
         sectionAnchor: z
           .string()
           .describe(
-            'Optional. Only search the page body from this text onwards (or use it to disambiguate rowAnchor). The anchor text itself is included in the scope, so `find` may match inside it (e.g. a word in the section heading counts as occurrence 0). Combine with sectionEndAnchor to bound the search to the text between the two anchors; in that case the sectionAnchor must occur exactly once on the page, so prefer distinctive text such as the full heading markup "<h3>ServiceNow</h3>".\n',
+            'Optional. Only search the page body from this text onwards (or use it to disambiguate rowAnchor). The anchor text itself is included in the scope, so `find` may match inside it (e.g. a word in the section heading counts as occurrence 0). Combine with sectionEndAnchor to bound the search to the text between the two anchors; in that case the sectionAnchor must occur exactly once on the page (or, with parentSectionAnchor, exactly once inside that parent\'s region), so prefer distinctive text such as the full heading markup "<h3>ServiceNow</h3>", or add a parentSectionAnchor.\n',
           )
           .optional(),
         sectionEndAnchor: z
           .string()
           .describe(
-            'Optional. Stop searching at the first occurrence of this text after sectionAnchor. The end anchor itself is excluded from the scope. Typically the markup of the next heading, e.g. "<h2>Risk | Issues</h2>", or simply "<h2>" to stop at the next <h2> tag written without attributes. Anchors are plain substring matches against the storage-format markup, not structural: "<h2>" does not match "<h2 class=...>" and does not stop at an <h1>, so check the page markup when relying on a generic tag. Without it the search runs to the end of the page. Cannot be combined with rowAnchor.\n',
+            'Optional. Stop searching at the first occurrence of this text after sectionAnchor. The end anchor itself is excluded from the scope. Typically the markup of the next heading, e.g. "<h2>Risk | Issues</h2>", or simply "<h2>" to stop at the next <h2> tag written without attributes. Anchors are plain substring matches against the storage-format markup, not structural: "<h2>" does not match "<h2 class=...>" and does not stop at an <h1>, so check the page markup when relying on a generic tag. Without it the search runs to the end of the page (or of the parentSectionAnchor region). Cannot be combined with rowAnchor.\n',
           )
           .optional(),
       }),
