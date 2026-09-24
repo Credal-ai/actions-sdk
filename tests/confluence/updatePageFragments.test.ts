@@ -1111,6 +1111,92 @@ describe("applyConfluenceFragmentUpdates", () => {
     });
   });
 
+  describe("fieldLabel (nested key/value tables)", () => {
+    it("updates the value cell next to a label inside the located row's nested table", () => {
+      const result = applyConfluenceFragmentUpdates(PAGE_BODY, {
+        tableCellUpdates: [
+          {
+            rowAnchor: USER_KEY,
+            sectionAnchor: "<h3>ServiceNow</h3>",
+            fieldLabel: "# of Tickets Closed",
+            newContent: "<p>4</p>",
+          },
+          {
+            rowAnchor: USER_KEY,
+            sectionAnchor: "<h3>ServiceNow</h3>",
+            fieldLabel: "jira stories completed",
+            newContent: "<p>2</p>",
+            mode: "replace",
+          },
+        ],
+      });
+      expect(result.cellsUpdated).toBe(2);
+      expect(result.body).toContain("<tr><td><p># of Tickets Closed</p></td><td><p>4</p></td></tr>");
+      expect(result.body).toContain("<tr><td><p>Jira Stories Completed</p></td><td><p>2</p></td></tr>");
+      // The row's own cells are untouched.
+      expect(result.body).toContain("<p>Snapshot TBD</p>");
+      expect(result.body).toContain("<p>Plans TBD</p>");
+    });
+
+    it("rejects unknown labels (listing the available ones), rows without nested tables, and mixing with column targeting", () => {
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE_BODY, {
+          tableCellUpdates: [
+            { rowAnchor: USER_KEY, sectionAnchor: "<h3>ServiceNow</h3>", fieldLabel: "Velocity", newContent: "<p>1</p>" },
+          ],
+        }),
+      ).toThrow(/No field labelled "Velocity".*Available labels: "# of tickets closed", "jira stories completed"/);
+
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE_BODY, {
+          tableCellUpdates: [
+            { rowAnchor: USER_KEY, sectionAnchor: "Cloud/Infrastructure", fieldLabel: "# of Tickets Closed", newContent: "<p>1</p>" },
+          ],
+        }),
+      ).toThrow(/contains no nested table/);
+
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE_BODY, {
+          tableCellUpdates: [
+            {
+              rowAnchor: USER_KEY,
+              sectionAnchor: "<h3>ServiceNow</h3>",
+              fieldLabel: "# of Tickets Closed",
+              columnIndex: 1,
+              newContent: "<p>1</p>",
+            },
+          ],
+        }),
+      ).toThrow(/fieldLabel cannot be combined with columnHeader or columnIndex/);
+    });
+
+    it("rejects a label that matches several nested rows, or one with no value cell", () => {
+      const duplicatedLabel = PAGE_BODY.replace(
+        "<tr><td><p>Jira Stories Completed</p></td><td><p>0</p></td></tr>",
+        "<tr><td><p># of Tickets Closed</p></td><td><p>0</p></td></tr>",
+      );
+      expect(() =>
+        applyConfluenceFragmentUpdates(duplicatedLabel, {
+          tableCellUpdates: [
+            { rowAnchor: USER_KEY, sectionAnchor: "<h3>ServiceNow</h3>", fieldLabel: "# of Tickets Closed", newContent: "<p>1</p>" },
+          ],
+        }),
+      ).toThrow(/matches 2 nested rows/);
+
+      const noValueCell = PAGE_BODY.replace(
+        "<tr><td><p>Jira Stories Completed</p></td><td><p>0</p></td></tr>",
+        "<tr><td><p>Jira Stories Completed</p></td></tr>",
+      );
+      expect(() =>
+        applyConfluenceFragmentUpdates(noValueCell, {
+          tableCellUpdates: [
+            { rowAnchor: USER_KEY, sectionAnchor: "<h3>ServiceNow</h3>", fieldLabel: "Jira Stories Completed", newContent: "<p>1</p>" },
+          ],
+        }),
+      ).toThrow(/has no value cell next to the label/);
+    });
+  });
+
   describe("merged header cells (Issue 3)", () => {
     const SPANNED_TABLE = [
       `<h2>Metrics</h2>`,
