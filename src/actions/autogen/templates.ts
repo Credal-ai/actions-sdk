@@ -617,7 +617,8 @@ export const slackSendDmFromBotDefinition: ActionTemplate = {
       },
       message: {
         type: "string",
-        description: "The message content to send",
+        description:
+          "The message content to send in the direct message, in Slack mrkdwn: *bold*, _italic_, `code`, <https://example.com|link>. This is not Markdown — **bold** and # headings are rendered literally.",
       },
     },
   },
@@ -714,7 +715,8 @@ export const slackSendMessageDefinition: ActionTemplate = {
       },
       message: {
         type: "string",
-        description: "The message content to send to Slack. Can include markdown formatting.",
+        description:
+          "The message content to send to Slack, in Slack mrkdwn: *bold*, _italic_, `code`, <https://example.com|link>. This is not Markdown — **bold** and # headings are rendered literally.",
       },
       unfurlLinks: {
         type: "boolean",
@@ -1310,7 +1312,8 @@ export const confluenceOverwritePageDefinition: ActionTemplate = {
       },
       content: {
         type: "string",
-        description: "The new content for the page",
+        description:
+          "The new body for the page, in Confluence storage format (XHTML-based markup) — the same format returned by fetchPageContent. Markdown and plain text are stored as-is and will not render.",
       },
     },
   },
@@ -1618,7 +1621,8 @@ export const confluenceDataCenterOverwritePageDefinition: ActionTemplate = {
       },
       content: {
         type: "string",
-        description: "The new content for the page",
+        description:
+          "The new body for the page, in Confluence storage format (XHTML-based markup) — the same format returned by fetchPageContent. Markdown and plain text are stored as-is and will not render.",
       },
     },
   },
@@ -2020,7 +2024,8 @@ export const jiraPublicCommentOnServiceDeskRequestDefinition: ActionTemplate = {
       },
       comment: {
         type: "string",
-        description: "The text to be commented on the ticket",
+        description:
+          "The comment body, as plain text. Unlike the Jira issue comment actions, this text is sent to the Service Desk API unchanged and is not converted from Markdown, so Markdown syntax will appear literally.",
       },
     },
   },
@@ -2065,7 +2070,8 @@ export const jiraCommentJiraTicketDefinition: ActionTemplate = {
       },
       comment: {
         type: "string",
-        description: "The text to be commented on the ticket.",
+        description:
+          "The comment body, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
       },
     },
   },
@@ -2112,7 +2118,7 @@ export const jiraCommentJiraTicketWithMentionsDefinition: ActionTemplate = {
       comment: {
         type: "string",
         description:
-          "The text to be commented on the ticket. Use [~accountid:ATLASSIAN_ACCOUNT_ID] to @mention users (Jira Cloud only).",
+          "The comment body, as Markdown-formatted text; it is converted to Atlassian Document Format before it is posted. Use [~accountid:ATLASSIAN_ACCOUNT_ID] to @mention users. This action is Jira Cloud only — use commentJiraTicket for Jira Data Center.",
       },
     },
   },
@@ -2157,7 +2163,8 @@ export const jiraCreateJiraTicketDefinition: ActionTemplate = {
       },
       description: {
         type: "string",
-        description: "The description for the new ticket",
+        description:
+          "The description for the new ticket, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
       },
       issueType: {
         type: "string",
@@ -2226,7 +2233,8 @@ export const jiraCreateServiceDeskRequestDefinition: ActionTemplate = {
       },
       description: {
         type: "string",
-        description: "The description for the new service desk request",
+        description:
+          "The description for the new service desk request, as plain text. This text is sent to the Service Desk API unchanged and is not converted from Markdown, so Markdown syntax will appear literally.",
       },
       reporter: {
         type: "string",
@@ -2437,7 +2445,8 @@ export const jiraUpdateJiraTicketDetailsDefinition: ActionTemplate = {
       },
       description: {
         type: "string",
-        description: "The updated description",
+        description:
+          "The updated description, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
       },
       issueType: {
         type: "string",
@@ -2768,7 +2777,8 @@ export const jiraLinkJiraIssuesDefinition: ActionTemplate = {
       },
       comment: {
         type: "string",
-        description: "An optional comment to add to the inward (source) issue when creating the link",
+        description:
+          "An optional comment to add to the inward (source) issue when creating the link, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
       },
     },
   },
@@ -2815,7 +2825,8 @@ export const jiraLinkAndAssignJiraIssuesDefinition: ActionTemplate = {
       },
       comment: {
         type: "string",
-        description: "An optional comment to add to the inward (source) issue when creating the link",
+        description:
+          "An optional comment to add to the inward (source) issue when creating the link, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
       },
     },
   },
@@ -2908,7 +2919,8 @@ export const jiraOrgPublicCommentOnServiceDeskRequestDefinition: ActionTemplate 
       },
       comment: {
         type: "string",
-        description: "The text to be commented on the ticket",
+        description:
+          "The comment body, as plain text. Unlike the Jira issue comment actions, this text is sent to the Service Desk API unchanged and is not converted from Markdown, so Markdown syntax will appear literally.",
       },
     },
   },
@@ -2953,7 +2965,8 @@ export const jiraOrgCommentJiraTicketDefinition: ActionTemplate = {
       },
       comment: {
         type: "string",
-        description: "The text to be commented on the ticket.",
+        description:
+          "The comment body, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
       },
     },
   },
@@ -3000,7 +3013,7 @@ export const jiraOrgCommentJiraTicketWithMentionsDefinition: ActionTemplate = {
       comment: {
         type: "string",
         description:
-          "The text to be commented on the ticket. Use [~accountid:ATLASSIAN_ACCOUNT_ID] to @mention users (Jira Cloud only).",
+          "The comment body, as Markdown-formatted text; it is converted to Atlassian Document Format before it is posted. Use [~accountid:ATLASSIAN_ACCOUNT_ID] to @mention users. This action is Jira Cloud only — use commentJiraTicket for Jira Data Center.",
       },
     },
   },
@@ -3045,7 +3058,8 @@ export const jiraOrgCreateJiraTicketDefinition: ActionTemplate = {
       },
       description: {
         type: "string",
-        description: "The description for the new ticket",
+        description:
+          "The description for the new ticket, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
       },
       issueType: {
         type: "string",
@@ -3114,7 +3128,8 @@ export const jiraOrgCreateServiceDeskRequestDefinition: ActionTemplate = {
       },
       description: {
         type: "string",
-        description: "The description for the new service desk request",
+        description:
+          "The description for the new service desk request, as plain text. This text is sent to the Service Desk API unchanged and is not converted from Markdown, so Markdown syntax will appear literally.",
       },
       reporter: {
         type: "string",
@@ -3325,7 +3340,8 @@ export const jiraOrgUpdateJiraTicketDetailsDefinition: ActionTemplate = {
       },
       description: {
         type: "string",
-        description: "The updated description",
+        description:
+          "The updated description, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
       },
       issueType: {
         type: "string",
@@ -3656,7 +3672,8 @@ export const jiraOrgLinkJiraIssuesDefinition: ActionTemplate = {
       },
       comment: {
         type: "string",
-        description: "An optional comment to add to the inward (source) issue when creating the link",
+        description:
+          "An optional comment to add to the inward (source) issue when creating the link, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
       },
     },
   },
@@ -3703,7 +3720,8 @@ export const jiraOrgLinkAndAssignJiraIssuesDefinition: ActionTemplate = {
       },
       comment: {
         type: "string",
-        description: "An optional comment to add to the inward (source) issue when creating the link",
+        description:
+          "An optional comment to add to the inward (source) issue when creating the link, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
       },
     },
   },
@@ -3796,7 +3814,8 @@ export const jiraDataCenterPublicCommentOnServiceDeskRequestDefinition: ActionTe
       },
       comment: {
         type: "string",
-        description: "The text to be commented on the ticket",
+        description:
+          "The comment body, as plain text. Unlike the Jira issue comment actions, this text is sent to the Service Desk API unchanged and is not converted from Markdown, so Markdown syntax will appear literally.",
       },
     },
   },
@@ -3841,7 +3860,8 @@ export const jiraDataCenterCommentJiraTicketDefinition: ActionTemplate = {
       },
       comment: {
         type: "string",
-        description: "The text to be commented on the ticket.",
+        description:
+          "The comment body, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
       },
     },
   },
@@ -3888,7 +3908,7 @@ export const jiraDataCenterCommentJiraTicketWithMentionsDefinition: ActionTempla
       comment: {
         type: "string",
         description:
-          "The text to be commented on the ticket. Use [~accountid:ATLASSIAN_ACCOUNT_ID] to @mention users (Jira Cloud only).",
+          "The comment body, as Markdown-formatted text; it is converted to Atlassian Document Format before it is posted. Use [~accountid:ATLASSIAN_ACCOUNT_ID] to @mention users. This action is Jira Cloud only — use commentJiraTicket for Jira Data Center.",
       },
     },
   },
@@ -3933,7 +3953,8 @@ export const jiraDataCenterCreateJiraTicketDefinition: ActionTemplate = {
       },
       description: {
         type: "string",
-        description: "The description for the new ticket",
+        description:
+          "The description for the new ticket, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
       },
       issueType: {
         type: "string",
@@ -4002,7 +4023,8 @@ export const jiraDataCenterCreateServiceDeskRequestDefinition: ActionTemplate = 
       },
       description: {
         type: "string",
-        description: "The description for the new service desk request",
+        description:
+          "The description for the new service desk request, as plain text. This text is sent to the Service Desk API unchanged and is not converted from Markdown, so Markdown syntax will appear literally.",
       },
       reporter: {
         type: "string",
@@ -4213,7 +4235,8 @@ export const jiraDataCenterUpdateJiraTicketDetailsDefinition: ActionTemplate = {
       },
       description: {
         type: "string",
-        description: "The updated description",
+        description:
+          "The updated description, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
       },
       issueType: {
         type: "string",
@@ -4529,7 +4552,8 @@ export const jiraDataCenterLinkJiraIssuesDefinition: ActionTemplate = {
       },
       comment: {
         type: "string",
-        description: "An optional comment to add to the inward (source) issue when creating the link",
+        description:
+          "An optional comment to add to the inward (source) issue when creating the link, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
       },
     },
   },
@@ -4576,7 +4600,8 @@ export const jiraDataCenterLinkAndAssignJiraIssuesDefinition: ActionTemplate = {
       },
       comment: {
         type: "string",
-        description: "An optional comment to add to the inward (source) issue when creating the link",
+        description:
+          "An optional comment to add to the inward (source) issue when creating the link, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
       },
     },
   },
@@ -8665,6 +8690,8 @@ export const googleOauthCreatePresentationDefinition: ActionTemplate = {
       },
       pageSize: {
         type: "object",
+        description:
+          "The dimensions of every slide in the presentation. Optional; omit it to use the default page size Google applies to a new presentation.",
         properties: {
           width: {
             type: "object",

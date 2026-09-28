@@ -509,7 +509,11 @@ export type asanaGetTasksDetailsFunction = ActionFunction<
 
 export const slackSendDmFromBotParamsSchema = z.object({
   email: z.string().describe("The email of the user to send the DM to"),
-  message: z.string().describe("The message content to send"),
+  message: z
+    .string()
+    .describe(
+      "The message content to send in the direct message, in Slack mrkdwn: *bold*, _italic_, `code`, <https://example.com|link>. This is not Markdown — **bold** and # headings are rendered literally.",
+    ),
 });
 
 export type slackSendDmFromBotParamsType = z.infer<typeof slackSendDmFromBotParamsSchema>;
@@ -556,7 +560,11 @@ export const slackSendMessageParamsSchema = z.object({
     .string()
     .describe("The name of the Slack channel to send the message to (e.g. general, alerts)")
     .optional(),
-  message: z.string().describe("The message content to send to Slack. Can include markdown formatting."),
+  message: z
+    .string()
+    .describe(
+      "The message content to send to Slack, in Slack mrkdwn: *bold*, _italic_, `code`, <https://example.com|link>. This is not Markdown — **bold** and # headings are rendered literally.",
+    ),
   unfurlLinks: z
     .boolean()
     .describe("Whether to enable unfurling of links in the message (defaults to true)")
@@ -885,7 +893,11 @@ export type mathAddFunction = ActionFunction<mathAddParamsType, AuthParamsType, 
 export const confluenceOverwritePageParamsSchema = z.object({
   pageId: z.string().describe("The page id for the page to add content to"),
   title: z.string().describe("The title of the page that should be updated"),
-  content: z.string().describe("The new content for the page"),
+  content: z
+    .string()
+    .describe(
+      "The new body for the page, in Confluence storage format (XHTML-based markup) — the same format returned by fetchPageContent. Markdown and plain text are stored as-is and will not render.",
+    ),
 });
 
 export type confluenceOverwritePageParamsType = z.infer<typeof confluenceOverwritePageParamsSchema>;
@@ -1101,7 +1113,11 @@ export type confluenceCopyPageFunction = ActionFunction<
 export const confluenceDataCenterOverwritePageParamsSchema = z.object({
   pageId: z.string().describe("The page id for the page to add content to"),
   title: z.string().describe("The title of the page that should be updated"),
-  content: z.string().describe("The new content for the page"),
+  content: z
+    .string()
+    .describe(
+      "The new body for the page, in Confluence storage format (XHTML-based markup) — the same format returned by fetchPageContent. Markdown and plain text are stored as-is and will not render.",
+    ),
 });
 
 export type confluenceDataCenterOverwritePageParamsType = z.infer<typeof confluenceDataCenterOverwritePageParamsSchema>;
@@ -1374,7 +1390,11 @@ export type jiraAssignJiraTicketFunction = ActionFunction<
 
 export const jiraPublicCommentOnServiceDeskRequestParamsSchema = z.object({
   issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
-  comment: z.string().describe("The text to be commented on the ticket"),
+  comment: z
+    .string()
+    .describe(
+      "The comment body, as plain text. Unlike the Jira issue comment actions, this text is sent to the Service Desk API unchanged and is not converted from Markdown, so Markdown syntax will appear literally.",
+    ),
 });
 
 export type jiraPublicCommentOnServiceDeskRequestParamsType = z.infer<
@@ -1399,7 +1419,11 @@ export type jiraPublicCommentOnServiceDeskRequestFunction = ActionFunction<
 export const jiraCommentJiraTicketParamsSchema = z.object({
   projectKey: z.string().describe("The key for the project to which the ticket you want to comment on belongs."),
   issueId: z.string().describe("The issue ID associated with the ticket to be commented on."),
-  comment: z.string().describe("The text to be commented on the ticket."),
+  comment: z
+    .string()
+    .describe(
+      "The comment body, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+    ),
 });
 
 export type jiraCommentJiraTicketParamsType = z.infer<typeof jiraCommentJiraTicketParamsSchema>;
@@ -1423,7 +1447,7 @@ export const jiraCommentJiraTicketWithMentionsParamsSchema = z.object({
   comment: z
     .string()
     .describe(
-      "The text to be commented on the ticket. Use [~accountid:ATLASSIAN_ACCOUNT_ID] to @mention users (Jira Cloud only).",
+      "The comment body, as Markdown-formatted text; it is converted to Atlassian Document Format before it is posted. Use [~accountid:ATLASSIAN_ACCOUNT_ID] to @mention users. This action is Jira Cloud only — use commentJiraTicket for Jira Data Center.",
     ),
 });
 
@@ -1445,7 +1469,11 @@ export type jiraCommentJiraTicketWithMentionsFunction = ActionFunction<
 export const jiraCreateJiraTicketParamsSchema = z.object({
   projectKey: z.string().describe("The key for the project you want to add the ticket to."),
   summary: z.string().describe("The summary of the new ticket"),
-  description: z.string().describe("The description for the new ticket"),
+  description: z
+    .string()
+    .describe(
+      "The description for the new ticket, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+    ),
   issueType: z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."),
   reporter: z.string().describe("The reporter for the new ticket creation").optional(),
   assignee: z.string().describe("The assignee for the new ticket creation").optional(),
@@ -1479,7 +1507,11 @@ export const jiraCreateServiceDeskRequestParamsSchema = z.object({
   serviceDeskId: z.string().describe("The ID of the service desk to create the request in"),
   requestTypeId: z.string().describe("The ID of the request type to use for the new request"),
   summary: z.string().describe("The summary of the new service desk request"),
-  description: z.string().describe("The description for the new service desk request"),
+  description: z
+    .string()
+    .describe(
+      "The description for the new service desk request, as plain text. This text is sent to the Service Desk API unchanged and is not converted from Markdown, so Markdown syntax will appear literally.",
+    ),
   reporter: z
     .string()
     .describe("The email address of the person reporting the issue (for raising on behalf of)")
@@ -1583,7 +1615,12 @@ export const jiraUpdateJiraTicketDetailsParamsSchema = z.object({
   projectKey: z.string().describe("The key for the project the ticket belongs to."),
   issueId: z.string().describe("The issue ID associated with the ticket to be updated"),
   summary: z.string().describe("The updated summary").optional(),
-  description: z.string().describe("The updated description").optional(),
+  description: z
+    .string()
+    .describe(
+      "The updated description, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+    )
+    .optional(),
   issueType: z.string().describe("The updated issue type").optional(),
   requestTypeId: z.string().describe("The request type ID for Jira Service Management tickets").optional(),
   customFields: z
@@ -1739,7 +1776,9 @@ export const jiraLinkJiraIssuesParamsSchema = z.object({
     .describe('The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)'),
   comment: z
     .string()
-    .describe("An optional comment to add to the inward (source) issue when creating the link")
+    .describe(
+      "An optional comment to add to the inward (source) issue when creating the link, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+    )
     .optional(),
 });
 
@@ -1773,7 +1812,9 @@ export const jiraLinkAndAssignJiraIssuesParamsSchema = z.object({
     .describe('The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)'),
   comment: z
     .string()
-    .describe("An optional comment to add to the inward (source) issue when creating the link")
+    .describe(
+      "An optional comment to add to the inward (source) issue when creating the link, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+    )
     .optional(),
 });
 
@@ -1820,7 +1861,11 @@ export type jiraOrgAssignJiraTicketFunction = ActionFunction<
 
 export const jiraOrgPublicCommentOnServiceDeskRequestParamsSchema = z.object({
   issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
-  comment: z.string().describe("The text to be commented on the ticket"),
+  comment: z
+    .string()
+    .describe(
+      "The comment body, as plain text. Unlike the Jira issue comment actions, this text is sent to the Service Desk API unchanged and is not converted from Markdown, so Markdown syntax will appear literally.",
+    ),
 });
 
 export type jiraOrgPublicCommentOnServiceDeskRequestParamsType = z.infer<
@@ -1845,7 +1890,11 @@ export type jiraOrgPublicCommentOnServiceDeskRequestFunction = ActionFunction<
 export const jiraOrgCommentJiraTicketParamsSchema = z.object({
   projectKey: z.string().describe("The key for the project to which the ticket you want to comment on belongs."),
   issueId: z.string().describe("The issue ID associated with the ticket to be commented on."),
-  comment: z.string().describe("The text to be commented on the ticket."),
+  comment: z
+    .string()
+    .describe(
+      "The comment body, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+    ),
 });
 
 export type jiraOrgCommentJiraTicketParamsType = z.infer<typeof jiraOrgCommentJiraTicketParamsSchema>;
@@ -1869,7 +1918,7 @@ export const jiraOrgCommentJiraTicketWithMentionsParamsSchema = z.object({
   comment: z
     .string()
     .describe(
-      "The text to be commented on the ticket. Use [~accountid:ATLASSIAN_ACCOUNT_ID] to @mention users (Jira Cloud only).",
+      "The comment body, as Markdown-formatted text; it is converted to Atlassian Document Format before it is posted. Use [~accountid:ATLASSIAN_ACCOUNT_ID] to @mention users. This action is Jira Cloud only — use commentJiraTicket for Jira Data Center.",
     ),
 });
 
@@ -1895,7 +1944,11 @@ export type jiraOrgCommentJiraTicketWithMentionsFunction = ActionFunction<
 export const jiraOrgCreateJiraTicketParamsSchema = z.object({
   projectKey: z.string().describe("The key for the project you want to add the ticket to."),
   summary: z.string().describe("The summary of the new ticket"),
-  description: z.string().describe("The description for the new ticket"),
+  description: z
+    .string()
+    .describe(
+      "The description for the new ticket, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+    ),
   issueType: z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."),
   reporter: z.string().describe("The reporter for the new ticket creation").optional(),
   assignee: z.string().describe("The assignee for the new ticket creation").optional(),
@@ -1929,7 +1982,11 @@ export const jiraOrgCreateServiceDeskRequestParamsSchema = z.object({
   serviceDeskId: z.string().describe("The ID of the service desk to create the request in"),
   requestTypeId: z.string().describe("The ID of the request type to use for the new request"),
   summary: z.string().describe("The summary of the new service desk request"),
-  description: z.string().describe("The description for the new service desk request"),
+  description: z
+    .string()
+    .describe(
+      "The description for the new service desk request, as plain text. This text is sent to the Service Desk API unchanged and is not converted from Markdown, so Markdown syntax will appear literally.",
+    ),
   reporter: z
     .string()
     .describe("The email address of the person reporting the issue (for raising on behalf of)")
@@ -2033,7 +2090,12 @@ export const jiraOrgUpdateJiraTicketDetailsParamsSchema = z.object({
   projectKey: z.string().describe("The key for the project the ticket belongs to."),
   issueId: z.string().describe("The issue ID associated with the ticket to be updated"),
   summary: z.string().describe("The updated summary").optional(),
-  description: z.string().describe("The updated description").optional(),
+  description: z
+    .string()
+    .describe(
+      "The updated description, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+    )
+    .optional(),
   issueType: z.string().describe("The updated issue type").optional(),
   requestTypeId: z.string().describe("The request type ID for Jira Service Management tickets").optional(),
   customFields: z
@@ -2189,7 +2251,9 @@ export const jiraOrgLinkJiraIssuesParamsSchema = z.object({
     .describe('The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)'),
   comment: z
     .string()
-    .describe("An optional comment to add to the inward (source) issue when creating the link")
+    .describe(
+      "An optional comment to add to the inward (source) issue when creating the link, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+    )
     .optional(),
 });
 
@@ -2223,7 +2287,9 @@ export const jiraOrgLinkAndAssignJiraIssuesParamsSchema = z.object({
     .describe('The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)'),
   comment: z
     .string()
-    .describe("An optional comment to add to the inward (source) issue when creating the link")
+    .describe(
+      "An optional comment to add to the inward (source) issue when creating the link, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+    )
     .optional(),
 });
 
@@ -2270,7 +2336,11 @@ export type jiraDataCenterAssignJiraTicketFunction = ActionFunction<
 
 export const jiraDataCenterPublicCommentOnServiceDeskRequestParamsSchema = z.object({
   issueId: z.string().describe("The issue ID associated with the ticket to be commented on"),
-  comment: z.string().describe("The text to be commented on the ticket"),
+  comment: z
+    .string()
+    .describe(
+      "The comment body, as plain text. Unlike the Jira issue comment actions, this text is sent to the Service Desk API unchanged and is not converted from Markdown, so Markdown syntax will appear literally.",
+    ),
 });
 
 export type jiraDataCenterPublicCommentOnServiceDeskRequestParamsType = z.infer<
@@ -2295,7 +2365,11 @@ export type jiraDataCenterPublicCommentOnServiceDeskRequestFunction = ActionFunc
 export const jiraDataCenterCommentJiraTicketParamsSchema = z.object({
   projectKey: z.string().describe("The key for the project to which the ticket you want to comment on belongs."),
   issueId: z.string().describe("The issue ID associated with the ticket to be commented on."),
-  comment: z.string().describe("The text to be commented on the ticket."),
+  comment: z
+    .string()
+    .describe(
+      "The comment body, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+    ),
 });
 
 export type jiraDataCenterCommentJiraTicketParamsType = z.infer<typeof jiraDataCenterCommentJiraTicketParamsSchema>;
@@ -2319,7 +2393,7 @@ export const jiraDataCenterCommentJiraTicketWithMentionsParamsSchema = z.object(
   comment: z
     .string()
     .describe(
-      "The text to be commented on the ticket. Use [~accountid:ATLASSIAN_ACCOUNT_ID] to @mention users (Jira Cloud only).",
+      "The comment body, as Markdown-formatted text; it is converted to Atlassian Document Format before it is posted. Use [~accountid:ATLASSIAN_ACCOUNT_ID] to @mention users. This action is Jira Cloud only — use commentJiraTicket for Jira Data Center.",
     ),
 });
 
@@ -2345,7 +2419,11 @@ export type jiraDataCenterCommentJiraTicketWithMentionsFunction = ActionFunction
 export const jiraDataCenterCreateJiraTicketParamsSchema = z.object({
   projectKey: z.string().describe("The key for the project you want to add the ticket to."),
   summary: z.string().describe("The summary of the new ticket"),
-  description: z.string().describe("The description for the new ticket"),
+  description: z
+    .string()
+    .describe(
+      "The description for the new ticket, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+    ),
   issueType: z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."),
   reporter: z.string().describe("The reporter for the new ticket creation").optional(),
   assignee: z.string().describe("The assignee for the new ticket creation").optional(),
@@ -2379,7 +2457,11 @@ export const jiraDataCenterCreateServiceDeskRequestParamsSchema = z.object({
   serviceDeskId: z.string().describe("The ID of the service desk to create the request in"),
   requestTypeId: z.string().describe("The ID of the request type to use for the new request"),
   summary: z.string().describe("The summary of the new service desk request"),
-  description: z.string().describe("The description for the new service desk request"),
+  description: z
+    .string()
+    .describe(
+      "The description for the new service desk request, as plain text. This text is sent to the Service Desk API unchanged and is not converted from Markdown, so Markdown syntax will appear literally.",
+    ),
   reporter: z
     .string()
     .describe("The email address of the person reporting the issue (for raising on behalf of)")
@@ -2499,7 +2581,12 @@ export const jiraDataCenterUpdateJiraTicketDetailsParamsSchema = z.object({
   projectKey: z.string().describe("The key for the project the ticket belongs to."),
   issueId: z.string().describe("The issue ID associated with the ticket to be updated"),
   summary: z.string().describe("The updated summary").optional(),
-  description: z.string().describe("The updated description").optional(),
+  description: z
+    .string()
+    .describe(
+      "The updated description, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+    )
+    .optional(),
   issueType: z.string().describe("The updated issue type").optional(),
   requestTypeId: z.string().describe("The request type ID for Jira Service Management tickets").optional(),
   customFields: z
@@ -2649,7 +2736,9 @@ export const jiraDataCenterLinkJiraIssuesParamsSchema = z.object({
     .describe('The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)'),
   comment: z
     .string()
-    .describe("An optional comment to add to the inward (source) issue when creating the link")
+    .describe(
+      "An optional comment to add to the inward (source) issue when creating the link, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+    )
     .optional(),
 });
 
@@ -2683,7 +2772,9 @@ export const jiraDataCenterLinkAndAssignJiraIssuesParamsSchema = z.object({
     .describe('The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)'),
   comment: z
     .string()
-    .describe("An optional comment to add to the inward (source) issue when creating the link")
+    .describe(
+      "An optional comment to add to the inward (source) issue when creating the link, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+    )
     .optional(),
 });
 
@@ -4883,6 +4974,9 @@ export const googleOauthCreatePresentationParamsSchema = z.object({
         .describe("The height object of the presentation")
         .optional(),
     })
+    .describe(
+      "The dimensions of every slide in the presentation. Optional; omit it to use the default page size Google applies to a new presentation.",
+    )
     .optional(),
 });
 
