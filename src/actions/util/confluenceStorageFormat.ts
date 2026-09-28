@@ -15,6 +15,8 @@
 export type ConfluenceTableCellUpdate = {
   rowAnchor: string;
   sectionAnchor?: string;
+  /** Zero-based index into the rows matching `rowAnchor` (in document order) when the anchor is not unique. */
+  rowOccurrence?: number;
   columnHeader?: string;
   columnIndex?: number;
   newContent: string;
@@ -25,8 +27,14 @@ export type ConfluenceReplacement = {
   find: string;
   replace: string;
   replaceAll?: boolean;
+  /** Zero-based index of the occurrence of `find` within the scope to replace. Mutually exclusive with `replaceAll`. */
+  occurrence?: number;
   rowAnchor?: string;
   sectionAnchor?: string;
+  /** Zero-based index into the rows matching `rowAnchor` (in document order) when the anchor is not unique. */
+  rowOccurrence?: number;
+  /** Text that ends the search scope (exclusive). Searched for after `sectionAnchor`. Not allowed with `rowAnchor`. */
+  sectionEndAnchor?: string;
 };
 
 export type ConfluenceFragmentUpdateInput = {
@@ -269,13 +277,100 @@ function findAllOccurrences(body: string, needle: string): number[] {
   return indices;
 }
 
-function resolveSearchStart(body: string, sectionAnchor: string | undefined): number {
+/**
+ * Resolves the (inclusive) start of a replacement scope: the index of the `sectionAnchor` text, so the anchor
+ * itself (typically the section's heading) is part of the scope and may be matched by `find`.
+ *
+ * Without an end anchor the scope runs to the end of the page, so a duplicated anchor only widens it and the first
+ * hit is used, as before. With `requireUnique` (set when a `sectionEndAnchor` bounds the scope) a duplicated anchor
+ * would instead bound a *different* stretch of the page than intended — e.g. an intro sentence mentioning
+ * "ServiceNow" before the real heading — so it is rejected as ambiguous, mirroring {@link locateTableRow}.
+ */
+function resolveSearchStart(body: string, sectionAnchor: string | undefined, requireUnique: boolean): number {
   if (sectionAnchor === undefined || sectionAnchor === "") return 0;
-  const index = body.indexOf(sectionAnchor);
-  if (index === -1) {
+  const occurrences = findAllOccurrences(body, sectionAnchor);
+  if (occurrences.length === 0) {
     throw new ConfluenceFragmentUpdateError(`sectionAnchor "${sectionAnchor}" was not found in the page body.`);
   }
+  if (requireUnique && occurrences.length > 1) {
+    throw new ConfluenceFragmentUpdateError(
+      `sectionAnchor "${sectionAnchor}" occurs ${occurrences.length} times on the page, so the scope bounded by sectionEndAnchor is ambiguous. Use a more specific sectionAnchor (e.g. include the heading markup, such as "<h3>${sectionAnchor}</h3>").`,
+    );
+  }
+  return occurrences[0];
+}
+
+/**
+ * Resolves the (exclusive) end of a replacement scope: the first occurrence of `sectionEndAnchor` that starts
+ * after the `sectionAnchor` text, so the end anchor itself (typically the next section's heading) is never part
+ * of the scope. Without an end anchor the scope runs to the end of the page, as before.
+ */
+function resolveSearchEnd(
+  body: string,
+  sectionEndAnchor: string | undefined,
+  scopeStart: number,
+  sectionAnchor: string | undefined,
+): number {
+  if (sectionEndAnchor === undefined) return body.length;
+  const searchFrom = scopeStart + (sectionAnchor?.length ?? 0);
+  const index = body.indexOf(sectionEndAnchor, searchFrom);
+  if (index === -1) {
+    throw new ConfluenceFragmentUpdateError(
+      sectionAnchor
+        ? `sectionEndAnchor "${sectionEndAnchor}" was not found after sectionAnchor "${sectionAnchor}" in the page body.`
+        : `sectionEndAnchor "${sectionEndAnchor}" was not found in the page body.`,
+    );
+  }
   return index;
+}
+
+/**
+ * Normalises a zero-based index parameter (`columnIndex`, `occurrence`, `rowOccurrence`) to a non-negative integer.
+ *
+ * The generated Zod schemas declare these as `z.coerce.number().int()`, but `invokeAction` validates and then hands
+ * the *original* parameters to the action, so an LLM-emitted `"1"` reaches this module as a string. Digit-only
+ * strings are therefore accepted here; anything else (negative, fractional, empty, non-numeric) is rejected rather
+ * than being silently coerced to 0.
+ */
+function normaliseIndex(value: unknown, name: string): number {
+  const numeric = typeof value === "string" && /^\s*\d+\s*$/.test(value) ? Number(value) : value;
+  if (typeof numeric !== "number" || !Number.isInteger(numeric) || numeric < 0) {
+    throw new ConfluenceFragmentUpdateError(`${name} must be a non-negative integer (got ${JSON.stringify(value)}).`);
+  }
+  return numeric;
+}
+
+/**
+ * Rejects targeting parameters that belong to the *other* kind of edit (e.g. `occurrence` on a table cell update).
+ *
+ * The generated Zod object is not strict and `invokeAction` forwards the caller's original parameters, so a misplaced
+ * key would otherwise arrive here and be silently dropped — and ignoring a targeting parameter always means editing a
+ * wider scope than the caller asked for.
+ */
+function assertNoForeignTargetingParams(
+  edit: object,
+  foreignKeys: readonly string[],
+  label: string,
+  hint: string,
+): void {
+  const present = foreignKeys.filter(key => (edit as Record<string, unknown>)[key] !== undefined);
+  if (present.length > 0) {
+    throw new ConfluenceFragmentUpdateError(
+      `${label}: ${present.join(", ")} ${present.length === 1 ? "is" : "are"} not supported here and would be ignored. ${hint}`,
+    );
+  }
+}
+
+/** Picks the `rowOccurrence`-th row out of the candidate rows (already in document order). */
+function pickRowOccurrence(rows: ElementSpan[], rowOccurrence: number, rowAnchor: string, where: string): ElementSpan {
+  const index = normaliseIndex(rowOccurrence, "rowOccurrence");
+  const row = rows[index];
+  if (!row) {
+    throw new ConfluenceFragmentUpdateError(
+      `rowAnchor "${rowAnchor}" matched ${rows.length} table row(s) ${where}; rowOccurrence ${index} is out of range.`,
+    );
+  }
+  return row;
 }
 
 /**
@@ -319,9 +414,15 @@ function innermostRowsContaining(body: string, rows: ElementSpan[], rowAnchor: s
  *
  * Without `sectionAnchor` the whole page is searched. With `sectionAnchor`, only the table(s) identified by
  * that anchor are searched (see {@link resolveSectionTables}). In both cases the match must be unique:
- * more than one candidate row is rejected as ambiguous rather than silently picking one.
+ * more than one candidate row is rejected as ambiguous rather than silently picking one — unless the caller
+ * explicitly selects one with `rowOccurrence` (zero-based, document order across the searched tables).
  */
-export function locateTableRow(body: string, rowAnchor: string, sectionAnchor?: string): ElementSpan {
+export function locateTableRow(
+  body: string,
+  rowAnchor: string,
+  sectionAnchor?: string,
+  rowOccurrence?: number,
+): ElementSpan {
   if (!rowAnchor) {
     throw new ConfluenceFragmentUpdateError("rowAnchor must be a non-empty string.");
   }
@@ -332,9 +433,12 @@ export function locateTableRow(body: string, rowAnchor: string, sectionAnchor?: 
     if (leaves.length === 0) {
       throw new ConfluenceFragmentUpdateError(`No table row containing rowAnchor "${rowAnchor}" was found.`);
     }
+    if (rowOccurrence !== undefined) {
+      return pickRowOccurrence(leaves, rowOccurrence, rowAnchor, "on the page");
+    }
     if (leaves.length > 1) {
       throw new ConfluenceFragmentUpdateError(
-        `rowAnchor "${rowAnchor}" matched ${leaves.length} table rows. Provide a sectionAnchor (e.g. the heading markup immediately before the intended table) or a more specific rowAnchor.`,
+        `rowAnchor "${rowAnchor}" matched ${leaves.length} table rows. Provide a sectionAnchor (e.g. the heading markup immediately before the intended table), a more specific rowAnchor, or a rowOccurrence index.`,
       );
     }
     return leaves[0];
@@ -353,6 +457,16 @@ export function locateTableRow(body: string, rowAnchor: string, sectionAnchor?: 
       `No table row containing rowAnchor "${rowAnchor}" was found in the table(s) identified by sectionAnchor "${sectionAnchor}".`,
     );
   }
+  if (rowOccurrence !== undefined) {
+    // Tables and the rows within them are already in document order, so flattening preserves it.
+    const candidates = matches.flatMap(match => match.rows);
+    return pickRowOccurrence(
+      candidates,
+      rowOccurrence,
+      rowAnchor,
+      `in the table(s) identified by sectionAnchor "${sectionAnchor}"`,
+    );
+  }
   if (matches.length > 1) {
     throw new ConfluenceFragmentUpdateError(
       `sectionAnchor "${sectionAnchor}" occurs ${findAllOccurrences(body, sectionAnchor).length} times on the page and rowAnchor "${rowAnchor}" matches rows in ${matches.length} different tables. Use a more specific sectionAnchor (e.g. include the heading markup, such as "<h3>${sectionAnchor}</h3>").`,
@@ -360,7 +474,7 @@ export function locateTableRow(body: string, rowAnchor: string, sectionAnchor?: 
   }
   if (matches[0].rows.length > 1) {
     throw new ConfluenceFragmentUpdateError(
-      `rowAnchor "${rowAnchor}" matched ${matches[0].rows.length} rows in the table identified by sectionAnchor "${sectionAnchor}". Provide a more specific rowAnchor.`,
+      `rowAnchor "${rowAnchor}" matched ${matches[0].rows.length} rows in the table identified by sectionAnchor "${sectionAnchor}". Provide a more specific rowAnchor or a rowOccurrence index.`,
     );
   }
   return matches[0].rows[0];
@@ -431,15 +545,11 @@ function resolveTargetCell(body: string, row: ElementSpan, update: ConfluenceTab
   const cells = getDirectCells(body, row);
 
   if (update.columnIndex !== undefined) {
-    if (!Number.isInteger(update.columnIndex) || update.columnIndex < 0) {
-      throw new ConfluenceFragmentUpdateError(
-        `columnIndex must be a non-negative integer (got ${update.columnIndex}).`,
-      );
-    }
-    const cell = cells[update.columnIndex];
+    const columnIndex = normaliseIndex(update.columnIndex, "columnIndex");
+    const cell = cells[columnIndex];
     if (!cell) {
       throw new ConfluenceFragmentUpdateError(
-        `Row matching "${update.rowAnchor}" has ${cells.length} cell(s); columnIndex ${update.columnIndex} is out of range.`,
+        `Row matching "${update.rowAnchor}" has ${cells.length} cell(s); columnIndex ${columnIndex} is out of range.`,
       );
     }
     return cell;
@@ -515,10 +625,16 @@ function resolveTargetCell(body: string, row: ElementSpan, update: ConfluenceTab
 }
 
 function applyTableCellUpdate(body: string, update: ConfluenceTableCellUpdate): string {
+  assertNoForeignTargetingParams(
+    update,
+    ["occurrence", "sectionEndAnchor"],
+    `Table cell update for rowAnchor "${update.rowAnchor}"`,
+    "Use a replacement to target an occurrence or a section-bounded scope.",
+  );
   assertBalancedFragment(update.newContent, "newContent");
   assertNoStrayStructuralTags(update.newContent, "newContent");
 
-  const row = locateTableRow(body, update.rowAnchor, update.sectionAnchor);
+  const row = locateTableRow(body, update.rowAnchor, update.sectionAnchor, update.rowOccurrence);
   const cell = resolveTargetCell(body, row, update);
 
   const existing = body.slice(cell.innerStart, cell.innerEnd);
@@ -592,44 +708,92 @@ function applyReplacement(body: string, replacement: ConfluenceReplacement): { b
   if (!replacement.find) {
     throw new ConfluenceFragmentUpdateError("Replacement `find` must be a non-empty string.");
   }
+  assertNoForeignTargetingParams(
+    replacement,
+    ["columnHeader", "columnIndex"],
+    `Replacement of "${truncate(replacement.find)}"`,
+    "Use a tableCellUpdate to target a specific cell.",
+  );
   assertReplacementPreservesStructure(replacement);
+  let occurrence: number | undefined;
+  if (replacement.occurrence !== undefined) {
+    if (replacement.replaceAll) {
+      throw new ConfluenceFragmentUpdateError(
+        `Replacement of "${truncate(replacement.find)}": provide either occurrence or replaceAll, not both.`,
+      );
+    }
+    occurrence = normaliseIndex(replacement.occurrence, "occurrence");
+  }
+  if (replacement.sectionEndAnchor === "") {
+    // An empty boundary would match nothing sensible; treating it as absent would silently widen the scope to the
+    // rest of the page, which is exactly what a caller supplying an end anchor is trying to prevent.
+    throw new ConfluenceFragmentUpdateError(
+      `Replacement of "${truncate(replacement.find)}": sectionEndAnchor must be a non-empty string.`,
+    );
+  }
+  if (replacement.rowAnchor && replacement.sectionEndAnchor) {
+    throw new ConfluenceFragmentUpdateError(
+      `Replacement of "${truncate(replacement.find)}": sectionEndAnchor cannot be combined with rowAnchor (the scope is already the single row).`,
+    );
+  }
+  if (replacement.rowOccurrence !== undefined && !replacement.rowAnchor) {
+    // Never ignore a targeting parameter: doing so would silently widen the scope to the page/section.
+    throw new ConfluenceFragmentUpdateError(
+      `Replacement of "${truncate(replacement.find)}": rowOccurrence requires a rowAnchor to select rows from.`,
+    );
+  }
 
-  // Scope the replacement to a single row if requested, otherwise to the whole body (from sectionAnchor onwards).
+  // Scope the replacement to a single row if requested, otherwise to the body between sectionAnchor (or the
+  // start of the page) and sectionEndAnchor (or the end of the page).
   let scopeStart = 0;
   let scopeEnd = body.length;
   if (replacement.rowAnchor) {
-    const row = locateTableRow(body, replacement.rowAnchor, replacement.sectionAnchor);
+    const row = locateTableRow(body, replacement.rowAnchor, replacement.sectionAnchor, replacement.rowOccurrence);
     scopeStart = row.start;
     scopeEnd = row.end;
   } else {
-    scopeStart = resolveSearchStart(body, replacement.sectionAnchor);
+    // A duplicated sectionAnchor is only dangerous when an end anchor turns it into a bounded window.
+    const requireUniqueStart = replacement.sectionEndAnchor !== undefined;
+    scopeStart = resolveSearchStart(body, replacement.sectionAnchor, requireUniqueStart);
+    scopeEnd = resolveSearchEnd(body, replacement.sectionEndAnchor, scopeStart, replacement.sectionAnchor);
   }
 
   const scope = body.slice(scopeStart, scopeEnd);
-  let count = 0;
-  let updatedScope: string;
-  if (replacement.replaceAll) {
-    updatedScope = scope.split(replacement.find).join(replacement.replace);
-    count = scope.split(replacement.find).length - 1;
-  } else {
-    const index = scope.indexOf(replacement.find);
-    if (index !== -1) {
-      updatedScope = scope.slice(0, index) + replacement.replace + scope.slice(index + replacement.find.length);
-      count = 1;
-    } else {
-      updatedScope = scope;
-    }
-  }
-
-  if (count === 0) {
-    const scopeDescription = replacement.rowAnchor
-      ? `the table row matching "${replacement.rowAnchor}"`
+  const scopeDescription = replacement.rowAnchor
+    ? `the table row matching "${replacement.rowAnchor}"`
+    : replacement.sectionAnchor && replacement.sectionEndAnchor
+      ? `the page body between sectionAnchor "${replacement.sectionAnchor}" and sectionEndAnchor "${replacement.sectionEndAnchor}"`
       : replacement.sectionAnchor
         ? `the page body after sectionAnchor "${replacement.sectionAnchor}"`
-        : "the page body";
+        : replacement.sectionEndAnchor
+          ? `the page body before sectionEndAnchor "${replacement.sectionEndAnchor}"`
+          : "the page body";
+
+  // Occurrences are counted over the raw storage-format markup of the *current* body — exactly what `find` and
+  // `replaceAll` match against — so they include text inside tag attributes and code-block (CDATA) bodies, and are
+  // affected by the tableCellUpdates and earlier replacements that already ran. Both are documented on the schema.
+  const occurrences = findAllOccurrences(scope, replacement.find);
+  if (occurrences.length === 0) {
     throw new ConfluenceFragmentUpdateError(
       `Replacement text "${truncate(replacement.find)}" was not found in ${scopeDescription}. No changes were made.`,
     );
+  }
+
+  let count: number;
+  let updatedScope: string;
+  if (replacement.replaceAll) {
+    updatedScope = scope.split(replacement.find).join(replacement.replace);
+    count = occurrences.length;
+  } else {
+    const target = occurrence ?? 0;
+    const index = occurrences[target];
+    if (index === undefined) {
+      throw new ConfluenceFragmentUpdateError(
+        `Replacement text "${truncate(replacement.find)}" occurs ${occurrences.length} time(s) in ${scopeDescription}; occurrence ${target} is out of range.`,
+      );
+    }
+    updatedScope = scope.slice(0, index) + replacement.replace + scope.slice(index + replacement.find.length);
+    count = 1;
   }
 
   return { body: body.slice(0, scopeStart) + updatedScope + body.slice(scopeEnd), count };
