@@ -1466,7 +1466,7 @@ export const confluenceUpdatePageFragmentsDefinition: ActionTemplate = {
               type: "integer",
               minimum: 0,
               description:
-                "Optional zero-based index of the occurrence of `find` (within the scope) to replace, e.g. 1 for the second match. Defaults to 0 (the first match). Rejected if out of range. Cannot be combined with replaceAll.\n",
+                "Optional zero-based index of the occurrence of `find` (within the scope) to replace, e.g. 1 for the second match. Defaults to 0 (the first match). Rejected if out of range. Cannot be combined with replaceAll. Occurrences are counted over the raw storage-format markup exactly as `find` is matched (so text inside tag attributes or code-block bodies counts too), against the page as it stands when this replacement runs, i.e. after tableCellUpdates and any earlier replacements have been applied. To change several specific occurrences of the same text in one call, list them from the highest index to the lowest so earlier edits do not shift later indexes.\n",
             },
             rowAnchor: {
               type: "string",
@@ -1481,12 +1481,12 @@ export const confluenceUpdatePageFragmentsDefinition: ActionTemplate = {
             sectionAnchor: {
               type: "string",
               description:
-                "Optional. Only search the page body from this text onwards (or use it to disambiguate rowAnchor). Combine with sectionEndAnchor to bound the search to a single section.\n",
+                'Optional. Only search the page body from this text onwards (or use it to disambiguate rowAnchor). The anchor text itself is included in the scope, so `find` may match inside it (e.g. a word in the section heading counts as occurrence 0). Combine with sectionEndAnchor to bound the search to the text between the two anchors; in that case the sectionAnchor must occur exactly once on the page, so prefer distinctive text such as the full heading markup "<h3>ServiceNow</h3>".\n',
             },
             sectionEndAnchor: {
               type: "string",
               description:
-                'Optional. Stop searching at the first occurrence of this text after sectionAnchor (exclusive), e.g. the markup of the next heading such as "<h2>Risk | Issues</h2>", or simply "<h2>" to stop at the next heading of that level. Without it the search runs to the end of the page. Cannot be combined with rowAnchor.\n',
+                'Optional. Stop searching at the first occurrence of this text after sectionAnchor. The end anchor itself is excluded from the scope. Typically the markup of the next heading, e.g. "<h2>Risk | Issues</h2>", or simply "<h2>" to stop at the next <h2> tag written without attributes. Anchors are plain substring matches against the storage-format markup, not structural: "<h2>" does not match "<h2 class=...>" and does not stop at an <h1>, so check the page markup when relying on a generic tag. Without it the search runs to the end of the page. Cannot be combined with rowAnchor.\n',
             },
           },
         },
@@ -1852,7 +1852,7 @@ export const confluenceDataCenterUpdatePageFragmentsDefinition: ActionTemplate =
               type: "integer",
               minimum: 0,
               description:
-                "Optional zero-based index of the occurrence of `find` (within the scope) to replace, e.g. 1 for the second match. Defaults to 0 (the first match). Rejected if out of range. Cannot be combined with replaceAll.\n",
+                "Optional zero-based index of the occurrence of `find` (within the scope) to replace, e.g. 1 for the second match. Defaults to 0 (the first match). Rejected if out of range. Cannot be combined with replaceAll. Occurrences are counted over the raw storage-format markup exactly as `find` is matched (so text inside tag attributes or code-block bodies counts too), against the page as it stands when this replacement runs, i.e. after tableCellUpdates and any earlier replacements have been applied. To change several specific occurrences of the same text in one call, list them from the highest index to the lowest so earlier edits do not shift later indexes.\n",
             },
             rowAnchor: {
               type: "string",
@@ -1867,12 +1867,12 @@ export const confluenceDataCenterUpdatePageFragmentsDefinition: ActionTemplate =
             sectionAnchor: {
               type: "string",
               description:
-                "Optional. Only search the page body from this text onwards (or use it to disambiguate rowAnchor). Combine with sectionEndAnchor to bound the search to a single section.\n",
+                'Optional. Only search the page body from this text onwards (or use it to disambiguate rowAnchor). The anchor text itself is included in the scope, so `find` may match inside it (e.g. a word in the section heading counts as occurrence 0). Combine with sectionEndAnchor to bound the search to the text between the two anchors; in that case the sectionAnchor must occur exactly once on the page, so prefer distinctive text such as the full heading markup "<h3>ServiceNow</h3>".\n',
             },
             sectionEndAnchor: {
               type: "string",
               description:
-                'Optional. Stop searching at the first occurrence of this text after sectionAnchor (exclusive), e.g. the markup of the next heading such as "<h2>Risk | Issues</h2>", or simply "<h2>" to stop at the next heading of that level. Without it the search runs to the end of the page. Cannot be combined with rowAnchor.\n',
+                'Optional. Stop searching at the first occurrence of this text after sectionAnchor. The end anchor itself is excluded from the scope. Typically the markup of the next heading, e.g. "<h2>Risk | Issues</h2>", or simply "<h2>" to stop at the next <h2> tag written without attributes. Anchors are plain substring matches against the storage-format markup, not structural: "<h2>" does not match "<h2 class=...>" and does not stop at an <h1>, so check the page markup when relying on a generic tag. Without it the search runs to the end of the page. Cannot be combined with rowAnchor.\n',
             },
           },
         },

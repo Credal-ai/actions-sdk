@@ -277,18 +277,33 @@ function findAllOccurrences(body: string, needle: string): number[] {
   return indices;
 }
 
-function resolveSearchStart(body: string, sectionAnchor: string | undefined): number {
+/**
+ * Resolves the (inclusive) start of a replacement scope: the index of the `sectionAnchor` text, so the anchor
+ * itself (typically the section's heading) is part of the scope and may be matched by `find`.
+ *
+ * Without an end anchor the scope runs to the end of the page, so a duplicated anchor only widens it and the first
+ * hit is used, as before. With `requireUnique` (set when a `sectionEndAnchor` bounds the scope) a duplicated anchor
+ * would instead bound a *different* stretch of the page than intended — e.g. an intro sentence mentioning
+ * "ServiceNow" before the real heading — so it is rejected as ambiguous, mirroring {@link locateTableRow}.
+ */
+function resolveSearchStart(body: string, sectionAnchor: string | undefined, requireUnique: boolean): number {
   if (sectionAnchor === undefined || sectionAnchor === "") return 0;
-  const index = body.indexOf(sectionAnchor);
-  if (index === -1) {
+  const occurrences = findAllOccurrences(body, sectionAnchor);
+  if (occurrences.length === 0) {
     throw new ConfluenceFragmentUpdateError(`sectionAnchor "${sectionAnchor}" was not found in the page body.`);
   }
-  return index;
+  if (requireUnique && occurrences.length > 1) {
+    throw new ConfluenceFragmentUpdateError(
+      `sectionAnchor "${sectionAnchor}" occurs ${occurrences.length} times on the page, so the scope bounded by sectionEndAnchor is ambiguous. Use a more specific sectionAnchor (e.g. include the heading markup, such as "<h3>${sectionAnchor}</h3>").`,
+    );
+  }
+  return occurrences[0];
 }
 
 /**
  * Resolves the (exclusive) end of a replacement scope: the first occurrence of `sectionEndAnchor` that starts
- * after the `sectionAnchor` text. Without an end anchor the scope runs to the end of the page, as before.
+ * after the `sectionAnchor` text, so the end anchor itself (typically the next section's heading) is never part
+ * of the scope. Without an end anchor the scope runs to the end of the page, as before.
  */
 function resolveSearchEnd(
   body: string,
@@ -323,6 +338,27 @@ function normaliseIndex(value: unknown, name: string): number {
     throw new ConfluenceFragmentUpdateError(`${name} must be a non-negative integer (got ${JSON.stringify(value)}).`);
   }
   return numeric;
+}
+
+/**
+ * Rejects targeting parameters that belong to the *other* kind of edit (e.g. `occurrence` on a table cell update).
+ *
+ * The generated Zod object is not strict and `invokeAction` forwards the caller's original parameters, so a misplaced
+ * key would otherwise arrive here and be silently dropped — and ignoring a targeting parameter always means editing a
+ * wider scope than the caller asked for.
+ */
+function assertNoForeignTargetingParams(
+  edit: object,
+  foreignKeys: readonly string[],
+  label: string,
+  hint: string,
+): void {
+  const present = foreignKeys.filter(key => (edit as Record<string, unknown>)[key] !== undefined);
+  if (present.length > 0) {
+    throw new ConfluenceFragmentUpdateError(
+      `${label}: ${present.join(", ")} ${present.length === 1 ? "is" : "are"} not supported here and would be ignored. ${hint}`,
+    );
+  }
 }
 
 /** Picks the `rowOccurrence`-th row out of the candidate rows (already in document order). */
@@ -589,6 +625,12 @@ function resolveTargetCell(body: string, row: ElementSpan, update: ConfluenceTab
 }
 
 function applyTableCellUpdate(body: string, update: ConfluenceTableCellUpdate): string {
+  assertNoForeignTargetingParams(
+    update,
+    ["occurrence", "sectionEndAnchor"],
+    `Table cell update for rowAnchor "${update.rowAnchor}"`,
+    "Use a replacement to target an occurrence or a section-bounded scope.",
+  );
   assertBalancedFragment(update.newContent, "newContent");
   assertNoStrayStructuralTags(update.newContent, "newContent");
 
@@ -666,6 +708,12 @@ function applyReplacement(body: string, replacement: ConfluenceReplacement): { b
   if (!replacement.find) {
     throw new ConfluenceFragmentUpdateError("Replacement `find` must be a non-empty string.");
   }
+  assertNoForeignTargetingParams(
+    replacement,
+    ["columnHeader", "columnIndex"],
+    `Replacement of "${truncate(replacement.find)}"`,
+    "Use a tableCellUpdate to target a specific cell.",
+  );
   assertReplacementPreservesStructure(replacement);
   let occurrence: number | undefined;
   if (replacement.occurrence !== undefined) {
@@ -704,7 +752,9 @@ function applyReplacement(body: string, replacement: ConfluenceReplacement): { b
     scopeStart = row.start;
     scopeEnd = row.end;
   } else {
-    scopeStart = resolveSearchStart(body, replacement.sectionAnchor);
+    // A duplicated sectionAnchor is only dangerous when an end anchor turns it into a bounded window.
+    const requireUniqueStart = replacement.sectionEndAnchor !== undefined;
+    scopeStart = resolveSearchStart(body, replacement.sectionAnchor, requireUniqueStart);
     scopeEnd = resolveSearchEnd(body, replacement.sectionEndAnchor, scopeStart, replacement.sectionAnchor);
   }
 
@@ -719,6 +769,9 @@ function applyReplacement(body: string, replacement: ConfluenceReplacement): { b
           ? `the page body before sectionEndAnchor "${replacement.sectionEndAnchor}"`
           : "the page body";
 
+  // Occurrences are counted over the raw storage-format markup of the *current* body — exactly what `find` and
+  // `replaceAll` match against — so they include text inside tag attributes and code-block (CDATA) bodies, and are
+  // affected by the tableCellUpdates and earlier replacements that already ran. Both are documented on the schema.
   const occurrences = findAllOccurrences(scope, replacement.find);
   if (occurrences.length === 0) {
     throw new ConfluenceFragmentUpdateError(
