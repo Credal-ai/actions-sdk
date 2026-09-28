@@ -512,7 +512,7 @@ export const slackSendDmFromBotParamsSchema = z.object({
   message: z
     .string()
     .describe(
-      "The message content to send in the direct message, in Slack mrkdwn: *bold*, _italic_, `code`, <https://example.com|link>. This is not Markdown — **bold** and # headings are rendered literally.",
+      "The message content to send in the direct message, in Slack mrkdwn: *bold*, _italic_, `code`, <https://example.com|link>. This is not Markdown: **bold** and # headings do not render as intended.",
     ),
 });
 
@@ -563,7 +563,7 @@ export const slackSendMessageParamsSchema = z.object({
   message: z
     .string()
     .describe(
-      "The message content to send to Slack, in Slack mrkdwn: *bold*, _italic_, `code`, <https://example.com|link>. This is not Markdown — **bold** and # headings are rendered literally.",
+      "The message content to send to Slack, in Slack mrkdwn: *bold*, _italic_, `code`, <https://example.com|link>. This is not Markdown: **bold** and # headings do not render as intended.",
     ),
   unfurlLinks: z
     .boolean()
@@ -1393,7 +1393,7 @@ export const jiraPublicCommentOnServiceDeskRequestParamsSchema = z.object({
   comment: z
     .string()
     .describe(
-      "The comment body, as plain text. Unlike the Jira issue comment actions, this text is sent to the Service Desk API unchanged and is not converted from Markdown, so Markdown syntax will appear literally.",
+      "The comment body, as plain text. Unlike the Jira issue comment actions, this text is sent to the Service Desk API unchanged, with no Markdown conversion.",
     ),
 });
 
@@ -1422,7 +1422,7 @@ export const jiraCommentJiraTicketParamsSchema = z.object({
   comment: z
     .string()
     .describe(
-      "The comment body, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+      "The comment body, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged and rendered as Jira wiki markup, which is not Markdown: *text* is bold there rather than italic.",
     ),
 });
 
@@ -1472,7 +1472,7 @@ export const jiraCreateJiraTicketParamsSchema = z.object({
   description: z
     .string()
     .describe(
-      "The description for the new ticket, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+      "The description for the new ticket, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged and rendered as Jira wiki markup, which is not Markdown: *text* is bold there rather than italic.",
     ),
   issueType: z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."),
   reporter: z.string().describe("The reporter for the new ticket creation").optional(),
@@ -1510,7 +1510,7 @@ export const jiraCreateServiceDeskRequestParamsSchema = z.object({
   description: z
     .string()
     .describe(
-      "The description for the new service desk request, as plain text. This text is sent to the Service Desk API unchanged and is not converted from Markdown, so Markdown syntax will appear literally.",
+      "The description for the new service desk request, as plain text. This text is sent to the Service Desk API unchanged, with no Markdown conversion.",
     ),
   reporter: z
     .string()
@@ -1618,7 +1618,7 @@ export const jiraUpdateJiraTicketDetailsParamsSchema = z.object({
   description: z
     .string()
     .describe(
-      "The updated description, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+      "The updated description, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged and rendered as Jira wiki markup, which is not Markdown: *text* is bold there rather than italic.",
     )
     .optional(),
   issueType: z.string().describe("The updated issue type").optional(),
@@ -1777,7 +1777,7 @@ export const jiraLinkJiraIssuesParamsSchema = z.object({
   comment: z
     .string()
     .describe(
-      "An optional comment to add to the inward (source) issue when creating the link, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+      "An optional comment to add to the inward (source) issue when creating the link, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged and rendered as Jira wiki markup, which is not Markdown: *text* is bold there rather than italic.",
     )
     .optional(),
 });
@@ -1813,7 +1813,7 @@ export const jiraLinkAndAssignJiraIssuesParamsSchema = z.object({
   comment: z
     .string()
     .describe(
-      "An optional comment to add to the inward (source) issue when creating the link, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+      "An optional comment to add to the inward (source) issue when creating the link, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged and rendered as Jira wiki markup, which is not Markdown: *text* is bold there rather than italic.",
     )
     .optional(),
 });
@@ -1864,7 +1864,7 @@ export const jiraOrgPublicCommentOnServiceDeskRequestParamsSchema = z.object({
   comment: z
     .string()
     .describe(
-      "The comment body, as plain text. Unlike the Jira issue comment actions, this text is sent to the Service Desk API unchanged and is not converted from Markdown, so Markdown syntax will appear literally.",
+      "The comment body, as plain text. Unlike the Jira issue comment actions, this text is sent to the Service Desk API unchanged, with no Markdown conversion.",
     ),
 });
 
@@ -1893,7 +1893,7 @@ export const jiraOrgCommentJiraTicketParamsSchema = z.object({
   comment: z
     .string()
     .describe(
-      "The comment body, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+      "The comment body, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged and rendered as Jira wiki markup, which is not Markdown: *text* is bold there rather than italic.",
     ),
 });
 
@@ -1947,7 +1947,7 @@ export const jiraOrgCreateJiraTicketParamsSchema = z.object({
   description: z
     .string()
     .describe(
-      "The description for the new ticket, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+      "The description for the new ticket, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged and rendered as Jira wiki markup, which is not Markdown: *text* is bold there rather than italic.",
     ),
   issueType: z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."),
   reporter: z.string().describe("The reporter for the new ticket creation").optional(),
@@ -1985,7 +1985,7 @@ export const jiraOrgCreateServiceDeskRequestParamsSchema = z.object({
   description: z
     .string()
     .describe(
-      "The description for the new service desk request, as plain text. This text is sent to the Service Desk API unchanged and is not converted from Markdown, so Markdown syntax will appear literally.",
+      "The description for the new service desk request, as plain text. This text is sent to the Service Desk API unchanged, with no Markdown conversion.",
     ),
   reporter: z
     .string()
@@ -2093,7 +2093,7 @@ export const jiraOrgUpdateJiraTicketDetailsParamsSchema = z.object({
   description: z
     .string()
     .describe(
-      "The updated description, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+      "The updated description, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged and rendered as Jira wiki markup, which is not Markdown: *text* is bold there rather than italic.",
     )
     .optional(),
   issueType: z.string().describe("The updated issue type").optional(),
@@ -2252,7 +2252,7 @@ export const jiraOrgLinkJiraIssuesParamsSchema = z.object({
   comment: z
     .string()
     .describe(
-      "An optional comment to add to the inward (source) issue when creating the link, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+      "An optional comment to add to the inward (source) issue when creating the link, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged and rendered as Jira wiki markup, which is not Markdown: *text* is bold there rather than italic.",
     )
     .optional(),
 });
@@ -2288,7 +2288,7 @@ export const jiraOrgLinkAndAssignJiraIssuesParamsSchema = z.object({
   comment: z
     .string()
     .describe(
-      "An optional comment to add to the inward (source) issue when creating the link, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+      "An optional comment to add to the inward (source) issue when creating the link, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged and rendered as Jira wiki markup, which is not Markdown: *text* is bold there rather than italic.",
     )
     .optional(),
 });
@@ -2339,7 +2339,7 @@ export const jiraDataCenterPublicCommentOnServiceDeskRequestParamsSchema = z.obj
   comment: z
     .string()
     .describe(
-      "The comment body, as plain text. Unlike the Jira issue comment actions, this text is sent to the Service Desk API unchanged and is not converted from Markdown, so Markdown syntax will appear literally.",
+      "The comment body, as plain text. Unlike the Jira issue comment actions, this text is sent to the Service Desk API unchanged, with no Markdown conversion.",
     ),
 });
 
@@ -2368,7 +2368,7 @@ export const jiraDataCenterCommentJiraTicketParamsSchema = z.object({
   comment: z
     .string()
     .describe(
-      "The comment body, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+      "The comment body, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged and rendered as Jira wiki markup, which is not Markdown: *text* is bold there rather than italic.",
     ),
 });
 
@@ -2422,7 +2422,7 @@ export const jiraDataCenterCreateJiraTicketParamsSchema = z.object({
   description: z
     .string()
     .describe(
-      "The description for the new ticket, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+      "The description for the new ticket, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged and rendered as Jira wiki markup, which is not Markdown: *text* is bold there rather than italic.",
     ),
   issueType: z.string().describe("The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc."),
   reporter: z.string().describe("The reporter for the new ticket creation").optional(),
@@ -2460,7 +2460,7 @@ export const jiraDataCenterCreateServiceDeskRequestParamsSchema = z.object({
   description: z
     .string()
     .describe(
-      "The description for the new service desk request, as plain text. This text is sent to the Service Desk API unchanged and is not converted from Markdown, so Markdown syntax will appear literally.",
+      "The description for the new service desk request, as plain text. This text is sent to the Service Desk API unchanged, with no Markdown conversion.",
     ),
   reporter: z
     .string()
@@ -2584,7 +2584,7 @@ export const jiraDataCenterUpdateJiraTicketDetailsParamsSchema = z.object({
   description: z
     .string()
     .describe(
-      "The updated description, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+      "The updated description, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged and rendered as Jira wiki markup, which is not Markdown: *text* is bold there rather than italic.",
     )
     .optional(),
   issueType: z.string().describe("The updated issue type").optional(),
@@ -2737,7 +2737,7 @@ export const jiraDataCenterLinkJiraIssuesParamsSchema = z.object({
   comment: z
     .string()
     .describe(
-      "An optional comment to add to the inward (source) issue when creating the link, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+      "An optional comment to add to the inward (source) issue when creating the link, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged and rendered as Jira wiki markup, which is not Markdown: *text* is bold there rather than italic.",
     )
     .optional(),
 });
@@ -2773,7 +2773,7 @@ export const jiraDataCenterLinkAndAssignJiraIssuesParamsSchema = z.object({
   comment: z
     .string()
     .describe(
-      "An optional comment to add to the inward (source) issue when creating the link, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged, so write plain text there — Markdown syntax will appear literally.",
+      "An optional comment to add to the inward (source) issue when creating the link, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged and rendered as Jira wiki markup, which is not Markdown: *text* is bold there rather than italic.",
     )
     .optional(),
 });
