@@ -349,9 +349,9 @@ function resolveSingleParentRegion(body: string, parentSectionAnchor: string | u
  * end anchor, first-hit resolution of a duplicated start anchor could bound a *different* stretch of the page than
  * intended — e.g. an intro sentence mentioning "ServiceNow" before the real heading — so any other occurrence that
  * could plausibly be the intended start is rejected as ambiguous, mirroring {@link locateTableRow}. The one occurrence
- * that cannot be the intended start is the closing boundary of the first window itself when nothing could bound it in
- * turn: two identical `<h3>Status</h3>` headings used as both start and end anchor are therefore accepted, whereas
- * three of them (the second heading starts its own window) are not.
+ * that cannot be the intended start is one sitting exactly at the closing boundary of the first window when nothing
+ * could bound it in turn: two identical `<h3>Status</h3>` headings used as both start and end anchor are therefore
+ * accepted, whereas three of them (the second heading starts its own window) are not.
  */
 function resolveSectionScope(
   body: string,
@@ -391,8 +391,11 @@ function resolveSectionScope(
     );
   }
 
-  const isClosingBoundary = (other: number) =>
-    other >= end && other < end + sectionEndAnchor.length && findEnd(other) === undefined;
+  // The occurrence must sit exactly where the end anchor starts (identical anchors, or the end anchor beginning with
+  // the start anchor). Merely lying *inside* the end match is not enough: with `sectionAnchor: "Status"` and
+  // `sectionEndAnchor: "<h3>Status</h3>"` on a page whose earlier heading is "Current Status", the "Status" inside the
+  // end heading is a sloppy anchor matching a different section, not a boundary, and must stay ambiguous.
+  const isClosingBoundary = (other: number) => other === end && findEnd(other) === undefined;
   if (others.some(other => !isClosingBoundary(other))) {
     throw new ConfluenceFragmentUpdateError(
       `sectionAnchor "${sectionAnchor}" occurs ${starts.length} times ${wholePage ? "on the page" : "inside the parentSectionAnchor region"}, so the scope bounded by sectionEndAnchor is ambiguous. Use a more specific sectionAnchor (e.g. include the heading markup, such as "<h3>${sectionAnchor}</h3>")${wholePage ? " or add a parentSectionAnchor" : ""}.`,

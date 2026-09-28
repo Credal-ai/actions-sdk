@@ -200,8 +200,12 @@ describe("applyConfluenceFragmentUpdates", () => {
   });
 
   it("uses the first matching row after the sectionAnchor when the user appears in several sections", () => {
-    const cloudRow = locateTableRow(PAGE_BODY, USER_KEY, { sectionAnchor: "Cloud/Infrastructure" });
-    const snowRow = locateTableRow(PAGE_BODY, USER_KEY, { sectionAnchor: "ServiceNow" });
+    const cloudRow = locateTableRow(PAGE_BODY, USER_KEY, {
+      sectionAnchor: "Cloud/Infrastructure",
+    });
+    const snowRow = locateTableRow(PAGE_BODY, USER_KEY, {
+      sectionAnchor: "ServiceNow",
+    });
     expect(PAGE_BODY.slice(cloudRow.start, cloudRow.end)).toContain(
       "Cloud work TBD",
     );
@@ -742,7 +746,9 @@ describe("applyConfluenceFragmentUpdates", () => {
       const result = applyConfluenceFragmentUpdates(page, {
         replacements: [{ find: "TBD", replace: "Done", occurrence: 3 }],
       });
-      expect(result.body).toBe(page.replace("<p>Plan TBD</p>", "<p>Plan Done</p>"));
+      expect(result.body).toBe(
+        page.replace("<p>Plan TBD</p>", "<p>Plan Done</p>"),
+      );
     });
 
     describe("index parameters arriving as strings", () => {
@@ -997,7 +1003,9 @@ describe("applyConfluenceFragmentUpdates", () => {
             },
           ],
         }),
-      ).toThrow(/occurs 3 times on the page, so the scope bounded by sectionEndAnchor is ambiguous/);
+      ).toThrow(
+        /occurs 3 times on the page, so the scope bounded by sectionEndAnchor is ambiguous/,
+      );
 
       // Two identical headings with a generic end anchor: the 2nd heading closes the 1st window but starts its own.
       const two = [
@@ -1008,10 +1016,39 @@ describe("applyConfluenceFragmentUpdates", () => {
       expect(() =>
         applyConfluenceFragmentUpdates(two, {
           replacements: [
-            { find: "TBD", replace: "Done", sectionAnchor: "<h3>Status</h3>", sectionEndAnchor: "<h3>" },
+            {
+              find: "TBD",
+              replace: "Done",
+              sectionAnchor: "<h3>Status</h3>",
+              sectionEndAnchor: "<h3>",
+            },
           ],
         }),
-      ).toThrow(/occurs 2 times on the page, so the scope bounded by sectionEndAnchor is ambiguous/);
+      ).toThrow(
+        /occurs 2 times on the page, so the scope bounded by sectionEndAnchor is ambiguous/,
+      );
+
+      // A plain-text start anchor that happens to occur *inside* the end heading is a sloppy anchor matching a
+      // different section ("Current Status"), not the closing boundary: only an occurrence exactly at the end
+      // anchor's position is excused.
+      const substring = [
+        `<h3>Current Status</h3><p>Current TBD</p>`,
+        `<h3>Status</h3><p>Overall TBD</p>`,
+      ].join("");
+      expect(() =>
+        applyConfluenceFragmentUpdates(substring, {
+          replacements: [
+            {
+              find: "TBD",
+              replace: "Done",
+              sectionAnchor: "Status",
+              sectionEndAnchor: "<h3>Status</h3>",
+            },
+          ],
+        }),
+      ).toThrow(
+        /sectionAnchor "Status" occurs 2 times on the page, so the scope bounded by sectionEndAnchor is ambiguous/,
+      );
 
       // A second occurrence that is neither the closing boundary nor boundable at all is still a plausible intended
       // start (the caller may simply have mis-specified the end anchor), so it is not silently skipped.
@@ -1023,10 +1060,17 @@ describe("applyConfluenceFragmentUpdates", () => {
       expect(() =>
         applyConfluenceFragmentUpdates(unbounded, {
           replacements: [
-            { find: "TBD", replace: "Done", sectionAnchor: "<h3>Status</h3>", sectionEndAnchor: "<h3>" },
+            {
+              find: "TBD",
+              replace: "Done",
+              sectionAnchor: "<h3>Status</h3>",
+              sectionEndAnchor: "<h3>",
+            },
           ],
         }),
-      ).toThrow(/occurs 2 times on the page, so the scope bounded by sectionEndAnchor is ambiguous/);
+      ).toThrow(
+        /occurs 2 times on the page, so the scope bounded by sectionEndAnchor is ambiguous/,
+      );
     });
 
     it("keeps first-hit resolution for a duplicated sectionAnchor when no sectionEndAnchor is given", () => {
@@ -1160,12 +1204,18 @@ describe("applyConfluenceFragmentUpdates", () => {
             }),
           ],
         }),
-      ).toThrow(/Replacement of "TBD": columnIndex is not supported here.*Use a tableCellUpdate/);
+      ).toThrow(
+        /Replacement of "TBD": columnIndex is not supported here.*Use a tableCellUpdate/,
+      );
 
       expect(() =>
         applyConfluenceFragmentUpdates(PAGE_BODY, {
           replacements: [
-            asReplacement({ find: "TBD", replace: "Done", columnHeader: "Weekly Snapshot" }),
+            asReplacement({
+              find: "TBD",
+              replace: "Done",
+              columnHeader: "Weekly Snapshot",
+            }),
           ],
         }),
       ).toThrow(/columnHeader is not supported here/);
@@ -1195,7 +1245,12 @@ describe("applyConfluenceFragmentUpdates", () => {
       expect(() =>
         applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
           tableCellUpdates: [
-            { rowAnchor: USER_KEY, sectionAnchor: "<h3>ServiceNow</h3>", columnHeader: "Status", newContent: "<p>x</p>" },
+            {
+              rowAnchor: USER_KEY,
+              sectionAnchor: "<h3>ServiceNow</h3>",
+              columnHeader: "Status",
+              newContent: "<p>x</p>",
+            },
           ],
         }),
       ).toThrow(/matches rows in 2 different tables.*parentSectionAnchor/);
@@ -1261,11 +1316,18 @@ describe("applyConfluenceFragmentUpdates", () => {
             },
           ],
         }),
-      ).toThrow(/matches rows in 2 different tables under parentSectionAnchor.*Add a sectionAnchor/);
+      ).toThrow(
+        /matches rows in 2 different tables under parentSectionAnchor.*Add a sectionAnchor/,
+      );
 
       const infra = applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
         tableCellUpdates: [
-          { rowAnchor: USER_KEY, parentSectionAnchor: "<h2>Infrastructure</h2>", columnIndex: 1, newContent: "<p>x</p>" },
+          {
+            rowAnchor: USER_KEY,
+            parentSectionAnchor: "<h2>Infrastructure</h2>",
+            columnIndex: 1,
+            newContent: "<p>x</p>",
+          },
         ],
       });
       expect(infra.body).not.toContain("Infra SNOW TBD");
@@ -1291,7 +1353,12 @@ describe("applyConfluenceFragmentUpdates", () => {
       expect(() =>
         applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
           tableCellUpdates: [
-            { rowAnchor: USER_KEY, parentSectionAnchor: "<h2>Nope</h2>", columnIndex: 1, newContent: "<p>x</p>" },
+            {
+              rowAnchor: USER_KEY,
+              parentSectionAnchor: "<h2>Nope</h2>",
+              columnIndex: 1,
+              newContent: "<p>x</p>",
+            },
           ],
         }),
       ).toThrow(/parentSectionAnchor "<h2>Nope<\/h2>" was not found/);
@@ -1308,12 +1375,19 @@ describe("applyConfluenceFragmentUpdates", () => {
             },
           ],
         }),
-      ).toThrow(/"<h3>SharePoint<\/h3>" was not found inside the region of parentSectionAnchor/);
+      ).toThrow(
+        /"<h3>SharePoint<\/h3>" was not found inside the region of parentSectionAnchor/,
+      );
 
       expect(() =>
         applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
           tableCellUpdates: [
-            { rowAnchor: USER_KEY, parentSectionAnchor: "<h2>Risks</h2>", columnIndex: 1, newContent: "<p>x</p>" },
+            {
+              rowAnchor: USER_KEY,
+              parentSectionAnchor: "<h2>Risks</h2>",
+              columnIndex: 1,
+              newContent: "<p>x</p>",
+            },
           ],
         }),
       ).toThrow(/no table inside its section/);
@@ -1322,7 +1396,12 @@ describe("applyConfluenceFragmentUpdates", () => {
     it("bounds replacements to the parent region and resolves section anchors inside it", () => {
       const result = applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
         replacements: [
-          { find: "TBD", replace: "Done", replaceAll: true, parentSectionAnchor: "<h2>Application Development</h2>" },
+          {
+            find: "TBD",
+            replace: "Done",
+            replaceAll: true,
+            parentSectionAnchor: "<h2>Application Development</h2>",
+          },
         ],
       });
       expect(result.replacementsApplied).toBe(2);
@@ -1358,7 +1437,9 @@ describe("applyConfluenceFragmentUpdates", () => {
             },
           ],
         }),
-      ).toThrow(/sectionEndAnchor "<h2>Risks<\/h2>" was not found after sectionAnchor .* in the parentSectionAnchor region/);
+      ).toThrow(
+        /sectionEndAnchor "<h2>Risks<\/h2>" was not found after sectionAnchor .* in the parentSectionAnchor region/,
+      );
     });
 
     it("judges sectionAnchor uniqueness for a bounded scope inside the parent region, not page-wide", () => {
@@ -1375,7 +1456,9 @@ describe("applyConfluenceFragmentUpdates", () => {
             },
           ],
         }),
-      ).toThrow(/occurs 2 times on the page.*ambiguous.*or add a parentSectionAnchor/);
+      ).toThrow(
+        /occurs 2 times on the page.*ambiguous.*or add a parentSectionAnchor/,
+      );
 
       // Inside the Application Development region it is unique, so the same replacement is accepted.
       const result = applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
@@ -1408,20 +1491,33 @@ describe("applyConfluenceFragmentUpdates", () => {
             },
           ],
         }),
-      ).toThrow(/occurs 2 times inside the parentSectionAnchor region.*ambiguous/);
+      ).toThrow(
+        /occurs 2 times inside the parentSectionAnchor region.*ambiguous/,
+      );
     });
 
     it("rejects a non-unique parentSectionAnchor for replacements without a row", () => {
       expect(() =>
         applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
-          replacements: [{ find: "TBD", replace: "Done", parentSectionAnchor: "ServiceNow" }],
+          replacements: [
+            { find: "TBD", replace: "Done", parentSectionAnchor: "ServiceNow" },
+          ],
         }),
-      ).toThrow(/parentSectionAnchor "ServiceNow" occurs 3 times.*<h2>ServiceNow<\/h2>/);
+      ).toThrow(
+        /parentSectionAnchor "ServiceNow" occurs 3 times.*<h2>ServiceNow<\/h2>/,
+      );
     });
 
     it("treats a parent anchor outside any heading as 'from here to the end of the page'", () => {
       const result = applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
-        replacements: [{ find: "TBD", replace: "Done", replaceAll: true, parentSectionAnchor: "Infra SNOW" }],
+        replacements: [
+          {
+            find: "TBD",
+            replace: "Done",
+            replaceAll: true,
+            parentSectionAnchor: "Infra SNOW",
+          },
+        ],
       });
       expect(result.replacementsApplied).toBe(2);
       expect(result.body).toContain("AppDev SP TBD");
