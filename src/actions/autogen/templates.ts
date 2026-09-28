@@ -1491,7 +1491,7 @@ export const confluenceUpdatePageFragmentsDefinition: ActionTemplate = {
             sectionAnchor: {
               type: "string",
               description:
-                'Optional. Only search the page body from this text onwards (or use it to disambiguate rowAnchor). The anchor text itself is included in the scope, so `find` may match inside it (e.g. a word in the section heading counts as occurrence 0). Combine with sectionEndAnchor to bound the search to the text between the two anchors; in that case the sectionAnchor must occur exactly once on the page (or, with parentSectionAnchor, exactly once inside that parent\'s region), so prefer distinctive text such as the full heading markup "<h3>ServiceNow</h3>", or add a parentSectionAnchor.\n',
+                'Optional. Only search the page body from this text onwards (or use it to disambiguate rowAnchor). The anchor text itself is included in the scope, so `find` may match inside it (e.g. a word in the section heading counts as occurrence 0). Combine with sectionEndAnchor to bound the search to the text between the two anchors; in that case the sectionAnchor must occur exactly once on the page (or, with parentSectionAnchor, exactly once inside that parent\'s region), so prefer distinctive text such as the full heading markup "<h3>ServiceNow</h3>", or add a parentSectionAnchor. The one exception is using identical heading markup for both anchors to target the text between two consecutive identical headings: the closing heading is not counted as a duplicate.\n',
             },
             sectionEndAnchor: {
               type: "string",
@@ -1887,7 +1887,7 @@ export const confluenceDataCenterUpdatePageFragmentsDefinition: ActionTemplate =
             sectionAnchor: {
               type: "string",
               description:
-                'Optional. Only search the page body from this text onwards (or use it to disambiguate rowAnchor). The anchor text itself is included in the scope, so `find` may match inside it (e.g. a word in the section heading counts as occurrence 0). Combine with sectionEndAnchor to bound the search to the text between the two anchors; in that case the sectionAnchor must occur exactly once on the page (or, with parentSectionAnchor, exactly once inside that parent\'s region), so prefer distinctive text such as the full heading markup "<h3>ServiceNow</h3>", or add a parentSectionAnchor.\n',
+                'Optional. Only search the page body from this text onwards (or use it to disambiguate rowAnchor). The anchor text itself is included in the scope, so `find` may match inside it (e.g. a word in the section heading counts as occurrence 0). Combine with sectionEndAnchor to bound the search to the text between the two anchors; in that case the sectionAnchor must occur exactly once on the page (or, with parentSectionAnchor, exactly once inside that parent\'s region), so prefer distinctive text such as the full heading markup "<h3>ServiceNow</h3>", or add a parentSectionAnchor. The one exception is using identical heading markup for both anchors to target the text between two consecutive identical headings: the closing heading is not counted as a duplicate.\n',
             },
             sectionEndAnchor: {
               type: "string",

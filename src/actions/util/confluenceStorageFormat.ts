@@ -338,65 +338,67 @@ function resolveSingleParentRegion(body: string, parentSectionAnchor: string | u
 }
 
 /**
- * Resolves the (inclusive) start of a replacement scope: the index of the first occurrence of `sectionAnchor`
- * inside `region`, so the anchor itself (typically the section's heading) is part of the scope and may be matched
- * by `find`.
+ * Resolves the `[start, end)` scope of a non-row replacement inside `region`.
  *
- * Without an end anchor the scope runs to the end of the region, so a duplicated anchor only widens it and the first
- * hit is used, as before. With `requireUnique` (set when a `sectionEndAnchor` bounds the scope) a duplicated anchor
- * inside the region would instead bound a *different* stretch of the page than intended — e.g. an intro sentence
- * mentioning "ServiceNow" before the real heading — so it is rejected as ambiguous, mirroring {@link locateTableRow}.
+ * The start is the first occurrence of `sectionAnchor` in the region (inclusive, so the anchor itself — typically the
+ * section's heading — may be matched by `find`), or the start of the region without one. The end is the first
+ * occurrence of `sectionEndAnchor` that begins after the start anchor's text (exclusive, so the end anchor — typically
+ * the next section's heading — is never part of the scope), or the end of the region without one.
+ *
+ * Without an end anchor a duplicated start anchor only widens the scope, so the first hit is used, as before. With an
+ * end anchor, first-hit resolution of a duplicated start anchor could bound a *different* stretch of the page than
+ * intended — e.g. an intro sentence mentioning "ServiceNow" before the real heading — so any other occurrence that
+ * could plausibly be the intended start is rejected as ambiguous, mirroring {@link locateTableRow}. The one occurrence
+ * that cannot be the intended start is the closing boundary of the first window itself when nothing could bound it in
+ * turn: two identical `<h3>Status</h3>` headings used as both start and end anchor are therefore accepted, whereas
+ * three of them (the second heading starts its own window) are not.
  */
-function resolveSearchStart(
+function resolveSectionScope(
   body: string,
   sectionAnchor: string | undefined,
-  region: Region,
-  requireUnique: boolean,
-): number {
-  if (sectionAnchor === undefined || sectionAnchor === "") return region.start;
-  const wholePage = region.start === 0 && region.end === body.length;
-  const where = wholePage ? "on the page" : "inside the parentSectionAnchor region";
-  const occurrences = findAllOccurrences(body, sectionAnchor).filter(i => i >= region.start && i < region.end);
-  if (occurrences.length === 0) {
-    throw new ConfluenceFragmentUpdateError(
-      wholePage
-        ? `sectionAnchor "${sectionAnchor}" was not found in the page body.`
-        : `sectionAnchor "${sectionAnchor}" was not found inside the parentSectionAnchor region.`,
-    );
-  }
-  if (requireUnique && occurrences.length > 1) {
-    throw new ConfluenceFragmentUpdateError(
-      `sectionAnchor "${sectionAnchor}" occurs ${occurrences.length} times ${where}, so the scope bounded by sectionEndAnchor is ambiguous. Use a more specific sectionAnchor (e.g. include the heading markup, such as "<h3>${sectionAnchor}</h3>")${wholePage ? " or add a parentSectionAnchor" : ""}.`,
-    );
-  }
-  return occurrences[0];
-}
-
-/**
- * Resolves the (exclusive) end of a replacement scope: the first occurrence of `sectionEndAnchor` that starts
- * after the `sectionAnchor` text and lies inside `region`, so the end anchor itself (typically the next section's
- * heading) is never part of the scope. Without an end anchor the scope runs to the end of the region (the end of the
- * page when there is no parentSectionAnchor), as before.
- */
-function resolveSearchEnd(
-  body: string,
   sectionEndAnchor: string | undefined,
-  scopeStart: number,
-  sectionAnchor: string | undefined,
   region: Region,
-): number {
-  if (sectionEndAnchor === undefined) return region.end;
-  const searchFrom = scopeStart + (sectionAnchor?.length ?? 0);
-  const index = body.indexOf(sectionEndAnchor, searchFrom);
-  if (index === -1 || index >= region.end) {
-    const where = region.start === 0 && region.end === body.length ? "the page body" : "the parentSectionAnchor region";
+): Region {
+  const wholePage = region.start === 0 && region.end === body.length;
+  const where = wholePage ? "the page body" : "the parentSectionAnchor region";
+
+  let starts: number[] = [region.start];
+  if (sectionAnchor !== undefined && sectionAnchor !== "") {
+    starts = findAllOccurrences(body, sectionAnchor).filter(i => i >= region.start && i < region.end);
+    if (starts.length === 0) {
+      throw new ConfluenceFragmentUpdateError(
+        wholePage
+          ? `sectionAnchor "${sectionAnchor}" was not found in the page body.`
+          : `sectionAnchor "${sectionAnchor}" was not found inside the parentSectionAnchor region.`,
+      );
+    }
+  }
+  const [start, ...others] = starts;
+
+  if (sectionEndAnchor === undefined) return { start, end: region.end };
+
+  const anchorLength = sectionAnchor?.length ?? 0;
+  const findEnd = (from: number): number | undefined => {
+    const index = body.indexOf(sectionEndAnchor, from + anchorLength);
+    return index === -1 || index >= region.end ? undefined : index;
+  };
+  const end = findEnd(start);
+  if (end === undefined) {
     throw new ConfluenceFragmentUpdateError(
       sectionAnchor
         ? `sectionEndAnchor "${sectionEndAnchor}" was not found after sectionAnchor "${sectionAnchor}" in ${where}.`
         : `sectionEndAnchor "${sectionEndAnchor}" was not found in ${where}.`,
     );
   }
-  return index;
+
+  const isClosingBoundary = (other: number) =>
+    other >= end && other < end + sectionEndAnchor.length && findEnd(other) === undefined;
+  if (others.some(other => !isClosingBoundary(other))) {
+    throw new ConfluenceFragmentUpdateError(
+      `sectionAnchor "${sectionAnchor}" occurs ${starts.length} times ${wholePage ? "on the page" : "inside the parentSectionAnchor region"}, so the scope bounded by sectionEndAnchor is ambiguous. Use a more specific sectionAnchor (e.g. include the heading markup, such as "<h3>${sectionAnchor}</h3>")${wholePage ? " or add a parentSectionAnchor" : ""}.`,
+    );
+  }
+  return { start, end };
 }
 
 /**
@@ -865,11 +867,10 @@ function applyReplacement(body: string, replacement: ConfluenceReplacement): { b
     scopeEnd = row.end;
   } else {
     // A parentSectionAnchor narrows the page to one heading's region first; the section anchors then work inside it.
-    // A duplicated sectionAnchor is only dangerous when an end anchor turns it into a bounded window.
     const region = resolveSingleParentRegion(body, replacement.parentSectionAnchor);
-    const requireUniqueStart = replacement.sectionEndAnchor !== undefined;
-    scopeStart = resolveSearchStart(body, replacement.sectionAnchor, region, requireUniqueStart);
-    scopeEnd = resolveSearchEnd(body, replacement.sectionEndAnchor, scopeStart, replacement.sectionAnchor, region);
+    const sectionScope = resolveSectionScope(body, replacement.sectionAnchor, replacement.sectionEndAnchor, region);
+    scopeStart = sectionScope.start;
+    scopeEnd = sectionScope.end;
   }
 
   const scope = body.slice(scopeStart, scopeEnd);

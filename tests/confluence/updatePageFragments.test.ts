@@ -956,6 +956,79 @@ describe("applyConfluenceFragmentUpdates", () => {
       expect(result.body).toContain("Plans Done");
     });
 
+    it("accepts identical heading markup as both start and end anchor when exactly one window exists", () => {
+      // Two "<h3>Status</h3>" headings around the text to change: the second heading is the boundary, not a
+      // competing start, so the duplicate must not be rejected as ambiguous.
+      const page = [
+        `<h3>Status</h3><p>Week 1 TBD</p>`,
+        `<h3>Status</h3><p>Week 2 TBD</p>`,
+        `<h2>Notes</h2><p>Later TBD</p>`,
+      ].join("");
+      const result = applyConfluenceFragmentUpdates(page, {
+        replacements: [
+          {
+            find: "TBD",
+            replace: "Done",
+            replaceAll: true,
+            sectionAnchor: "<h3>Status</h3>",
+            sectionEndAnchor: "<h3>Status</h3>",
+          },
+        ],
+      });
+      expect(result.replacementsApplied).toBe(1);
+      expect(result.body).toBe(page.replace("Week 1 TBD", "Week 1 Done"));
+    });
+
+    it("still rejects a duplicated sectionAnchor when another occurrence could plausibly be the intended start", () => {
+      // Three identical headings with identical anchors: the 2nd heading closes [1st, 2nd) but also starts [2nd, 3rd).
+      const three = [
+        `<h3>Status</h3><p>Week 1 TBD</p>`,
+        `<h3>Status</h3><p>Week 2 TBD</p>`,
+        `<h3>Status</h3><p>Week 3 TBD</p>`,
+      ].join("");
+      expect(() =>
+        applyConfluenceFragmentUpdates(three, {
+          replacements: [
+            {
+              find: "TBD",
+              replace: "Done",
+              sectionAnchor: "<h3>Status</h3>",
+              sectionEndAnchor: "<h3>Status</h3>",
+            },
+          ],
+        }),
+      ).toThrow(/occurs 3 times on the page, so the scope bounded by sectionEndAnchor is ambiguous/);
+
+      // Two identical headings with a generic end anchor: the 2nd heading closes the 1st window but starts its own.
+      const two = [
+        `<h3>Status</h3><p>Week 1 TBD</p>`,
+        `<h3>Status</h3><p>Week 2 TBD</p>`,
+        `<h3>Other</h3><p>Other TBD</p>`,
+      ].join("");
+      expect(() =>
+        applyConfluenceFragmentUpdates(two, {
+          replacements: [
+            { find: "TBD", replace: "Done", sectionAnchor: "<h3>Status</h3>", sectionEndAnchor: "<h3>" },
+          ],
+        }),
+      ).toThrow(/occurs 2 times on the page, so the scope bounded by sectionEndAnchor is ambiguous/);
+
+      // A second occurrence that is neither the closing boundary nor boundable at all is still a plausible intended
+      // start (the caller may simply have mis-specified the end anchor), so it is not silently skipped.
+      const unbounded = [
+        `<h3>Status</h3><p>Week 1 TBD</p>`,
+        `<h3>Other</h3><p>Other TBD</p>`,
+        `<h3>Status</h3><p>Week 2 TBD</p>`,
+      ].join("");
+      expect(() =>
+        applyConfluenceFragmentUpdates(unbounded, {
+          replacements: [
+            { find: "TBD", replace: "Done", sectionAnchor: "<h3>Status</h3>", sectionEndAnchor: "<h3>" },
+          ],
+        }),
+      ).toThrow(/occurs 2 times on the page, so the scope bounded by sectionEndAnchor is ambiguous/);
+    });
+
     it("keeps first-hit resolution for a duplicated sectionAnchor when no sectionEndAnchor is given", () => {
       // Pre-existing behaviour: without an end anchor the scope is open-ended, so an earlier duplicate only widens it.
       const repeated = PAGE_BODY.replace(
