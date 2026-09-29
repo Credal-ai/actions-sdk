@@ -295,13 +295,22 @@ function headingLevel(body: string, heading: ElementSpan): number {
   return match ? parseInt(match[1], 10) : 6;
 }
 
+/** A parent-section region together with the level of the heading that opens it (for error hints). */
+type ParentRegion = Region & { level: number };
+
+const HEADING_MARKUP_PATTERN = /^<h[1-6][\s>]/i;
+
 /**
- * Resolves the region(s) of the page a `parentSectionAnchor` refers to. When an occurrence of the anchor sits inside
- * a heading, the region runs from that heading up to (not including) the next heading of the same or a higher
- * level, i.e. the whole subtree of subsections beneath it. An occurrence outside any heading yields a region from
- * the occurrence to the end of the page. Distinct regions are returned in document order.
+ * Resolves the region(s) of the page a `parentSectionAnchor` refers to. The anchor must match text inside a heading
+ * (`<h1>`–`<h6>`): the region then runs from that heading up to (not including) the next heading of the same or a
+ * higher level — i.e. the whole subtree of subsections beneath it — or to the end of the page for the last section.
+ *
+ * Occurrences of the anchor text outside any heading (an intro paragraph, a table cell) are not sections and are
+ * ignored. If the anchor matches no heading at all the update is rejected: silently widening the scope to the rest
+ * of the page would be exactly the kind of unintended edit this action exists to prevent. Distinct regions are
+ * returned in document order.
  */
-function resolveParentRegions(body: string, parentSectionAnchor: string): Region[] {
+function resolveParentRegions(body: string, parentSectionAnchor: string): ParentRegion[] {
   const occurrences = findAllOccurrences(body, parentSectionAnchor);
   if (occurrences.length === 0) {
     throw new ConfluenceFragmentUpdateError(
@@ -309,18 +318,22 @@ function resolveParentRegions(body: string, parentSectionAnchor: string): Region
     );
   }
   const headings = findElementSpans(body, HEADING_TAGS);
-  const regions: Region[] = [];
+  const regions: ParentRegion[] = [];
   for (const index of occurrences) {
     const heading = headings.find(h => h.start <= index && index < h.end);
-    let region: Region;
-    if (heading) {
-      const level = headingLevel(body, heading);
-      const next = headings.find(h => h.start >= heading.end && headingLevel(body, h) <= level);
-      region = { start: heading.start, end: next ? next.start : body.length };
-    } else {
-      region = { start: index, end: body.length };
-    }
+    if (!heading) continue;
+    const level = headingLevel(body, heading);
+    const next = headings.find(h => h.start >= heading.end && headingLevel(body, h) <= level);
+    const region = { start: heading.start, end: next ? next.start : body.length, level };
     if (!regions.some(r => r.start === region.start && r.end === region.end)) regions.push(region);
+  }
+  if (regions.length === 0) {
+    const hint = HEADING_MARKUP_PATTERN.test(parentSectionAnchor)
+      ? "The only matches are not real headings (e.g. inside a code block or comment)."
+      : `Provide the parent section's heading markup, e.g. "<h2>${parentSectionAnchor}</h2>".`;
+    throw new ConfluenceFragmentUpdateError(
+      `parentSectionAnchor "${parentSectionAnchor}" occurs ${occurrences.length} time(s) on the page but never inside a heading (<h1>–<h6>), so it does not identify a section. ${hint}`,
+    );
   }
   return regions;
 }
@@ -330,8 +343,13 @@ function resolveSingleParentRegion(body: string, parentSectionAnchor: string | u
   if (parentSectionAnchor === undefined || parentSectionAnchor === "") return { start: 0, end: body.length };
   const regions = resolveParentRegions(body, parentSectionAnchor);
   if (regions.length > 1) {
+    // Tailor the hint to what actually matched: wrapping in the matched heading's own tag when the caller gave plain
+    // text, and not suggesting nested markup when they already gave a heading that simply repeats on the page.
+    const hint = HEADING_MARKUP_PATTERN.test(parentSectionAnchor)
+      ? "The headings are identical, so the parent cannot be told apart; pick a different parent heading, or scope with sectionAnchor/sectionEndAnchor instead."
+      : `Use more specific text, e.g. the full heading markup such as "<h${regions[0].level}>${parentSectionAnchor}</h${regions[0].level}>".`;
     throw new ConfluenceFragmentUpdateError(
-      `parentSectionAnchor "${parentSectionAnchor}" occurs ${regions.length} times on the page. Use more specific text, e.g. the full heading markup such as "<h2>${parentSectionAnchor}</h2>".`,
+      `parentSectionAnchor "${parentSectionAnchor}" matches ${regions.length} headings on the page. ${hint}`,
     );
   }
   return regions[0];

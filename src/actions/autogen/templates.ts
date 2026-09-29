@@ -1410,7 +1410,7 @@ export const confluenceUpdatePageFragmentsDefinition: ActionTemplate = {
             parentSectionAnchor: {
               type: "string",
               description:
-                'Optional heading markup of the parent section, e.g. "<h2>Application Development</h2>". The search is first restricted to that heading\'s region (up to the next heading of the same or a higher level), and sectionAnchor is then resolved inside it. Use it when the same subsection heading (e.g. "<h3>ServiceNow</h3>") appears under more than one parent section. With no sectionAnchor, every table in the parent region is searched.\n',
+                'Optional heading markup of the parent section, e.g. "<h2>Application Development</h2>". The search is first restricted to that heading\'s region (from the heading up to the next heading of the same or a higher level, or to the end of the page for the last section), and sectionAnchor is then resolved inside it. Use it when the same subsection heading (e.g. "<h3>ServiceNow</h3>") appears under more than one parent section. With no sectionAnchor, every table in the parent region is searched. The anchor must match text inside a heading (<h1>-<h6>): occurrences elsewhere (an intro paragraph, a table cell) are ignored, and if it matches no heading at all the update is rejected rather than searching the rest of the page.\n',
             },
             sectionAnchor: {
               type: "string",
@@ -1486,7 +1486,7 @@ export const confluenceUpdatePageFragmentsDefinition: ActionTemplate = {
             parentSectionAnchor: {
               type: "string",
               description:
-                'Optional heading markup of a parent section, e.g. "<h2>Application Development</h2>". Bounds the search to that heading\'s region (up to the next heading of the same or a higher level); sectionAnchor and sectionEndAnchor are then resolved inside it, and without them the whole region is the scope. Also disambiguates rowAnchor when the same subsection heading appears under several parents.\n',
+                'Optional heading markup of a parent section, e.g. "<h2>Application Development</h2>". Bounds the search to that heading\'s region (from the heading up to the next heading of the same or a higher level, or to the end of the page for the last section); sectionAnchor and sectionEndAnchor are then resolved inside it, and without them the whole region is the scope. Also disambiguates rowAnchor when the same subsection heading appears under several parents. The anchor must match text inside a heading (<h1>-<h6>): occurrences elsewhere are ignored, and if it matches no heading at all the update is rejected rather than searching the rest of the page.\n',
             },
             sectionAnchor: {
               type: "string",
@@ -1806,7 +1806,7 @@ export const confluenceDataCenterUpdatePageFragmentsDefinition: ActionTemplate =
             parentSectionAnchor: {
               type: "string",
               description:
-                'Optional heading markup of the parent section, e.g. "<h2>Application Development</h2>". The search is first restricted to that heading\'s region (up to the next heading of the same or a higher level), and sectionAnchor is then resolved inside it. Use it when the same subsection heading (e.g. "<h3>ServiceNow</h3>") appears under more than one parent section. With no sectionAnchor, every table in the parent region is searched.\n',
+                'Optional heading markup of the parent section, e.g. "<h2>Application Development</h2>". The search is first restricted to that heading\'s region (from the heading up to the next heading of the same or a higher level, or to the end of the page for the last section), and sectionAnchor is then resolved inside it. Use it when the same subsection heading (e.g. "<h3>ServiceNow</h3>") appears under more than one parent section. With no sectionAnchor, every table in the parent region is searched. The anchor must match text inside a heading (<h1>-<h6>): occurrences elsewhere (an intro paragraph, a table cell) are ignored, and if it matches no heading at all the update is rejected rather than searching the rest of the page.\n',
             },
             sectionAnchor: {
               type: "string",
@@ -1882,7 +1882,7 @@ export const confluenceDataCenterUpdatePageFragmentsDefinition: ActionTemplate =
             parentSectionAnchor: {
               type: "string",
               description:
-                'Optional heading markup of a parent section, e.g. "<h2>Application Development</h2>". Bounds the search to that heading\'s region (up to the next heading of the same or a higher level); sectionAnchor and sectionEndAnchor are then resolved inside it, and without them the whole region is the scope. Also disambiguates rowAnchor when the same subsection heading appears under several parents.\n',
+                'Optional heading markup of a parent section, e.g. "<h2>Application Development</h2>". Bounds the search to that heading\'s region (from the heading up to the next heading of the same or a higher level, or to the end of the page for the last section); sectionAnchor and sectionEndAnchor are then resolved inside it, and without them the whole region is the scope. Also disambiguates rowAnchor when the same subsection heading appears under several parents. The anchor must match text inside a heading (<h1>-<h6>): occurrences elsewhere are ignored, and if it matches no heading at all the update is rejected rather than searching the rest of the page.\n',
             },
             sectionAnchor: {
               type: "string",

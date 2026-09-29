@@ -1496,7 +1496,9 @@ describe("applyConfluenceFragmentUpdates", () => {
       );
     });
 
-    it("rejects a non-unique parentSectionAnchor for replacements without a row", () => {
+    it("rejects a non-unique parentSectionAnchor for replacements without a row, with a hint matching the headings", () => {
+      // "ServiceNow" occurs 3 times, but the intro-paragraph mention is not a heading and is ignored; the two <h3>
+      // headings remain ambiguous, and the hint uses their actual level rather than a hard-coded <h2>.
       expect(() =>
         applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
           replacements: [
@@ -1504,23 +1506,91 @@ describe("applyConfluenceFragmentUpdates", () => {
           ],
         }),
       ).toThrow(
-        /parentSectionAnchor "ServiceNow" occurs 3 times.*<h2>ServiceNow<\/h2>/,
+        /parentSectionAnchor "ServiceNow" matches 2 headings.*<h3>ServiceNow<\/h3>/,
       );
+
+      // When the caller already supplied full heading markup that simply repeats, do not suggest nesting it.
+      expect(() =>
+        applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
+          replacements: [
+            {
+              find: "TBD",
+              replace: "Done",
+              parentSectionAnchor: "<h3>ServiceNow</h3>",
+            },
+          ],
+        }),
+      ).toThrow(/matches 2 headings.*headings are identical/);
     });
 
-    it("treats a parent anchor outside any heading as 'from here to the end of the page'", () => {
-      const result = applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
+    it("ignores occurrences of the parent anchor outside headings when a heading does match", () => {
+      // "SharePoint" is mentioned in the intro paragraph and is the <h3>SharePoint</h3> heading. Only the heading
+      // is a section, so the parent is unique and bounds the scope to [<h3>SharePoint</h3>, <h2>Infrastructure</h2>).
+      const withIntro = NESTED_SECTIONS_BODY.replace(
+        "<p>Intro mentioning ServiceNow.</p>",
+        "<p>Intro mentioning ServiceNow and SharePoint.</p>",
+      );
+      const result = applyConfluenceFragmentUpdates(withIntro, {
         replacements: [
           {
             find: "TBD",
             replace: "Done",
             replaceAll: true,
-            parentSectionAnchor: "Infra SNOW",
+            parentSectionAnchor: "SharePoint",
           },
         ],
       });
-      expect(result.replacementsApplied).toBe(2);
-      expect(result.body).toContain("AppDev SP TBD");
+      expect(result.replacementsApplied).toBe(1);
+      expect(result.body).toContain("AppDev SP Done");
+      expect(result.body).toContain("AppDev SNOW TBD");
+      expect(result.body).toContain("Infra SNOW TBD");
+    });
+
+    it("rejects a parent anchor that matches no heading instead of searching to the end of the page", () => {
+      // "Infra SNOW" only occurs inside a table cell. Previously this yielded a region from that cell to the end of
+      // the page, so a replaceAll rewrote the Risks section too and a row lookup could select rows before the cell.
+      expect(() =>
+        applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
+          replacements: [
+            {
+              find: "TBD",
+              replace: "Done",
+              replaceAll: true,
+              parentSectionAnchor: "Infra SNOW",
+            },
+          ],
+        }),
+      ).toThrow(
+        /parentSectionAnchor "Infra SNOW" occurs 1 time\(s\) on the page but never inside a heading.*"<h2>Infra SNOW<\/h2>"/,
+      );
+
+      // Same for a cell update: a parent anchor inside a table must not silently select that whole table.
+      expect(() =>
+        applyConfluenceFragmentUpdates(NESTED_SECTIONS_BODY, {
+          tableCellUpdates: [
+            {
+              rowAnchor: USER_KEY,
+              parentSectionAnchor: "Infra SNOW",
+              columnHeader: "Status",
+              newContent: "<p>x</p>",
+            },
+          ],
+        }),
+      ).toThrow(/never inside a heading/);
+
+      // Heading markup that only appears inside a code block is not a real heading either.
+      const codeOnly = `<h2>Docs</h2><ac:structured-macro ac:name="code"><ac:plain-text-body><![CDATA[<h2>Example</h2>]]></ac:plain-text-body></ac:structured-macro><p>TBD</p>`;
+      expect(() =>
+        applyConfluenceFragmentUpdates(codeOnly, {
+          replacements: [
+            {
+              find: "TBD",
+              replace: "Done",
+              parentSectionAnchor: "<h2>Example</h2>",
+            },
+          ],
+        }),
+      ).toThrow(/never inside a heading.*not real headings/);
     });
   });
 
