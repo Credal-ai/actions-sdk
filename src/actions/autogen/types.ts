@@ -935,8 +935,15 @@ export const confluenceUpdatePageFragmentsParamsSchema = z.object({
         rowAnchor: z
           .string()
           .describe(
-            'Text or markup that uniquely identifies the target row within the page (or within the section given by sectionAnchor), e.g. "Jane Doe" or "2c96d7e295488cec0195b4c0a3890027". Matched against the raw storage-format markup of the row.\n',
-          ),
+            'Text or markup that uniquely identifies the target row within the page (or within the section given by sectionAnchor), e.g. "2c96d7e295488cec0195b4c0a3890027" or a literal name that appears in the row. Matched against the raw storage-format markup of the row. Note that user mentions are stored as account IDs / user keys, not names; use rowDisplayName to target a mentioned person by name. Provide either rowAnchor or rowDisplayName.\n',
+          )
+          .optional(),
+        rowDisplayName: z
+          .string()
+          .describe(
+            'Display name of the Confluence user whose row to edit, e.g. "Jane Doe". The name is resolved to the user\'s account ID (Cloud) or user key (Data Center) via the Confluence user API and the user\'s mention (e.g. ri:account-id="...") is then used as the rowAnchor. Only an exact, case-insensitive display-name match is accepted; on Data Center an exact username is accepted as a fallback. Rejected if no user or more than one user matches. Provide either rowDisplayName or rowAnchor.\n',
+          )
+          .optional(),
         parentSectionAnchor: z
           .string()
           .describe(
@@ -988,7 +995,7 @@ export const confluenceUpdatePageFragmentsParamsSchema = z.object({
       }),
     )
     .describe(
-      "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (e.g. a person's name or a user key such as ri:userkey / ri:account-id), optionally narrowed to a section (parentSectionAnchor / sectionAnchor), and then one cell by column header, column index or nested field label, and replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
+      "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (rowAnchor, e.g. a user key such as ri:userkey / ri:account-id) or by a Confluence user's display name (rowDisplayName), optionally narrowed to a section (parentSectionAnchor / sectionAnchor), and then one cell by column header, column index or nested field label, and replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
     )
     .optional(),
   replacements: z
@@ -1014,12 +1021,18 @@ export const confluenceUpdatePageFragmentsParamsSchema = z.object({
           .string()
           .describe("Optional. Limit the replacement to the table row containing this text/markup.")
           .optional(),
+        rowDisplayName: z
+          .string()
+          .describe(
+            "Optional. Limit the replacement to the table row of the Confluence user with this display name (resolved to their account ID / user key, see tableCellUpdates.rowDisplayName). Provide either rowDisplayName or rowAnchor.\n",
+          )
+          .optional(),
         rowOccurrence: z.coerce
           .number()
           .int()
           .gte(0)
           .describe(
-            "Optional zero-based index selecting which of the rows matching rowAnchor to use when the anchor is not unique (document order). Only meaningful together with rowAnchor.\n",
+            "Optional zero-based index selecting which of the rows matching rowAnchor to use when the anchor is not unique (document order). Only meaningful together with rowAnchor / rowDisplayName.\n",
           )
           .optional(),
         parentSectionAnchor: z
@@ -1233,8 +1246,15 @@ export const confluenceDataCenterUpdatePageFragmentsParamsSchema = z.object({
         rowAnchor: z
           .string()
           .describe(
-            'Text or markup that uniquely identifies the target row within the page (or within the section given by sectionAnchor), e.g. "Jane Doe" or "2c96d7e295488cec0195b4c0a3890027". Matched against the raw storage-format markup of the row.\n',
-          ),
+            'Text or markup that uniquely identifies the target row within the page (or within the section given by sectionAnchor), e.g. "2c96d7e295488cec0195b4c0a3890027" or a literal name that appears in the row. Matched against the raw storage-format markup of the row. Note that user mentions are stored as account IDs / user keys, not names; use rowDisplayName to target a mentioned person by name. Provide either rowAnchor or rowDisplayName.\n',
+          )
+          .optional(),
+        rowDisplayName: z
+          .string()
+          .describe(
+            'Display name of the Confluence user whose row to edit, e.g. "Jane Doe". The name is resolved to the user\'s account ID (Cloud) or user key (Data Center) via the Confluence user API and the user\'s mention (e.g. ri:account-id="...") is then used as the rowAnchor. Only an exact, case-insensitive display-name match is accepted; on Data Center an exact username is accepted as a fallback. Rejected if no user or more than one user matches. Provide either rowDisplayName or rowAnchor.\n',
+          )
+          .optional(),
         parentSectionAnchor: z
           .string()
           .describe(
@@ -1286,7 +1306,7 @@ export const confluenceDataCenterUpdatePageFragmentsParamsSchema = z.object({
       }),
     )
     .describe(
-      "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (e.g. a person's name or a user key such as ri:userkey / ri:account-id), optionally narrowed to a section (parentSectionAnchor / sectionAnchor), and then one cell by column header, column index or nested field label, and replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
+      "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (rowAnchor, e.g. a user key such as ri:userkey / ri:account-id) or by a Confluence user's display name (rowDisplayName), optionally narrowed to a section (parentSectionAnchor / sectionAnchor), and then one cell by column header, column index or nested field label, and replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
     )
     .optional(),
   replacements: z
@@ -1312,12 +1332,18 @@ export const confluenceDataCenterUpdatePageFragmentsParamsSchema = z.object({
           .string()
           .describe("Optional. Limit the replacement to the table row containing this text/markup.")
           .optional(),
+        rowDisplayName: z
+          .string()
+          .describe(
+            "Optional. Limit the replacement to the table row of the Confluence user with this display name (resolved to their account ID / user key, see tableCellUpdates.rowDisplayName). Provide either rowDisplayName or rowAnchor.\n",
+          )
+          .optional(),
         rowOccurrence: z.coerce
           .number()
           .int()
           .gte(0)
           .describe(
-            "Optional zero-based index selecting which of the rows matching rowAnchor to use when the anchor is not unique (document order). Only meaningful together with rowAnchor.\n",
+            "Optional zero-based index selecting which of the rows matching rowAnchor to use when the anchor is not unique (document order). Only meaningful together with rowAnchor / rowDisplayName.\n",
           )
           .optional(),
         parentSectionAnchor: z
