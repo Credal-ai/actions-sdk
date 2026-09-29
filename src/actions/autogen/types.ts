@@ -970,6 +970,12 @@ export const confluenceUpdatePageFragmentsParamsSchema = z.object({
             "Zero-based index of the physical cell within the row (the Nth <td>/<th> tag, not accounting for merged cells). Provide either columnHeader or columnIndex.\n",
           )
           .optional(),
+        fieldLabel: z
+          .string()
+          .describe(
+            'Label of a field in a key/value table nested inside the located row, e.g. "# of Tickets Closed" or "Jira Stories Completed" in a Metrics cell. The nested row whose first cell reads this label (case-insensitive) is found and the value cell next to the label is updated. Use this instead of columnHeader / columnIndex when the value lives in a sub-table rather than in one of the row\'s own cells; it cannot be combined with them.\n',
+          )
+          .optional(),
         newContent: z
           .string()
           .describe(
@@ -982,7 +988,7 @@ export const confluenceUpdatePageFragmentsParamsSchema = z.object({
       }),
     )
     .describe(
-      "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (e.g. a person's name or a user key such as ri:userkey / ri:account-id), optionally narrowed to a section (parentSectionAnchor / sectionAnchor), and one column by header text or index, then replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
+      "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (e.g. a person's name or a user key such as ri:userkey / ri:account-id), optionally narrowed to a section (parentSectionAnchor / sectionAnchor), and then one cell by column header, column index or nested field label, and replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
     )
     .optional(),
   replacements: z
@@ -1262,6 +1268,12 @@ export const confluenceDataCenterUpdatePageFragmentsParamsSchema = z.object({
             "Zero-based index of the physical cell within the row (the Nth <td>/<th> tag, not accounting for merged cells). Provide either columnHeader or columnIndex.\n",
           )
           .optional(),
+        fieldLabel: z
+          .string()
+          .describe(
+            'Label of a field in a key/value table nested inside the located row, e.g. "# of Tickets Closed" or "Jira Stories Completed" in a Metrics cell. The nested row whose first cell reads this label (case-insensitive) is found and the value cell next to the label is updated. Use this instead of columnHeader / columnIndex when the value lives in a sub-table rather than in one of the row\'s own cells; it cannot be combined with them.\n',
+          )
+          .optional(),
         newContent: z
           .string()
           .describe(
@@ -1274,7 +1286,7 @@ export const confluenceDataCenterUpdatePageFragmentsParamsSchema = z.object({
       }),
     )
     .describe(
-      "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (e.g. a person's name or a user key such as ri:userkey / ri:account-id), optionally narrowed to a section (parentSectionAnchor / sectionAnchor), and one column by header text or index, then replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
+      "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (e.g. a person's name or a user key such as ri:userkey / ri:account-id), optionally narrowed to a section (parentSectionAnchor / sectionAnchor), and then one cell by column header, column index or nested field label, and replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
     )
     .optional(),
   replacements: z
