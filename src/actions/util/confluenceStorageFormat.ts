@@ -12,27 +12,35 @@
  * must survive intact) before the result is handed back for saving.
  */
 
-export type ConfluenceTableCellUpdate = {
-  rowAnchor: string;
+/** Options that narrow down which table row an edit targets. Shared by cell updates and row-scoped replacements. */
+export type ConfluenceRowTargetOptions = {
+  /** Text/markup identifying the section whose table(s) to search; see {@link resolveSectionTables}. */
   sectionAnchor?: string;
+  /**
+   * Text/markup of a heading enclosing the section, e.g. `<h2>Application Development</h2>`. The page is first
+   * narrowed to that heading's region (up to the next heading of the same or a higher level) and `sectionAnchor`
+   * is then resolved inside it. Use it when the same subsection heading appears under several parents.
+   */
+  parentSectionAnchor?: string;
   /** Zero-based index into the rows matching `rowAnchor` (in document order) when the anchor is not unique. */
   rowOccurrence?: number;
+};
+
+export type ConfluenceTableCellUpdate = ConfluenceRowTargetOptions & {
+  rowAnchor: string;
   columnHeader?: string;
   columnIndex?: number;
   newContent: string;
   mode?: "replace" | "append" | "prepend";
 };
 
-export type ConfluenceReplacement = {
+export type ConfluenceReplacement = ConfluenceRowTargetOptions & {
   find: string;
   replace: string;
   replaceAll?: boolean;
   /** Zero-based index of the occurrence of `find` within the scope to replace. Mutually exclusive with `replaceAll`. */
   occurrence?: number;
   rowAnchor?: string;
-  sectionAnchor?: string;
-  /** Zero-based index into the rows matching `rowAnchor` (in document order) when the anchor is not unique. */
-  rowOccurrence?: number;
   /** Text that ends the search scope (exclusive). Searched for after `sectionAnchor`. Not allowed with `rowAnchor`. */
   sectionEndAnchor?: string;
 };
@@ -277,51 +285,141 @@ function findAllOccurrences(body: string, needle: string): number[] {
   return indices;
 }
 
+/** A half-open `[start, end)` character range of the body. */
+type Region = { start: number; end: number };
+
+const HEADING_TAGS = ["h1", "h2", "h3", "h4", "h5", "h6"];
+
+function headingLevel(body: string, heading: ElementSpan): number {
+  const match = /^<h([1-6])/i.exec(body.slice(heading.start, heading.innerStart));
+  return match ? parseInt(match[1], 10) : 6;
+}
+
+/** A parent-section region together with the level of the heading that opens it (for error hints). */
+type ParentRegion = Region & { level: number };
+
+const HEADING_MARKUP_PATTERN = /^<h[1-6][\s>]/i;
+
 /**
- * Resolves the (inclusive) start of a replacement scope: the index of the `sectionAnchor` text, so the anchor
- * itself (typically the section's heading) is part of the scope and may be matched by `find`.
+ * Resolves the region(s) of the page a `parentSectionAnchor` refers to. The anchor must match text inside a heading
+ * (`<h1>`–`<h6>`): the region then runs from that heading up to (not including) the next heading of the same or a
+ * higher level — i.e. the whole subtree of subsections beneath it — or to the end of the page for the last section.
  *
- * Without an end anchor the scope runs to the end of the page, so a duplicated anchor only widens it and the first
- * hit is used, as before. With `requireUnique` (set when a `sectionEndAnchor` bounds the scope) a duplicated anchor
- * would instead bound a *different* stretch of the page than intended — e.g. an intro sentence mentioning
- * "ServiceNow" before the real heading — so it is rejected as ambiguous, mirroring {@link locateTableRow}.
+ * Occurrences of the anchor text outside any heading (an intro paragraph, a table cell) are not sections and are
+ * ignored. If the anchor matches no heading at all the update is rejected: silently widening the scope to the rest
+ * of the page would be exactly the kind of unintended edit this action exists to prevent. Distinct regions are
+ * returned in document order.
  */
-function resolveSearchStart(body: string, sectionAnchor: string | undefined, requireUnique: boolean): number {
-  if (sectionAnchor === undefined || sectionAnchor === "") return 0;
-  const occurrences = findAllOccurrences(body, sectionAnchor);
+function resolveParentRegions(body: string, parentSectionAnchor: string): ParentRegion[] {
+  const occurrences = findAllOccurrences(body, parentSectionAnchor);
   if (occurrences.length === 0) {
-    throw new ConfluenceFragmentUpdateError(`sectionAnchor "${sectionAnchor}" was not found in the page body.`);
-  }
-  if (requireUnique && occurrences.length > 1) {
     throw new ConfluenceFragmentUpdateError(
-      `sectionAnchor "${sectionAnchor}" occurs ${occurrences.length} times on the page, so the scope bounded by sectionEndAnchor is ambiguous. Use a more specific sectionAnchor (e.g. include the heading markup, such as "<h3>${sectionAnchor}</h3>").`,
+      `parentSectionAnchor "${parentSectionAnchor}" was not found in the page body.`,
     );
   }
-  return occurrences[0];
+  const headings = findElementSpans(body, HEADING_TAGS);
+  const regions: ParentRegion[] = [];
+  for (const index of occurrences) {
+    const heading = headings.find(h => h.start <= index && index < h.end);
+    if (!heading) continue;
+    const level = headingLevel(body, heading);
+    const next = headings.find(h => h.start >= heading.end && headingLevel(body, h) <= level);
+    const region = { start: heading.start, end: next ? next.start : body.length, level };
+    if (!regions.some(r => r.start === region.start && r.end === region.end)) regions.push(region);
+  }
+  if (regions.length === 0) {
+    const hint = HEADING_MARKUP_PATTERN.test(parentSectionAnchor)
+      ? "The only matches are not real headings (e.g. inside a code block or comment)."
+      : `Provide the parent section's heading markup, e.g. "<h2>${parentSectionAnchor}</h2>".`;
+    throw new ConfluenceFragmentUpdateError(
+      `parentSectionAnchor "${parentSectionAnchor}" occurs ${occurrences.length} time(s) on the page but never inside a heading (<h1>–<h6>), so it does not identify a section. ${hint}`,
+    );
+  }
+  return regions;
+}
+
+/** Resolves `parentSectionAnchor` to exactly one region, for scopes that cannot span several candidates. */
+function resolveSingleParentRegion(body: string, parentSectionAnchor: string | undefined): Region {
+  if (parentSectionAnchor === undefined || parentSectionAnchor === "") return { start: 0, end: body.length };
+  const regions = resolveParentRegions(body, parentSectionAnchor);
+  if (regions.length > 1) {
+    // Tailor the hint to what actually matched: wrapping in the matched heading's own tag when the caller gave plain
+    // text, and not suggesting nested markup when they already gave a heading that simply repeats on the page.
+    const hint = HEADING_MARKUP_PATTERN.test(parentSectionAnchor)
+      ? "The headings are identical, so the parent cannot be told apart; pick a different parent heading, or scope with sectionAnchor/sectionEndAnchor instead."
+      : `Use more specific text, e.g. the full heading markup such as "<h${regions[0].level}>${parentSectionAnchor}</h${regions[0].level}>".`;
+    throw new ConfluenceFragmentUpdateError(
+      `parentSectionAnchor "${parentSectionAnchor}" matches ${regions.length} headings on the page. ${hint}`,
+    );
+  }
+  return regions[0];
 }
 
 /**
- * Resolves the (exclusive) end of a replacement scope: the first occurrence of `sectionEndAnchor` that starts
- * after the `sectionAnchor` text, so the end anchor itself (typically the next section's heading) is never part
- * of the scope. Without an end anchor the scope runs to the end of the page, as before.
+ * Resolves the `[start, end)` scope of a non-row replacement inside `region`.
+ *
+ * The start is the first occurrence of `sectionAnchor` in the region (inclusive, so the anchor itself — typically the
+ * section's heading — may be matched by `find`), or the start of the region without one. The end is the first
+ * occurrence of `sectionEndAnchor` that begins after the start anchor's text (exclusive, so the end anchor — typically
+ * the next section's heading — is never part of the scope), or the end of the region without one.
+ *
+ * Without an end anchor a duplicated start anchor only widens the scope, so the first hit is used, as before. With an
+ * end anchor, first-hit resolution of a duplicated start anchor could bound a *different* stretch of the page than
+ * intended — e.g. an intro sentence mentioning "ServiceNow" before the real heading — so any other occurrence that
+ * could plausibly be the intended start is rejected as ambiguous, mirroring {@link locateTableRow}. The one occurrence
+ * that cannot be the intended start is one sitting exactly at the closing boundary of the first window when nothing
+ * could bound it in turn: two identical `<h3>Status</h3>` headings used as both start and end anchor are therefore
+ * accepted, whereas three of them (the second heading starts its own window) are not.
  */
-function resolveSearchEnd(
+function resolveSectionScope(
   body: string,
-  sectionEndAnchor: string | undefined,
-  scopeStart: number,
   sectionAnchor: string | undefined,
-): number {
-  if (sectionEndAnchor === undefined) return body.length;
-  const searchFrom = scopeStart + (sectionAnchor?.length ?? 0);
-  const index = body.indexOf(sectionEndAnchor, searchFrom);
-  if (index === -1) {
+  sectionEndAnchor: string | undefined,
+  region: Region,
+): Region {
+  const wholePage = region.start === 0 && region.end === body.length;
+  const where = wholePage ? "the page body" : "the parentSectionAnchor region";
+
+  let starts: number[] = [region.start];
+  if (sectionAnchor !== undefined && sectionAnchor !== "") {
+    starts = findAllOccurrences(body, sectionAnchor).filter(i => i >= region.start && i < region.end);
+    if (starts.length === 0) {
+      throw new ConfluenceFragmentUpdateError(
+        wholePage
+          ? `sectionAnchor "${sectionAnchor}" was not found in the page body.`
+          : `sectionAnchor "${sectionAnchor}" was not found inside the parentSectionAnchor region.`,
+      );
+    }
+  }
+  const [start, ...others] = starts;
+
+  if (sectionEndAnchor === undefined) return { start, end: region.end };
+
+  const anchorLength = sectionAnchor?.length ?? 0;
+  const findEnd = (from: number): number | undefined => {
+    const index = body.indexOf(sectionEndAnchor, from + anchorLength);
+    return index === -1 || index >= region.end ? undefined : index;
+  };
+  const end = findEnd(start);
+  if (end === undefined) {
     throw new ConfluenceFragmentUpdateError(
       sectionAnchor
-        ? `sectionEndAnchor "${sectionEndAnchor}" was not found after sectionAnchor "${sectionAnchor}" in the page body.`
-        : `sectionEndAnchor "${sectionEndAnchor}" was not found in the page body.`,
+        ? `sectionEndAnchor "${sectionEndAnchor}" was not found after sectionAnchor "${sectionAnchor}" in ${where}.`
+        : `sectionEndAnchor "${sectionEndAnchor}" was not found in ${where}.`,
     );
   }
-  return index;
+
+  // The occurrence must sit exactly where the end anchor starts (identical anchors, or the end anchor beginning with
+  // the start anchor). Merely lying *inside* the end match is not enough: with `sectionAnchor: "Status"` and
+  // `sectionEndAnchor: "<h3>Status</h3>"` on a page whose earlier heading is "Current Status", the "Status" inside the
+  // end heading is a sloppy anchor matching a different section, not a boundary, and must stay ambiguous.
+  const isClosingBoundary = (other: number) => other === end && findEnd(other) === undefined;
+  if (others.some(other => !isClosingBoundary(other))) {
+    throw new ConfluenceFragmentUpdateError(
+      `sectionAnchor "${sectionAnchor}" occurs ${starts.length} times ${wholePage ? "on the page" : "inside the parentSectionAnchor region"}, so the scope bounded by sectionEndAnchor is ambiguous. Use a more specific sectionAnchor (e.g. include the heading markup, such as "<h3>${sectionAnchor}</h3>")${wholePage ? " or add a parentSectionAnchor" : ""}.`,
+    );
+  }
+  return { start, end };
 }
 
 /**
@@ -373,28 +471,65 @@ function pickRowOccurrence(rows: ElementSpan[], rowOccurrence: number, rowAnchor
   return row;
 }
 
-/**
- * Resolves the top-level tables a `sectionAnchor` refers to. For every occurrence of the anchor text, the
- * section table is the top-level table containing that occurrence, or else the first top-level table that
- * starts after it. Returns the distinct candidates in document order.
- */
-function resolveSectionTables(body: string, sectionAnchor: string): ElementSpan[] {
-  const occurrences = findAllOccurrences(body, sectionAnchor);
-  if (occurrences.length === 0) {
-    throw new ConfluenceFragmentUpdateError(`sectionAnchor "${sectionAnchor}" was not found in the page body.`);
+/** Human-readable name of the section scope, used in error messages. */
+function describeSection(sectionAnchor: string | undefined, parentSectionAnchor: string | undefined): string {
+  if (sectionAnchor && parentSectionAnchor) {
+    return `sectionAnchor "${sectionAnchor}" within parentSectionAnchor "${parentSectionAnchor}"`;
   }
+  return sectionAnchor ? `sectionAnchor "${sectionAnchor}"` : `parentSectionAnchor "${parentSectionAnchor}"`;
+}
 
+/**
+ * Resolves the top-level tables a section refers to. For every occurrence of `sectionAnchor`, the section table is
+ * the top-level table containing that occurrence, or else the first top-level table that starts after it. When a
+ * `parentSectionAnchor` is given, only occurrences and tables inside that parent's region(s) are considered; with a
+ * parent but no `sectionAnchor`, every top-level table in the region(s) is a candidate. Returns the distinct
+ * candidates in document order.
+ */
+function resolveSectionTables(
+  body: string,
+  sectionAnchor: string | undefined,
+  parentSectionAnchor: string | undefined,
+): ElementSpan[] {
+  const regions = parentSectionAnchor
+    ? resolveParentRegions(body, parentSectionAnchor)
+    : [{ start: 0, end: body.length }];
+  const inRegion = (index: number) => regions.find(r => r.start <= index && index < r.end);
   const topLevelTables = findElementSpans(body, ["table"]).filter(table => table.depth === 0);
   const candidates: ElementSpan[] = [];
-  for (const index of occurrences) {
-    const table =
-      topLevelTables.find(t => t.start <= index && index < t.end) ?? topLevelTables.find(t => t.start >= index);
-    if (table && !candidates.includes(table)) candidates.push(table);
+
+  if (sectionAnchor) {
+    const occurrences = findAllOccurrences(body, sectionAnchor).filter(index => inRegion(index) !== undefined);
+    if (occurrences.length === 0) {
+      throw new ConfluenceFragmentUpdateError(
+        parentSectionAnchor
+          ? `sectionAnchor "${sectionAnchor}" was not found inside the region of parentSectionAnchor "${parentSectionAnchor}".`
+          : `sectionAnchor "${sectionAnchor}" was not found in the page body.`,
+      );
+    }
+    for (const index of occurrences) {
+      const region = inRegion(index)!;
+      const table =
+        topLevelTables.find(t => t.start <= index && index < t.end) ??
+        topLevelTables.find(t => t.start >= index && t.end <= region.end);
+      if (table && !candidates.includes(table)) candidates.push(table);
+    }
+    if (candidates.length === 0) {
+      throw new ConfluenceFragmentUpdateError(
+        `${describeSection(sectionAnchor, parentSectionAnchor)} was found, but there is no table at or after it${parentSectionAnchor ? " within that parent section" : " on the page"}.`,
+      );
+    }
+    return candidates;
   }
 
+  for (const region of regions) {
+    for (const table of topLevelTables) {
+      if (table.start >= region.start && table.end <= region.end && !candidates.includes(table)) candidates.push(table);
+    }
+  }
   if (candidates.length === 0) {
     throw new ConfluenceFragmentUpdateError(
-      `sectionAnchor "${sectionAnchor}" was found, but there is no table at or after it on the page.`,
+      `parentSectionAnchor "${parentSectionAnchor}" was found, but there is no table inside its section.`,
     );
   }
   return candidates;
@@ -412,23 +547,21 @@ function innermostRowsContaining(body: string, rows: ElementSpan[], rowAnchor: s
  * Locates the single table row (`<tr>`) that contains `rowAnchor`. If the anchor appears inside a nested
  * table, the innermost row containing it is returned.
  *
- * Without `sectionAnchor` the whole page is searched. With `sectionAnchor`, only the table(s) identified by
- * that anchor are searched (see {@link resolveSectionTables}). In both cases the match must be unique:
+ * Without `sectionAnchor` / `parentSectionAnchor` the whole page is searched. Otherwise only the table(s) identified
+ * by those anchors are searched (see {@link resolveSectionTables}). In both cases the match must be unique:
  * more than one candidate row is rejected as ambiguous rather than silently picking one — unless the caller
  * explicitly selects one with `rowOccurrence` (zero-based, document order across the searched tables).
  */
-export function locateTableRow(
-  body: string,
-  rowAnchor: string,
-  sectionAnchor?: string,
-  rowOccurrence?: number,
-): ElementSpan {
+export function locateTableRow(body: string, rowAnchor: string, options: ConfluenceRowTargetOptions = {}): ElementSpan {
   if (!rowAnchor) {
     throw new ConfluenceFragmentUpdateError("rowAnchor must be a non-empty string.");
   }
+  const { rowOccurrence } = options;
+  const sectionAnchor = options.sectionAnchor || undefined;
+  const parentSectionAnchor = options.parentSectionAnchor || undefined;
   const allRows = findElementSpans(body, ["tr"]);
 
-  if (sectionAnchor === undefined || sectionAnchor === "") {
+  if (sectionAnchor === undefined && parentSectionAnchor === undefined) {
     const leaves = innermostRowsContaining(body, allRows, rowAnchor);
     if (leaves.length === 0) {
       throw new ConfluenceFragmentUpdateError(`No table row containing rowAnchor "${rowAnchor}" was found.`);
@@ -444,7 +577,8 @@ export function locateTableRow(
     return leaves[0];
   }
 
-  const sectionTables = resolveSectionTables(body, sectionAnchor);
+  const section = describeSection(sectionAnchor, parentSectionAnchor);
+  const sectionTables = resolveSectionTables(body, sectionAnchor, parentSectionAnchor);
   const matches: { table: ElementSpan; rows: ElementSpan[] }[] = [];
   for (const table of sectionTables) {
     const rowsInTable = allRows.filter(row => row.start >= table.start && row.end <= table.end);
@@ -454,27 +588,28 @@ export function locateTableRow(
 
   if (matches.length === 0) {
     throw new ConfluenceFragmentUpdateError(
-      `No table row containing rowAnchor "${rowAnchor}" was found in the table(s) identified by sectionAnchor "${sectionAnchor}".`,
+      `No table row containing rowAnchor "${rowAnchor}" was found in the table(s) identified by ${section}.`,
     );
   }
   if (rowOccurrence !== undefined) {
     // Tables and the rows within them are already in document order, so flattening preserves it.
     const candidates = matches.flatMap(match => match.rows);
-    return pickRowOccurrence(
-      candidates,
-      rowOccurrence,
-      rowAnchor,
-      `in the table(s) identified by sectionAnchor "${sectionAnchor}"`,
-    );
+    return pickRowOccurrence(candidates, rowOccurrence, rowAnchor, `in the table(s) identified by ${section}`);
   }
   if (matches.length > 1) {
+    const hint = sectionAnchor
+      ? `Use a more specific sectionAnchor (e.g. include the heading markup, such as "<h3>${sectionAnchor}</h3>")${parentSectionAnchor ? "" : " or add a parentSectionAnchor"}.`
+      : `Add a sectionAnchor to pick one table, or use a more specific parentSectionAnchor.`;
+    const occurrenceNote = sectionAnchor
+      ? `sectionAnchor "${sectionAnchor}" occurs ${findAllOccurrences(body, sectionAnchor).length} times on the page and `
+      : "";
     throw new ConfluenceFragmentUpdateError(
-      `sectionAnchor "${sectionAnchor}" occurs ${findAllOccurrences(body, sectionAnchor).length} times on the page and rowAnchor "${rowAnchor}" matches rows in ${matches.length} different tables. Use a more specific sectionAnchor (e.g. include the heading markup, such as "<h3>${sectionAnchor}</h3>").`,
+      `${occurrenceNote}rowAnchor "${rowAnchor}" matches rows in ${matches.length} different tables${sectionAnchor ? "" : ` under ${section}`}. ${hint}`,
     );
   }
   if (matches[0].rows.length > 1) {
     throw new ConfluenceFragmentUpdateError(
-      `rowAnchor "${rowAnchor}" matched ${matches[0].rows.length} rows in the table identified by sectionAnchor "${sectionAnchor}". Provide a more specific rowAnchor or a rowOccurrence index.`,
+      `rowAnchor "${rowAnchor}" matched ${matches[0].rows.length} rows in the table identified by ${section}. Provide a more specific rowAnchor or a rowOccurrence index.`,
     );
   }
   return matches[0].rows[0];
@@ -634,7 +769,7 @@ function applyTableCellUpdate(body: string, update: ConfluenceTableCellUpdate): 
   assertBalancedFragment(update.newContent, "newContent");
   assertNoStrayStructuralTags(update.newContent, "newContent");
 
-  const row = locateTableRow(body, update.rowAnchor, update.sectionAnchor, update.rowOccurrence);
+  const row = locateTableRow(body, update.rowAnchor, update);
   const cell = resolveTargetCell(body, row, update);
 
   const existing = body.slice(cell.innerStart, cell.innerEnd);
@@ -748,26 +883,30 @@ function applyReplacement(body: string, replacement: ConfluenceReplacement): { b
   let scopeStart = 0;
   let scopeEnd = body.length;
   if (replacement.rowAnchor) {
-    const row = locateTableRow(body, replacement.rowAnchor, replacement.sectionAnchor, replacement.rowOccurrence);
+    const row = locateTableRow(body, replacement.rowAnchor, replacement);
     scopeStart = row.start;
     scopeEnd = row.end;
   } else {
-    // A duplicated sectionAnchor is only dangerous when an end anchor turns it into a bounded window.
-    const requireUniqueStart = replacement.sectionEndAnchor !== undefined;
-    scopeStart = resolveSearchStart(body, replacement.sectionAnchor, requireUniqueStart);
-    scopeEnd = resolveSearchEnd(body, replacement.sectionEndAnchor, scopeStart, replacement.sectionAnchor);
+    // A parentSectionAnchor narrows the page to one heading's region first; the section anchors then work inside it.
+    const region = resolveSingleParentRegion(body, replacement.parentSectionAnchor);
+    const sectionScope = resolveSectionScope(body, replacement.sectionAnchor, replacement.sectionEndAnchor, region);
+    scopeStart = sectionScope.start;
+    scopeEnd = sectionScope.end;
   }
 
   const scope = body.slice(scopeStart, scopeEnd);
+  const area = replacement.parentSectionAnchor
+    ? `the section under parentSectionAnchor "${replacement.parentSectionAnchor}"`
+    : "the page body";
   const scopeDescription = replacement.rowAnchor
     ? `the table row matching "${replacement.rowAnchor}"`
     : replacement.sectionAnchor && replacement.sectionEndAnchor
-      ? `the page body between sectionAnchor "${replacement.sectionAnchor}" and sectionEndAnchor "${replacement.sectionEndAnchor}"`
+      ? `${area} between sectionAnchor "${replacement.sectionAnchor}" and sectionEndAnchor "${replacement.sectionEndAnchor}"`
       : replacement.sectionAnchor
-        ? `the page body after sectionAnchor "${replacement.sectionAnchor}"`
+        ? `${area} after sectionAnchor "${replacement.sectionAnchor}"`
         : replacement.sectionEndAnchor
-          ? `the page body before sectionEndAnchor "${replacement.sectionEndAnchor}"`
-          : "the page body";
+          ? `${area} before sectionEndAnchor "${replacement.sectionEndAnchor}"`
+          : area;
 
   // Occurrences are counted over the raw storage-format markup of the *current* body — exactly what `find` and
   // `replaceAll` match against — so they include text inside tag attributes and code-block (CDATA) bodies, and are
