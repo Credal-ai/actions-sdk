@@ -47,7 +47,11 @@ describe("googleOauth getDriveFileContentById", () => {
 
   it("converts a pptx file with officeparser", async () => {
     mockPptxDownload();
-    const to = jest.fn(async () => ({ value: "Slide one\n\nSlide two" }));
+    const to = jest.fn<(format: string) => Promise<{ value: string }>>(
+      async () => ({
+        value: "Slide one\n\nSlide two",
+      }),
+    );
     mockParseOffice.mockResolvedValueOnce({ to });
 
     const result = await getDriveFileContentById({
