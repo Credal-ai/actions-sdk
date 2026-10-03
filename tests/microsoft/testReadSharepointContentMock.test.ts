@@ -181,7 +181,11 @@ describe("microsoft readSharepointContent", () => {
         ),
       )
       .mockResolvedValueOnce({ data: Buffer.from("fake-pptx-bytes") });
-    const to = jest.fn(async () => ({ value: "parsed pptx text" }));
+    const to = jest.fn<(format: string) => Promise<{ value: string }>>(
+      async () => ({
+        value: "parsed pptx text",
+      }),
+    );
     mockParseOffice.mockResolvedValueOnce({ to });
 
     const result = await readSharepointContent({
