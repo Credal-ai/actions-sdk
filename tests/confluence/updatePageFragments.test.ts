@@ -1592,6 +1592,118 @@ describe("applyConfluenceFragmentUpdates", () => {
         }),
       ).toThrow(/never inside a heading.*not real headings/);
     });
+
+    describe("sections laid out inside one surrounding table", () => {
+      // The whole report is a single table; the h2/h3 headings sit in full-width cells. The same user has a row
+      // under both parents, and the other user only under Infrastructure.
+      const ONE_TABLE_BODY = [
+        `<h1>Report</h1>`,
+        `<table><tbody>`,
+        `<tr><td colspan="2"><h2>Application Development</h2></td></tr>`,
+        `<tr><td colspan="2"><h3>ServiceNow</h3></td></tr>`,
+        `<tr><th><p>Name</p></th><th><p>Status</p></th></tr>`,
+        `<tr><td><p>${USER_MENTION}</p></td><td><p>AppDev TBD</p></td></tr>`,
+        `<tr><td colspan="2"><h2>Infrastructure</h2></td></tr>`,
+        `<tr><td colspan="2"><h3>ServiceNow</h3></td></tr>`,
+        `<tr><th><p>Name</p></th><th><p>Status</p></th></tr>`,
+        `<tr><td><p>${USER_MENTION}</p></td><td><p>Infra TBD</p></td></tr>`,
+        `<tr><td><p>${OTHER_USER_MENTION}</p></td><td><p>Other infra TBD</p></td></tr>`,
+        `</tbody></table>`,
+      ].join("");
+
+      it("only considers rows inside the parent region even though the table extends past it", () => {
+        const appDev = applyConfluenceFragmentUpdates(ONE_TABLE_BODY, {
+          tableCellUpdates: [
+            {
+              rowAnchor: USER_KEY,
+              parentSectionAnchor: "<h2>Application Development</h2>",
+              sectionAnchor: "<h3>ServiceNow</h3>",
+              columnHeader: "Status",
+              newContent: "<p>Done</p>",
+            },
+          ],
+        });
+        expect(appDev.body).not.toContain("AppDev TBD");
+        expect(appDev.body).toContain("Infra TBD");
+
+        const infra = applyConfluenceFragmentUpdates(ONE_TABLE_BODY, {
+          tableCellUpdates: [
+            {
+              rowAnchor: USER_KEY,
+              parentSectionAnchor: "<h2>Infrastructure</h2>",
+              sectionAnchor: "<h3>ServiceNow</h3>",
+              columnIndex: 1,
+              newContent: "<p>Done</p>",
+            },
+          ],
+        });
+        expect(infra.body).toContain("AppDev TBD");
+        expect(infra.body).not.toContain("Infra TBD");
+      });
+
+      it("rejects a row that only exists outside the parent region instead of editing it", () => {
+        // The other user has no row under Application Development; the surrounding table must not leak theirs.
+        expect(() =>
+          applyConfluenceFragmentUpdates(ONE_TABLE_BODY, {
+            tableCellUpdates: [
+              {
+                rowAnchor: "ffffffffffffffffffffffffffffffff",
+                parentSectionAnchor: "<h2>Application Development</h2>",
+                sectionAnchor: "<h3>ServiceNow</h3>",
+                columnIndex: 1,
+                newContent: "<p>x</p>",
+              },
+            ],
+          }),
+        ).toThrow(
+          /No table row containing rowAnchor.*outside the parentSectionAnchor region are not considered/,
+        );
+
+        expect(() =>
+          applyConfluenceFragmentUpdates(ONE_TABLE_BODY, {
+            replacements: [
+              {
+                find: "TBD",
+                replace: "Done",
+                rowAnchor: "ffffffffffffffffffffffffffffffff",
+                parentSectionAnchor: "<h2>Application Development</h2>",
+              },
+            ],
+          }),
+        ).toThrow(/No table row containing rowAnchor/);
+      });
+
+      it("searches the surrounding table's rows within the region when no sectionAnchor is given", () => {
+        const result = applyConfluenceFragmentUpdates(ONE_TABLE_BODY, {
+          tableCellUpdates: [
+            {
+              rowAnchor: USER_KEY,
+              parentSectionAnchor: "<h2>Infrastructure</h2>",
+              columnIndex: 1,
+              newContent: "<p>Done</p>",
+            },
+          ],
+        });
+        expect(result.body).toContain("AppDev TBD");
+        expect(result.body).not.toContain("Infra TBD");
+        expect(result.body).toContain("Other infra TBD");
+
+        // rowOccurrence is counted within the region too.
+        const second = applyConfluenceFragmentUpdates(ONE_TABLE_BODY, {
+          replacements: [
+            {
+              find: "TBD",
+              replace: "Done",
+              rowAnchor: "<ri:user",
+              rowOccurrence: 1,
+              parentSectionAnchor: "<h2>Infrastructure</h2>",
+            },
+          ],
+        });
+        expect(second.body).toContain("Infra TBD");
+        expect(second.body).toContain("Other infra Done");
+      });
+    });
   });
 
   describe("fieldLabel (nested key/value tables)", () => {
@@ -1614,8 +1726,12 @@ describe("applyConfluenceFragmentUpdates", () => {
         ],
       });
       expect(result.cellsUpdated).toBe(2);
-      expect(result.body).toContain("<tr><td><p># of Tickets Closed</p></td><td><p>4</p></td></tr>");
-      expect(result.body).toContain("<tr><td><p>Jira Stories Completed</p></td><td><p>2</p></td></tr>");
+      expect(result.body).toContain(
+        "<tr><td><p># of Tickets Closed</p></td><td><p>4</p></td></tr>",
+      );
+      expect(result.body).toContain(
+        "<tr><td><p>Jira Stories Completed</p></td><td><p>2</p></td></tr>",
+      );
       // The row's own cells are untouched.
       expect(result.body).toContain("<p>Snapshot TBD</p>");
       expect(result.body).toContain("<p>Plans TBD</p>");
@@ -1625,15 +1741,27 @@ describe("applyConfluenceFragmentUpdates", () => {
       expect(() =>
         applyConfluenceFragmentUpdates(PAGE_BODY, {
           tableCellUpdates: [
-            { rowAnchor: USER_KEY, sectionAnchor: "<h3>ServiceNow</h3>", fieldLabel: "Velocity", newContent: "<p>1</p>" },
+            {
+              rowAnchor: USER_KEY,
+              sectionAnchor: "<h3>ServiceNow</h3>",
+              fieldLabel: "Velocity",
+              newContent: "<p>1</p>",
+            },
           ],
         }),
-      ).toThrow(/No field labelled "Velocity".*Available labels: "# of tickets closed", "jira stories completed"/);
+      ).toThrow(
+        /No field labelled "Velocity".*Available labels: "# of tickets closed", "jira stories completed"/,
+      );
 
       expect(() =>
         applyConfluenceFragmentUpdates(PAGE_BODY, {
           tableCellUpdates: [
-            { rowAnchor: USER_KEY, sectionAnchor: "Cloud/Infrastructure", fieldLabel: "# of Tickets Closed", newContent: "<p>1</p>" },
+            {
+              rowAnchor: USER_KEY,
+              sectionAnchor: "Cloud/Infrastructure",
+              fieldLabel: "# of Tickets Closed",
+              newContent: "<p>1</p>",
+            },
           ],
         }),
       ).toThrow(/contains no nested table/);
@@ -1650,7 +1778,9 @@ describe("applyConfluenceFragmentUpdates", () => {
             },
           ],
         }),
-      ).toThrow(/fieldLabel cannot be combined with columnHeader or columnIndex/);
+      ).toThrow(
+        /fieldLabel cannot be combined with columnHeader or columnIndex/,
+      );
     });
 
     it("rejects a label that matches several nested rows, or one with no value cell", () => {
@@ -1661,7 +1791,12 @@ describe("applyConfluenceFragmentUpdates", () => {
       expect(() =>
         applyConfluenceFragmentUpdates(duplicatedLabel, {
           tableCellUpdates: [
-            { rowAnchor: USER_KEY, sectionAnchor: "<h3>ServiceNow</h3>", fieldLabel: "# of Tickets Closed", newContent: "<p>1</p>" },
+            {
+              rowAnchor: USER_KEY,
+              sectionAnchor: "<h3>ServiceNow</h3>",
+              fieldLabel: "# of Tickets Closed",
+              newContent: "<p>1</p>",
+            },
           ],
         }),
       ).toThrow(/matches 2 nested rows/);
@@ -1673,10 +1808,123 @@ describe("applyConfluenceFragmentUpdates", () => {
       expect(() =>
         applyConfluenceFragmentUpdates(noValueCell, {
           tableCellUpdates: [
-            { rowAnchor: USER_KEY, sectionAnchor: "<h3>ServiceNow</h3>", fieldLabel: "Jira Stories Completed", newContent: "<p>1</p>" },
+            {
+              rowAnchor: USER_KEY,
+              sectionAnchor: "<h3>ServiceNow</h3>",
+              fieldLabel: "Jira Stories Completed",
+              newContent: "<p>1</p>",
+            },
           ],
         }),
       ).toThrow(/has no value cell next to the label/);
+    });
+
+    it("rejects a label that is blank once markup and whitespace are stripped, instead of matching an empty label cell", () => {
+      // A nested row whose first cell is empty: a whitespace-only label would otherwise select its value cell.
+      const emptyLabel = PAGE_BODY.replace(
+        "<tr><td><p>Jira Stories Completed</p></td><td><p>0</p></td></tr>",
+        "<tr><td><p> </p></td><td><p>0</p></td></tr>",
+      );
+      for (const fieldLabel of ["", "   ", "<p>&nbsp;</p>"]) {
+        expect(() =>
+          applyConfluenceFragmentUpdates(emptyLabel, {
+            tableCellUpdates: [
+              {
+                rowAnchor: USER_KEY,
+                sectionAnchor: "<h3>ServiceNow</h3>",
+                fieldLabel,
+                newContent: "<p>1</p>",
+              },
+            ],
+          }),
+        ).toThrow(/fieldLabel must be a non-empty string/);
+      }
+      // Same rule for columnHeader against an empty header cell.
+      const emptyHeader = PAGE_BODY.replace(
+        "<th><p>Planned Activities</p></th>",
+        "<th><p></p></th>",
+      );
+      expect(() =>
+        applyConfluenceFragmentUpdates(emptyHeader, {
+          tableCellUpdates: [
+            {
+              rowAnchor: USER_KEY,
+              sectionAnchor: "<h3>ServiceNow</h3>",
+              columnHeader: " ",
+              newContent: "<p>1</p>",
+            },
+          ],
+        }),
+      ).toThrow(/requires either columnHeader or columnIndex/);
+    });
+
+    it("matches labels and headers whose stored text uses character references", () => {
+      const encoded = PAGE_BODY.replace(
+        "<p># of Tickets Closed</p>",
+        "<p>&#35; of Tickets&#x20;Closed</p>",
+      ).replace(
+        "<th><p>Planned Activities</p></th>",
+        "<th><p>Planned &amp; Unplanned</p></th>",
+      );
+      const result = applyConfluenceFragmentUpdates(encoded, {
+        tableCellUpdates: [
+          {
+            rowAnchor: USER_KEY,
+            sectionAnchor: "<h3>ServiceNow</h3>",
+            fieldLabel: "# of Tickets Closed",
+            newContent: "<p>4</p>",
+          },
+          {
+            rowAnchor: USER_KEY,
+            sectionAnchor: "<h3>ServiceNow</h3>",
+            columnHeader: "Planned & Unplanned",
+            newContent: "<p>None</p>",
+          },
+        ],
+      });
+      expect(result.body).toContain(
+        "<td><p>&#35; of Tickets&#x20;Closed</p></td><td><p>4</p></td>",
+      );
+      expect(result.body).toContain("<td><p>None</p></td>");
+
+      // Decoding is single-pass: an escaped reference is literal text, not a second level of encoding.
+      const doubleEncoded = PAGE_BODY.replace(
+        "<p># of Tickets Closed</p>",
+        "<p>&amp;#35; of Tickets Closed</p>",
+      );
+      expect(() =>
+        applyConfluenceFragmentUpdates(doubleEncoded, {
+          tableCellUpdates: [
+            {
+              rowAnchor: USER_KEY,
+              sectionAnchor: "<h3>ServiceNow</h3>",
+              fieldLabel: "# of Tickets Closed",
+              newContent: "<p>4</p>",
+            },
+          ],
+        }),
+      ).toThrow(
+        /No field labelled "# of Tickets Closed".*Available labels: "&#35; of tickets closed"/,
+      );
+    });
+
+    it("rejects fieldLabel on a replacement instead of ignoring it", () => {
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE_BODY, {
+          replacements: [
+            {
+              find: "<p>0</p>",
+              replace: "<p>4</p>",
+              rowAnchor: USER_KEY,
+              sectionAnchor: "<h3>ServiceNow</h3>",
+              fieldLabel: "# of Tickets Closed",
+              replaceAll: true,
+            } as ConfluenceReplacement,
+          ],
+        }),
+      ).toThrow(
+        /fieldLabel is not supported here and would be ignored\. Use a tableCellUpdate/,
+      );
     });
   });
 

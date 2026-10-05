@@ -266,18 +266,29 @@ function findElementSpans(html: string, tagNames: string[]): ElementSpan[] {
   return spans.sort((a, b) => a.start - b.start);
 }
 
+/** Named character references Confluence emits in storage format (XHTML only defines these five plus `nbsp`). */
+const NAMED_ENTITIES: Record<string, string> = { nbsp: " ", amp: "&", lt: "<", gt: ">", quot: '"', apos: "'" };
+
+/** Matches one character reference: `&amp;`, `&#35;` or `&#x23;`. */
+const ENTITY_REGEX = /&(#x[0-9a-f]+|#\d+|[a-z]+);/gi;
+
+/**
+ * Decodes a single character reference. Unknown names and out-of-range code points are left exactly as written so
+ * text is never corrupted. Decoding happens in one pass over the text, so `&amp;#35;` yields `&#35;`, not `#`.
+ */
+function decodeEntity(entity: string, reference: string): string {
+  const named = NAMED_ENTITIES[reference.toLowerCase()];
+  if (named !== undefined) return named;
+  const code = /^#x/i.test(reference) ? parseInt(reference.slice(2), 16) : parseInt(reference.slice(1), 10);
+  return Number.isInteger(code) && code >= 0 && code <= 0x10ffff ? String.fromCodePoint(code) : entity;
+}
+
+/**
+ * The visible text of a fragment, for comparing labels and headers: markup removed, character references decoded
+ * (so `&#35; of Tickets` and `# of Tickets` compare equal), whitespace collapsed, lower-cased.
+ */
 function stripTagsAndNormalise(html: string): string {
-  return html
-    .replace(ANY_TAG_REGEX, " ")
-    .replace(/&nbsp;|&#160;/gi, " ")
-    .replace(/&amp;/gi, "&")
-    .replace(/&lt;/gi, "<")
-    .replace(/&gt;/gi, ">")
-    .replace(/&quot;/gi, '"')
-    .replace(/&#39;|&apos;/gi, "'")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toLowerCase();
+  return html.replace(ANY_TAG_REGEX, " ").replace(ENTITY_REGEX, decodeEntity).replace(/\s+/g, " ").trim().toLowerCase();
 }
 
 function findAllOccurrences(body: string, needle: string): number[] {
@@ -485,23 +496,37 @@ function describeSection(sectionAnchor: string | undefined, parentSectionAnchor:
 }
 
 /**
+ * A table to search for a row, together with the part of the page the search may cover. `bounds` is the parent
+ * section's region when a `parentSectionAnchor` was given (the whole page otherwise): a table may extend past the
+ * region when several sections are laid out inside one surrounding table, and rows outside the region must never be
+ * candidates even though they belong to the same `<table>`.
+ */
+type SectionTable = { table: ElementSpan; bounds: Region };
+
+/**
  * Resolves the top-level tables a section refers to. For every occurrence of `sectionAnchor`, the section table is
  * the top-level table containing that occurrence, or else the first top-level table that starts after it. When a
- * `parentSectionAnchor` is given, only occurrences and tables inside that parent's region(s) are considered; with a
- * parent but no `sectionAnchor`, every top-level table in the region(s) is a candidate. Returns the distinct
- * candidates in document order.
+ * `parentSectionAnchor` is given, only occurrences inside that parent's region(s) are considered and every table is
+ * bounded by its region (see {@link SectionTable}); with a parent but no `sectionAnchor`, every top-level table that
+ * reaches into the region(s) is a candidate. Returns the distinct candidates in document order.
  */
 function resolveSectionTables(
   body: string,
   sectionAnchor: string | undefined,
   parentSectionAnchor: string | undefined,
-): ElementSpan[] {
-  const regions = parentSectionAnchor
+): SectionTable[] {
+  const regions: Region[] = parentSectionAnchor
     ? resolveParentRegions(body, parentSectionAnchor)
     : [{ start: 0, end: body.length }];
   const inRegion = (index: number) => regions.find(r => r.start <= index && index < r.end);
   const topLevelTables = findElementSpans(body, ["table"]).filter(table => table.depth === 0);
-  const candidates: ElementSpan[] = [];
+  const candidates: SectionTable[] = [];
+  const addCandidate = (table: ElementSpan, bounds: Region) => {
+    const seen = candidates.some(
+      c => c.table.start === table.start && c.bounds.start === bounds.start && c.bounds.end === bounds.end,
+    );
+    if (!seen) candidates.push({ table, bounds });
+  };
 
   if (sectionAnchor) {
     const occurrences = findAllOccurrences(body, sectionAnchor).filter(index => inRegion(index) !== undefined);
@@ -516,8 +541,8 @@ function resolveSectionTables(
       const region = inRegion(index)!;
       const table =
         topLevelTables.find(t => t.start <= index && index < t.end) ??
-        topLevelTables.find(t => t.start >= index && t.end <= region.end);
-      if (table && !candidates.includes(table)) candidates.push(table);
+        topLevelTables.find(t => t.start >= index && t.start < region.end);
+      if (table) addCandidate(table, region);
     }
     if (candidates.length === 0) {
       throw new ConfluenceFragmentUpdateError(
@@ -529,7 +554,7 @@ function resolveSectionTables(
 
   for (const region of regions) {
     for (const table of topLevelTables) {
-      if (table.start >= region.start && table.end <= region.end && !candidates.includes(table)) candidates.push(table);
+      if (table.start < region.end && table.end > region.start) addCandidate(table, region);
     }
   }
   if (candidates.length === 0) {
@@ -538,6 +563,13 @@ function resolveSectionTables(
     );
   }
   return candidates;
+}
+
+/** Rows of `table` that lie entirely within `bounds` (see {@link SectionTable}). */
+function rowsWithin(rows: ElementSpan[], { table, bounds }: SectionTable): ElementSpan[] {
+  const start = Math.max(table.start, bounds.start);
+  const end = Math.min(table.end, bounds.end);
+  return rows.filter(row => row.start >= start && row.end <= end);
 }
 
 function innermostRowsContaining(body: string, rows: ElementSpan[], rowAnchor: string): ElementSpan[] {
@@ -585,15 +617,14 @@ export function locateTableRow(body: string, rowAnchor: string, options: Conflue
   const section = describeSection(sectionAnchor, parentSectionAnchor);
   const sectionTables = resolveSectionTables(body, sectionAnchor, parentSectionAnchor);
   const matches: { table: ElementSpan; rows: ElementSpan[] }[] = [];
-  for (const table of sectionTables) {
-    const rowsInTable = allRows.filter(row => row.start >= table.start && row.end <= table.end);
-    const leaves = innermostRowsContaining(body, rowsInTable, rowAnchor);
-    if (leaves.length > 0) matches.push({ table, rows: leaves });
+  for (const sectionTable of sectionTables) {
+    const leaves = innermostRowsContaining(body, rowsWithin(allRows, sectionTable), rowAnchor);
+    if (leaves.length > 0) matches.push({ table: sectionTable.table, rows: leaves });
   }
 
   if (matches.length === 0) {
     throw new ConfluenceFragmentUpdateError(
-      `No table row containing rowAnchor "${rowAnchor}" was found in the table(s) identified by ${section}.`,
+      `No table row containing rowAnchor "${rowAnchor}" was found in the table(s) identified by ${section}.${parentSectionAnchor ? " Rows of those tables that lie outside the parentSectionAnchor region are not considered." : ""}`,
     );
   }
   if (rowOccurrence !== undefined) {
@@ -695,7 +726,10 @@ function resolveTargetCell(body: string, row: ElementSpan, update: ConfluenceTab
     return cell;
   }
 
-  if (update.columnHeader === undefined || update.columnHeader === "") {
+  // Compared after normalisation, like the header cells themselves: a whitespace-only header must not match an
+  // empty header cell.
+  const wanted = update.columnHeader === undefined ? "" : stripTagsAndNormalise(update.columnHeader);
+  if (wanted === "") {
     throw new ConfluenceFragmentUpdateError("A table cell update requires either columnHeader or columnIndex.");
   }
 
@@ -722,7 +756,6 @@ function resolveTargetCell(body: string, row: ElementSpan, update: ConfluenceTab
   }
 
   // Map header cells to logical column positions, honouring colspan.
-  const wanted = stripTagsAndNormalise(update.columnHeader);
   const headerCells = getDirectCells(body, headerRow);
   let logicalColumn = -1;
   let position = 0;
@@ -772,7 +805,10 @@ function resolveTargetCell(body: string, row: ElementSpan, update: ConfluenceTab
  */
 function resolveFieldCell(body: string, row: ElementSpan, update: ConfluenceTableCellUpdate): ElementSpan {
   const fieldLabel = update.fieldLabel ?? "";
-  if (fieldLabel === "") {
+  const wanted = stripTagsAndNormalise(fieldLabel);
+  if (wanted === "") {
+    // Compared after normalisation: a whitespace-only label would otherwise match a nested row whose first cell is
+    // empty and write into the cell next to it.
     throw new ConfluenceFragmentUpdateError("fieldLabel must be a non-empty string.");
   }
   const nestedRows = findElementSpans(body, ["tr"]).filter(r => r.start > row.innerStart && r.end < row.innerEnd);
@@ -782,7 +818,6 @@ function resolveFieldCell(body: string, row: ElementSpan, update: ConfluenceTabl
     );
   }
 
-  const wanted = stripTagsAndNormalise(fieldLabel);
   const available: string[] = [];
   const matches: { labelRow: ElementSpan; cells: ElementSpan[] }[] = [];
   for (const labelRow of nestedRows) {
@@ -908,7 +943,7 @@ function applyReplacement(body: string, replacement: ConfluenceReplacement): { b
   }
   assertNoForeignTargetingParams(
     replacement,
-    ["columnHeader", "columnIndex"],
+    ["columnHeader", "columnIndex", "fieldLabel"],
     `Replacement of "${truncate(replacement.find)}"`,
     "Use a tableCellUpdate to target a specific cell.",
   );
