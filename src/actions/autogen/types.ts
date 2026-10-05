@@ -935,8 +935,21 @@ export const confluenceUpdatePageFragmentsParamsSchema = z.object({
         rowAnchor: z
           .string()
           .describe(
-            'Text or markup that uniquely identifies the target row within the page (or within the section given by sectionAnchor), e.g. "Jane Doe" or "2c96d7e295488cec0195b4c0a3890027". Matched against the raw storage-format markup of the row.\n',
-          ),
+            'Text or markup that uniquely identifies the target row within the page (or within the section given by sectionAnchor), e.g. "2c96d7e295488cec0195b4c0a3890027" or a literal name that appears in the row. Matched against the raw storage-format markup of the row. Note that user mentions are stored as account IDs / user keys, not names; use rowDisplayName (or rowUsername on Data Center) to target a mentioned person by name. Provide exactly one of rowAnchor, rowDisplayName and rowUsername.\n',
+          )
+          .optional(),
+        rowDisplayName: z
+          .string()
+          .describe(
+            'Display name of the Confluence user whose row to edit, e.g. "Jane Doe". The name is resolved via the Confluence user API and the row is the one containing a real @-mention of that user (an <ri:user> element with their account ID, user key or username; mention text inside code blocks or comments does not count). Only an exact, case-insensitive display-name match is accepted; rejected if no user or more than one user matches. On Data Center the lookup scans the confluence-users group and is rejected on very large sites; use rowUsername there instead. If the user is mentioned in more than one row of the searched scope (e.g. their own row and a colleague\'s), the update is rejected as ambiguous: narrow with sectionAnchor / parentSectionAnchor or rowOccurrence. Provide exactly one of rowAnchor, rowDisplayName and rowUsername.\n',
+          )
+          .optional(),
+        rowUsername: z
+          .string()
+          .describe(
+            'Confluence Data Center username (login) of the user whose row to edit, e.g. "jdoe". Looked up exactly via the user API; the row is then located by the user\'s @-mention like rowDisplayName. Works regardless of site size. Not available on Confluence Cloud, where users have no usernames. Provide exactly one of rowAnchor, rowDisplayName and rowUsername.\n',
+          )
+          .optional(),
         parentSectionAnchor: z
           .string()
           .describe(
@@ -946,7 +959,7 @@ export const confluenceUpdatePageFragmentsParamsSchema = z.object({
         sectionAnchor: z
           .string()
           .describe(
-            'Optional text identifying the section whose table should be edited, e.g. the heading markup "<h3>ServiceNow</h3>". The row is looked up only inside the table containing this text, or the first table after it. Use it when the same rowAnchor appears in more than one table on the page. If the anchor text occurs in several places and the row matches in more than one of the resulting tables, the update is rejected as ambiguous, so prefer distinctive text such as the full heading markup, or add a parentSectionAnchor.\n',
+            'Optional text identifying the section whose table should be edited, e.g. the heading markup "<h3>ServiceNow</h3>". The row is looked up only inside the table containing this text, or the first table after it; when the text is a heading, only rows up to the next heading of the same or a higher level count, so sections laid out in one surrounding table stay separate. Use it when the same rowAnchor appears in more than one table on the page. If the anchor text occurs in several places and the row matches in more than one of the resulting tables, the update is rejected as ambiguous, so prefer distinctive text such as the full heading markup, or add a parentSectionAnchor.\n',
           )
           .optional(),
         rowOccurrence: z.coerce
@@ -970,6 +983,12 @@ export const confluenceUpdatePageFragmentsParamsSchema = z.object({
             "Zero-based index of the physical cell within the row (the Nth <td>/<th> tag, not accounting for merged cells). Provide either columnHeader or columnIndex.\n",
           )
           .optional(),
+        fieldLabel: z
+          .string()
+          .describe(
+            'Label of a field in a key/value table nested inside the located row, e.g. "# of Tickets Closed" or "Jira Stories Completed" in a Metrics cell. The nested row whose first cell reads this label (case-insensitive) is found and the value cell next to the label is updated. Use this instead of columnHeader / columnIndex when the value lives in a sub-table rather than in one of the row\'s own cells; it cannot be combined with them.\n',
+          )
+          .optional(),
         newContent: z
           .string()
           .describe(
@@ -982,7 +1001,7 @@ export const confluenceUpdatePageFragmentsParamsSchema = z.object({
       }),
     )
     .describe(
-      "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (e.g. a person's name or a user key such as ri:userkey / ri:account-id), optionally narrowed to a section (parentSectionAnchor / sectionAnchor), and one column by header text or index, then replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
+      "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (rowAnchor, e.g. a user key such as ri:userkey / ri:account-id), by a Confluence user's display name (rowDisplayName) or by their Data Center username (rowUsername), optionally narrowed to a section (parentSectionAnchor / sectionAnchor), and then one cell by column header, column index or nested field label, and replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
     )
     .optional(),
   replacements: z
@@ -1006,14 +1025,28 @@ export const confluenceUpdatePageFragmentsParamsSchema = z.object({
           .optional(),
         rowAnchor: z
           .string()
-          .describe("Optional. Limit the replacement to the table row containing this text/markup.")
+          .describe(
+            "Optional. Limit the replacement to the table row containing this text/markup. Provide at most one of rowAnchor, rowDisplayName and rowUsername.\n",
+          )
+          .optional(),
+        rowDisplayName: z
+          .string()
+          .describe(
+            "Optional. Limit the replacement to the table row containing the @-mention of the Confluence user with this display name (see tableCellUpdates.rowDisplayName for how the user and row are resolved). Provide at most one of rowAnchor, rowDisplayName and rowUsername.\n",
+          )
+          .optional(),
+        rowUsername: z
+          .string()
+          .describe(
+            "Optional. Limit the replacement to the table row containing the @-mention of the Confluence Data Center user with this username (see tableCellUpdates.rowUsername). Not available on Cloud. Provide at most one of rowAnchor, rowDisplayName and rowUsername.\n",
+          )
           .optional(),
         rowOccurrence: z.coerce
           .number()
           .int()
           .gte(0)
           .describe(
-            "Optional zero-based index selecting which of the rows matching rowAnchor to use when the anchor is not unique (document order). Only meaningful together with rowAnchor.\n",
+            "Optional zero-based index selecting which of the rows matching the row target to use when it is not unique (document order). Only meaningful together with rowAnchor / rowDisplayName / rowUsername.\n",
           )
           .optional(),
         parentSectionAnchor: z
@@ -1031,7 +1064,7 @@ export const confluenceUpdatePageFragmentsParamsSchema = z.object({
         sectionEndAnchor: z
           .string()
           .describe(
-            'Optional. Stop searching at the first occurrence of this text after sectionAnchor. The end anchor itself is excluded from the scope. Typically the markup of the next heading, e.g. "<h2>Risk | Issues</h2>", or simply "<h2>" to stop at the next <h2> tag written without attributes. Anchors are plain substring matches against the storage-format markup, not structural: "<h2>" does not match "<h2 class=...>" and does not stop at an <h1>, so check the page markup when relying on a generic tag. Without it the search runs to the end of the page (or of the parentSectionAnchor region). Cannot be combined with rowAnchor.\n',
+            'Optional. Stop searching at the first occurrence of this text after sectionAnchor. The end anchor itself is excluded from the scope. Typically the markup of the next heading, e.g. "<h2>Risk | Issues</h2>", or simply "<h2>" to stop at the next <h2> tag written without attributes. Anchors are plain substring matches against the storage-format markup, not structural: "<h2>" does not match "<h2 class=...>" and does not stop at an <h1>, so check the page markup when relying on a generic tag. Without it the search runs to the end of the page (or of the parentSectionAnchor region). Cannot be combined with rowAnchor / rowDisplayName / rowUsername.\n',
           )
           .optional(),
       }),
@@ -1227,8 +1260,21 @@ export const confluenceDataCenterUpdatePageFragmentsParamsSchema = z.object({
         rowAnchor: z
           .string()
           .describe(
-            'Text or markup that uniquely identifies the target row within the page (or within the section given by sectionAnchor), e.g. "Jane Doe" or "2c96d7e295488cec0195b4c0a3890027". Matched against the raw storage-format markup of the row.\n',
-          ),
+            'Text or markup that uniquely identifies the target row within the page (or within the section given by sectionAnchor), e.g. "2c96d7e295488cec0195b4c0a3890027" or a literal name that appears in the row. Matched against the raw storage-format markup of the row. Note that user mentions are stored as account IDs / user keys, not names; use rowDisplayName (or rowUsername on Data Center) to target a mentioned person by name. Provide exactly one of rowAnchor, rowDisplayName and rowUsername.\n',
+          )
+          .optional(),
+        rowDisplayName: z
+          .string()
+          .describe(
+            'Display name of the Confluence user whose row to edit, e.g. "Jane Doe". The name is resolved via the Confluence user API and the row is the one containing a real @-mention of that user (an <ri:user> element with their account ID, user key or username; mention text inside code blocks or comments does not count). Only an exact, case-insensitive display-name match is accepted; rejected if no user or more than one user matches. On Data Center the lookup scans the confluence-users group and is rejected on very large sites; use rowUsername there instead. If the user is mentioned in more than one row of the searched scope (e.g. their own row and a colleague\'s), the update is rejected as ambiguous: narrow with sectionAnchor / parentSectionAnchor or rowOccurrence. Provide exactly one of rowAnchor, rowDisplayName and rowUsername.\n',
+          )
+          .optional(),
+        rowUsername: z
+          .string()
+          .describe(
+            'Confluence Data Center username (login) of the user whose row to edit, e.g. "jdoe". Looked up exactly via the user API; the row is then located by the user\'s @-mention like rowDisplayName. Works regardless of site size. Not available on Confluence Cloud, where users have no usernames. Provide exactly one of rowAnchor, rowDisplayName and rowUsername.\n',
+          )
+          .optional(),
         parentSectionAnchor: z
           .string()
           .describe(
@@ -1238,7 +1284,7 @@ export const confluenceDataCenterUpdatePageFragmentsParamsSchema = z.object({
         sectionAnchor: z
           .string()
           .describe(
-            'Optional text identifying the section whose table should be edited, e.g. the heading markup "<h3>ServiceNow</h3>". The row is looked up only inside the table containing this text, or the first table after it. Use it when the same rowAnchor appears in more than one table on the page. If the anchor text occurs in several places and the row matches in more than one of the resulting tables, the update is rejected as ambiguous, so prefer distinctive text such as the full heading markup, or add a parentSectionAnchor.\n',
+            'Optional text identifying the section whose table should be edited, e.g. the heading markup "<h3>ServiceNow</h3>". The row is looked up only inside the table containing this text, or the first table after it; when the text is a heading, only rows up to the next heading of the same or a higher level count, so sections laid out in one surrounding table stay separate. Use it when the same rowAnchor appears in more than one table on the page. If the anchor text occurs in several places and the row matches in more than one of the resulting tables, the update is rejected as ambiguous, so prefer distinctive text such as the full heading markup, or add a parentSectionAnchor.\n',
           )
           .optional(),
         rowOccurrence: z.coerce
@@ -1262,6 +1308,12 @@ export const confluenceDataCenterUpdatePageFragmentsParamsSchema = z.object({
             "Zero-based index of the physical cell within the row (the Nth <td>/<th> tag, not accounting for merged cells). Provide either columnHeader or columnIndex.\n",
           )
           .optional(),
+        fieldLabel: z
+          .string()
+          .describe(
+            'Label of a field in a key/value table nested inside the located row, e.g. "# of Tickets Closed" or "Jira Stories Completed" in a Metrics cell. The nested row whose first cell reads this label (case-insensitive) is found and the value cell next to the label is updated. Use this instead of columnHeader / columnIndex when the value lives in a sub-table rather than in one of the row\'s own cells; it cannot be combined with them.\n',
+          )
+          .optional(),
         newContent: z
           .string()
           .describe(
@@ -1274,7 +1326,7 @@ export const confluenceDataCenterUpdatePageFragmentsParamsSchema = z.object({
       }),
     )
     .describe(
-      "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (e.g. a person's name or a user key such as ri:userkey / ri:account-id), optionally narrowed to a section (parentSectionAnchor / sectionAnchor), and one column by header text or index, then replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
+      "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (rowAnchor, e.g. a user key such as ri:userkey / ri:account-id), by a Confluence user's display name (rowDisplayName) or by their Data Center username (rowUsername), optionally narrowed to a section (parentSectionAnchor / sectionAnchor), and then one cell by column header, column index or nested field label, and replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
     )
     .optional(),
   replacements: z
@@ -1298,14 +1350,28 @@ export const confluenceDataCenterUpdatePageFragmentsParamsSchema = z.object({
           .optional(),
         rowAnchor: z
           .string()
-          .describe("Optional. Limit the replacement to the table row containing this text/markup.")
+          .describe(
+            "Optional. Limit the replacement to the table row containing this text/markup. Provide at most one of rowAnchor, rowDisplayName and rowUsername.\n",
+          )
+          .optional(),
+        rowDisplayName: z
+          .string()
+          .describe(
+            "Optional. Limit the replacement to the table row containing the @-mention of the Confluence user with this display name (see tableCellUpdates.rowDisplayName for how the user and row are resolved). Provide at most one of rowAnchor, rowDisplayName and rowUsername.\n",
+          )
+          .optional(),
+        rowUsername: z
+          .string()
+          .describe(
+            "Optional. Limit the replacement to the table row containing the @-mention of the Confluence Data Center user with this username (see tableCellUpdates.rowUsername). Not available on Cloud. Provide at most one of rowAnchor, rowDisplayName and rowUsername.\n",
+          )
           .optional(),
         rowOccurrence: z.coerce
           .number()
           .int()
           .gte(0)
           .describe(
-            "Optional zero-based index selecting which of the rows matching rowAnchor to use when the anchor is not unique (document order). Only meaningful together with rowAnchor.\n",
+            "Optional zero-based index selecting which of the rows matching the row target to use when it is not unique (document order). Only meaningful together with rowAnchor / rowDisplayName / rowUsername.\n",
           )
           .optional(),
         parentSectionAnchor: z
@@ -1323,7 +1389,7 @@ export const confluenceDataCenterUpdatePageFragmentsParamsSchema = z.object({
         sectionEndAnchor: z
           .string()
           .describe(
-            'Optional. Stop searching at the first occurrence of this text after sectionAnchor. The end anchor itself is excluded from the scope. Typically the markup of the next heading, e.g. "<h2>Risk | Issues</h2>", or simply "<h2>" to stop at the next <h2> tag written without attributes. Anchors are plain substring matches against the storage-format markup, not structural: "<h2>" does not match "<h2 class=...>" and does not stop at an <h1>, so check the page markup when relying on a generic tag. Without it the search runs to the end of the page (or of the parentSectionAnchor region). Cannot be combined with rowAnchor.\n',
+            'Optional. Stop searching at the first occurrence of this text after sectionAnchor. The end anchor itself is excluded from the scope. Typically the markup of the next heading, e.g. "<h2>Risk | Issues</h2>", or simply "<h2>" to stop at the next <h2> tag written without attributes. Anchors are plain substring matches against the storage-format markup, not structural: "<h2>" does not match "<h2 class=...>" and does not stop at an <h1>, so check the page markup when relying on a generic tag. Without it the search runs to the end of the page (or of the parentSectionAnchor region). Cannot be combined with rowAnchor / rowDisplayName / rowUsername.\n',
           )
           .optional(),
       }),
