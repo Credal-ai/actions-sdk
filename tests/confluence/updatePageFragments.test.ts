@@ -1842,12 +1842,13 @@ describe("applyConfluenceFragmentUpdates", () => {
           "<th><p>Status</p></th><th><p>Person</p></th>",
         );
 
-        // A data row above the target holding a nested key/value table with <th> cells is not a header row.
+        // Neither a data row holding a nested key/value table with <th> cells, nor a data row whose row label is a
+        // <th> next to <td> cells, is a header row.
         const nested = [
           `<table><tbody>`,
           `<tr><th><p>Name</p></th><th><p>Status</p></th></tr>`,
           `<tr><td><p>${OTHER_USER_MENTION}</p></td><td><table><tbody><tr><th>Key</th><th>Value</th></tr></tbody></table></td></tr>`,
-          `<tr><td><p>${USER_MENTION}</p></td><td><p>TBD</p></td></tr>`,
+          `<tr><th><p>${USER_MENTION}</p></th><td><p>TBD</p></td></tr>`,
           `</tbody></table>`,
         ].join("");
         const result = applyConfluenceFragmentUpdates(nested, {
@@ -1860,7 +1861,7 @@ describe("applyConfluenceFragmentUpdates", () => {
           ],
         });
         expect(result.body).toContain(
-          `<td><p>${USER_MENTION}</p></td><td><p>Done</p></td>`,
+          `<th><p>${USER_MENTION}</p></th><td><p>Done</p></td>`,
         );
       });
 
