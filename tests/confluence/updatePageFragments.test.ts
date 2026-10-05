@@ -1865,6 +1865,35 @@ describe("applyConfluenceFragmentUpdates", () => {
         );
       });
 
+      it("treats a header row with a blank <td> corner cell as the header of its subsection", () => {
+        // Subsection B's header row is `<td/> | Status | Name` (reversed columns, blank corner cell). It must govern
+        // B's rows rather than being skipped in favour of A's `# | Name | Status` header.
+        const body = [
+          `<table><tbody>`,
+          `<tr><td colspan="3"><h3>A</h3></td></tr>`,
+          `<tr><th><p>#</p></th><th><p>Name</p></th><th><p>Status</p></th></tr>`,
+          `<tr><td><p>1</p></td><td><p>${OTHER_USER_MENTION}</p></td><td><p>A TBD</p></td></tr>`,
+          `<tr><td colspan="3"><h3>B</h3></td></tr>`,
+          `<tr><td/><th><p>Status</p></th><th><p>Name</p></th></tr>`,
+          `<tr><td><p>2</p></td><td><p>B TBD</p></td><td><p>${USER_MENTION}</p></td></tr>`,
+          `</tbody></table>`,
+        ].join("");
+        const result = applyConfluenceFragmentUpdates(body, {
+          tableCellUpdates: [
+            {
+              rowAnchor: USER_KEY,
+              sectionAnchor: "<h3>B</h3>",
+              columnHeader: "Status",
+              newContent: "<p>Done</p>",
+            },
+          ],
+        });
+        expect(result.body).toContain(
+          `<td><p>2</p></td><td><p>Done</p></td><td><p>${USER_MENTION}</p></td>`,
+        );
+        expect(result.body).toContain("A TBD");
+      });
+
       it("resolves columnHeader against the header row of the row's own subsection", () => {
         // SharePoint's columns are Status | Name, the reverse of ServiceNow's; "Status" must hit SharePoint's cell 0.
         const sp = applyConfluenceFragmentUpdates(SIBLINGS_BODY, {

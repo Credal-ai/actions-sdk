@@ -728,13 +728,20 @@ function isSelfClosed(body: string, element: ElementSpan): boolean {
 }
 
 /**
- * Whether the row is a column-header row: every one of its own (direct) cells is a `<th>`. A data row that merely
- * starts with a `<th>` row label next to `<td>` cells is not one, and neither is a data row holding a nested table
- * with `<th>` cells.
+ * Whether the row is a column-header row: at least one of its own (direct) cells is a `<th>`, and every other cell
+ * is blank (a `<td/>` corner cell is common). A data row that starts with a `<th>` row label next to `<td>` cells
+ * holding data is not one, and neither is a data row holding a nested table with `<th>` cells.
  */
 function isHeaderRow(body: string, row: ElementSpan): boolean {
-  const cells = getDirectCells(body, row);
-  return cells.length > 0 && cells.every(cell => /^<th[\s/>]/i.test(body.slice(cell.start, cell.start + 4)));
+  let hasHeaderCell = false;
+  for (const cell of getDirectCells(body, row)) {
+    if (/^<th[\s/>]/i.test(body.slice(cell.start, cell.start + 4))) {
+      hasHeaderCell = true;
+    } else if (stripTagsAndNormalise(body.slice(cell.innerStart, cell.innerEnd)) !== "") {
+      return false;
+    }
+  }
+  return hasHeaderCell;
 }
 
 /** Rows that belong directly to `table` (not to a table nested inside one of its cells). */
@@ -793,7 +800,7 @@ function resolveTargetCell(body: string, row: ElementSpan, update: ConfluenceTab
     );
   }
 
-  // The header row that governs the target row is the nearest all-<th> row at or above it (a header row governs
+  // The header row that governs the target row is the nearest header row at or above it (a header row governs
   // itself): when several subsections are laid out in one table, each with its own header row, the first header row
   // of the table may describe different columns.
   const headerRow = tableRows.filter(r => r.start <= row.start && isHeaderRow(body, r)).pop();
