@@ -582,15 +582,29 @@ function resolveSectionTables(
 }
 
 /**
- * Rows of `table` that lie entirely within `bounds` (see {@link SectionTable}). A row that straddles a section
- * boundary — one holding a heading in one of its cells next to other content — belongs to neither section and is
- * never a candidate: part of it precedes the heading, so editing it on behalf of the new section could touch the
- * previous section's content.
+ * Whether `markup` is purely structural lead-in — whitespace and opening tags only, e.g. `<td colspan="2">` — as
+ * opposed to content: text, a self-closing element such as a macro or image, or a closed (even if empty) element.
  */
-function rowsWithin(rows: ElementSpan[], { table, bounds }: SectionTable): ElementSpan[] {
+function isStructuralLeadIn(markup: string): boolean {
+  return !/<\/|\/>/.test(markup) && stripTagsAndNormalise(markup) === "";
+}
+
+/**
+ * Rows of `table` that belong to `bounds` (see {@link SectionTable}). `bounds.start` is a heading's position (or
+ * the page start), so a row that starts before the bounds but ends inside them is the row holding the section's
+ * heading. It belongs to the section only when the heading is the first thing in it (`<tr><td><h3>…`); a row with
+ * content *before* the heading straddles the boundary and belongs to neither section, since editing it on behalf
+ * of the new section could touch the previous section's content. A row that ends past the bounds holds the next
+ * section's heading (or lies beyond it) and is never a candidate.
+ */
+function rowsWithin(body: string, rows: ElementSpan[], { table, bounds }: SectionTable): ElementSpan[] {
   const start = Math.max(table.start, bounds.start);
   const end = Math.min(table.end, bounds.end);
-  return rows.filter(row => row.start >= start && row.end <= end);
+  return rows.filter(row => {
+    if (row.end > end) return false;
+    if (row.start >= start) return true;
+    return row.end > start && isStructuralLeadIn(body.slice(row.innerStart, start));
+  });
 }
 
 function innermostRowsContaining(body: string, rows: ElementSpan[], rowAnchor: string): ElementSpan[] {
@@ -639,7 +653,7 @@ export function locateTableRow(body: string, rowAnchor: string, options: Conflue
   const sectionTables = resolveSectionTables(body, sectionAnchor, parentSectionAnchor);
   const matches: { table: ElementSpan; rows: ElementSpan[] }[] = [];
   for (const sectionTable of sectionTables) {
-    const leaves = innermostRowsContaining(body, rowsWithin(allRows, sectionTable), rowAnchor);
+    const leaves = innermostRowsContaining(body, rowsWithin(body, allRows, sectionTable), rowAnchor);
     if (leaves.length > 0) matches.push({ table: sectionTable.table, rows: leaves });
   }
 
@@ -714,6 +728,11 @@ function isSelfClosed(body: string, element: ElementSpan): boolean {
 }
 
 /** Rows that belong directly to `table` (not to a table nested inside one of its cells). */
+/** Whether any of the row's own (direct) cells is a `<th>`. */
+function isHeaderRow(body: string, row: ElementSpan): boolean {
+  return getDirectCells(body, row).some(cell => /^<th[\s>]/i.test(body.slice(cell.start, cell.start + 4)));
+}
+
 function getDirectRows(body: string, table: ElementSpan): ElementSpan[] {
   return findElementSpans(body, ["tr"]).filter(row => {
     if (row.start < table.start || row.end > table.end) return false;
@@ -769,14 +788,13 @@ function resolveTargetCell(body: string, row: ElementSpan, update: ConfluenceTab
     );
   }
 
-  // The header row that governs the target row is the nearest <th> row above it: when several subsections are laid
-  // out in one table, each with its own header row, the first header row of the table may describe different columns.
-  const headerRow = tableRows
-    .filter(r => r.end <= row.start && /<th[\s>]/i.test(body.slice(r.innerStart, r.innerEnd)))
-    .pop();
+  // The header row that governs the target row is the nearest <th> row at or above it (a header row governs itself):
+  // when several subsections are laid out in one table, each with its own header row, the first header row of the
+  // table may describe different columns. Only the row's own cells count, not <th> cells of a table nested in it.
+  const headerRow = tableRows.filter(r => r.start <= row.start && isHeaderRow(body, r)).pop();
   if (!headerRow) {
     throw new ConfluenceFragmentUpdateError(
-      `The table containing "${update.rowAnchor}" has no header row (<th> cells) above that row, so columnHeader "${update.columnHeader}" cannot be resolved. Use columnIndex instead.`,
+      `The table containing "${update.rowAnchor}" has no header row (<th> cells) at or above that row, so columnHeader "${update.columnHeader}" cannot be resolved. Use columnIndex instead.`,
     );
   }
 

@@ -1705,8 +1705,9 @@ describe("applyConfluenceFragmentUpdates", () => {
       });
 
       // Sibling subsections (h3s) under one parent, still inside the single surrounding table. SharePoint's header
-      // row orders its columns differently from ServiceNow's, and the last subsection's heading shares its row with
-      // data (the user's mention sits *before* the heading in that row).
+      // row orders its columns differently from ServiceNow's. The PowerBI heading shares its row with data that
+      // precedes it (the user's mention sits *before* the heading); the Tableau heading starts its row, with the
+      // other user's data after it.
       const SIBLINGS_BODY = [
         `<h1>Report</h1>`,
         `<table><tbody>`,
@@ -1718,6 +1719,7 @@ describe("applyConfluenceFragmentUpdates", () => {
         `<tr><th><p>Status</p></th><th><p>Name</p></th></tr>`,
         `<tr><td><p>SP TBD</p></td><td><p>${OTHER_USER_MENTION}</p></td></tr>`,
         `<tr><td><p>${USER_MENTION}</p></td><td><h3>PowerBI</h3><p>PBI TBD</p></td></tr>`,
+        `<tr><td><h3>Tableau</h3></td><td><p>${OTHER_USER_MENTION}</p></td><td><p>TB TBD</p></td></tr>`,
         `</tbody></table>`,
       ].join("");
 
@@ -1791,6 +1793,75 @@ describe("applyConfluenceFragmentUpdates", () => {
             ],
           }),
         ).toThrow(/matched 2 table rows/);
+      });
+
+      it("admits a row that starts with its section's heading, and only to that section", () => {
+        // Tableau's heading is the first thing in its row, so the data after it is Tableau's.
+        const tb = applyConfluenceFragmentUpdates(SIBLINGS_BODY, {
+          tableCellUpdates: [
+            {
+              rowAnchor: "ffffffffffffffffffffffffffffffff",
+              sectionAnchor: "<h3>Tableau</h3>",
+              columnIndex: 2,
+              newContent: "<p>Done</p>",
+            },
+          ],
+        });
+        expect(tb.body).not.toContain("TB TBD");
+        expect(tb.body).toContain("SP TBD");
+
+        // ...and it is not PowerBI's, even though PowerBI's section runs up to that heading.
+        expect(() =>
+          applyConfluenceFragmentUpdates(SIBLINGS_BODY, {
+            tableCellUpdates: [
+              {
+                rowAnchor: "ffffffffffffffffffffffffffffffff",
+                sectionAnchor: "<h3>PowerBI</h3>",
+                columnIndex: 2,
+                newContent: "<p>x</p>",
+              },
+            ],
+          }),
+        ).toThrow(
+          /No table row containing rowAnchor.*outside the selected section are not considered/,
+        );
+      });
+
+      it("lets a header row be its own header, and ignores <th> cells of tables nested in data rows", () => {
+        // Targeting a header cell by columnHeader: the row is its own header row.
+        const renamed = applyConfluenceFragmentUpdates(SIBLINGS_BODY, {
+          tableCellUpdates: [
+            {
+              rowAnchor: "<th><p>Status</p></th><th><p>Name</p></th>",
+              columnHeader: "Name",
+              newContent: "<p>Person</p>",
+            },
+          ],
+        });
+        expect(renamed.body).toContain(
+          "<th><p>Status</p></th><th><p>Person</p></th>",
+        );
+
+        // A data row above the target holding a nested key/value table with <th> cells is not a header row.
+        const nested = [
+          `<table><tbody>`,
+          `<tr><th><p>Name</p></th><th><p>Status</p></th></tr>`,
+          `<tr><td><p>${OTHER_USER_MENTION}</p></td><td><table><tbody><tr><th>Key</th><th>Value</th></tr></tbody></table></td></tr>`,
+          `<tr><td><p>${USER_MENTION}</p></td><td><p>TBD</p></td></tr>`,
+          `</tbody></table>`,
+        ].join("");
+        const result = applyConfluenceFragmentUpdates(nested, {
+          tableCellUpdates: [
+            {
+              rowAnchor: USER_KEY,
+              columnHeader: "Status",
+              newContent: "<p>Done</p>",
+            },
+          ],
+        });
+        expect(result.body).toContain(
+          `<td><p>${USER_MENTION}</p></td><td><p>Done</p></td>`,
+        );
       });
 
       it("resolves columnHeader against the header row of the row's own subsection", () => {
