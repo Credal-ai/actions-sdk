@@ -26,37 +26,48 @@ export type ConfluenceRowTargetOptions = {
   rowOccurrence?: number;
 };
 
-export type ConfluenceTableCellUpdate = ConfluenceRowTargetOptions & {
-  /** Text/markup that identifies the row. Either this or `rowDisplayName` (resolved by the caller) is required. */
+/**
+ * Identifies the row an edit targets: literal text/markup that the row contains, or a user whose `<ri:user>` mention
+ * the row contains. Exactly one of `rowAnchor`, `rowDisplayName` and `rowUsername` is given by the caller; the two
+ * name forms are turned into `rowUser` by {@link resolveRowUsers} before the edits are applied.
+ */
+export type ConfluenceRowTarget = {
+  /** Text/markup that identifies the row, matched against the raw storage-format markup of the row. */
   rowAnchor?: string;
   /**
    * Display name of the Confluence user whose row to edit. Storage format only contains account IDs / user keys, so
-   * this must be resolved to a `rowAnchor` via {@link resolveRowDisplayNames} before the update is applied.
+   * this must be resolved via {@link resolveRowUsers} before the update is applied.
    */
   rowDisplayName?: string;
-  columnHeader?: string;
-  columnIndex?: number;
-  /**
-   * Label of a field in a key/value table nested inside the located row (e.g. "# of Tickets Closed"). The value
-   * cell next to that label is targeted. Mutually exclusive with `columnHeader` / `columnIndex`.
-   */
-  fieldLabel?: string;
-  newContent: string;
-  mode?: "replace" | "append" | "prepend";
+  /** Username (login) of the Confluence Data Center user whose row to edit; resolved like `rowDisplayName`. */
+  rowUsername?: string;
+  /** The user `rowDisplayName` / `rowUsername` resolved to. Set by {@link resolveRowUsers}, never by callers. */
+  rowUser?: ConfluenceRowUser;
 };
 
-export type ConfluenceReplacement = ConfluenceRowTargetOptions & {
-  find: string;
-  replace: string;
-  replaceAll?: boolean;
-  /** Zero-based index of the occurrence of `find` within the scope to replace. Mutually exclusive with `replaceAll`. */
-  occurrence?: number;
-  rowAnchor?: string;
-  /** See {@link ConfluenceTableCellUpdate.rowDisplayName}. */
-  rowDisplayName?: string;
-  /** Text that ends the search scope (exclusive). Searched for after `sectionAnchor`. Not allowed with `rowAnchor`. */
-  sectionEndAnchor?: string;
-};
+export type ConfluenceTableCellUpdate = ConfluenceRowTargetOptions &
+  ConfluenceRowTarget & {
+    columnHeader?: string;
+    columnIndex?: number;
+    /**
+     * Label of a field in a key/value table nested inside the located row (e.g. "# of Tickets Closed"). The value
+     * cell next to that label is targeted. Mutually exclusive with `columnHeader` / `columnIndex`.
+     */
+    fieldLabel?: string;
+    newContent: string;
+    mode?: "replace" | "append" | "prepend";
+  };
+
+export type ConfluenceReplacement = ConfluenceRowTargetOptions &
+  ConfluenceRowTarget & {
+    find: string;
+    replace: string;
+    replaceAll?: boolean;
+    /** Zero-based index of the occurrence of `find` within the scope to replace. Mutually exclusive with `replaceAll`. */
+    occurrence?: number;
+    /** Text that ends the search scope (exclusive). Searched for after `sectionAnchor`. Not allowed with a row target. */
+    sectionEndAnchor?: string;
+  };
 
 export type ConfluenceFragmentUpdateInput = {
   tableCellUpdates?: ConfluenceTableCellUpdate[];
@@ -493,15 +504,27 @@ function assertNoForeignTargetingParams(
 }
 
 /** Picks the `rowOccurrence`-th row out of the candidate rows (already in document order). */
-function pickRowOccurrence(rows: ElementSpan[], rowOccurrence: number, rowAnchor: string, where: string): ElementSpan {
+function pickRowOccurrence(rows: ElementSpan[], rowOccurrence: number, what: string, where: string): ElementSpan {
   const index = normaliseIndex(rowOccurrence, "rowOccurrence");
   const row = rows[index];
   if (!row) {
     throw new ConfluenceFragmentUpdateError(
-      `rowAnchor "${rowAnchor}" matched ${rows.length} table row(s) ${where}; rowOccurrence ${index} is out of range.`,
+      `${what} matched ${rows.length} table row(s) ${where}; rowOccurrence ${index} is out of range.`,
     );
   }
   return row;
+}
+
+/** Names the row target in error messages: `rowAnchor "…"`, or the user a `rowDisplayName` / `rowUsername` resolved to. */
+function describeRowTarget(target: ConfluenceRowTarget): string {
+  return target.rowUser ? `a mention of user ${target.rowUser.label}` : `rowAnchor "${target.rowAnchor}"`;
+}
+
+/** How a caller can make an ambiguous row target unique, phrased for the kind of target. */
+function narrowingHint(target: ConfluenceRowTarget): string {
+  return target.rowUser
+    ? "a rowOccurrence index, or the row's own text as rowAnchor"
+    : "a more specific rowAnchor, or a rowOccurrence index";
 }
 
 /** Human-readable name of the section scope, used in error messages. */
@@ -615,8 +638,19 @@ function rowsWithin(body: string, rows: ElementSpan[], { table, bounds }: Sectio
   });
 }
 
-function innermostRowsContaining(body: string, rows: ElementSpan[], rowAnchor: string): ElementSpan[] {
-  const containing = rows.filter(row => body.slice(row.start, row.end).includes(rowAnchor));
+/**
+ * Every place in the body where the row target occurs: each occurrence of a literal `rowAnchor`, or each real
+ * `<ri:user>` mention of a resolved user (see {@link findUserMentions}).
+ */
+function findRowTargetSpans(body: string, target: ConfluenceRowTarget): Region[] {
+  if (target.rowUser) return findUserMentions(body, target.rowUser);
+  const anchor = target.rowAnchor ?? "";
+  return findAllOccurrences(body, anchor).map(start => ({ start, end: start + anchor.length }));
+}
+
+/** The rows that fully contain at least one of `spans`, reduced to the innermost ones (nested tables). */
+function innermostRowsContaining(rows: ElementSpan[], spans: Region[]): ElementSpan[] {
+  const containing = rows.filter(row => spans.some(span => span.start >= row.start && span.end <= row.end));
   // Keep only the innermost rows: drop any row that fully contains another matching row (nested tables).
   return containing.filter(
     outer => !containing.some(inner => inner !== outer && inner.start >= outer.start && inner.end <= outer.end),
@@ -624,38 +658,40 @@ function innermostRowsContaining(body: string, rows: ElementSpan[], rowAnchor: s
 }
 
 /**
- * Locates the single table row (`<tr>`) that contains `rowAnchor`. If the anchor appears inside a nested
- * table, the innermost row containing it is returned.
+ * Locates the single table row (`<tr>`) identified by `target`: the row containing the literal `rowAnchor`, or the
+ * row containing a real mention of the resolved `rowUser` (any of their identifiers; a mention in a code block or
+ * comment does not count). If the target appears inside a nested table, the innermost row containing it is returned.
  *
  * Without `sectionAnchor` / `parentSectionAnchor` the whole page is searched. Otherwise only the table(s) identified
  * by those anchors are searched (see {@link resolveSectionTables}). In both cases the match must be unique:
  * more than one candidate row is rejected as ambiguous rather than silently picking one — unless the caller
  * explicitly selects one with `rowOccurrence` (zero-based, document order across the searched tables).
  */
-export function locateTableRow(
-  body: string,
-  rowAnchor: string | undefined,
-  options: ConfluenceRowTargetOptions = {},
-): ElementSpan {
-  if (!rowAnchor) {
+export function locateTableRow(body: string, target: ConfluenceRowTarget & ConfluenceRowTargetOptions): ElementSpan {
+  if (target.rowUser && target.rowAnchor) {
+    throw new ConfluenceFragmentUpdateError("Provide either rowAnchor or a user to locate the row by, not both.");
+  }
+  if (!target.rowUser && !target.rowAnchor) {
     throw new ConfluenceFragmentUpdateError("rowAnchor must be a non-empty string.");
   }
-  const { rowOccurrence } = options;
-  const sectionAnchor = options.sectionAnchor || undefined;
-  const parentSectionAnchor = options.parentSectionAnchor || undefined;
+  const what = describeRowTarget(target);
+  const { rowOccurrence } = target;
+  const sectionAnchor = target.sectionAnchor || undefined;
+  const parentSectionAnchor = target.parentSectionAnchor || undefined;
   const allRows = findElementSpans(body, ["tr"]);
+  const spans = findRowTargetSpans(body, target);
 
   if (sectionAnchor === undefined && parentSectionAnchor === undefined) {
-    const leaves = innermostRowsContaining(body, allRows, rowAnchor);
+    const leaves = innermostRowsContaining(allRows, spans);
     if (leaves.length === 0) {
-      throw new ConfluenceFragmentUpdateError(`No table row containing rowAnchor "${rowAnchor}" was found.`);
+      throw new ConfluenceFragmentUpdateError(`No table row containing ${what} was found.`);
     }
     if (rowOccurrence !== undefined) {
-      return pickRowOccurrence(leaves, rowOccurrence, rowAnchor, "on the page");
+      return pickRowOccurrence(leaves, rowOccurrence, what, "on the page");
     }
     if (leaves.length > 1) {
       throw new ConfluenceFragmentUpdateError(
-        `rowAnchor "${rowAnchor}" matched ${leaves.length} table rows. Provide a sectionAnchor (e.g. the heading markup immediately before the intended table), a more specific rowAnchor, or a rowOccurrence index.`,
+        `${what} matched ${leaves.length} table rows. Provide a sectionAnchor (e.g. the heading markup immediately before the intended table), ${narrowingHint(target)}.`,
       );
     }
     return leaves[0];
@@ -665,19 +701,19 @@ export function locateTableRow(
   const sectionTables = resolveSectionTables(body, sectionAnchor, parentSectionAnchor);
   const matches: { table: ElementSpan; rows: ElementSpan[] }[] = [];
   for (const sectionTable of sectionTables) {
-    const leaves = innermostRowsContaining(body, rowsWithin(body, allRows, sectionTable), rowAnchor);
+    const leaves = innermostRowsContaining(rowsWithin(body, allRows, sectionTable), spans);
     if (leaves.length > 0) matches.push({ table: sectionTable.table, rows: leaves });
   }
 
   if (matches.length === 0) {
     throw new ConfluenceFragmentUpdateError(
-      `No table row containing rowAnchor "${rowAnchor}" was found in the table(s) identified by ${section}. Rows of those tables that lie outside the selected section are not considered.`,
+      `No table row containing ${what} was found in the table(s) identified by ${section}. Rows of those tables that lie outside the selected section are not considered.`,
     );
   }
   if (rowOccurrence !== undefined) {
     // Tables and the rows within them are already in document order, so flattening preserves it.
     const candidates = matches.flatMap(match => match.rows);
-    return pickRowOccurrence(candidates, rowOccurrence, rowAnchor, `in the table(s) identified by ${section}`);
+    return pickRowOccurrence(candidates, rowOccurrence, what, `in the table(s) identified by ${section}`);
   }
   if (matches.length > 1) {
     const hint = sectionAnchor
@@ -687,12 +723,12 @@ export function locateTableRow(
       ? `sectionAnchor "${sectionAnchor}" occurs ${findAllOccurrences(body, sectionAnchor).length} times on the page and `
       : "";
     throw new ConfluenceFragmentUpdateError(
-      `${occurrenceNote}rowAnchor "${rowAnchor}" matches rows in ${matches.length} different tables${sectionAnchor ? "" : ` under ${section}`}. ${hint}`,
+      `${occurrenceNote}${what} matches rows in ${matches.length} different tables${sectionAnchor ? "" : ` under ${section}`}. ${hint}`,
     );
   }
   if (matches[0].rows.length > 1) {
     throw new ConfluenceFragmentUpdateError(
-      `rowAnchor "${rowAnchor}" matched ${matches[0].rows.length} rows in the table identified by ${section}. Provide a more specific rowAnchor or a rowOccurrence index.`,
+      `${what} matched ${matches[0].rows.length} rows in the table identified by ${section}. Provide ${narrowingHint(target)}.`,
     );
   }
   return matches[0].rows[0];
@@ -785,7 +821,7 @@ function resolveTargetCell(body: string, row: ElementSpan, update: ConfluenceTab
     const cell = cells[columnIndex];
     if (!cell) {
       throw new ConfluenceFragmentUpdateError(
-        `Row matching "${update.rowAnchor}" has ${cells.length} cell(s); columnIndex ${columnIndex} is out of range.`,
+        `Row matching ${describeRowTarget(update)} has ${cells.length} cell(s); columnIndex ${columnIndex} is out of range.`,
       );
     }
     return cell;
@@ -801,7 +837,7 @@ function resolveTargetCell(body: string, row: ElementSpan, update: ConfluenceTab
   const table = findEnclosingTable(body, row);
   if (!table) {
     throw new ConfluenceFragmentUpdateError(
-      `Could not find the <table> enclosing the row matching "${update.rowAnchor}".`,
+      `Could not find the <table> enclosing the row matching ${describeRowTarget(update)}.`,
     );
   }
 
@@ -809,7 +845,7 @@ function resolveTargetCell(body: string, row: ElementSpan, update: ConfluenceTab
   const usesRowspan = tableRows.some(r => getDirectCells(body, r).some(c => getSpan(body, c, "rowspan") > 1));
   if (usesRowspan) {
     throw new ConfluenceFragmentUpdateError(
-      `The table containing "${update.rowAnchor}" uses rowspan (vertically merged cells), so columnHeader "${update.columnHeader}" cannot be mapped to a cell reliably. Use columnIndex instead.`,
+      `The table containing the row matching ${describeRowTarget(update)} uses rowspan (vertically merged cells), so columnHeader "${update.columnHeader}" cannot be mapped to a cell reliably. Use columnIndex instead.`,
     );
   }
 
@@ -819,7 +855,7 @@ function resolveTargetCell(body: string, row: ElementSpan, update: ConfluenceTab
   const headerRow = tableRows.filter(r => r.start <= row.start && isHeaderRow(body, r)).pop();
   if (!headerRow) {
     throw new ConfluenceFragmentUpdateError(
-      `The table containing "${update.rowAnchor}" has no header row (<th> cells) at or above that row, so columnHeader "${update.columnHeader}" cannot be resolved. Use columnIndex instead.`,
+      `The table containing the row matching ${describeRowTarget(update)} has no header row (<th> cells) at or above that row, so columnHeader "${update.columnHeader}" cannot be resolved. Use columnIndex instead.`,
     );
   }
 
@@ -861,7 +897,7 @@ function resolveTargetCell(body: string, row: ElementSpan, update: ConfluenceTab
     position += span;
   }
   throw new ConfluenceFragmentUpdateError(
-    `Row matching "${update.rowAnchor}" has no cell under header "${update.columnHeader}" (logical column ${logicalColumn}, row covers ${position} column(s)).`,
+    `Row matching ${describeRowTarget(update)} has no cell under header "${update.columnHeader}" (logical column ${logicalColumn}, row covers ${position} column(s)).`,
   );
 }
 
@@ -882,7 +918,7 @@ function resolveFieldCell(body: string, row: ElementSpan, update: ConfluenceTabl
   const nestedRows = findElementSpans(body, ["tr"]).filter(r => r.start > row.innerStart && r.end < row.innerEnd);
   if (nestedRows.length === 0) {
     throw new ConfluenceFragmentUpdateError(
-      `Row matching "${update.rowAnchor}" contains no nested table, so fieldLabel "${fieldLabel}" cannot be resolved. Use columnHeader or columnIndex to target one of the row's own cells.`,
+      `Row matching ${describeRowTarget(update)} contains no nested table, so fieldLabel "${fieldLabel}" cannot be resolved. Use columnHeader or columnIndex to target one of the row's own cells.`,
     );
   }
 
@@ -898,12 +934,12 @@ function resolveFieldCell(body: string, row: ElementSpan, update: ConfluenceTabl
 
   if (matches.length === 0) {
     throw new ConfluenceFragmentUpdateError(
-      `No field labelled "${fieldLabel}" found in the table(s) nested inside the row matching "${update.rowAnchor}". Available labels: ${available.map(l => `"${l}"`).join(", ")}.`,
+      `No field labelled "${fieldLabel}" found in the table(s) nested inside the row matching ${describeRowTarget(update)}. Available labels: ${available.map(l => `"${l}"`).join(", ")}.`,
     );
   }
   if (matches.length > 1) {
     throw new ConfluenceFragmentUpdateError(
-      `fieldLabel "${fieldLabel}" matches ${matches.length} nested rows inside the row matching "${update.rowAnchor}". Target the nested row directly with its own rowAnchor instead.`,
+      `fieldLabel "${fieldLabel}" matches ${matches.length} nested rows inside the row matching ${describeRowTarget(update)}. Target the nested row directly with its own rowAnchor instead.`,
     );
   }
   const { cells } = matches[0];
@@ -919,13 +955,13 @@ function applyTableCellUpdate(body: string, update: ConfluenceTableCellUpdate): 
   assertNoForeignTargetingParams(
     update,
     ["occurrence", "sectionEndAnchor"],
-    `Table cell update for rowAnchor "${update.rowAnchor}"`,
+    `Table cell update for ${describeRowTarget(update)}`,
     "Use a replacement to target an occurrence or a section-bounded scope.",
   );
   assertBalancedFragment(update.newContent, "newContent");
   assertNoStrayStructuralTags(update.newContent, "newContent");
 
-  const row = locateTableRow(body, update.rowAnchor, update);
+  const row = locateTableRow(body, update);
   let cell: ElementSpan;
   if (update.fieldLabel !== undefined) {
     if (update.columnHeader !== undefined || update.columnIndex !== undefined) {
@@ -1032,15 +1068,16 @@ function applyReplacement(body: string, replacement: ConfluenceReplacement): { b
       `Replacement of "${truncate(replacement.find)}": sectionEndAnchor must be a non-empty string.`,
     );
   }
-  if (replacement.rowAnchor && replacement.sectionEndAnchor) {
+  const hasRowTarget = Boolean(replacement.rowAnchor) || replacement.rowUser !== undefined;
+  if (hasRowTarget && replacement.sectionEndAnchor) {
     throw new ConfluenceFragmentUpdateError(
-      `Replacement of "${truncate(replacement.find)}": sectionEndAnchor cannot be combined with rowAnchor (the scope is already the single row).`,
+      `Replacement of "${truncate(replacement.find)}": sectionEndAnchor cannot be combined with rowAnchor / rowDisplayName / rowUsername (the scope is already the single row).`,
     );
   }
-  if (replacement.rowOccurrence !== undefined && !replacement.rowAnchor) {
+  if (replacement.rowOccurrence !== undefined && !hasRowTarget) {
     // Never ignore a targeting parameter: doing so would silently widen the scope to the page/section.
     throw new ConfluenceFragmentUpdateError(
-      `Replacement of "${truncate(replacement.find)}": rowOccurrence requires a rowAnchor to select rows from.`,
+      `Replacement of "${truncate(replacement.find)}": rowOccurrence requires a rowAnchor, rowDisplayName or rowUsername to select rows from.`,
     );
   }
 
@@ -1048,8 +1085,8 @@ function applyReplacement(body: string, replacement: ConfluenceReplacement): { b
   // start of the page) and sectionEndAnchor (or the end of the page).
   let scopeStart = 0;
   let scopeEnd = body.length;
-  if (replacement.rowAnchor) {
-    const row = locateTableRow(body, replacement.rowAnchor, replacement);
+  if (hasRowTarget) {
+    const row = locateTableRow(body, replacement);
     scopeStart = row.start;
     scopeEnd = row.end;
   } else {
@@ -1064,8 +1101,8 @@ function applyReplacement(body: string, replacement: ConfluenceReplacement): { b
   const area = replacement.parentSectionAnchor
     ? `the section under parentSectionAnchor "${replacement.parentSectionAnchor}"`
     : "the page body";
-  const scopeDescription = replacement.rowAnchor
-    ? `the table row matching "${replacement.rowAnchor}"`
+  const scopeDescription = hasRowTarget
+    ? `the table row matching ${describeRowTarget(replacement)}`
     : replacement.sectionAnchor && replacement.sectionEndAnchor
       ? `${area} between sectionAnchor "${replacement.sectionAnchor}" and sectionEndAnchor "${replacement.sectionEndAnchor}"`
       : replacement.sectionAnchor
@@ -1108,7 +1145,7 @@ function truncate(value: string, max = 80): string {
   return value.length > max ? `${value.slice(0, max)}…` : value;
 }
 
-/** A Confluence user as returned by a user lookup; only the fields needed to identify them and pick a row anchor. */
+/** A Confluence user as returned by a user lookup; only the fields needed to identify them and find their mentions. */
 export type ConfluenceUserCandidate = {
   displayName?: string;
   /** Data Center login name (unique per site). Also the legacy `ri:username` mention attribute. */
@@ -1120,10 +1157,31 @@ export type ConfluenceUserCandidate = {
 };
 
 /**
- * Fetches the users a display name could refer to. Implementations must either return every user that could match
- * or throw; returning a truncated list would let an ambiguous name slip through as if it were unique.
+ * A user that a `rowDisplayName` / `rowUsername` resolved to. The row lookup matches the user's real `<ri:user>`
+ * mentions under *any* of their identifiers (see {@link findUserMentions}), so a page that refers to the same person
+ * by user key in one row and by username in another is seen as mentioning them twice.
  */
-export type ConfluenceUserLookup = (displayName: string) => Promise<ConfluenceUserCandidate[]>;
+export type ConfluenceRowUser = ConfluenceUserCandidate & {
+  /** How the caller referred to the user, for error messages, e.g. `"Jane Doe" (rowDisplayName)`. */
+  label: string;
+};
+
+/**
+ * Fetches the users a name could refer to. Implementations must either return every user that could match or throw;
+ * returning a truncated list would let an ambiguous name slip through as if it were unique.
+ */
+export type ConfluenceUserLookup = (name: string) => Promise<ConfluenceUserCandidate[]>;
+
+/** The user lookups a Confluence deployment offers for resolving `rowDisplayName` and `rowUsername`. */
+export type ConfluenceUserLookups = {
+  /** Every user whose display name may equal the given one (compared exactly by {@link selectUserByDisplayName}). */
+  byDisplayName: ConfluenceUserLookup;
+  /**
+   * The user with the given username, if any. Cloud, where users have no usernames, rejects the call with an
+   * explanatory error rather than returning nothing.
+   */
+  byUsername: ConfluenceUserLookup;
+};
 
 function normaliseName(value: string | undefined): string {
   return (value ?? "").replace(/\s+/g, " ").trim().toLowerCase();
@@ -1139,10 +1197,9 @@ function describeCandidate(candidate: ConfluenceUserCandidate): string {
 }
 
 /**
- * Picks the single user a display name refers to from lookup results. Only exact matches are accepted (case-insensitive,
- * whitespace normalised): first on display name, then, if no display name matches, on username (a unique login, so a
- * caller that typed one meant that user). A partial hit is never accepted, and more than one exact match is rejected
- * with the candidate names so the caller can disambiguate with an ID.
+ * Picks the single user a display name refers to from lookup results. Only an exact match is accepted
+ * (case-insensitive, whitespace normalised); a partial hit is never taken as the user, and more than one exact
+ * match is rejected listing the candidates so the caller can disambiguate with an identifier.
  */
 export function selectUserByDisplayName(
   candidates: ConfluenceUserCandidate[],
@@ -1151,77 +1208,140 @@ export function selectUserByDisplayName(
   const wanted = normaliseName(displayName);
   const usable = candidates.filter(hasIdentifier);
 
-  const byDisplayName = usable.filter(c => normaliseName(c.displayName) === wanted);
-  if (byDisplayName.length === 1) return byDisplayName[0];
-  if (byDisplayName.length > 1) {
+  const matches = usable.filter(c => normaliseName(c.displayName) === wanted);
+  if (matches.length === 1) return matches[0];
+  if (matches.length > 1) {
     throw new ConfluenceFragmentUpdateError(
-      `Display name "${displayName}" matches ${byDisplayName.length} Confluence users: ${byDisplayName.map(describeCandidate).join(", ")}. Use the account ID / user key as rowAnchor to disambiguate.`,
+      `Display name "${displayName}" matches ${matches.length} Confluence users: ${matches.map(describeCandidate).join(", ")}. Use the account ID / user key mention as rowAnchor to disambiguate.`,
     );
   }
 
-  const byUsername = usable.filter(c => normaliseName(c.username) === wanted);
-  if (byUsername.length === 1) return byUsername[0];
-
   const hint =
     usable.length > 0
-      ? ` Similar users: ${usable.slice(0, 5).map(describeCandidate).join(", ")}. Provide the exact display name, or the account ID / user key as rowAnchor.`
-      : " Provide the user's account ID / user key as rowAnchor instead.";
+      ? ` Similar users: ${usable.slice(0, 5).map(describeCandidate).join(", ")}. Provide the exact display name, or the account ID / user key mention as rowAnchor.`
+      : " Provide the user's account ID / user key mention as rowAnchor instead.";
   throw new ConfluenceFragmentUpdateError(`No Confluence user found with display name "${displayName}".${hint}`);
 }
 
 /**
- * The strings under which a user can appear in storage format, most specific first. They are attribute-qualified
- * (`ri:account-id="…"`) so that a bare ID occurring elsewhere (a URL, free text) cannot be mistaken for a mention.
+ * Picks the user a username refers to from lookup results: exactly one candidate whose `username` equals it
+ * (case-insensitive). The lookup is already exact on the server, so this guards against a lookup returning a
+ * different or incomplete user.
  */
-export function userMentionAnchors(user: ConfluenceUserCandidate): string[] {
-  const anchors: string[] = [];
-  if (user.accountId) anchors.push(`ri:account-id="${user.accountId}"`);
-  if (user.userKey) anchors.push(`ri:userkey="${user.userKey}"`);
-  if (user.username) anchors.push(`ri:username="${user.username}"`);
-  return anchors;
+export function selectUserByUsername(candidates: ConfluenceUserCandidate[], username: string): ConfluenceUserCandidate {
+  const wanted = normaliseName(username);
+  const matches = candidates.filter(hasIdentifier).filter(c => normaliseName(c.username) === wanted);
+  if (matches.length === 1) return matches[0];
+  if (matches.length > 1) {
+    throw new ConfluenceFragmentUpdateError(
+      `Username "${username}" matches ${matches.length} Confluence users: ${matches.map(describeCandidate).join(", ")}. Use the user key mention as rowAnchor to disambiguate.`,
+    );
+  }
+  throw new ConfluenceFragmentUpdateError(
+    `No Confluence user found with username "${username}". Provide the exact username, or the user key mention as rowAnchor instead.`,
+  );
+}
+
+/** The `<ri:user>` attribute each identifier is stored under, and how its value compares (usernames are not case-sensitive). */
+const MENTION_ATTRIBUTES: { field: keyof ConfluenceUserCandidate; attribute: string; caseSensitive: boolean }[] = [
+  { field: "accountId", attribute: "ri:account-id", caseSensitive: true },
+  { field: "userKey", attribute: "ri:userkey", caseSensitive: true },
+  { field: "username", attribute: "ri:username", caseSensitive: false },
+];
+
+// A `<ri:user …/>` element (group 1 = its attribute text), or an opaque section to skip.
+const USER_MENTION_REGEX = new RegExp(`${OPAQUE_SECTION_PATTERN}|<ri:user(?=[\\s/>])(${TAG_ATTRS_PATTERN})>`, "gi");
+const ATTRIBUTE_REGEX = /([\w:.-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
+
+/**
+ * Spans of the real `<ri:user …/>` mention elements of `user` in `body`: every element whose `ri:account-id`,
+ * `ri:userkey` or `ri:username` attribute equals one of the user's identifiers. Comments and CDATA sections
+ * (code-block bodies) are skipped, since their contents are text rather than markup, so an example mention written
+ * in a code sample is never a hit; a bare identifier in a URL or in prose is not an element and is not one either.
+ */
+export function findUserMentions(body: string, user: ConfluenceUserCandidate): Region[] {
+  const wanted = MENTION_ATTRIBUTES.flatMap(({ field, attribute, caseSensitive }) => {
+    const value = user[field];
+    return value ? [{ attribute, value: caseSensitive ? value : value.toLowerCase(), caseSensitive }] : [];
+  });
+  if (wanted.length === 0) return [];
+
+  const spans: Region[] = [];
+  let match: RegExpExecArray | null;
+  USER_MENTION_REGEX.lastIndex = 0;
+  while ((match = USER_MENTION_REGEX.exec(body)) !== null) {
+    const attributeText = match[1];
+    if (attributeText === undefined) continue; // comment / CDATA section
+    for (const [, name, doubleQuoted, singleQuoted] of attributeText.matchAll(ATTRIBUTE_REGEX)) {
+      const value = doubleQuoted ?? singleQuoted ?? "";
+      const attribute = name.toLowerCase();
+      const hit = wanted.some(
+        w => w.attribute === attribute && (w.caseSensitive ? value === w.value : value.toLowerCase() === w.value),
+      );
+      if (hit) {
+        spans.push({ start: match.index, end: match.index + match[0].length });
+        break;
+      }
+    }
+  }
+  return spans;
 }
 
 /**
- * Replaces every `rowDisplayName` in the input with a `rowAnchor`, so that the purely string-based
- * {@link applyConfluenceFragmentUpdates} never has to know about users. Each distinct name is looked up once via
- * `lookup`, the matching user is chosen with {@link selectUserByDisplayName}, and of that user's mention anchors the
- * first one that occurs in `body` is used (falling back to the most specific one, so that the row lookup fails with
- * its usual "no row found" error). Entries with both `rowAnchor` and `rowDisplayName` are rejected.
+ * Resolves every `rowDisplayName` / `rowUsername` in the input to a `rowUser`, so that the string-based
+ * {@link applyConfluenceFragmentUpdates} can locate rows by the user's real mentions. Display names go through
+ * `lookups.byDisplayName` and {@link selectUserByDisplayName}; usernames through `lookups.byUsername` and
+ * {@link selectUserByUsername}. Spellings that only differ in case or whitespace share one lookup per action call.
+ * An entry may carry only one of `rowAnchor`, `rowDisplayName` and `rowUsername`.
  *
- * Note that, exactly like a caller-supplied `rowAnchor`, the anchor matches wherever the mention appears in a row.
- * If the person both owns a row and is mentioned inside someone else's, the row lookup sees two matches and rejects
- * the update as ambiguous rather than picking one.
+ * Note that the resolved user matches wherever they are mentioned in a row, under any of their identifiers. If the
+ * person both owns a row and is mentioned inside someone else's row in the searched scope, the row lookup sees two
+ * matches and rejects the update as ambiguous rather than picking one.
  */
-export async function resolveRowDisplayNames(
+export async function resolveRowUsers(
   input: ConfluenceFragmentUpdateInput,
-  lookup: ConfluenceUserLookup,
-  body: string,
+  lookups: ConfluenceUserLookups,
 ): Promise<ConfluenceFragmentUpdateInput> {
-  const cache = new Map<string, Promise<string>>();
-  const resolve = (displayName: string) => {
-    if (!cache.has(displayName)) {
-      cache.set(
-        displayName,
-        lookup(displayName).then(candidates => {
-          const anchors = userMentionAnchors(selectUserByDisplayName(candidates, displayName));
-          // selectUserByDisplayName only returns users with at least one identifier, so anchors is non-empty.
-          return anchors.find(anchor => body.includes(anchor)) ?? anchors[0];
-        }),
-      );
+  const cache = new Map<string, Promise<ConfluenceRowUser>>();
+  const resolve = (parameter: "rowDisplayName" | "rowUsername", value: string): Promise<ConfluenceRowUser> => {
+    const name = value.replace(/\s+/g, " ").trim();
+    const key = `${parameter}:${name.toLowerCase()}`;
+    let pending = cache.get(key);
+    if (!pending) {
+      const selected =
+        parameter === "rowDisplayName"
+          ? lookups.byDisplayName(name).then(candidates => selectUserByDisplayName(candidates, name))
+          : lookups.byUsername(name).then(candidates => selectUserByUsername(candidates, name));
+      pending = selected.then(user => ({ ...user, label: `"${value}" (${parameter})` }));
+      cache.set(key, pending);
     }
-    return cache.get(displayName)!;
+    return pending;
   };
 
-  async function resolveEntry<T extends { rowAnchor?: string; rowDisplayName?: string }>(entry: T, label: string) {
-    const { rowDisplayName, ...rest } = entry;
-    if (rowDisplayName === undefined) return entry;
-    if (rowDisplayName === "") {
+  async function resolveEntry<T extends ConfluenceRowTarget>(entry: T, label: string): Promise<T> {
+    const { rowDisplayName, rowUsername, ...rest } = entry;
+    if (rowDisplayName === undefined && rowUsername === undefined) return entry;
+    if (rowDisplayName !== undefined && rowDisplayName.trim() === "") {
       throw new ConfluenceFragmentUpdateError(`${label}: rowDisplayName must be a non-empty string.`);
     }
-    if (entry.rowAnchor) {
-      throw new ConfluenceFragmentUpdateError(`${label}: provide either rowAnchor or rowDisplayName, not both.`);
+    if (rowUsername !== undefined && rowUsername.trim() === "") {
+      throw new ConfluenceFragmentUpdateError(`${label}: rowUsername must be a non-empty string.`);
     }
-    return { ...rest, rowAnchor: await resolve(rowDisplayName) } as T;
+    const given = [
+      entry.rowAnchor ? "rowAnchor" : undefined,
+      rowDisplayName !== undefined ? "rowDisplayName" : undefined,
+      rowUsername !== undefined ? "rowUsername" : undefined,
+    ].filter((name): name is string => name !== undefined);
+    if (given.length > 1) {
+      throw new ConfluenceFragmentUpdateError(
+        `${label}: provide only one of rowAnchor, rowDisplayName and rowUsername (got ${given.join(" and ")}).`,
+      );
+    }
+    const rowUser =
+      rowDisplayName !== undefined
+        ? await resolve("rowDisplayName", rowDisplayName)
+        : await resolve("rowUsername", rowUsername!);
+    return { ...rest, rowUser } as T;
   }
 
   const tableCellUpdates = await Promise.all(
@@ -1251,18 +1371,24 @@ export function applyConfluenceFragmentUpdates(
   }
 
   for (const [i, entry] of [...tableCellUpdates, ...replacements].entries()) {
-    if (entry.rowDisplayName !== undefined) {
+    const unresolved =
+      entry.rowDisplayName !== undefined
+        ? "rowDisplayName"
+        : entry.rowUsername !== undefined
+          ? "rowUsername"
+          : undefined;
+    if (unresolved) {
       const label =
         i < tableCellUpdates.length ? `tableCellUpdates[${i}]` : `replacements[${i - tableCellUpdates.length}]`;
       throw new ConfluenceFragmentUpdateError(
-        `${label}: rowDisplayName must be resolved to a rowAnchor (via resolveRowDisplayNames) before applying updates.`,
+        `${label}: ${unresolved} must be resolved to a user (via resolveRowUsers) before applying updates.`,
       );
     }
   }
   tableCellUpdates.forEach((update, i) => {
-    if (!update.rowAnchor) {
+    if (!update.rowAnchor && !update.rowUser) {
       throw new ConfluenceFragmentUpdateError(
-        `tableCellUpdates[${i}]: either rowAnchor or rowDisplayName is required.`,
+        `tableCellUpdates[${i}]: one of rowAnchor, rowDisplayName or rowUsername is required.`,
       );
     }
   });

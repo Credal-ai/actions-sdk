@@ -1,6 +1,7 @@
 import type { AxiosRequestConfig } from "axios";
 import { axiosClient } from "../../util/axiosClient.js";
-import type { ConfluenceUserCandidate, ConfluenceUserLookup } from "../../util/confluenceStorageFormat.js";
+import type { ConfluenceUserCandidate, ConfluenceUserLookups } from "../../util/confluenceStorageFormat.js";
+import { describeUserLookupFailure, isNotFound } from "../../util/confluenceUserLookup.js";
 
 export function getConfluenceApi(authParams: { baseUrl?: string; authToken?: string }): {
   baseUrl: string;
@@ -43,69 +44,67 @@ function normaliseName(value: string | undefined): string {
 
 /** Page size of `/group/{name}/member`; Data Center caps it at 200. */
 const GROUP_MEMBER_PAGE_SIZE = 200;
-/** Upper bound on members scanned when falling back to group enumeration, to keep the action bounded on large sites. */
+/** Upper bound on members scanned when enumerating a group, to keep the action bounded on large sites. */
 const MAX_GROUP_MEMBERS_SCANNED = 2000;
 
+const USER_LOOKUP_FAILURE_HINT =
+  'The token must be allowed to view users and groups; alternatively pass the user\'s mention, e.g. ri:userkey="…", as rowAnchor.';
+
 /**
- * Builds a lookup that resolves a Data Center user by display name.
+ * Builds the user lookups for a Confluence Data Center site.
  *
- * Data Center has no user-search API (CQL user fields and `/search/user` are Cloud-only), so the members of
- * `groupName` (default `confluence-users`) are scanned and compared by display name, case-insensitively, up to
- * {@link MAX_GROUP_MEMBERS_SCANNED}. In addition, `/user?username=` is consulted so that a caller can pass an exact
- * username; that candidate is returned alongside the display-name matches and the shared selection logic only falls
- * back to it when no display name matched, so a username that happens to collide with someone else's display name
- * cannot hijack the row.
+ * Data Center has no user-search API (CQL user fields and `/search/user` are Cloud-only), so a display name is
+ * resolved by scanning the members of `groupName` (default `confluence-users`) and comparing display names,
+ * case-insensitively, up to {@link MAX_GROUP_MEMBERS_SCANNED}. If the group is larger than that, a partial scan
+ * cannot rule out a second user with the same name, so the lookup throws rather than returning a possibly incomplete
+ * result; callers on such sites use `rowUsername` (an exact lookup that does not involve the group) or a `rowAnchor`.
  *
- * If the group is larger than the scan cap, a partial scan cannot rule out a second user with the same display
- * name, so the lookup throws unless the username lookup produced the only candidate the caller could have meant.
+ * A username is resolved with `GET /user?username=`, which is exact: a 404 means no such user, any other failure is
+ * reported with its status rather than being mistaken for "not found".
  */
-export function createConfluenceDataCenterUserLookup(
+export function createConfluenceDataCenterUserLookups(
   baseUrl: string,
   config: AxiosRequestConfig,
   groupName = "confluence-users",
-): ConfluenceUserLookup {
-  return async (displayName: string): Promise<ConfluenceUserCandidate[]> => {
-    let byUsername: ConfluenceUserCandidate | undefined;
-    try {
-      const response = await axiosClient.get(`${baseUrl}/user`, { ...config, params: { username: displayName } });
-      const candidate = toCandidate(response.data ?? {});
-      if (candidate.userKey || candidate.username) byUsername = candidate;
-    } catch {
-      // Not a username.
-    }
-
-    const wanted = normaliseName(displayName);
-    const matches: ConfluenceUserCandidate[] = [];
-    let scannedEverything = false;
-    let start = 0;
-    while (start < MAX_GROUP_MEMBERS_SCANNED) {
-      const page = await axiosClient.get(`${baseUrl}/group/${encodeURIComponent(groupName)}/member`, {
-        ...config,
-        params: { start, limit: GROUP_MEMBER_PAGE_SIZE },
-      });
-      const results: unknown = page.data?.results;
-      if (!Array.isArray(results) || results.length < GROUP_MEMBER_PAGE_SIZE) {
-        scannedEverything = true;
-        if (Array.isArray(results))
-          matches.push(...results.map(toCandidate).filter(c => normaliseName(c.displayName) === wanted));
-        break;
+): ConfluenceUserLookups {
+  return {
+    byDisplayName: async (displayName: string): Promise<ConfluenceUserCandidate[]> => {
+      const wanted = normaliseName(displayName);
+      const matches: ConfluenceUserCandidate[] = [];
+      let start = 0;
+      while (start < MAX_GROUP_MEMBERS_SCANNED) {
+        const request: AxiosRequestConfig = { ...config, params: { start, limit: GROUP_MEMBER_PAGE_SIZE } };
+        const page = await axiosClient
+          .get(`${baseUrl}/group/${encodeURIComponent(groupName)}/member`, request)
+          .catch((error: unknown) => {
+            throw describeUserLookupFailure(
+              error,
+              `display name "${displayName}" (members of group "${groupName}")`,
+              USER_LOOKUP_FAILURE_HINT,
+            );
+          });
+        const results: unknown = page.data?.results;
+        if (!Array.isArray(results)) return matches;
+        matches.push(
+          ...(results as DataCenterUser[]).map(toCandidate).filter(c => normaliseName(c.displayName) === wanted),
+        );
+        if (results.length < GROUP_MEMBER_PAGE_SIZE) return matches;
+        start += GROUP_MEMBER_PAGE_SIZE;
       }
-      matches.push(
-        ...(results as DataCenterUser[]).map(toCandidate).filter(c => normaliseName(c.displayName) === wanted),
-      );
-      start += GROUP_MEMBER_PAGE_SIZE;
-    }
-
-    if (!scannedEverything && (matches.length > 0 || !byUsername)) {
       throw new Error(
-        `Group "${groupName}" has more than ${MAX_GROUP_MEMBERS_SCANNED} members, so "${displayName}" cannot be resolved unambiguously by display name. Confluence Data Center has no display-name search; provide the user's key as rowAnchor, or their exact username as rowDisplayName.`,
+        `Group "${groupName}" has more than ${MAX_GROUP_MEMBERS_SCANNED} members, so "${displayName}" cannot be resolved unambiguously by display name (a partial scan could miss a second user with the same name). Confluence Data Center has no display-name search; use rowUsername with the user's exact username, or their mention (ri:userkey="…") as rowAnchor.`,
       );
-    }
-
-    const isDuplicate = (candidate: ConfluenceUserCandidate) =>
-      matches.some(
-        m => (m.userKey && m.userKey === candidate.userKey) || (m.username && m.username === candidate.username),
-      );
-    return byUsername && !isDuplicate(byUsername) ? [...matches, byUsername] : matches;
+    },
+    byUsername: async (username: string): Promise<ConfluenceUserCandidate[]> => {
+      const request: AxiosRequestConfig = { ...config, params: { username } };
+      try {
+        const response = await axiosClient.get(`${baseUrl}/user`, request);
+        const candidate = toCandidate(response.data ?? {});
+        return candidate.userKey || candidate.username ? [candidate] : [];
+      } catch (error) {
+        if (isNotFound(error)) return [];
+        throw describeUserLookupFailure(error, `username "${username}"`, USER_LOOKUP_FAILURE_HINT);
+      }
+    },
   };
 }

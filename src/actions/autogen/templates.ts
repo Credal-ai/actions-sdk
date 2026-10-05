@@ -1383,7 +1383,7 @@ export const confluenceFetchPageContentDefinition: ActionTemplate = {
 export const confluenceUpdatePageFragmentsDefinition: ActionTemplate = {
   displayName: "Update page fragments",
   description:
-    'Makes targeted, deterministic edits to part of an existing Confluence page WITHOUT requiring the full page body. The page body is fetched server-side in storage format, the requested table-cell updates and exact-text replacements are applied in code, optional validation markers are checked, and the page is saved back. Everything outside the targeted fragments is preserved exactly. Rows can be targeted by a person\'s display name (rowDisplayName) or by literal text/markup (rowAnchor), narrowed to a parent section and subsection (parentSectionAnchor / sectionAnchor) when the same person appears in several tables, and cells by column header, column index or a nested field label (fieldLabel, e.g. "# of Tickets Closed"). Prefer this over "Overwrite a page" whenever you are updating a portion of a large or structured page (e.g. one user\'s row in a report table); only use "Overwrite a page" when you intend to replace the entire page.\n',
+    'Makes targeted, deterministic edits to part of an existing Confluence page WITHOUT requiring the full page body. The page body is fetched server-side in storage format, the requested table-cell updates and exact-text replacements are applied in code, optional validation markers are checked, and the page is saved back. Everything outside the targeted fragments is preserved exactly. Rows can be targeted by a person\'s display name (rowDisplayName), their Data Center username (rowUsername) or by literal text/markup (rowAnchor), narrowed to a parent section and subsection (parentSectionAnchor / sectionAnchor) when the same person appears in several tables, and cells by column header, column index or a nested field label (fieldLabel, e.g. "# of Tickets Closed"). Prefer this over "Overwrite a page" whenever you are updating a portion of a large or structured page (e.g. one user\'s row in a report table); only use "Overwrite a page" when you intend to replace the entire page.\n',
   scopes: [],
   tags: [],
   parameters: {
@@ -1397,7 +1397,7 @@ export const confluenceUpdatePageFragmentsDefinition: ActionTemplate = {
       tableCellUpdates: {
         type: "array",
         description:
-          "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (rowAnchor, e.g. a user key such as ri:userkey / ri:account-id) or by a Confluence user's display name (rowDisplayName), optionally narrowed to a section (parentSectionAnchor / sectionAnchor), and then one cell by column header, column index or nested field label, and replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
+          "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (rowAnchor, e.g. a user key such as ri:userkey / ri:account-id), by a Confluence user's display name (rowDisplayName) or by their Data Center username (rowUsername), optionally narrowed to a section (parentSectionAnchor / sectionAnchor), and then one cell by column header, column index or nested field label, and replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
         items: {
           type: "object",
           required: ["newContent"],
@@ -1405,12 +1405,17 @@ export const confluenceUpdatePageFragmentsDefinition: ActionTemplate = {
             rowAnchor: {
               type: "string",
               description:
-                'Text or markup that uniquely identifies the target row within the page (or within the section given by sectionAnchor), e.g. "2c96d7e295488cec0195b4c0a3890027" or a literal name that appears in the row. Matched against the raw storage-format markup of the row. Note that user mentions are stored as account IDs / user keys, not names; use rowDisplayName to target a mentioned person by name. Provide either rowAnchor or rowDisplayName.\n',
+                'Text or markup that uniquely identifies the target row within the page (or within the section given by sectionAnchor), e.g. "2c96d7e295488cec0195b4c0a3890027" or a literal name that appears in the row. Matched against the raw storage-format markup of the row. Note that user mentions are stored as account IDs / user keys, not names; use rowDisplayName (or rowUsername on Data Center) to target a mentioned person by name. Provide exactly one of rowAnchor, rowDisplayName and rowUsername.\n',
             },
             rowDisplayName: {
               type: "string",
               description:
-                'Display name of the Confluence user whose row to edit, e.g. "Jane Doe". The name is resolved to the user\'s account ID (Cloud) or user key (Data Center) via the Confluence user API and the user\'s mention (e.g. ri:account-id="...") is then used as the rowAnchor. Only an exact, case-insensitive display-name match is accepted; on Data Center an exact username is accepted as a fallback. Rejected if no user or more than one user matches. Provide either rowDisplayName or rowAnchor.\n',
+                'Display name of the Confluence user whose row to edit, e.g. "Jane Doe". The name is resolved via the Confluence user API and the row is the one containing a real @-mention of that user (an <ri:user> element with their account ID, user key or username; mention text inside code blocks or comments does not count). Only an exact, case-insensitive display-name match is accepted; rejected if no user or more than one user matches. On Data Center the lookup scans the confluence-users group and is rejected on very large sites; use rowUsername there instead. If the user is mentioned in more than one row of the searched scope (e.g. their own row and a colleague\'s), the update is rejected as ambiguous: narrow with sectionAnchor / parentSectionAnchor or rowOccurrence. Provide exactly one of rowAnchor, rowDisplayName and rowUsername.\n',
+            },
+            rowUsername: {
+              type: "string",
+              description:
+                'Confluence Data Center username (login) of the user whose row to edit, e.g. "jdoe". Looked up exactly via the user API; the row is then located by the user\'s @-mention like rowDisplayName. Works regardless of site size. Not available on Confluence Cloud, where users have no usernames. Provide exactly one of rowAnchor, rowDisplayName and rowUsername.\n',
             },
             parentSectionAnchor: {
               type: "string",
@@ -1485,18 +1490,24 @@ export const confluenceUpdatePageFragmentsDefinition: ActionTemplate = {
             },
             rowAnchor: {
               type: "string",
-              description: "Optional. Limit the replacement to the table row containing this text/markup.",
+              description:
+                "Optional. Limit the replacement to the table row containing this text/markup. Provide at most one of rowAnchor, rowDisplayName and rowUsername.\n",
             },
             rowDisplayName: {
               type: "string",
               description:
-                "Optional. Limit the replacement to the table row of the Confluence user with this display name (resolved to their account ID / user key, see tableCellUpdates.rowDisplayName). Provide either rowDisplayName or rowAnchor.\n",
+                "Optional. Limit the replacement to the table row containing the @-mention of the Confluence user with this display name (see tableCellUpdates.rowDisplayName for how the user and row are resolved). Provide at most one of rowAnchor, rowDisplayName and rowUsername.\n",
+            },
+            rowUsername: {
+              type: "string",
+              description:
+                "Optional. Limit the replacement to the table row containing the @-mention of the Confluence Data Center user with this username (see tableCellUpdates.rowUsername). Not available on Cloud. Provide at most one of rowAnchor, rowDisplayName and rowUsername.\n",
             },
             rowOccurrence: {
               type: "integer",
               minimum: 0,
               description:
-                "Optional zero-based index selecting which of the rows matching rowAnchor to use when the anchor is not unique (document order). Only meaningful together with rowAnchor / rowDisplayName.\n",
+                "Optional zero-based index selecting which of the rows matching the row target to use when it is not unique (document order). Only meaningful together with rowAnchor / rowDisplayName / rowUsername.\n",
             },
             parentSectionAnchor: {
               type: "string",
@@ -1511,7 +1522,7 @@ export const confluenceUpdatePageFragmentsDefinition: ActionTemplate = {
             sectionEndAnchor: {
               type: "string",
               description:
-                'Optional. Stop searching at the first occurrence of this text after sectionAnchor. The end anchor itself is excluded from the scope. Typically the markup of the next heading, e.g. "<h2>Risk | Issues</h2>", or simply "<h2>" to stop at the next <h2> tag written without attributes. Anchors are plain substring matches against the storage-format markup, not structural: "<h2>" does not match "<h2 class=...>" and does not stop at an <h1>, so check the page markup when relying on a generic tag. Without it the search runs to the end of the page (or of the parentSectionAnchor region). Cannot be combined with rowAnchor.\n',
+                'Optional. Stop searching at the first occurrence of this text after sectionAnchor. The end anchor itself is excluded from the scope. Typically the markup of the next heading, e.g. "<h2>Risk | Issues</h2>", or simply "<h2>" to stop at the next <h2> tag written without attributes. Anchors are plain substring matches against the storage-format markup, not structural: "<h2>" does not match "<h2 class=...>" and does not stop at an <h1>, so check the page markup when relying on a generic tag. Without it the search runs to the end of the page (or of the parentSectionAnchor region). Cannot be combined with rowAnchor / rowDisplayName / rowUsername.\n',
             },
           },
         },
@@ -1794,7 +1805,7 @@ export const confluenceDataCenterFetchPageContentDefinition: ActionTemplate = {
 export const confluenceDataCenterUpdatePageFragmentsDefinition: ActionTemplate = {
   displayName: "Update page fragments",
   description:
-    'Makes targeted, deterministic edits to part of an existing Confluence page WITHOUT requiring the full page body. The page body is fetched server-side in storage format, the requested table-cell updates and exact-text replacements are applied in code, optional validation markers are checked, and the page is saved back. Everything outside the targeted fragments is preserved exactly. Rows can be targeted by a person\'s display name (rowDisplayName) or by literal text/markup (rowAnchor), narrowed to a parent section and subsection (parentSectionAnchor / sectionAnchor) when the same person appears in several tables, and cells by column header, column index or a nested field label (fieldLabel, e.g. "# of Tickets Closed"). Prefer this over "Overwrite a page" whenever you are updating a portion of a large or structured page (e.g. one user\'s row in a report table); only use "Overwrite a page" when you intend to replace the entire page.\n',
+    'Makes targeted, deterministic edits to part of an existing Confluence page WITHOUT requiring the full page body. The page body is fetched server-side in storage format, the requested table-cell updates and exact-text replacements are applied in code, optional validation markers are checked, and the page is saved back. Everything outside the targeted fragments is preserved exactly. Rows can be targeted by a person\'s display name (rowDisplayName), their Data Center username (rowUsername) or by literal text/markup (rowAnchor), narrowed to a parent section and subsection (parentSectionAnchor / sectionAnchor) when the same person appears in several tables, and cells by column header, column index or a nested field label (fieldLabel, e.g. "# of Tickets Closed"). Prefer this over "Overwrite a page" whenever you are updating a portion of a large or structured page (e.g. one user\'s row in a report table); only use "Overwrite a page" when you intend to replace the entire page.\n',
   scopes: [],
   tags: [],
   parameters: {
@@ -1808,7 +1819,7 @@ export const confluenceDataCenterUpdatePageFragmentsDefinition: ActionTemplate =
       tableCellUpdates: {
         type: "array",
         description:
-          "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (rowAnchor, e.g. a user key such as ri:userkey / ri:account-id) or by a Confluence user's display name (rowDisplayName), optionally narrowed to a section (parentSectionAnchor / sectionAnchor), and then one cell by column header, column index or nested field label, and replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
+          "Table cells to update. Each entry locates one row by a unique piece of text/markup it contains (rowAnchor, e.g. a user key such as ri:userkey / ri:account-id), by a Confluence user's display name (rowDisplayName) or by their Data Center username (rowUsername), optionally narrowed to a section (parentSectionAnchor / sectionAnchor), and then one cell by column header, column index or nested field label, and replaces (or appends/prepends to) that cell's content. Applied in order, before `replacements`.\n",
         items: {
           type: "object",
           required: ["newContent"],
@@ -1816,12 +1827,17 @@ export const confluenceDataCenterUpdatePageFragmentsDefinition: ActionTemplate =
             rowAnchor: {
               type: "string",
               description:
-                'Text or markup that uniquely identifies the target row within the page (or within the section given by sectionAnchor), e.g. "2c96d7e295488cec0195b4c0a3890027" or a literal name that appears in the row. Matched against the raw storage-format markup of the row. Note that user mentions are stored as account IDs / user keys, not names; use rowDisplayName to target a mentioned person by name. Provide either rowAnchor or rowDisplayName.\n',
+                'Text or markup that uniquely identifies the target row within the page (or within the section given by sectionAnchor), e.g. "2c96d7e295488cec0195b4c0a3890027" or a literal name that appears in the row. Matched against the raw storage-format markup of the row. Note that user mentions are stored as account IDs / user keys, not names; use rowDisplayName (or rowUsername on Data Center) to target a mentioned person by name. Provide exactly one of rowAnchor, rowDisplayName and rowUsername.\n',
             },
             rowDisplayName: {
               type: "string",
               description:
-                'Display name of the Confluence user whose row to edit, e.g. "Jane Doe". The name is resolved to the user\'s account ID (Cloud) or user key (Data Center) via the Confluence user API and the user\'s mention (e.g. ri:account-id="...") is then used as the rowAnchor. Only an exact, case-insensitive display-name match is accepted; on Data Center an exact username is accepted as a fallback. Rejected if no user or more than one user matches. Provide either rowDisplayName or rowAnchor.\n',
+                'Display name of the Confluence user whose row to edit, e.g. "Jane Doe". The name is resolved via the Confluence user API and the row is the one containing a real @-mention of that user (an <ri:user> element with their account ID, user key or username; mention text inside code blocks or comments does not count). Only an exact, case-insensitive display-name match is accepted; rejected if no user or more than one user matches. On Data Center the lookup scans the confluence-users group and is rejected on very large sites; use rowUsername there instead. If the user is mentioned in more than one row of the searched scope (e.g. their own row and a colleague\'s), the update is rejected as ambiguous: narrow with sectionAnchor / parentSectionAnchor or rowOccurrence. Provide exactly one of rowAnchor, rowDisplayName and rowUsername.\n',
+            },
+            rowUsername: {
+              type: "string",
+              description:
+                'Confluence Data Center username (login) of the user whose row to edit, e.g. "jdoe". Looked up exactly via the user API; the row is then located by the user\'s @-mention like rowDisplayName. Works regardless of site size. Not available on Confluence Cloud, where users have no usernames. Provide exactly one of rowAnchor, rowDisplayName and rowUsername.\n',
             },
             parentSectionAnchor: {
               type: "string",
@@ -1896,18 +1912,24 @@ export const confluenceDataCenterUpdatePageFragmentsDefinition: ActionTemplate =
             },
             rowAnchor: {
               type: "string",
-              description: "Optional. Limit the replacement to the table row containing this text/markup.",
+              description:
+                "Optional. Limit the replacement to the table row containing this text/markup. Provide at most one of rowAnchor, rowDisplayName and rowUsername.\n",
             },
             rowDisplayName: {
               type: "string",
               description:
-                "Optional. Limit the replacement to the table row of the Confluence user with this display name (resolved to their account ID / user key, see tableCellUpdates.rowDisplayName). Provide either rowDisplayName or rowAnchor.\n",
+                "Optional. Limit the replacement to the table row containing the @-mention of the Confluence user with this display name (see tableCellUpdates.rowDisplayName for how the user and row are resolved). Provide at most one of rowAnchor, rowDisplayName and rowUsername.\n",
+            },
+            rowUsername: {
+              type: "string",
+              description:
+                "Optional. Limit the replacement to the table row containing the @-mention of the Confluence Data Center user with this username (see tableCellUpdates.rowUsername). Not available on Cloud. Provide at most one of rowAnchor, rowDisplayName and rowUsername.\n",
             },
             rowOccurrence: {
               type: "integer",
               minimum: 0,
               description:
-                "Optional zero-based index selecting which of the rows matching rowAnchor to use when the anchor is not unique (document order). Only meaningful together with rowAnchor / rowDisplayName.\n",
+                "Optional zero-based index selecting which of the rows matching the row target to use when it is not unique (document order). Only meaningful together with rowAnchor / rowDisplayName / rowUsername.\n",
             },
             parentSectionAnchor: {
               type: "string",
@@ -1922,7 +1944,7 @@ export const confluenceDataCenterUpdatePageFragmentsDefinition: ActionTemplate =
             sectionEndAnchor: {
               type: "string",
               description:
-                'Optional. Stop searching at the first occurrence of this text after sectionAnchor. The end anchor itself is excluded from the scope. Typically the markup of the next heading, e.g. "<h2>Risk | Issues</h2>", or simply "<h2>" to stop at the next <h2> tag written without attributes. Anchors are plain substring matches against the storage-format markup, not structural: "<h2>" does not match "<h2 class=...>" and does not stop at an <h1>, so check the page markup when relying on a generic tag. Without it the search runs to the end of the page (or of the parentSectionAnchor region). Cannot be combined with rowAnchor.\n',
+                'Optional. Stop searching at the first occurrence of this text after sectionAnchor. The end anchor itself is excluded from the scope. Typically the markup of the next heading, e.g. "<h2>Risk | Issues</h2>", or simply "<h2>" to stop at the next <h2> tag written without attributes. Anchors are plain substring matches against the storage-format markup, not structural: "<h2>" does not match "<h2 class=...>" and does not stop at an <h1>, so check the page markup when relying on a generic tag. Without it the search runs to the end of the page (or of the parentSectionAnchor region). Cannot be combined with rowAnchor / rowDisplayName / rowUsername.\n',
             },
           },
         },

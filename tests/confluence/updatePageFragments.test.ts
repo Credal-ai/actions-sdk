@@ -4,24 +4,34 @@ import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 const mockGet = jest.fn<(...args: any[]) => Promise<any>>();
 const mockPut = jest.fn<(...args: any[]) => Promise<any>>();
 
-jest.mock("../../src/actions/util/axiosClient", () => ({
-  axiosClient: {
-    get: (...args: any[]) => mockGet(...args),
-    put: (...args: any[]) => mockPut(...args),
-  },
-}));
+jest.mock("../../src/actions/util/axiosClient", () => {
+  // Keep the real ApiError so the providers' status-code handling is exercised.
+  const actual = jest.requireActual(
+    "../../src/actions/util/axiosClient",
+  ) as Record<string, unknown>;
+  return {
+    ...actual,
+    axiosClient: {
+      get: (...args: any[]) => mockGet(...args),
+      put: (...args: any[]) => mockPut(...args),
+    },
+  };
+});
 
+import { ApiError } from "../../src/actions/util/axiosClient";
 import {
   applyConfluenceFragmentUpdates,
+  findUserMentions,
   locateTableRow,
-  resolveRowDisplayNames,
+  resolveRowUsers,
   selectUserByDisplayName,
-  userMentionAnchors,
+  selectUserByUsername,
 } from "../../src/actions/util/confluenceStorageFormat";
 import type {
   ConfluenceReplacement,
   ConfluenceTableCellUpdate,
   ConfluenceUserCandidate,
+  ConfluenceUserLookups,
 } from "../../src/actions/util/confluenceStorageFormat";
 import confluenceUpdatePageFragments from "../../src/actions/providers/confluence/updatePageFragments";
 import { confluenceUpdatePageFragmentsParamsSchema } from "../../src/actions/autogen/types";
@@ -204,10 +214,12 @@ describe("applyConfluenceFragmentUpdates", () => {
   });
 
   it("uses the first matching row after the sectionAnchor when the user appears in several sections", () => {
-    const cloudRow = locateTableRow(PAGE_BODY, USER_KEY, {
+    const cloudRow = locateTableRow(PAGE_BODY, {
+      rowAnchor: USER_KEY,
       sectionAnchor: "Cloud/Infrastructure",
     });
-    const snowRow = locateTableRow(PAGE_BODY, USER_KEY, {
+    const snowRow = locateTableRow(PAGE_BODY, {
+      rowAnchor: USER_KEY,
       sectionAnchor: "ServiceNow",
     });
     expect(PAGE_BODY.slice(cloudRow.start, cloudRow.end)).toContain(
@@ -2175,7 +2187,7 @@ describe("applyConfluenceFragmentUpdates", () => {
     });
   });
 
-  describe("rowDisplayName resolution", () => {
+  describe("rowDisplayName / rowUsername resolution", () => {
     const users: ConfluenceUserCandidate[] = [
       {
         displayName: "Jane Doe",
@@ -2190,8 +2202,24 @@ describe("applyConfluenceFragmentUpdates", () => {
       },
       { displayName: "Ghost", accountId: "", userKey: undefined },
     ];
+    const lookupsFor = (
+      byDisplayName:
+        | ConfluenceUserCandidate[]
+        | ((name: string) => ConfluenceUserCandidate[]),
+      byUsername: ConfluenceUserCandidate[] = [],
+    ): ConfluenceUserLookups => ({
+      byDisplayName: jest.fn<ConfluenceUserLookups["byDisplayName"]>(
+        async (name) =>
+          typeof byDisplayName === "function"
+            ? byDisplayName(name)
+            : byDisplayName,
+      ),
+      byUsername: jest.fn<ConfluenceUserLookups["byUsername"]>(
+        async () => byUsername,
+      ),
+    });
 
-    it("selectUserByDisplayName accepts only an exact display name (then exact username) and rejects ambiguity", () => {
+    it("selectUserByDisplayName accepts only an exact display name and rejects ambiguity", () => {
       expect(selectUserByDisplayName(users, "jane  doe").accountId).toBe(
         "acc-jane",
       );
@@ -2208,8 +2236,10 @@ describe("applyConfluenceFragmentUpdates", () => {
       ).toThrow(
         /matches 2 Confluence users.*"Jane Doe" \(acc-jane\), "JANE DOE" \(acc-doering\)/,
       );
-      // A username is only used when no display name matched...
-      expect(selectUserByDisplayName(users, "jdoe").accountId).toBe("acc-jane");
+      // A username is never accepted in place of a display name (that is what rowUsername is for)...
+      expect(() => selectUserByDisplayName(users, "jdoe")).toThrow(
+        /No Confluence user found with display name "jdoe"/,
+      );
       // ...so a username colliding with someone else's display name cannot hijack the row.
       const collision: ConfluenceUserCandidate[] = [
         { displayName: "Jane Doe", userKey: "k-jane" },
@@ -2227,51 +2257,58 @@ describe("applyConfluenceFragmentUpdates", () => {
       );
     });
 
-    it("userMentionAnchors qualifies identifiers with their mention attribute, most specific first", () => {
-      expect(userMentionAnchors(users[0])).toEqual([
-        'ri:account-id="acc-jane"',
-        `ri:userkey="${USER_KEY}"`,
-        'ri:username="jdoe"',
-      ]);
-      expect(userMentionAnchors({ displayName: "x", userKey: "k" })).toEqual([
-        'ri:userkey="k"',
-      ]);
-    });
-
-    it("does not treat a bare ID in text or a URL as a mention", async () => {
-      const body = `<p>See https://example.atlassian.net/people/acc-jane</p>${PAGE_BODY}`;
-      const resolved = await resolveRowDisplayNames(
-        {
-          tableCellUpdates: [
-            {
-              rowDisplayName: "Jane Doe",
-              sectionAnchor: "<h3>ServiceNow</h3>",
-              columnIndex: 1,
-              newContent: "<p>x</p>",
-            },
-          ],
-        },
-        async () => [users[0]],
-        body,
+    it("selectUserByUsername accepts exactly one candidate with that username, case-insensitively", () => {
+      expect(selectUserByUsername(users, "JDoe").userKey).toBe(USER_KEY);
+      // A display-name match is not a username match.
+      expect(() => selectUserByUsername(users, "Jane Doe")).toThrow(
+        /No Confluence user found with username "Jane Doe"/,
       );
-      // "acc-jane" occurs in the body but never as ri:account-id="acc-jane", so the user-key mention is used.
-      expect(resolved.tableCellUpdates?.[0].rowAnchor).toBe(
-        `ri:userkey="${USER_KEY}"`,
-      );
-      expect(applyConfluenceFragmentUpdates(body, resolved).body).toContain(
-        "<td><p>x</p></td><td><p>Plans TBD</p></td>",
+      expect(() =>
+        selectUserByUsername(
+          [users[0], { ...users[1], username: "jdoe" }],
+          "jdoe",
+        ),
+      ).toThrow(/Username "jdoe" matches 2 Confluence users/);
+      expect(() => selectUserByUsername([], "jdoe")).toThrow(
+        /No Confluence user found with username "jdoe"/,
       );
     });
 
-    it("resolves names to whichever identifier actually appears in the page body, looking each name up once", async () => {
-      const lookup = jest.fn<
-        (name: string) => Promise<ConfluenceUserCandidate[]>
-      >(async (name) =>
+    it("findUserMentions returns the real <ri:user> elements of any of the user's identifiers", () => {
+      const body = [
+        `<p>See https://example.atlassian.net/people/acc-jane and key ${USER_KEY} and jdoe.</p>`, // prose / URL
+        `<ac:link><ri:user ri:account-id="acc-jane"/></ac:link>`, // Cloud mention
+        `<ac:link><ri:user ri:userkey='${USER_KEY}' /></ac:link>`, // single-quoted legacy key
+        `<ac:link><ri:user ri:username="JDOE"></ri:user></ac:link>`, // username, different case
+        `<ac:link><ri:user ri:userkey="ffffffffffffffffffffffffffffffff" /></ac:link>`, // someone else
+        `<ac:structured-macro ac:name="code"><ac:plain-text-body><![CDATA[<ri:user ri:account-id="acc-jane"/>]]></ac:plain-text-body></ac:structured-macro>`,
+        `<!-- <ri:user ri:userkey="${USER_KEY}" /> -->`,
+        `<ri:user-group ri:account-id="acc-jane"/>`, // a different element whose name merely starts with ri:user
+      ].join("");
+      const mentions = findUserMentions(body, users[0]).map((m) =>
+        body.slice(m.start, m.end),
+      );
+      expect(mentions).toEqual([
+        `<ri:user ri:account-id="acc-jane"/>`,
+        `<ri:user ri:userkey='${USER_KEY}' />`,
+        `<ri:user ri:username="JDOE">`,
+      ]);
+      // Identifiers are compared whole: a key that merely contains another is not a hit.
+      expect(
+        findUserMentions(body, { userKey: USER_KEY.slice(0, 10) }),
+      ).toEqual([]);
+      expect(findUserMentions(body, { displayName: "no identifiers" })).toEqual(
+        [],
+      );
+    });
+
+    it("resolves a display name to a user and locates the row by their real mention, looking each name up once", async () => {
+      const lookups = lookupsFor((name) =>
         users.filter((u) =>
           (u.displayName ?? "").toLowerCase().includes(name.toLowerCase()),
         ),
       );
-      const resolved = await resolveRowDisplayNames(
+      const resolved = await resolveRowUsers(
         {
           tableCellUpdates: [
             {
@@ -2280,8 +2317,9 @@ describe("applyConfluenceFragmentUpdates", () => {
               columnIndex: 1,
               newContent: "<p>x</p>",
             },
+            // Same person, different spelling: served from the cache.
             {
-              rowDisplayName: "Jane Doe",
+              rowDisplayName: "  jane   DOE ",
               sectionAnchor: "Cloud/Infrastructure",
               columnIndex: 1,
               newContent: "<p>y</p>",
@@ -2295,21 +2333,22 @@ describe("applyConfluenceFragmentUpdates", () => {
             },
           ],
         },
-        lookup,
-        PAGE_BODY,
+        lookups,
       );
-      expect(lookup).toHaveBeenCalledTimes(2);
-      // The Cloud accountId "acc-jane" is not in this (Data Center style) body, so the user-key mention is used.
-      const janeAnchor = `ri:userkey="${USER_KEY}"`;
-      expect(resolved.tableCellUpdates?.map((u) => u.rowAnchor)).toEqual([
-        janeAnchor,
-        janeAnchor,
-      ]);
+      expect(lookups.byDisplayName).toHaveBeenCalledTimes(2);
+      expect(lookups.byDisplayName).toHaveBeenCalledWith("Jane Doe");
+      expect(lookups.byDisplayName).toHaveBeenCalledWith("Jane Doering");
+      expect(lookups.byUsername).not.toHaveBeenCalled();
       expect(resolved.tableCellUpdates?.[0]).not.toHaveProperty(
         "rowDisplayName",
       );
-      expect(resolved.replacements?.[0].rowAnchor).toBe(
-        'ri:userkey="ffffffffffffffffffffffffffffffff"',
+      expect(resolved.tableCellUpdates?.[0].rowUser).toMatchObject({
+        accountId: "acc-jane",
+        userKey: USER_KEY,
+        label: '"Jane Doe" (rowDisplayName)',
+      });
+      expect(resolved.replacements?.[0].rowUser?.userKey).toBe(
+        "ffffffffffffffffffffffffffffffff",
       );
 
       const result = applyConfluenceFragmentUpdates(PAGE_BODY, resolved);
@@ -2320,8 +2359,134 @@ describe("applyConfluenceFragmentUpdates", () => {
       expect(result.body).toContain("New plans");
     });
 
-    it("falls back to the most specific identifier when none appears in the body, so the row lookup fails normally", async () => {
-      const resolved = await resolveRowDisplayNames(
+    it("resolves rowUsername through the username lookup only", async () => {
+      const lookups = lookupsFor([], [users[0]]);
+      const resolved = await resolveRowUsers(
+        {
+          tableCellUpdates: [
+            {
+              rowUsername: "jdoe",
+              sectionAnchor: "<h3>ServiceNow</h3>",
+              fieldLabel: "# of Tickets Closed",
+              newContent: "<p>7</p>",
+            },
+          ],
+        },
+        lookups,
+      );
+      expect(lookups.byUsername).toHaveBeenCalledWith("jdoe");
+      expect(lookups.byDisplayName).not.toHaveBeenCalled();
+      expect(resolved.tableCellUpdates?.[0].rowUser?.label).toBe(
+        '"jdoe" (rowUsername)',
+      );
+      expect(
+        applyConfluenceFragmentUpdates(PAGE_BODY, resolved).body,
+      ).toContain("<td><p># of Tickets Closed</p></td><td><p>7</p></td>");
+    });
+
+    it("does not treat a bare ID in text or a URL as a mention", async () => {
+      // "acc-jane" occurs in the body but never as a <ri:user> element, so only the user-key mention rows match.
+      const body = `<p>See https://example.atlassian.net/people/acc-jane</p>${PAGE_BODY}`;
+      const resolved = await resolveRowUsers(
+        {
+          tableCellUpdates: [
+            {
+              rowDisplayName: "Jane Doe",
+              sectionAnchor: "<h3>ServiceNow</h3>",
+              columnIndex: 1,
+              newContent: "<p>x</p>",
+            },
+          ],
+        },
+        lookupsFor([users[0]]),
+      );
+      expect(applyConfluenceFragmentUpdates(body, resolved).body).toContain(
+        "<td><p>x</p></td><td><p>Plans TBD</p></td>",
+      );
+    });
+
+    it("sees the user under every identifier at once, so a row mentioning them by another identifier makes the target ambiguous", async () => {
+      // Jane's own row mentions her by username; John's row mentions her by user key. Choosing one identifier for
+      // the whole page would silently edit John's row; matching all of them reveals the ambiguity instead.
+      const body = [
+        `<h2>Team</h2><table><tbody>`,
+        `<tr><th><p>Name</p></th><th><p>Status</p></th></tr>`,
+        `<tr><td><p><ac:link><ri:user ri:username="jdoe" /></ac:link></p></td><td><p>Jane TBD</p></td></tr>`,
+        `<tr><td><p>John, paired with <ac:link><ri:user ri:userkey="${USER_KEY}" /></ac:link></p></td><td><p>John TBD</p></td></tr>`,
+        `</tbody></table>`,
+        `<h2>Other</h2><table><tbody>`,
+        `<tr><td><p><ac:link><ri:user ri:userkey="${USER_KEY}" /></ac:link></p></td><td><p>Jane other TBD</p></td></tr>`,
+        `</tbody></table>`,
+      ].join("");
+      const resolved = await resolveRowUsers(
+        {
+          tableCellUpdates: [
+            {
+              rowDisplayName: "Jane Doe",
+              sectionAnchor: "<h2>Team</h2>",
+              columnIndex: 1,
+              newContent: "<p>Done</p>",
+            },
+          ],
+        },
+        lookupsFor([users[0]]),
+      );
+      expect(() => applyConfluenceFragmentUpdates(body, resolved)).toThrow(
+        /a mention of user "Jane Doe" \(rowDisplayName\) matched 2 rows in the table identified by sectionAnchor "<h2>Team<\/h2>"\. Provide a rowOccurrence index, or the row's own text as rowAnchor/,
+      );
+      // Narrowed to a scope where she is mentioned once, the edit goes through.
+      const other = await resolveRowUsers(
+        {
+          tableCellUpdates: [
+            {
+              rowDisplayName: "Jane Doe",
+              sectionAnchor: "<h2>Other</h2>",
+              columnIndex: 1,
+              newContent: "<p>Done</p>",
+            },
+          ],
+        },
+        lookupsFor([users[0]]),
+      );
+      const result = applyConfluenceFragmentUpdates(body, other);
+      expect(result.body).toContain("<p>Jane TBD</p>");
+      expect(result.body).toContain("<p>John TBD</p>");
+      expect(result.body).not.toContain("Jane other TBD");
+    });
+
+    it("ignores mention markup inside code blocks and comments, so an example in someone else's row is not a hit", async () => {
+      // John's row carries a code sample showing Jane's Cloud mention; Jane's real row uses her user key.
+      const body = [
+        `<h2>Team</h2><table><tbody>`,
+        `<tr><th><p>Name</p></th><th><p>Status</p></th></tr>`,
+        `<tr><td><p>John</p><ac:structured-macro ac:name="code"><ac:plain-text-body><![CDATA[<ri:user ri:account-id="acc-jane"/>]]></ac:plain-text-body></ac:structured-macro><!-- <ri:user ri:userkey="${USER_KEY}"/> --></td><td><p>John TBD</p></td></tr>`,
+        `<tr><td><p>${USER_MENTION}</p></td><td><p>Jane TBD</p></td></tr>`,
+        `</tbody></table>`,
+      ].join("");
+      const resolved = await resolveRowUsers(
+        {
+          tableCellUpdates: [
+            {
+              rowDisplayName: "Jane Doe",
+              columnIndex: 1,
+              newContent: "<p>Done</p>",
+            },
+          ],
+        },
+        lookupsFor([users[0]]),
+      );
+      const result = applyConfluenceFragmentUpdates(body, resolved);
+      expect(result.body).toContain("<p>John TBD</p>");
+      expect(result.body).toContain(
+        `${USER_MENTION}</p></td><td><p>Done</p></td>`,
+      );
+      expect(result.body).toContain(
+        `<![CDATA[<ri:user ri:account-id="acc-jane"/>]]>`,
+      ); // untouched
+    });
+
+    it("fails with the usual row error when the resolved user is not mentioned in the page", async () => {
+      const resolved = await resolveRowUsers(
         {
           tableCellUpdates: [
             {
@@ -2331,21 +2496,17 @@ describe("applyConfluenceFragmentUpdates", () => {
             },
           ],
         },
-        async () => [{ displayName: "Jane Doe", accountId: "acc-unknown" }],
-        PAGE_BODY,
-      );
-      expect(resolved.tableCellUpdates?.[0].rowAnchor).toBe(
-        'ri:account-id="acc-unknown"',
+        lookupsFor([{ displayName: "Jane Doe", accountId: "acc-unknown" }]),
       );
       expect(() => applyConfluenceFragmentUpdates(PAGE_BODY, resolved)).toThrow(
-        /No table row containing rowAnchor "ri:account-id="acc-unknown""/,
+        /No table row containing a mention of user "Jane Doe" \(rowDisplayName\) was found\./,
       );
     });
 
-    it("rejects both rowAnchor and rowDisplayName, empty names, and unresolved names reaching apply", async () => {
-      const lookup = async () => users;
+    it("rejects combined row targets, empty names, and unresolved names reaching apply", async () => {
+      const lookups = lookupsFor(users, [users[0]]);
       await expect(
-        resolveRowDisplayNames(
+        resolveRowUsers(
           {
             tableCellUpdates: [
               {
@@ -2355,20 +2516,43 @@ describe("applyConfluenceFragmentUpdates", () => {
               },
             ],
           },
-          lookup,
-          PAGE_BODY,
+          lookups,
         ),
       ).rejects.toThrow(
-        /tableCellUpdates\[0\]: provide either rowAnchor or rowDisplayName, not both/,
+        /tableCellUpdates\[0\]: provide only one of rowAnchor, rowDisplayName and rowUsername \(got rowAnchor and rowDisplayName\)/,
       );
       await expect(
-        resolveRowDisplayNames(
+        resolveRowUsers(
+          {
+            replacements: [
+              {
+                find: "a",
+                replace: "b",
+                rowDisplayName: "Jane Doe",
+                rowUsername: "jdoe",
+              },
+            ],
+          },
+          lookups,
+        ),
+      ).rejects.toThrow(
+        /replacements\[0\]: provide only one of .*\(got rowDisplayName and rowUsername\)/,
+      );
+      await expect(
+        resolveRowUsers(
           { replacements: [{ find: "a", replace: "b", rowDisplayName: "" }] },
-          lookup,
-          PAGE_BODY,
+          lookups,
         ),
       ).rejects.toThrow(
         /replacements\[0\]: rowDisplayName must be a non-empty string/,
+      );
+      await expect(
+        resolveRowUsers(
+          { replacements: [{ find: "a", replace: "b", rowUsername: " " }] },
+          lookups,
+        ),
+      ).rejects.toThrow(
+        /replacements\[0\]: rowUsername must be a non-empty string/,
       );
 
       expect(() =>
@@ -2381,14 +2565,58 @@ describe("applyConfluenceFragmentUpdates", () => {
             },
           ],
         }),
-      ).toThrow(/rowDisplayName must be resolved to a rowAnchor/);
+      ).toThrow(
+        /rowDisplayName must be resolved to a user \(via resolveRowUsers\)/,
+      );
+      expect(() =>
+        applyConfluenceFragmentUpdates(PAGE_BODY, {
+          replacements: [{ find: "a", replace: "b", rowUsername: "jdoe" }],
+        }),
+      ).toThrow(/replacements\[0\]: rowUsername must be resolved/);
       expect(() =>
         applyConfluenceFragmentUpdates(PAGE_BODY, {
           tableCellUpdates: [{ columnIndex: 1, newContent: "<p>x</p>" }],
         }),
       ).toThrow(
-        /tableCellUpdates\[0\]: either rowAnchor or rowDisplayName is required/,
+        /tableCellUpdates\[0\]: one of rowAnchor, rowDisplayName or rowUsername is required/,
       );
+    });
+
+    it("applies the row-scope rules of rowAnchor to a resolved user as well", async () => {
+      const lookups = lookupsFor([users[0]]);
+      const withEnd = await resolveRowUsers(
+        {
+          replacements: [
+            {
+              find: "TBD",
+              replace: "Done",
+              rowDisplayName: "Jane Doe",
+              sectionEndAnchor: "<h2>",
+            },
+          ],
+        },
+        lookups,
+      );
+      expect(() => applyConfluenceFragmentUpdates(PAGE_BODY, withEnd)).toThrow(
+        /sectionEndAnchor cannot be combined with rowAnchor \/ rowDisplayName \/ rowUsername/,
+      );
+      const withOccurrence = await resolveRowUsers(
+        {
+          replacements: [
+            {
+              find: "TBD",
+              replace: "Done",
+              rowDisplayName: "Jane Doe",
+              rowOccurrence: 1,
+            },
+          ],
+        },
+        lookups,
+      );
+      // Jane is mentioned in two rows page-wide; rowOccurrence 1 is her ServiceNow row.
+      const result = applyConfluenceFragmentUpdates(PAGE_BODY, withOccurrence);
+      expect(result.body).toContain("Cloud work TBD");
+      expect(result.body).toContain("Snapshot Done");
     });
   });
 
@@ -3024,6 +3252,79 @@ describe("confluence updatePageFragments (Cloud)", () => {
     expect(mockPut).not.toHaveBeenCalled();
   });
 
+  it("reports a user-search failure with its status, Atlassian's message and the scope hint, without writing", async () => {
+    mockGet.mockImplementation(async (url: string) => {
+      if (url.includes("accessible-resources"))
+        return { data: [{ id: "cloud-123" }] };
+      if (url === "/search/user") {
+        throw new ApiError("Request failed with status 401", 401, {
+          code: 401,
+          message: "Unauthorized; scope does not match",
+        });
+      }
+      return {
+        data: {
+          title: "Weekly Report",
+          version: { number: 7 },
+          body: { storage: { value: PAGE_BODY } },
+        },
+      };
+    });
+
+    const result = await confluenceUpdatePageFragments({
+      params: {
+        pageId: "193957299",
+        tableCellUpdates: [
+          {
+            rowDisplayName: "Jane Doe",
+            columnIndex: 1,
+            newContent: "<p>x</p>",
+          },
+        ],
+      },
+      authParams: { authToken: "token" },
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(
+      /Confluence user lookup for display name "Jane Doe" failed with HTTP 401: Unauthorized; scope does not match\. The connection must be allowed to search users \(OAuth scope read:confluence-user or search:confluence\); alternatively pass the user's mention.*as rowAnchor/,
+    );
+    expect(mockPut).not.toHaveBeenCalled();
+  });
+
+  it("rejects rowUsername on Cloud, where users have no usernames, without searching or writing", async () => {
+    mockGet.mockImplementation(async (url: string) => {
+      if (url.includes("accessible-resources"))
+        return { data: [{ id: "cloud-123" }] };
+      return {
+        data: {
+          title: "Weekly Report",
+          version: { number: 7 },
+          body: { storage: { value: PAGE_BODY } },
+        },
+      };
+    });
+
+    const result = await confluenceUpdatePageFragments({
+      params: {
+        pageId: "193957299",
+        tableCellUpdates: [
+          { rowUsername: "jdoe", columnIndex: 1, newContent: "<p>x</p>" },
+        ],
+      },
+      authParams: { authToken: "token" },
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(
+      /rowUsername "jdoe" cannot be used with Confluence Cloud: Cloud users have no usernames\. Use rowDisplayName/,
+    );
+    expect(mockGet.mock.calls.some(([url]) => url === "/search/user")).toBe(
+      false,
+    );
+    expect(mockPut).not.toHaveBeenCalled();
+  });
+
   it("does not write to Confluence when an edit cannot be applied", async () => {
     mockGet.mockImplementation(async (url: string) => {
       if (url.includes("accessible-resources"))
@@ -3107,7 +3408,23 @@ describe("confluenceDataCenter updatePageFragments", () => {
     expect(payload.body.storage.value).not.toContain("Nothing to report.");
   });
 
-  it("resolves rowDisplayName via /user?username= when the name is a username and no display name matches", async () => {
+  const DC_PAGE = {
+    data: {
+      title: "R",
+      version: { number: 3 },
+      body: { storage: { value: PAGE_BODY } },
+    },
+  };
+  const DC_AUTH = {
+    authToken: "token",
+    baseUrl: "https://confluence.example.com",
+  };
+  const notFound = () =>
+    new ApiError("Request failed with status 404", 404, {
+      message: "No user found",
+    });
+
+  it("resolves rowUsername via /user?username= alone, without touching the group", async () => {
     mockGet.mockImplementation(async (url: string, config: any) => {
       if (url.endsWith("/rest/api/user")) {
         expect(config.params).toEqual({ username: "jdoe" });
@@ -3119,22 +3436,11 @@ describe("confluenceDataCenter updatePageFragments", () => {
           },
         };
       }
-      if (url.includes("/member")) {
-        return {
-          data: {
-            results: [
-              { username: "jdoe", userKey: USER_KEY, displayName: "Jane Doe" },
-            ],
-          },
-        };
-      }
-      return {
-        data: {
-          title: "R",
-          version: { number: 3 },
-          body: { storage: { value: PAGE_BODY } },
-        },
-      };
+      if (url.includes("/member"))
+        throw new Error(
+          "the group must not be requested for a username lookup",
+        );
+      return DC_PAGE;
     });
     mockPut.mockResolvedValue({ data: {} });
 
@@ -3143,47 +3449,36 @@ describe("confluenceDataCenter updatePageFragments", () => {
         pageId: "42",
         tableCellUpdates: [
           {
-            rowDisplayName: "jdoe",
+            rowUsername: "jdoe",
             sectionAnchor: "<h3>ServiceNow</h3>",
             fieldLabel: "# of Tickets Closed",
             newContent: "<p>7</p>",
           },
         ],
       },
-      authParams: {
-        authToken: "token",
-        baseUrl: "https://confluence.example.com",
-      },
+      authParams: DC_AUTH,
     });
 
     expect(result).toMatchObject({ success: true, cellsUpdated: 1 });
     expect(mockPut.mock.calls[0][1].body.storage.value).toContain(
       "<td><p># of Tickets Closed</p></td><td><p>7</p></td>",
     );
-    // The group is still scanned: a username hit alone must not short-circuit display-name matching.
     expect(
       mockGet.mock.calls.some(([url]) => String(url).includes("/group/")),
-    ).toBe(true);
+    ).toBe(false);
   });
 
-  it("prefers the display-name match over a user whose username collides with that display name", async () => {
+  it("resolves rowDisplayName by scanning the group only, so a username colliding with the name cannot hijack the row", async () => {
     mockGet.mockImplementation(async (url: string, config: any) => {
-      if (url.endsWith("/rest/api/user")) {
-        expect(config.params).toEqual({ username: "Jane Doe" });
-        return {
-          data: {
-            username: "Jane Doe",
-            userKey: "ffffffffffffffffffffffffffffffff",
-            displayName: "John Smith",
-          },
-        };
-      }
-      if (url.includes("/member")) {
+      if (url.endsWith("/rest/api/user"))
+        throw new Error("/user must not be consulted for a display name");
+      if (url.includes("/rest/api/group/confluence-users/member")) {
+        expect(config.params.limit).toBe(200);
         return {
           data: {
             results: [
               {
-                username: "jsmith",
+                username: "Jane Doe",
                 userKey: "ffffffffffffffffffffffffffffffff",
                 displayName: "John Smith",
               },
@@ -3192,13 +3487,7 @@ describe("confluenceDataCenter updatePageFragments", () => {
           },
         };
       }
-      return {
-        data: {
-          title: "R",
-          version: { number: 3 },
-          body: { storage: { value: PAGE_BODY } },
-        },
-      };
+      return DC_PAGE;
     });
     mockPut.mockResolvedValue({ data: {} });
 
@@ -3214,10 +3503,7 @@ describe("confluenceDataCenter updatePageFragments", () => {
           },
         ],
       },
-      authParams: {
-        authToken: "token",
-        baseUrl: "https://confluence.example.com",
-      },
+      authParams: DC_AUTH,
     });
 
     expect(result).toMatchObject({ success: true, cellsUpdated: 1 });
@@ -3227,81 +3513,7 @@ describe("confluenceDataCenter updatePageFragments", () => {
     );
   });
 
-  it("refuses a display-name match from a truncated group scan, but still honours an exact username", async () => {
-    const hugePage = (start: number) =>
-      Array.from({ length: 200 }, (_, i) => ({
-        username: `u${start + i}`,
-        userKey: `k${start + i}`,
-        displayName: start + i === 5 ? "Jane Doe" : `User ${start + i}`,
-      }));
-    mockGet.mockImplementation(async (url: string, config: any) => {
-      if (url.endsWith("/rest/api/user")) {
-        if (config.params.username === "jdoe")
-          return {
-            data: {
-              username: "jdoe",
-              userKey: USER_KEY,
-              displayName: "Jane Doe",
-            },
-          };
-        throw new Error("404");
-      }
-      if (url.includes("/member"))
-        return { data: { results: hugePage(config.params.start) } };
-      return {
-        data: {
-          title: "R",
-          version: { number: 3 },
-          body: { storage: { value: PAGE_BODY } },
-        },
-      };
-    });
-    mockPut.mockResolvedValue({ data: {} });
-    const auth = {
-      authToken: "token",
-      baseUrl: "https://confluence.example.com",
-    };
-
-    const byName = await confluenceDataCenterUpdatePageFragments({
-      params: {
-        pageId: "42",
-        tableCellUpdates: [
-          {
-            rowDisplayName: "Jane Doe",
-            columnIndex: 1,
-            newContent: "<p>x</p>",
-          },
-        ],
-      },
-      authParams: auth,
-    });
-    expect(byName.success).toBe(false);
-    expect(byName.error).toMatch(
-      /more than 2000 members, so "Jane Doe" cannot be resolved unambiguously/,
-    );
-    expect(
-      mockGet.mock.calls.filter(([url]) => String(url).includes("/member")),
-    ).toHaveLength(10);
-    expect(mockPut).not.toHaveBeenCalled();
-
-    const byUsername = await confluenceDataCenterUpdatePageFragments({
-      params: {
-        pageId: "42",
-        tableCellUpdates: [
-          {
-            rowDisplayName: "jdoe",
-            sectionAnchor: "<h3>ServiceNow</h3>",
-            columnIndex: 1,
-            newContent: "<p>x</p>",
-          },
-        ],
-      },
-      authParams: auth,
-    });
-    expect(byUsername).toMatchObject({ success: true, cellsUpdated: 1 });
-  });
-
-  it("falls back to scanning confluence-users members by display name (Data Center has no user search)", async () => {
+  it("pages through the group by display name (Data Center has no user search)", async () => {
     const memberPages: Record<string, unknown[]> = {
       "0": Array.from({ length: 200 }, (_, i) => ({
         username: `u${i}`,
@@ -3318,21 +3530,12 @@ describe("confluenceDataCenter updatePageFragments", () => {
       ],
     };
     mockGet.mockImplementation(async (url: string, config: any) => {
-      if (url.endsWith("/rest/api/user"))
-        throw new Error("404 no such username");
       if (url.includes("/rest/api/group/confluence-users/member")) {
-        expect(config.params.limit).toBe(200);
         return {
           data: { results: memberPages[String(config.params.start)] ?? [] },
         };
       }
-      return {
-        data: {
-          title: "R",
-          version: { number: 3 },
-          body: { storage: { value: PAGE_BODY } },
-        },
-      };
+      return DC_PAGE;
     });
     mockPut.mockResolvedValue({ data: {} });
 
@@ -3348,32 +3551,158 @@ describe("confluenceDataCenter updatePageFragments", () => {
           },
         ],
       },
-      authParams: {
-        authToken: "token",
-        baseUrl: "https://confluence.example.com",
-      },
+      authParams: DC_AUTH,
     });
 
     expect(result).toMatchObject({ success: true, replacementsApplied: 1 });
     expect(mockPut.mock.calls[0][1].body.storage.value).toContain("Plans done");
   });
 
+  it("refuses to resolve a display name from a truncated group scan, even when a user with that name was seen", async () => {
+    // Jane Doe is on page 1, but 2000 members in, a second Jane Doe could still be hiding beyond the cap.
+    const hugePage = (start: number) =>
+      Array.from({ length: 200 }, (_, i) => ({
+        username: `u${start + i}`,
+        userKey: `k${start + i}`,
+        displayName: start + i === 5 ? "Jane Doe" : `User ${start + i}`,
+      }));
+    mockGet.mockImplementation(async (url: string, config: any) => {
+      if (url.endsWith("/rest/api/user")) {
+        if (config.params.username === "jdoe")
+          return {
+            data: {
+              username: "jdoe",
+              userKey: USER_KEY,
+              displayName: "Jane Doe",
+            },
+          };
+        throw notFound();
+      }
+      if (url.includes("/member"))
+        return { data: { results: hugePage(config.params.start) } };
+      return DC_PAGE;
+    });
+    mockPut.mockResolvedValue({ data: {} });
+
+    const byName = await confluenceDataCenterUpdatePageFragments({
+      params: {
+        pageId: "42",
+        tableCellUpdates: [
+          {
+            rowDisplayName: "Jane Doe",
+            columnIndex: 1,
+            newContent: "<p>x</p>",
+          },
+        ],
+      },
+      authParams: DC_AUTH,
+    });
+    expect(byName.success).toBe(false);
+    expect(byName.error).toMatch(
+      /more than 2000 members, so "Jane Doe" cannot be resolved unambiguously by display name.*use rowUsername/,
+    );
+    expect(
+      mockGet.mock.calls.filter(([url]) => String(url).includes("/member")),
+    ).toHaveLength(10);
+    expect(mockPut).not.toHaveBeenCalled();
+
+    // The same person is reachable by username regardless of the group size.
+    const byUsername = await confluenceDataCenterUpdatePageFragments({
+      params: {
+        pageId: "42",
+        tableCellUpdates: [
+          {
+            rowUsername: "jdoe",
+            sectionAnchor: "<h3>ServiceNow</h3>",
+            columnIndex: 1,
+            newContent: "<p>x</p>",
+          },
+        ],
+      },
+      authParams: DC_AUTH,
+    });
+    expect(byUsername).toMatchObject({ success: true, cellsUpdated: 1 });
+  });
+
+  it("treats a 404 from /user as an unknown username, but surfaces any other failure", async () => {
+    mockGet.mockImplementation(async (url: string, config: any) => {
+      if (url.endsWith("/rest/api/user")) {
+        if (config.params.username === "nobody") throw notFound();
+        throw new ApiError("Request failed with status 403", 403, {
+          message: "Not permitted to view users",
+        });
+      }
+      return DC_PAGE;
+    });
+
+    const unknown = await confluenceDataCenterUpdatePageFragments({
+      params: {
+        pageId: "42",
+        tableCellUpdates: [
+          { rowUsername: "nobody", columnIndex: 1, newContent: "<p>x</p>" },
+        ],
+      },
+      authParams: DC_AUTH,
+    });
+    expect(unknown.success).toBe(false);
+    expect(unknown.error).toMatch(
+      /No Confluence user found with username "nobody"/,
+    );
+
+    const forbidden = await confluenceDataCenterUpdatePageFragments({
+      params: {
+        pageId: "42",
+        tableCellUpdates: [
+          { rowUsername: "jdoe", columnIndex: 1, newContent: "<p>x</p>" },
+        ],
+      },
+      authParams: DC_AUTH,
+    });
+    expect(forbidden.success).toBe(false);
+    expect(forbidden.error).toMatch(
+      /Confluence user lookup for username "jdoe" failed with HTTP 403: Not permitted to view users\. The token must be allowed to view users and groups/,
+    );
+    expect(mockPut).not.toHaveBeenCalled();
+  });
+
+  it("surfaces a failure to list the group instead of reporting the user as unknown", async () => {
+    mockGet.mockImplementation(async (url: string) => {
+      if (url.includes("/member"))
+        throw new ApiError("Request failed with status 404", 404, {
+          message: "No group with name",
+        });
+      return DC_PAGE;
+    });
+
+    const result = await confluenceDataCenterUpdatePageFragments({
+      params: {
+        pageId: "42",
+        tableCellUpdates: [
+          {
+            rowDisplayName: "Jane Doe",
+            columnIndex: 1,
+            newContent: "<p>x</p>",
+          },
+        ],
+      },
+      authParams: DC_AUTH,
+    });
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(
+      /Confluence user lookup for display name "Jane Doe" \(members of group "confluence-users"\) failed with HTTP 404: No group with name/,
+    );
+    expect(mockPut).not.toHaveBeenCalled();
+  });
+
   it("returns an error (without writing) when no Data Center user matches the display name", async () => {
     mockGet.mockImplementation(async (url: string) => {
-      if (url.endsWith("/rest/api/user")) throw new Error("404");
       if (url.includes("/member"))
         return {
           data: {
             results: [{ username: "x", userKey: "k", displayName: "Someone" }],
           },
         };
-      return {
-        data: {
-          title: "R",
-          version: { number: 3 },
-          body: { storage: { value: PAGE_BODY } },
-        },
-      };
+      return DC_PAGE;
     });
 
     const result = await confluenceDataCenterUpdatePageFragments({
@@ -3383,10 +3712,7 @@ describe("confluenceDataCenter updatePageFragments", () => {
           { rowDisplayName: "Nobody", columnIndex: 1, newContent: "<p>x</p>" },
         ],
       },
-      authParams: {
-        authToken: "token",
-        baseUrl: "https://confluence.example.com",
-      },
+      authParams: DC_AUTH,
     });
 
     expect(result.success).toBe(false);

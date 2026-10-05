@@ -5,8 +5,8 @@ import type {
   AuthParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
-import { applyConfluenceFragmentUpdates, resolveRowDisplayNames } from "../../util/confluenceStorageFormat.js";
-import { createConfluenceDataCenterUserLookup, getConfluenceApi } from "./helpers.js";
+import { applyConfluenceFragmentUpdates, resolveRowUsers } from "../../util/confluenceStorageFormat.js";
+import { createConfluenceDataCenterUserLookups, getConfluenceApi } from "./helpers.js";
 
 /**
  * Server-side, deterministic partial update of a Confluence Data Center page.
@@ -33,11 +33,10 @@ const confluenceDataCenterUpdatePageFragments: confluenceDataCenterUpdatePageFra
     const currentVersion: number = response.data.version.number;
     const currentBody: string = response.data.body?.storage?.value ?? "";
 
-    // 2. Turn any rowDisplayName into the user key that the storage format actually contains.
-    const resolved = await resolveRowDisplayNames(
+    // 2. Resolve any rowDisplayName / rowUsername to the user whose mention the storage format actually contains.
+    const resolved = await resolveRowUsers(
       { tableCellUpdates, replacements, requiredMarkers },
-      createConfluenceDataCenterUserLookup(baseUrl, config),
-      currentBody,
+      createConfluenceDataCenterUserLookups(baseUrl, config),
     );
 
     // 3. Apply the targeted edits deterministically and validate the result.

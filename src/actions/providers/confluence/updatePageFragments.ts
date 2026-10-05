@@ -5,9 +5,9 @@ import type {
   AuthParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
-import { applyConfluenceFragmentUpdates, resolveRowDisplayNames } from "../../util/confluenceStorageFormat.js";
+import { applyConfluenceFragmentUpdates, resolveRowUsers } from "../../util/confluenceStorageFormat.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
-import { createConfluenceCloudUserLookup, getConfluenceRequestConfig } from "./helpers.js";
+import { createConfluenceCloudUserLookups, getConfluenceRequestConfig } from "./helpers.js";
 
 /**
  * Server-side, deterministic partial update of a Confluence Cloud page.
@@ -46,11 +46,10 @@ const confluenceUpdatePageFragments: confluenceUpdatePageFragmentsFunction = asy
     const currentVersion: number = response.data.version.number;
     const currentBody: string = response.data.body?.storage?.value ?? "";
 
-    // 2. Turn any rowDisplayName into the account ID / user key that the storage format actually contains.
-    const resolved = await resolveRowDisplayNames(
+    // 2. Resolve any rowDisplayName / rowUsername to the user whose mention the storage format actually contains.
+    const resolved = await resolveRowUsers(
       { tableCellUpdates, replacements, requiredMarkers },
-      createConfluenceCloudUserLookup(cloudId, authToken),
-      currentBody,
+      createConfluenceCloudUserLookups(cloudId, authToken),
     );
 
     // 3. Apply the targeted edits deterministically and validate the result.

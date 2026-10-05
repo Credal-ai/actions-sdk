@@ -1,6 +1,7 @@
 import type { AxiosRequestConfig } from "axios";
 import { axiosClient } from "../../util/axiosClient.js";
-import type { ConfluenceUserCandidate, ConfluenceUserLookup } from "../../util/confluenceStorageFormat.js";
+import type { ConfluenceUserCandidate, ConfluenceUserLookups } from "../../util/confluenceStorageFormat.js";
+import { describeUserLookupFailure } from "../../util/confluenceUserLookup.js";
 
 /**
  * Resolves the Atlassian Cloud ID for the site the action should operate on.
@@ -45,48 +46,62 @@ const USER_SEARCH_PAGE_SIZE = 50;
 /** Upper bound on users fetched for one name; past this the name is too generic to resolve safely. */
 const MAX_USER_SEARCH_RESULTS = 200;
 
+const USER_SEARCH_FAILURE_HINT =
+  'The connection must be allowed to search users (OAuth scope read:confluence-user or search:confluence); alternatively pass the user\'s mention, e.g. ri:account-id="…", as rowAnchor.';
+
 /**
- * Builds a lookup that searches Confluence Cloud users by full name via the v1 user-search endpoint.
- * `/wiki/rest/api/search/user` is the only endpoint that still accepts `user.fullname`; the generic `/search` does not.
+ * Builds the user lookups for a Confluence Cloud site.
  *
- * The search is paged until exhausted so that the caller sees every candidate: a truncated list could hide a second
- * user with the same display name. If more than {@link MAX_USER_SEARCH_RESULTS} users match, the lookup throws instead.
+ * Display names are searched via the v1 user-search endpoint: `/wiki/rest/api/search/user` is the only endpoint
+ * that still accepts `user.fullname` (the generic `/search` does not). The search is paged until exhausted so that
+ * the caller sees every candidate — a truncated list could hide a second user with the same display name — and if
+ * more than {@link MAX_USER_SEARCH_RESULTS} users match, the lookup throws instead. HTTP failures are reported with
+ * their status and Atlassian's message, since a 401/403 here means a missing scope rather than an unknown user.
+ *
+ * Cloud users have no usernames, so the username lookup always rejects with an explanation.
  */
-export function createConfluenceCloudUserLookup(cloudId: string, authToken: string): ConfluenceUserLookup {
+export function createConfluenceCloudUserLookups(cloudId: string, authToken: string): ConfluenceUserLookups {
   const config = getConfluenceRequestConfig(
     `https://api.atlassian.com/ex/confluence/${cloudId}/wiki/rest/api`,
     authToken,
   );
-  return async (displayName: string): Promise<ConfluenceUserCandidate[]> => {
-    const cql = `user.fullname ~ "${escapeCqlString(displayName)}"`;
-    const candidates: ConfluenceUserCandidate[] = [];
-    let start = 0;
-    while (start < MAX_USER_SEARCH_RESULTS) {
-      const response = await axiosClient.get("/search/user", {
-        ...config,
-        params: { cql, start, limit: USER_SEARCH_PAGE_SIZE },
-      });
-      const results: unknown = response.data?.results;
-      if (!Array.isArray(results)) break;
-      for (const result of results) {
-        const user = (result as { user?: Record<string, unknown> }).user;
-        if (!user) continue;
-        const str = (key: string) => (typeof user[key] === "string" ? (user[key] as string) : undefined);
-        candidates.push({
-          displayName: str("displayName") ?? str("publicName"),
-          accountId: str("accountId"),
-          userKey: str("userKey"),
-          username: str("username"),
+  return {
+    byDisplayName: async (displayName: string): Promise<ConfluenceUserCandidate[]> => {
+      const cql = `user.fullname ~ "${escapeCqlString(displayName)}"`;
+      const candidates: ConfluenceUserCandidate[] = [];
+      let start = 0;
+      while (start < MAX_USER_SEARCH_RESULTS) {
+        const request: AxiosRequestConfig = { ...config, params: { cql, start, limit: USER_SEARCH_PAGE_SIZE } };
+        const response = await axiosClient.get("/search/user", request).catch((error: unknown) => {
+          throw describeUserLookupFailure(error, `display name "${displayName}"`, USER_SEARCH_FAILURE_HINT);
         });
+        const results: unknown = response.data?.results;
+        if (!Array.isArray(results)) break;
+        for (const result of results) {
+          const user = (result as { user?: Record<string, unknown> }).user;
+          if (!user) continue;
+          const str = (key: string) => (typeof user[key] === "string" ? (user[key] as string) : undefined);
+          candidates.push({
+            displayName: str("displayName") ?? str("publicName"),
+            accountId: str("accountId"),
+            userKey: str("userKey"),
+            username: str("username"),
+          });
+        }
+        if (results.length < USER_SEARCH_PAGE_SIZE) return candidates;
+        start += USER_SEARCH_PAGE_SIZE;
       }
-      if (results.length < USER_SEARCH_PAGE_SIZE) return candidates;
-      start += USER_SEARCH_PAGE_SIZE;
-    }
-    if (start >= MAX_USER_SEARCH_RESULTS) {
+      if (start >= MAX_USER_SEARCH_RESULTS) {
+        throw new Error(
+          `Display name "${displayName}" matches more than ${MAX_USER_SEARCH_RESULTS} Confluence users; provide the full name or the account ID mention as rowAnchor instead.`,
+        );
+      }
+      return candidates;
+    },
+    byUsername: async (username: string): Promise<ConfluenceUserCandidate[]> => {
       throw new Error(
-        `Display name "${displayName}" matches more than ${MAX_USER_SEARCH_RESULTS} Confluence users; provide the full name or the account ID as rowAnchor instead.`,
+        `rowUsername "${username}" cannot be used with Confluence Cloud: Cloud users have no usernames. Use rowDisplayName, or the account ID mention (ri:account-id="…") as rowAnchor.`,
       );
-    }
-    return candidates;
+    },
   };
 }
