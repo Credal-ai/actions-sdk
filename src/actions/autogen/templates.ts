@@ -1415,7 +1415,7 @@ export const confluenceUpdatePageFragmentsDefinition: ActionTemplate = {
             sectionAnchor: {
               type: "string",
               description:
-                'Optional text identifying the section whose table should be edited, e.g. the heading markup "<h3>ServiceNow</h3>". The row is looked up only inside the table containing this text, or the first table after it. Use it when the same rowAnchor appears in more than one table on the page. If the anchor text occurs in several places and the row matches in more than one of the resulting tables, the update is rejected as ambiguous, so prefer distinctive text such as the full heading markup, or add a parentSectionAnchor.\n',
+                'Optional text identifying the section whose table should be edited, e.g. the heading markup "<h3>ServiceNow</h3>". The row is looked up only inside the table containing this text, or the first table after it; when the text is a heading, only rows up to the next heading of the same or a higher level count, so sections laid out in one surrounding table stay separate. Use it when the same rowAnchor appears in more than one table on the page. If the anchor text occurs in several places and the row matches in more than one of the resulting tables, the update is rejected as ambiguous, so prefer distinctive text such as the full heading markup, or add a parentSectionAnchor.\n',
             },
             rowOccurrence: {
               type: "integer",
@@ -1816,7 +1816,7 @@ export const confluenceDataCenterUpdatePageFragmentsDefinition: ActionTemplate =
             sectionAnchor: {
               type: "string",
               description:
-                'Optional text identifying the section whose table should be edited, e.g. the heading markup "<h3>ServiceNow</h3>". The row is looked up only inside the table containing this text, or the first table after it. Use it when the same rowAnchor appears in more than one table on the page. If the anchor text occurs in several places and the row matches in more than one of the resulting tables, the update is rejected as ambiguous, so prefer distinctive text such as the full heading markup, or add a parentSectionAnchor.\n',
+                'Optional text identifying the section whose table should be edited, e.g. the heading markup "<h3>ServiceNow</h3>". The row is looked up only inside the table containing this text, or the first table after it; when the text is a heading, only rows up to the next heading of the same or a higher level count, so sections laid out in one surrounding table stay separate. Use it when the same rowAnchor appears in more than one table on the page. If the anchor text occurs in several places and the row matches in more than one of the resulting tables, the update is rejected as ambiguous, so prefer distinctive text such as the full heading markup, or add a parentSectionAnchor.\n',
             },
             rowOccurrence: {
               type: "integer",

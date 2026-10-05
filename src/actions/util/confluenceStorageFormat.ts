@@ -317,6 +317,18 @@ type ParentRegion = Region & { level: number };
 const HEADING_MARKUP_PATTERN = /^<h[1-6][\s>]/i;
 
 /**
+ * The section headed by the heading element that contains `index`, if any: from that heading up to (not including)
+ * the next heading of the same or a higher level, or to the end of the page.
+ */
+function headingRegionAt(body: string, headings: ElementSpan[], index: number): ParentRegion | undefined {
+  const heading = headings.find(h => h.start <= index && index < h.end);
+  if (!heading) return undefined;
+  const level = headingLevel(body, heading);
+  const next = headings.find(h => h.start >= heading.end && headingLevel(body, h) <= level);
+  return { start: heading.start, end: next ? next.start : body.length, level };
+}
+
+/**
  * Resolves the region(s) of the page a `parentSectionAnchor` refers to. The anchor must match text inside a heading
  * (`<h1>`–`<h6>`): the region then runs from that heading up to (not including) the next heading of the same or a
  * higher level — i.e. the whole subtree of subsections beneath it — or to the end of the page for the last section.
@@ -336,11 +348,8 @@ function resolveParentRegions(body: string, parentSectionAnchor: string): Parent
   const headings = findElementSpans(body, HEADING_TAGS);
   const regions: ParentRegion[] = [];
   for (const index of occurrences) {
-    const heading = headings.find(h => h.start <= index && index < h.end);
-    if (!heading) continue;
-    const level = headingLevel(body, heading);
-    const next = headings.find(h => h.start >= heading.end && headingLevel(body, h) <= level);
-    const region = { start: heading.start, end: next ? next.start : body.length, level };
+    const region = headingRegionAt(body, headings, index);
+    if (!region) continue;
     if (!regions.some(r => r.start === region.start && r.end === region.end)) regions.push(region);
   }
   if (regions.length === 0) {
@@ -496,19 +505,21 @@ function describeSection(sectionAnchor: string | undefined, parentSectionAnchor:
 }
 
 /**
- * A table to search for a row, together with the part of the page the search may cover. `bounds` is the parent
- * section's region when a `parentSectionAnchor` was given (the whole page otherwise): a table may extend past the
- * region when several sections are laid out inside one surrounding table, and rows outside the region must never be
- * candidates even though they belong to the same `<table>`.
+ * A table to search for a row, together with the part of the page the search may cover. `bounds` is the section the
+ * caller selected: the `sectionAnchor` heading's own section (up to the next heading of the same or a higher level)
+ * when the anchor is a heading, intersected with the parent section's region when a `parentSectionAnchor` was given;
+ * the whole page when neither narrows it. A table may extend past those bounds when several sections are laid out
+ * inside one surrounding table, and rows outside them must never be candidates even though they belong to the same
+ * `<table>`.
  */
 type SectionTable = { table: ElementSpan; bounds: Region };
 
 /**
  * Resolves the top-level tables a section refers to. For every occurrence of `sectionAnchor`, the section table is
- * the top-level table containing that occurrence, or else the first top-level table that starts after it. When a
- * `parentSectionAnchor` is given, only occurrences inside that parent's region(s) are considered and every table is
- * bounded by its region (see {@link SectionTable}); with a parent but no `sectionAnchor`, every top-level table that
- * reaches into the region(s) is a candidate. Returns the distinct candidates in document order.
+ * the top-level table containing that occurrence, or else the first top-level table that starts after it within the
+ * bounds (see {@link SectionTable}). When a `parentSectionAnchor` is given, only occurrences inside that parent's
+ * region(s) are considered; with a parent but no `sectionAnchor`, every top-level table that reaches into the
+ * region(s) is a candidate. Returns the distinct candidates in document order.
  */
 function resolveSectionTables(
   body: string,
@@ -537,16 +548,21 @@ function resolveSectionTables(
           : `sectionAnchor "${sectionAnchor}" was not found in the page body.`,
       );
     }
+    const headings = findElementSpans(body, HEADING_TAGS);
     for (const index of occurrences) {
       const region = inRegion(index)!;
+      // A heading anchor selects its own section, not everything up to the end of the parent: a sibling subsection
+      // laid out in the same surrounding table must not contribute rows.
+      const own = headingRegionAt(body, headings, index);
+      const bounds = own ? { start: Math.max(region.start, own.start), end: Math.min(region.end, own.end) } : region;
       const table =
         topLevelTables.find(t => t.start <= index && index < t.end) ??
-        topLevelTables.find(t => t.start >= index && t.start < region.end);
-      if (table) addCandidate(table, region);
+        topLevelTables.find(t => t.start >= index && t.start < bounds.end);
+      if (table) addCandidate(table, bounds);
     }
     if (candidates.length === 0) {
       throw new ConfluenceFragmentUpdateError(
-        `${describeSection(sectionAnchor, parentSectionAnchor)} was found, but there is no table at or after it${parentSectionAnchor ? " within that parent section" : " on the page"}.`,
+        `${describeSection(sectionAnchor, parentSectionAnchor)} was found, but there is no table at or after it within its section.`,
       );
     }
     return candidates;
@@ -565,11 +581,16 @@ function resolveSectionTables(
   return candidates;
 }
 
-/** Rows of `table` that lie entirely within `bounds` (see {@link SectionTable}). */
+/**
+ * Rows of `table` that belong to `bounds` (see {@link SectionTable}): rows ending inside the bounds, which includes
+ * the row holding the section's own heading when sections are laid out inside one table (a row starting before the
+ * bounds but ending inside them can only be that heading's row). A row holding the *next* section's heading ends
+ * past the bounds and is excluded.
+ */
 function rowsWithin(rows: ElementSpan[], { table, bounds }: SectionTable): ElementSpan[] {
   const start = Math.max(table.start, bounds.start);
   const end = Math.min(table.end, bounds.end);
-  return rows.filter(row => row.start >= start && row.end <= end);
+  return rows.filter(row => row.end > start && row.end <= end);
 }
 
 function innermostRowsContaining(body: string, rows: ElementSpan[], rowAnchor: string): ElementSpan[] {
@@ -624,7 +645,7 @@ export function locateTableRow(body: string, rowAnchor: string, options: Conflue
 
   if (matches.length === 0) {
     throw new ConfluenceFragmentUpdateError(
-      `No table row containing rowAnchor "${rowAnchor}" was found in the table(s) identified by ${section}.${parentSectionAnchor ? " Rows of those tables that lie outside the parentSectionAnchor region are not considered." : ""}`,
+      `No table row containing rowAnchor "${rowAnchor}" was found in the table(s) identified by ${section}. Rows of those tables that lie outside the selected section are not considered.`,
     );
   }
   if (rowOccurrence !== undefined) {

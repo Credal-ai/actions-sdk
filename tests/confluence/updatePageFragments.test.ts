@@ -1656,7 +1656,7 @@ describe("applyConfluenceFragmentUpdates", () => {
             ],
           }),
         ).toThrow(
-          /No table row containing rowAnchor.*outside the parentSectionAnchor region are not considered/,
+          /No table row containing rowAnchor.*outside the selected section are not considered/,
         );
 
         expect(() =>
@@ -1702,6 +1702,93 @@ describe("applyConfluenceFragmentUpdates", () => {
         });
         expect(second.body).toContain("Infra TBD");
         expect(second.body).toContain("Other infra Done");
+      });
+
+      // Sibling subsections (h3s) under one parent, still inside the single surrounding table. The last subsection's
+      // heading shares its row with data.
+      const SIBLINGS_BODY = [
+        `<h1>Report</h1>`,
+        `<table><tbody>`,
+        `<tr><td colspan="2"><h2>Application Development</h2></td></tr>`,
+        `<tr><td colspan="2"><h3>ServiceNow</h3></td></tr>`,
+        `<tr><th><p>Name</p></th><th><p>Status</p></th></tr>`,
+        `<tr><td><p>${USER_MENTION}</p></td><td><p>SN TBD</p></td></tr>`,
+        `<tr><td colspan="2"><h3>SharePoint</h3></td></tr>`,
+        `<tr><th><p>Name</p></th><th><p>Status</p></th></tr>`,
+        `<tr><td><p>${OTHER_USER_MENTION}</p></td><td><p>SP TBD</p></td></tr>`,
+        `<tr><td><h3>PowerBI</h3><p>${USER_MENTION}</p></td><td><p>PBI TBD</p></td></tr>`,
+        `</tbody></table>`,
+      ].join("");
+
+      it("bounds a heading sectionAnchor to its own subsection, not to the whole parent region", () => {
+        // The other user only has a row under SharePoint; ServiceNow must not reach it, with or without a parent.
+        for (const parentSectionAnchor of [
+          "<h2>Application Development</h2>",
+          undefined,
+        ]) {
+          expect(() =>
+            applyConfluenceFragmentUpdates(SIBLINGS_BODY, {
+              tableCellUpdates: [
+                {
+                  rowAnchor: "ffffffffffffffffffffffffffffffff",
+                  parentSectionAnchor,
+                  sectionAnchor: "<h3>ServiceNow</h3>",
+                  columnIndex: 1,
+                  newContent: "<p>x</p>",
+                },
+              ],
+            }),
+          ).toThrow(
+            /No table row containing rowAnchor.*outside the selected section are not considered/,
+          );
+        }
+
+        // The same user sits under ServiceNow and PowerBI; each heading selects exactly its own row.
+        const sn = applyConfluenceFragmentUpdates(SIBLINGS_BODY, {
+          tableCellUpdates: [
+            {
+              rowAnchor: USER_KEY,
+              sectionAnchor: "<h3>ServiceNow</h3>",
+              columnIndex: 1,
+              newContent: "<p>Done</p>",
+            },
+          ],
+        });
+        expect(sn.body).not.toContain("SN TBD");
+        expect(sn.body).toContain("SP TBD");
+        expect(sn.body).toContain("PBI TBD");
+
+        // A row that carries its section's heading belongs to that section.
+        const pbi = applyConfluenceFragmentUpdates(SIBLINGS_BODY, {
+          tableCellUpdates: [
+            {
+              rowAnchor: USER_KEY,
+              sectionAnchor: "<h3>PowerBI</h3>",
+              columnIndex: 1,
+              newContent: "<p>Done</p>",
+            },
+          ],
+        });
+        expect(pbi.body).toContain("SN TBD");
+        expect(pbi.body).not.toContain("PBI TBD");
+      });
+
+      it("does not borrow the next section's table when a heading's own section has none", () => {
+        const body = `<h3>A</h3><p>Nothing here.</p><h3>B</h3><table><tbody><tr><td>${USER_MENTION}</td><td>TBD</td></tr></tbody></table>`;
+        expect(() =>
+          applyConfluenceFragmentUpdates(body, {
+            tableCellUpdates: [
+              {
+                rowAnchor: USER_KEY,
+                sectionAnchor: "<h3>A</h3>",
+                columnIndex: 1,
+                newContent: "<p>x</p>",
+              },
+            ],
+          }),
+        ).toThrow(
+          /sectionAnchor "<h3>A<\/h3>" was found, but there is no table at or after it within its section/,
+        );
       });
     });
   });
