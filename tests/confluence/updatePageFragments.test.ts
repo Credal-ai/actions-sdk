@@ -1704,8 +1704,9 @@ describe("applyConfluenceFragmentUpdates", () => {
         expect(second.body).toContain("Other infra Done");
       });
 
-      // Sibling subsections (h3s) under one parent, still inside the single surrounding table. The last subsection's
-      // heading shares its row with data.
+      // Sibling subsections (h3s) under one parent, still inside the single surrounding table. SharePoint's header
+      // row orders its columns differently from ServiceNow's, and the last subsection's heading shares its row with
+      // data (the user's mention sits *before* the heading in that row).
       const SIBLINGS_BODY = [
         `<h1>Report</h1>`,
         `<table><tbody>`,
@@ -1714,9 +1715,9 @@ describe("applyConfluenceFragmentUpdates", () => {
         `<tr><th><p>Name</p></th><th><p>Status</p></th></tr>`,
         `<tr><td><p>${USER_MENTION}</p></td><td><p>SN TBD</p></td></tr>`,
         `<tr><td colspan="2"><h3>SharePoint</h3></td></tr>`,
-        `<tr><th><p>Name</p></th><th><p>Status</p></th></tr>`,
-        `<tr><td><p>${OTHER_USER_MENTION}</p></td><td><p>SP TBD</p></td></tr>`,
-        `<tr><td><h3>PowerBI</h3><p>${USER_MENTION}</p></td><td><p>PBI TBD</p></td></tr>`,
+        `<tr><th><p>Status</p></th><th><p>Name</p></th></tr>`,
+        `<tr><td><p>SP TBD</p></td><td><p>${OTHER_USER_MENTION}</p></td></tr>`,
+        `<tr><td><p>${USER_MENTION}</p></td><td><h3>PowerBI</h3><p>PBI TBD</p></td></tr>`,
         `</tbody></table>`,
       ].join("");
 
@@ -1743,7 +1744,7 @@ describe("applyConfluenceFragmentUpdates", () => {
           );
         }
 
-        // The same user sits under ServiceNow and PowerBI; each heading selects exactly its own row.
+        // The same user is mentioned under ServiceNow and in the PowerBI row; ServiceNow selects exactly its own row.
         const sn = applyConfluenceFragmentUpdates(SIBLINGS_BODY, {
           tableCellUpdates: [
             {
@@ -1757,20 +1758,73 @@ describe("applyConfluenceFragmentUpdates", () => {
         expect(sn.body).not.toContain("SN TBD");
         expect(sn.body).toContain("SP TBD");
         expect(sn.body).toContain("PBI TBD");
+      });
 
-        // A row that carries its section's heading belongs to that section.
-        const pbi = applyConfluenceFragmentUpdates(SIBLINGS_BODY, {
+      it("never admits a row that straddles a section boundary, from either side", () => {
+        // The PowerBI heading sits mid-row, after the user's mention. Treating that row as PowerBI's would let the
+        // PowerBI section edit content that precedes its heading; treating it as SharePoint's would let SharePoint
+        // edit content under the PowerBI heading. So neither section may select it.
+        for (const sectionAnchor of [
+          "<h3>PowerBI</h3>",
+          "<h3>SharePoint</h3>",
+        ]) {
+          expect(() =>
+            applyConfluenceFragmentUpdates(SIBLINGS_BODY, {
+              tableCellUpdates: [
+                {
+                  rowAnchor: USER_KEY,
+                  sectionAnchor,
+                  columnIndex: 0,
+                  newContent: "<p>x</p>",
+                },
+              ],
+            }),
+          ).toThrow(
+            /No table row containing rowAnchor.*outside the selected section are not considered/,
+          );
+        }
+        // Without a section the row is reachable, but the anchor is then ambiguous with the ServiceNow row.
+        expect(() =>
+          applyConfluenceFragmentUpdates(SIBLINGS_BODY, {
+            tableCellUpdates: [
+              { rowAnchor: USER_KEY, columnIndex: 0, newContent: "<p>x</p>" },
+            ],
+          }),
+        ).toThrow(/matched 2 table rows/);
+      });
+
+      it("resolves columnHeader against the header row of the row's own subsection", () => {
+        // SharePoint's columns are Status | Name, the reverse of ServiceNow's; "Status" must hit SharePoint's cell 0.
+        const sp = applyConfluenceFragmentUpdates(SIBLINGS_BODY, {
           tableCellUpdates: [
             {
-              rowAnchor: USER_KEY,
-              sectionAnchor: "<h3>PowerBI</h3>",
-              columnIndex: 1,
+              rowAnchor: "ffffffffffffffffffffffffffffffff",
+              sectionAnchor: "<h3>SharePoint</h3>",
+              columnHeader: "Status",
               newContent: "<p>Done</p>",
             },
           ],
         });
-        expect(pbi.body).toContain("SN TBD");
-        expect(pbi.body).not.toContain("PBI TBD");
+        expect(sp.body).toContain(
+          `<td><p>Done</p></td><td><p>${OTHER_USER_MENTION}</p></td>`,
+        );
+        expect(sp.body).toContain("SN TBD");
+
+        // And ServiceNow still resolves against its own header row.
+        const sn = applyConfluenceFragmentUpdates(SIBLINGS_BODY, {
+          tableCellUpdates: [
+            {
+              rowAnchor: USER_KEY,
+              sectionAnchor: "<h3>ServiceNow</h3>",
+              columnHeader: "Status",
+              newContent: "<p>Done</p>",
+            },
+          ],
+        });
+        expect(sn.body).toContain(
+          `<td><p>${USER_MENTION}</p></td><td><p>Done</p></td>`,
+        );
+        expect(sn.body).toContain("SP TBD");
       });
 
       it("does not borrow the next section's table when a heading's own section has none", () => {

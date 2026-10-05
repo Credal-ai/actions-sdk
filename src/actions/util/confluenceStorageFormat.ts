@@ -582,15 +582,15 @@ function resolveSectionTables(
 }
 
 /**
- * Rows of `table` that belong to `bounds` (see {@link SectionTable}): rows ending inside the bounds, which includes
- * the row holding the section's own heading when sections are laid out inside one table (a row starting before the
- * bounds but ending inside them can only be that heading's row). A row holding the *next* section's heading ends
- * past the bounds and is excluded.
+ * Rows of `table` that lie entirely within `bounds` (see {@link SectionTable}). A row that straddles a section
+ * boundary — one holding a heading in one of its cells next to other content — belongs to neither section and is
+ * never a candidate: part of it precedes the heading, so editing it on behalf of the new section could touch the
+ * previous section's content.
  */
 function rowsWithin(rows: ElementSpan[], { table, bounds }: SectionTable): ElementSpan[] {
   const start = Math.max(table.start, bounds.start);
   const end = Math.min(table.end, bounds.end);
-  return rows.filter(row => row.end > start && row.end <= end);
+  return rows.filter(row => row.start >= start && row.end <= end);
 }
 
 function innermostRowsContaining(body: string, rows: ElementSpan[], rowAnchor: string): ElementSpan[] {
@@ -769,10 +769,14 @@ function resolveTargetCell(body: string, row: ElementSpan, update: ConfluenceTab
     );
   }
 
-  const headerRow = tableRows.find(r => /<th[\s>]/i.test(body.slice(r.innerStart, r.innerEnd)));
+  // The header row that governs the target row is the nearest <th> row above it: when several subsections are laid
+  // out in one table, each with its own header row, the first header row of the table may describe different columns.
+  const headerRow = tableRows
+    .filter(r => r.end <= row.start && /<th[\s>]/i.test(body.slice(r.innerStart, r.innerEnd)))
+    .pop();
   if (!headerRow) {
     throw new ConfluenceFragmentUpdateError(
-      `The table containing "${update.rowAnchor}" has no header row (<th> cells), so columnHeader "${update.columnHeader}" cannot be resolved. Use columnIndex instead.`,
+      `The table containing "${update.rowAnchor}" has no header row (<th> cells) above that row, so columnHeader "${update.columnHeader}" cannot be resolved. Use columnIndex instead.`,
     );
   }
 
