@@ -728,16 +728,17 @@ function isSelfClosed(body: string, element: ElementSpan): boolean {
 }
 
 /**
- * Whether the row is a column-header row: at least one of its own (direct) cells is a `<th>`, and every other cell
- * is blank (a `<td/>` corner cell is common). A data row that starts with a `<th>` row label next to `<td>` cells
- * holding data is not one, and neither is a data row holding a nested table with `<th>` cells.
+ * Whether the row is a column-header row: its own (direct) cells are `<th>`s, optionally preceded by blank `<td>`
+ * corner cells (`<td/> | Status | Name`). The order is what tells a header row from a data row whose row label is a
+ * `<th>`: there the `<th>` comes first and `<td>` value cells follow, whether they hold data or are still blank. A
+ * data row holding a nested table with `<th>` cells is not a header row either (only direct cells count).
  */
 function isHeaderRow(body: string, row: ElementSpan): boolean {
   let hasHeaderCell = false;
   for (const cell of getDirectCells(body, row)) {
     if (/^<th[\s/>]/i.test(body.slice(cell.start, cell.start + 4))) {
       hasHeaderCell = true;
-    } else if (stripTagsAndNormalise(body.slice(cell.innerStart, cell.innerEnd)) !== "") {
+    } else if (hasHeaderCell || stripTagsAndNormalise(body.slice(cell.innerStart, cell.innerEnd)) !== "") {
       return false;
     }
   }

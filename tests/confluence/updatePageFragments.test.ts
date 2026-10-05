@@ -1843,11 +1843,12 @@ describe("applyConfluenceFragmentUpdates", () => {
         );
 
         // Neither a data row holding a nested key/value table with <th> cells, nor a data row whose row label is a
-        // <th> next to <td> cells, is a header row.
+        // <th> followed by <td> cells (filled or still blank), is a header row.
         const nested = [
           `<table><tbody>`,
           `<tr><th><p>Name</p></th><th><p>Status</p></th></tr>`,
           `<tr><td><p>${OTHER_USER_MENTION}</p></td><td><table><tbody><tr><th>Key</th><th>Value</th></tr></tbody></table></td></tr>`,
+          `<tr><th><p>Carol</p></th><td/></tr>`,
           `<tr><th><p>${USER_MENTION}</p></th><td><p>TBD</p></td></tr>`,
           `</tbody></table>`,
         ].join("");
