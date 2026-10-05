@@ -5,9 +5,9 @@ import type {
   AuthParamsType,
 } from "../../autogen/types.js";
 import { axiosClient } from "../../util/axiosClient.js";
-import { applyConfluenceFragmentUpdates } from "../../util/confluenceStorageFormat.js";
+import { applyConfluenceFragmentUpdates, resolveRowUsers } from "../../util/confluenceStorageFormat.js";
 import { MISSING_AUTH_TOKEN } from "../../util/missingAuthConstants.js";
-import { getConfluenceRequestConfig } from "./helpers.js";
+import { createConfluenceCloudUserLookups, getConfluenceRequestConfig } from "./helpers.js";
 
 /**
  * Server-side, deterministic partial update of a Confluence Cloud page.
@@ -46,14 +46,16 @@ const confluenceUpdatePageFragments: confluenceUpdatePageFragmentsFunction = asy
     const currentVersion: number = response.data.version.number;
     const currentBody: string = response.data.body?.storage?.value ?? "";
 
-    // 2. Apply the targeted edits deterministically and validate the result.
-    const { body, cellsUpdated, replacementsApplied } = applyConfluenceFragmentUpdates(currentBody, {
-      tableCellUpdates,
-      replacements,
-      requiredMarkers,
-    });
+    // 2. Resolve any rowDisplayName / rowUsername to the user whose mention the storage format actually contains.
+    const resolved = await resolveRowUsers(
+      { tableCellUpdates, replacements, requiredMarkers },
+      createConfluenceCloudUserLookups(cloudId, authToken),
+    );
 
-    // 3. Save the full, minimally-changed body back to Confluence.
+    // 3. Apply the targeted edits deterministically and validate the result.
+    const { body, cellsUpdated, replacementsApplied } = applyConfluenceFragmentUpdates(currentBody, resolved);
+
+    // 4. Save the full, minimally-changed body back to Confluence.
     const newVersion = currentVersion + 1;
     await axiosClient.put(
       `/pages/${pageId}`,
