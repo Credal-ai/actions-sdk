@@ -1,15 +1,7 @@
-import { createPrivateKey } from "node:crypto";
 import type { AuthParamsType } from "../../../autogen/types.js";
 import type { Connection } from "snowflake-sdk";
 import snowflake from "snowflake-sdk";
-
-export const getPrivateKeyCorrectFormat = (privateKey: string): string => {
-  try {
-    return createPrivateKey(privateKey).export({ format: "pem", type: "pkcs8" }).toString();
-  } catch (error) {
-    throw new Error("Invalid private key format. Please check the key format and try again.", { cause: error });
-  }
-};
+import { getPrivateKeyCorrectFormat } from "./getPrivateKeyCorrectFormat.js";
 
 export function getSnowflakeConnection(
   snowflakeData: {
