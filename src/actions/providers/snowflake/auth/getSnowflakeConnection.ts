@@ -1,19 +1,7 @@
 import type { AuthParamsType } from "../../../autogen/types.js";
 import type { Connection } from "snowflake-sdk";
 import snowflake from "snowflake-sdk";
-import forge from "node-forge";
-
-const getPrivateKeyCorrectFormat = (privateKey: string): string => {
-  try {
-    // Parse the private key
-    const pemKey = forge.pem.decode(privateKey)[0];
-    // Re-encode it properly with correct formatting
-    return forge.pem.encode(pemKey);
-  } catch (error) {
-    console.error("Error processing private key:", error);
-    throw new Error("Invalid private key format. Please check the key format and try again.", { cause: error });
-  }
-};
+import { getPrivateKeyCorrectFormat } from "./getPrivateKeyCorrectFormat.js";
 
 export function getSnowflakeConnection(
   snowflakeData: {
