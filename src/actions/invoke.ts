@@ -6,10 +6,12 @@ interface InvokeActionInput<P, A> {
   name: string;
   parameters: P;
   authParams: A;
+  signal?: AbortSignal;
 }
 
 export async function invokeAction<P, A>(input: InvokeActionInput<P, A>) {
-  const { provider, name, parameters, authParams } = input;
+  const { provider, name, parameters, authParams, signal } = input;
+  signal?.throwIfAborted();
 
   if (!isProviderName(provider)) {
     throw new Error(`Provider '${provider}' not found`);
@@ -21,7 +23,9 @@ export async function invokeAction<P, A>(input: InvokeActionInput<P, A>) {
     throw new Error(`Invalid parameters for action '${name}': ${safeParseParams.error}`);
   }
 
-  return providerFunction({ params: parameters, authParams: { ...authParams, provider } });
+  const invocationArgs = { params: parameters, authParams: { ...authParams, provider }, signal };
+
+  return providerFunction(invocationArgs);
 }
 
 function isProviderName(value: string): value is ProviderName {
