@@ -428,7 +428,7 @@ actions:
             description: The email of the user to send the DM to
           message:
             type: string
-            description: The message content to send
+            description: "The message content to send in the direct message, in Slack mrkdwn: *bold*, _italic_, `code`, <https://example.com|link>. This is not Markdown: **bold** and # headings do not render as intended."
       output:
         type: object
         required: [success]
@@ -497,7 +497,7 @@ actions:
             tags: [recommend-enum]
           message:
             type: string
-            description: The message content to send to Slack. Can include markdown formatting.
+            description: "The message content to send to Slack, in Slack mrkdwn: *bold*, _italic_, `code`, <https://example.com|link>. This is not Markdown: **bold** and # headings do not render as intended."
           unfurlLinks:
             type: boolean
             description: Whether to enable unfurling of links in the message (defaults to true)
@@ -958,7 +958,7 @@ actions:
             description: The title of the page that should be updated
           content:
             type: string
-            description: The new content for the page
+            description: "The new body for the page, in Confluence storage format (XHTML-based markup) — the same format returned by fetchPageContent. Markdown and plain text are stored as-is and will not render."
       output:
         type: object
         required: [success]
@@ -1342,7 +1342,7 @@ actions:
             description: The title of the page that should be updated
           content:
             type: string
-            description: The new content for the page
+            description: "The new body for the page, in Confluence storage format (XHTML-based markup) — the same format returned by fetchPageContent. Markdown and plain text are stored as-is and will not render."
       output:
         type: object
         required: [success]
@@ -1473,7 +1473,7 @@ actions:
             description: The issue ID associated with the ticket to be commented on
           comment:
             type: string
-            description: The text to be commented on the ticket
+            description: "The comment body, as plain text. Unlike the Jira issue comment actions, this text is sent to the Service Desk API unchanged, with no Markdown conversion."
       output:
         type: object
         required: [success]
@@ -1505,7 +1505,7 @@ actions:
             description: The issue ID associated with the ticket to be commented on.
           comment:
             type: string
-            description: The text to be commented on the ticket.
+            description: "The comment body, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged and rendered as Jira wiki markup, which is not Markdown: *text* is bold there rather than italic."
       output:
         type: object
         required: [success]
@@ -1537,7 +1537,7 @@ actions:
             description: The issue ID associated with the ticket to be commented on.
           comment:
             type: string
-            description: The text to be commented on the ticket. Use [~accountid:ATLASSIAN_ACCOUNT_ID] to @mention users (Jira Cloud only).
+            description: "The comment body, as Markdown-formatted text; it is converted to Atlassian Document Format before it is posted. Use [~accountid:ATLASSIAN_ACCOUNT_ID] to @mention users. This action is Jira Cloud only — use commentJiraTicket for Jira Data Center."
       output:
         type: object
         required: [success]
@@ -1568,7 +1568,7 @@ actions:
             description: The summary of the new ticket
           description:
             type: string
-            description: The description for the new ticket
+            description: "The description for the new ticket, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged and rendered as Jira wiki markup, which is not Markdown: *text* is bold there rather than italic."
           issueType:
             type: string
             description: The issue type of the new ticket. Should be Epic, Story, Task, Bug, Sub-task, etc.
@@ -1617,7 +1617,7 @@ actions:
             description: The summary of the new service desk request
           description:
             type: string
-            description: The description for the new service desk request
+            description: "The description for the new service desk request, as plain text. This text is sent to the Service Desk API unchanged, with no Markdown conversion."
           reporter:
             type: string
             description: The email address of the person reporting the issue (for raising on behalf of)
@@ -1767,7 +1767,7 @@ actions:
             description: The updated summary
           description:
             type: string
-            description: The updated description
+            description: "The updated description, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged and rendered as Jira wiki markup, which is not Markdown: *text* is bold there rather than italic."
           issueType:
             type: string
             description: The updated issue type
@@ -2001,7 +2001,7 @@ actions:
             description: The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)
           comment:
             type: string
-            description: An optional comment to add to the inward (source) issue when creating the link
+            description: "An optional comment to add to the inward (source) issue when creating the link, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged and rendered as Jira wiki markup, which is not Markdown: *text* is bold there rather than italic."
       output:
         type: object
         required: [success]
@@ -2034,7 +2034,7 @@ actions:
             description: The name of the link type (e.g. "Blocks", "Cloners", "Duplicate", "Relates", "Split", etc.)
           comment:
             type: string
-            description: An optional comment to add to the inward (source) issue when creating the link
+            description: "An optional comment to add to the inward (source) issue when creating the link, as Markdown-formatted text. On Jira Cloud it is converted to Atlassian Document Format. On Jira Data Center it is sent unchanged and rendered as Jira wiki markup, which is not Markdown: *text* is bold there rather than italic."
       output:
         type: object
         required: [success]
@@ -4919,6 +4919,7 @@ actions:
             description: The title of the presentation
           pageSize:
             type: object
+            description: "The dimensions of every slide in the presentation. Optional; omit it to use the default page size Google applies to a new presentation."
             properties:
               width:
                 type: object
