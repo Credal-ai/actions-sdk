@@ -114,7 +114,7 @@ async function validateObject(object: JsonObjectSchema) {
           const result = z.array(parameterTagEnum).safeParse(tags);
           if (!result.success) {
             throw new Error(
-              `Property "${propName}" has invalid tags: ${result.error.errors.map(e => e.message).join(", ")}`,
+              `Property "${propName}" has invalid tags: ${result.error.issues.map(e => e.message).join(", ")}`,
             );
           }
         }
@@ -167,6 +167,11 @@ async function addTypesToFile({
   const zodSchema = obj
     ? convert(obj)
         .replace(/z\.record\(z\.any\(\)\)/g, "z.object({}).catchall(z.any())")
+        // json-schema-to-zod emits Zod 3 records; Zod 4 requires an explicit key schema.
+        .replace(/z\.record\(/g, "z.record(z.string(), ")
+        // Refinement paths are implicit in Zod 4, and union issues contain issue arrays.
+        .replace(/path: ctx\.path,/g, "")
+        .replace(/unionErrors: errors,/g, "errors: errors.map(error => error.issues),")
         .replace(/z\.number\(\)\.int\(\)/g, "z.coerce.number().int()")
         .replace(/z\.number\(\)/g, "z.coerce.number()")
     : fallback;
