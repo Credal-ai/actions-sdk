@@ -5847,17 +5847,13 @@ export const firecrawlDeepResearchDefinition: ActionTemplate = {
         type: "string",
         description: "The query to search for",
       },
-      maxDepth: {
-        type: "number",
-        description: "The maximum depth of the search",
-      },
       timeLimit: {
         type: "number",
         description: "The time limit for the search in seconds",
       },
-      maxUrls: {
+      maxCredits: {
         type: "number",
-        description: "The maximum number of URLs to scrape",
+        description: "The maximum number of Firecrawl credits the research may spend",
       },
     },
   },
