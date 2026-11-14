@@ -1,6 +1,6 @@
 {
   "name": "@credal/actions",
-  "version": "0.2.242",
+  "version": "1.0.0",
   "type": "module",
   "description": "AI Actions by Credal AI",
   "sideEffects": false,
@@ -51,20 +51,21 @@
     "ts-jest": "^29.3.2",
     "ts-morph": "^27.0.0",
     "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.56.0"
   },
   "dependencies": {
-    "@mendable/firecrawl-js": "^4.3.4",
+    "@mendable/firecrawl-js": "^4.54.0",
     "@microsoft/microsoft-graph-client": "^3.0.7",
     "@octokit/core": "^6.1.6",
     "@octokit/plugin-rest-endpoint-methods": "^16.0.0",
+    "@octokit/request-error": "^6.1.8",
     "@slack/web-api": "^7.8.0",
+    "axios": "^1.21.1",
     "axios-retry": "^4.5.0",
     "date-fns": "^4.1.0",
     "docx": "^9.3.0",
-    "html-to-text": "^9.0.5",
+    "html-to-text": "^10.0.1",
     "jira.js": "^5.2.2",
     "limiter": "^3.0.0",
     "mammoth": "^1.11.00",
@@ -74,13 +75,16 @@
     "officeparser": "^8.0.0",
     "p-limit": "^7.1.1",
     "papaparse": "^5.5.3",
-    "resend": "^4.7.0",
+    "resend": "^6.38.1",
     "snowflake-sdk": "^3.4.1",
     "unpdf": "^1.2.2",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
-    "zod": "^3.25.0"
+    "zod": "^4.6.7"
   },
   "overrides": {
+    "jest-config": {
+      "deepmerge": "npm:@stackline/deepmerge@1.1.2"
+    },
     "glob": "^14.0.4",
     "minimatch": "^11.0.7"
   }

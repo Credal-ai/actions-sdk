@@ -4220,9 +4220,8 @@ export const googleOauthUpdateDocParamsSchema = z.object({
             );
             if (schemas.length - errors.length !== 1) {
               ctx.addIssue({
-                path: ctx.path,
                 code: "invalid_union",
-                unionErrors: errors,
+                errors: errors.map(error => error.issues),
                 message: "Invalid input: Should pass single schema",
               });
             }
@@ -4831,9 +4830,8 @@ export const googleOauthUpdateSpreadsheetParamsSchema = z.object({
             );
             if (schemas.length - errors.length !== 1) {
               ctx.addIssue({
-                path: ctx.path,
                 code: "invalid_union",
-                unionErrors: errors,
+                errors: errors.map(error => error.issues),
                 message: "Invalid input: Should pass single schema",
               });
             }
@@ -5389,7 +5387,7 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
                   .object({
                     objectId: z.string().describe("The object ID of the object to duplicate"),
                     objectIds: z
-                      .record(z.string())
+                      .record(z.string(), z.string())
                       .describe(
                         "Optional map for assigning specific object IDs to the duplicated elements (key is original ID, value is new ID)",
                       )
@@ -5671,9 +5669,8 @@ export const googleOauthUpdatePresentationParamsSchema = z.object({
             );
             if (schemas.length - errors.length !== 1) {
               ctx.addIssue({
-                path: ctx.path,
                 code: "invalid_union",
-                unionErrors: errors,
+                errors: errors.map(error => error.issues),
                 message: "Invalid input: Should pass single schema",
               });
             }
@@ -6478,7 +6475,7 @@ export const salesforceUpdateRecordParamsSchema = z.object({
   recordType: z.string().describe("The Salesforce record type to update (e.g., Lead, Account, Contact)"),
   recordId: z.string().describe("The ID of the record to update"),
   fieldsToUpdate: z
-    .record(z.string())
+    .record(z.string(), z.string())
     .describe(
       "A key,value pair where the keys are the fields to update on the record and the values are the new values of those fields.",
     ),
@@ -6500,7 +6497,7 @@ export type salesforceUpdateRecordFunction = ActionFunction<
 
 export const salesforceCreateRecordParamsSchema = z.object({
   recordType: z.string().describe("The Salesforce record type to create (e.g., Lead, Account, Contact)"),
-  fieldsToCreate: z.record(z.string()).describe("The fields to create on the record").optional(),
+  fieldsToCreate: z.record(z.string(), z.string()).describe("The fields to create on the record").optional(),
 });
 
 export type salesforceCreateRecordParamsType = z.infer<typeof salesforceCreateRecordParamsSchema>;
@@ -6523,7 +6520,7 @@ export const salesforceCreateCaseParamsSchema = z.object({
   description: z.string().describe("The detailed description of the case"),
   priority: z.string().describe("The priority of the case (e.g., High, Medium, Low)"),
   origin: z.string().describe("The origin of the case (e.g., Phone, Email, Web)"),
-  customFields: z.record(z.string()).describe("Additional custom fields to set on the case").optional(),
+  customFields: z.record(z.string(), z.string()).describe("Additional custom fields to set on the case").optional(),
 });
 
 export type salesforceCreateCaseParamsType = z.infer<typeof salesforceCreateCaseParamsSchema>;
@@ -6545,7 +6542,7 @@ export const salesforceGenerateSalesReportParamsSchema = z.object({
   startDate: z.string().describe("The start date for the sales report in ISO 8601 format (e.g., 2025-01-01)."),
   endDate: z.string().describe("The end date for the sales report in ISO 8601 format (e.g., 2025-01-31)."),
   filters: z
-    .record(z.string())
+    .record(z.string(), z.string())
     .describe("Additional filters for the sales report (e.g., by region, product).")
     .optional(),
 });
@@ -6555,7 +6552,7 @@ export type salesforceGenerateSalesReportParamsType = z.infer<typeof salesforceG
 export const salesforceGenerateSalesReportOutputSchema = z.object({
   success: z.boolean().describe("Whether the sales report was successfully generated."),
   reportData: z
-    .array(z.record(z.string()).describe("A row in the sales report."))
+    .array(z.record(z.string(), z.string()).describe("A row in the sales report."))
     .describe("The data of the sales report.")
     .optional(),
   error: z.string().describe("The error that occurred if the sales report was not successfully generated.").optional(),
@@ -6755,7 +6752,7 @@ export type salesforceGetRecordParamsType = z.infer<typeof salesforceGetRecordPa
 
 export const salesforceGetRecordOutputSchema = z.object({
   success: z.boolean().describe("Whether the record was successfully retrieved"),
-  record: z.record(z.string()).describe("The retrieved record data").optional(),
+  record: z.record(z.string(), z.string()).describe("The retrieved record data").optional(),
   error: z.string().describe("The error that occurred if the record was not successfully retrieved").optional(),
 });
 
@@ -7588,9 +7585,8 @@ export const githubSearchOrganizationOutputSchema = z.object({
             );
             if (schemas.length - errors.length !== 1) {
               ctx.addIssue({
-                path: ctx.path,
                 code: "invalid_union",
-                unionErrors: errors,
+                errors: errors.map(error => error.issues),
                 message: "Invalid input: Should pass single schema",
               });
             }
@@ -7927,9 +7923,8 @@ export const gitlabSearchGroupOutputSchema = z.object({
           );
           if (schemas.length - errors.length !== 1) {
             ctx.addIssue({
-              path: ctx.path,
               code: "invalid_union",
-              unionErrors: errors,
+              errors: errors.map(error => error.issues),
               message: "Invalid input: Should pass single schema",
             });
           }
