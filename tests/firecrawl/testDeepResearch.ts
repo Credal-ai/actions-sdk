@@ -9,9 +9,8 @@ async function runTest() {
     { apiKey: process.env.FIRECRAWL_API_KEY }, // authParams
     {
       query: "research cereal",
-      maxDepth: 2,
-      maxUrls: 5,
       timeLimit: 60,
+      maxCredits: 100,
     },
   );
   console.log(result);

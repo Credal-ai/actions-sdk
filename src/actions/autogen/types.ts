@@ -3457,9 +3457,8 @@ export type nwsGetForecastForLocationFunction = ActionFunction<
 
 export const firecrawlDeepResearchParamsSchema = z.object({
   query: z.string().describe("The query to search for"),
-  maxDepth: z.coerce.number().describe("The maximum depth of the search").optional(),
   timeLimit: z.coerce.number().describe("The time limit for the search in seconds").optional(),
-  maxUrls: z.coerce.number().describe("The maximum number of URLs to scrape").optional(),
+  maxCredits: z.coerce.number().describe("The maximum number of Firecrawl credits the research may spend").optional(),
 });
 
 export type firecrawlDeepResearchParamsType = z.infer<typeof firecrawlDeepResearchParamsSchema>;
