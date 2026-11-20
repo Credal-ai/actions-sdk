@@ -9,6 +9,7 @@ export async function runAction(
   authentication: AuthParamsType,
   // eslint-disable-next-line
   parameters: Record<string, any>,
+  options?: { signal?: AbortSignal },
 ) {
   if (!parameters || !name || !provider) {
     throw Error("Missing params");
@@ -23,6 +24,7 @@ export async function runAction(
     name: actionTemplate.name,
     parameters: parameters,
     authParams: authentication,
+    signal: options?.signal,
   });
 
   return result;
